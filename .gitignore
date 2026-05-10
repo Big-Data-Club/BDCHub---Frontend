@@ -1,0 +1,123 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+.next/
+node_modules/
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+deleted_files/
+# production
+build/
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+.metals*
+.vscode*
+
+# Secrets and Credentials
+secrets/
+credentials/
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+youtube-tokens.json
+
+# auth-and-management-service
+auth-and-management-service/target/
+auth-and-management-service/.mvn/
+auth-and-management-service/mvnw
+auth-and-management-service/mvnw.cmd
+auth-and-management-service/.idea/
+auth-and-management-service/*.iml
+auth-and-management-service/*.iws
+auth-and-management-service/*.ipr
+auth-and-management-service/out/
+auth-and-management-service/build/
+auth-and-management-service/.gradle/
+auth-and-management-service/bin/
+
+# Frontend
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/dist/
+frontend/node_modules/
+frontend/.cache/
+frontend/.turbo/
+frontend/.vercel
+frontend/.env*.local
+
+# lms-service
+lms-service/bin/
+lms-service/vendor/
+lms-service/*.exe
+lms-service/*.dll
+lms-service/*.so
+lms-service/*.dylib
+lms-service/go.work
+
+# IDEs and Editors
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+*~
+
+# Database dumps
+*.dump
+*.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.cache
+
+*.csv
+*.apps.googleusercontent.com.json
+
+server/
+
+__pycache__/
