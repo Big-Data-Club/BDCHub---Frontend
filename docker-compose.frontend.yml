@@ -26,9 +26,9 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOSTNAME: 0.0.0.0
-      BACKEND_URL: http://backend:8080
-      LMS_API_URL: http://lms-backend:8081
-      AI_SERVICE_URL: http://localhost:8000
+      BACKEND_URL: ${BACKEND_URL}
+      LMS_API_URL: ${LMS_API_URL}
+      AI_SERVICE_URL: ${AI_SERVICE_URL}
       GOOGLE_SCRIPT_URL: ${GOOGLE_SCRIPT_URL}
       YOUTUBE_CLIENT_ID: ${YOUTUBE_CLIENT_ID}
       YOUTUBE_CLIENT_SECRET: ${YOUTUBE_CLIENT_SECRET}
