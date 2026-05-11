@@ -1,33 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback } from "react";
 import forumService, { ForumPost } from "@/services/forumService";
 import ForumPostList from "./ForumPostList";
 import ForumSearchBar from "./ForumSearchBar";
 import ForumCreatePost from "./ForumCreatePost";
 import { Plus } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface ForumViewProps {
   contentId: number;
   isTeacherOrAdmin?: boolean;
 }
 
-export default function ForumView({ contentId, isTeacherOrAdmin = false }: ForumViewProps) {
+export default function ForumView({
+  contentId,
+  isTeacherOrAdmin = false,
+}: ForumViewProps) {
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [sortBy, setSortBy] = useState<'votes' | 'newest' | 'oldest' | 'views'>('votes');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string>('');
+  const [sortBy, setSortBy] = useState<
+    "votes" | "newest" | "oldest" | "views"
+  >("votes");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string>("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadPosts();
-  }, [contentId, sortBy, searchTerm, selectedTags, page]);
-
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await forumService.listPosts(contentId, {
@@ -37,45 +38,66 @@ export default function ForumView({ contentId, isTeacherOrAdmin = false }: Forum
         page,
         limit: 20,
       });
-      
+
       setPosts(response.data?.items || []);
       setTotalPages(response.data?.pagination?.total_pages || 1);
-    } catch (error) {
-      console.error("Error loading posts:", error);
-      alert("Không thể tải bài viết");
+    } catch {
+      toast.error("Không thể tải bài viết");
     } finally {
       setLoading(false);
     }
-  };
+  }, [contentId, sortBy, searchTerm, selectedTags, page]);
 
-  const handlePostCreated = () => {
-    setShowCreateModal(false);
-    setPage(1);
+  useEffect(() => {
     loadPosts();
-  };
+  }, [loadPosts]);
 
-  const handlePostDeleted = () => {
-    loadPosts();
-  };
+  const handlePostCreated = useCallback(
+    (newPost?: ForumPost) => {
+      setShowCreateModal(false);
 
-  const handleSearch = (search: string, tags: string) => {
+      if (newPost) {
+        // Optimistic: prepend the new post to the list if on page 1 sorted by newest
+        if (page === 1 && sortBy === "newest") {
+          setPosts((prev) => [newPost, ...prev]);
+        }
+      }
+
+      // Background reconcile — refresh the list silently
+      setTimeout(() => {
+        loadPosts();
+      }, 300);
+    },
+    [page, sortBy, loadPosts]
+  );
+
+  const handlePostDeleted = useCallback(() => {
+    // Background reconcile
+    setTimeout(() => {
+      loadPosts();
+    }, 300);
+  }, [loadPosts]);
+
+  const handleSearch = useCallback((search: string, tags: string) => {
     setSearchTerm(search);
     setSelectedTags(tags);
     setPage(1);
-  };
+  }, []);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Diễn đàn thảo luận</h2>
-        <Button
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          Diễn đàn thảo luận
+        </h2>
+        <button
           onClick={() => setShowCreateModal(true)}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 py-3 shadow-sm transition-all active:scale-95"
         >
           <Plus className="w-4 h-4" />
           Đặt câu hỏi mới
-        </Button>
+        </button>
       </div>
 
       {/* Search and Filter */}
@@ -92,8 +114,12 @@ export default function ForumView({ contentId, isTeacherOrAdmin = false }: Forum
         </div>
       ) : posts.length === 0 ? (
         <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <p className="text-slate-500 dark:text-slate-400">Chưa có bài viết nào</p>
-          <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">Hãy là người đầu tiên đặt câu hỏi!</p>
+          <p className="text-slate-500 dark:text-slate-400">
+            Chưa có bài viết nào
+          </p>
+          <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">
+            Hãy là người đầu tiên đặt câu hỏi!
+          </p>
         </div>
       ) : (
         <>
@@ -106,23 +132,23 @@ export default function ForumView({ contentId, isTeacherOrAdmin = false }: Forum
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-6">
-              <Button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
                 className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl px-4 py-2 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Trước
-              </Button>
+              </button>
               <span className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400">
                 Trang {page} / {totalPages}
               </span>
-              <Button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
                 className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl px-4 py-2 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Sau
-              </Button>
+              </button>
             </div>
           )}
         </>

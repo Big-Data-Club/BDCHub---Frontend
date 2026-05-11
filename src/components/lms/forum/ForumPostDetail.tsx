@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import forumService, { ForumPost, ForumComment } from "@/services/forumService";
-import { Button } from "@/components/ui/button";
+import { useForumPost } from "@/hooks/useForumPost";
+import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import { ForumMarkdownEditor } from "./ForumMarkdownEditor";
 import ForumCommentSection from "./ForumCommentSection";
-import { 
-  ThumbsUp, 
-  ThumbsDown, 
-  MessageSquare, 
-  Eye, 
+import {
+  ThumbsUp,
+  ThumbsDown,
+  MessageSquare,
+  Eye,
   ArrowLeft,
   Pin,
   Lock,
@@ -23,101 +24,58 @@ interface ForumPostDetailProps {
   isTeacherOrAdmin?: boolean;
 }
 
-export default function ForumPostDetail({ postId, isTeacherOrAdmin = false }: ForumPostDetailProps) {
+export default function ForumPostDetail({
+  postId,
+  isTeacherOrAdmin = false,
+}: ForumPostDetailProps) {
   const router = useRouter();
-  const [post, setPost] = useState<ForumPost | null>(null);
-  const [comments, setComments] = useState<ForumComment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [voting, setVoting] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [voting, setVoting] = useState(false);
 
-  useEffect(() => {
-    loadPost();
-    loadComments();
-  }, [postId]);
+  const {
+    post,
+    comments,
+    loading,
+    votePost,
+    deletePost: hookDeletePost,
+    submitComment,
+    submitReply,
+    voteComment,
+    deleteComment,
+    editComment,
+    acceptComment,
+  } = useForumPost(postId);
 
-  const loadPost = async () => {
-    try {
-      const response = await forumService.getPost(postId);
-      setPost(response.data);
-    } catch (error) {
-      console.error("Error loading post:", error);
-      alert("Không thể tải bài viết");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadComments = async () => {
-    try {
-      const response = await forumService.listComments(postId);
-      setComments(response.data || []);
-    } catch (error) {
-      console.error("Error loading comments:", error);
-    }
-  };
-
-  const handleVote = async (voteType: 'upvote' | 'downvote') => {
-    if (!post || voting) return;
-    
-    try {
-      setVoting(true);
-      const response = await forumService.votePost(post.id, voteType);
-      
-      setPost({
-        ...post,
-        upvotes: response.data.upvotes,
-        downvotes: response.data.downvotes,
-        score: response.data.new_score,
-        current_user_vote: post.current_user_vote === voteType ? undefined : voteType,
-      });
-    } catch (error) {
-      console.error("Error voting:", error);
-      alert("Không thể vote");
-    } finally {
-      setVoting(false);
-    }
+  const handleVote = async (voteType: "upvote" | "downvote") => {
+    if (voting) return;
+    setVoting(true);
+    await votePost(voteType);
+    setVoting(false);
   };
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || submitting) return;
 
-    try {
-      setSubmitting(true);
-      await forumService.createComment(postId, { body: newComment });
-      setNewComment("");
-      loadComments();
-      if (post) {
-        setPost({ ...post, comment_count: post.comment_count + 1 });
-      }
-      alert("Đã thêm câu trả lời!");
-    } catch (error: any) {
-      console.error("Error creating comment:", error);
-      alert(error.response?.data?.error || "Không thể thêm câu trả lời");
-    } finally {
-      setSubmitting(false);
-    }
+    setSubmitting(true);
+    await submitComment(newComment);
+    setNewComment("");
+    setSubmitting(false);
   };
 
   const handleDelete = async () => {
     if (!confirm("Bạn có chắc muốn xóa bài viết này?")) return;
-
-    try {
-      await forumService.deletePost(postId);
-      alert("Đã xóa bài viết");
+    const success = await hookDeletePost();
+    if (success) {
       router.back();
-    } catch (error) {
-      console.error("Error deleting post:", error);
-      alert("Không thể xóa bài viết");
     }
   };
 
   const getScoreColor = (score: number) => {
     if (score > 0) return "text-green-600";
     if (score < 0) return "text-red-600";
-    return "text-gray-600";
+    return "text-slate-500 dark:text-slate-400";
   };
 
   if (loading) {
@@ -131,7 +89,9 @@ export default function ForumPostDetail({ postId, isTeacherOrAdmin = false }: Fo
   if (!post) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Không tìm thấy bài viết</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          Không tìm thấy bài viết
+        </p>
       </div>
     );
   }
@@ -139,13 +99,13 @@ export default function ForumPostDetail({ postId, isTeacherOrAdmin = false }: Fo
   return (
     <div className="space-y-6">
       {/* Back Button */}
-      <Button
+      <button
         onClick={() => router.back()}
-        className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl px-4 py-2 font-medium transition-all"
+        className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl px-4 py-2 font-medium transition-all active:scale-95"
       >
         <ArrowLeft className="w-4 h-4" />
         Quay lại
-      </Button>
+      </button>
 
       {/* Post Card */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
@@ -153,26 +113,28 @@ export default function ForumPostDetail({ postId, isTeacherOrAdmin = false }: Fo
           {/* Vote Section */}
           <div className="flex flex-col items-center gap-3">
             <button
-              onClick={() => handleVote('upvote')}
+              onClick={() => handleVote("upvote")}
               disabled={voting}
               className={`p-3 rounded-lg transition-colors ${
-                post.current_user_vote === 'upvote'
-                  ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500'
+                post.current_user_vote === "upvote"
+                  ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500"
               }`}
             >
               <ThumbsUp className="w-6 h-6" />
             </button>
-            <span className={`text-2xl font-bold ${getScoreColor(post.score)}`}>
+            <span
+              className={`text-2xl font-bold ${getScoreColor(post.score)}`}
+            >
               {post.score}
             </span>
             <button
-              onClick={() => handleVote('downvote')}
+              onClick={() => handleVote("downvote")}
               disabled={voting}
               className={`p-3 rounded-lg transition-colors ${
-                post.current_user_vote === 'downvote'
-                  ? 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500'
+                post.current_user_vote === "downvote"
+                  ? "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500"
               }`}
             >
               <ThumbsDown className="w-6 h-6" />
@@ -202,11 +164,9 @@ export default function ForumPostDetail({ postId, isTeacherOrAdmin = false }: Fo
               {post.title}
             </h1>
 
-            {/* Body */}
-            <div className="prose max-w-none mb-6">
-              <p className="whitespace-pre-wrap text-slate-600 dark:text-slate-400">
-                {post.body}
-              </p>
+            {/* Body — Markdown Rendered */}
+            <div className="mb-6">
+              <MarkdownRenderer content={post.body} />
             </div>
 
             {/* Tags */}
@@ -235,7 +195,10 @@ export default function ForumPostDetail({ postId, isTeacherOrAdmin = false }: Fo
               </div>
               <div className="flex-1" />
               <span>
-                Đăng bởi <strong className="text-slate-700 dark:text-slate-300">{post.user_name}</strong>
+                Đăng bởi{" "}
+                <strong className="text-slate-700 dark:text-slate-300">
+                  {post.user_name}
+                </strong>
               </span>
               <span>
                 {formatDistanceToNow(new Date(post.created_at), {
@@ -268,23 +231,17 @@ export default function ForumPostDetail({ postId, isTeacherOrAdmin = false }: Fo
             Thêm câu trả lời của bạn
           </h3>
           <form onSubmit={handleSubmitComment} className="space-y-4">
-            <textarea
+            <ForumMarkdownEditor
               value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Viết câu trả lời của bạn..."
+              onChange={setNewComment}
+              placeholder="Viết câu trả lời của bạn... (Hỗ trợ Markdown)"
               rows={6}
-              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
-                         text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600
-                         bg-slate-50 dark:bg-slate-800
-                         focus:bg-white dark:focus:bg-slate-900
-                         focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
-                         transition-all"
               disabled={submitting}
             />
             <button
               type="submit"
               disabled={submitting || !newComment.trim()}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-semibold rounded-xl px-6 py-3 shadow-sm transition-all active:scale-95"
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-semibold rounded-xl px-6 py-3 shadow-sm transition-all active:scale-95 disabled:cursor-not-allowed"
             >
               {submitting ? "Đang gửi..." : "Gửi câu trả lời"}
             </button>
@@ -300,7 +257,11 @@ export default function ForumPostDetail({ postId, isTeacherOrAdmin = false }: Fo
         <ForumCommentSection
           postId={postId}
           comments={comments}
-          onCommentChanged={loadComments}
+          onSubmitReply={submitReply}
+          onVoteComment={voteComment}
+          onDeleteComment={deleteComment}
+          onEditComment={editComment}
+          onAcceptComment={acceptComment}
           isPostLocked={post.is_locked}
           isTeacherOrAdmin={isTeacherOrAdmin}
           postOwnerId={post.user_id}

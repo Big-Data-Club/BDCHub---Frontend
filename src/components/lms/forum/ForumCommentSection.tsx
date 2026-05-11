@@ -6,7 +6,11 @@ import ForumCommentItem from "./ForumCommentItem";
 interface ForumCommentSectionProps {
   postId: number;
   comments: ForumComment[];
-  onCommentChanged: () => void;
+  onSubmitReply: (parentCommentId: number, body: string) => Promise<void>;
+  onVoteComment: (commentId: number, voteType: "upvote" | "downvote") => Promise<void>;
+  onDeleteComment: (commentId: number) => Promise<void>;
+  onEditComment: (commentId: number, newBody: string) => Promise<void>;
+  onAcceptComment: (commentId: number) => Promise<void>;
   isPostLocked: boolean;
   isTeacherOrAdmin: boolean;
   postOwnerId: number;
@@ -15,7 +19,11 @@ interface ForumCommentSectionProps {
 export default function ForumCommentSection({
   postId,
   comments,
-  onCommentChanged,
+  onSubmitReply,
+  onVoteComment,
+  onDeleteComment,
+  onEditComment,
+  onAcceptComment,
   isPostLocked,
   isTeacherOrAdmin,
   postOwnerId,
@@ -36,7 +44,11 @@ export default function ForumCommentSection({
           key={comment.id}
           comment={comment}
           postId={postId}
-          onCommentChanged={onCommentChanged}
+          onSubmitReply={onSubmitReply}
+          onVoteComment={onVoteComment}
+          onDeleteComment={onDeleteComment}
+          onEditComment={onEditComment}
+          onAcceptComment={onAcceptComment}
           isPostLocked={isPostLocked}
           isTeacherOrAdmin={isTeacherOrAdmin}
           postOwnerId={postOwnerId}
