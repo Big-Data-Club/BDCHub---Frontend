@@ -29,3 +29,10 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/bdc-frontend:latest
             ${{ secrets.DOCKER_USERNAME }}/bdc-frontend:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+            NEXT_PUBLIC_YOUTUBE_UPLOAD_ENABLED=${{ vars.NEXT_PUBLIC_YOUTUBE_UPLOAD_ENABLED || 'true' }}
+            BACKEND_URL=${{ secrets.BACKEND_URL || 'http://backend:8080' }}
+            LMS_API_URL=${{ secrets.LMS_API_URL || 'http://lms-backend:8081' }}
+            AI_SERVICE_URL=${{ secrets.AI_SERVICE_URL || 'http://ai-service:8000' }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL || 'https://bdc.hpcc.vn' }}
