@@ -75,7 +75,9 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const res = await fetch(`${process.env.BACKEND_URL}/api/auth/login`, {
+          const loginUrl = `${process.env.BACKEND_URL}/api/auth/login`;
+          console.log('🔗 [NextAuth Server] Calling Login:', loginUrl);
+          const res = await fetch(loginUrl, {
             method: "POST",
             body: JSON.stringify({
               email: credentials.email,

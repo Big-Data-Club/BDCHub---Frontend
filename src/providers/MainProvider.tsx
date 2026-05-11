@@ -5,6 +5,7 @@ import { useEffect, ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { UserProvider, useUser } from "@/store/UserContext";
+import { MSWProvider } from "./MSWProvider";
 
 function SessionMonitor() {
   const { data: session, status } = useSession();
@@ -35,19 +36,21 @@ function SessionMonitor() {
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
-    <UserProvider>
-      <SessionProvider refetchInterval={5 * 60}>
-        <SessionMonitor />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          storageKey="bdc-theme"
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
-      </SessionProvider>
-    </UserProvider>
+    <MSWProvider>
+      <UserProvider>
+        <SessionProvider refetchInterval={5 * 60}>
+          <SessionMonitor />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+            storageKey="bdc-theme"
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </SessionProvider>
+      </UserProvider>
+    </MSWProvider>
   );
 }
