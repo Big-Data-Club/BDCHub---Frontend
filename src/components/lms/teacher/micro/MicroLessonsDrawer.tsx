@@ -16,7 +16,7 @@ import {
   ChevronLeft, Edit3, Loader2, Save, Send, Trash2, X,
 } from "lucide-react";
 import microLessonService, {
-  asImageUrls, asObjectives, unwrapNullString,
+  asImageUrls, asObjectives, unwrapNullString, unwrapNullInt,
   type JobWithLessons, type MicroLesson,
 } from "@/services/microLessonService";
 import type { Section } from "@/types";
@@ -213,7 +213,7 @@ function LessonCard({
   const [estimatedMinutes, setEstimatedMinutes] = useState(lesson.estimated_minutes);
   const [orderIndex, setOrderIndex] = useState(lesson.order_index);
   const [saving, setSaving] = useState(false);
-  const [pickedSection, setPickedSection] = useState<number>(0);
+  const [pickedSection, setPickedSection] = useState<number>(unwrapNullInt(lesson.section_id) || 0);
 
   const isPublished = lesson.status === "published";
 
@@ -226,6 +226,9 @@ function LessonCard({
       setMarkdown(lesson.markdown_content);
       setEstimatedMinutes(lesson.estimated_minutes);
       setOrderIndex(lesson.order_index);
+      if (unwrapNullInt(lesson.section_id)) {
+        setPickedSection(unwrapNullInt(lesson.section_id) || 0);
+      }
     }
   }, [lesson, isEditing]);
 
