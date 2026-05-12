@@ -49,13 +49,6 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Load history when session changes externally
-  useEffect(() => {
-    if (initialSessionId && initialSessionId !== sessionId) {
-      switchSession(initialSessionId);
-    }
-  }, [initialSessionId]);
-
   const loadHistory = async (sid: string) => {
     setIsLoadingHistory(true);
     try {
@@ -94,6 +87,13 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
     await loadHistory(newSessionId);
   }, [stopStreaming]);
 
+  // Load history when session changes externally
+  useEffect(() => {
+    if (initialSessionId && initialSessionId !== sessionId) {
+      switchSession(initialSessionId);
+    }
+  }, [initialSessionId, sessionId, switchSession]);
+
   const startNewChat = useCallback(async () => {
     stopStreaming();
     if (messages.length === 0) {
@@ -123,129 +123,21 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
       setSessionId(null);
       setMessages([]);
     }
-  }, [agentType, courseId, userId, messages.length, onSessionUpdated]);
+  }, [agentType, courseId, userId, messages.length, onSessionUpdated, stopStreaming]);
 
-  /**
-   * Send a message and process the SSE stream.
-   */
-  const sendMessage = useCallback(
-    async (text: string) => {
-      if (!text.trim() || isStreaming) return;
-
-      // Add user message
-      const userMsg: AgentMessage = {
-        id: nextId(),
-        role: "user",
-        content: text,
-        timestamp: Date.now(),
-      };
-
-      // Add placeholder assistant message
-      const assistantMsg: AgentMessage = {
-        id: nextId(),
-        role: "assistant",
-        content: "",
-        isStreaming: true,
-        timestamp: Date.now(),
-        thinkingSteps: [],
-        toolActivities: [],
-      };
-
-      setMessages((prev) => [...prev, userMsg, assistantMsg]);
-      setIsStreaming(true);
-      setIsThinking(true);
-
-      const assistantId = assistantMsg.id;
-
-      try {
-        abortRef.current = new AbortController();
-
-        const response = await fetch("/api/ai/agents/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: text,
-            agent_type: agentType,
-            course_id: courseId,
-            session_id: sessionId,
-            ...(pageContext ? { page_context: pageContext } : {}),
-            ...(systemContext ? { system_context: systemContext } : {}),
-          }),
-          signal: abortRef.current.signal,
-        });
-
-        if (!response.ok || !response.body) {
-          throw new Error(`Request failed: ${response.status}`);
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          // Keep the last potentially-incomplete line in the buffer
-          buffer = lines.pop() || "";
-
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const raw = line.slice(6).trim();
-            if (!raw) continue;
-
-            let event: AgentEvent;
-            try {
-              event = JSON.parse(raw);
-            } catch {
-              continue;
-            }
-
-            processEvent(event, assistantId);
-          }
-        }
-
-        // Process any remaining buffer
-        if (buffer.startsWith("data: ")) {
-          const raw = buffer.slice(6).trim();
-          if (raw) {
-            try {
-              processEvent(JSON.parse(raw), assistantId);
-            } catch {
-              /* ignore */
-            }
-          }
-        }
-      } catch (err: any) {
-        if (err.name !== "AbortError") {
-          updateAssistant(assistantId, (msg) => ({
-            ...msg,
-            content:
-              msg.content || "Đã xảy ra lỗi kết nối. Vui lòng thử lại.",
-            isStreaming: false,
-          }));
-        }
-      } finally {
-        setIsStreaming(false);
-        setIsThinking(false);
-        abortRef.current = null;
-
-        // Ensure streaming flag is cleared
-        updateAssistant(assistantId, (msg) => ({
-          ...msg,
-          isStreaming: false,
-        }));
-      }
-    },
-    [agentType, courseId, sessionId, isStreaming, pageContext, systemContext],
-  );
+  function updateAssistant(
+    id: string,
+    updater: (msg: AgentMessage) => AgentMessage,
+  ) {
+    setMessages((prev) =>
+      prev.map((m) => (m.id === id ? updater(m) : m)),
+    );
+  }
 
   /**
    * Process a single SSE event and update the assistant message.
    */
-  function processEvent(event: AgentEvent, assistantId: string) {
+  const processEvent = useCallback((event: AgentEvent, assistantId: string) => {
     switch (event.type) {
       case "session":
         setSessionId(event.data.session_id);
@@ -369,16 +261,124 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
         }));
         break;
     }
-  }
+  }, [onSessionUpdated]);
 
-  function updateAssistant(
-    id: string,
-    updater: (msg: AgentMessage) => AgentMessage,
-  ) {
-    setMessages((prev) =>
-      prev.map((m) => (m.id === id ? updater(m) : m)),
-    );
-  }
+  /**
+   * Send a message and process the SSE stream.
+   */
+  const sendMessage = useCallback(
+    async (text: string) => {
+      if (!text.trim() || isStreaming) return;
+
+      // Add user message
+      const userMsg: AgentMessage = {
+        id: nextId(),
+        role: "user",
+        content: text,
+        timestamp: Date.now(),
+      };
+
+      // Add placeholder assistant message
+      const assistantMsg: AgentMessage = {
+        id: nextId(),
+        role: "assistant",
+        content: "",
+        isStreaming: true,
+        timestamp: Date.now(),
+        thinkingSteps: [],
+        toolActivities: [],
+      };
+
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+      setIsStreaming(true);
+      setIsThinking(true);
+
+      const assistantId = assistantMsg.id;
+
+      try {
+        abortRef.current = new AbortController();
+
+        const response = await fetch("/api/ai/agents/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: text,
+            agent_type: agentType,
+            course_id: courseId,
+            session_id: sessionId,
+            ...(pageContext ? { page_context: pageContext } : {}),
+            ...(systemContext ? { system_context: systemContext } : {}),
+          }),
+          signal: abortRef.current.signal,
+        });
+
+        if (!response.ok || !response.body) {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          // Keep the last potentially-incomplete line in the buffer
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const raw = line.slice(6).trim();
+            if (!raw) continue;
+
+            let event: AgentEvent;
+            try {
+              event = JSON.parse(raw);
+            } catch {
+              continue;
+            }
+
+            processEvent(event, assistantId);
+          }
+        }
+
+        // Process any remaining buffer
+        if (buffer.startsWith("data: ")) {
+          const raw = buffer.slice(6).trim();
+          if (raw) {
+            try {
+              processEvent(JSON.parse(raw), assistantId);
+            } catch {
+              /* ignore */
+            }
+          }
+        }
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          updateAssistant(assistantId, (msg) => ({
+            ...msg,
+            content:
+              msg.content || "Đã xảy ra lỗi kết nối. Vui lòng thử lại.",
+            isStreaming: false,
+          }));
+        }
+      } finally {
+        setIsStreaming(false);
+        setIsThinking(false);
+        abortRef.current = null;
+
+        // Ensure streaming flag is cleared
+        updateAssistant(assistantId, (msg) => ({
+          ...msg,
+          isStreaming: false,
+        }));
+      }
+    },
+    [agentType, courseId, sessionId, isStreaming, pageContext, systemContext, processEvent],
+  );
 
   const clearChat = useCallback(() => {
     setMessages([]);

@@ -2,11 +2,26 @@
 import { BookOpen } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/animation/useScrollAnimation";
 
-export default function About() {
+interface AboutProps {
+  animationDuration?: number;
+  animationDelay?: number;
+}
+
+export default function About({ animationDuration = 700, animationDelay = 0 }: AboutProps) {
   const [ref, isVisible] = useScrollAnimation();
 
   return (
-    <section id="about" ref={ref} className={`py-24 px-4 sm:px-6 lg:px-8 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+    <section 
+      id="about" 
+      ref={ref} 
+      className="py-24 px-4 sm:px-6 lg:px-8 transition-all"
+      style={{
+        transitionDuration: `${animationDuration}ms`,
+        transitionDelay: `${animationDelay}ms`,
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(2rem)",
+      }}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-slate-900 flex items-center gap-3">

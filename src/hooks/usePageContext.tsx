@@ -91,8 +91,8 @@ export function useSetPageContext() {
   if (!ctx) {
     // Outside provider — return noops so pages don't crash
     return {
-      setPageContext: (_ctx: PageContext) => {},
-      patchPageContext: (_patch: Partial<PageContext>) => {},
+      setPageContext: (_: PageContext) => {},
+      patchPageContext: (_: Partial<PageContext>) => {},
       clearPageContext: () => {},
     };
   }

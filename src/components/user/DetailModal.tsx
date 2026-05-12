@@ -4,7 +4,7 @@ import { User } from "@/types";
 import Avatar from "./Avatar";
 import { X, Pencil, Save, Loader2 } from "lucide-react";
 import { updateUser, updateUserRole } from "@/lib/users/api";
-import { mapFrontendTeamToBackend, mapFrontendTypeToBackend, mapFrontendRoleToBackend } from "@/lib/users/auth";
+import { mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { fetchRoles, Role } from "@/lib/admin/rolesApi";
 import LmsUserRoleManager from "../admin/LmsUserRoleManager";
 

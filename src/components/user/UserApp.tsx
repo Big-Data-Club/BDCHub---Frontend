@@ -122,7 +122,7 @@ export default function UserApp() {
       });
     }
     return list;
-  }, [users, query, teamFilter, typeFilter, sortKey, sortDir]);
+  }, [users, query, teamFilter, typeFilter, roleFilter, sortKey, sortDir]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8">
