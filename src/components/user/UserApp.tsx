@@ -98,6 +98,17 @@ export default function UserApp() {
     }
   }
 
+  // Extract unique filter values dynamically from loaded users
+  const uniqueTeams = useMemo(() => {
+    return Array.from(new Set(users.map(u => u.team).filter(Boolean))).sort() as string[];
+  }, [users]);
+  const uniqueTypes = useMemo(() => {
+    return Array.from(new Set(users.map(u => u.type).filter(Boolean))).sort() as string[];
+  }, [users]);
+  const uniqueRoles = useMemo(() => {
+    return Array.from(new Set(users.map(u => u.role).filter(Boolean))).sort() as string[];
+  }, [users]);
+
   const filteredAndSorted = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = users.filter(u => {
@@ -160,42 +171,40 @@ export default function UserApp() {
 
             {/* Filters & Actions */}
             <div className="flex flex-wrap gap-3 w-full lg:w-auto">
-              {/* Team Filter */}
+              {/* Team Filter — dynamic from data */}
               <select
                 value={teamFilter}
                 onChange={(e) => setTeamFilter(e.target.value)}
                 className="px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
               >
                 <option value="">All teams</option>
-                <option value="Research">Research</option>
-                <option value="Engineer">Engineer</option>
-                <option value="Event">Event</option>
-                <option value="Media">Media</option>
+                {uniqueTeams.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
               </select>
 
-              {/* Type Filter */}
+              {/* Type Filter — dynamic from data */}
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
                 className="px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
               >
                 <option value="">All types</option>
-                <option value="CLC">CLC</option>
-                <option value="DT">DT</option>
-                <option value="TN">TN</option>
+                {uniqueTypes.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
               </select>
 
-              {/* Role Filter */}
+              {/* Role Filter — dynamic from data */}
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
                 className="px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
               >
                 <option value="">All roles</option>
-                <option value="ROLE_ADMIN">Admin</option>
-                <option value="ROLE_MANAGER">Manager</option>
-                <option value="ROLE_USER">User</option>
-                <option value="ROLE_ALUMNI">Alumni</option>
+                {uniqueRoles.map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
               </select>
 
               {/* Bulk Upload */}
