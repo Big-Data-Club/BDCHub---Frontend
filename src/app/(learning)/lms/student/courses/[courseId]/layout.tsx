@@ -11,8 +11,8 @@
  *  - StudentCourseContext for child pages
  */
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { useParams, useRouter, usePathname } from "next/navigation";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   ChevronDown, ChevronRight, Menu, X,
@@ -170,7 +170,14 @@ export default function StudentCourseDetailLayout({ children }: { children: Reac
   const { courseId } = useParams<{ courseId: string }>();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const id = Number(courseId);
+
+  // Track whether we've already restored from URL param
+  const restoredFromUrl = useRef(false);
+  const initialContentId = useRef<number | null>(
+    searchParams.get("contentId") ? Number(searchParams.get("contentId")) : null
+  );
   const basePath = `/lms/student/courses/${id}`;
 
   // ── Core state ──
@@ -226,8 +233,10 @@ export default function StudentCourseDetailLayout({ children }: { children: Reac
           // Prefetch all contents (parallel, will be cached by loadSectionContentsInner)
           allIds.forEach(sid => loadSectionContentsInner(sid));
 
-          // Auto-select the first content of the first section
-          loadSectionContentsInner(secs[0].id, true);
+          // Only auto-select first content if there's no contentId to restore from URL
+          if (!initialContentId.current) {
+            loadSectionContentsInner(secs[0].id, true);
+          }
         }
       } catch {
         router.back();
@@ -237,6 +246,22 @@ export default function StudentCourseDetailLayout({ children }: { children: Reac
     })();
     loadProgress();
   }, [id]); // eslint-disable-line
+
+  // ─── Restore content from URL param ────────────────────────────────────────
+  // Once all section contents are fetched, find the content matching the URL param
+  useEffect(() => {
+    if (restoredFromUrl.current || !initialContentId.current) return;
+    const targetId = initialContentId.current;
+    // Search across all fetched section contents
+    for (const items of Object.values(sectionContents)) {
+      const found = items.find(c => c.id === targetId);
+      if (found) {
+        setActiveContent(found);
+        restoredFromUrl.current = true;
+        return;
+      }
+    }
+  }, [sectionContents]); // eslint-disable-line
 
   // ─── Load section contents ────────────────────────────────────────────────
 
@@ -299,9 +324,13 @@ export default function StudentCourseDetailLayout({ children }: { children: Reac
   const handleSelectContent = useCallback((c: Content) => {
     setActiveContent(c);
     setSidebarOpen(false);
-    // Navigate to learn page if not already there
+    // Update URL search param to persist the active content
+    const target = `${basePath}/learn?contentId=${c.id}`;
     if (!pathname.endsWith("/learn")) {
-      router.push(`${basePath}/learn`);
+      router.push(target);
+    } else {
+      // Replace (not push) to avoid polluting browser history on every content switch
+      router.replace(target, { scroll: false });
     }
   }, [pathname, basePath, router]);
 
