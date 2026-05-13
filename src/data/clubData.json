@@ -550,10 +550,19 @@
       "publisher": "The 39th International Conference on Industrial, Engineering & Other Applications of Applied Intelligent Systems - IEA/AIE 2026",
       "year": 2026,
       "volume": "16354",
-      "doi": "10.1007/978-981-95-4960-3_33"
+      "doi": "10.1145/3784828.3785247"
     },
     {
       "id": "3",
+      "title": "Fine-Tuned Sentence-BERT for HPC Job Outcome Prediction via Textual Feature Embedding",
+      "authors": "Hoang Le Hai Thanh*, Nguyen Tuan Huy, Tran Dang Bao, Vo Thuong Bao, Thoai Nam*",
+      "publisher": "Proceedings of the Supercomputing Asia and International Conference on High Performance Computing in Asia Pacific Region Workshops",
+      "year": 2026,
+      "volume": "Pages 378 - 387",
+      "doi": "10.1007/978-981-95-4960-3_33"
+    },
+    {
+      "id": "4",
       "title": "Toward Sustainable and Cost-Efficient HPC Systems: A Deep Reinforcement Learning Job Scheduling Approach",
       "authors": "Hoang Le Hai Thanh*, Nguyen Phuc Nhan, Nguyen Tran Phuong Mai, Bui Ngoc Minh, Thoai Nam*",
       "publisher": "Multi-disciplinary Trends in Artificial Intelligence - MIWAI 2025. Lecture Notes in Computer Science. Springer, Singapore",
@@ -562,7 +571,7 @@
       "doi": "10.1007/978-981-95-4960-3_33"
     },
     {
-      "id": "4",
+      "id": "5",
       "title": "HDEM: A Hierarchical Dynamic Ensemble Model for Accurate Runtime Prediction on High Performance Computing Systems",
       "authors": "Hoang Le Hai Thanh*, Nguyen Tuan Huy, Tran Dang Bao, Vo Thuong Bao, Phan Tran Dinh Khoi, Thoai Nam*",
       "publisher": "Future Data and Security Engineering - FDSE 2025. Communications in Computer and Information Science. Springer, Singapore.",
@@ -572,14 +581,14 @@
       "doi": "10.1007/978-981-95-4724-1_13"
     },
     {
-      "id": "5",
+      "id": "6",
       "title": "A Performance Study of Piecewise Constant Approximation in Streaming Data Compression",
       "authors": "Phan Alan,La Quoc Nhut Huan,Diep Thanh Dang*,Thoai Nam",
       "publisher": "International Conference on Advanced Computing and Analytics (ACOMPA)",
       "year": 2025
     },
     {
-      "id": "6",
+      "id": "7",
       "title": "EDM4QS: An Emulator-Driven Model for Quantum Scheduling",
       "authors": "Nguyen Trieu,Minh Chung,Diep Thanh Dang*,Thoai Nam",
       "publisher": "International Symposium on Information and Communication Technology (SoICT)",
