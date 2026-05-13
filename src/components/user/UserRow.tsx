@@ -25,7 +25,7 @@ export default function UserRow({ user, onClick, onToggleStatus, isAdmin }: { us
 
         {/* Role */}
         <div className="col-span-1 text-center text-sm text-slate-700 dark:text-slate-300">
-          {user.role}
+          {({ ROLE_ADMIN: "Admin", ROLE_MANAGER: "Manager", ROLE_USER: "Member", ROLE_ALUMNI: "Alumni" } as Record<string, string>)[user.role as string] || user.role}
         </div>
 
         {/* Team */}
