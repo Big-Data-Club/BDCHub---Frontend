@@ -1,75 +1,167 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 
-interface Pointer {
-  x: number | null;
-  y: number | null;
-  down: boolean;
+/* ─── Star ──────────────────────────────────────────────────────────── */
+class Star {
+  x: number;
+  y: number;
+  z: number; // depth layer 0-1
+  size: number;
+  baseAlpha: number;
+  twinkleSpeed: number;
+  twinklePhase: number;
+
+  constructor(w: number, h: number) {
+    this.x = Math.random() * w;
+    this.y = Math.random() * h;
+    this.z = Math.random();
+    this.size = 0.4 + this.z * 2;
+    this.baseAlpha = 0.2 + this.z * 0.6;
+    this.twinkleSpeed = 0.3 + Math.random() * 1.5;
+    this.twinklePhase = Math.random() * Math.PI * 2;
+  }
+
+  draw(ctx: CanvasRenderingContext2D, time: number, isDark: boolean) {
+    const twinkle = Math.sin(time * this.twinkleSpeed + this.twinklePhase);
+    const alpha = this.baseAlpha * (0.5 + 0.5 * twinkle) * (isDark ? 1 : 0.25);
+    if (alpha < 0.02) return;
+
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    if (isDark) {
+      const hue = 200 + this.z * 30; // blue → cyan
+      ctx.fillStyle = `hsla(${hue}, 70%, 80%, ${alpha})`;
+    } else {
+      ctx.fillStyle = `hsla(215, 50%, 60%, ${alpha * 0.6})`;
+    }
+    ctx.fill();
+  }
 }
 
-class Particle {
+/* ─── Nebula Blob ───────────────────────────────────────────────────── */
+class Nebula {
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
+  hue: number;
+  driftX: number;
+  driftY: number;
+  phase: number;
+  speed: number;
+
+  constructor(w: number, h: number) {
+    this.cx = Math.random() * w;
+    this.cy = Math.random() * h;
+    this.rx = 100 + Math.random() * 250;
+    this.ry = 80 + Math.random() * 200;
+    this.hue = [210, 230, 270][Math.floor(Math.random() * 3)]; // blue, indigo, violet
+    this.driftX = (Math.random() - 0.5) * 0.15;
+    this.driftY = (Math.random() - 0.5) * 0.1;
+    this.phase = Math.random() * Math.PI * 2;
+    this.speed = 0.1 + Math.random() * 0.2;
+  }
+
+  draw(ctx: CanvasRenderingContext2D, time: number, w: number, h: number, isDark: boolean) {
+    const x = this.cx + Math.sin(time * this.speed + this.phase) * 40;
+    const y = this.cy + Math.cos(time * this.speed * 0.7 + this.phase) * 30;
+
+    // Wrap around
+    const wx = ((x % w) + w) % w;
+    const wy = ((y % h) + h) % h;
+
+    const alpha = isDark ? 0.06 : 0.02;
+    const grad = ctx.createRadialGradient(wx, wy, 0, wx, wy, Math.max(this.rx, this.ry));
+    grad.addColorStop(0, `hsla(${this.hue}, 60%, 50%, ${alpha})`);
+    grad.addColorStop(0.5, `hsla(${this.hue}, 50%, 40%, ${alpha * 0.4})`);
+    grad.addColorStop(1, `hsla(${this.hue}, 40%, 30%, 0)`);
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(wx, wy, this.rx, this.ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  update() {
+    this.cx += this.driftX;
+    this.cy += this.driftY;
+  }
+}
+
+/* ─── Shooting Star ─────────────────────────────────────────────────── */
+class ShootingStar {
   x: number;
   y: number;
   vx: number;
   vy: number;
-  size: number;
-  hue: number;
+  life: number;
+  maxLife: number;
+  length: number;
+  active: boolean;
 
-  constructor(x: number, y: number, vx: number, vy: number, size: number, hue: number) {
-    this.x = x;
-    this.y = y;
-    this.vx = vx;
-    this.vy = vy;
-    this.size = size;
-    this.hue = hue;
+  constructor() {
+    this.x = 0;
+    this.y = 0;
+    this.vx = 0;
+    this.vy = 0;
+    this.life = 0;
+    this.maxLife = 0;
+    this.length = 0;
+    this.active = false;
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, 0.95)`;
-    ctx.shadowColor = `hsla(${this.hue}, 80%, 65%, 0.85)`;
-    ctx.shadowBlur = Math.max(6, this.size * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
+  spawn(w: number, h: number) {
+    this.x = Math.random() * w * 0.8;
+    this.y = Math.random() * h * 0.4;
+    const angle = Math.PI / 6 + Math.random() * Math.PI / 6;
+    const speed = 4 + Math.random() * 6;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.maxLife = 40 + Math.random() * 40;
+    this.life = this.maxLife;
+    this.length = 30 + Math.random() * 50;
+    this.active = true;
   }
 
-  update(width: number, height: number) {
+  update() {
+    if (!this.active) return;
     this.x += this.vx;
     this.y += this.vy;
+    this.life--;
+    if (this.life <= 0) this.active = false;
+  }
 
-    if (this.x <= 0 || this.x >= width) {
-      this.vx *= -1;
-      this.x = Math.max(0, Math.min(width, this.x));
-    }
-    if (this.y <= 0 || this.y >= height) {
-      this.vy *= -1;
-      this.y = Math.max(0, Math.min(height, this.y));
-    }
+  draw(ctx: CanvasRenderingContext2D, isDark: boolean) {
+    if (!this.active) return;
+    const alpha = (this.life / this.maxLife) * (isDark ? 0.6 : 0.15);
+    const tailX = this.x - (this.vx / Math.sqrt(this.vx ** 2 + this.vy ** 2)) * this.length;
+    const tailY = this.y - (this.vy / Math.sqrt(this.vx ** 2 + this.vy ** 2)) * this.length;
 
-    this.vx *= 0.999;
-    this.vy *= 0.999;
+    const grad = ctx.createLinearGradient(tailX, tailY, this.x, this.y);
+    grad.addColorStop(0, `hsla(200, 80%, 80%, 0)`);
+    grad.addColorStop(1, `hsla(200, 80%, 80%, ${alpha})`);
+
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(tailX, tailY);
+    ctx.lineTo(this.x, this.y);
+    ctx.stroke();
   }
 }
 
+/* ─── Main Component ────────────────────────────────────────────────── */
 const Background: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const pointerRef = useRef<Pointer>({ x: null, y: null, down: false });
+  const starsRef = useRef<Star[]>([]);
+  const nebulaeRef = useRef<Nebula[]>([]);
+  const shootingRef = useRef<ShootingStar[]>([]);
   const rafRef = useRef<number | null>(null);
   const resizeTimerRef = useRef<number | null>(null);
-
-  const config = {
-    baseHue: 210, 
-    hueVariation: 30,
-    particleDensity: 4500,
-    minSize: 0.8,
-    maxSize: 3,
-    maxSpeed: 0.7,
-    connectDistanceRatio: 0.09,
-    repulseRadiusRatio: 0.12,
-  } as const;
+  const mouseRef = useRef({ x: 0, y: 0 });
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -94,95 +186,78 @@ const Background: React.FC = () => {
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function initParticles() {
+    function initEntities() {
       const area = width * height;
-      const targetCount = Math.max(10, Math.round(area / config.particleDensity));
-      const arr: Particle[] = [];
-      for (let i = 0; i < targetCount; i++) {
-        const size = Math.random() * (config.maxSize - config.minSize) + config.minSize;
-        const x = Math.random() * width;
-        const y = Math.random() * height;
-        const vx = (Math.random() - 0.5) * config.maxSpeed;
-        const vy = (Math.random() - 0.5) * config.maxSpeed;
-        const hue = config.baseHue + (Math.random() - 0.5) * config.hueVariation;
-        arr.push(new Particle(x, y, vx, vy, size, hue));
-      }
-      particlesRef.current = arr;
+      // Stars — denser than old particles for depth
+      const starCount = Math.max(40, Math.round(area / 2500));
+      starsRef.current = Array.from({ length: starCount }, () => new Star(width, height));
+
+      // Nebulae — 3 max
+      nebulaeRef.current = Array.from({ length: 3 }, () => new Nebula(width, height));
+
+      // Shooting stars pool
+      shootingRef.current = Array.from({ length: 3 }, () => new ShootingStar());
     }
 
-    function clearCanvas() {
-      ctx!.clearRect(0, 0, width, height);
-    }
+    let lastShoot = 0;
 
-    function animate() {
-      const particles = particlesRef.current;
+    function animate(time: number) {
       if (!ctx) return;
+      const t = time * 0.001; // seconds
+      const isDark = resolvedTheme === 'dark';
 
-      clearCanvas();
+      ctx.clearRect(0, 0, width, height);
 
-      ctx.globalCompositeOperation = 'source-over';
+      // Parallax offset from mouse (very subtle)
+      const mx = (mouseRef.current.x / width - 0.5) * 6;
+      const my = (mouseRef.current.y / height - 0.5) * 4;
 
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
+      // Draw nebulae
+      ctx.save();
+      ctx.translate(mx * 0.3, my * 0.3);
+      for (const neb of nebulaeRef.current) {
+        neb.update();
+        neb.draw(ctx, t, width, height, isDark);
+      }
+      ctx.restore();
 
-        const px = pointerRef.current.x;
-        const py = pointerRef.current.y;
-        if (px !== null && py !== null) {
-          const dx = p.x - px;
-          const dy = p.y - py;
+      // Draw stars with parallax by depth
+      for (const star of starsRef.current) {
+        ctx.save();
+        ctx.translate(mx * star.z, my * star.z);
+        star.draw(ctx, t, isDark);
+        ctx.restore();
+      }
+
+      // Shooting stars
+      if (isDark && t - lastShoot > 4 + Math.random() * 6) {
+        const idle = shootingRef.current.find(s => !s.active);
+        if (idle) {
+          idle.spawn(width, height);
+          lastShoot = t;
+        }
+      }
+      for (const ss of shootingRef.current) {
+        ss.update();
+        ss.draw(ctx, isDark);
+      }
+
+      // Mouse-connected constellation (nearest stars)
+      if (mouseRef.current.x > 0 && mouseRef.current.y > 0) {
+        const grabDist = 120;
+        ctx.lineWidth = 1;
+        for (const star of starsRef.current) {
+          const dx = star.x + mx * star.z - mouseRef.current.x;
+          const dy = star.y + my * star.z - mouseRef.current.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          const repulseRadius = Math.min(width, height) * config.repulseRadiusRatio;
-          if (dist < repulseRadius) {
-            const force = (1 - dist / repulseRadius) * 1; // strength
-            const ux = dx / (dist || 1);
-            const uy = dy / (dist || 1);
-            p.vx = (p.vx + ux * force) * 0.62;
-            p.vy = (p.vy + uy * force) * 0.62;
-          }
-        }
-
-        p.update(width, height);
-        p.draw(ctx);
-      }
-
-      ctx.lineWidth = 1.2;
-      ctx.globalCompositeOperation = 'source-over';
-      const connectDist = Math.min(width, height) * config.connectDistanceRatio;
-      const connectDistSq = connectDist * connectDist;
-
-      const parts = particlesRef.current;
-      for (let a = 0; a < parts.length; a++) {
-        for (let b = a + 1; b < parts.length; b++) {
-          const dx = parts[a].x - parts[b].x;
-          const dy = parts[a].y - parts[b].y;
-          const distSq = dx * dx + dy * dy;
-          if (distSq < connectDistSq) {
-            const alpha = 1 - distSq / connectDistSq;
-            const hue = (parts[a].hue + parts[b].hue) / 2;
-            ctx.strokeStyle = `hsla(${hue}, 80%, 70%, ${0.18 * alpha})`;
+          if (dist < grabDist) {
+            const alpha = (1 - dist / grabDist) * (isDark ? 0.3 : 0.08);
+            ctx.strokeStyle = isDark
+              ? `hsla(200, 70%, 70%, ${alpha})`
+              : `hsla(215, 50%, 60%, ${alpha})`;
             ctx.beginPath();
-            ctx.moveTo(parts[a].x, parts[a].y);
-            ctx.lineTo(parts[b].x, parts[b].y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      const px = pointerRef.current.x;
-      const py = pointerRef.current.y;
-      if (px !== null && py !== null) {
-        for (let i = 0; i < parts.length; i++) {
-          const dx = parts[i].x - px;
-          const dy = parts[i].y - py;
-          const distSq = dx * dx + dy * dy;
-          const grabDist = Math.min(width, height) * 0.25;
-          if (distSq < grabDist * grabDist) {
-            const alpha = 1 - Math.sqrt(distSq) / grabDist;
-            ctx.strokeStyle = `hsla(${parts[i].hue}, 90%, 70%, ${0.52 * alpha})`;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(px, py);
-            ctx.lineTo(parts[i].x, parts[i].y);
+            ctx.moveTo(mouseRef.current.x, mouseRef.current.y);
+            ctx.lineTo(star.x + mx * star.z, star.y + my * star.z);
             ctx.stroke();
           }
         }
@@ -192,50 +267,39 @@ const Background: React.FC = () => {
     }
 
     function onPointerMove(e: PointerEvent) {
-      pointerRef.current.x = e.clientX;
-      pointerRef.current.y = e.clientY;
+      mouseRef.current.x = e.clientX;
+      mouseRef.current.y = e.clientY;
     }
     function onPointerLeave() {
-      pointerRef.current.x = null;
-      pointerRef.current.y = null;
+      mouseRef.current.x = 0;
+      mouseRef.current.y = 0;
     }
 
     function onResize() {
-      if (resizeTimerRef.current) {
-        window.clearTimeout(resizeTimerRef.current);
-      }
+      if (resizeTimerRef.current) window.clearTimeout(resizeTimerRef.current);
       resizeTimerRef.current = window.setTimeout(() => {
         setSize();
-        initParticles();
+        initEntities();
       }, 120);
     }
 
-    // initialize
     setSize();
-    initParticles();
+    initEntities();
     window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerdown', () => (pointerRef.current.down = true));
-    window.addEventListener('pointerup', () => (pointerRef.current.down = false));
     window.addEventListener('pointerleave', onPointerLeave);
     window.addEventListener('resize', onResize);
 
-    // start loop
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(animate);
 
-    const current = pointerRef.current;
-
-    // cleanup
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerdown', () => (current.down = true));
-      window.removeEventListener('pointerup', () => (current.down = false));
       window.removeEventListener('pointerleave', onPointerLeave);
       window.removeEventListener('resize', onResize);
       if (resizeTimerRef.current) window.clearTimeout(resizeTimerRef.current);
     };
-  }, []);
+  }, [resolvedTheme]);
 
   return (
     <canvas

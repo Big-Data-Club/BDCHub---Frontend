@@ -3,20 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Logo } from "@/components/layout/Logo";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { LogOut, Sun, Moon } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 
 export default function Navbar() {
   const router = useRouter();
   const { status } = useSession();
-  const { theme, setTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const isAuthenticated = status === "authenticated";
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -39,7 +35,7 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white dark:bg-[#070E1C] shadow-sm dark:shadow-none border-b border-slate-200 dark:border-blue-500/8 py-3"
+          ? "bg-white/90 dark:bg-[#070E1C]/90 backdrop-blur-md shadow-sm dark:shadow-none border-b border-slate-200/80 dark:border-blue-500/8 py-3"
           : "bg-transparent py-5"
       }`}
     >
@@ -62,16 +58,8 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Theme Toggle */}
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] hover:text-slate-700 dark:hover:text-slate-200 active:scale-95 transition-all duration-200"
-                aria-label="Toggle theme"
-              >
-                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-              </button>
-            )}
+            {/* Theme Toggle — extracted component */}
+            <ThemeToggle />
 
             {isAuthenticated ? (
               <Button

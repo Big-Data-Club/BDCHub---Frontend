@@ -94,28 +94,33 @@ export function GoogleRegisterForm() {
     );
   }
 
-  const inputClasses = "w-full rounded-xl px-4 py-3.5 bg-slate-50 border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200";
+  const inputClasses = "w-full rounded-xl px-4 py-3.5 bg-slate-50 dark:bg-[#0D192E] border border-slate-300 dark:border-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#0A1628] focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all duration-200";
 
   return (
-    <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mx-auto">
+    <div className="w-full max-w-md rounded-2xl p-8 mx-auto
+                    bg-white/90 dark:bg-[#0F1E35]/80
+                    backdrop-blur-xl
+                    border border-slate-200 dark:border-blue-500/15
+                    shadow-lg dark:shadow-[0_8px_40px_rgba(37,99,235,0.08)]
+                    transition-all duration-300">
       {/* Google profile header */}
       <div className="text-center mb-6">
         {profile.picture && (
           <img
             src={profile.picture}
             alt={profile.name}
-            className="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-blue-100"
+            className="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-blue-100 dark:border-blue-500/30"
             referrerPolicy="no-referrer"
           />
         )}
-        <h1 className="text-2xl font-bold text-slate-900">Hoàn tất đăng ký</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Hoàn tất đăng ký</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Bổ sung thông tin để tham gia Big Data Club
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 text-sm font-medium text-red-600 bg-red-50 border border-red-200 px-4 py-3 rounded-xl flex items-start gap-2">
+        <div className="mb-6 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/30 px-4 py-3 rounded-xl flex items-start gap-2">
           <span>⚠️</span> {error}
         </div>
       )}
@@ -123,18 +128,18 @@ export function GoogleRegisterForm() {
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Email - readonly */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
           <input
             type="email"
             value={profile.email}
             disabled
-            className="w-full rounded-xl px-4 py-3.5 bg-slate-100 border border-slate-200 text-slate-500 cursor-not-allowed"
+            className="w-full rounded-xl px-4 py-3.5 bg-slate-100 dark:bg-[#0A1628] border border-slate-200 dark:border-blue-500/10 text-slate-500 dark:text-slate-400 cursor-not-allowed"
           />
         </div>
 
         {/* Name - editable */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Họ và tên</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Họ và tên</label>
           <input
             type="text"
             value={name}
@@ -147,7 +152,7 @@ export function GoogleRegisterForm() {
 
         {/* Student code */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             MSSV / Mã thành viên
           </label>
           <input
@@ -162,7 +167,7 @@ export function GoogleRegisterForm() {
 
         {/* Team */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Ban</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Ban</label>
           <select
             value={team}
             onChange={(e) => setTeam(e.target.value)}
@@ -178,7 +183,7 @@ export function GoogleRegisterForm() {
 
         {/* Type */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Hệ đào tạo</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Hệ đào tạo</label>
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
@@ -195,12 +200,12 @@ export function GoogleRegisterForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 py-3.5 shadow-sm transition-all duration-200 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2"
+          className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 py-3.5 shadow-sm dark:shadow-blue-900/30 transition-all duration-200 active:scale-95 disabled:opacity-70 flex items-center justify-center gap-2"
         >
           {loading ? <Spinner /> : "Đăng ký"}
         </button>
 
-        <p className="text-xs text-center text-slate-400 mt-3">
+        <p className="text-xs text-center text-slate-400 dark:text-slate-500 mt-3">
           Tài khoản sẽ cần được admin duyệt trước khi sử dụng.
         </p>
       </form>

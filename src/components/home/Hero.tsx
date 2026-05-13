@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 
 export default function Hero() {
   const router = useRouter();
@@ -11,11 +11,9 @@ export default function Hero() {
   return (
     <section className="relative min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 text-center mt-8">
       <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-        {/* Title — gradient in dark mode */}
-        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight">
-          <span className="text-slate-900 dark:text-transparent dark:bg-gradient-to-r dark:from-blue-400 dark:to-cyan-400 dark:bg-clip-text">
-            Big Data Club
-          </span>
+        {/* Title — solid color, no gradient text */}
+        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          Big Data Club
         </h1>
 
         <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
@@ -39,19 +37,32 @@ export default function Hero() {
           )}
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12 border-t border-slate-200 dark:border-blue-500/10 mt-12">
+        {/* Stats — glassmorphic cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12 mt-12">
           {[
             { label: "Thành viên", value: "200+" },
             { label: "Năm hoạt động", value: "4" },
             { label: "Dự án NCKH", value: "10+" },
             { label: "Giải thưởng", value: "15+" }
           ].map((stat, i) => (
-            <div key={i} className="text-center">
+            <div key={i} className="text-center p-4 rounded-2xl
+                                    bg-white/60 dark:bg-[#0F1E35]/50
+                                    backdrop-blur-sm
+                                    border border-slate-200/80 dark:border-blue-500/10
+                                    hover:border-slate-300 dark:hover:border-blue-500/25
+                                    transition-all duration-300">
               <div className="text-3xl font-extrabold text-blue-600 dark:text-cyan-400">{stat.value}</div>
               <div className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-1">{stat.label}</div>
             </div>
           ))}
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="pt-8 flex justify-center">
+          <a href="#about" className="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors">
+            <span className="text-xs font-medium uppercase tracking-widest">Khám phá</span>
+            <ChevronDown className="w-5 h-5 animate-bounce" />
+          </a>
         </div>
       </div>
     </section>

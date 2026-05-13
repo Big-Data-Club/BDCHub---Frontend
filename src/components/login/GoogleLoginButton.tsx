@@ -97,7 +97,7 @@ export function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
         {loading ? (
           <div className="flex items-center justify-center py-3">
             <Spinner />
-            <span className="ml-2 text-sm text-slate-500">Đang xử lý...</span>
+            <span className="ml-2 text-sm text-slate-500 dark:text-slate-400">Đang xử lý...</span>
           </div>
         ) : (
           <div className="w-full flex justify-center">
