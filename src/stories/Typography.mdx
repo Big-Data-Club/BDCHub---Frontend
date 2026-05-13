@@ -1,0 +1,48 @@
+import { Meta, Typeset } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Typography" />
+
+# Typography
+
+BDC Typography is designed for maximum clarity and an academic feel. We use **Inter** as our primary typeface.
+
+**Font Family:** `'Inter', 'Geist', system-ui, sans-serif`
+
+<Typeset
+  fontSizes={['14px', '16px', '18px', '24px', '32px', '40px']}
+  fontWeight={700}
+  sampleText="Big Data Club - Enterprise AI"
+  fontFamily="'Inter', sans-serif"
+/>
+
+## Scale & Usage
+
+| Role | Tailwind Classes | Usage |
+|---|---|---|
+| **H1** | `text-3xl md:text-4xl font-extrabold` | Hero titles, Page headers |
+| **H2** | `text-2xl font-bold` | Section headers |
+| **H3** | `text-lg font-bold` | Card titles |
+| **Body** | `text-base leading-relaxed` | Primary content |
+| **Caption** | `text-sm` | Meta data, descriptions |
+| **Badge** | `text-xs font-semibold uppercase` | Tags, status labels |
+
+---
+
+## AI Gradient Text
+In dark mode, primary headings should use the BDC gradient.
+
+<h1 style={{ 
+  fontSize: '2.5rem', 
+  fontWeight: 800, 
+  background: 'linear-gradient(to right, #60A5FA, #22D3EE)', 
+  WebkitBackgroundClip: 'text', 
+  WebkitTextFillColor: 'transparent' 
+}}>
+  Academic Intelligence
+</h1>
+
+```tsx
+<h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+  Academic Intelligence
+</h1>
+```

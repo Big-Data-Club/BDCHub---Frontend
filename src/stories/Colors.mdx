@@ -1,0 +1,86 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Colors" />
+
+# Color System
+
+BDC uses a layered color system to create depth and hierarchy, with a strong focus on a premium Dark Mode.
+
+## Dark Mode (Primary)
+Our dark mode uses a Blue-Navy palette. **Avoid pure black and generic slate-900.**
+
+<ColorPalette>
+  <ColorItem
+    title="Backgrounds"
+    subtitle="Layered system (tối → sáng)"
+    colors={{
+      'Root bg': '#050B18',
+      'Layout Shell': '#070E1C',
+      'Section bg': '#0A1628',
+      'Card L1': '#0F1E35',
+      'Card L2': '#132240',
+      'Input bg': '#0D192E',
+    }}
+  />
+  <ColorItem
+    title="Accents"
+    subtitle="AI-Native Identity"
+    colors={{
+      'Primary (Blue-600)': '#2563EB',
+      'AI Cyan': '#22D3EE',
+      'Violet': '#A78BFA',
+    }}
+  />
+  <ColorItem
+    title="Typography"
+    subtitle="Text colors in dark mode"
+    colors={{
+      'Heading': '#FFFFFF',
+      'Sub-heading': '#F1F5F9',
+      'Body': '#CBD5E1',
+      'Caption': '#94A3B8',
+    }}
+  />
+</ColorPalette>
+
+## Light Mode
+The light mode provides a clean, premium enterprise experience using a Slate palette.
+
+<ColorPalette>
+  <ColorItem
+    title="Backgrounds"
+    subtitle="Slate palette"
+    colors={{
+      'Page bg': '#F8FAFC',
+      'Sidebar/Nav': '#FFFFFF',
+      'Card': '#FFFFFF',
+      'Input bg': '#F8FAFC',
+    }}
+  />
+  <ColorItem
+    title="Typography"
+    subtitle="Text colors in light mode"
+    colors={{
+      'Heading': '#0F172A',
+      'Body': '#475569',
+      'Caption': '#64748B',
+      'Action': '#2563EB',
+    }}
+  />
+</ColorPalette>
+
+## Semantic Colors
+Shared across both modes with specific adjustments for contrast.
+
+<ColorPalette>
+  <ColorItem
+    title="Semantic"
+    subtitle="Status & Feedback"
+    colors={{
+      'Danger': '#EF4444',
+      'Success': '#10B981',
+      'Warning': '#F59E0B',
+      'Info': '#3B82F6',
+    }}
+  />
+</ColorPalette>

@@ -121,3 +121,5 @@ temp/
 server/
 
 __pycache__/
+*storybook.log
+storybook-static
