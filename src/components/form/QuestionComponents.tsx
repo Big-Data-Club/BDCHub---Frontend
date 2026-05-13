@@ -5,20 +5,20 @@ import React from 'react';
 // ==========================================
 
 const QuestionCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm mb-6 transition-all hover:shadow-md">
+  <div className="bg-white dark:bg-[#0F1E35] p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-blue-500/10 shadow-sm dark:shadow-none mb-6 transition-all hover:shadow-md dark:hover:shadow-none dark:hover:border-blue-500/25">
     {children}
   </div>
 );
 
 const QuestionHeader = ({ question, required, note, constraints }: any) => (
   <div className="mb-5">
-    <label className="text-lg font-bold text-slate-900 flex items-start gap-1.5 leading-snug">
+    <label className="text-lg font-bold text-slate-900 dark:text-white flex items-start gap-1.5 leading-snug">
       <span>{question}</span>
-      {required && <span className="text-red-500 mt-1">*</span>}
+      {required && <span className="text-red-500 dark:text-red-400 mt-1">*</span>}
     </label>
-    {note && <p className="text-sm text-slate-500 mt-2">{note}</p>}
+    {note && <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{note}</p>}
     {constraints && (
-      <p className="text-xs font-medium text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded mt-2">
+      <p className="text-xs font-medium text-blue-600 dark:text-cyan-400 bg-blue-50 dark:bg-blue-900/30 inline-block px-2 py-1 rounded mt-2 border border-transparent dark:border-blue-500/20">
         {constraints}
       </p>
     )}
@@ -26,13 +26,13 @@ const QuestionHeader = ({ question, required, note, constraints }: any) => (
 );
 
 const ErrorMsg = ({ error }: { error?: string }) => 
-  error ? <p className="text-red-500 text-sm mt-3 flex items-center gap-1.5 font-medium">⚠️ {error}</p> : null;
+  error ? <p className="text-red-500 dark:text-red-400 text-sm mt-3 flex items-center gap-1.5 font-medium">⚠️ {error}</p> : null;
 
 // Class dùng chung cho tất cả các Text Inputs
-const inputClasses = "w-full border border-slate-300 rounded-xl p-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50 focus:bg-white transition-all";
+const inputClasses = "w-full border border-slate-300 dark:border-blue-500/20 rounded-xl p-3.5 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 bg-slate-50 dark:bg-[#0D192E] focus:bg-white dark:focus:bg-[#0A1628] transition-all";
 
 // Class dùng chung cho các Options (Radio, Checkbox)
-const optionItemClasses = "flex items-start gap-3 cursor-pointer group p-3 rounded-xl border border-transparent hover:border-slate-200 hover:bg-slate-50 transition-colors";
+const optionItemClasses = "flex items-start gap-3 cursor-pointer group p-3 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-blue-500/20 hover:bg-slate-50 dark:hover:bg-[#162644] transition-colors";
 
 // ==========================================
 // SPECIFIC QUESTION COMPONENTS
@@ -54,7 +54,7 @@ export const SingleChoiceQuestion = ({ question, value, onChange, error }: any) 
               onChange={(e) => onChange(question.id, e.target.value)}
               className="w-5 h-5 mt-0.5 accent-blue-600 cursor-pointer"
             />
-            <span className="text-slate-700 font-medium group-hover:text-slate-900">{option}</span>
+            <span className="text-slate-700 dark:text-slate-300 font-medium group-hover:text-slate-900 dark:group-hover:text-white">{option}</span>
           </label>
         ))}
       </div>
@@ -97,7 +97,7 @@ export const MultipleChoiceQuestion = ({ question, value = [], onChange, error }
               onChange={() => handleCheckboxChange(option)}
               className="w-5 h-5 mt-0.5 accent-blue-600 cursor-pointer rounded"
             />
-            <span className="text-slate-700 font-medium group-hover:text-slate-900">{option}</span>
+            <span className="text-slate-700 dark:text-slate-300 font-medium group-hover:text-slate-900 dark:group-hover:text-white">{option}</span>
           </label>
         ))}
       </div>
@@ -205,7 +205,7 @@ export const FillInTheBlankQuestion = ({ question, value = {}, onChange, error }
       <div className="space-y-5">
         {question.blanks.map((blank: any, idx: number) => (
           <div key={idx}>
-            <label className="text-sm font-semibold text-slate-700 mb-2 block">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">
               {blank.label}
             </label>
             <input
@@ -233,7 +233,7 @@ export const CodeQuestion = ({ question, value = '', onChange, error }: any) => 
         onChange={(e) => onChange(question.id, e.target.value)}
         placeholder={question.placeholder || "// Nhập code của bạn tại đây..."}
         rows={8}
-        className={`${inputClasses} font-mono text-sm bg-slate-800 text-slate-100 focus:bg-slate-900 focus:ring-slate-500/30 border-slate-700 placeholder:text-slate-500`}
+        className={`${inputClasses} font-mono text-sm bg-slate-800 dark:bg-[#0A1628] text-slate-100 focus:bg-slate-900 dark:focus:bg-[#060E1E] focus:ring-slate-500/30 dark:focus:ring-cyan-400/20 border-slate-700 dark:border-blue-500/20 placeholder:text-slate-500`}
       />
       <ErrorMsg error={error} />
     </QuestionCard>
@@ -251,12 +251,12 @@ export const MatchingQuestion = ({ question, value = {}, onChange, error }: any)
       <QuestionHeader question={question.question} required={question.required} note={question.note} />
       <div className="space-y-4">
         {question.items.map((item: any, idx: number) => (
-          <div key={idx} className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center gap-4">
-            <p className="text-slate-800 font-medium flex-1">{item.text}</p>
+          <div key={idx} className="bg-slate-50 dark:bg-[#0D192E] border border-slate-200 dark:border-blue-500/15 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center gap-4">
+            <p className="text-slate-800 dark:text-slate-200 font-medium flex-1">{item.text}</p>
             <select
               value={value[item.id] || ''}
               onChange={(e) => handleMatch(item.id, e.target.value)}
-              className="w-full sm:w-1/2 border border-slate-300 rounded-lg p-2.5 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="w-full sm:w-1/2 border border-slate-300 dark:border-blue-500/20 rounded-lg p-2.5 text-slate-700 dark:text-slate-200 bg-white dark:bg-[#0A1628] focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50"
             >
               <option value="">-- Chọn danh mục --</option>
               {question.categories.map((cat: string, catIdx: number) => (
@@ -281,16 +281,16 @@ export const RatingQuestion = ({ question, value = '', onChange, error }: any) =
     <QuestionCard>
       <QuestionHeader question={question.question} required={question.required} note={question.note} />
       <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mt-4">
-        {scale.minLabel && <span className="text-sm font-medium text-slate-500 hidden sm:block w-24 text-right">{scale.minLabel}</span>}
+        {scale.minLabel && <span className="text-sm font-medium text-slate-500 dark:text-slate-400 hidden sm:block w-24 text-right">{scale.minLabel}</span>}
         
         <div className="flex gap-2 sm:gap-4 flex-1 justify-center w-full sm:w-auto">
           {options.map((opt) => (
             <label key={opt} className="flex flex-col items-center gap-3 cursor-pointer group">
-              <span className={`text-sm font-bold ${value === opt.toString() ? 'text-blue-600' : 'text-slate-600 group-hover:text-slate-900'}`}>
+              <span className={`text-sm font-bold ${value === opt.toString() ? 'text-blue-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white'}`}>
                 {opt}
               </span>
-              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${value === opt.toString() ? 'border-blue-600 bg-blue-50' : 'border-slate-300 bg-white group-hover:border-slate-400'}`}>
-                {value === opt.toString() && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${value === opt.toString() ? 'border-blue-600 dark:border-cyan-400 bg-blue-50 dark:bg-cyan-400/10' : 'border-slate-300 dark:border-blue-500/30 bg-white dark:bg-[#0D192E] group-hover:border-slate-400 dark:group-hover:border-blue-500/50'}`}>
+                {value === opt.toString() && <div className="w-2.5 h-2.5 bg-blue-600 dark:bg-cyan-400 rounded-full" />}
               </div>
               <input
                 type="radio"
@@ -304,7 +304,7 @@ export const RatingQuestion = ({ question, value = '', onChange, error }: any) =
           ))}
         </div>
 
-        {scale.maxLabel && <span className="text-sm font-medium text-slate-500 hidden sm:block w-24 text-left">{scale.maxLabel}</span>}
+        {scale.maxLabel && <span className="text-sm font-medium text-slate-500 dark:text-slate-400 hidden sm:block w-24 text-left">{scale.maxLabel}</span>}
       </div>
       <ErrorMsg error={error} />
     </QuestionCard>
@@ -359,24 +359,24 @@ export const MatrixQuestion = ({ question, value = {}, onChange, error }: any) =
     <QuestionCard>
       <QuestionHeader question={question.question} required={question.required} note={question.note} />
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-blue-500/15">
         <table className="w-full text-sm text-left whitespace-nowrap md:whitespace-normal">
-          <thead className="bg-slate-50 border-b border-slate-200">
+          <thead className="bg-slate-50 dark:bg-[#0A1628] border-b border-slate-200 dark:border-blue-500/15">
             <tr>
-              <th className="p-4 font-semibold text-slate-700 min-w-[200px]">
+              <th className="p-4 font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">
                 {question.rowLabel || 'Tiêu chí'}
               </th>
               {columns.map((col: any, idx: number) => (
-                <th key={idx} className="p-4 text-center font-semibold text-slate-700 min-w-[80px]">
+                <th key={idx} className="p-4 text-center font-semibold text-slate-700 dark:text-slate-300 min-w-[80px]">
                   {col.label || col}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody className="divide-y divide-slate-100 dark:divide-blue-500/8 bg-white dark:bg-[#0F1E35]">
             {rows.map((row: any, rowIdx: number) => (
-              <tr key={rowIdx} className="hover:bg-blue-50/30 transition-colors group">
-                <td className="p-4 font-medium text-slate-800 text-wrap leading-relaxed">
+              <tr key={rowIdx} className="hover:bg-blue-50/30 dark:hover:bg-[#162644] transition-colors group">
+                <td className="p-4 font-medium text-slate-800 dark:text-slate-200 text-wrap leading-relaxed">
                   {row.text || row}
                 </td>
                 {columns.map((col: any, colIdx: number) => {
@@ -406,7 +406,7 @@ export const MatrixQuestion = ({ question, value = {}, onChange, error }: any) =
       </div>
 
       {question.showBottomLabels && (
-        <div className="flex justify-end gap-4 mt-4 text-xs font-medium text-slate-500">
+        <div className="flex justify-end gap-4 mt-4 text-xs font-medium text-slate-500 dark:text-slate-400">
           {columns.map((col: any, idx: number) => (
             <div key={idx} className="min-w-[80px] text-center">
               {col.description}

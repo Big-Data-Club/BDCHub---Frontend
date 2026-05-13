@@ -40,6 +40,7 @@ export default function SurveyForm({ formData }: { formData: any }) {
   const questionsPerPage = 6;
   const totalPages = Math.ceil(questions.length / questionsPerPage);
   const currentQuestions = questions.slice(currentPage * questionsPerPage, (currentPage + 1) * questionsPerPage);
+  const isRegistration = formData.formType === 'registration';
 
   useEffect(() => {
     const checkSubmissionStatus = async () => {
@@ -192,8 +193,8 @@ export default function SurveyForm({ formData }: { formData: any }) {
   if (checkingSubmission) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
-        <div className="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-        <p className="text-slate-500 font-medium">Đang tải dữ liệu...</p>
+        <div className="w-10 h-10 border-4 border-slate-200 dark:border-blue-500/20 border-t-blue-600 dark:border-t-cyan-400 rounded-full animate-spin mb-4"></div>
+        <p className="text-slate-500 dark:text-slate-400 font-medium">Đang tải dữ liệu...</p>
       </div>
     );
   }
@@ -211,25 +212,31 @@ export default function SurveyForm({ formData }: { formData: any }) {
         {currentQuestions.map(q => renderQuestion(q))}
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-10 mb-8 border-t border-slate-200 pt-8">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-10 mb-8 border-t border-slate-200 dark:border-blue-500/10 pt-8">
         <div className="w-full sm:w-auto flex gap-3">
           {currentPage > 0 && (
-            <Button onClick={handlePrev} variant="outline" className="w-full sm:w-auto px-6 py-3 border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl font-medium">
+            <Button onClick={handlePrev} variant="outline" className="w-full sm:w-auto px-6 py-3 border-slate-300 dark:border-blue-500/20 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#162644] rounded-xl font-medium active:scale-95 transition-all duration-200">
               ← Trang trước
             </Button>
           )}
-          <Button onClick={handleReset} variant="ghost" className="w-full sm:w-auto text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl">
+          <Button onClick={handleReset} variant="ghost" className="w-full sm:w-auto text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl active:scale-95 transition-all duration-200">
             Xóa form
           </Button>
         </div>
 
         {currentPage < totalPages - 1 ? (
-          <Button onClick={handleNext} className="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm transition-all">
+          <Button onClick={handleNext} className="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm dark:shadow-blue-900/20 active:scale-95 transition-all duration-200">
             Trang tiếp theo →
           </Button>
         ) : (
-          <Button onClick={handleSubmit} disabled={loading} className={`w-full sm:w-auto px-10 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md transition-all ${loading ? 'opacity-70 cursor-wait' : ''}`}>
-            {loading ? 'Đang gửi...' : 'Gửi Khảo Sát'}
+          <Button onClick={handleSubmit} disabled={loading} className={`w-full sm:w-auto px-10 py-3 font-bold rounded-xl shadow-md transition-all duration-200 active:scale-95 ${
+            isRegistration
+              ? 'bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white shadow-blue-900/20'
+              : 'bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white'
+          } ${loading ? 'opacity-70 cursor-wait' : ''}`}>
+            {loading 
+              ? 'Đang gửi...' 
+              : (isRegistration ? 'Gửi Đơn Đăng Ký' : 'Gửi Khảo Sát')}
           </Button>
         )}
       </div>
