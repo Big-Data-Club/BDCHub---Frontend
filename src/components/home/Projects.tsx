@@ -24,7 +24,7 @@ export default function Projects() {
             </div>
           </div>
           <div className="space-y-4">
-            {clubData.projects.slice(0, 5).map((project) => (
+            {clubData.projects.slice(0, 6).map((project) => (
               <div
                 key={project.id}
                 onClick={() => router.push(project.projectShowcaseUrl)}

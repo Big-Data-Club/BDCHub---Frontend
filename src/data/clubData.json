@@ -554,6 +554,15 @@
     },
     {
       "id": "3",
+      "title": "A New Approach to Transformer-based State Encoding for Deep Reinforcement Learning Scheduling in Sustainable HPC Systems",
+      "authors": "Nguyen Phuc Nhan*, Bui Ngoc Minh, Nguyen Tran Phuong Mai, Hoang Le Hai Thanh, Thoai Nam*",
+      "publisher": "The 39th International Conference on Industrial, Engineering & Other Applications of Applied Intelligent Systems - IEA/AIE 2026",
+      "year": 2025,
+      "volume": "16354",
+      "doi": "10.1007/978-981-95-4960-3_33"
+    },
+    {
+      "id": "4",
       "title": "HDEM: A Hierarchical Dynamic Ensemble Model for Accurate Runtime Prediction on High Performance Computing Systems",
       "authors": "Hoang Le Hai Thanh*, Nguyen Tuan Huy, Tran Dang Bao, Vo Thuong Bao, Phan Tran Dinh Khoi, Thoai Nam*",
       "publisher": "Future Data and Security Engineering - FDSE 2025. Communications in Computer and Information Science. Springer, Singapore.",
@@ -563,14 +572,14 @@
       "doi": "10.1007/978-981-95-4724-1_13"
     },
     {
-      "id": "4",
+      "id": "5",
       "title": "A Performance Study of Piecewise Constant Approximation in Streaming Data Compression",
       "authors": "Phan Alan,La Quoc Nhut Huan,Diep Thanh Dang*,Thoai Nam",
       "publisher": "International Conference on Advanced Computing and Analytics (ACOMPA)",
       "year": 2025
     },
     {
-      "id": "5",
+      "id": "6",
       "title": "EDM4QS: An Emulator-Driven Model for Quantum Scheduling",
       "authors": "Nguyen Trieu,Minh Chung,Diep Thanh Dang*,Thoai Nam",
       "publisher": "International Symposium on Information and Communication Technology (SoICT)",
