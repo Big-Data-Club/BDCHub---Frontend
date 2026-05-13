@@ -463,6 +463,53 @@ font-family: 'Inter', 'Geist', system-ui, sans-serif;
 
 ---
 
+### 5.10 Auth Pages — Cosmic Glass Aesthetic
+
+Auth pages (login, register, pending, confirm-password) dùng **glassmorphic card** với cosmic background.
+
+#### AuthShell (Client Component wrapper)
+
+Wraps auth layout with: cosmic star-field background, orbital glow decorations, ThemeToggle button (top-right).
+
+```tsx
+import { AuthShell } from "@/components/login/AuthShell";
+
+// Used in (auth)/layout.tsx
+<AuthShell>
+  <main className="flex-1 ... relative z-10">{children}</main>
+  <Footer />
+</AuthShell>
+```
+
+#### Glassmorphic Auth Card
+
+```tsx
+<div className="
+  w-full max-w-md rounded-2xl p-8 mx-auto
+  bg-white/90 dark:bg-[#0F1E35]/80
+  backdrop-blur-xl
+  border border-slate-200 dark:border-blue-500/15
+  shadow-lg dark:shadow-[0_8px_40px_rgba(37,99,235,0.08)]
+  transition-all duration-300
+">
+```
+
+> **Rule:** Auth pages use `backdrop-blur-xl` on cards — this is the ONE exception to the "no backdrop-blur on layout shell" rule. The blur is on the card only, not on nav/sidebar.
+
+#### Theme Toggle Placement
+
+- **Auth pages:** Fixed top-right corner via `AuthShell`
+- **Landing pages:** Inside `Navbar` component
+- **Dashboard/LMS:** Not shown (follows system preference or user setting)
+
+#### Cosmic Background (`Background.tsx`)
+
+- **Dark mode:** Full cosmic star-field with twinkling stars, nebula blobs, and shooting stars
+- **Light mode:** Very subtle — muted stars, nearly invisible nebulae
+- **Interactive:** Mouse parallax on star layers, constellation lines to cursor
+
+---
+
 ## 6. Layout & Spacing
 
 ### Wrappers

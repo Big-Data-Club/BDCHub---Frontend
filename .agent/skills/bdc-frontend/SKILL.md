@@ -55,7 +55,7 @@ frontend/src/
 │   └── api/                  Route Handlers — NextAuth, upload, youtube, health
 ├── components/
 │   ├── ui/                   shadcn/ui primitives — DO NOT modify directly
-│   ├── layout/               Sidebar, MobileNav, Navbar, Footer, ThemeToggle
+│   ├── layout/               Sidebar, MobileNav, Navbar, Footer, ThemeToggle, Background
 │   ├── common/               SafeImage, LoadingState, EmptyState, SectionHeader
 │   ├── dashboard/            announcement/, event/, calendar/, modals/
 │   ├── lms/shared/           LMS-flavoured primitives (check here before building new)
@@ -380,7 +380,7 @@ export default function FeaturePage() {
 
 | Group | Layout | Auth | Design mode |
 |---|---|---|---|
-| `(auth)` | Minimal, no sidebar | No | Light |
+| `(auth)` | AuthShell (cosmic bg + ThemeToggle) | No | Light / Dark toggle |
 | `(landing)` | Public landing | No | Light / Dark toggle |
 | `(main)` | Sidebar + MobileNav | Yes | Light (slate) |
 | `(learning)/lms` | LMS shell | Yes | Dark (navy) preferred |

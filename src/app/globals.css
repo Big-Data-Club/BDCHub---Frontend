@@ -10,6 +10,14 @@ html, body {
   padding: 0;
 }
 
+/* Base page bg — sits behind the fixed canvas */
+html {
+  background-color: #f8fafc; /* slate-50 */
+}
+html:where(.dark) {
+  background-color: #050B18;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -159,6 +167,55 @@ html, body {
 
 .animate-scroll {
   animation: scroll 0.5s ease-in-out infinite;
+}
+
+/* Cosmic Animations */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.25);
+  }
+}
+
+@keyframes cosmic-drift {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(10px, -15px) rotate(1deg);
+  }
+  50% {
+    transform: translate(-5px, -25px) rotate(-1deg);
+  }
+  75% {
+    transform: translate(-15px, -10px) rotate(0.5deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+.animate-cosmic-drift {
+  animation: cosmic-drift 20s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
 }
 
 /* Intersection Observer Transitions */

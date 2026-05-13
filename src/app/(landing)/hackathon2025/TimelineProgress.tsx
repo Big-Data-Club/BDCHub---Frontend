@@ -164,19 +164,22 @@ export default function TimelineProgress({
 
   return (
     <div className="container mx-auto px-4 py-5">
-      <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">
-        <Clock className="inline w-10 h-10 mr-3 text-gray-600" />
+      <h2 className="text-4xl font-bold text-center mb-12 text-slate-800 dark:text-white">
+        <Clock className="inline w-10 h-10 mr-3 text-slate-600 dark:text-cyan-400" />
         {title} - {formatDate(hackathonDate)}
       </h2>
       
       {/* Enhanced Progress Bar with Checkpoints */}
       <div className="max-w-7xl mx-auto mb-12">
-        <div className="bg-transparent backdrop-blur-lg rounded-2xl p-8 border-2 border-gray-200 shadow-xl">
+        <div className="bg-white dark:bg-[#0F1E35]
+                        rounded-2xl p-8
+                        border border-slate-200 dark:border-blue-500/10
+                        shadow-sm dark:shadow-none">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-gray-800">Tiến độ cuộc thi</h3>
+            <h3 className="text-2xl font-bold text-slate-800 dark:text-white">Tiến độ cuộc thi</h3>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">Hoàn thành:</span>
-              <span className="text-3xl font-mono font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-sm text-slate-600 dark:text-slate-400">Hoàn thành:</span>
+              <span className="text-3xl font-mono font-bold bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
                 {overallProgress.toFixed(1)}%
               </span>
             </div>
@@ -186,12 +189,12 @@ export default function TimelineProgress({
           <div className="relative py-56">
             {/* Main Progress Track - centered vertically */}
             <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2">
-              <div className="relative h-3 bg-gray-300 rounded-full overflow-hidden shadow-inner">
+              <div className="relative h-3 bg-slate-200 dark:bg-[#0A1628] rounded-full overflow-hidden">
                 <div 
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-1000 ease-out rounded-full shadow-lg"
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-1000 ease-out rounded-full shadow-[0_0_15px_rgba(37,99,235,0.3)]"
                   style={{ width: `${overallProgress}%` }}
                 >
-                  <div className="absolute inset-0 bg-white opacity-30 animate-pulse"></div>
+                  <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg animate-pulse"></div>
                 </div>
               </div>
@@ -229,18 +232,18 @@ export default function TimelineProgress({
                           {/* Event Info Card */}
                           <div className={`
                             p-4 rounded-xl text-center min-w-[140px] max-w-[180px] mb-2 -translate-y-60
-                            transition-all duration-300 transform
+                            transition-all duration-300 transform border
                             ${isActive 
-                              ? 'bg-yellow-50 border-2 border-yellow-400 scale-105 shadow-xl z-30' 
+                              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-500/30 scale-105 shadow-xl dark:shadow-amber-900/20 z-30' 
                               : isPassed
-                                ? 'bg-green-50 border-2 border-green-300 shadow-md z-10'
-                                : 'bg-white border-2 border-gray-300 shadow-md z-10'
+                                ? 'bg-green-50 dark:bg-green-950/40 border-green-300 dark:border-green-800/30 shadow-md dark:shadow-none z-10'
+                                : 'bg-white dark:bg-[#0F1E35] border-slate-200 dark:border-blue-500/10 shadow-md dark:shadow-none z-10'
                             }
                           `}>
                             {/* Time */}
                             <div className={`
                               text-xl font-bold mb-1
-                              ${isActive ? 'text-yellow-600' : isPassed ? 'text-green-600' : 'text-gray-700'}
+                              ${isActive ? 'text-amber-600 dark:text-amber-400' : isPassed ? 'text-green-600 dark:text-green-400' : 'text-slate-700 dark:text-white'}
                             `}>
                               {event.time}
                             </div>
@@ -248,13 +251,13 @@ export default function TimelineProgress({
                             {/* Title */}
                             <div className={`
                               text-sm font-semibold mb-2
-                              ${isActive ? 'text-yellow-800' : isPassed ? 'text-green-700' : 'text-gray-600'}
+                              ${isActive ? 'text-amber-800 dark:text-amber-300' : isPassed ? 'text-green-700 dark:text-green-400' : 'text-slate-600 dark:text-slate-300'}
                             `}>
                               {event.title}
                             </div>
                             
                             {/* Description */}
-                            <div className="text-xs text-gray-500 mb-2">
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
                               {event.description}
                             </div>
                             
@@ -263,8 +266,8 @@ export default function TimelineProgress({
                               <div className={`
                                 text-lg font-mono font-bold mt-2 pt-2 border-t
                                 ${isActive 
-                                  ? 'text-yellow-600 border-yellow-300 animate-pulse' 
-                                  : 'text-gray-600 border-gray-300'
+                                  ? 'text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-500/30 animate-pulse' 
+                                  : 'text-slate-600 dark:text-slate-300 border-slate-200 dark:border-blue-500/10'
                                 }
                               `}>
                                 {countdown}
@@ -272,7 +275,7 @@ export default function TimelineProgress({
                             )}
                             
                             {isPassed && (
-                              <div className="flex items-center justify-center gap-1 mt-2 pt-2 border-t border-green-300 text-green-600 font-semibold text-xs">
+                              <div className="flex items-center justify-center gap-1 mt-2 pt-2 border-t border-green-300 dark:border-green-800/30 text-green-600 dark:text-green-400 font-semibold text-xs">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
@@ -284,7 +287,7 @@ export default function TimelineProgress({
                           {/* Connector Line */}
                           <div className={`
                             w-0.5 h-8 -translate-y-60
-                            ${isPassed ? 'bg-green-400' : isActive ? 'bg-yellow-400' : 'bg-gray-400'}
+                            ${isPassed ? 'bg-green-400 dark:bg-green-500' : isActive ? 'bg-amber-400 dark:bg-amber-500' : 'bg-slate-300 dark:bg-blue-500/30'}
                           `}></div>
                         </>
                       )}
@@ -294,12 +297,12 @@ export default function TimelineProgress({
                         w-8 h-8 rounded-full flex items-center justify-center
                         transition-all duration-300 transform 
                         ${isPassed 
-                          ? 'bg-green-500 scale-100 shadow-lg shadow-green-500/50' 
+                          ? 'bg-green-500 scale-100 shadow-lg shadow-green-500/30 dark:shadow-green-500/20' 
                           : isActive 
-                            ? 'bg-yellow-400 scale-125 animate-pulse shadow-lg shadow-yellow-400/50 ring-4 ring-yellow-200' 
-                            : 'bg-gray-400 scale-90 shadow-md'
+                            ? 'bg-amber-400 dark:bg-amber-500 scale-125 animate-pulse shadow-lg shadow-amber-400/30 dark:shadow-amber-500/20 ring-4 ring-amber-200 dark:ring-amber-500/20' 
+                            : 'bg-slate-300 dark:bg-blue-500/40 scale-90 shadow-md dark:shadow-none'
                         }
-                        border-4 border-white z-20 relative
+                        border-4 border-white dark:border-[#0F1E35] z-20 relative
                         ${isTopRow ? 'mt-0 mb-auto -translate-y-60' : 'mt-auto mb-0'}
                       `}>
                         {isPassed ? (
@@ -319,24 +322,24 @@ export default function TimelineProgress({
                           {/* Connector Line */}
                           <div className={`
                             w-0.5 h-8
-                            ${isPassed ? 'bg-green-400' : isActive ? 'bg-yellow-400' : 'bg-gray-400'}
+                            ${isPassed ? 'bg-green-400 dark:bg-green-500' : isActive ? 'bg-amber-400 dark:bg-amber-500' : 'bg-slate-300 dark:bg-blue-500/30'}
                           `}></div>
                           
                           {/* Event Info Card */}
                           <div className={`
                             p-4 rounded-xl text-center min-w-[140px] max-w-[180px] mt-2
-                            transition-all duration-300 transform
+                            transition-all duration-300 transform border
                             ${isActive 
-                              ? 'bg-yellow-50 border-2 border-yellow-400 scale-105 shadow-xl z-30' 
+                              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-500/30 scale-105 shadow-xl dark:shadow-amber-900/20 z-30' 
                               : isPassed
-                                ? 'bg-green-50 border-2 border-green-300 shadow-md z-10'
-                                : 'bg-white border-2 border-gray-300 shadow-md z-10'
+                                ? 'bg-green-50 dark:bg-green-950/40 border-green-300 dark:border-green-800/30 shadow-md dark:shadow-none z-10'
+                                : 'bg-white dark:bg-[#0F1E35] border-slate-200 dark:border-blue-500/10 shadow-md dark:shadow-none z-10'
                             }
                           `}>
                             {/* Time */}
                             <div className={`
                               text-xl font-bold mb-1
-                              ${isActive ? 'text-yellow-600' : isPassed ? 'text-green-600' : 'text-gray-700'}
+                              ${isActive ? 'text-amber-600 dark:text-amber-400' : isPassed ? 'text-green-600 dark:text-green-400' : 'text-slate-700 dark:text-white'}
                             `}>
                               {event.time}
                             </div>
@@ -344,13 +347,13 @@ export default function TimelineProgress({
                             {/* Title */}
                             <div className={`
                               text-sm font-semibold mb-2
-                              ${isActive ? 'text-yellow-800' : isPassed ? 'text-green-700' : 'text-gray-600'}
+                              ${isActive ? 'text-amber-800 dark:text-amber-300' : isPassed ? 'text-green-700 dark:text-green-400' : 'text-slate-600 dark:text-slate-300'}
                             `}>
                               {event.title}
                             </div>
                             
                             {/* Description */}
-                            <div className="text-xs text-gray-500 mb-2">
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
                               {event.description}
                             </div>
                             
@@ -359,8 +362,8 @@ export default function TimelineProgress({
                               <div className={`
                                 text-lg font-mono font-bold mt-2 pt-2 border-t
                                 ${isActive 
-                                  ? 'text-yellow-600 border-yellow-300 animate-pulse' 
-                                  : 'text-gray-600 border-gray-300'
+                                  ? 'text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-500/30 animate-pulse' 
+                                  : 'text-slate-600 dark:text-slate-300 border-slate-200 dark:border-blue-500/10'
                                 }
                               `}>
                                 {countdown}
@@ -368,7 +371,7 @@ export default function TimelineProgress({
                             )}
                             
                             {isPassed && (
-                              <div className="flex items-center justify-center gap-1 mt-2 pt-2 border-t border-green-300 text-green-600 font-semibold text-xs">
+                              <div className="flex items-center justify-center gap-1 mt-2 pt-2 border-t border-green-300 dark:border-green-800/30 text-green-600 dark:text-green-400 font-semibold text-xs">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
@@ -389,12 +392,12 @@ export default function TimelineProgress({
           {/* Status Message */}
           <div className="mt-6 text-center">
             <div className={`
-              inline-block px-6 py-3 rounded-full font-semibold text-lg
+              inline-block px-6 py-3 rounded-full font-semibold text-lg border
               ${overallProgress === 0 
-                ? 'bg-gray-200 text-gray-700' 
+                ? 'bg-slate-100 dark:bg-[#0A1628] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-blue-500/10' 
                 : overallProgress === 100 
-                  ? 'bg-green-100 text-green-700 border-2 border-green-300' 
-                  : 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300 animate-pulse'
+                  ? 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800/30' 
+                  : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-500/30 animate-pulse'
               }
             `}>
               {overallProgress === 0 && "⏳ Cuộc thi chưa bắt đầu"}

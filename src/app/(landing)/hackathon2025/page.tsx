@@ -11,7 +11,7 @@ export default function EventPage() {
   const eventData = hackathon2025Data;
 
   return (
-    <div className="w-full font-sans text-slate-800">
+    <div className="w-full font-sans text-slate-800 dark:text-slate-200">
       <EventHero event={eventData} />
       <EventDetails event={eventData} />
       <EventTimeline timelines={eventData.timelines} />

@@ -13,7 +13,7 @@ export default function LandingPage() {
       <About />
       <Activities />
       <Projects />
-      <Members />
+      {/* <Members /> */}
     </div>
   );
 }
