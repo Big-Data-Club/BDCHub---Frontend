@@ -10,7 +10,7 @@ interface AuthShellProps {
 
 export function AuthShell({ children }: AuthShellProps) {
   return (
-    <div className="relative min-h-screen flex flex-col bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-slate-200 font-sans selection:bg-blue-100 dark:selection:bg-blue-900/40 selection:text-blue-900 dark:selection:text-blue-100">
+    <div className="relative min-h-screen flex flex-col bg-transparent text-slate-900 dark:text-slate-200 font-sans selection:bg-blue-100 dark:selection:bg-blue-900/40 selection:text-blue-900 dark:selection:text-blue-100">
       {/* Cosmic star-field background */}
       <Background />
 

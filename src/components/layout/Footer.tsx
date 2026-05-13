@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-white dark:bg-[#070E1C]
+    <footer className="relative bg-white/80 dark:bg-[#070E1C]/80 backdrop-blur-md
                        border-t border-slate-200 dark:border-blue-500/8
                        w-full flex-shrink-0">
       {/* Cosmic glow line — dark mode only */}

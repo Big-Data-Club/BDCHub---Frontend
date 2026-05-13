@@ -545,18 +545,18 @@
     },
     {
       "id": "2",
-      "title": "Toward Sustainable and Cost-Efficient HPC Systems: A Deep Reinforcement Learning Job Scheduling Approach",
-      "authors": "Hoang Le Hai Thanh*, Nguyen Phuc Nhan, Nguyen Tran Phuong Mai, Bui Ngoc Minh, Thoai Nam*",
-      "publisher": "Multi-disciplinary Trends in Artificial Intelligence - MIWAI 2025. Lecture Notes in Computer Science. Springer, Singapore",
-      "year": 2025,
+      "title": "A New Approach to Transformer-based State Encoding for Deep Reinforcement Learning Scheduling in Sustainable HPC Systems",
+      "authors": "Nguyen Phuc Nhan*, Bui Ngoc Minh, Nguyen Tran Phuong Mai, Hoang Le Hai Thanh, Thoai Nam*",
+      "publisher": "The 39th International Conference on Industrial, Engineering & Other Applications of Applied Intelligent Systems - IEA/AIE 2026",
+      "year": 2026,
       "volume": "16354",
       "doi": "10.1007/978-981-95-4960-3_33"
     },
     {
       "id": "3",
-      "title": "A New Approach to Transformer-based State Encoding for Deep Reinforcement Learning Scheduling in Sustainable HPC Systems",
-      "authors": "Nguyen Phuc Nhan*, Bui Ngoc Minh, Nguyen Tran Phuong Mai, Hoang Le Hai Thanh, Thoai Nam*",
-      "publisher": "The 39th International Conference on Industrial, Engineering & Other Applications of Applied Intelligent Systems - IEA/AIE 2026",
+      "title": "Toward Sustainable and Cost-Efficient HPC Systems: A Deep Reinforcement Learning Job Scheduling Approach",
+      "authors": "Hoang Le Hai Thanh*, Nguyen Phuc Nhan, Nguyen Tran Phuong Mai, Bui Ngoc Minh, Thoai Nam*",
+      "publisher": "Multi-disciplinary Trends in Artificial Intelligence - MIWAI 2025. Lecture Notes in Computer Science. Springer, Singapore",
       "year": 2025,
       "volume": "16354",
       "doi": "10.1007/978-981-95-4960-3_33"

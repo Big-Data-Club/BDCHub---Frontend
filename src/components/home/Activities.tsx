@@ -8,7 +8,7 @@ export default function Activities() {
   const [ref, isVisible] = useScrollAnimation();
 
   return (
-    <section id="activities" ref={ref} className={`py-24 px-4 sm:px-6 lg:px-8 bg-slate-100/50 dark:bg-[#0A1628] transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+    <section id="activities" ref={ref} className={`py-24 px-4 sm:px-6 lg:px-8 bg-slate-100/60 dark:bg-[#0A1628]/70 backdrop-blur-sm transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
       <div className="max-w-7xl mx-auto">
         {/* Section header — pipeline style */}
         <div className="mb-16">
@@ -24,7 +24,8 @@ export default function Activities() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {clubData.activities.map((activity) => (
-            <div key={activity.id} className="bg-white dark:bg-[#0F1E35]
+            <div key={activity.id} className="bg-white/80 dark:bg-[#0F1E35]/70
+                                              backdrop-blur-sm
                                               rounded-2xl
                                               border border-slate-200 dark:border-blue-500/10
                                               overflow-hidden

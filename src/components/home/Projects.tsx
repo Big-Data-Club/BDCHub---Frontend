@@ -29,7 +29,8 @@ export default function Projects() {
                 key={project.id}
                 onClick={() => router.push(project.projectShowcaseUrl)}
                 className="p-5 rounded-xl cursor-pointer group
-                           bg-white dark:bg-[#0F1E35]
+                           bg-white/80 dark:bg-[#0F1E35]/70
+                           backdrop-blur-sm
                            border border-slate-200 dark:border-blue-500/10
                            shadow-sm dark:shadow-none
                            hover:-translate-y-0.5

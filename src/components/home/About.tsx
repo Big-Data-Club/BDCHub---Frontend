@@ -22,7 +22,8 @@ export default function About() {
 
         <div className="grid md:grid-cols-2 gap-12 items-start">
           <div className="space-y-6 text-slate-600 dark:text-slate-300 leading-relaxed text-lg
-                          bg-white dark:bg-[#0F1E35]
+                          bg-white/80 dark:bg-[#0F1E35]/70
+                          backdrop-blur-sm
                           p-8 rounded-2xl
                           border border-slate-200 dark:border-blue-500/10
                           shadow-sm dark:shadow-none
@@ -41,7 +42,8 @@ export default function About() {
               { title: "Chia Sẻ Cởi Mở", desc: "Open Learning - Open Sharing." },
               { title: "Học Qua Dự Án", desc: "Learning by Doing - Thực chiến." }
             ].map((val, idx) => (
-              <div key={idx} className="group bg-white dark:bg-[#0F1E35]
+              <div key={idx} className="group bg-white/80 dark:bg-[#0F1E35]/70
+                                        backdrop-blur-sm
                                         p-6 rounded-2xl
                                         border border-slate-200 dark:border-blue-500/10
                                         shadow-sm dark:shadow-none

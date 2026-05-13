@@ -10,6 +10,14 @@ html, body {
   padding: 0;
 }
 
+/* Base page bg — sits behind the fixed canvas */
+html {
+  background-color: #f8fafc; /* slate-50 */
+}
+html:where(.dark) {
+  background-color: #050B18;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
