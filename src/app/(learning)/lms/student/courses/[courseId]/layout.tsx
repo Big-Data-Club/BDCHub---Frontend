@@ -11,7 +11,7 @@
  *  - StudentCourseContext for child pages
  */
 
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef, Suspense } from "react";
 import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -166,7 +166,7 @@ function SidebarSection({
 // MAIN LAYOUT
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function StudentCourseDetailLayout({ children }: { children: React.ReactNode }) {
+function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNode }) {
   const { courseId } = useParams<{ courseId: string }>();
   const router = useRouter();
   const pathname = usePathname();
@@ -547,5 +547,15 @@ export default function StudentCourseDetailLayout({ children }: { children: Reac
         <ChatFAB />
       </div>
     </StudentCourseContext.Provider>
+  );
+}
+
+// ── Wrap in Suspense for useSearchParams ──────────────────────────────────────
+
+export default function StudentCourseDetailLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<PageLoader message="Đang tải khóa học..." />}>
+      <StudentCourseDetailLayoutInner>{children}</StudentCourseDetailLayoutInner>
+    </Suspense>
   );
 }
