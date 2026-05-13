@@ -40,10 +40,10 @@ export default function Hero() {
         {/* Stats — glassmorphic cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12 mt-12">
           {[
-            { label: "Thành viên", value: "200+" },
+            { label: "Kết nối", value: "100+" },
             { label: "Năm hoạt động", value: "4" },
             { label: "Dự án NCKH", value: "10+" },
-            { label: "Giải thưởng", value: "15+" }
+            { label: "Giải thưởng", value: "5+" }
           ].map((stat, i) => (
             <div key={i} className="text-center p-4 rounded-2xl
                                     bg-white/60 dark:bg-[#0F1E35]/50
