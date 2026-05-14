@@ -125,3 +125,4 @@ __pycache__/
 storybook-static
 
 lint_output.txt
+lint_result.txt

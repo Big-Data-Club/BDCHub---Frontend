@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import SectionHeader from '../../components/common/SectionHeader';
 import { BookOpen, Users, Zap, Rocket } from 'lucide-react';
 
