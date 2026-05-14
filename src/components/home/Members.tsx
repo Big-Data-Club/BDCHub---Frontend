@@ -1,29 +1,36 @@
 "use client";
 import { Users } from "lucide-react";
 import clubData from "@/data/clubData.json";
-import { useScrollAnimation } from "@/hooks/animation/useScrollAnimation";
+import SectionHeader from "../common/SectionHeader";
 import SafeImage from "../common/SafeImage";
+import { motion } from "framer-motion";
 
 export default function Members() {
-  const [ref, isVisible] = useScrollAnimation();
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.4 },
+    },
+  };
 
   return (
-    <section id="members" ref={ref} className={`py-24 px-4 sm:px-6 lg:px-8 bg-slate-100/50 dark:bg-[#0A1628] transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+    <section id="members" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-[#070E1C]">
       <div className="max-w-7xl mx-auto">
-        {/* Section header — pipeline style centered */}
-        <div className="mb-16 text-center">
-          <div className="flex items-center justify-center gap-4 mb-2">
-            <Users className="text-blue-600 dark:text-cyan-400 w-6 h-6 shrink-0" />
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Đội Ngũ BDC</h2>
-          </div>
-          <div className="flex items-center gap-4 mt-4 max-w-md mx-auto">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent to-blue-500/30 dark:to-cyan-400/20" />
-            <div className="w-12 h-1 bg-blue-600 dark:bg-cyan-400 rounded-full" />
-            <div className="flex-1 h-px bg-gradient-to-l from-transparent to-blue-500/30 dark:to-cyan-400/20" />
-          </div>
-        </div>
+        <SectionHeader icon={Users} title="Đội Ngũ BDC" centered />
 
-        <div className="space-y-16">
+        <div className="space-y-16 mt-16">
           {['council', 'research', 'engineer', 'media', 'event', 'alumni'].map((teamKey) => {
             const teamData = clubData.members[teamKey as keyof typeof clubData.members];
             if (!teamData || teamData.length === 0) return null;
@@ -31,25 +38,37 @@ export default function Members() {
 
             return (
               <div key={teamKey}>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6
-                               border-b border-slate-200 dark:border-blue-500/10 pb-2">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-8
+                                border-b border-slate-200 dark:border-blue-500/10 pb-2">
                   {teamName} Team <span className="text-sm font-normal text-slate-500 dark:text-slate-400 ml-2">({teamData.length})</span>
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+                <motion.div 
+                  variants={containerVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-50px" }}
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-6"
+                >
                   {teamData.map((member) => (
-                    <div key={member.id} className="text-center group">
+                    <motion.div key={member.id} variants={itemVariants} className="text-center group">
                       <div className="relative w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden
                                       bg-slate-200 dark:bg-[#0F1E35]
                                       border-2 border-transparent
                                       group-hover:border-blue-500 dark:group-hover:border-cyan-400
-                                      transition-colors duration-300">
-                        <SafeImage src={member.imageUrl} alt={member.name} fill className="object-cover" />
+                                      transition-all duration-300">
+                        <SafeImage 
+                          src={member.imageUrl} 
+                          alt={member.name} 
+                          fill 
+                          className="object-cover" 
+                          sizes="(max-width: 768px) 100px, 150px"
+                        />
                       </div>
                       <h4 className="font-semibold text-slate-900 dark:text-white text-sm truncate px-2">{member.name}</h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{member.desc}</p>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             );
           })}
