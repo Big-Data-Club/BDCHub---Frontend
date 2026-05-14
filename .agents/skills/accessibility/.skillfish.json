@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "accessibility",
+  "owner": "shipshitdev",
+  "repo": "library",
+  "path": "bundles/frontend/skills/accessibility",
+  "branch": "master",
+  "sha": "d367105e0558366a1bbab1945d65fec764e404f7",
+  "source": "manual"
+}
