@@ -196,6 +196,7 @@ const Background: React.FC = () => {
   const rafRef = useRef<number | null>(null);
   const resizeTimerRef = useRef<number | null>(null);
   const mouseRef = useRef({ x: 0, y: 0 });
+  const mouseTargetRef = useRef({ x: 0, y: 0 });
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -206,6 +207,7 @@ const Background: React.FC = () => {
 
     let width = 0;
     let height = 0;
+    let prefersReducedMotion = false;
 
     function setSize() {
       const dpr = Math.max(1, window.devicePixelRatio || 1);
@@ -218,31 +220,48 @@ const Background: React.FC = () => {
       canvas!.width = Math.round(w * dpr);
       canvas!.height = Math.round(h * dpr);
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      
+      prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
     function initEntities() {
       const area = width * height;
-      // Rich star density — feels like a real sky
-      const starCount = Math.max(60, Math.round(area / 2200));
+      const isMobile = width < 768;
+      
+      // Phase 5: Star count caps — mobile max 150, desktop max 800
+      const maxStars = isMobile ? 150 : 800;
+      const starCount = Math.min(maxStars, Math.max(60, Math.round(area / 2200)));
+      
       starsRef.current = Array.from({ length: starCount }, () => new Star(width, height));
-      nebulaeRef.current = Array.from({ length: 4 }, () => new Nebula(width, height));
-      shootingRef.current = Array.from({ length: 3 }, () => new ShootingStar());
+      nebulaeRef.current = Array.from({ length: isMobile ? 2 : 4 }, () => new Nebula(width, height));
+      shootingRef.current = Array.from({ length: isMobile ? 1 : 3 }, () => new ShootingStar());
     }
 
     let lastShoot = 0;
 
     function animate(time: number) {
       if (!ctx) return;
+      
+      // Phase 5: Respect prefers-reduced-motion
+      if (prefersReducedMotion) {
+        drawStatic(resolvedTheme === 'dark');
+        return;
+      }
+
       const t = time * 0.001;
       const isDark = resolvedTheme === 'dark';
 
       ctx.clearRect(0, 0, width, height);
 
+      // Phase 5: Smooth mouse transition (lazy follow)
+      mouseRef.current.x += (mouseTargetRef.current.x - mouseRef.current.x) * 0.1;
+      mouseRef.current.y += (mouseTargetRef.current.y - mouseRef.current.y) * 0.1;
+
       // Mouse parallax
       const mx = (mouseRef.current.x / width - 0.5) * 5;
       const my = (mouseRef.current.y / height - 0.5) * 3.5;
 
-      // ──── Nebulae (deepest) ────
+      // ──── Nebulae ────
       ctx.save();
       ctx.translate(mx * 0.15, my * 0.15);
       for (const neb of nebulaeRef.current) {
@@ -258,34 +277,87 @@ const Background: React.FC = () => {
         ctx.restore();
       }
 
-      // ──── Star-to-star constellations ────
+      // ──── Phase 5: Optimized Spatial grid (No strings, no split) ────
       const stars = starsRef.current;
       const constellDist = isDark ? 110 : 90;
       const constellDistSq = constellDist * constellDist;
-      ctx.lineCap = 'round';
+      const cellSize = constellDist;
+      
+      // Use a simple object or a numeric-keyed Map to avoid string overhead
+      const grid: Record<number, number[]> = {};
+      const occupiedCells: number[] = [];
+
+      // 1. Populate grid with numeric keys
       for (let i = 0; i < stars.length; i++) {
-        if (stars[i].z < 0.45) continue; // Only mid-to-close stars
-        for (let j = i + 1; j < stars.length; j++) {
-          if (stars[j].z < 0.45) continue;
-          const dx = stars[i].x - stars[j].x;
-          const dy = stars[i].y - stars[j].y;
-          const distSq = dx * dx + dy * dy;
-          if (distSq < constellDistSq) {
-            const alpha = (1 - distSq / constellDistSq) * (isDark ? 0.07 : 0.035);
-            ctx.lineWidth = isDark ? 0.5 : 0.4;
-            ctx.strokeStyle = isDark
-              ? `hsla(210, 50%, 85%, ${alpha})`
-              : `hsla(220, 50%, 55%, ${alpha})`;
-            ctx.beginPath();
-            ctx.moveTo(
-              stars[i].x + mx * stars[i].z * 0.6,
-              stars[i].y + my * stars[i].z * 0.6
-            );
-            ctx.lineTo(
-              stars[j].x + mx * stars[j].z * 0.6,
-              stars[j].y + my * stars[j].z * 0.6
-            );
-            ctx.stroke();
+        if (stars[i].z < 0.45) continue;
+        const sx = stars[i].x + mx * stars[i].z * 0.6;
+        const sy = stars[i].y + my * stars[i].z * 0.6;
+        
+        // Create a unique numeric key for the cell (gx << 16 | gy)
+        const gx = (sx / cellSize) | 0;
+        const gy = (sy / cellSize) | 0;
+        const key = (gx << 16) | (gy & 0xFFFF);
+        
+        if (!grid[key]) {
+          grid[key] = [];
+          occupiedCells.push(key);
+        }
+        grid[key].push(i);
+      }
+
+      // 2. Check neighbors using numeric offsets
+      ctx.lineCap = 'round';
+      for (let c = 0; c < occupiedCells.length; c++) {
+        const key = occupiedCells[c];
+        const gx = key >> 16;
+        const gy = (key << 16) >> 16; // Sign-extend back to original
+        
+        const starIndices = grid[key];
+        for (let i = 0; i < starIndices.length; i++) {
+          const idxI = starIndices[i];
+          const starI = stars[idxI];
+          const six = starI.x + mx * starI.z * 0.6;
+          const siy = starI.y + my * starI.z * 0.6;
+
+          // Check only 5 cells (current + 4 neighbors) to avoid double counting
+          // Neighbors: (1, -1), (1, 0), (1, 1), (0, 1)
+          const neighbors = [
+            key, // current
+            ((gx + 1) << 16) | ((gy - 1) & 0xFFFF),
+            ((gx + 1) << 16) | (gy & 0xFFFF),
+            ((gx + 1) << 16) | ((gy + 1) & 0xFFFF),
+            (gx << 16) | ((gy + 1) & 0xFFFF),
+          ];
+
+          for (let n = 0; n < neighbors.length; n++) {
+            const nKey = neighbors[n];
+            const cellStars = grid[nKey];
+            if (!cellStars) continue;
+
+            for (let j = 0; j < cellStars.length; j++) {
+              const idxJ = cellStars[j];
+              if (idxI >= idxJ) continue;
+
+              const starJ = stars[idxJ];
+              const sjx = starJ.x + mx * starJ.z * 0.6;
+              const sjy = starJ.y + my * starJ.z * 0.6;
+
+              const dx = six - sjx;
+              const dy = siy - sjy;
+              const distSq = dx * dx + dy * dy;
+
+              if (distSq < constellDistSq) {
+                const alpha = (1 - distSq / constellDistSq) * (isDark ? 0.07 : 0.035);
+                ctx.lineWidth = isDark ? 0.5 : 0.4;
+                ctx.strokeStyle = isDark
+                  ? `hsla(210, 50%, 85%, ${alpha})`
+                  : `hsla(220, 50%, 55%, ${alpha})`;
+                ctx.beginPath();
+                ctx.moveTo(six, siy);
+                ctx.lineTo(sjx, sjy);
+                ctx.stroke();
+              }
+            }
           }
         }
       }
@@ -303,21 +375,22 @@ const Background: React.FC = () => {
         ss.draw(ctx, isDark);
       }
 
-      // ──── Mouse interaction — connect nearby stars ────
-      if (mouseRef.current.x > 0 && mouseRef.current.y > 0) {
+      // ──── Mouse interaction ────
+      if (mouseTargetRef.current.x > 0 && mouseTargetRef.current.y > 0) {
         const grabDist = 160;
-        const connected: Star[] = [];
+        const connected: number[] = [];
 
-        // Find stars near cursor
-        for (const star of starsRef.current) {
+        for (let i = 0; i < stars.length; i++) {
+          const star = stars[i];
           const sx = star.x + mx * star.z * 0.6;
           const sy = star.y + my * star.z * 0.6;
           const dx = sx - mouseRef.current.x;
           const dy = sy - mouseRef.current.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < grabDist) {
-            connected.push(star);
-            // Line from cursor to star
+          const distSq = dx * dx + dy * dy;
+          
+          if (distSq < grabDist * grabDist) {
+            const dist = Math.sqrt(distSq);
+            connected.push(i);
             const alpha = (1 - dist / grabDist) * (isDark ? 0.3 : 0.12);
             ctx.lineWidth = isDark ? 0.8 : 0.6;
             ctx.strokeStyle = isDark
@@ -330,20 +403,22 @@ const Background: React.FC = () => {
           }
         }
 
-        // Connect nearby grabbed stars to each other
+        // Phase 5: Restore "Web" effect — connect grabbed stars to each other
+        // Since 'connected' is small (only stars near mouse), O(k^2) is safe here.
         for (let i = 0; i < connected.length; i++) {
           for (let j = i + 1; j < connected.length; j++) {
-            const si = connected[i];
-            const sj = connected[j];
+            const si = stars[connected[i]];
+            const sj = stars[connected[j]];
             const six = si.x + mx * si.z * 0.6;
             const siy = si.y + my * si.z * 0.6;
             const sjx = sj.x + mx * sj.z * 0.6;
             const sjy = sj.y + my * sj.z * 0.6;
-            const ddx = six - sjx;
-            const ddy = siy - sjy;
-            const ddist = Math.sqrt(ddx * ddx + ddy * ddy);
-            if (ddist < grabDist * 1.2) {
-              const alpha = (1 - ddist / (grabDist * 1.2)) * (isDark ? 0.15 : 0.06);
+            const dx = six - sjx;
+            const dy = siy - sjy;
+            const dSq = dx * dx + dy * dy;
+            
+            if (dSq < (grabDist * 1.1) ** 2) {
+              const alpha = (1 - Math.sqrt(dSq) / (grabDist * 1.1)) * (isDark ? 0.15 : 0.06);
               ctx.lineWidth = isDark ? 0.5 : 0.3;
               ctx.strokeStyle = isDark
                 ? `hsla(200, 50%, 75%, ${alpha})`
@@ -355,32 +430,28 @@ const Background: React.FC = () => {
             }
           }
         }
-
-        // Cursor glow
-        const cursorGrad = ctx.createRadialGradient(
-          mouseRef.current.x, mouseRef.current.y, 0,
-          mouseRef.current.x, mouseRef.current.y, 30
-        );
-        cursorGrad.addColorStop(0, isDark
-          ? 'hsla(200, 60%, 85%, 0.08)'
-          : 'hsla(220, 55%, 55%, 0.04)');
-        cursorGrad.addColorStop(1, 'hsla(200, 50%, 50%, 0)');
-        ctx.fillStyle = cursorGrad;
-        ctx.beginPath();
-        ctx.arc(mouseRef.current.x, mouseRef.current.y, 30, 0, Math.PI * 2);
-        ctx.fill();
       }
 
       rafRef.current = requestAnimationFrame(animate);
     }
 
-    function onPointerMove(e: PointerEvent) {
-      mouseRef.current.x = e.clientX;
-      mouseRef.current.y = e.clientY;
+    function drawStatic(isDark: boolean) {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, width, height);
+      for (const star of starsRef.current) {
+        star.draw(ctx, 0, isDark);
+      }
     }
+
+    function onPointerMove(e: PointerEvent) {
+      // Phase 5: Basic throttling handled by target-based follow in animate loop
+      mouseTargetRef.current.x = e.clientX;
+      mouseTargetRef.current.y = e.clientY;
+    }
+
     function onPointerLeave() {
-      mouseRef.current.x = 0;
-      mouseRef.current.y = 0;
+      mouseTargetRef.current.x = 0;
+      mouseTargetRef.current.y = 0;
     }
 
     function onResize() {
@@ -388,16 +459,15 @@ const Background: React.FC = () => {
       resizeTimerRef.current = window.setTimeout(() => {
         setSize();
         initEntities();
-      }, 120);
+      }, 150);
     }
 
     setSize();
     initEntities();
-    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerleave', onPointerLeave);
     window.addEventListener('resize', onResize);
 
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(animate);
 
     return () => {
