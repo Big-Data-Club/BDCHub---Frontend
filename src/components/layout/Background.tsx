@@ -254,8 +254,8 @@ const Background: React.FC = () => {
       ctx.clearRect(0, 0, width, height);
 
       // Phase 5: Smooth mouse transition (lazy follow)
-      mouseRef.current.x += (mouseTargetRef.current.x - mouseRef.current.x) * 0.1;
-      mouseRef.current.y += (mouseTargetRef.current.y - mouseRef.current.y) * 0.1;
+      mouseRef.current.x += (mouseTargetRef.current.x - mouseRef.current.x) * 0.2;
+      mouseRef.current.y += (mouseTargetRef.current.y - mouseRef.current.y) * 0.2;
 
       // Mouse parallax
       const mx = (mouseRef.current.x / width - 0.5) * 5;
