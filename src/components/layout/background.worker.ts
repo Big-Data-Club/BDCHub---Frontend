@@ -75,7 +75,11 @@ let totalBloomTime = 0; // Dynamic duration for star materialization
 let starSprites: OffscreenCanvas | null = null;
 const SPRITE_SIZE = 32;
 
+let nebulaSprites: OffscreenCanvas | null = null;
+const NEBULA_SPRITE_SIZE = 256; // Reduced for performance, blur makes it look fine
+
 function createSprites() {
+  // 1. Star Sprites
   starSprites = new OffscreenCanvas(SPRITE_SIZE * 6, SPRITE_SIZE * 3);
   const sCtx = starSprites.getContext('2d');
   if (!sCtx) return;
@@ -119,6 +123,29 @@ function createSprites() {
     drawSprite(i, 'light', false);
     drawSprite(i, 'dark', true);
   }
+
+  // 2. Nebula Sprites
+  nebulaSprites = new OffscreenCanvas(NEBULA_SPRITE_SIZE * 4, NEBULA_SPRITE_SIZE);
+  const nCtx = nebulaSprites.getContext('2d');
+  if (!nCtx) return;
+
+  const hues = [210, 240, 265, 190];
+  hues.forEach((hue, i) => {
+    const x = i * NEBULA_SPRITE_SIZE + NEBULA_SPRITE_SIZE / 2;
+    const y = NEBULA_SPRITE_SIZE / 2;
+    const r = NEBULA_SPRITE_SIZE / 2;
+    
+    const grad = nCtx.createRadialGradient(x, y, 0, x, y, r);
+    // These are fully opaque in the sprite, we control alpha during drawImage
+    grad.addColorStop(0,   `hsla(${hue}, 75%, 65%, 1.0)`);
+    grad.addColorStop(0.3, `hsla(${hue}, 65%, 50%, 0.4)`);
+    grad.addColorStop(1,   `hsla(${hue}, 55%, 40%, 0)`);
+    
+    nCtx.fillStyle = grad;
+    nCtx.beginPath();
+    nCtx.arc(x, y, r, 0, Math.PI * 2);
+    nCtx.fill();
+  });
 }
 
 function initStars(w: number, h: number) {
@@ -171,12 +198,24 @@ function initStars(w: number, h: number) {
   gridNext = new Int32Array(starCount);
   pairMask = new Uint8Array(starCount * starCount);
 
-  nebulae = Array.from({ length: isMobile ? 2 : 4 }, () => ({
-    cx: Math.random() * w, cy: Math.random() * h,
-    rx: 200 + Math.random() * 350, ry: 150 + Math.random() * 280,
-    hue: [210, 240, 265, 190][Math.floor(Math.random() * 4)],
+  const fixedNebulae = [
+    { x: 0.5,  y: 0.25, rx: 550, ry: 450, hueIdx: 3, z: 0.1 }, // Behind Hero (Cyan)
+    { x: 0.85, y: 0.15, rx: 350, ry: 300, hueIdx: 1, z: 0.4 }, // Top Right (Purple)
+    { x: 0.1,  y: 0.6,  rx: 400, ry: 350, hueIdx: 0, z: 0.2 }, // Middle Left (Blue)
+    { x: 0.8,  y: 0.8,  rx: 500, ry: 400, hueIdx: 2, z: 0.3 }, // Bottom Right (Deep Blue)
+    { x: 0.95, y: 0.5,  rx: 300, ry: 250, hueIdx: 3, z: 0.7 }, // Far Right (Cyan)
+    { x: 0.05, y: 0.1,  rx: 250, ry: 200, hueIdx: 1, z: 0.8 }, // Top Left (Purple)
+  ];
+
+  nebulae = fixedNebulae.map(neb => ({
+    cx: neb.x * w,
+    cy: neb.y * h,
+    rx: isMobile ? neb.rx * 0.6 : neb.rx,
+    ry: isMobile ? neb.ry * 0.6 : neb.ry,
+    hueIdx: neb.hueIdx,
     phase: Math.random() * Math.PI * 2,
-    speed: 0.04 + Math.random() * 0.08
+    speed: 0.01 + Math.random() * 0.02,
+    z: neb.z
   }));
 
   shootingStars = Array.from({ length: isMobile ? 1 : 3 }, () => ({
@@ -265,25 +304,35 @@ function draw(time: number) {
   const mxOffset = mxOffsetRaw * parallaxFactor;
   const myOffset = myOffsetRaw * parallaxFactor;
 
-  // --- Nebulae ---
+  // --- Nebulae (Optimized with Sprites) ---
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
-  ctx.translate(mxOffset * 0.15, myOffset * 0.15);
   for (const neb of nebulae) {
+    const pX = mxOffset * (0.05 + neb.z * 0.12);
+    const pY = myOffset * (0.05 + neb.z * 0.12);
+    
     const x = neb.cx + Math.sin(t * neb.speed + neb.phase) * 35;
     const y = neb.cy + Math.cos(t * neb.speed * 0.7 + neb.phase) * 25;
-    const wx = ((x % config.width) + config.width) % config.width;
-    const wy = ((y % config.height) + config.height) % config.height;
-    const alpha = config.isDark ? 0.055 : 0.025;
-    const r = Math.max(neb.rx, neb.ry);
-    const grad = ctx.createRadialGradient(wx, wy, 0, wx, wy, r);
-    grad.addColorStop(0,   `hsla(${neb.hue}, 55%, 50%, ${alpha})`);
-    grad.addColorStop(0.4, `hsla(${neb.hue}, 45%, 40%, ${alpha * 0.35})`);
-    grad.addColorStop(1,   `hsla(${neb.hue}, 35%, 30%, 0)`);
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.ellipse(wx, wy, neb.rx, neb.ry, 0, 0, Math.PI * 2);
-    ctx.fill();
+    
+    const wx = ((x + pX % config.width) + config.width) % config.width;
+    const wy = ((y + pY % config.height) + config.height) % config.height;
+    
+    const alphaBase = config.isDark ? 0.12 : 0.05;
+    const alpha = neb.z > 0.5 ? alphaBase : alphaBase * 0.6;
+    
+    if (nebulaSprites) {
+      ctx.save();
+      ctx.translate(wx, wy);
+      ctx.scale(neb.rx, neb.ry);
+      ctx.globalAlpha = alpha;
+      // Draw the pre-rendered sprite
+      ctx.drawImage(
+        nebulaSprites, 
+        neb.hueIdx * NEBULA_SPRITE_SIZE, 0, NEBULA_SPRITE_SIZE, NEBULA_SPRITE_SIZE, 
+        -1, -1, 2, 2 // Draw into unit space (-1 to 1) which is scaled to (rx, ry)
+      );
+      ctx.restore();
+    }
   }
   ctx.restore();
 
@@ -306,10 +355,17 @@ function draw(time: number) {
     }
   }
 
-  // --- Constellations ---
+  // --- Constellations (Optimized Batch Drawing) ---
   ctx.lineCap = 'round';
   const breathing = Math.sin(t * 1.2) * 0.3 + 0.7;
   pairMask.fill(0);
+
+  ctx.lineWidth = config.isDark ? 0.5 : 0.4;
+  // Use a fixed average alpha for the batch stroke to minimize state changes
+  // We'll use globalAlpha for the breathing effect
+  ctx.globalAlpha = breathing; 
+  ctx.strokeStyle = config.isDark ? `hsla(210, 50%, 85%, 0.05)` : `hsla(220, 50%, 55%, 0.025)`;
+  ctx.beginPath();
 
   for (let gy = 0; gy < gridRows; gy++) {
     for (let gx = 0; gx < gridCols; gx++) {
@@ -317,7 +373,6 @@ function draw(time: number) {
       let i = gridHead[cellI];
       
       while (i !== -1) {
-        // Constellation filter: Only stars with Z > 0.45 form background constellations
         if (starsData[i * STAR_STRIDE + 2] >= 0.45) {
           for (let ny = gy; ny <= Math.min(gy + 1, gridRows - 1); ny++) {
             for (let nx = (ny === gy ? gx : Math.max(0, gx - 1)); nx <= Math.min(gx + 1, gridCols - 1); nx++) {
@@ -342,10 +397,8 @@ function draw(time: number) {
                     const dSq = dx * dx + dy * dy;
 
                     if (dSq < constellDistSq) {
-                      const alpha = (1 - dSq / constellDistSq) * (config.isDark ? 0.07 : 0.035) * breathing;
-                      ctx.lineWidth = config.isDark ? 0.5 : 0.4;
-                      ctx.strokeStyle = config.isDark ? `hsla(210, 50%, 85%, ${alpha})` : `hsla(220, 50%, 55%, ${alpha})`;
-                      ctx.beginPath(); ctx.moveTo(six, siy); ctx.lineTo(sjx, sjy); ctx.stroke();
+                      ctx.moveTo(six, siy);
+                      ctx.lineTo(sjx, sjy);
 
                       if (elapsed > totalBloomTime && Math.random() < 0.0006) {
                         const p = getPulse();
@@ -365,53 +418,64 @@ function draw(time: number) {
       }
     }
   }
+  ctx.stroke();
+  ctx.globalAlpha = 1.0;
 
-  // --- Mouse interaction (Grid-Optimized with Radius 2) ---
+  // --- Mouse interaction (Grid-Optimized & Sparse Web) ---
   if (mouse.x > 0 && mouse.y > 0) {
-    const grabDist = 160;
+    const grabDist = 125; // Reduced from 160 for better focus
     const grabDistSq = grabDist * grabDist;
     const mgx = Math.floor(mouseFollow.x / CONSTELL_DIST);
     const mgy = Math.floor(mouseFollow.y / CONSTELL_DIST);
     
     const connected: number[] = [];
 
-    // Use radius 2 because grabDist (160) > CONSTELL_DIST (110)
+    ctx.beginPath();
+    ctx.lineWidth = config.isDark ? 0.8 : 0.6; // Slightly thinner
+
+    // Use radius 2 because grabDist (125) > CONSTELL_DIST (110)
     for (let ny = Math.max(0, mgy - 2); ny <= Math.min(gridRows - 1, mgy + 2); ny++) {
       for (let nx = Math.max(0, mgx - 2); nx <= Math.min(gridCols - 1, mgx + 2); nx++) {
         let i = gridHead[ny * gridCols + nx];
         while (i !== -1) {
           const off = i * STAR_STRIDE;
+          // Depth filter: Only stars at z > 0.3 participate in hover
           const z = starsData[off + 2];
-          const sx = starsData[off + 0] + mxOffset * z * 0.6;
-          const sy = starsData[off + 1] + myOffset * z * 0.6;
-          const dx = sx - mouseFollow.x;
-          const dy = sy - mouseFollow.y;
-          const dSq = dx * dx + dy * dy;
+          if (z > 0.15) {
+            const sx = starsData[off + 0] + mxOffset * z * 0.6;
+            const sy = starsData[off + 1] + myOffset * z * 0.6;
+            const dx = sx - mouseFollow.x;
+            const dy = sy - mouseFollow.y;
+            const dSq = dx * dx + dy * dy;
 
-          const bloomDelay = starsData[off + 10];
-          const bloomFactor = Math.max(0, Math.min(1, (elapsed - bloomDelay) * 1.5));
-          
-          if (bloomFactor >= 0.2 && dSq < grabDistSq) {
-            connected.push(i);
-            const twinkle = Math.sin(t * starsData[off + 5] + starsData[off + 6]);
-            const starAlpha = starsData[off + 4] * (z > 0.85 ? (0.55 + 0.45 * twinkle) : (0.5 + 0.5 * twinkle)) + starsData[off + 9] * 0.5;
+            const bloomDelay = starsData[off + 10];
+            const bloomFactor = Math.max(0, Math.min(1, (elapsed - bloomDelay) * 1.5));
             
-            const dist = Math.sqrt(dSq);
-            const alpha = (1 - dist / grabDist) * starAlpha;
-            ctx.lineWidth = (config.isDark ? 1.0 : 0.7) * starAlpha;
-            const hoverBoost = Math.pow(1 - dist / grabDist, 8) * 0.4;
-            starsData[off + 9] = Math.min(1.0, starsData[off + 9] + hoverBoost);
-            ctx.strokeStyle = config.isDark ? `hsla(200, 60%, 80%, ${alpha})` : `hsla(220, 55%, 50%, ${alpha})`;
-            ctx.beginPath(); ctx.moveTo(mouseFollow.x, mouseFollow.y); ctx.lineTo(sx, sy); ctx.stroke();
+            if (bloomFactor >= 0.2 && dSq < grabDistSq) {
+              connected.push(i);
+              const dist = Math.sqrt(dSq);
+              // Intensity fades faster with distance (power of 2)
+              const hoverBoost = Math.pow(1 - dist / grabDist, 4) * 0.4;
+              starsData[off + 9] = Math.min(1.0, starsData[off + 9] + hoverBoost);
+              
+              ctx.moveTo(mouseFollow.x, mouseFollow.y);
+              ctx.lineTo(sx, sy);
+            }
           }
           i = gridNext[i];
         }
       }
     }
+    ctx.strokeStyle = config.isDark ? `hsla(200, 60%, 80%, 0.18)` : `hsla(220, 55%, 50%, 0.12)`;
+    ctx.stroke();
 
-    // Connect grabbed stars
+    // Connect grabbed stars (Sparse Web: Max 2 connections per star)
+    ctx.beginPath();
+    ctx.lineWidth = config.isDark ? 0.4 : 0.3;
     for (let i = 0; i < connected.length; i++) {
-      for (let j = i + 1; j < connected.length; j++) {
+      let connections = 0;
+      // Only look for a few neighbors to keep the web sparse and clean
+      for (let j = i + 1; j < connected.length && connections < 2; j++) {
         const offI = connected[i] * STAR_STRIDE;
         const offJ = connected[j] * STAR_STRIDE;
         const zI = starsData[offI + 2], zJ = starsData[offJ + 2];
@@ -419,18 +483,15 @@ function draw(time: number) {
         const sjx = starsData[offJ + 0] + mxOffset * zJ * 0.6, sjy = starsData[offJ + 1] + myOffset * zJ * 0.6;
         const dx = six - sjx, dy = siy - sjy, dSq = dx * dx + dy * dy;
         
-        if (dSq < (grabDist * 1.1) ** 2) {
-          const tI = Math.sin(t * starsData[offI + 5] + starsData[offI + 6]);
-          const aI = starsData[offI + 4] * (zI > 0.85 ? (0.55 + 0.45 * tI) : (0.5 + 0.5 * tI)) + starsData[offI + 9] * 0.5;
-          const tJ = Math.sin(t * starsData[offJ + 5] + starsData[offJ + 6]);
-          const aJ = starsData[offJ + 4] * (zJ > 0.85 ? (0.55 + 0.45 * tJ) : (0.5 + 0.5 * tJ)) + starsData[offJ + 9] * 0.5;
-          const alpha = (1 - Math.sqrt(dSq) / (grabDist * 1.1)) * ((aI + aJ) * 0.5);
-          ctx.lineWidth = (config.isDark ? 0.6 : 0.4) * ((aI + aJ) * 0.5);
-          ctx.strokeStyle = config.isDark ? `hsla(200, 50%, 75%, ${alpha})` : `hsla(220, 50%, 55%, ${alpha})`;
-          ctx.beginPath(); ctx.moveTo(six, siy); ctx.lineTo(sjx, sjy); ctx.stroke();
+        if (dSq < (grabDist * 0.8) ** 2) {
+          ctx.moveTo(six, siy);
+          ctx.lineTo(sjx, sjy);
+          connections++;
         }
       }
     }
+    ctx.strokeStyle = config.isDark ? `hsla(200, 50%, 75%, 0.1)` : `hsla(220, 50%, 55%, 0.08)`;
+    ctx.stroke();
   }
 
   // --- Traveling Pulses ---
@@ -471,31 +532,35 @@ function draw(time: number) {
     }
   }
 
-  // --- Shooting Stars ---
+  // --- Shooting Stars (Optimized with Fade-in/out) ---
   for (const s of shootingStars) {
     if (!s.active) continue;
-    const progress = s.life / s.maxLife;
-    const alpha = progress * (config.isDark ? 0.7 : 0.3);
-    const length = 50 + Math.random() * 70;
-    const mag = Math.sqrt(s.vx ** 2 + s.vy ** 2);
-    const tailX = s.x - (s.vx / mag) * length * progress;
-    const tailY = s.y - (s.vy / mag) * length * progress;
+    
+    const p = 1 - (s.life / s.maxLife); // progress 0 -> 1
+    const fadeIn = Math.min(1, p / 0.15); // Fade in over first 15%
+    const fadeOut = (1 - p); // Linear fade out
+    const alpha = fadeIn * fadeOut;
+    
+    const length = 60 + Math.random() * 40;
+    const tailX = s.x - s.vx * (length / 20) * (1 - p * 0.5);
+    const tailY = s.y - s.vy * (length / 20) * (1 - p * 0.5);
 
-    const grad = ctx.createLinearGradient(tailX, tailY, s.x, s.y);
-    if (config.isDark) {
-      grad.addColorStop(0, `hsla(200, 80%, 90%, 0)`);
-      grad.addColorStop(0.6, `hsla(200, 70%, 90%, ${alpha * 0.3})`);
-      grad.addColorStop(1, `hsla(200, 80%, 97%, ${alpha})`);
-    } else {
-      grad.addColorStop(0, `hsla(220, 70%, 55%, 0)`);
-      grad.addColorStop(0.6, `hsla(220, 60%, 50%, ${alpha * 0.3})`);
-      grad.addColorStop(1, `hsla(220, 70%, 45%, ${alpha})`);
-    }
+    ctx.strokeStyle = config.isDark 
+      ? `hsla(200, 80%, 95%, ${alpha * 0.5})` 
+      : `hsla(220, 70%, 50%, ${alpha * 0.3})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y);
+    ctx.lineTo(tailX, tailY);
+    ctx.stroke();
 
-    ctx.strokeStyle = grad; ctx.lineWidth = config.isDark ? 1.5 : 1;
-    ctx.beginPath(); ctx.moveTo(tailX, tailY); ctx.lineTo(s.x, s.y); ctx.stroke();
-    ctx.beginPath(); ctx.arc(s.x, s.y, config.isDark ? 1.5 : 1, 0, Math.PI * 2);
-    ctx.fillStyle = config.isDark ? `hsla(200, 80%, 97%, ${alpha})` : `hsla(220, 70%, 50%, ${alpha})`; ctx.fill();
+    // Small glowing head for the shooting star
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = config.isDark 
+      ? `hsla(200, 80%, 100%, ${alpha})` 
+      : `hsla(220, 70%, 45%, ${alpha})`;
+    ctx.fill();
   }
 
   requestAnimationFrame(draw);
