@@ -80,6 +80,11 @@ const MicroQuizzesDrawer = dynamic(
   { ssr: false },
 );
 
+const MicroQuizHistoryModal = dynamic(
+  () => import("@/components/lms/teacher/micro/MicroQuizHistoryModal").then(m => ({ default: m.MicroQuizHistoryModal })),
+  { ssr: false },
+);
+
 // ─── Content type icon map ────────────────────────────────────────────────────
 
 const CONTENT_ICON: Record<string, React.ReactNode> = {
@@ -131,6 +136,7 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
 
   // Micro-quiz modal / drawer state
   const [showQuizModal, setShowQuizModal]             = useState(false);
+  const [showQuizHistoryModal, setShowQuizHistoryModal] = useState(false);
   const [quizPresetContentId, setQuizPresetContentId] = useState<number | undefined>();
   const [quizPresetSectionId, setQuizPresetSectionId] = useState<number | undefined>();
   const [activeQuizJobId, setActiveQuizJobId]         = useState<number | null>(null);
@@ -226,7 +232,15 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
             title="Xem lại các tiến trình tạo bài học micro"
           >
             <History className="w-4 h-4" />
-            Lịch sử Job
+            Lịch sử Lesson
+          </button>
+          <button
+            onClick={() => setShowQuizHistoryModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+            title="Xem lại các tiến trình tạo bài quiz micro"
+          >
+            <History className="w-4 h-4" />
+            Lịch sử Quiz
           </button>
           <button
             onClick={() => {
@@ -580,6 +594,17 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
           sections={sections}
           onClose={() => setActiveQuizJobId(null)}
           onPublished={(sectionId) => reloadSectionContent(sectionId)}
+        />
+      )}
+
+      {showQuizHistoryModal && (
+        <MicroQuizHistoryModal
+          courseId={courseId}
+          onClose={() => setShowQuizHistoryModal(false)}
+          onSelectJob={(jobId) => {
+            setShowQuizHistoryModal(false);
+            setActiveQuizJobId(jobId);
+          }}
         />
       )}
 
