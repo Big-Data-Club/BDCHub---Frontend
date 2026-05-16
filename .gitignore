@@ -121,3 +121,8 @@ temp/
 server/
 
 __pycache__/
+*storybook.log
+storybook-static
+
+lint_output.txt
+lint_result.txt

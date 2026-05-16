@@ -3,6 +3,16 @@
 
 
 @variant dark (&:where(.dark, .dark *));
+/* Animation Timing Scale & Variables */
+:root {
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-stagger: 100ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@variant dark (&:where(.dark, .dark *));
 html, body {
   width: 100%;
   height: 100%;
@@ -16,6 +26,16 @@ html {
 }
 html:where(.dark) {
   background-color: #050B18;
+}
+
+/* Accessibility: Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -80,6 +100,7 @@ html:where(.dark) {
   }
 }
 
+/* [DEAD] Unused in Landing */
 @keyframes float {
   0%, 100% {
     transform: translateY(0px);
@@ -89,6 +110,7 @@ html:where(.dark) {
   }
 }
 
+/* [DEAD] Unused in Landing */
 @keyframes float-delayed {
   0%, 100% {
     transform: translateY(0px);
@@ -132,19 +154,19 @@ html:where(.dark) {
 
 /* Animation Classes */
 .animate-slide-up {
-  animation: slide-up 0.2s ease-out;
+  animation: slide-up var(--duration-fast) ease-out;
 }
 
 .animate-fade-in-delayed {
-  animation: fade-in-delayed 0.25s ease-out 0.1s both;
+  animation: fade-in-delayed var(--duration-normal) var(--ease-out-expo) 0.1s both;
 }
 
 .animate-fade-in-delayed-2 {
-  animation: fade-in-delayed-2 0.25s ease-out 0.15s both;
+  animation: fade-in-delayed-2 var(--duration-normal) var(--ease-out-expo) 0.15s both;
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.2s ease-out both;
+  animation: fade-in-up var(--duration-fast) ease-out both;
 }
 
 .animate-float {
@@ -170,6 +192,7 @@ html:where(.dark) {
 }
 
 /* Cosmic Animations */
+/* [DEAD] Consider moving to component-specific CSS if used in Background.tsx */
 @keyframes glow-pulse {
   0%, 100% {
     opacity: 0.3;
@@ -181,6 +204,7 @@ html:where(.dark) {
   }
 }
 
+/* [DEAD] Unused in Landing */
 @keyframes cosmic-drift {
   0%, 100% {
     transform: translate(0, 0) rotate(0deg);
@@ -222,7 +246,8 @@ html:where(.dark) {
 .fade-in-on-scroll {
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  transition: opacity var(--duration-normal) var(--ease-out-expo), 
+              transform var(--duration-normal) var(--ease-out-expo);
 }
 
 .fade-in-on-scroll.visible {
