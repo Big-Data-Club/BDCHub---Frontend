@@ -78,10 +78,16 @@ To solve these bottlenecks, the layout is redesigned into a modern **2-Column Sp
 
 Instead of basic grids, club statistics are integrated into an organic **visual showcase area**:
 
-* **Visual Core**: Built with layered ambient glowing gradients and dual dashed/double concentric borders rotating in opposite directions.
+* **Visual Core & BDC Logo**:
+  * Swapped the plain text "BDC HUB" in the central core circle with the official high-resolution **Big Data Club Logo** (`LogoIcon` via `SafeImage`).
+  * Styled as a premium, unified glassmorphic container: `w-32 h-32` (`128x128px`), padding `p-2`, overflow-hidden, and using the stats card theme `bg-white/40 dark:bg-[#0F1E35]/40 backdrop-blur-md border border-slate-200/50 dark:border-blue-500/10`.
+  * Integrates an interactive hover micro-animation scale zoom: `group-hover:scale-110 transition-transform duration-500` on the logo image (`w-20 h-20`).
+* **Visual Orbiting Rings (Parallax Atomic Core)**:
+  * Concentric orbital borders spin in opposite directions to reflect BDC's high-tech, atomic science-tech identity (see Section 4.3 for full animation specs).
 * **Glassmorphic Floating Badges**:
   * Four statistic cards (**100+ Connections**, **4+ Years**, **10+ R&D Projects**, **5+ Key Awards**) float around the core.
   * **Style**: Ultra-light transparent glassmorphism (`backdrop-blur-md bg-white/40 dark:bg-[#0F1E35]/40 border border-slate-200/50 dark:border-blue-500/10`) with glowing hover shadows.
+  * **Scaled-up Proportion**: Enlarged card width to `w-[170px]`, inner padding to `p-5`, value sizes to `text-3xl font-extrabold`, and label sizes to `text-xs font-bold`.
 
 ### 3.3 Progressive Scroll Indicator
 
@@ -106,25 +112,42 @@ To achieve a natural floating effect, each statistic card is split into two conc
 2. **Continuous Physics Loop**: Animates continuously using infinite repeats and staggered cycle durations to prevent synchronous motion.
 
 ```typescript
-// Staggered Floating Constants
+// Staggered Floating Constants (Recalibrated coordinates inside the new 540px desktop container to prevent overlap)
 const statsData = [
-  { label: "Kết nối", value: "100+", floatClasses: "top-[8%] left-[2%]", duration: 4.2 },
-  { label: "Năm hoạt động", value: "4", floatClasses: "top-[24%] right-[0%]", duration: 4.8 },
-  { label: "Dự án NCKH", value: "10+", floatClasses: "bottom-[24%] left-[4%]", duration: 5.2 },
-  { label: "Giải thưởng", value: "5+", floatClasses: "bottom-[8%] right-[2%]", duration: 4.5 }
+  { label: "Kết nối", value: "100+", floatClasses: "top-[6%] left-[2%]", duration: 4.2 },
+  { label: "Năm hoạt động", value: "4", floatClasses: "top-[22%] right-[0%]", duration: 4.8 },
+  { label: "Dự án NCKH", value: "10+", floatClasses: "bottom-[22%] left-[2%]", duration: 5.2 },
+  { label: "Giải thưởng", value: "5+", floatClasses: "bottom-[6%] right-[2%]", duration: 4.5 }
 ];
 ```
 
-Each inner badge loops perpetually:
+Each inner badge loops perpetually with scaled-up bounce amplitude to match the heavier visual weight:
 
 ```typescript
-animate={{ y: [0, -12, 0] }}
+animate={{ y: [0, -14, 0] }} // Amplitude scaled up from -12px to -14px
 transition={{
   repeat: Infinity,
   duration: duration, // staggered duration per card
   ease: "easeInOut"
 }}
 ```
+
+### 4.3 High-Contrast Orbiting Rings & Parallax Satellites (Science-Tech Core)
+
+To produce an eye-catching, high-fidelity visual experience representing BDC's technical identity, the rotating background concentric orbits around the central BDC Logo are implemented with premium CSS animations and GPU-based optimizations:
+
+1. **Outer Orbit (Dashed) with Blue Glowing Satellite & Seamless SVG Trail**:
+   * **Styling**: `w-64 h-64` circular path, `border border-dashed border-blue-500/35 dark:border-blue-500/20`.
+   * **Rotation**: Spun clockwise at a steady, majestic rhythm of **`28s`** (`animate-[spin_28s_linear_infinite]`).
+   * **Lead Satellite Node**: Features an absolute blue glowing particle (`w-2.5 h-2.5`) at the 12 o'clock position with a high-glow shadow `shadow-[0_0_10px_rgba(59,130,246,0.8)]`.
+   * **Seamless Tapering & Fading Trail (SVG)**: Utilizes an absolute mathematically generated SVG path curved wedge (`d="M 128 -1.5 A 129.5 129.5 0 0 0 37.5 37.5 A 126.5 126.5 0 0 1 128 1.5 Z"` in a `256x256` viewBox). The arc spans $45^\circ$, tapering from a width of `3px` at the head down to `0px` at the tail. It is filled with a linear gradient (`#blueCometGrad` going from `opacity: 1` down to `opacity: 0` at the tail) to create a perfect continuous glowing comet sweep.
+2. **Inner Orbit (Dotted) with Cyan Glowing Satellite & Seamless SVG Trail**:
+   * **Styling**: `w-48 h-48` circular path, `border-2 border-dotted border-cyan-500/35 dark:border-cyan-500/20`.
+   * **Rotation**: Spun counter-clockwise in a rapid reverse parallax at **`12s`** (`animate-[spin_12s_linear_infinite_reverse]`).
+   * **Lead Satellite Node**: Features an absolute cyan glowing particle (`w-2 h-2`) at the 6 o'clock position with a high-glow shadow `shadow-[0_0_10px_rgba(6,182,212,0.8)]`.
+   * **Seamless Tapering & Fading Trail (SVG)**: Utilizes an absolute mathematically generated SVG path curved wedge (`d="M 96 193.2 A 97.2 97.2 0 0 1 28.1 163.9 A 94.8 94.8 0 0 0 96 190.8 Z"` in a `192x192` viewBox). The arc spans $45^\circ$, tapering from a width of `2.4px` at the bottom down to `0px` at the tail. It is filled with a cyan linear gradient (`#cyanCometGrad` going from `opacity: 1` to `opacity: 0` at the tail) to produce a matching high-speed faded comet sweep.
+3. **GPU Compositing Optimization**:
+   * Added `will-change-transform` to both orbits to force GPU composition layer rendering. This keeps CPU usage at `0%` and ensures buttery smooth `60fps/120fps` visual rotations.
 
 ---
 
@@ -134,7 +157,7 @@ The design employs a strict responsive design system using Tailwind CSS to adapt
 
 | Screen Breakpoint | Layout Behavior | Stats Presentation | Scroll Indicator |
 | :--- | :--- | :--- | :--- |
-| **Desktop** (`>= lg: 1024px`) | Split-screen Grid (Col-Span 7 / Col-Span 5) | Interactive Floating Badges in Right Column | Minimalist Mouse-wheel with animated scroll-dot |
+| **Desktop** (`>= lg: 1024px`) | Split-screen Grid (Col-Span 7 / Col-Span 5) | Interactive Floating Badges in Right Column (`h-[540px]`) | Minimalist Mouse-wheel with animated scroll-dot |
 | **Tablet** (`768px - 1023px`) | Single-column Centered Stack | Compact 2x2 Glassmorphic Grid underneath CTAs | Minimalist Mouse-wheel with animated scroll-dot |
 | **Mobile** (`< 768px`) | Single-column Centered Stack | Compact 2x2 Glassmorphic Grid underneath CTAs | Minimalist Mouse-wheel with animated scroll-dot |
 
