@@ -37,7 +37,7 @@ export interface UIComponentData {
 
 export interface ClarificationData {
   question: string;
-  options: string[];
+  options: (string | { label: string; value: string })[];
   missing?: string[];
 }
 
