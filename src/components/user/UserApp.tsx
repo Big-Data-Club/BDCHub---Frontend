@@ -8,10 +8,12 @@ import DetailModal from "./DetailModal";
 import { mapFrontendRoleToBackend, mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { useAuth } from "@/hooks/useAuth";
 import { PendingUsersSection } from "./PendingUsersSection";
+import { fetchRoles } from "@/lib/admin/rolesApi";
 
 export default function UserApp() {
   const { isAdmin } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,6 +41,12 @@ export default function UserApp() {
     try {
       const list = await fetchUsers();
       setUsers(list);
+      try {
+        const rolesList = await fetchRoles();
+        setAvailableRoles(rolesList);
+      } catch (err) {
+        console.warn("Failed to fetch roles:", err);
+      }
     } catch (err: any) {
       console.error(err);
       setError(err?.message ?? String(err));
@@ -62,7 +70,7 @@ export default function UserApp() {
       const payload = rows.map(r => ({
         name: r.name,
         email: r.email,
-        role: mapFrontendRoleToBackend(r.role ?? "Member"),
+        role: mapFrontendRoleToBackend(r.role ?? "Member", availableRoles),
         team: mapFrontendTeamToBackend(r.team ?? "Research"),
         code: r.code,
         type: mapFrontendTypeToBackend(r.type ?? "CLC"),
