@@ -27,6 +27,8 @@
     "@react-oauth/google": "^0.12.1",
     "@tailwindcss/typography": "^0.5.19",
     "@testing-library/jest-dom": "^6.8.0",
+    "@theatre/core": "^0.7.2",
+    "@theatre/studio": "^0.7.2",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@uiw/react-md-editor": "^4.1.0",
     "axios": "^1.13.2",
@@ -76,6 +78,7 @@
     "@storybook/addon-docs": "^10.3.6",
     "@storybook/addon-onboarding": "^10.3.6",
     "@storybook/addon-themes": "^10.3.6",
+    "@storybook/nextjs-vite": "10.3.6",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/postcss": "^4.1.14",
     "@types/jsonwebtoken": "^9.0.10",
@@ -96,7 +99,6 @@
     "tailwindcss": "^4.1.14",
     "ts-jest": "^29.4.2",
     "typescript": "^5",
-    "@storybook/nextjs-vite": "10.3.6",
     "vite": "^7.0.0"
   }
 }
