@@ -67,13 +67,3 @@ To eliminate Garbage Collection (GC) spikes and ensure consistent 60/120fps:
 ### 4.3 Immersive Parallax
 - **High-Intensity Movement**: Features a reactive parallax multiplier (**18x Horizontal / 12x Vertical**) for an expansive sense of spatial depth.
 - **Depth Mapping**: Parallax intensity scales with the `z` coordinate, providing realistic motion parallax.
-
----
-
-## 5. Known Issues & Lifecycle Quirks
-
-### 5.1 Offscreen Canvas Transfer on SPA Transitions
-- **The Issue**: During client-side SPA transitions (e.g., navigating to the Login page and returning to the landing page), Next.js's Router Cache may preserve and reuse the layout's `<canvas>` DOM element. Re-triggering `transferControlToOffscreen()` on a reused element throws a `DOMException` ("Cannot transfer control to offscreen twice"), causing silent initialization failures and disabling the background.
-- **Current Mitigation**: Handled via a global module-level reference cache tracking the active Worker and Canvas instances in [Background.tsx](file:///home/thanh/BDCHub---Frontend/src/components/layout/Background.tsx), preventing redundant transfer calls.
-- **Future Refactoring**: Open for simplification if a cleaner state-sharing mechanism or standard offscreen lifecycle abstraction is introduced.
-
