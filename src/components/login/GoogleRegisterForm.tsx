@@ -3,15 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/icons/Icons";
+import { fetchPublicTeams, fetchPublicTypes } from "@/lib/admin/teamsTypesApi";
 
-const TEAMS = [
+const DEFAULT_TEAMS = [
   { value: "RESEARCH", label: "Research" },
   { value: "ENGINEER", label: "Engineer" },
   { value: "EVENT", label: "Event" },
   { value: "MEDIA", label: "Media" },
 ];
 
-const TYPES = [
+const DEFAULT_TYPES = [
   { value: "CLC", label: "CLC" },
   { value: "TN", label: "TN" },
   { value: "DT", label: "ĐT" },
@@ -35,6 +36,9 @@ export function GoogleRegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [teamsList, setTeamsList] = useState(DEFAULT_TEAMS);
+  const [typesList, setTypesList] = useState(DEFAULT_TYPES);
+
   useEffect(() => {
     const stored = sessionStorage.getItem("googleProfile");
     if (!stored) {
@@ -44,6 +48,24 @@ export function GoogleRegisterForm() {
     const parsed = JSON.parse(stored) as GoogleProfile;
     setProfile(parsed);
     setName(parsed.name || "");
+
+    // Fetch dynamic teams
+    fetchPublicTeams()
+      .then(data => {
+        if (data && data.length > 0) {
+          setTeamsList(data.map(t => ({ value: t.code, label: t.name })));
+        }
+      })
+      .catch(err => console.error("Failed to load public teams dynamically:", err));
+
+    // Fetch dynamic types
+    fetchPublicTypes()
+      .then(data => {
+        if (data && data.length > 0) {
+          setTypesList(data.map(t => ({ value: t.code, label: t.name })));
+        }
+      })
+      .catch(err => console.error("Failed to load public types dynamically:", err));
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,7 +197,7 @@ export function GoogleRegisterForm() {
             required
           >
             <option value="" disabled>Chọn ban</option>
-            {TEAMS.map((t) => (
+            {teamsList.map((t) => (
               <option key={t.value} value={t.value}>{t.label}</option>
             ))}
           </select>
@@ -191,7 +213,7 @@ export function GoogleRegisterForm() {
             required
           >
             <option value="" disabled>Chọn hệ</option>
-            {TYPES.map((t) => (
+            {typesList.map((t) => (
               <option key={t.value} value={t.value}>{t.label}</option>
             ))}
           </select>

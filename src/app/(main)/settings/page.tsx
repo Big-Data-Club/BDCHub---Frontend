@@ -11,7 +11,8 @@ import {
   Lock, 
   FileText,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Layers
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { redirect } from "next/navigation";
@@ -33,6 +34,14 @@ const SETTINGS_CARDS: SettingCard[] = [
     href: "/settings/roles",
     status: "active",
     color: "bg-blue-500",
+  },
+  {
+    title: "Teams & Types",
+    description: "Manage organization teams, user divisions/types, and dynamic database categories.",
+    icon: Layers,
+    href: "/settings/teams-types",
+    status: "active",
+    color: "bg-emerald-500",
   },
   {
     title: "General Settings",

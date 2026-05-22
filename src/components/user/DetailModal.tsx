@@ -7,6 +7,7 @@ import { updateUser, updateUserRole } from "@/lib/users/api";
 import { mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { fetchRoles, Role } from "@/lib/admin/rolesApi";
 import LmsUserRoleManager from "../admin/LmsUserRoleManager";
+import { fetchPublicTeams, fetchPublicTypes, Team as APITeam, UserTypeOption } from "@/lib/admin/teamsTypesApi";
 
 interface DetailModalProps {
   user: User | null;
@@ -15,8 +16,7 @@ interface DetailModalProps {
   onUserUpdated?: () => void;
 }
 
-const TEAM_OPTIONS = ["Research", "Engineer", "Event", "Media"];
-const TYPE_OPTIONS = ["CLC", "DT", "TN"];
+
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
 function displayRole(role: string): string {
@@ -42,15 +42,6 @@ function roleBadgeColor(role: string): string {
   }
 }
 
-function displayTeam(team: string): string {
-  const map: Record<string, string> = {
-    RESEARCH: "Research", Research: "Research",
-    ENGINEER: "Engineer", Engineer: "Engineer",
-    EVENT: "Event", Event: "Event",
-    MEDIA: "Media", Media: "Media",
-  };
-  return map[team] || team;
-}
 
 export default function DetailModal({ user, onClose, isAdmin = false, onUserUpdated }: DetailModalProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -65,6 +56,45 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
   const [editType, setEditType] = useState("");
   const [editRole, setEditRole] = useState("");
   const [roles, setRoles] = useState<Role[]>([]);
+
+  // Dynamic teams & types
+  const [availableTeams, setAvailableTeams] = useState<APITeam[]>([
+    { id: 1, code: "RESEARCH", name: "Research" },
+    { id: 2, code: "ENGINEER", name: "Engineer" },
+    { id: 3, code: "EVENT", name: "Event" },
+    { id: 4, code: "MEDIA", name: "Media" }
+  ]);
+  const [availableTypes, setAvailableTypes] = useState<UserTypeOption[]>([
+    { id: 1, code: "CLC", name: "CLC" },
+    { id: 2, code: "DT", name: "DT" },
+    { id: 3, code: "TN", name: "TN" }
+  ]);
+
+  useEffect(() => {
+    fetchPublicTeams()
+      .then(data => {
+        if (data && data.length > 0) setAvailableTeams(data);
+      })
+      .catch(err => console.error("Failed to fetch dynamic teams:", err));
+
+    fetchPublicTypes()
+      .then(data => {
+        if (data && data.length > 0) setAvailableTypes(data);
+      })
+      .catch(err => console.error("Failed to fetch dynamic types:", err));
+  }, []);
+
+  const getTeamDisplayName = (teamCode: string) => {
+    if (!teamCode) return "";
+    const found = availableTeams.find(t => t.code.toUpperCase() === teamCode.toUpperCase());
+    return found ? found.name : teamCode;
+  };
+
+  const getTypeDisplayName = (typeCode: string) => {
+    if (!typeCode) return "";
+    const found = availableTypes.find(t => t.code.toUpperCase() === typeCode.toUpperCase());
+    return found ? found.name : typeCode;
+  };
 
   // Reset form state when user changes
   useEffect(() => {
@@ -280,8 +310,8 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
                                focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 
                                transition-all duration-200"
                   >
-                    {TEAM_OPTIONS.map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                    {availableTeams.map((t) => (
+                      <option key={t.code} value={t.code}>{t.name}</option>
                     ))}
                   </select>
                 </div>
@@ -299,8 +329,8 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
                                focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 
                                transition-all duration-200"
                   >
-                    {TYPE_OPTIONS.map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                    {availableTypes.map((t) => (
+                      <option key={t.code} value={t.code}>{t.name}</option>
                     ))}
                   </select>
                 </div>
@@ -364,7 +394,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
                   </div>
                   <div className="min-w-0">
                     <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Team</p>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{displayTeam(user.team as string)}</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{getTeamDisplayName(user.team as string)}</p>
                   </div>
                 </div>
 
@@ -375,7 +405,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
                   </div>
                   <div className="min-w-0">
                     <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Loại</p>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{user.type}</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{getTypeDisplayName(user.type as string)}</p>
                   </div>
                 </div>
 
