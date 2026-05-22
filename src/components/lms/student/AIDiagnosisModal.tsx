@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import aiService, { DiagnosisResult, DeepLink } from "@/services/aiService";
 import { cn } from "@/lib/utils";
+import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 
 interface Props {
   attemptId: number;
@@ -176,9 +177,7 @@ export default function AIDiagnosisModal({
                   </p>
                 </div>
                 <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4">
-                  <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
-                    {result.explanation}
-                  </p>
+                  <MarkdownRenderer content={result.explanation} variant="chat" />
                 </div>
               </div>
 
@@ -191,9 +190,7 @@ export default function AIDiagnosisModal({
                   </p>
                 </div>
                 <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4">
-                  <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
-                    {result.study_suggestion}
-                  </p>
+                  <MarkdownRenderer content={result.study_suggestion} variant="chat" />
                 </div>
               </div>
 

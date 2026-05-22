@@ -6,6 +6,7 @@ import type { AgentMessage } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
 import { WidgetRenderer } from "./WidgetRenderer";
+import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 
 interface AgentMessageBubbleProps {
   message: AgentMessage;
@@ -80,15 +81,18 @@ export function AgentMessageBubble({
           <div
             className={cn(
               "px-4 py-3 rounded-2xl text-sm leading-relaxed",
-              "whitespace-pre-wrap break-words",
               isUser
-                ? "bg-blue-600 text-white rounded-br-md"
+                ? "bg-blue-600 text-white rounded-br-md whitespace-pre-wrap break-words"
                 : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-bl-md",
             )}
           >
-            {message.content}
-            {message.isStreaming && (
-              <span className="inline-block w-1.5 h-4 bg-blue-500 dark:bg-blue-400 ml-0.5 animate-pulse rounded-sm" />
+            {isUser ? (
+              message.content
+            ) : (
+              <MarkdownRenderer
+                content={message.content + (message.isStreaming ? ' ▊' : '')}
+                variant="chat"
+              />
             )}
           </div>
         )}

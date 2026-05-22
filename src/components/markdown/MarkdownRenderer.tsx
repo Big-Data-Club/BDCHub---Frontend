@@ -10,61 +10,125 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
+import { cn } from "@/lib/utils";
+
 interface MarkdownRendererProps {
   content: string;
   className?: string;
+  variant?: 'default' | 'chat';
 }
 
 export default function MarkdownRenderer({
   content,
   className = '',
+  variant = 'default',
 }: MarkdownRendererProps) {
+  const isChat = variant === 'chat';
+
   return (
-    <div className={`prose prose-sm dark:prose-invert max-w-none ${className}`}>
+    <div
+      className={cn(
+        isChat
+          ? "w-full text-slate-700 dark:text-slate-300 text-sm leading-relaxed"
+          : "prose prose-sm dark:prose-invert max-w-none",
+        className
+      )}
+    >
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
           // Custom Heading Components
           h1: ({ ...props }) => (
-            <h1 className="text-3xl font-bold mt-8 mb-4 first:mt-0 text-gray-900 dark:text-white" {...props} />
+            <h1
+              className={cn(
+                "font-bold text-slate-900 dark:text-slate-50",
+                isChat
+                  ? "text-base mt-3 mb-1.5 first:mt-0"
+                  : "text-3xl mt-8 mb-4 first:mt-0"
+              )}
+              {...props}
+            />
           ),
           h2: ({ ...props }) => (
-            <h2 className="text-2xl font-bold mt-6 mb-3 text-gray-800 dark:text-gray-100 border-b border-gray-100 dark:border-gray-800 pb-2" {...props} />
+            <h2
+              className={cn(
+                "font-bold text-slate-850 dark:text-slate-100",
+                isChat
+                  ? "text-sm mt-2.5 mb-1 pb-0.5 border-b border-slate-100 dark:border-slate-800/50"
+                  : "text-2xl mt-6 mb-3 border-b border-gray-100 dark:border-gray-800 pb-2"
+              )}
+              {...props}
+            />
           ),
           h3: ({ ...props }) => (
-            <h3 className="text-xl font-bold mt-5 mb-2 text-gray-800 dark:text-gray-100" {...props} />
+            <h3
+              className={cn(
+                "font-bold text-slate-800 dark:text-slate-100",
+                isChat
+                  ? "text-sm mt-2 mb-1"
+                  : "text-xl mt-5 mb-2"
+              )}
+              {...props}
+            />
           ),
 
           // Paragraph Styling
           p: ({ ...props }) => (
-            <p className="leading-relaxed mb-4 text-gray-600 dark:text-gray-300" {...props} />
+            <p
+              className={cn(
+                "leading-relaxed",
+                isChat
+                  ? "mb-2 last:mb-0 text-slate-700 dark:text-slate-300"
+                  : "mb-4 text-gray-600 dark:text-gray-300"
+              )}
+              {...props}
+            />
           ),
 
           // Lists
           ul: ({ ...props }) => (
-            <ul className="list-disc list-outside mb-4 pl-5 space-y-1.5 text-gray-600 dark:text-gray-300" {...props} />
+            <ul
+              className={cn(
+                "list-disc list-outside",
+                isChat
+                  ? "mb-2 pl-4 space-y-1 text-slate-700 dark:text-slate-300"
+                  : "mb-4 pl-5 space-y-1.5 text-gray-600 dark:text-gray-300"
+              )}
+              {...props}
+            />
           ),
           ol: ({ ...props }) => (
-            <ol className="list-decimal list-outside mb-4 pl-5 space-y-1.5 text-gray-600 dark:text-gray-300" {...props} />
+            <ol
+              className={cn(
+                "list-decimal list-outside",
+                isChat
+                  ? "mb-2 pl-4 space-y-1 text-slate-700 dark:text-slate-300"
+                  : "mb-4 pl-5 space-y-1.5 text-gray-600 dark:text-gray-300"
+              )}
+              {...props}
+            />
           ),
           li: ({ ...props }) => (
-            <li className="pl-1" {...props} />
+            <li className={isChat ? "pl-0.5" : "pl-1"} {...props} />
           ),
 
           // Code Blocks and Inline Code
           code: ({ inline, className, children, ...props }: any) => {
             const match = /language-(\w+)/.exec(className || '');
             return !inline && match ? (
-              <div className="relative group my-6">
-                <div className="absolute top-0 right-0 px-3 py-1 text-[10px] uppercase font-bold text-gray-500 bg-gray-800/10 dark:bg-gray-200/10 rounded-bl-lg">
+              <div className={cn("relative group", isChat ? "my-3" : "my-6")}>
+                <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] uppercase font-bold text-gray-500 bg-gray-800/10 dark:bg-gray-200/10 rounded-bl-lg">
                   {match[1]}
                 </div>
                 <SyntaxHighlighter
                   style={vscDarkPlus}
                   language={match[1]}
                   PreTag="div"
-                  className="rounded-xl overflow-hidden !bg-gray-950 !m-0 !p-4 shadow-lg text-sm"
+                  className={cn(
+                    "rounded-xl overflow-hidden !bg-gray-950 !m-0 shadow-lg font-mono",
+                    isChat ? "!p-3 text-[11px] leading-normal" : "!p-4 text-sm"
+                  )}
                   {...props}
                 >
                   {String(children).replace(/\n$/, '')}
@@ -79,12 +143,27 @@ export default function MarkdownRenderer({
 
           // Blockquotes
           blockquote: ({ ...props }) => (
-            <blockquote className="border-l-4 border-blue-500/50 pl-4 py-1 italic text-gray-500 dark:text-gray-400 bg-blue-50/20 dark:bg-blue-900/10 my-6 rounded-r-md" {...props} />
+            <blockquote
+              className={cn(
+                "border-l-4 border-blue-500/50 italic bg-blue-50/20 dark:bg-blue-900/10 rounded-r-md",
+                isChat
+                  ? "pl-3 py-0.5 my-3 text-slate-500 dark:text-slate-400"
+                  : "pl-4 py-1 my-6 text-gray-500 dark:text-gray-400"
+              )}
+              {...props}
+            />
           ),
 
           // Tables
           table: ({ ...props }) => (
-            <div className="overflow-x-auto my-6 rounded-lg ring-1 ring-gray-100 dark:ring-gray-800">
+            <div
+              className={cn(
+                "overflow-x-auto rounded-lg ring-1",
+                isChat
+                  ? "my-3 ring-slate-100 dark:ring-slate-800"
+                  : "my-6 ring-gray-100 dark:ring-gray-800"
+              )}
+            >
               <table className="w-full border-collapse" {...props} />
             </div>
           ),
@@ -100,15 +179,18 @@ export default function MarkdownRenderer({
 
           // Images
           img: ({ src, alt, ...props }: any) => (
-            <div className="my-8 flex flex-col items-center">
+            <div className={isChat ? "my-4 flex flex-col items-center" : "my-8 flex flex-col items-center"}>
               <img
                 src={src}
                 alt={alt}
-                className="max-w-full h-auto rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 ring-1 ring-black/[0.05]"
+                className={cn(
+                  "max-w-full h-auto rounded-xl shadow-md transition-shadow duration-300 ring-1 ring-black/[0.05]",
+                  isChat ? "hover:shadow-lg" : "hover:shadow-2xl rounded-2xl"
+                )}
                 loading="lazy"
                 {...props}
               />
-              {alt && <span className="text-[11px] text-gray-400 mt-2 italic">{alt}</span>}
+              {alt && <span className="text-[10px] text-gray-400 mt-1.5 italic">{alt}</span>}
             </div>
           ),
 
@@ -127,7 +209,7 @@ export default function MarkdownRenderer({
 
           // Horizontal Lines
           hr: ({ ...props }) => (
-            <hr className="my-10 border-gray-100 dark:border-gray-800" {...props} />
+            <hr className={isChat ? "my-4 border-slate-100 dark:border-slate-800" : "my-10 border-gray-100 dark:border-gray-800"} {...props} />
           ),
         }}
       >

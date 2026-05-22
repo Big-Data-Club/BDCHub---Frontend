@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 import { useAgentChat } from "@/hooks/useAgentChat";
 import analyticsService from "@/services/analyticsService";
 import type { MicroLessonContext } from "./types";
+import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 
 interface AskAIDrawerProps {
   ctx: MicroLessonContext;
@@ -164,13 +165,20 @@ export function AskAIDrawer({ ctx, open, onClose }: AskAIDrawerProps) {
                   className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
                 >
                   <div
-                    className={`max-w-[88%] text-sm leading-relaxed whitespace-pre-wrap rounded-md px-3 py-2 border ${
+                    className={`max-w-[88%] text-sm leading-relaxed rounded-md px-3 py-2 border ${
                       m.role === "user"
-                        ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-100"
+                        ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 dark:border-slate-100 whitespace-pre-wrap"
                         : "bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-slate-200 dark:border-slate-700"
                     }`}
                   >
-                    {m.content || (m.isStreaming ? "…" : "")}
+                    {m.role === "user" ? (
+                      m.content
+                    ) : (
+                      <MarkdownRenderer
+                        content={(m.content || "") + (m.isStreaming ? ' ▊' : '')}
+                        variant="chat"
+                      />
+                    )}
                   </div>
                 </li>
               ))}
