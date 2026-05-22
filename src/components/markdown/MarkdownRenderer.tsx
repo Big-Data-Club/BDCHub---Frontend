@@ -113,33 +113,51 @@ export default function MarkdownRenderer({
             <li className={isChat ? "pl-0.5" : "pl-1"} {...props} />
           ),
 
-          // Code Blocks and Inline Code
-          code: ({ inline, className, children, ...props }: any) => {
-            const match = /language-(\w+)/.exec(className || '');
-            return !inline && match ? (
+          // Code Blocks — handled at the `pre` level (react-markdown v10 removed
+          // the `inline` prop from `code`; `pre` only wraps fenced blocks, never
+          // inline code, so this is the correct v10 detection pattern).
+          pre: ({ children }: any) => {
+            // Extract the inner <code> element rendered by react-markdown
+            const codeEl = React.Children.toArray(children).find(
+              (child: any) => child?.type === 'code' || child?.props?.className?.startsWith('language-')
+            ) as React.ReactElement<any> | undefined;
+
+            const className = codeEl?.props?.className ?? '';
+            const match = /language-(\w+)/.exec(className);
+            const lang = match ? match[1] : '';
+            const raw = String(codeEl?.props?.children ?? '').replace(/\n$/, '');
+
+            return (
               <div className={cn("relative group", isChat ? "my-3" : "my-6")}>
-                <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] uppercase font-bold text-gray-500 bg-gray-800/10 dark:bg-gray-200/10 rounded-bl-lg">
-                  {match[1]}
-                </div>
+                {lang && (
+                  <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] uppercase font-bold text-gray-500 bg-gray-800/10 dark:bg-gray-200/10 rounded-bl-lg z-10">
+                    {lang}
+                  </div>
+                )}
                 <SyntaxHighlighter
                   style={vscDarkPlus}
-                  language={match[1]}
+                  language={lang || 'text'}
                   PreTag="div"
                   className={cn(
                     "rounded-xl overflow-hidden !bg-gray-950 !m-0 shadow-lg font-mono",
                     isChat ? "!p-3 text-[11px] leading-normal" : "!p-4 text-sm"
                   )}
-                  {...props}
                 >
-                  {String(children).replace(/\n$/, '')}
+                  {raw}
                 </SyntaxHighlighter>
               </div>
-            ) : (
-              <code className="bg-gray-100 dark:bg-gray-800/50 px-1.5 py-0.5 rounded text-sm font-mono text-red-500 dark:text-red-400 font-medium" {...props}>
-                {children}
-              </code>
             );
           },
+
+          // Inline Code — `code` is now exclusively for inline spans in v10
+          code: ({ children, ...props }: any) => (
+            <code
+              className="bg-gray-100 dark:bg-gray-800/50 px-1.5 py-0.5 rounded text-sm font-mono text-red-500 dark:text-red-400 font-medium"
+              {...props}
+            >
+              {children}
+            </code>
+          ),
 
           // Blockquotes
           blockquote: ({ ...props }) => (
