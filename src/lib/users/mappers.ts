@@ -19,7 +19,7 @@ export function mapServerUserToClient(s: any): User {
     email: s.email ?? "",
     team: humanizeEnum(s.team) || "Research",
     type: (s.type ?? "CLC") as string,
-    role: humanizeEnum(s.role) || "Member",
+    role: s.role || "ROLE_USER",
     score: Number(s.totalScore ?? s.score ?? 0),
     dateAdded: s.createdAt ?? s.updatedAt ?? new Date().toISOString(),
     status: typeof s.active === "boolean" ? s.active : Boolean(s.status ?? true),

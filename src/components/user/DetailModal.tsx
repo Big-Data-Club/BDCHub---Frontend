@@ -145,16 +145,16 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
     setSaveSuccess(false);
 
     try {
+      if (editRole !== user.role && isAdmin) {
+        await updateUserRole(user.id, editRole);
+      }
+
       await updateUser(user.id, {
         name: editName.trim(),
         email: editEmail.trim(),
         team: mapFrontendTeamToBackend(editTeam),
         type: mapFrontendTypeToBackend(editType),
       });
-
-      if (editRole !== user.role && isAdmin) {
-        await updateUserRole(user.id, editRole);
-      }
 
       setSaveSuccess(true);
       setIsEditing(false);
