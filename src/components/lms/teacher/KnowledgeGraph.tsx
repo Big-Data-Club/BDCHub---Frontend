@@ -50,6 +50,17 @@ const RELATION_STYLES: Record<string, RelationStyle> = {
     labelVi: "Liên quan",
     dash: [4, 2],       // dashed for semantic similarity
   },
+  equivalent: {
+    color: "#06b6d4",   // Cyan-500
+    label: "Equivalent",
+    labelVi: "Tương đương",
+  },
+  contrasts_with: {
+    color: "#ef4444",   // Red-500
+    label: "Contrasts with",
+    labelVi: "Đối chiếu",
+    dash: [2, 1],
+  },
   parent_child: {
     color: "#8b5cf6",   // Violet-500
     label: "Parent → Child",
@@ -65,7 +76,7 @@ const DEFAULT_STYLE: RelationStyle = {
 };
 
 function getRelationStyle(type: string): RelationStyle {
-  return RELATION_STYLES[type] ?? DEFAULT_STYLE;
+  return RELATION_STYLES[type?.toLowerCase()] ?? DEFAULT_STYLE;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────

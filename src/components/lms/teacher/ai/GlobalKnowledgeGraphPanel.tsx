@@ -42,14 +42,13 @@ const RELATION_META: Record<string, { color: string; label: string; dash?: numbe
   prerequisite: { color: "#f59e0b", label: "Tiên quyết" },
   extends: { color: "#10b981", label: "Mở rộng" },
   related: { color: "#3b82f6", label: "Liên quan", dash: [4, 2] },
+  equivalent: { color: "#06b6d4", label: "Tương đương" },
+  contrasts_with: { color: "#ef4444", label: "Đối chiếu", dash: [2, 1] },
   parent_child: { color: "#8b5cf6", label: "Bao gồm" },
-  PREREQUISITE: { color: "#f59e0b", label: "Tiên quyết" },
-  EXTENDS: { color: "#10b981", label: "Mở rộng" },
-  RELATED: { color: "#3b82f6", label: "Liên quan", dash: [4, 2] },
 };
 
 const DEFAULT_REL = { color: "#94a3b8", label: "Khác", dash: [2, 2] };
-const getRelMeta = (type: string) => RELATION_META[type] ?? DEFAULT_REL;
+const getRelMeta = (type: string) => RELATION_META[type?.toLowerCase()] ?? DEFAULT_REL;
 
 // ── Main Component ────────────────────────────────────────────────────────────
 interface Props {
