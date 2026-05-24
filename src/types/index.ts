@@ -8,3 +8,4 @@ export * from "./calendar"
 export * from "./account"
 export * from "./contentform"
 export * from "./agent"
+export * from "./video-job";

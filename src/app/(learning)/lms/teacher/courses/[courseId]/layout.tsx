@@ -27,7 +27,9 @@ const COURSE_TABS = [
   { id: "learners", label: "Học viên", path: "/learners" },
   { id: "students", label: "Tiến độ học tập", path: "/students" },
   { id: "ai", label: "🤖 AI", path: "/ai" },
+  { id: "video", label: "🎬 Video giới thiệu", path: "/video" },
 ];
+
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
