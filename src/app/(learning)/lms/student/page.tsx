@@ -404,7 +404,7 @@ export default function StudentDashboard() {
                         <div className="flex-1">
                           {mounted && (
                             <ResponsiveContainer width="100%" height="100%">
-                              <RadarChart cx="50%" cy="50%" radius="70%" data={heatmapData}>
+                              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={heatmapData}>
                                 <PolarGrid stroke="#e2e8f0" />
                                 <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: "#64748b" }} />
                                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 8 }} />
