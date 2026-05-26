@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import lmsService from "@/services/lmsService";
 import {
   Plus, Search, BookOpen, Settings, Trash2,
-  Eye, EyeOff, ChevronRight
+  Eye, EyeOff, ChevronRight, Users
 } from "lucide-react";
 import {
   Card, Badge, PrimaryBtn, GhostBtn,
@@ -37,9 +37,13 @@ function CourseRow({
       )}
       onClick={onOpen}
     >
-      {/* Icon */}
-      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center flex-shrink-0">
-        <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+      {/* Thumbnail */}
+      <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 relative border border-slate-200 dark:border-slate-800">
+        {course.thumbnail_url ? (
+          <img src={course.thumbnail_url} alt={course.title} className="object-cover w-full h-full" />
+        ) : (
+          <BookOpen className="w-5 h-5 text-slate-400 dark:text-slate-600" />
+        )}
       </div>
 
       {/* Info */}
@@ -51,7 +55,25 @@ function CourseRow({
           <Badge variant={course.status === "PUBLISHED" ? "green" : "yellow"}>
             {course.status === "PUBLISHED" ? "Đã xuất bản" : "Nháp"}
           </Badge>
-          {course.category && <Badge variant="gray">{course.category}</Badge>}
+          {course.category && course.category.split(",").map((cat, i) => {
+            const trimmed = cat.trim();
+            return trimmed ? <Badge key={i} variant="gray">{trimmed}</Badge> : null;
+          })}
+          {course.level && (
+            <Badge variant={
+              course.level === "BEGINNER" ? "green" :
+              course.level === "INTERMEDIATE" ? "yellow" :
+              course.level === "ADVANCED" ? "red" : "blue"
+            }>
+              {course.level === "BEGINNER" ? "Cơ bản" :
+               course.level === "INTERMEDIATE" ? "Trung cấp" :
+               course.level === "ADVANCED" ? "Nâng cao" : "Mọi cấp"}
+            </Badge>
+          )}
+          <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <Users className="w-3.5 h-3.5 text-slate-400" />
+            {course.enrollment_count ?? 0} học viên
+          </span>
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-500 truncate">
           {course.description || "Chưa có mô tả"}
@@ -115,6 +137,8 @@ export default function CoursesListPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [search, setSearch] = useState("");
+  const [selectedTag, setSelectedTag] = useState<string>("all");
+  const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const [publishing, setPublishing] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
 
@@ -158,10 +182,23 @@ export default function CoursesListPage() {
     finally { setDeleting(null); }
   };
 
-  const filtered = courses.filter(c =>
-    c.title.toLowerCase().includes(search.toLowerCase()) ||
-    (c.description ?? "").toLowerCase().includes(search.toLowerCase())
+  const allTags = Array.from(
+    new Set(
+      courses
+        .flatMap(c => c.category ? c.category.split(",").map(t => t.trim()) : [])
+        .filter(Boolean)
+    )
   );
+
+  const filtered = courses.filter(c => {
+    const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase()) ||
+      (c.description ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (c.category ?? "").toLowerCase().includes(search.toLowerCase());
+    const matchesTag = selectedTag === "all" ? true :
+      (c.category ?? "").split(",").map(t => t.trim().toLowerCase()).includes(selectedTag.toLowerCase());
+    const matchesLevel = selectedLevel === "all" ? true : c.level === selectedLevel;
+    return matchesSearch && matchesTag && matchesLevel;
+  });
 
   const displayedCourses = filtered.slice(0, limit);
 
@@ -191,26 +228,56 @@ export default function CoursesListPage() {
         {error && <Alert type="error">{error}</Alert>}
 
         {/* Filter + search card */}
-        <Card className="p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <TabBar
-            tabs={[
-              { id: "all" as StatusFilter,       label: "Tất cả",    badge: courses.length },
-              { id: "published" as StatusFilter,  label: "Xuất bản",  badge: published },
-              { id: "draft" as StatusFilter,      label: "Nháp",      badge: draft },
-            ]}
-            active={filter}
-            onChange={setFilter}
-          />
-          <div className="flex-1 sm:max-w-xs relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              value={search}
-              onChange={e => { setSearch(e.target.value); setLimit(15); }}
-              placeholder="Tìm kiếm khóa học..."
-              className="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm
-                         bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
-                         placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+        <Card className="p-4">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+            <TabBar
+              tabs={[
+                { id: "all" as StatusFilter,       label: "Tất cả",    badge: courses.length },
+                { id: "published" as StatusFilter,  label: "Xuất bản",  badge: published },
+                { id: "draft" as StatusFilter,      label: "Nháp",      badge: draft },
+              ]}
+              active={filter}
+              onChange={setFilter}
             />
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              {/* Category selector */}
+              <select
+                value={selectedTag}
+                onChange={e => { setSelectedTag(e.target.value); setLimit(15); }}
+                className="py-2.5 px-3 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              >
+                <option value="all">Tất cả danh mục (tag)</option>
+                {allTags.map(tag => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
+
+              {/* Level selector */}
+              <select
+                value={selectedLevel}
+                onChange={e => { setSelectedLevel(e.target.value); setLimit(15); }}
+                className="py-2.5 px-3 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              >
+                <option value="all">Tất cả cấp độ</option>
+                <option value="BEGINNER">Cơ bản</option>
+                <option value="INTERMEDIATE">Trung cấp</option>
+                <option value="ADVANCED">Nâng cao</option>
+                <option value="ALL_LEVELS">Mọi cấp độ</option>
+              </select>
+
+              {/* Search text */}
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  value={search}
+                  onChange={e => { setSearch(e.target.value); setLimit(15); }}
+                  placeholder="Tìm kiếm khóa học..."
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm
+                             bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
+                             placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
+            </div>
           </div>
         </Card>
 

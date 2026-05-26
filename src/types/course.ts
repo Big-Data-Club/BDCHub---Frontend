@@ -15,6 +15,7 @@ export interface Course {
   published_at?: string;
   teacher_name?: string;
   teacher_email?: string;
+  enrollment_count?: number;
 }
 
 export interface Section {

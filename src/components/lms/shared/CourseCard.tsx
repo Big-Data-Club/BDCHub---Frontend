@@ -65,7 +65,10 @@ export function CourseCard({
       <div className="p-4">
         {/* Meta badges */}
         <div className="flex flex-wrap gap-1.5 mb-2">
-          {category && <Badge variant="gray">{category}</Badge>}
+          {category && category.split(",").map((cat, i) => {
+            const trimmed = cat.trim();
+            return trimmed ? <Badge key={i} variant="gray">{trimmed}</Badge> : null;
+          })}
           {level && <Badge variant={LEVEL_BADGE[level] ?? "gray"}>{LEVEL_LABEL[level] ?? level}</Badge>}
         </div>
 
