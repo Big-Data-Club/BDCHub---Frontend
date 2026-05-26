@@ -25,6 +25,7 @@ export interface VideoJob {
   youtube_video_id?: string;
   youtube_url?: string;
   visibility: "unlisted" | "public";
+  preview_url?: string;
   created_at: string;
   updated_at: string;
 }

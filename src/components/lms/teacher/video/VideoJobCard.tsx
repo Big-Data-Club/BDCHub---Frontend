@@ -12,7 +12,8 @@ import {
   ExternalLink, 
   RefreshCw,
   Clock,
-  FileText
+  FileText,
+  Info
 } from "lucide-react";
 import type { VideoJob } from "@/types";
 
@@ -113,6 +114,7 @@ export default function VideoJobCard({ job, onPublish }: VideoJobCardProps) {
 
   const statusConfig = getStatusConfig(job.status);
   const isFinished = ["COMPLETED", "PUBLIC", "PUBLISHING"].includes(job.status);
+  const isPending = ["PENDING", "PLANNING", "SCRIPTING", "RENDERING", "UPLOADING"].includes(job.status);
 
   const handleCopyLink = () => {
     if (job.youtube_url) {
@@ -188,7 +190,7 @@ export default function VideoJobCard({ job, onPublish }: VideoJobCardProps) {
       {/* Main Content Area */}
       <div className="p-5 flex-1 flex flex-col gap-4">
         {/* Active Progress State */}
-        {!isFinished && job.status !== "FAILED" && (
+        {isPending && (
           <div className="py-8 flex flex-col items-center justify-center text-center">
             <div className="relative flex items-center justify-center mb-4">
               <Loader2 className="w-10 h-10 text-indigo-600 dark:text-indigo-400 animate-spin absolute" />
@@ -224,8 +226,46 @@ export default function VideoJobCard({ job, onPublish }: VideoJobCardProps) {
           </div>
         )}
 
+        {/* Publishing State */}
+        {job.status === "PUBLISHING" && (
+          <div className="py-8 flex flex-col items-center justify-center text-center">
+            <div className="relative flex items-center justify-center mb-4">
+              <Loader2 className="w-10 h-10 text-orange-500 animate-spin absolute" />
+              <Globe className="w-5 h-5 text-slate-400 dark:text-slate-600" />
+            </div>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Đang xuất bản lên YouTube...
+            </p>
+            <p className="text-xs text-slate-400 mt-1 max-w-sm">
+              Hệ thống đang tải video lên YouTube và cấu hình hiển thị công khai. Quá trình này có thể mất vài phút.
+            </p>
+          </div>
+        )}
+
+        {/* Render Preview HTML5 Video Player */}
+        {job.status === "COMPLETED" && (
+          <div className="flex flex-col gap-3">
+            <div className="aspect-video w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 shadow-inner bg-slate-950 flex items-center justify-center">
+              <video
+                src={job.preview_url || `/files/video-previews/vid_${job.id}.mp4`}
+                controls
+                className="w-full h-full object-contain"
+                preload="metadata"
+                controlsList="nodownload"
+              />
+            </div>
+            
+            <div className="p-3.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/55 dark:border-amber-900/40 rounded-lg flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="text-xxs text-amber-700 dark:text-amber-400 leading-relaxed font-normal">
+                Đây là video xem trước được lưu trữ tạm thời trong 10 phút. Bạn có thể nhấn <strong>&quot;Công khai lên khóa học&quot;</strong> để xuất bản chính thức lên YouTube. Sau 10 phút, nếu không được xuất bản, bản xem trước tạm thời sẽ tự động bị xóa.
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Render Completed YouTube Player */}
-        {isFinished && job.youtube_video_id && (
+        {job.status === "PUBLIC" && job.youtube_video_id && (
           <div className="flex flex-col gap-3">
             <div className="aspect-video w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 shadow-inner bg-slate-950">
               <iframe
