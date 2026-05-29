@@ -11,10 +11,10 @@ export interface StatItem {
 }
 
 export const statsData: StatItem[] = [
-  { label: "Kết nối", value: "100+", floatClasses: "top-[12%] left-[14%]", duration: 4.2 },
-  { label: "Năm hoạt động", value: "4", floatClasses: "top-[26%] right-[10%]", duration: 4.8 },
-  { label: "Dự án NCKH", value: "10+", floatClasses: "bottom-[26%] left-[14%]", duration: 5.2 },
-  { label: "Giải thưởng", value: "5+", floatClasses: "bottom-[12%] right-[10%]", duration: 4.5 }
+  { label: "Kết nối", value: "100+", floatClasses: "top-[12%] left-[4%]", duration: 4.2 },
+  { label: "Năm hoạt động", value: "4", floatClasses: "top-[26%] right-[0%]", duration: 4.8 },
+  { label: "Dự án NCKH", value: "10+", floatClasses: "bottom-[26%] left-[4%]", duration: 5.2 },
+  { label: "Giải thưởng", value: "5+", floatClasses: "bottom-[12%] right-[0%]", duration: 4.5 }
 ];
 
 // High-performance direct-DOM Animated Counter for the stats values

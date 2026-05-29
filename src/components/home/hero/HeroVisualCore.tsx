@@ -65,10 +65,10 @@ export function HeroVisualCore({
       <div className="absolute w-[420px] h-[420px] rounded-full bg-gradient-to-tr from-blue-500/10 to-cyan-500/10 dark:from-blue-500/5 dark:to-cyan-500/5 blur-3xl animate-pulse pointer-events-none" />
       
       {/* Dedicated Card Glow Backdrops (Subtle ambient light directly behind each card's coordinates to enhance backdrop-blur) */}
-      <div className="absolute top-[12%] left-[14%] w-52 h-52 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
-      <div className="absolute top-[26%] right-[10%] w-52 h-52 rounded-full bg-cyan-500/12 dark:bg-cyan-500/6 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-[26%] left-[14%] w-52 h-52 rounded-full bg-cyan-500/12 dark:bg-cyan-500/6 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-[12%] right-[10%] w-52 h-52 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
+      <div className="absolute top-[12%] left-[4%] w-52 h-52 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
+      <div className="absolute top-[26%] right-[0%] w-52 h-52 rounded-full bg-cyan-500/12 dark:bg-cyan-500/6 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[26%] left-[4%] w-52 h-52 rounded-full bg-cyan-500/12 dark:bg-cyan-500/6 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[12%] right-[0%] w-52 h-52 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
       
       {/* Outer Orbit (Dashed) with Blue Glowing Satellite & Continuous SVG Trail */}
       <motion.div
