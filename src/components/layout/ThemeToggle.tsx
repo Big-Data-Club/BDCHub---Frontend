@@ -20,17 +20,40 @@ export function ThemeToggle({ size = 18, className = "" }: ThemeToggleProps) {
   if (!mounted) return null;
 
   return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className={`p-2 rounded-xl
-                 text-slate-500 dark:text-slate-400
-                 hover:bg-slate-100 dark:hover:bg-[#162644]
-                 hover:text-slate-700 dark:hover:text-slate-200
-                 active:scale-95 transition-all duration-200
-                 ${className}`}
-      aria-label="Toggle theme"
-    >
-      {theme === "dark" ? <Sun size={size} /> : <Moon size={size} />}
-    </button>
+    <>
+      <style>{`
+        @keyframes themeSlideUp {
+          0% {
+            transform: translateY(18px);
+            opacity: 0;
+            filter: blur(1.5px);
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+            filter: blur(0);
+          }
+        }
+        .animate-theme-slide {
+          animation: themeSlideUp 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
+
+      <button
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        className={`p-2 rounded-xl
+                   text-slate-500 dark:text-slate-400
+                   hover:bg-slate-100 dark:hover:bg-[#162644]
+                   hover:text-slate-700 dark:hover:text-slate-200
+                   active:scale-95 transition-all duration-200
+                   relative overflow-hidden flex items-center justify-center
+                   ${className}`}
+        aria-label="Toggle theme"
+      >
+        <span key={theme} className="inline-flex animate-theme-slide">
+          {theme === "dark" ? <Sun size={size} /> : <Moon size={size} />}
+        </span>
+      </button>
+    </>
   );
 }
