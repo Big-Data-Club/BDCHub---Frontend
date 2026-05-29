@@ -71,9 +71,8 @@ let connectedLen = 0;
 
 const mouse = { x: 0, y: 0 };
 const mouseFollow = { x: 0, y: 0 };
-let lastTime = 0;
 let lastShootTime = 0;
-let startTime = 0;
+let initTime = 0;
 let totalBloomTime = 0; // Dynamic duration for star materialization
 
 // --- Sprites ---
@@ -229,11 +228,8 @@ function initStars(w: number, h: number) {
   }));
 }
 
-function update(time: number) {
+function update(t: number) {
   if (config.prefersReducedMotion) return;
-
-  const t = time * 0.001;
-  lastTime = time;
 
   mouseFollow.x = mouse.x;
   mouseFollow.y = mouse.y;
@@ -308,19 +304,20 @@ function update(time: number) {
   }
 }
 
-function draw(time: number) {
+function draw() {
   if (!ctx) return;
-  // Sync state update with draw loop
-  update(time);
   
-  const t = time * 0.001;
-  const elapsed = t - startTime;
+  const now = performance.now();
+  const t = (now - initTime) * 0.001; // elapsed time in seconds since init
+  
+  // Sync state update with draw loop
+  update(t);
 
   ctx.clearRect(0, 0, config.width, config.height);
 
   const mxOffsetRaw = (mouseFollow.x / config.width - 0.5) * 18;
   const myOffsetRaw = (mouseFollow.y / config.height - 0.5) * 12;
-  const parallaxFactor = Math.max(0, Math.min(1, (elapsed - totalBloomTime) * 2.0));
+  const parallaxFactor = Math.max(0, Math.min(1, (t - totalBloomTime) * 2.0));
   const mxOffset = mxOffsetRaw * parallaxFactor;
   const myOffset = myOffsetRaw * parallaxFactor;
 
@@ -418,7 +415,7 @@ function draw(time: number) {
                       ctx.moveTo(six, siy);
                       ctx.lineTo(sjx, sjy);
 
-                      if (elapsed > totalBloomTime && Math.random() < 0.0006) {
+                      if (t > totalBloomTime && Math.random() < 0.0006) {
                         const p = getPulse();
                         p.x1 = six; p.y1 = siy; p.x2 = sjx; p.y2 = sjy;
                         p.targetIdx = j; p.progress = 0; p.speed = 0.02 + Math.random() * 0.03;
@@ -465,7 +462,7 @@ function draw(time: number) {
             const dSq = dx * dx + dy * dy;
 
             const bloomDelay = starsData[off + 10];
-            const bloomFactor = Math.max(0, Math.min(1, (elapsed - bloomDelay) * 1.5));
+            const bloomFactor = Math.max(0, Math.min(1, (t - bloomDelay) * 1.5));
             
             if (bloomFactor >= 0.2 && dSq < grabDistSq) {
               if (connectedLen < connectedBuf.length) {
@@ -524,7 +521,7 @@ function draw(time: number) {
     const off = i * STAR_STRIDE;
     const z = starsData[off + 2];
     const delay = starsData[off + 10];
-    const bloomFactor = Math.max(0, Math.min(1, (elapsed - delay) * 1.5));
+    const bloomFactor = Math.max(0, Math.min(1, (t - delay) * 1.5));
     if (bloomFactor < 0.01) continue;
 
     const twinkle = Math.sin(t * starsData[off + 5] + starsData[off + 6]);
@@ -591,7 +588,7 @@ self.onmessage = (e) => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       createSprites();
       initStars(config.width, config.height);
-      startTime = performance.now() * 0.001;
+      initTime = performance.now();
       requestAnimationFrame(draw);
       break;
     case 'resize':

@@ -28,18 +28,6 @@ const MobileNav = () => {
     setIsOpen(false);
   };
 
-  const filteredSections = sidebarSections
-    .map((section) => ({
-      ...section,
-      links: section.links.filter((link) => {
-        if (!isAdmin) {
-          return link.route === "/lms" || link.route === "/hackathon2025";
-        }
-        return true;
-      }),
-    }))
-    .filter((section) => section.links.length > 0);
-
   return (
     <header className="flex md:hidden items-center h-14 px-3 sticky top-0 z-50
                        bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
@@ -86,7 +74,7 @@ const MobileNav = () => {
 
           {/* Nav */}
           <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
-            {filteredSections.map((section, i) => (
+            {sidebarSections.map((section, i) => (
               <div key={section.title}>
                 {i > 0 && <div className="border-t border-slate-200 dark:border-slate-800 mb-3" />}
                 <p className="text-xs font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-wider px-3 mb-1.5">

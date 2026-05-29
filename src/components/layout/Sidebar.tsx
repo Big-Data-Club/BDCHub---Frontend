@@ -85,18 +85,6 @@ const Sidebar: React.FC = () => {
     await signOut({ callbackUrl: "/login" });
   };
 
-  const filteredSections = sidebarSections
-    .map((section) => ({
-      ...section,
-      links: section.links.filter((link) => {
-        if (!isAdmin) {
-          return link.route === "/lms" || link.route === "/hackathon2025";
-        }
-        return true;
-      }),
-    }))
-    .filter((section) => section.links.length > 0);
-
   return (
     <TooltipProvider delayDuration={0}>
       <aside
@@ -148,7 +136,7 @@ const Sidebar: React.FC = () => {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto no-scrollbar py-3 px-2 space-y-4">
-          {filteredSections.map((section, i) => (
+          {sidebarSections.map((section, i) => (
             <div key={section.title}>
               {i > 0 && <div className="border-t border-slate-200 dark:border-slate-800 mb-3" />}
               {!isCollapsed && (
