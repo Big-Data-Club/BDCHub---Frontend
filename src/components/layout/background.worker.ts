@@ -20,6 +20,7 @@ const config: WorkerConfig = {
 
 let canvas: OffscreenCanvas | null = null;
 let ctx: OffscreenCanvasRenderingContext2D | null = null;
+let animationRunning = false; // Guard against duplicate rAF loops
 
 // --- State ---
 let starsData: Float32Array; // [x, y, z, size, baseAlpha, twinkleSpeed, twinklePhase, hue, colorType, shimmer, initDelay]
@@ -305,7 +306,10 @@ function update(t: number) {
 }
 
 function draw() {
-  if (!ctx) return;
+  if (!ctx) {
+    animationRunning = false;
+    return;
+  }
   
   const now = performance.now();
   const t = (now - initTime) * 0.001; // elapsed time in seconds since init
@@ -570,6 +574,7 @@ function draw() {
     ctx.fill();
   }
 
+  animationRunning = true;
   requestAnimationFrame(draw);
 }
 
@@ -589,7 +594,10 @@ self.onmessage = (e) => {
       createSprites();
       initStars(config.width, config.height);
       initTime = performance.now();
-      requestAnimationFrame(draw);
+      if (!animationRunning) {
+        animationRunning = true;
+        requestAnimationFrame(draw);
+      }
       break;
     case 'resize':
       config.width = data.width; config.height = data.height;
@@ -610,6 +618,13 @@ self.onmessage = (e) => {
       break;
     case 'reducedMotion':
       config.prefersReducedMotion = data.prefersReducedMotion;
+      break;
+    case 'resume':
+      // Tab became visible again — restart the animation loop if it died
+      if (!animationRunning && ctx) {
+        animationRunning = true;
+        requestAnimationFrame(draw);
+      }
       break;
   }
 };
