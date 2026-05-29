@@ -59,21 +59,21 @@ export function HeroVisualCore({
     <motion.div
       initial="hidden"
       animate="visible"
-      className="lg:col-span-5 relative w-full h-[540px] hidden lg:flex items-center justify-center select-none"
+      className="lg:col-span-5 relative w-full h-[620px] hidden lg:flex items-center justify-center select-none"
     >
       {/* Ambient Glowing Cores */}
-      <div className="absolute w-80 h-80 rounded-full bg-gradient-to-tr from-blue-500/10 to-cyan-500/10 dark:from-blue-500/5 dark:to-cyan-500/5 blur-3xl animate-pulse pointer-events-none" />
+      <div className="absolute w-[420px] h-[420px] rounded-full bg-gradient-to-tr from-blue-500/10 to-cyan-500/10 dark:from-blue-500/5 dark:to-cyan-500/5 blur-3xl animate-pulse pointer-events-none" />
       
       {/* Dedicated Card Glow Backdrops (Subtle ambient light directly behind each card's coordinates to enhance backdrop-blur) */}
-      <div className="absolute top-[6%] left-[2%] w-44 h-44 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
-      <div className="absolute top-[22%] right-[0%] w-44 h-44 rounded-full bg-cyan-500/12 dark:bg-cyan-500/6 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-[22%] left-[2%] w-44 h-44 rounded-full bg-cyan-500/12 dark:bg-cyan-500/6 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-[6%] right-[2%] w-44 h-44 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
+      <div className="absolute top-[12%] left-[14%] w-52 h-52 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
+      <div className="absolute top-[26%] right-[10%] w-52 h-52 rounded-full bg-cyan-500/12 dark:bg-cyan-500/6 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[26%] left-[14%] w-52 h-52 rounded-full bg-cyan-500/12 dark:bg-cyan-500/6 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[12%] right-[10%] w-52 h-52 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
       
       {/* Outer Orbit (Dashed) with Blue Glowing Satellite & Continuous SVG Trail */}
       <motion.div
         variants={outerOrbitVariants}
-        className="absolute w-64 h-64 flex items-center justify-center pointer-events-none"
+        className="absolute w-80 h-80 flex items-center justify-center pointer-events-none"
       >
         <div className="absolute w-full h-full rounded-full border border-dashed border-blue-500/35 dark:border-blue-500/20 animate-[spin_28s_linear_infinite] will-change-transform flex items-center justify-center">
           {/* Lead Satellite Node */}
@@ -101,11 +101,11 @@ export function HeroVisualCore({
       {/* Inner Orbit (Dotted) with Cyan Glowing Satellite & Continuous SVG Trail */}
       <motion.div
         variants={innerOrbitVariants}
-        className="absolute w-48 h-48 flex items-center justify-center pointer-events-none"
+        className="absolute w-60 h-60 flex items-center justify-center pointer-events-none"
       >
         <div className="absolute w-full h-full rounded-full border-2 border-dotted border-cyan-500/35 dark:border-cyan-500/20 animate-[spin_12s_linear_infinite_reverse] will-change-transform flex items-center justify-center">
           {/* Lead Satellite Node at 6 o'clock (bottom) */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2 h-2 rounded-full bg-cyan-500 dark:bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.8)] dark:shadow-[0_0_12px_rgba(34,211,238,0.9)] z-10" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 rounded-full bg-cyan-500 dark:bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.8)] dark:shadow-[0_0_12px_rgba(34,211,238,0.9)] z-10" />
 
           {/* Seamless Tapering & Fading SVG Trail (Counter-clockwise movement -> clockwise trail) */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -129,15 +129,15 @@ export function HeroVisualCore({
       {/* Central BDC Logo with entry reveal scale & fade animation */}
       <motion.div
         variants={logoVariants}
-        className="absolute flex flex-col items-center justify-center text-center p-2 bg-white/40 dark:bg-[#0F1E35]/40 backdrop-blur-md border border-slate-200/50 dark:border-blue-500/10 rounded-full w-32 h-32 shadow-inner overflow-hidden group hover:border-blue-300/60 dark:hover:border-blue-500/30 transition-all duration-300"
+        className="absolute flex flex-col items-center justify-center text-center p-2 bg-white/40 dark:bg-[#0F1E35]/40 backdrop-blur-md border border-slate-200/50 dark:border-blue-500/10 rounded-full w-40 h-40 shadow-inner overflow-hidden group hover:border-blue-300/60 dark:hover:border-blue-500/30 transition-all duration-300"
       >
         <SafeImage
           src={LogoIcon}
           alt="Big Data Club Logo"
-          width={96}
-          height={96}
+          width={120}
+          height={120}
           priority
-          className="w-20 h-20 object-contain group-hover:scale-110 transition-transform duration-500"
+          className="w-24 h-24 object-contain group-hover:scale-110 transition-transform duration-500"
         />
       </motion.div>
 
