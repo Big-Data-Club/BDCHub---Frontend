@@ -27,7 +27,7 @@ export function HeroStatsMobile({
       transition: {
         duration: statsDuration,
         ease: [0.16, 1, 0.3, 1], // Premium out-expo easing
-        delay: 1.85, // Cascaded sequentially after CTA actions
+        delay: 1.1, // Cascaded sequentially after CTA actions
       },
     },
   };
@@ -43,9 +43,10 @@ export function HeroStatsMobile({
         <div 
           key={i} 
           className="group flex flex-col items-center justify-center p-4 rounded-xl cursor-default
-                     bg-white/60 dark:bg-[#0F1E35]/40 backdrop-blur-md
-                     border border-slate-200/60 dark:border-blue-500/10
-                     hover:border-blue-300/60 dark:hover:border-blue-500/30
+                     bg-white/70 dark:bg-[#0F1E35]/40 backdrop-blur-lg
+                     border border-white/60 dark:border-blue-500/10
+                     shadow-sm shadow-slate-100 dark:shadow-none
+                     hover:border-blue-400/50 dark:hover:border-blue-500/30
                      transition-all duration-300"
         >
           <div className="text-2xl font-extrabold text-blue-600 dark:text-cyan-400 group-hover:scale-105 transition-transform duration-300">

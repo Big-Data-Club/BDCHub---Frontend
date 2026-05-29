@@ -28,7 +28,7 @@ export function HeroDescription({
       transition: {
         duration: descriptionDuration,
         ease: [0.22, 1, 0.36, 1], // Signature out-expo easing for mask-reveal-up spec
-        delay: 1.3 + index * 0.09, // Rhythmic stagger delayed after title settle
+        delay: 0.7 + index * 0.08, // Rhythmic stagger immediately after title settle
       },
     }),
   };

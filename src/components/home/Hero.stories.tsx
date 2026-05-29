@@ -225,7 +225,7 @@ const meta: Meta<StorybookHeroProps> = {
     descriptionYOffset: 15,
     actionsDuration: 0.6,
     actionsYOffset: 15,
-    statsDuration: 0.6,
+    statsDuration: 0.7,
     statsYOffset: 15,
   },
 };

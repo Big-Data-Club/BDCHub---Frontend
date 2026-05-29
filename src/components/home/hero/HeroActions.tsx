@@ -49,7 +49,7 @@ export function HeroActions({
       transition: {
         duration: actionsDuration,
         ease: [0.16, 1, 0.3, 1], // Premium out-expo easing
-        delay: 1.65, // Staggered to cascade gracefully after description reveal
+        delay: 0.95, // Staggered to cascade gracefully after description reveal
       },
     },
   };

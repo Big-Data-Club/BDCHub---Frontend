@@ -26,7 +26,7 @@ const meta: Meta<typeof HeroVisualCore> = {
     },
   },
   args: {
-    statsDuration: 0.6,
+    statsDuration: 0.7,
     statsYOffset: 15,
   },
 };
@@ -37,7 +37,7 @@ export default meta;
 export const DesktopStats: StoryObj<typeof HeroVisualCore> = {
   name: 'Desktop Stats (Floating Orbit)',
   render: (args) => (
-    <div className="w-[1000px] h-[600px] flex items-center justify-center p-8 bg-[#050B18] border border-blue-500/10 rounded-2xl overflow-hidden relative">
+    <div className="w-[1000px] h-[600px] flex items-center justify-center p-8 overflow-hidden relative">
       {/* Forcing flex layout to display desktop version irrespective of actual screen size */}
       <div className="w-full flex justify-center [&>div]:!flex [&>div]:w-full [&>div]:max-w-lg">
         <HeroVisualCore {...args} />
@@ -45,7 +45,7 @@ export const DesktopStats: StoryObj<typeof HeroVisualCore> = {
     </div>
   ),
   args: {
-    statsDuration: 0.6,
+    statsDuration: 0.7,
     statsYOffset: 15,
   },
 };
@@ -54,12 +54,12 @@ export const DesktopStats: StoryObj<typeof HeroVisualCore> = {
 export const MobileStats: StoryObj<typeof HeroStatsMobile> = {
   name: 'Mobile Stats (2x2 Grid)',
   render: (args) => (
-    <div className="w-full max-w-sm mx-auto p-6 bg-[#050B18] border border-blue-500/10 rounded-2xl flex flex-col [&>div]:!grid [&>div]:!pt-0 [&>div]:!mt-0">
+    <div className="w-full max-w-sm mx-auto p-6 flex flex-col [&>div]:!grid [&>div]:!pt-0 [&>div]:!mt-0">
       <HeroStatsMobile {...args} />
     </div>
   ),
   args: {
-    statsDuration: 0.6,
+    statsDuration: 0.7,
     statsYOffset: 15,
   },
 };
@@ -72,7 +72,7 @@ export const InteractiveReplay: StoryObj<typeof HeroVisualCore> = {
     const [animationKey, setAnimationKey] = useState(0);
 
     return (
-      <div className="w-[1000px] h-[650px] flex flex-col items-center justify-between p-8 bg-[#050B18] border border-blue-500/10 rounded-2xl overflow-hidden relative">
+      <div className="w-[1000px] h-[650px] flex flex-col items-center justify-between p-8 overflow-hidden relative">
         {/* Replay Controller Toolbar */}
         <div className="absolute top-4 left-4 z-50 flex items-center gap-3">
           <button
@@ -82,7 +82,7 @@ export const InteractiveReplay: StoryObj<typeof HeroVisualCore> = {
             🔄 Replay Animations
           </button>
           <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
-            Triggers fresh spring fly-in, counter rise, & text blur
+            Triggers premium Apple-style scale rise, counter rise, & text blur
           </span>
         </div>
 
@@ -96,7 +96,7 @@ export const InteractiveReplay: StoryObj<typeof HeroVisualCore> = {
     );
   },
   args: {
-    statsDuration: 0.6,
+    statsDuration: 0.7,
     statsYOffset: 15,
   },
 };

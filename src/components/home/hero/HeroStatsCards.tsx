@@ -11,10 +11,10 @@ export interface StatItem {
 }
 
 export const statsData: StatItem[] = [
-  { label: "Kết nối", value: "100+", floatClasses: "top-[6%] left-[2%]", duration: 4.2 },
-  { label: "Năm hoạt động", value: "4", floatClasses: "top-[22%] right-[0%]", duration: 4.8 },
-  { label: "Dự án NCKH", value: "10+", floatClasses: "bottom-[22%] left-[2%]", duration: 5.2 },
-  { label: "Giải thưởng", value: "5+", floatClasses: "bottom-[6%] right-[2%]", duration: 4.5 }
+  { label: "Kết nối", value: "100+", floatClasses: "top-[12%] left-[4%]", duration: 4.2 },
+  { label: "Năm hoạt động", value: "4", floatClasses: "top-[26%] right-[0%]", duration: 4.8 },
+  { label: "Dự án NCKH", value: "10+", floatClasses: "bottom-[26%] left-[4%]", duration: 5.2 },
+  { label: "Giải thưởng", value: "5+", floatClasses: "bottom-[12%] right-[0%]", duration: 4.5 }
 ];
 
 // High-performance direct-DOM Animated Counter for the stats values
@@ -39,7 +39,7 @@ function StatCounter({ value, delay = 0 }: { value: string; delay?: number }) {
   }, [numericPart, delay]);
 
   return (
-    <div className="text-3xl font-extrabold text-blue-600 dark:text-cyan-400 group-hover:scale-105 transition-transform duration-300">
+    <div className="text-3xl font-extrabold text-blue-600 dark:text-cyan-400 group-hover:text-blue-500 dark:group-hover:text-cyan-300 transition-colors duration-300">
       <span ref={ref}>0</span>
       <span>{suffix}</span>
     </div>
@@ -101,16 +101,26 @@ export function HeroStatsCards({
             className={`absolute ${stat.floatClasses} w-[170px] z-20 animate-entrance-${i}`}
           >
             {/* 2. Middle Floating Wrapper - Handles the continuous y-bobbing in pure CSS */}
-            <div className={`animate-float-${i}`}>
+            <div className={`animate-float-${i} relative group`}>
+              {/* Dynamic Hover Glow Shadow (Sibling absolute backdrop that scales and fades on hover) */}
+              <div
+                className="absolute inset-0 rounded-2xl pointer-events-none -z-10
+                           bg-gradient-to-tr from-blue-500/15 to-cyan-500/15
+                           dark:from-blue-500/10 dark:to-cyan-500/10
+                           opacity-0 group-hover:opacity-100
+                           blur-xl scale-95 group-hover:scale-[1.04]
+                           transition-all duration-500 ease-out"
+              />
               {/* 3. Innermost Visual Wrapper - Handles glass design & hover zoom/spring-lift */}
               <div
-                className="group relative flex flex-col items-center justify-center p-5 rounded-2xl cursor-default
-                           bg-white/40 dark:bg-[#0F1E35]/40 backdrop-blur-md overflow-hidden
-                           border border-slate-200/50 dark:border-blue-500/10
-                           hover:border-blue-300/60 dark:hover:border-blue-500/30
-                           hover:scale-[1.04] hover:-translate-y-1
-                           hover:shadow-lg hover:shadow-blue-500/5
-                           dark:hover:shadow-[0_8px_30px_rgba(37,99,235,0.08)]
+                className="relative flex flex-col items-center justify-center p-5 rounded-2xl cursor-default
+                           bg-white/70 dark:bg-[#0F1E35]/40 backdrop-blur-lg overflow-hidden
+                           border border-white/60 dark:border-blue-500/10
+                           shadow-[0_8px_30px_rgba(37,99,235,0.04)] dark:shadow-none
+                           hover:border-blue-400/40 dark:hover:border-blue-500/25
+                           hover:scale-[1.02] hover:-translate-y-0.5
+                           hover:shadow-[0_12px_30px_rgba(37,99,235,0.06)]
+                           dark:hover:shadow-[0_12px_30px_rgba(37,99,235,0.08)]
                            transition-all duration-500 ease-out"
               >
                 {/* Diagonal Glass Shimmer Sweep (Pure CSS animation on mount) */}

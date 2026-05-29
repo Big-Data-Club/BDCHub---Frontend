@@ -101,14 +101,23 @@ const Background: React.FC = () => {
       });
     };
 
+    // 4. Visibility change handler — restart animation loop when tab becomes visible
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        worker?.postMessage({ type: 'resume' });
+      }
+    };
+
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerleave', onPointerLeave);
     window.addEventListener('resize', onResize);
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerleave', onPointerLeave);
       window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       // DO NOT terminate the worker here. We keep it alive in the global variable so that
       // when the layout mounts again, the canvas is immediately active and rendering.
     };
