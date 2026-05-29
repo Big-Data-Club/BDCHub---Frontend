@@ -192,41 +192,74 @@ export default function HPCSummerSchoolPage() {
         <div className="flex items-center justify-between gap-4 mb-8 pb-5 border-b border-slate-200/80 dark:border-slate-800/60">
           {/* Left: logo + title */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-12 h-12 flex-shrink-0 transform hover:rotate-6 transition-transform duration-300">
-              <Image src={hpcLogo} alt="HPC Summer School" fill className="object-contain" />
+            <div className="relative w-12 h-12 flex-shrink-0 transform hover:rotate-6 transition-transform duration-300 bg-white/80 dark:bg-white/80 backdrop-blur-md p-1.5 rounded-xl border border-slate-100 dark:border-white/20 shadow-sm">
+              <div className="relative w-full h-full">
+                <Image src={hpcLogo} alt="HPC Summer School" fill className="object-contain dark:brightness-110 dark:contrast-110" />
+              </div>
             </div>
             <div className="min-w-0">
               <h1 className="text-base sm:text-xl font-black text-slate-900 dark:text-white leading-tight truncate tracking-tight">
-                {t.title}
+                {t.title.includes("2026") ? (
+                  <>
+                    {t.title.replace("2026", "")}
+                    <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent dark:from-cyan-400 dark:to-blue-400">2026</span>
+                  </>
+                ) : (
+                  t.title
+                )}
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate font-semibold tracking-wide">{t.tagline}</p>
             </div>
           </div>
 
           {/* Right: org logos + theme + lang */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-3.5 flex-shrink-0">
             {/* Org logos — hidden on mobile */}
-            <div className="hidden sm:flex items-center gap-2.5">
+            <div className="hidden sm:flex items-center gap-3 bg-white/80 dark:bg-white/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-100 dark:border-white/20 shadow-sm">
               {ORGANIZERS.map(o => (
-                <div key={o.alt} className={`relative flex-shrink-0 ${o.cls} transform hover:scale-110 transition-transform`}>
-                  <Image src={o.src} alt={o.alt} fill className="object-contain opacity-60 hover:opacity-100 transition-opacity" />
+                <div key={o.alt} className={`relative flex-shrink-0 ${o.cls}`}>
+                  <Image
+                    src={o.src}
+                    alt={o.alt}
+                    fill
+                    className="object-contain opacity-85 dark:brightness-110 dark:contrast-125"
+                  />
                 </div>
               ))}
             </div>
             <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/60 hidden sm:block" />
             {/* Theme + Lang controls */}
-            <div className="flex items-center gap-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 rounded-xl p-1 shadow-sm">
-              <ThemeToggle size={15} className="!rounded-lg !p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700" />
-              <div className="w-px h-4 bg-slate-300 dark:bg-slate-600" />
+            <div className="flex items-center gap-1 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md border border-slate-100 dark:border-slate-800/50 rounded-full p-1 h-12 shadow-sm shadow-slate-100/50 dark:shadow-none">
+              <ThemeToggle size={15} className="!rounded-full !p-2.5 hover:bg-slate-100/80 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all duration-200" />
+              <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/60" />
+              <style>{`
+                @keyframes langSlideUp {
+                  0% {
+                    transform: translateY(18px);
+                    opacity: 0;
+                    filter: blur(1.5px);
+                  }
+                  100% {
+                    transform: translateY(0);
+                    opacity: 1;
+                    filter: blur(0);
+                  }
+                }
+                .animate-lang-slide {
+                  animation: langSlideUp 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+              `}</style>
               <button
                 onClick={() => setLang(l => l === "en" ? "vi" : "en")}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all duration-200 active:scale-95"
+                className="relative overflow-hidden flex items-center justify-center w-14 h-8 rounded-full text-xs font-black text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all duration-200 active:scale-95"
                 title={t.langToggle}
               >
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
-                </svg>
-                {lang === "en" ? "VI" : "EN"}
+                <span key={lang} className="flex items-center justify-center gap-1 animate-lang-slide">
+                  <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802" />
+                  </svg>
+                  {lang === "en" ? "VI" : "EN"}
+                </span>
               </button>
             </div>
           </div>
