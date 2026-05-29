@@ -138,10 +138,6 @@ const nextConfig: NextConfig = {
         source: '/files/:path*',
         destination: '/api/files/:path*',
       },
-      {
-        source: '/monitor/:path*',
-        destination: 'http://bdc-grafana:3000/monitor/:path*',
-      },
     ];
   },
 
