@@ -139,6 +139,18 @@ Theo **interaction-design skill** và **animate-text skill**:
 | **Q5** | Nhiều `clubData.json` image URLs dùng placeholder Google Drive IDs | 🟡 |
 | **Q6** | `SafeImage` thiếu `sizes` prop cho responsive optimization | 🟡 |
 
+### 2.5 Audit Nội dung & Bố cục (Copywriting & IA)
+
+| # | Vấn đề | File | Severity | Chi tiết |
+|---|---|---|---|---|
+| **C1** | **Mâu thuẫn Core Values** | About.tsx | 🔴 High | Thẻ "Học Hỏi Không Ngừng" đi kèm mô tả "Trân trọng điểm mạnh của từng cá nhân" (lệch pha hoàn toàn) |
+| **C2** | **Sai mô tả hoạt động** | Activities.tsx | 🔴 High | "BDC Data Hackathon" bị copy nhầm mô tả của chương trình Mentoring/Bonding |
+| **C3** | **Bỏ quên Ban cố vấn (Mentors)** | Members.tsx | 🔴 High | Dữ liệu cố vấn cực kỳ uy tín (PGS.TS Thoại Nam, thầy Đăng, thầy Thanh) bị bỏ quên, không hiển thị |
+| **C4** | **CTA Hero đơn điệu** | Hero.tsx | 🟡 Medium | Chỉ có 1 nút CTA "Tìm hiểu thêm" cho khách vãng lai, thiếu CTA phụ thu hút |
+| **C5** | **Thiếu dải logo Bảo trợ học thuật** | page.tsx / About.tsx | 🟡 Medium | Thiếu logo HPC Lab và trường ĐH Bách Khoa (HCMUT) để tạo độ chính quy học thuật |
+| **C6** | **Thiếu Final CTA ở cuối trang** | page.tsx | 🟡 Medium | Cuộn hết trang không có nút hành động chốt hạ, giảm tỷ lệ chuyển đổi |
+| **C7** | **Trang bị kéo dài quá mức (Bloating)** | Members.tsx | 🟡 Medium | Show toàn bộ 30+ Research members làm loãng trang chủ, cần thu gọn và tách trang riêng |
+
 ---
 
 ## 3. Nhận xét về DESIGN_RYMTH.md
@@ -178,6 +190,14 @@ Theo **interaction-design skill** và **animate-text skill**:
 - Variants: left-aligned (default cho landing) | centered (Members)
 - Thay thế 4 khối code trùng lặp
 
+#### [NEW] `src/components/common/AcademicPartners.tsx`
+- Dải logo đối tác/bảo trợ học thuật (HCMUT, HPC Lab)
+- Thiết kế mờ nhẹ sang trọng, tối giản phù hợp thẩm mỹ cao cấp
+
+#### [NEW] `src/components/common/FinalCTA.tsx`
+- Banner kêu gọi đăng ký/liên hệ chốt ở cuối trang trước Footer
+- Kích thích tương tác (conversion rate)
+
 #### [MODIFY] `src/app/globals.css`
 - **Thêm** `@media (prefers-reduced-motion: reduce)` global rule
 - Cleanup: Đánh dấu dead keyframes
@@ -198,6 +218,8 @@ Theo **interaction-design skill** và **animate-text skill**:
 |---|---|---|
 | Title gradient | `dark:text-white` | `dark:bg-gradient-to-r dark:from-blue-400 dark:to-cyan-400 dark:bg-clip-text dark:text-transparent` |
 | Stats bg | `bg-white/60 backdrop-blur-sm` | `bg-white dark:bg-[#0F1E35]` (solid) |
+| Stats values | Thống kê cũ | Cập nhật Stats: Thêm mảng `"7+ Công bố khoa học"` thay vì chỉ số phụ ít nổi bật |
+| CTA buttons | 1 nút CTA cho khách vãng lai | Bổ sung CTA kép (ví dụ: "Tìm hiểu thêm" + "Dự án nổi bật") cho khách chưa đăng nhập |
 | Stats hover | inconsistent values | Chuẩn hóa `-translate-y-1` |
 | Animation | None | Framer Motion stagger reveal cho stats |
 
@@ -209,22 +231,26 @@ Theo **interaction-design skill** và **animate-text skill**:
 - Dùng `<SectionHeader>` — replace 8 lines header code
 - Card bg → solid `bg-white dark:bg-[#0F1E35]` — bỏ opacity + backdrop-blur
 - Hover lift → consistent `-translate-y-1`
+- **Sửa mâu thuẫn Core Values (C1):** Cập nhật mô tả "Học Hỏi Không Ngừng" khớp với tiêu đề học thuật.
 
 #### [MODIFY] `src/components/home/Activities.tsx`
 - Dùng `<SectionHeader>` — replace header code
 - Card bg → solid — bỏ backdrop-blur
 - Stagger animation cho cards khi scroll vào view
-- Grid: cân nhắc hiển thị 6 items (2×3) cho balance
+- **Cân đối số lượng Grid (C2):** Hiển thị đúng 6 hoạt động tiêu biểu nhất (2 hàng x 3 cột) thay vì 7 để cân bằng thị giác.
+- **Sửa mô tả Hackathon:** Thay mô tả đúng tính chất cuộc thi code thực chiến thay vì Mentoring.
 
 #### [MODIFY] `src/components/home/Projects.tsx`
 - Dùng `<SectionHeader>` × 2
 - Card bg → solid — bỏ backdrop-blur
 - `rounded-xl` → `rounded-2xl`
 - **Clickable div → `<Link>`** — fix keyboard accessibility (AC2)
+- **Vô hiệu hóa link dự án rỗng:** Tránh dẫn link hỏng về trang trống `/`.
 
-#### [MODIFY/DECIDE] `src/components/home/Members.tsx`
-- Quyết định: re-enable hay loại bỏ hẳn
-- Nếu giữ: dùng `<SectionHeader centered>`, thêm `sizes` cho SafeImage
+#### [MODIFY] `src/components/home/Members.tsx`
+- Quyết định: Re-enable và cấu trúc lại toàn bộ.
+- **Hiển thị Ban Cố Vấn (Mentors - C3):** Thêm khu vực trang trọng ở đầu ban thành viên.
+- **Tối ưu chiều dài trang (C7):** Chỉ hiển thị Leads/Core team trên trang chủ, thiết kế nút `"Xem toàn bộ thành viên"` dẫn sang trang riêng biệt `/about/members`.
 
 ---
 
@@ -293,7 +319,7 @@ npx tsc --noEmit     # Type check
 
 | Priority | Items | Impact |
 |---|---|---|
-| 🔴 **P0** | V1-V4 (solid bg), A5 (reduced-motion), AC2 (keyboard), Q1 (SSR) | Design compliance + A11y + SEO |
-| 🟠 **P1** | V5 (Hero gradient), V7 (SectionHeader), A1 (Background perf) | Visual identity + Performance |
-| 🟡 **P2** | Animation stagger, Members decision, responsive polish | UX Enhancement |
+| 🔴 **P0** | **Kỹ thuật:** V1-V4 (solid bg), A5 (reduced-motion), AC2 (keyboard), Q1 (SSR) <br>**Nội dung:** C1 (sửa Core Value), C2 (sửa mô tả Hackathon), C3 (hiển thị Mentors), vô hiệu hóa link dự án rỗng | Design compliance + A11y + SEO + Độ uy tín học thuật cốt lõi |
+| 🟠 **P1** | **Kỹ thuật:** V5 (Hero gradient), V7 (SectionHeader), A1 (Background perf) <br>**Nội dung:** C4 (CTA Hero kép), C7 (Tách trang chi tiết thành viên để chống bloating trang chủ) | Visual identity + Performance + UX Scroll |
+| 🟡 **P2** | **Kỹ thuật:** Animation stagger, responsive polish <br>**Nội dung:** C5 (logo HPC Lab / HCMUT), C6 (Final CTA chốt trang), chuyển đổi link ảnh Google Drive sang local | UX Enhancement + Hoàn thiện phễu chuyển đổi + Tải trang ổn định |
 | 🟢 **P3** | DESIGN_RYMTH.md updates (D1-D8) | Documentation |
