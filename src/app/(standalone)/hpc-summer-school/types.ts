@@ -1,11 +1,11 @@
 import { StaticImageData } from "next/image";
-import hpcLogo    from "@/assets/hpc-school-logo.png";
-import hcmutLogo  from "@/assets/hcmut.png";
-import hpccLogo   from "@/assets/hpcc-logo.png";
-import cseLogo    from "@/assets/CSE_logo.png";
-import bdcLogo    from "@/assets/bdclogo.png";
-import doanLogo   from "@/assets/logo-Doan.png";
-import hoiLogo    from "@/assets/logo-Hoi.png";
+import hpcLogo from "@/assets/hpc-school-logo.png";
+import hcmutLogo from "@/assets/hcmut.png";
+import hpccLogo from "@/assets/hpcc-logo.png";
+import cseLogo from "@/assets/CSE_logo.png";
+import bdcLogo from "@/assets/bdclogo.png";
+import doanLogo from "@/assets/logo-Doan.png";
+import hoiLogo from "@/assets/logo-Hoi.png";
 
 export type Lang = "en" | "vi";
 
@@ -43,12 +43,12 @@ export interface Organizer {
 }
 
 export const ORGANIZERS: Organizer[] = [
-  { src: hcmutLogo, alt: "HCMUT",              cls: "w-6 h-6" },
-  { src: hpccLogo,  alt: "HPCC",               cls: "w-16 h-9" },
-  { src: cseLogo,   alt: "CSE",               cls: "w-6 h-6" },
-  { src: bdcLogo,   alt: "Big Data Club",     cls: "w-6 h-6" },
-  { src: doanLogo,  alt: "Youth Union",       cls: "w-6 h-6" },
-  { src: hoiLogo,   alt: "Student Association", cls: "w-6 h-6" },
+  { src: hcmutLogo, alt: "HCMUT", cls: "w-6 h-6" },
+  { src: hpccLogo, alt: "HPCC", cls: "w-16 h-9" },
+  { src: cseLogo, alt: "CSE", cls: "w-6 h-6" },
+  { src: bdcLogo, alt: "Big Data Club", cls: "w-6 h-6" },
+  { src: doanLogo, alt: "Youth Union", cls: "w-6 h-6" },
+  { src: hoiLogo, alt: "Student Association", cls: "w-6 h-6" },
 ];
 
 export const T = {
@@ -105,8 +105,8 @@ export const T = {
     cvHint: "Accepted format: .PDF · Maximum size: 5 MB",
     cvUploading: "Uploading to Cloudinary…", cvSuccess: "Uploaded successfully · Click to replace",
     researchLabel: "Research Interests & Orientation",
-    researchHint: "Describe the fields you are currently exploring or wish to pursue (e.g. HPC, GPU Computing, Distributed AI, Systems Programming…)",
-    researchPh: "e.g. I am interested in GPU Programming with CUDA and distributed machine learning training on HPC clusters…",
+    researchHint: "Describe the fields you are currently exploring or wish to pursue",
+    researchPh: "e.g. HPC, GPU Computing, Distributed AI, Systems Programming…",
     pubLabel: "Scientific Publications / Notable Research Projects (if any)",
     pubHint: "List paper titles, conference/journal names, or provide links. Leave blank if not applicable.",
     pubPh: "e.g.\n• [SOSP'25] Paper Title — Conference Name\n• Research Project: Title — Role: Research Member\n• https://arxiv.org/abs/...",
@@ -121,13 +121,13 @@ export const T = {
     sourceDesc: "Help us understand how applicants discover HPC Summer School.",
     sourceLabel: "Primary information source", sourcePh: "-- Select a source --",
     sourceOptions: [
-      { value: "HPCC Fanpage",      label: "HPCC HCMUT Official Fanpage" },
-      { value: "BDC Fanpage",       label: "Big Data Club (BDC) Official Fanpage" },
+      { value: "HPCC Fanpage", label: "HPCC HCMUT Official Fanpage" },
+      { value: "BDC Fanpage", label: "Big Data Club (BDC) Official Fanpage" },
       { value: "University Portal", label: "University Website / Student Portal" },
-      { value: "Friend Referral",   label: "Referred by a Friend or Classmate" },
-      { value: "Faculty/Advisor",   label: "Recommended by a Lecturer or Academic Advisor" },
-      { value: "Email Newsletter",  label: "University or Club Email Newsletter" },
-      { value: "Other",             label: "Other" },
+      { value: "Friend Referral", label: "Referred by a Friend or Classmate" },
+      { value: "Faculty/Advisor", label: "Recommended by a Lecturer or Academic Advisor" },
+      { value: "Email Newsletter", label: "University or Club Email Newsletter" },
+      { value: "Other", label: "Other" },
     ],
     sourceOtherLabel: "Please specify", sourceOtherPh: "e.g. LinkedIn, a research group, etc.",
     errCvRequired: "Please upload your CV before submitting.",
@@ -142,10 +142,10 @@ export const T = {
     successDesc: "Your application has been successfully submitted to the HPC Summer School 2026 selection committee. We will review all submissions and notify you of the outcome via email as soon as possible.",
     followUs: "Stay up to date at:",
     links: [
-      { label: "HPCC HCMUT",   href: "https://hpcc.hcmut.edu.vn/",          color: "text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300" },
+      { label: "HPCC HCMUT", href: "https://hpcc.hcmut.edu.vn/", color: "text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300" },
       { label: "Facebook HPCC", href: "https://www.facebook.com/hpcc.hcmut", color: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300" },
-      { label: "BDC Hub",       href: "https://bdc.hpcc.vn/",                color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
-      { label: "Facebook BDC",  href: "https://www.facebook.com/BDCofHCMUT", color: "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300" },
+      { label: "BDC Hub", href: "https://bdc.hpcc.vn/", color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
+      { label: "Facebook BDC", href: "https://www.facebook.com/BDCofHCMUT", color: "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300" },
     ],
     copyright: "© 2026 High-Performance Computing Center — HCMUT. All rights reserved.",
   },
@@ -203,7 +203,7 @@ export const T = {
     cvUploading: "Đang tải lên Cloudinary…", cvSuccess: "Đã tải lên thành công · Click để thay đổi",
     researchLabel: "Lĩnh vực quan tâm & Định hướng nghiên cứu",
     researchHint: "Mô tả các lĩnh vực bạn đang hoặc muốn theo đuổi (HPC, GPU Computing, Distributed AI, Systems Programming…)",
-    researchPh: "VD: Tôi quan tâm đến GPU Programming với CUDA và Distributed ML Training trên HPC clusters…",
+    researchPh: "VD: HPC, GPU Computing, Distributed AI, Systems Programming…",
     pubLabel: "Bài báo khoa học / Đề tài nghiên cứu nổi bật (nếu có)",
     pubHint: "Liệt kê tên bài báo, hội nghị/tạp chí hoặc đính kèm link. Để trống nếu chưa có.",
     pubPh: "VD:\n• [SOSP'25] Tên bài báo — Conference Name\n• Đề tài NCKH: Tên đề tài — Vai trò: Thành viên\n• https://arxiv.org/abs/...",
@@ -218,13 +218,13 @@ export const T = {
     sourceDesc: "Thông tin này giúp chúng tôi hiểu rõ hơn về kênh tiếp cận của người đăng ký.",
     sourceLabel: "Nguồn thông tin chính", sourcePh: "-- Chọn nguồn thông tin --",
     sourceOptions: [
-      { value: "Fanpage HPCC",     label: "Fanpage chính thức HPCC HCMUT" },
-      { value: "Fanpage BDC",      label: "Fanpage chính thức Big Data Club (BDC)" },
-      { value: "Cổng thông tin",   label: "Website / Cổng thông tin trường" },
-      { value: "Bạn bè",           label: "Bạn bè / Người quen giới thiệu" },
-      { value: "Giảng viên",       label: "Giảng viên / Thầy cô giới thiệu" },
+      { value: "Fanpage HPCC", label: "Fanpage chính thức HPCC HCMUT" },
+      { value: "Fanpage BDC", label: "Fanpage chính thức Big Data Club (BDC)" },
+      { value: "Cổng thông tin", label: "Website / Cổng thông tin trường" },
+      { value: "Bạn bè", label: "Bạn bè / Người quen giới thiệu" },
+      { value: "Giảng viên", label: "Giảng viên / Thầy cô giới thiệu" },
       { value: "Email newsletter", label: "Email thông báo của trường / CLB" },
-      { value: "Khác",             label: "Khác" },
+      { value: "Khác", label: "Khác" },
     ],
     sourceOtherLabel: "Vui lòng ghi rõ", sourceOtherPh: "VD: LinkedIn, nhóm nghiên cứu, v.v.",
     errCvRequired: "Vui lòng tải lên CV trước khi nộp đơn.",
@@ -239,10 +239,10 @@ export const T = {
     successDesc: "Hồ sơ của bạn đã được gửi thành công đến ban tuyển sinh HPC Summer School 2026. Chúng tôi sẽ xét duyệt và thông báo kết quả qua email sớm nhất có thể.",
     followUs: "Theo dõi thông tin mới nhất tại:",
     links: [
-      { label: "HPCC HCMUT",   href: "https://hpcc.hcmut.edu.vn/",          color: "text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300" },
+      { label: "HPCC HCMUT", href: "https://hpcc.hcmut.edu.vn/", color: "text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300" },
       { label: "Facebook HPCC", href: "https://www.facebook.com/hpcc.hcmut", color: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300" },
-      { label: "BDC Hub",       href: "https://bdc.hpcc.vn/",                color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
-      { label: "Facebook BDC",  href: "https://www.facebook.com/BDCofHCMUT", color: "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300" },
+      { label: "BDC Hub", href: "https://bdc.hpcc.vn/", color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
+      { label: "Facebook BDC", href: "https://www.facebook.com/BDCofHCMUT", color: "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300" },
     ],
     copyright: "© 2026 Trung tâm Tính toán Hiệu năng Cao — HCMUT. All rights reserved.",
   },

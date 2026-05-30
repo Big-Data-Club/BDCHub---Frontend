@@ -48,6 +48,14 @@ export default function HPCSummerSchoolPage() {
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [savedName, setSavedName]       = useState("");
   const [draftRestored, setDraftRestored] = useState(false);
+  const [scrolled, setScrolled]           = useState(false);
+
+  // ── Scroll Listener for Sticky Header ──────────────────────────────────────
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // ── Mount: check submitted flag or restore draft ──────────────────────────
   useEffect(() => {
@@ -62,7 +70,7 @@ export default function HPCSummerSchoolPage() {
       const raw = localStorage.getItem(LS_DRAFT);
       if (raw) {
         const draft = JSON.parse(raw);
-        setForm(prev => ({ ...prev, ...draft, cvFile: null, cvUrl: "", agreePrivacy: false }));
+        setForm(prev => ({ ...prev, ...draft, cvFile: null, cvUrl: "" }));
         if (draft._step && draft._step > 1) setStep(draft._step);
         if (draft._lang) setLang(draft._lang as Lang);
         setDraftRestored(true);
@@ -193,10 +201,10 @@ export default function HPCSummerSchoolPage() {
     finally { setUploadingCv(false); }
   };
 
-  const validate = () => {
+  const validate = (stepNum = step) => {
     const e: Errors = {};
-    if (step === 1) { if (!form.agreePrivacy) e.agreePrivacy = t.privacyError; }
-    else if (step === 2) {
+    if (stepNum === 1) { if (!form.agreePrivacy) e.agreePrivacy = t.privacyError; }
+    else if (stepNum === 2) {
       if (!form.fullName.trim())   e.fullName   = t.errFullName;
       if (!form.studentId.trim())  e.studentId  = t.errStudentId;
       if (!form.emailUni.trim())   e.emailUni   = t.errEmailUni;
@@ -273,11 +281,16 @@ export default function HPCSummerSchoolPage() {
   const progressPct = Math.round(((step - 1) / (t.steps.length - 1)) * 100);
 
   return (
-    <div className="w-full overflow-x-hidden pb-10">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-2 sm:py-3.5">
-
-        {/* ── Compact header bar ── */}
-        <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-800/60">
+    <div className="w-full overflow-x-hidden pb-10 pt-20 sm:pt-24">
+      {/* ── Fixed Sticky Header ── */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/50 shadow-sm py-3"
+            : "bg-transparent py-3.5 sm:py-4.5"
+        }`}
+      >
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
           {/* Left: logo + title */}
           <div className="flex items-center gap-3 min-w-0">
             <div className="relative w-[90px] h-12 flex-shrink-0 transform hover:scale-[1.05] hover:rotate-1 transition-all duration-300 bg-white/60 dark:bg-white/60 backdrop-blur-md p-1.5 rounded-xl border border-slate-100 dark:border-white/20 shadow-sm">
@@ -392,15 +405,18 @@ export default function HPCSummerSchoolPage() {
             </div>
           </div>
         </div>
+      </header>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-2 sm:py-3.5">
 
         {/* ── Progress tracker (Integrated Overlay Stepper) ── */}
         {!submitted && !alreadySubmitted && (
-          <div className="relative mb-11 mt-4 w-full">
+          <div className="relative mb-11 mt-4 w-full px-8 sm:px-16">
             {/* Background Track Line - Anchored at the centers of first and last circles */}
-            <div className="absolute top-[18px] left-[18px] right-[18px] h-1 bg-slate-200 dark:bg-slate-800/80 -translate-y-1/2 rounded-full" />
+            <div className="absolute top-[18px] left-[50px] right-[50px] sm:left-[82px] sm:right-[82px] h-1 bg-slate-200 dark:bg-slate-800/80 -translate-y-1/2 rounded-full" />
             
             {/* Active Progress Line - Flowing exactly to the center of active step */}
-            <div className="absolute top-[18px] left-[18px] right-[18px] h-1 -translate-y-1/2 pointer-events-none">
+            <div className="absolute top-[18px] left-[50px] right-[50px] sm:left-[82px] sm:right-[82px] h-1 -translate-y-1/2 pointer-events-none">
               <div
                 className="h-full bg-gradient-to-r from-cyan-500 via-cyan-400 to-blue-500 rounded-full transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
@@ -413,20 +429,54 @@ export default function HPCSummerSchoolPage() {
                 const s = i + 1;
                 const isActive = step === s;
                 const isCompleted = step > s;
+                const isClickable = true;
+
+                const handleStepClick = () => {
+                  if (s === step) return;
+                  if (s < step) {
+                    setDirection("prev");
+                    setStep(s);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  } else {
+                    // Validate sequentially from 'step' up to 's - 1'
+                    for (let temp = step; temp < s; temp++) {
+                      if (!validate(temp)) {
+                        // If validation fails, navigate to the first invalid step to correct it
+                        if (temp !== step) {
+                          setDirection("next");
+                          setStep(temp);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+                        return; // Stop navigation
+                      }
+                    }
+                    // All intermediate steps are valid, navigate to target step!
+                    setDirection("next");
+                    setStep(s);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                };
+
                 return (
                   <div key={s} className="flex flex-col items-center relative w-9">
                     {/* Circle Node */}
-                    <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all duration-300 relative z-10
-                      ${isActive ? "border-cyan-500 bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)] scale-110"
-                        : isCompleted  ? "border-cyan-500 bg-cyan-500 text-white shadow-[0_0_10px_rgba(6,182,212,0.2)]"
-                        : "border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-600"}`}
+                    <button
+                      onClick={handleStepClick}
+                      className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all duration-300 relative z-10 hover:scale-105 active:scale-95 cursor-pointer
+                        ${isActive ? "border-cyan-500 bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)] scale-110"
+                          : isCompleted  ? "border-cyan-500 bg-cyan-500 text-white shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                          : "border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-600 hover:border-cyan-400 hover:text-cyan-500"}`}
                     >
                       {isCompleted
                         ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
                         : String(s).padStart(2, "0")}
-                    </div>
+                    </button>
                     {/* Text Label - Absolute positioned to completely isolate layout widths */}
-                    <span className={`absolute top-11 left-1/2 -translate-x-1/2 text-[11px] font-bold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 ${isActive ? "text-cyan-600 dark:text-cyan-400" : isCompleted ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-600"}`}>
+                    <span
+                      onClick={handleStepClick}
+                      className={`absolute top-11 left-1/2 -translate-x-1/2 text-[11px] font-bold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-cyan-650 dark:hover:text-cyan-400
+                        ${isActive ? "text-cyan-600 dark:text-cyan-400" : isCompleted ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-600"}`}
+                    >
                       {label}
                     </span>
                   </div>
@@ -479,26 +529,34 @@ export default function HPCSummerSchoolPage() {
               <div className="flex items-center justify-between mt-6 pt-5 border-t border-slate-100 dark:border-slate-850/30">
                 <button
                   onClick={prev} disabled={step === 1}
-                  className={`flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95
+                  className={`group relative flex items-center justify-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95
                     ${step === 1 ? "opacity-0 pointer-events-none"
                       : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800/80"}`}
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-                  {t.back}
+                  <svg className="absolute left-4 w-4 h-4 opacity-0 -translate-x-2 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                  <span className="transition-transform duration-300 ease-out group-hover:translate-x-2.5">{t.back}</span>
                 </button>
 
                 {step < t.steps.length ? (
-                  <button onClick={next} className="flex items-center gap-1.5 px-7 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-sm shadow-cyan-900/10 dark:shadow-cyan-950/20 transition-all duration-200 active:scale-95">
-                    {t.next}
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                  <button onClick={next} className="group relative flex items-center justify-center px-8 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-sm shadow-cyan-900/10 dark:shadow-cyan-950/20 transition-all duration-200 active:scale-95">
+                    <span className="transition-transform duration-300 ease-out group-hover:-translate-x-2.5">{t.next}</span>
+                    <svg className="absolute right-5 w-4 h-4 opacity-0 translate-x-2 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                   </button>
                 ) : (
                   <button onClick={submit} disabled={submitting || uploadingCv}
-                    className={`flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-sm shadow-cyan-900/10 dark:shadow-cyan-950/20 transition-all duration-200 active:scale-95 ${(submitting || uploadingCv) ? "opacity-60 cursor-not-allowed" : ""}`}
+                    className={`group relative flex items-center justify-center px-9 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-sm shadow-cyan-900/10 dark:shadow-cyan-950/20 transition-all duration-200 active:scale-95 ${(submitting || uploadingCv) ? "opacity-60 cursor-not-allowed" : ""}`}
                   >
-                    {submitting
-                      ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t.submitting}</>
-                      : <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>{t.submit}</>}
+                    {submitting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        {t.submitting}
+                      </div>
+                    ) : (
+                      <>
+                        <svg className="absolute left-6 w-4 h-4 opacity-0 -translate-x-2.5 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                        <span className="transition-transform duration-300 ease-out group-hover:translate-x-2.5">{t.submit}</span>
+                      </>
+                    )}
                   </button>
                 )}
               </div>
