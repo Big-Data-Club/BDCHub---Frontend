@@ -1,47 +1,478 @@
 [
   {
     "value": "HCMUT",
-    "labelVi": "Trường Đại học Bách khoa, ĐHQG TP.HCM",
-    "labelEn": "HCMC University of Technology, VNU-HCM"
+    "labelVi": "Trường Đại học Bách khoa, ĐHQG TP.HCM (HCMUT)",
+    "labelEn": "HCMC University of Technology, VNU-HCM (HCMUT)",
+    "abbr": "HCMUT",
+    "fullNameVi": "Trường Đại học Bách khoa"
   },
   {
     "value": "HCMUS",
-    "labelVi": "Trường Đại học Khoa học tự nhiên, ĐHQG TP.HCM",
-    "labelEn": "HCMC University of Science, VNU-HCM"
+    "labelVi": "Trường Đại học Khoa học tự nhiên, ĐHQG TP.HCM (HCMUS)",
+    "labelEn": "HCMC University of Science, VNU-HCM (HCMUS)",
+    "abbr": "HCMUS",
+    "fullNameVi": "Trường Đại học Khoa học tự nhiên"
   },
   {
     "value": "UIT",
-    "labelVi": "Trường Đại học Công nghệ thông tin, ĐHQG TP.HCM",
-    "labelEn": "University of Information Technology, VNU-HCM"
+    "labelVi": "Trường Đại học Công nghệ thông tin, ĐHQG TP.HCM (UIT)",
+    "labelEn": "University of Information Technology, VNU-HCM (UIT)",
+    "abbr": "UIT",
+    "fullNameVi": "Trường Đại học Công nghệ thông tin"
   },
   {
     "value": "IU",
-    "labelVi": "Trường Đại học Quốc tế, ĐHQG TP.HCM",
-    "labelEn": "International University, VNU-HCM"
+    "labelVi": "Trường Đại học Quốc tế, ĐHQG TP.HCM (IU)",
+    "labelEn": "International University, VNU-HCM (IU)",
+    "abbr": "IU",
+    "fullNameVi": "Trường Đại học Quốc tế"
   },
   {
     "value": "USSH",
-    "labelVi": "Trường Đại học Khoa học Xã hội và Nhân văn, ĐHQG TP.HCM",
-    "labelEn": "University of Social Sciences and Humanities, VNU-HCM"
+    "labelVi": "Trường Đại học Khoa học Xã hội và Nhân văn, ĐHQG TP.HCM (USSH)",
+    "labelEn": "University of Social Sciences and Humanities, VNU-HCM (USSH)",
+    "abbr": "USSH",
+    "fullNameVi": "Trường Đại học Khoa học Xã hội và Nhân văn"
   },
   {
     "value": "UEL",
-    "labelVi": "Trường Đại học Kinh tế - Luật, ĐHQG TP.HCM",
-    "labelEn": "University of Economics and Law, VNU-HCM"
+    "labelVi": "Trường Đại học Kinh tế - Luật, ĐHQG TP.HCM (UEL)",
+    "labelEn": "University of Economics and Law, VNU-HCM (UEL)",
+    "abbr": "UEL",
+    "fullNameVi": "Trường Đại học Kinh tế - Luật"
   },
   {
     "value": "UHS",
-    "labelVi": "Trường Đại học Khoa học Sức khỏe, ĐHQG TP.HCM",
-    "labelEn": "University of Health Sciences, VNU-HCM"
+    "labelVi": "Trường Đại học Khoa học Sức khỏe, ĐHQG TP.HCM (UHS)",
+    "labelEn": "University of Health Sciences, VNU-HCM (UHS)",
+    "abbr": "UHS",
+    "fullNameVi": "Trường Đại học Khoa học Sức khỏe"
   },
   {
     "value": "AGU",
-    "labelVi": "Trường Đại học An Giang, ĐHQG TP.HCM",
-    "labelEn": "An Giang University, VNU-HCM"
+    "labelVi": "Trường Đại học An Giang, ĐHQG TP.HCM (AGU)",
+    "labelEn": "An Giang University, VNU-HCM (AGU)",
+    "abbr": "AGU",
+    "fullNameVi": "Trường Đại học An Giang"
+  },
+  {
+    "value": "HCA",
+    "labelVi": "Học viện Cán bộ Thành phố Hồ Chí Minh (HCA)",
+    "labelEn": "HCMC Cadre Academy (HCA)",
+    "abbr": "HCA",
+    "fullNameVi": "Học viện Cán bộ Thành phố Hồ Chí Minh"
+  },
+  {
+    "value": "PTIT",
+    "labelVi": "Học viện Công nghệ Bưu chính Viễn thông (PTIT)",
+    "labelEn": "Posts and Telecommunications Institute of Technology (PTIT)",
+    "abbr": "PTIT",
+    "fullNameVi": "Học viện Công nghệ Bưu chính Viễn thông"
+  },
+  {
+    "value": "VAA",
+    "labelVi": "Học viện Hàng không Việt Nam (VAA)",
+    "labelEn": "Vietnam Aviation Academy (VAA)",
+    "abbr": "VAA",
+    "fullNameVi": "Học viện Hàng không Việt Nam"
+  },
+  {
+    "value": "MTA",
+    "labelVi": "Học viện Kỹ thuật Quân sự (MTA)",
+    "labelEn": "Academy of Kỹ thuật Quân sự (MTA)",
+    "abbr": "MTA",
+    "fullNameVi": "Học viện Kỹ thuật Quân sự"
+  },
+  {
+    "value": "HCMCONS",
+    "labelVi": "Nhạc viện TP.HCM (HCMCONS)",
+    "labelEn": "HCMC Conservatory of Music (HCMCONS)",
+    "abbr": "HCMCONS",
+    "fullNameVi": "Nhạc viện TP.HCM"
+  },
+  {
+    "value": "APAG",
+    "labelVi": "Phân hiệu Học viện Hành chính và Quản trị công tại TP.HCM (APAG)",
+    "labelEn": "Phân hiệu Academy of Hành chính và Quản trị công tại HCMC (APAG)",
+    "abbr": "APAG",
+    "fullNameVi": "Phân hiệu Học viện Hành chính và Quản trị công tại TP.HCM"
+  },
+  {
+    "value": "ACT",
+    "labelVi": "Phân hiệu Học viện Kỹ thuật Mật mã tại TP.HCM (ACT)",
+    "labelEn": "Phân hiệu Academy of Kỹ thuật Mật mã tại HCMC (ACT)",
+    "abbr": "ACT",
+    "fullNameVi": "Phân hiệu Học viện Kỹ thuật Mật mã tại TP.HCM"
+  },
+  {
+    "value": "VYA",
+    "labelVi": "Phân hiệu Học viện Thanh thiếu niên Việt Nam tại TP.HCM (VYA)",
+    "labelEn": "Phân hiệu Academy of Thanh thiếu niên Việt Nam tại HCMC (VYA)",
+    "abbr": "VYA",
+    "fullNameVi": "Phân hiệu Học viện Thanh thiếu niên Việt Nam tại TP.HCM"
+  },
+  {
+    "value": "TLUS",
+    "labelVi": "Phân hiệu Trường Đại học Thủy lợi (TLUS)",
+    "labelEn": "Phân hiệu University of Thủy lợi (TLUS)",
+    "abbr": "TLUS",
+    "fullNameVi": "Phân hiệu Trường Đại học Thủy lợi"
+  },
+  {
+    "value": "T47/T04",
+    "labelVi": "Trường Đại học An ninh nhân dân (T47/T04)",
+    "labelEn": "University of An ninh nhân dân (T47/T04)",
+    "abbr": "T47/T04",
+    "fullNameVi": "Trường Đại học An ninh nhân dân"
+  },
+  {
+    "value": "HUIT",
+    "labelVi": "Trường Đại học Công Thương TP.HCM (HUIT)",
+    "labelEn": "HCMC University of Industry and Trade (HUIT)",
+    "abbr": "HUIT",
+    "fullNameVi": "Trường Đại học Công Thương TP.HCM"
+  },
+  {
+    "value": "IUH",
+    "labelVi": "Trường Đại học Công nghiệp TP.HCM (IUH)",
+    "labelEn": "Industrial University of HCMC (IUH)",
+    "abbr": "IUH",
+    "fullNameVi": "Trường Đại học Công nghiệp TP.HCM"
+  },
+  {
+    "value": "HCMUTE",
+    "labelVi": "Trường Đại học Công nghệ Kỹ thuật TP.HCM (HCMUTE)",
+    "labelEn": "University of Công nghệ Kỹ thuật HCMC (HCMUTE)",
+    "abbr": "HCMUTE",
+    "fullNameVi": "Trường Đại học Công nghệ Kỹ thuật TP.HCM"
+  },
+  {
+    "value": "STU",
+    "labelVi": "Trường Đại học Công nghệ Sài Gòn (STU)",
+    "labelEn": "Saigon Technology University (STU)",
+    "abbr": "STU",
+    "fullNameVi": "Trường Đại học Công nghệ Sài Gòn"
+  },
+  {
+    "value": "HUTECH",
+    "labelVi": "Trường Đại học Công nghệ TP.HCM (HUTECH)",
+    "labelEn": "HCMC University of Technology (HUTECH) (HUTECH)",
+    "abbr": "HUTECH",
+    "fullNameVi": "Trường Đại học Công nghệ TP.HCM"
+  },
+  {
+    "value": "T48/T05",
+    "labelVi": "Trường Đại học Cảnh sát nhân dân (T48/T05)",
+    "labelEn": "University of Cảnh sát nhân dân (T48/T05)",
+    "abbr": "T48/T05",
+    "fullNameVi": "Trường Đại học Cảnh sát nhân dân"
+  },
+  {
+    "value": "FPT",
+    "labelVi": "Trường Đại học FPT (FPT)",
+    "labelEn": "FPT University (FPT)",
+    "abbr": "FPT",
+    "fullNameVi": "Trường Đại học FPT"
+  },
+  {
+    "value": "GDU",
+    "labelVi": "Trường Đại học Gia Định (GDU)",
+    "labelEn": "Gia Dinh University (GDU)",
+    "abbr": "GDU",
+    "fullNameVi": "Trường Đại học Gia Định"
+  },
+  {
+    "value": "UTC2",
+    "labelVi": "Trường Đại học Giao thông Vận tải - Phân hiệu TP.HCM (UTC2)",
+    "labelEn": "University of Giao thông Vận tải - Phân hiệu HCMC (UTC2)",
+    "abbr": "UTC2",
+    "fullNameVi": "Trường Đại học Giao thông Vận tải - Phân hiệu TP.HCM"
+  },
+  {
+    "value": "UTH",
+    "labelVi": "Trường Đại học Giao thông Vận tải TP.HCM (UTH)",
+    "labelEn": "HCMC University of Transport (UTH)",
+    "abbr": "UTH",
+    "fullNameVi": "Trường Đại học Giao thông Vận tải TP.HCM"
+  },
+  {
+    "value": "HSU",
+    "labelVi": "Trường Đại học Hoa Sen (HSU)",
+    "labelEn": "Hoa Sen University (HSU)",
+    "abbr": "HSU",
+    "fullNameVi": "Trường Đại học Hoa Sen"
+  },
+  {
+    "value": "DHV",
+    "labelVi": "Trường Đại học Hùng Vương TP.HCM (DHV)",
+    "labelEn": "Hung Vuong University HCMC (DHV)",
+    "abbr": "DHV",
+    "fullNameVi": "Trường Đại học Hùng Vương TP.HCM"
+  },
+  {
+    "value": "UEF",
+    "labelVi": "Trường Đại học Kinh tế – Tài chính (UEF)",
+    "labelEn": "University of Kinh tế – Tài chính (UEF)",
+    "abbr": "UEF",
+    "fullNameVi": "Trường Đại học Kinh tế – Tài chính"
+  },
+  {
+    "value": "UAH",
+    "labelVi": "Trường Đại học Kiến trúc TP.HCM (UAH)",
+    "labelEn": "HCMC University of Architecture (UAH)",
+    "abbr": "UAH",
+    "fullNameVi": "Trường Đại học Kiến trúc TP.HCM"
+  },
+  {
+    "value": "ULSA2",
+    "labelVi": "Trường Đại học Lao động – Xã hội (ULSA2)",
+    "labelEn": "University of Lao động – Xã hội (ULSA2)",
+    "abbr": "ULSA2",
+    "fullNameVi": "Trường Đại học Lao động – Xã hội"
+  },
+  {
+    "value": "ULAW",
+    "labelVi": "Trường Đại học Luật TP.HCM (ULAW)",
+    "labelEn": "HCMC University of Law (ULAW)",
+    "abbr": "ULAW",
+    "fullNameVi": "Trường Đại học Luật TP.HCM"
+  },
+  {
+    "value": "OU",
+    "labelVi": "Trường Đại học Mở TP.HCM (OU)",
+    "labelEn": "HCMC Open University (OU)",
+    "abbr": "OU",
+    "fullNameVi": "Trường Đại học Mở TP.HCM"
+  },
+  {
+    "value": "MT",
+    "labelVi": "Trường Đại học Mỹ thuật TP.HCM (MT)",
+    "labelEn": "HCMC University of Fine Arts (MT)",
+    "abbr": "MT",
+    "fullNameVi": "Trường Đại học Mỹ thuật TP.HCM"
+  },
+  {
+    "value": "HUFLIT",
+    "labelVi": "Trường Đại học Ngoại ngữ – Tin học TP.HCM (HUFLIT)",
+    "labelEn": "University of Ngoại ngữ – Tin học HCMC (HUFLIT)",
+    "abbr": "HUFLIT",
+    "fullNameVi": "Trường Đại học Ngoại ngữ – Tin học TP.HCM"
+  },
+  {
+    "value": "FTU2",
+    "labelVi": "Trường Đại học Ngoại thương (FTU2)",
+    "labelEn": "Foreign Trade University (FTU2)",
+    "abbr": "FTU2",
+    "fullNameVi": "Trường Đại học Ngoại thương"
+  },
+  {
+    "value": "NTTU",
+    "labelVi": "Trường Đại học Nguyễn Tất Thành (NTTU)",
+    "labelEn": "Nguyen Tat Thanh University (NTTU)",
+    "abbr": "NTTU",
+    "fullNameVi": "Trường Đại học Nguyễn Tất Thành"
+  },
+  {
+    "value": "HUB",
+    "labelVi": "Trường Đại học Ngân hàng TP.HCM (HUB)",
+    "labelEn": "University of Ngân hàng HCMC (HUB)",
+    "abbr": "HUB",
+    "fullNameVi": "Trường Đại học Ngân hàng TP.HCM"
+  },
+  {
+    "value": "NLU",
+    "labelVi": "Trường Đại học Nông Lâm TP.HCM (NLU)",
+    "labelEn": "HCMC Nong Lam University (NLU)",
+    "abbr": "NLU",
+    "fullNameVi": "Trường Đại học Nông Lâm TP.HCM"
+  },
+  {
+    "value": "UMT",
+    "labelVi": "Trường Đại học Quản lý và Công nghệ TP.HCM (UMT)",
+    "labelEn": "University of Quản lý và Công nghệ HCMC (UMT)",
+    "abbr": "UMT",
+    "fullNameVi": "Trường Đại học Quản lý và Công nghệ TP.HCM"
+  },
+  {
+    "value": "HIU",
+    "labelVi": "Trường Đại học Quốc tế Hồng Bàng (HIU)",
+    "labelEn": "International University (HIU)",
+    "abbr": "HIU",
+    "fullNameVi": "Trường Đại học Quốc tế Hồng Bàng"
+  },
+  {
+    "value": "SIU",
+    "labelVi": "Trường Đại học Quốc tế Sài Gòn (SIU)",
+    "labelEn": "International University (SIU)",
+    "abbr": "SIU",
+    "fullNameVi": "Trường Đại học Quốc tế Sài Gòn"
+  },
+  {
+    "value": "SGU",
+    "labelVi": "Trường Đại học Sài Gòn (SGU)",
+    "labelEn": "Saigon University (SGU)",
+    "abbr": "SGU",
+    "fullNameVi": "Trường Đại học Sài Gòn"
+  },
+  {
+    "value": "SKDAHCM",
+    "labelVi": "Trường Đại học Sân khấu – Điện ảnh TP.HCM (SKDAHCM)",
+    "labelEn": "HCMC Academy of Theatre and Cinema (SKDAHCM)",
+    "abbr": "SKDAHCM",
+    "fullNameVi": "Trường Đại học Sân khấu – Điện ảnh TP.HCM"
+  },
+  {
+    "value": "HCMUE",
+    "labelVi": "Trường Đại học Sư phạm TP.HCM (HCMUE)",
+    "labelEn": "HCMC University of Education (HCMUE)",
+    "abbr": "HCMUE",
+    "fullNameVi": "Trường Đại học Sư phạm TP.HCM"
+  },
+  {
+    "value": "UPES",
+    "labelVi": "Trường Đại học Sư phạm Thể dục Thể thao (UPES)",
+    "labelEn": "University of Sư phạm Thể dục Thể thao (UPES)",
+    "abbr": "UPES",
+    "fullNameVi": "Trường Đại học Sư phạm Thể dục Thể thao"
+  },
+  {
+    "value": "USH",
+    "labelVi": "Trường Đại học Thể dục Thể thao TP. HCM (USH)",
+    "labelEn": "University of Thể dục Thể thao TP. HCM (USH)",
+    "abbr": "USH",
+    "fullNameVi": "Trường Đại học Thể dục Thể thao TP. HCM"
+  },
+  {
+    "value": "TDMU",
+    "labelVi": "Trường Đại học Thủ Dầu Một (TDMU)",
+    "labelEn": "University of Thủ Dầu Một (TDMU)",
+    "abbr": "TDMU",
+    "fullNameVi": "Trường Đại học Thủ Dầu Một"
+  },
+  {
+    "value": "TDNU",
+    "labelVi": "Trường Đại học Trần Đại Nghĩa (TDNU)",
+    "labelEn": "University of Trần Đại Nghĩa (TDNU)",
+    "abbr": "TDNU",
+    "fullNameVi": "Trường Đại học Trần Đại Nghĩa"
+  },
+  {
+    "value": "UFM",
+    "labelVi": "Trường Đại học Tài chính – Marketing (UFM)",
+    "labelEn": "University of Tài chính – Marketing (UFM)",
+    "abbr": "UFM",
+    "fullNameVi": "Trường Đại học Tài chính – Marketing"
+  },
+  {
+    "value": "HCMUNRE",
+    "labelVi": "Trường Đại học Tài nguyên và Môi trường (HCMUNRE)",
+    "labelEn": "HCMC University of Natural Resources and Environment (HCMUNRE)",
+    "abbr": "HCMUNRE",
+    "fullNameVi": "Trường Đại học Tài nguyên và Môi trường"
+  },
+  {
+    "value": "TDTU",
+    "labelVi": "Trường Đại học Tôn Đức Thắng (TDTU)",
+    "labelEn": "Ton Duc Thang University (TDTU)",
+    "abbr": "TDTU",
+    "fullNameVi": "Trường Đại học Tôn Đức Thắng"
+  },
+  {
+    "value": "VGU",
+    "labelVi": "Trường Đại học Việt - Đức (VGU)",
+    "labelEn": "University of Việt - Đức (VGU)",
+    "abbr": "VGU",
+    "fullNameVi": "Trường Đại học Việt - Đức"
+  },
+  {
+    "value": "VHU",
+    "labelVi": "Trường Đại học Văn Hiến (VHU)",
+    "labelEn": "University of Văn Hiến (VHU)",
+    "abbr": "VHU",
+    "fullNameVi": "Trường Đại học Văn Hiến"
+  },
+  {
+    "value": "VLU",
+    "labelVi": "Trường Đại học Văn Lang (VLU)",
+    "labelEn": "Van Lang University (VLU)",
+    "abbr": "VLU",
+    "fullNameVi": "Trường Đại học Văn Lang"
+  },
+  {
+    "value": "HCMUC",
+    "labelVi": "Trường Đại học Văn hóa TP.HCM (HCMUC)",
+    "labelEn": "HCMC University of Culture (HCMUC)",
+    "abbr": "HCMUC",
+    "fullNameVi": "Trường Đại học Văn hóa TP.HCM"
+  },
+  {
+    "value": "PNT",
+    "labelVi": "Trường Đại học Y khoa Phạm Ngọc Thạch (PNT)",
+    "labelEn": "Pham Ngoc Thach University of Medicine (PNT)",
+    "abbr": "PNT",
+    "fullNameVi": "Trường Đại học Y khoa Phạm Ngọc Thạch"
+  },
+  {
+    "value": "FUV",
+    "labelVi": "Đại học Fulbright Việt Nam (FUV)",
+    "labelEn": "Fulbright UniversityVietnam (FUV)",
+    "abbr": "FUV",
+    "fullNameVi": "Đại học Fulbright Việt Nam"
+  },
+  {
+    "value": "ihcGreenwichVitNam",
+    "labelVi": "Đại học Greenwich Việt Nam",
+    "labelEn": "University Of GreenwichVietnam",
+    "abbr": "",
+    "fullNameVi": "Đại học Greenwich Việt Nam"
+  },
+  {
+    "value": "UEH",
+    "labelVi": "Đại học Kinh tế Thành phố Hồ Chí Minh (UEH)",
+    "labelEn": "University of Economics HCMC (UEH)",
+    "abbr": "UEH",
+    "fullNameVi": "Đại học Kinh tế Thành phố Hồ Chí Minh"
+  },
+  {
+    "value": "ihcQucTPacificVietnamUniversity",
+    "labelVi": "Đại học Quốc Tế Pacific Vietnam University",
+    "labelEn": "Pacific Vietnam University",
+    "abbr": "",
+    "fullNameVi": "Đại học Quốc Tế Pacific Vietnam University"
+  },
+  {
+    "value": "VNU-HCM",
+    "labelVi": "Đại học Quốc gia Thành phố Hồ Chí Minh (VNU-HCM)",
+    "labelEn": "University Quốc gia HCMC (VNU-HCM)",
+    "abbr": "VNU-HCM",
+    "fullNameVi": "Đại học Quốc gia Thành phố Hồ Chí Minh"
+  },
+  {
+    "value": "RUVN",
+    "labelVi": "Đại học RMIT Việt Nam (RUVN)",
+    "labelEn": "RMIT UniversityVietnam (RUVN)",
+    "abbr": "RUVN",
+    "fullNameVi": "Đại học RMIT Việt Nam"
+  },
+  {
+    "value": "Cơ sở TP.HCM",
+    "labelVi": "Đại học Swinburne Việt Nam (Cơ sở TP.HCM)",
+    "labelEn": "Swinburne University ofTechnology Vietnam (Cơ sở TP.HCM)",
+    "abbr": "Cơ sở TP.HCM",
+    "fullNameVi": "Đại học Swinburne Việt Nam"
+  },
+  {
+    "value": "UMP",
+    "labelVi": "Đại học Y Dược TP.HCM (UMP)",
+    "labelEn": "University Y Dược HCMC (UMP)",
+    "abbr": "UMP",
+    "fullNameVi": "Đại học Y Dược TP.HCM"
   },
   {
     "value": "Other",
     "labelVi": "Khác (Vui lòng điền phía dưới)",
-    "labelEn": "Other (Please specify below)"
+    "labelEn": "Other (Please specify below)",
+    "abbr": "Other",
+    "fullNameVi": "Khác"
   }
 ]

@@ -44,7 +44,7 @@ export interface Organizer {
 
 export const ORGANIZERS: Organizer[] = [
   { src: hcmutLogo, alt: "HCMUT",              cls: "w-6 h-6" },
-  { src: hpccLogo,  alt: "HPCC",               cls: "w-9 h-9" },
+  { src: hpccLogo,  alt: "HPCC",               cls: "w-16 h-9" },
   { src: cseLogo,   alt: "CSE",               cls: "w-6 h-6" },
   { src: bdcLogo,   alt: "Big Data Club",     cls: "w-6 h-6" },
   { src: doanLogo,  alt: "Youth Union",       cls: "w-6 h-6" },
@@ -96,6 +96,8 @@ export const T = {
     errPhone: "Phone number is required.", errUniversity: "University name is required.",
     errMajor: "Faculty / Major is required.", errYear: "Please select your year of study.",
     errGpa: "Cumulative GPA is required.",
+    errGpaScale: "GPA scale is required.",
+    errSourceOther: "Please specify where you heard about us.",
     step3Title: "Technical Profile & Motivation",
     step3Desc: "Help us understand your passion, research background, and reasons for applying.",
     cvLabel: "Upload Your CV (PDF, max 5 MB)",
@@ -190,6 +192,8 @@ export const T = {
     errPhone: "Vui lòng nhập số điện thoại.", errUniversity: "Vui lòng nhập tên trường.",
     errMajor: "Vui lòng nhập khoa / ngành.", errYear: "Vui lòng chọn năm học.",
     errGpa: "Vui lòng nhập GPA tích lũy.",
+    errGpaScale: "Vui lòng nhập thang điểm.",
+    errSourceOther: "Vui lòng ghi rõ nguồn thông tin.",
     step3Title: "Hồ Sơ Kỹ Thuật & Nguyện Vọng",
     step3Desc: "Hãy cho chúng tôi biết về đam mê, nền tảng nghiên cứu và lý do bạn muốn tham gia.",
     cvLabel: "Tải lên CV của bạn (PDF, tối đa 5MB)",

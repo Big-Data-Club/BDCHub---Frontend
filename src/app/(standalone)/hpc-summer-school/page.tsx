@@ -22,6 +22,7 @@ import { Step3 } from "./components/Step3";
 import { Success } from "./components/Success";
 import { AlreadySubmitted } from "./components/AlreadySubmitted";
 import { Toast } from "./components/Toast";
+import universitiesData from "./universities.json";
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 const LS_DRAFT = "hpc_ss_2026_draft";
@@ -82,6 +83,86 @@ export default function HPCSummerSchoolPage() {
     return () => clearTimeout(timer);
   }, [form, step, lang, submitted, alreadySubmitted]);
 
+  // ── Translate localized fields when language changes ────────────────────────
+  useEffect(() => {
+    setForm(prev => {
+      let updated = false;
+      const newForm = { ...prev };
+
+      // 1. Translate University
+      if (newForm.university) {
+        const found = universitiesData.find(
+          uni => uni.labelVi === newForm.university || uni.labelEn === newForm.university
+        );
+        if (found && found.value !== "Other") {
+          const expectedLabel = lang === "vi" ? found.labelVi : found.labelEn;
+          if (newForm.university !== expectedLabel) {
+            newForm.university = expectedLabel;
+            updated = true;
+          }
+        }
+      }
+
+      // 2. Translate Year
+      if (newForm.year) {
+        const EN_YEARS = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5+", "Graduate"];
+        const VI_YEARS = ["Năm 1", "Năm 2", "Năm 3", "Năm 4", "Năm 5+", "Đã tốt nghiệp"];
+        
+        if (lang === "vi") {
+          const idx = EN_YEARS.indexOf(newForm.year);
+          if (idx !== -1) {
+            newForm.year = VI_YEARS[idx];
+            updated = true;
+          }
+        } else {
+          const idx = VI_YEARS.indexOf(newForm.year);
+          if (idx !== -1) {
+            newForm.year = EN_YEARS[idx];
+            updated = true;
+          }
+        }
+      }
+
+      // 3. Translate Source
+      if (newForm.source) {
+        const EN_SOURCES = [
+          "HPCC Fanpage",
+          "BDC Fanpage",
+          "University Portal",
+          "Friend Referral",
+          "Faculty/Advisor",
+          "Email Newsletter",
+          "Other"
+        ];
+        const VI_SOURCES = [
+          "Fanpage HPCC",
+          "Fanpage BDC",
+          "Cổng thông tin",
+          "Bạn bè",
+          "Giảng viên",
+          "Email newsletter",
+          "Khác"
+        ];
+
+        if (lang === "vi") {
+          const idx = EN_SOURCES.indexOf(newForm.source);
+          if (idx !== -1) {
+            newForm.source = VI_SOURCES[idx];
+            updated = true;
+          }
+        } else {
+          const idx = VI_SOURCES.indexOf(newForm.source);
+          if (idx !== -1) {
+            newForm.source = EN_SOURCES[idx];
+            updated = true;
+          }
+        }
+      }
+
+      return updated ? newForm : prev;
+    });
+  }, [lang]);
+
   const handleClear = () => {
     const msg = lang === "en"
       ? ALREADY_MSG.en.clearConfirm
@@ -124,11 +205,20 @@ export default function HPCSummerSchoolPage() {
       if (!form.university.trim()) e.university = t.errUniversity;
       if (!form.major.trim())      e.major      = t.errMajor;
       if (!form.year)              e.year       = t.errYear;
-      if (!form.gpa.trim())        e.gpa        = t.errGpa;
+      
+      const [gpaNum, gpaSc] = form.gpa.split("/");
+      if (!gpaNum || !gpaNum.trim()) {
+        e.gpa = t.errGpa;
+      } else if (gpaSc === undefined || !gpaSc.trim()) {
+        e.gpa = t.errGpaScale;
+      }
     } else {
       if (!form.cvUrl) e.cvFile = !form.cvFile ? t.errCvRequired : uploadingCv ? t.errCvUploading : t.errCvFailed;
       if (!form.researchInterests.trim()) e.researchInterests = t.errResearch;
       if (!form.motivation.trim())        e.motivation        = t.errMotivation;
+      if (form.source === "Other" && !form.sourceOther.trim()) {
+        e.sourceOther = t.errSourceOther;
+      }
     }
     setErrors(e); return Object.keys(e).length === 0;
   };
@@ -187,13 +277,13 @@ export default function HPCSummerSchoolPage() {
 
   return (
     <div className="w-full overflow-x-hidden pb-10">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-2 sm:py-3.5">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-2 sm:py-3.5">
 
         {/* ── Compact header bar ── */}
         <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200/80 dark:border-slate-800/60">
           {/* Left: logo + title */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-12 h-12 flex-shrink-0 transform hover:rotate-6 transition-transform duration-300 bg-white/60 dark:bg-white/60 backdrop-blur-md p-1.5 rounded-xl border border-slate-100 dark:border-white/20 shadow-sm">
+            <div className="relative w-[90px] h-12 flex-shrink-0 transform hover:scale-[1.05] hover:rotate-1 transition-all duration-300 bg-white/60 dark:bg-white/60 backdrop-blur-md p-1.5 rounded-xl border border-slate-100 dark:border-white/20 shadow-sm">
               <div className="relative w-full h-full">
                 <Image src={hpcLogo} alt="HPC Summer School" fill className="object-contain dark:brightness-110 dark:contrast-110" />
               </div>
@@ -363,7 +453,7 @@ export default function HPCSummerSchoolPage() {
             <AlreadySubmitted lang={lang} name={savedName} onClear={handleClear} />
           ) : (
             <>
-              <div key={step} className={direction === "next" ? "animate-slide-next" : "animate-slide-prev"}>
+              <div key={step} className={`relative z-10 ${direction === "next" ? "animate-slide-next" : "animate-slide-prev"}`}>
                 {step === 1 && (
                   <Step1
                     t={t}
