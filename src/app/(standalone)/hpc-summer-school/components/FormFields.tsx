@@ -98,54 +98,26 @@ export function FSel({
       .toLowerCase();
   };
 
-  const normalizedQuery = removeAccents(searchQuery.trim());
-
-  const filteredOptions = searchQuery.trim() === ""
-    ? options
-    : options.filter(o => {
-        const normLabel = removeAccents(o.label);
-        const normValue = removeAccents(o.value);
-        if (normLabel.includes(normalizedQuery) || normValue.includes(normalizedQuery)) {
-          return true;
-        }
-        if (o.keywords) {
-          return o.keywords.some(kw => removeAccents(kw).includes(normalizedQuery));
-        }
-        return false;
-      });
+  const filteredOptions = React.useMemo(() => {
+    const normalizedQuery = removeAccents(searchQuery.trim());
+    return searchQuery.trim() === ""
+      ? options
+      : options.filter(o => {
+          const normLabel = removeAccents(o.label);
+          const normValue = removeAccents(o.value);
+          if (normLabel.includes(normalizedQuery) || normValue.includes(normalizedQuery)) {
+            return true;
+          }
+          if (o.keywords) {
+            return o.keywords.some(kw => removeAccents(kw).includes(normalizedQuery));
+          }
+          return false;
+        });
+  }, [searchQuery, options]);
 
   return (
     <div ref={ref} className={`relative w-full ${isOpen ? "z-30" : ""}`}>
-      <style>{`
-        @keyframes dropdownFadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-8px);
-            filter: blur(1px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-            filter: blur(0);
-          }
-        }
-        .animate-dropdown-fade-in {
-          animation: dropdownFadeIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: scale(0.98);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 200ms ease-out forwards;
-        }
-      `}</style>
+
 
       <div
         className={`${inputCls} relative flex items-center justify-between cursor-pointer border ${

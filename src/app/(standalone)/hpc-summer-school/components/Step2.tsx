@@ -13,17 +13,19 @@ interface Step2Props {
 export function Step2({ t, data, errors, onChange }: Step2Props) {
   const isVi = t.langToggle === "English";
 
-  const uniOptions = universitiesData.map(uni => ({
-    value: uni.value,
-    label: isVi ? uni.labelVi : uni.labelEn,
-    keywords: [
-      uni.labelVi,
-      uni.labelEn,
-      uni.abbr,
-      uni.fullNameVi,
-      uni.value
-    ].filter(Boolean) as string[]
-  }));
+  const uniOptions = React.useMemo(() => {
+    return universitiesData.map(uni => ({
+      value: uni.value,
+      label: isVi ? uni.labelVi : uni.labelEn,
+      keywords: [
+        uni.labelVi,
+        uni.labelEn,
+        uni.abbr,
+        uni.fullNameVi,
+        uni.value
+      ].filter(Boolean) as string[]
+    }));
+  }, [isVi]);
 
   // If university has a value and it is not one of the predefined ones, it is custom (Other)
   const isPredefined = data.university === "" || universitiesData.some(
@@ -290,23 +292,6 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
           />
         </div>
       </div>
-      <style>{`
-        @keyframes gpaFadeIn {
-          from {
-            opacity: 0;
-            transform: scale(0.96) translateX(4px);
-            filter: blur(0.5px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateX(0);
-            filter: blur(0);
-          }
-        }
-        .animate-gpa-fade {
-          animation: gpaFadeIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
     </div>
   );
 }

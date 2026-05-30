@@ -126,3 +126,7 @@ storybook-static
 
 lint_output.txt
 lint_result.txt
+
+# Build cache and local temporary scripts
+tsconfig.tsbuildinfo
+scratch/

@@ -333,63 +333,6 @@ export default function HPCSummerSchoolPage() {
             <div className="flex items-center gap-1 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md border border-slate-100 dark:border-slate-800/50 rounded-full p-1 h-12 shadow-sm shadow-slate-100/50 dark:shadow-none">
               <ThemeToggle size={15} className="!rounded-full !p-2.5 hover:bg-slate-100/80 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all duration-200" />
               <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/60" />
-              <style>{`
-                @keyframes langSlideUp {
-                  0% {
-                    transform: translateY(18px);
-                    opacity: 0;
-                    filter: blur(1.5px);
-                  }
-                  100% {
-                    transform: translateY(0);
-                    opacity: 1;
-                    filter: blur(0);
-                  }
-                }
-                .animate-lang-slide {
-                  animation: langSlideUp 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                }
-                @keyframes slideInFromRight {
-                  0% {
-                    transform: translateX(80px);
-                    opacity: 0;
-                    filter: blur(10px);
-                  }
-                  100% {
-                    transform: translateX(0);
-                    opacity: 1;
-                    filter: blur(0);
-                  }
-                }
-                @keyframes slideInFromLeft {
-                  0% {
-                    transform: translateX(-80px);
-                    opacity: 0;
-                    filter: blur(10px);
-                  }
-                  100% {
-                    transform: translateX(0);
-                    opacity: 1;
-                    filter: blur(0);
-                  }
-                }
-                .animate-slide-next {
-                  will-change: transform, opacity;
-                  animation: slideInFromRight 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                }
-                .animate-slide-prev {
-                  will-change: transform, opacity;
-                  animation: slideInFromLeft 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                }
-                select option {
-                  background-color: #ffffff;
-                  color: #0f172a;
-                }
-                .dark select option {
-                  background-color: #0f172a;
-                  color: #f8fafc;
-                }
-              `}</style>
               <button
                 onClick={() => setLang(l => l === "en" ? "vi" : "en")}
                 className="relative overflow-hidden flex items-center justify-center w-14 h-8 rounded-full text-xs font-black text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all duration-200 active:scale-95"
