@@ -85,7 +85,7 @@ export function Step3({
       <div>
         <FL>{t.pubLabel}</FL>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5">{t.pubHint}</p>
-        <FTa rows={3} placeholder={t.pubPh} value={data.publications} onChange={e => onChange("publications", e.target.value)} />
+        <FTa rows={5} placeholder={t.pubPh} value={data.publications} onChange={e => onChange("publications", e.target.value)} />
       </div>
 
       <div>
@@ -113,22 +113,28 @@ export function Step3({
           </div>
         </div>
         <div className="space-y-4 pt-1">
-          <div>
-            <FL>{t.sourceLabel}</FL>
-            <FSel
-              value={data.source}
-              onChange={v => onChange("source", v)}
-              options={t.sourceOptions as any}
-              placeholder={t.sourcePh}
-              isVi={t.langToggle === "English"}
-            />
-          </div>
-          {showOther && (
-            <div className="animate-fadeIn">
-              <FL req>{t.sourceOtherLabel}</FL>
-              <FIn type="text" placeholder={t.sourceOtherPh} value={data.sourceOther} onChange={e => onChange("sourceOther", e.target.value)} error={errors.sourceOther} />
+          <div className={`relative transition-all duration-300 space-y-3.5 ${
+            showOther
+              ? "pl-4.5 border-l-2 border-cyan-500/60 dark:border-cyan-500/40"
+              : "pl-0 border-l-0 border-transparent"
+          }`}>
+            <div>
+              <FL>{t.sourceLabel}</FL>
+              <FSel
+                value={data.source}
+                onChange={v => onChange("source", v)}
+                options={t.sourceOptions as any}
+                placeholder={t.sourcePh}
+                isVi={t.langToggle === "English"}
+              />
             </div>
-          )}
+            {showOther && (
+              <div className="animate-fadeIn">
+                <FL req>{t.sourceOtherLabel}</FL>
+                <FIn type="text" placeholder={t.sourceOtherPh} value={data.sourceOther} onChange={e => onChange("sourceOther", e.target.value)} error={errors.sourceOther} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
