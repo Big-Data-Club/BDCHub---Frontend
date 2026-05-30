@@ -83,15 +83,15 @@ export function Step3({
       </div>
 
       <div>
-        <FL>{t.pubLabel}</FL>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5">{t.pubHint}</p>
-        <FTa rows={5} placeholder={t.pubPh} value={data.publications} onChange={e => onChange("publications", e.target.value)} />
-      </div>
-
-      <div>
         <FL req>{t.motivationLabel}</FL>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5">{t.motivationHint}</p>
         <FTa rows={4} placeholder={t.motivationPh} value={data.motivation} onChange={e => onChange("motivation", e.target.value)} error={errors.motivation} />
+      </div>
+
+      <div>
+        <FL>{t.pubLabel}</FL>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1.5">{t.pubHint}</p>
+        <FTa rows={5} placeholder={t.pubPh} value={data.publications} onChange={e => onChange("publications", e.target.value)} />
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
@@ -130,7 +130,7 @@ export function Step3({
             </div>
             {showOther && (
               <div className="animate-fadeIn">
-                <FL req>{t.sourceOtherLabel}</FL>
+                <FL>{t.sourceOtherLabel}</FL>
                 <FIn type="text" placeholder={t.sourceOtherPh} value={data.sourceOther} onChange={e => onChange("sourceOther", e.target.value)} error={errors.sourceOther} />
               </div>
             )}

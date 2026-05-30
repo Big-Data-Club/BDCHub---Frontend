@@ -143,8 +143,9 @@ export const T = {
     followUs: "Stay up to date at:",
     links: [
       { label: "HPCC HCMUT",   href: "https://hpcc.hcmut.edu.vn/",          color: "text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300" },
-      { label: "BDC Hub",       href: "https://bdc.hpcc.vn/",                color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
       { label: "Facebook HPCC", href: "https://www.facebook.com/hpcc.hcmut", color: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300" },
+      { label: "BDC Hub",       href: "https://bdc.hpcc.vn/",                color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
+      { label: "Facebook BDC",  href: "https://www.facebook.com/BDCofHCMUT", color: "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300" },
     ],
     copyright: "© 2026 High-Performance Computing Center — HCMUT. All rights reserved.",
   },
@@ -239,8 +240,9 @@ export const T = {
     followUs: "Theo dõi thông tin mới nhất tại:",
     links: [
       { label: "HPCC HCMUT",   href: "https://hpcc.hcmut.edu.vn/",          color: "text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300" },
-      { label: "BDC Hub",       href: "https://bdc.hpcc.vn/",                color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
       { label: "Facebook HPCC", href: "https://www.facebook.com/hpcc.hcmut", color: "text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300" },
+      { label: "BDC Hub",       href: "https://bdc.hpcc.vn/",                color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
+      { label: "Facebook BDC",  href: "https://www.facebook.com/BDCofHCMUT", color: "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300" },
     ],
     copyright: "© 2026 Trung tâm Tính toán Hiệu năng Cao — HCMUT. All rights reserved.",
   },

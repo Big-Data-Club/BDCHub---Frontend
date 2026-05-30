@@ -27,9 +27,9 @@ export function Success({ t, name }: SuccessProps) {
         </h2>
         <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-md mx-auto">{t.successDesc}</p>
       </div>
-      <div className="border border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-5 space-y-3 max-w-sm mx-auto">
+      <div className="border border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-5 space-y-3 max-w-2xl mx-auto">
         <p className="text-slate-500 dark:text-slate-400 text-xs">{t.followUs}</p>
-        <div className="flex flex-wrap justify-center gap-5">
+        <div className="flex flex-row flex-wrap justify-center items-center gap-x-6 gap-y-2 whitespace-nowrap">
           {t.links.map(l => (
             <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className={`text-sm font-semibold transition-colors ${l.color}`}>{l.label} →</a>
           ))}

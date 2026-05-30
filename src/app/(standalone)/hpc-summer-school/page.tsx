@@ -216,9 +216,6 @@ export default function HPCSummerSchoolPage() {
       if (!form.cvUrl) e.cvFile = !form.cvFile ? t.errCvRequired : uploadingCv ? t.errCvUploading : t.errCvFailed;
       if (!form.researchInterests.trim()) e.researchInterests = t.errResearch;
       if (!form.motivation.trim())        e.motivation        = t.errMotivation;
-      if (form.source === "Other" && !form.sourceOther.trim()) {
-        e.sourceOther = t.errSourceOther;
-      }
     }
     setErrors(e); return Object.keys(e).length === 0;
   };
