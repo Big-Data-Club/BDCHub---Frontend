@@ -1,0 +1,47 @@
+[
+  {
+    "value": "HCMUT",
+    "labelVi": "Trường Đại học Bách khoa, ĐHQG TP.HCM",
+    "labelEn": "HCMC University of Technology, VNU-HCM"
+  },
+  {
+    "value": "HCMUS",
+    "labelVi": "Trường Đại học Khoa học tự nhiên, ĐHQG TP.HCM",
+    "labelEn": "HCMC University of Science, VNU-HCM"
+  },
+  {
+    "value": "UIT",
+    "labelVi": "Trường Đại học Công nghệ thông tin, ĐHQG TP.HCM",
+    "labelEn": "University of Information Technology, VNU-HCM"
+  },
+  {
+    "value": "IU",
+    "labelVi": "Trường Đại học Quốc tế, ĐHQG TP.HCM",
+    "labelEn": "International University, VNU-HCM"
+  },
+  {
+    "value": "USSH",
+    "labelVi": "Trường Đại học Khoa học Xã hội và Nhân văn, ĐHQG TP.HCM",
+    "labelEn": "University of Social Sciences and Humanities, VNU-HCM"
+  },
+  {
+    "value": "UEL",
+    "labelVi": "Trường Đại học Kinh tế - Luật, ĐHQG TP.HCM",
+    "labelEn": "University of Economics and Law, VNU-HCM"
+  },
+  {
+    "value": "UHS",
+    "labelVi": "Trường Đại học Khoa học Sức khỏe, ĐHQG TP.HCM",
+    "labelEn": "University of Health Sciences, VNU-HCM"
+  },
+  {
+    "value": "AGU",
+    "labelVi": "Trường Đại học An Giang, ĐHQG TP.HCM",
+    "labelEn": "An Giang University, VNU-HCM"
+  },
+  {
+    "value": "Other",
+    "labelVi": "Khác (Vui lòng điền phía dưới)",
+    "labelEn": "Other (Please specify below)"
+  }
+]
