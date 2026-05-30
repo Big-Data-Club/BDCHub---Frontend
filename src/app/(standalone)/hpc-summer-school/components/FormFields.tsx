@@ -25,10 +25,17 @@ export function Err({ msg }: { msg?: string }) {
   return <p className="mt-1.5 text-xs text-red-500 dark:text-red-400 flex items-center gap-1.5 animate-fadeIn">⚠ {msg}</p>;
 }
 
-export function FIn({ error, ...p }: React.InputHTMLAttributes<HTMLInputElement> & { error?: string }) {
+export function FIn({ error, suffix, ...p }: React.InputHTMLAttributes<HTMLInputElement> & { error?: string; suffix?: React.ReactNode }) {
   return (
     <div className="relative w-full">
-      <input {...p} className={`${inputCls} ${error ? errInputCls : ""}`} />
+      <div className="relative flex items-center">
+        <input {...p} className={`${inputCls} ${error ? errInputCls : ""} ${suffix ? "pr-24" : ""}`} />
+        {suffix && (
+          <div className="absolute right-4 text-sm font-bold text-slate-400 dark:text-slate-500">
+            {suffix}
+          </div>
+        )}
+      </div>
       <Err msg={error} />
     </div>
   );

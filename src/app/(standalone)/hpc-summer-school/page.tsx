@@ -124,11 +124,20 @@ export default function HPCSummerSchoolPage() {
       if (!form.university.trim()) e.university = t.errUniversity;
       if (!form.major.trim())      e.major      = t.errMajor;
       if (!form.year)              e.year       = t.errYear;
-      if (!form.gpa.trim())        e.gpa        = t.errGpa;
+      
+      const [gpaNum, gpaSc] = form.gpa.split("/");
+      if (!gpaNum || !gpaNum.trim()) {
+        e.gpa = t.errGpa;
+      } else if (gpaSc === undefined || !gpaSc.trim()) {
+        e.gpa = t.errGpaScale;
+      }
     } else {
       if (!form.cvUrl) e.cvFile = !form.cvFile ? t.errCvRequired : uploadingCv ? t.errCvUploading : t.errCvFailed;
       if (!form.researchInterests.trim()) e.researchInterests = t.errResearch;
       if (!form.motivation.trim())        e.motivation        = t.errMotivation;
+      if (form.source === "Other" && !form.sourceOther.trim()) {
+        e.sourceOther = t.errSourceOther;
+      }
     }
     setErrors(e); return Object.keys(e).length === 0;
   };

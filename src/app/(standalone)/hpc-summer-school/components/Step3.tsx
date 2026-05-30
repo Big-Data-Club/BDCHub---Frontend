@@ -125,8 +125,8 @@ export function Step3({
           </div>
           {showOther && (
             <div className="animate-fadeIn">
-              <FL>{t.sourceOtherLabel}</FL>
-              <FIn type="text" placeholder={t.sourceOtherPh} value={data.sourceOther} onChange={e => onChange("sourceOther", e.target.value)} />
+              <FL req>{t.sourceOtherLabel}</FL>
+              <FIn type="text" placeholder={t.sourceOtherPh} value={data.sourceOther} onChange={e => onChange("sourceOther", e.target.value)} error={errors.sourceOther} />
             </div>
           )}
         </div>
