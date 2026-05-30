@@ -84,7 +84,7 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
 
   const handleGpaNumericChange = (valStr: string) => {
     // Strip out any manually typed slashes or scales
-    let numVal = valStr.replace(/\/.*/g, "").trim();
+    const numVal = valStr.replace(/\/.*/g, "").trim();
     onChange("gpa", `${numVal}${gpaScale}`);
   };
 
@@ -206,7 +206,7 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
                         placeholder="xx.xx"
                         value={gpaScale.replace("/", "")}
                         onChange={e => {
-                          let val = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                          const val = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
                           onChange("gpa", `${gpaNumeric}/${val}`);
                         }}
                         className="w-12 text-center bg-transparent border-t-0 border-x-0 border-b border-dashed border-slate-300 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-slate-100 placeholder:text-slate-400/60 dark:placeholder:text-slate-600/60 outline-none focus:border-solid focus:border-cyan-500 focus:ring-0 transition-all p-0 pb-0.5"

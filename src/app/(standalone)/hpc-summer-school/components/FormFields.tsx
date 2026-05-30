@@ -276,7 +276,7 @@ export function FSel({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               <span className="flex-1 truncate">
-                {isVi ? "Bổ sung" : "Add"}: "{searchQuery.trim()}"
+                {isVi ? "Bổ sung" : "Add"}: &quot;{searchQuery.trim()}&quot;
               </span>
             </li>
           )}
