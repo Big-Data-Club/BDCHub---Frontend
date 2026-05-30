@@ -446,7 +446,7 @@ export default function HPCSummerSchoolPage() {
           onClose={() => setDraftRestored(false)}
         />
 
-        <div className="bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/50 rounded-3xl p-5 sm:p-8 shadow-xl shadow-slate-100/80 dark:shadow-none transition-all duration-300">
+        <div className="relative z-20 bg-white/70 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/50 rounded-3xl p-5 sm:p-8 shadow-xl shadow-slate-100/80 dark:shadow-none transition-all duration-300">
           {submitted ? (
             <Success t={t} name={form.fullName} />
           ) : alreadySubmitted ? (

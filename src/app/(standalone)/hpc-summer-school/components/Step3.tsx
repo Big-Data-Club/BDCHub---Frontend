@@ -100,7 +100,7 @@ export function Step3({
       </div>
 
       {/* How did you hear about us */}
-      <div className="border border-slate-200 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl p-5 space-y-4 backdrop-blur-sm shadow-inner-sm">
+      <div className="border border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-900/20 rounded-2xl p-5 space-y-4 shadow-inner-sm">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center flex-shrink-0 shadow-sm shadow-blue-500/10">
             <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
