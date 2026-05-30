@@ -49,14 +49,19 @@ export function FSel({
   options,
   placeholder,
   error,
+  searchable = false,
+  isVi = false,
 }: {
   value: string;
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
   placeholder: string;
   error?: string;
+  searchable?: boolean;
+  isVi?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,71 +74,156 @@ export function FSel({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchQuery("");
+    }
+  }, [isOpen]);
+
   const selectedOption = options.find(o => o.value === value);
+
+  const filteredOptions = searchQuery.trim() === ""
+    ? options
+    : options.filter(o =>
+        o.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        o.value.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
   return (
     <div ref={ref} className="relative w-full">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={`${inputCls} flex items-center justify-between text-left cursor-pointer border ${
-          error ? errInputCls : isOpen ? "border-cyan-500 dark:border-cyan-400 ring-4 ring-cyan-500/10 dark:ring-cyan-400/10 shadow-[0_0_15px_rgba(6,182,212,0.15)]" : ""
-        }`}
-      >
-        <span className={selectedOption ? "text-slate-900 dark:text-slate-100 font-semibold" : "text-slate-400 dark:placeholder:text-slate-500 font-semibold"}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <svg
-          className={`w-4.5 h-4.5 text-slate-400 transition-transform duration-300 ${isOpen ? "rotate-180 text-cyan-500" : ""}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
+      {isOpen && searchable ? (
+        <div className="relative w-full">
+          <input
+            type="text"
+            autoFocus
+            placeholder={selectedOption ? selectedOption.label : placeholder}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={`${inputCls} pr-16 border-cyan-500 dark:border-cyan-400 ring-4 ring-cyan-500/10 dark:ring-cyan-400/10 shadow-[0_0_15px_rgba(6,182,212,0.15)]`}
+          />
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-400 dark:text-slate-500">
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearchQuery("");
+                }}
+                className="hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-0.5 rounded"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(false);
+              }}
+              className="text-cyan-500 hover:text-cyan-600 transition-colors p-0.5"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className={`${inputCls} flex items-center justify-between text-left cursor-pointer border ${
+            error ? errInputCls : isOpen ? "border-cyan-500 dark:border-cyan-400 ring-4 ring-cyan-500/10 dark:ring-cyan-400/10 shadow-[0_0_15px_rgba(6,182,212,0.15)]" : ""
+          }`}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-        </svg>
-      </button>
+          <span className={selectedOption ? "text-slate-900 dark:text-slate-100 font-semibold" : "text-slate-400 dark:placeholder:text-slate-500 font-semibold"}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+          <svg
+            className={`w-4.5 h-4.5 text-slate-400 transition-transform duration-300 ${isOpen ? "rotate-180 text-cyan-500" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </button>
+      )}
 
       {isOpen && (
         <ul className="absolute left-0 right-0 z-50 mt-2 py-1.5 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/85 overflow-hidden animate-dropdown-fade-in max-h-60 overflow-y-auto">
-          <li
-            onClick={() => {
-              onChange("");
-              setIsOpen(false);
-            }}
-            className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${
-              !value
-                ? "bg-cyan-50/50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold"
-                : "text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-            }`}
-          >
-            {placeholder}
-          </li>
+          {!searchQuery && (
+            <li
+              onClick={() => {
+                onChange("");
+                setIsOpen(false);
+              }}
+              className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${
+                !value
+                  ? "bg-cyan-50/50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold"
+                  : "text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              }`}
+            >
+              {placeholder}
+            </li>
+          )}
           
-          {options.map(o => {
-            const isSelected = o.value === value;
-            return (
-              <li
-                key={o.value}
-                onClick={() => {
-                  onChange(o.value);
-                  setIsOpen(false);
-                }}
-                className={`px-4 py-2.5 text-sm cursor-pointer transition-all duration-200 flex items-center justify-between font-semibold ${
-                  isSelected
-                    ? "bg-gradient-to-r from-cyan-50/50 to-blue-50/30 dark:from-cyan-500/10 dark:to-blue-500/5 text-cyan-600 dark:text-cyan-400"
-                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-950 dark:hover:text-white"
-                }`}
+          {filteredOptions.length === 0 ? (
+            <li className="px-4 py-3 text-xs text-center text-slate-400 dark:text-slate-500 italic">
+              {isVi ? "Không tìm thấy kết quả" : "No results found"}
+            </li>
+          ) : (
+            filteredOptions.map(o => {
+              const isSelected = o.value === value;
+              return (
+                <li
+                  key={o.value}
+                  onClick={() => {
+                    onChange(o.value);
+                    setIsOpen(false);
+                  }}
+                  className={`px-4 py-2.5 text-sm cursor-pointer transition-all duration-200 flex items-center justify-between font-semibold ${
+                    isSelected
+                      ? "bg-gradient-to-r from-cyan-50/50 to-blue-50/30 dark:from-cyan-500/10 dark:to-blue-500/5 text-cyan-600 dark:text-cyan-400"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-950 dark:hover:text-white"
+                  }`}
+                >
+                  <span>{o.label}</span>
+                  {isSelected && (
+                    <svg className="w-4 h-4 text-cyan-500 animate-fadeIn" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  )}
+                </li>
+              );
+            })
+          )}
+
+          {searchQuery.trim() && !options.some(o => o.label.toLowerCase() === searchQuery.trim().toLowerCase()) && (
+            <li
+              onClick={() => {
+                onChange(searchQuery.trim());
+                setIsOpen(false);
+              }}
+              className="px-4 py-2.5 text-sm cursor-pointer transition-all duration-200 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50/50 dark:hover:bg-cyan-500/10 hover:text-cyan-700 dark:hover:text-cyan-300 font-bold border-t border-slate-100 dark:border-slate-850/30 flex items-center gap-2"
+            >
+              <svg 
+                className="w-4 h-4 text-cyan-500 dark:text-cyan-400 flex-shrink-0" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor" 
+                strokeWidth={2.5}
               >
-                <span>{o.label}</span>
-                {isSelected && (
-                  <svg className="w-4 h-4 text-cyan-500 animate-fadeIn" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                  </svg>
-                )}
-              </li>
-            );
-          })}
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              <span className="flex-1 truncate">
+                {isVi ? "Bổ sung" : "Add"}: "{searchQuery.trim()}"
+              </span>
+            </li>
+          )}
         </ul>
       )}
       

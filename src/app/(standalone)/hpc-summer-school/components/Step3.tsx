@@ -120,6 +120,7 @@ export function Step3({
               onChange={v => onChange("source", v)}
               options={t.sourceOptions as any}
               placeholder={t.sourcePh}
+              isVi={t.langToggle === "English"}
             />
           </div>
           {showOther && (

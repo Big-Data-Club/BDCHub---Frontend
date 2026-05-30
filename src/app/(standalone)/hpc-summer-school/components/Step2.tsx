@@ -30,10 +30,14 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
       setShowOtherInput(false);
       onChange("university", "");
     } else {
-      setShowOtherInput(false);
       const option = uniOptions.find(o => o.value === val);
       if (option) {
+        setShowOtherInput(false);
         onChange("university", option.label);
+      } else {
+        // Custom value from "Search & Auto-fill"
+        setShowOtherInput(true);
+        onChange("university", val);
       }
     }
   };
@@ -71,6 +75,8 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
           options={uniOptions}
           placeholder={isVi ? "-- Chọn trường học --" : "-- Select University --"}
           error={showOtherInput ? undefined : errors.university}
+          searchable={true}
+          isVi={isVi}
         />
         {showOtherInput && (
           <div className="mt-3.5 animate-fadeIn">
@@ -95,6 +101,7 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
             options={t.years.map(y => ({ value: y, label: y }))}
             placeholder={t.yearPh}
             error={errors.year}
+            isVi={isVi}
           />
         </div>
         <div><FL req>{t.gpa}</FL><FIn type="text" placeholder={t.gpaPh} value={data.gpa} onChange={e => onChange("gpa", e.target.value)} error={errors.gpa} /></div>
