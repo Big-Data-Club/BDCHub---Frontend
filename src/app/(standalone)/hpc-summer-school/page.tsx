@@ -22,6 +22,7 @@ import { Step3 } from "./components/Step3";
 import { Success } from "./components/Success";
 import { AlreadySubmitted } from "./components/AlreadySubmitted";
 import { Toast } from "./components/Toast";
+import universitiesData from "./universities.json";
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 const LS_DRAFT = "hpc_ss_2026_draft";
@@ -81,6 +82,86 @@ export default function HPCSummerSchoolPage() {
     }, 600);
     return () => clearTimeout(timer);
   }, [form, step, lang, submitted, alreadySubmitted]);
+
+  // ── Translate localized fields when language changes ────────────────────────
+  useEffect(() => {
+    setForm(prev => {
+      let updated = false;
+      const newForm = { ...prev };
+
+      // 1. Translate University
+      if (newForm.university) {
+        const found = universitiesData.find(
+          uni => uni.labelVi === newForm.university || uni.labelEn === newForm.university
+        );
+        if (found && found.value !== "Other") {
+          const expectedLabel = lang === "vi" ? found.labelVi : found.labelEn;
+          if (newForm.university !== expectedLabel) {
+            newForm.university = expectedLabel;
+            updated = true;
+          }
+        }
+      }
+
+      // 2. Translate Year
+      if (newForm.year) {
+        const EN_YEARS = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5+", "Graduate"];
+        const VI_YEARS = ["Năm 1", "Năm 2", "Năm 3", "Năm 4", "Năm 5+", "Đã tốt nghiệp"];
+        
+        if (lang === "vi") {
+          const idx = EN_YEARS.indexOf(newForm.year);
+          if (idx !== -1) {
+            newForm.year = VI_YEARS[idx];
+            updated = true;
+          }
+        } else {
+          const idx = VI_YEARS.indexOf(newForm.year);
+          if (idx !== -1) {
+            newForm.year = EN_YEARS[idx];
+            updated = true;
+          }
+        }
+      }
+
+      // 3. Translate Source
+      if (newForm.source) {
+        const EN_SOURCES = [
+          "HPCC Fanpage",
+          "BDC Fanpage",
+          "University Portal",
+          "Friend Referral",
+          "Faculty/Advisor",
+          "Email Newsletter",
+          "Other"
+        ];
+        const VI_SOURCES = [
+          "Fanpage HPCC",
+          "Fanpage BDC",
+          "Cổng thông tin",
+          "Bạn bè",
+          "Giảng viên",
+          "Email newsletter",
+          "Khác"
+        ];
+
+        if (lang === "vi") {
+          const idx = EN_SOURCES.indexOf(newForm.source);
+          if (idx !== -1) {
+            newForm.source = VI_SOURCES[idx];
+            updated = true;
+          }
+        } else {
+          const idx = VI_SOURCES.indexOf(newForm.source);
+          if (idx !== -1) {
+            newForm.source = EN_SOURCES[idx];
+            updated = true;
+          }
+        }
+      }
+
+      return updated ? newForm : prev;
+    });
+  }, [lang]);
 
   const handleClear = () => {
     const msg = lang === "en"
@@ -372,7 +453,7 @@ export default function HPCSummerSchoolPage() {
             <AlreadySubmitted lang={lang} name={savedName} onClear={handleClear} />
           ) : (
             <>
-              <div key={step} className={direction === "next" ? "animate-slide-next" : "animate-slide-prev"}>
+              <div key={step} className={`relative z-10 ${direction === "next" ? "animate-slide-next" : "animate-slide-prev"}`}>
                 {step === 1 && (
                   <Step1
                     t={t}

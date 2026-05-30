@@ -115,68 +115,99 @@ export function FSel({
       });
 
   return (
-    <div ref={ref} className="relative w-full">
-      {isOpen && searchable ? (
-        <div className="relative w-full">
+    <div ref={ref} className={`relative w-full ${isOpen ? "z-30" : ""}`}>
+      <style>{`
+        @keyframes dropdownFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-8px);
+            filter: blur(1px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+          }
+        }
+        .animate-dropdown-fade-in {
+          animation: dropdownFadeIn 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 200ms ease-out forwards;
+        }
+      `}</style>
+
+      <div
+        className={`${inputCls} relative flex items-center justify-between cursor-pointer border ${
+          error ? errInputCls : isOpen ? "border-cyan-500 dark:border-cyan-400 ring-4 ring-cyan-500/10 dark:ring-cyan-400/10 shadow-[0_0_15px_rgba(6,182,212,0.15)]" : ""
+        }`}
+        onClick={() => {
+          if (!isOpen) setIsOpen(true);
+        }}
+      >
+        {isOpen && searchable ? (
           <input
             type="text"
             autoFocus
             placeholder={selectedOption ? selectedOption.label : placeholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className={`${inputCls} pr-16 border-cyan-500 dark:border-cyan-400 ring-4 ring-cyan-500/10 dark:ring-cyan-400/10 shadow-[0_0_15px_rgba(6,182,212,0.15)]`}
+            className="w-full bg-transparent border-none outline-none text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 p-0 pr-16"
           />
-          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-400 dark:text-slate-500">
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSearchQuery("");
-                }}
-                className="hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-0.5 rounded"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
+        ) : (
+          <span className={selectedOption ? "text-slate-900 dark:text-slate-100 font-semibold" : "text-slate-400 dark:placeholder:text-slate-500 font-semibold"}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+        )}
+
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-400 dark:text-slate-500">
+          {isOpen && searchable && searchQuery && (
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsOpen(false);
+                setSearchQuery("");
               }}
-              className="text-cyan-500 hover:text-cyan-600 transition-colors p-0.5"
+              className="hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-0.5 rounded"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-          </div>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className={`${inputCls} flex items-center justify-between text-left cursor-pointer border ${
-            error ? errInputCls : isOpen ? "border-cyan-500 dark:border-cyan-400 ring-4 ring-cyan-500/10 dark:ring-cyan-400/10 shadow-[0_0_15px_rgba(6,182,212,0.15)]" : ""
-          }`}
-        >
-          <span className={selectedOption ? "text-slate-900 dark:text-slate-100 font-semibold" : "text-slate-400 dark:placeholder:text-slate-500 font-semibold"}>
-            {selectedOption ? selectedOption.label : placeholder}
-          </span>
-          <svg
-            className={`w-4.5 h-4.5 text-slate-400 transition-transform duration-300 ${isOpen ? "rotate-180 text-cyan-500" : ""}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
+          )}
+
+          <button
+            type="button"
+            onClick={(e) => {
+              if (isOpen) {
+                e.stopPropagation();
+                setIsOpen(false);
+              }
+            }}
+            className={`transition-colors p-0.5 ${isOpen ? "text-cyan-500" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"}`}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-          </svg>
-        </button>
-      )}
+            <svg
+              className={`w-4.5 h-4.5 transition-transform duration-300 ${isOpen ? "rotate-180 text-cyan-500" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
       {isOpen && (
         <ul className="absolute left-0 right-0 z-50 mt-2 py-1.5 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/85 overflow-hidden animate-dropdown-fade-in max-h-60 overflow-y-auto">

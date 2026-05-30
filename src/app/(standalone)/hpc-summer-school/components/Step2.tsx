@@ -26,7 +26,9 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
   }));
 
   // If university has a value and it is not one of the predefined ones, it is custom (Other)
-  const isPredefined = data.university === "" || uniOptions.some(opt => opt.label === data.university && opt.value !== "Other");
+  const isPredefined = data.university === "" || universitiesData.some(
+    uni => (uni.labelVi === data.university || uni.labelEn === data.university) && uni.value !== "Other"
+  );
   const [showOtherInput, setShowOtherInput] = useState(!isPredefined);
   const [isOpenScale, setIsOpenScale] = useState(false);
   const scaleRef = useRef<HTMLDivElement>(null);
@@ -64,7 +66,9 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
   const currentDropdownValue = (() => {
     if (showOtherInput) return "Other";
     if (!data.university) return "";
-    const found = uniOptions.find(opt => opt.label === data.university && opt.value !== "Other");
+    const found = universitiesData.find(
+      uni => (uni.labelVi === data.university || uni.labelEn === data.university) && uni.value !== "Other"
+    );
     return found ? found.value : "";
   })();
 
@@ -222,7 +226,7 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
                   );
                 }
                 return (
-                  <div ref={scaleRef} className="relative flex items-center gap-2 animate-gpa-fade">
+                  <div ref={scaleRef} className={`relative flex items-center gap-2 animate-gpa-fade ${isOpenScale ? "z-30" : ""}`}>
                     {/* Vertical Divider */}
                     <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/60" />
                     {/* Custom Dropdown Trigger */}
