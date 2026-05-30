@@ -7,6 +7,8 @@ import type {
   UpdateOrgPayload,
   AddMemberPayload,
   UpdateMemberRolePayload,
+  BulkAddMembersPayload,
+  BulkAddMembersResponse,
 } from "@/types";
 
 export interface OrgListResponse {
@@ -93,6 +95,17 @@ export const organizationService = {
     await lmsApiClient.delete(
       `/admin/organizations/${orgId}/members/${userId}`
     );
+  },
+
+  bulkAddMembers: async (
+    orgId: number,
+    data: BulkAddMembersPayload
+  ): Promise<BulkAddMembersResponse> => {
+    const res = await lmsApiClient.post(
+      `/admin/organizations/${orgId}/members/bulk`,
+      data
+    );
+    return res.data.data ?? res.data;
   },
 
   // ── Current user ──────────────────────────────────────────────────────────

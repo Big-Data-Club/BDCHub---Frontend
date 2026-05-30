@@ -58,3 +58,14 @@ export interface AddMemberPayload {
 export interface UpdateMemberRolePayload {
   org_role: OrgRole;
 }
+
+export interface BulkAddMembersPayload {
+  emails: string[];
+  raw_input?: string;
+  org_role: OrgRole;
+}
+
+export interface BulkAddMembersResponse {
+  added: string[];
+  not_found: string[];
+}

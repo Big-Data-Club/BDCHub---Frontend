@@ -161,12 +161,17 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
   const [loadingStats, setLoadingStats] = useState(true);
   const [loadingMembers, setLoadingMembers] = useState(true);
   const [showAddMember, setShowAddMember] = useState(false);
-  const [addUserId, setAddUserId] = useState("");
   const [addRole, setAddRole] = useState<"OWNER" | "ADMIN" | "MEMBER">(
     "MEMBER"
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const [addMode, setAddMode] = useState<"single" | "bulk">("single");
+  const [singleInput, setSingleInput] = useState("");
+  const [bulkInput, setBulkInput] = useState("");
+  const [parsedEmails, setParsedEmails] = useState<string[]>([]);
+  const [bulkResult, setBulkResult] = useState<{ added: string[]; not_found: string[] } | null>(null);
 
   const loadStats = useCallback(async () => {
     setLoadingStats(true);
@@ -203,24 +208,87 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
     loadMembers();
   }, [loadMembers]);
 
-  const handleAddMember = async () => {
-    if (!addUserId) return;
+  const handleExecuteAddMember = async () => {
+    if (!singleInput.trim()) return;
     setSaving(true);
     setError("");
+    setBulkResult(null);
+
+    const isEmail = singleInput.includes("@");
     try {
-      await organizationService.addMember(org.id, {
-        user_id: parseInt(addUserId),
-        org_role: addRole,
-      });
-      setAddUserId("");
-      setShowAddMember(false);
-      await loadMembers();
-      await loadStats();
+      if (isEmail) {
+        const res = await organizationService.bulkAddMembers(org.id, {
+          emails: [singleInput.trim()],
+          org_role: addRole,
+        });
+        if (res.not_found.length > 0) {
+          setError(`User with email "${singleInput}" was not found in the system.`);
+        } else {
+          setSingleInput("");
+          setShowAddMember(false);
+          await loadMembers();
+          await loadStats();
+        }
+      } else {
+        const userId = parseInt(singleInput);
+        if (isNaN(userId)) {
+          setError("Please enter a valid Email address or User ID.");
+          setSaving(false);
+          return;
+        }
+        await organizationService.addMember(org.id, {
+          user_id: userId,
+          org_role: addRole,
+        });
+        setSingleInput("");
+        setShowAddMember(false);
+        await loadMembers();
+        await loadStats();
+      }
     } catch (e: any) {
       setError(e?.response?.data?.message ?? "Failed to add member");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleExecuteBulkAdd = async () => {
+    if (parsedEmails.length === 0) return;
+    setSaving(true);
+    setError("");
+    setBulkResult(null);
+    try {
+      const res = await organizationService.bulkAddMembers(org.id, {
+        emails: parsedEmails,
+        org_role: addRole,
+      });
+      setBulkInput("");
+      setParsedEmails([]);
+      setBulkResult(res);
+      await loadMembers();
+      await loadStats();
+    } catch (e: any) {
+      setError(e?.response?.data?.message ?? "Failed to import members");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleBulkInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setBulkInput(val);
+    
+    if (!val) {
+      setParsedEmails([]);
+      return;
+    }
+    const matches = val.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
+    if (!matches) {
+      setParsedEmails([]);
+      return;
+    }
+    const unique = Array.from(new Set(matches.map(email => email.trim().toLowerCase())));
+    setParsedEmails(unique);
   };
 
   const handleRemoveMember = async (userId: number) => {
@@ -351,40 +419,148 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
         {showAddMember && (
           <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
             {error && (
-              <p className="text-xs text-red-600 dark:text-red-400 mb-2">
-                {error}
-              </p>
+              <div className="px-4 py-2 mb-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl">
+                <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
+              </div>
             )}
-            <div className="flex gap-2">
-              <input
-                id="add-member-user-id"
-                type="number"
-                placeholder="User ID"
-                value={addUserId}
-                onChange={(e) => setAddUserId(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
-              />
-              <select
-                id="add-member-role"
-                value={addRole}
-                onChange={(e) =>
-                  setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")
-                }
-                className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
-              >
-                <option value="MEMBER">Member</option>
-                <option value="ADMIN">Admin</option>
-                <option value="OWNER">Owner</option>
-              </select>
+            {bulkResult && (
+              <div className="p-4 mb-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-2xl space-y-2">
+                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-400">
+                  Import completed successfully!
+                </p>
+                <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+                  <p>• Added: <span className="font-semibold text-slate-800 dark:text-slate-200">{bulkResult.added.length}</span> members.</p>
+                  {bulkResult.not_found.length > 0 && (
+                    <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl">
+                      <p className="font-semibold text-amber-800 dark:text-amber-400 mb-1">
+                        Not found in system ({bulkResult.not_found.length}):
+                      </p>
+                      <p className="font-mono break-all text-amber-700 dark:text-amber-400">
+                        {bulkResult.not_found.join(", ")}
+                      </p>
+                      <p className="mt-1 text-[10px] text-amber-600 dark:text-amber-500">
+                        * Note: These users must be created or synced in the LMS database first.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => setBulkResult(null)}
+                  className="mt-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 underline hover:no-underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {/* Tab navigation */}
+            <div className="flex border-b border-slate-200 dark:border-slate-700 mb-4 gap-4">
               <button
-                id="confirm-add-member"
-                onClick={handleAddMember}
-                disabled={saving || !addUserId}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95"
+                type="button"
+                onClick={() => { setAddMode("single"); setError(""); }}
+                className={`pb-2 text-xs font-bold border-b-2 transition-all duration-200 active:scale-95 ${
+                  addMode === "single"
+                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
               >
-                {saving ? "Adding…" : "Add"}
+                Single Member
+              </button>
+              <button
+                type="button"
+                onClick={() => { setAddMode("bulk"); setError(""); }}
+                className={`pb-2 text-xs font-bold border-b-2 transition-all duration-200 active:scale-95 ${
+                  addMode === "bulk"
+                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
+              >
+                Bulk Import
               </button>
             </div>
+
+            {addMode === "single" ? (
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  id="add-member-single-input"
+                  type="text"
+                  placeholder="Email address or User ID"
+                  value={singleInput}
+                  onChange={(e) => setSingleInput(e.target.value)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+                />
+                <select
+                  id="add-member-role"
+                  value={addRole}
+                  onChange={(e) => setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+                >
+                  <option value="MEMBER">Member</option>
+                  <option value="ADMIN">Admin</option>
+                  <option value="OWNER">Owner</option>
+                </select>
+                <button
+                  id="confirm-add-member"
+                  onClick={handleExecuteAddMember}
+                  disabled={saving || !singleInput.trim()}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 shadow-sm"
+                >
+                  {saving ? "Adding…" : "Add Member"}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <textarea
+                  id="add-member-bulk-input"
+                  rows={4}
+                  placeholder="Paste email list here (supports space, comma, semicolon, newline, or general text with email addresses)..."
+                  value={bulkInput}
+                  onChange={handleBulkInputChange}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200 resize-none"
+                />
+                
+                {parsedEmails.length > 0 && (
+                  <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Detected Emails ({parsedEmails.length}):
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                      {parsedEmails.map((email) => (
+                        <span key={email} className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-lg text-[10px] font-medium">
+                          {email}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                  <div className="text-xs text-slate-500">
+                    {parsedEmails.length === 0 ? "No emails detected yet" : `${parsedEmails.length} unique email(s) detected`}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <select
+                      id="add-member-role-bulk"
+                      value={addRole}
+                      onChange={(e) => setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")}
+                      className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+                    >
+                      <option value="MEMBER">Member</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="OWNER">Owner</option>
+                    </select>
+                    <button
+                      id="confirm-bulk-add-member"
+                      onClick={handleExecuteBulkAdd}
+                      disabled={saving || parsedEmails.length === 0}
+                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 shadow-sm"
+                    >
+                      {saving ? "Importing…" : `Import ${parsedEmails.length} Member(s)`}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
