@@ -110,11 +110,16 @@ const nextConfig: NextConfig = {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
     const lmsUrl = process.env.LMS_API_URL || 'http://localhost:8081';
     const aiUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+    const labUrl = process.env.LAB_API_URL || 'http://localhost:8082';
 
     return [
       {
         source: '/apiv1/:path*',
         destination: `${backendUrl}/:path*`, 
+      },
+      {
+        source: '/labapiv1/:path*',
+        destination: `${labUrl}/api/v1/:path*`, 
       },
       {
         source: '/uploads/:path*',

@@ -5,6 +5,8 @@ import {
   ClipboardList,
   Trophy,
   Dot,
+  FlaskConical,
+  GraduationCap,
 } from "lucide-react";
 import bdclogo from "@/assets/bdclogo.png";
 
@@ -30,7 +32,8 @@ export const sidebarSections = [
       { label: "Events",          route: "/events",       icon: Calendar,        iconColor: "text-blue-500" },
       { label: "Tasks",           route: "/tasks",        icon: ClipboardList,   iconColor: "text-blue-500" },
       { label: "Leaderboard",     route: "/leaderboard",  icon: Trophy,          iconColor: "text-blue-500" },
-      { label: "Shared Knowledge",route: "/lms",          icon: Trophy,          iconColor: "text-blue-500" },
+      { label: "Shared Knowledge",route: "/lms",          icon: GraduationCap,   iconColor: "text-blue-500" },
+      { label: "Virtual Lab",     route: "/labs",         icon: FlaskConical,    iconColor: "text-blue-500" },
     ],
   },
   {
