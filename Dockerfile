@@ -62,7 +62,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Set environment variables
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    PORT=3000 \
+    PORT=3001 \
     HOSTNAME=0.0.0.0
 
 # Copy necessary files from builder
@@ -76,11 +76,11 @@ RUN mkdir -p /app/data && \
 USER nextjs
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3001
 
 # Health check
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:3000/api/health || exit 1
+    CMD curl -f http://localhost:3001/api/health || exit 1
 
 # Use tini as PID 1 for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]

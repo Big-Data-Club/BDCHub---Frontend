@@ -101,9 +101,15 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
-    const lmsUrl = process.env.LMS_API_URL || 'http://lms-backend:8081';
-    const aiUrl = process.env.AI_SERVICE_URL || 'http://ai-service:8000';
+    // In production, Traefik handles all API routing at the edge.
+    // Rewrites are only needed for local development without Traefik.
+    if (process.env.NODE_ENV === 'production') {
+      return [];
+    }
+
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+    const lmsUrl = process.env.LMS_API_URL || 'http://localhost:8081';
+    const aiUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
     return [
       {
