@@ -398,5 +398,13 @@ export const labService = {
       test_cases: testCases
     });
   },
+
+  startSession: async (labId: number): Promise<SuccessResponse<any>> => {
+    return labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/session/start`, {});
+  },
+
+  stopSession: async (labId: number): Promise<SuccessResponse<any>> => {
+    return labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/session/stop`, {});
+  },
 };
 

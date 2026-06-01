@@ -19,6 +19,7 @@ import {
   Database as DbIcon
 } from "lucide-react";
 import { labService } from "@/services/labService";
+import { getAccessToken } from "@/services/authToken";
 import type { Lab, LabSubmission } from "@/types";
 import toast from "react-hot-toast";
 import Link from "next/link";
@@ -58,6 +59,31 @@ export default function LabDetailPage() {
     ""
   ]);
   const [commandInput, setCommandInput] = useState("");
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const wsRef = React.useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, []);
+
+  const commandSuggestions = [
+    "help",
+    "ls",
+    "ls -la",
+    "cat README.md",
+    "cat run.sh",
+    "cat main.py",
+    "whoami",
+    "env",
+    "./run.sh",
+    "clear",
+    "exit"
+  ];
 
   // Fetch Lab info, sections, and user submissions
   const loadData = useCallback(async () => {
@@ -185,26 +211,100 @@ export default function LabDetailPage() {
     }
   };
 
-  // Simulated Terminal Provisioner
-  const startTerminalSession = () => {
+  // Connect to real WebSocket terminal
+  const connectWebSocket = async () => {
+    try {
+      const token = await getAccessToken();
+      const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsHost = window.location.host;
+      const wsUrl = `${wsProtocol}//${wsHost}/labapiv1/labs/${labId}/session/terminal/ws?token=${encodeURIComponent(token || "")}`;
+      
+      const socket = new WebSocket(wsUrl);
+      wsRef.current = socket;
+
+      socket.onopen = () => {
+        setTerminalProvisioning(false);
+        setTerminalSessionActive(true);
+        setTerminalHistory([
+          "*** Connected to sandbox container workspace ***",
+          "*** Interactive shell terminal active ***",
+          ""
+        ]);
+        toast.success("Sandbox session started!");
+      };
+
+      socket.onmessage = async (event) => {
+        let text = "";
+        if (event.data instanceof Blob) {
+          text = await event.data.text();
+        } else {
+          text = event.data;
+        }
+
+        setTerminalHistory(prev => {
+          const lines = text.split(/\r?\n/);
+          if (lines.length === 0) return prev;
+          const newHistory = [...prev];
+          
+          if (newHistory.length > 0) {
+            newHistory[newHistory.length - 1] += lines[0];
+          } else {
+            newHistory.push(lines[0]);
+          }
+
+          for (let i = 1; i < lines.length; i++) {
+            newHistory.push(lines[i]);
+          }
+
+          if (newHistory.length > 300) {
+            return newHistory.slice(newHistory.length - 300);
+          }
+          return newHistory;
+        });
+      };
+
+      socket.onclose = () => {
+        setTerminalSessionActive(false);
+        setTerminalHistory(prev => [
+          ...prev,
+          "",
+          "*** Terminal session disconnected ***",
+          ""
+        ]);
+        wsRef.current = null;
+      };
+
+      socket.onerror = (err) => {
+        console.error("WebSocket Terminal Error:", err);
+      };
+    } catch (err) {
+      console.error("Failed to connect websocket terminal:", err);
+      setTerminalProvisioning(false);
+      toast.error("Failed to connect workspace terminal.");
+    }
+  };
+
+  // Simulated Terminal Provisioner with backend call
+  const startTerminalSession = async () => {
     setTerminalProvisioning(true);
     setProvisionStep(0);
     
-    // Simulate step 1
-    setTimeout(() => {
-      setProvisionStep(1); // "Allocating container..."
+    try {
+      // Call actual backend start session API
+      await labService.startSession(labId);
       
-      // Simulate step 2
+      setProvisionStep(1); // "Spawning container..."
       setTimeout(() => {
-        setProvisionStep(2); // "Configuring ports..."
-        
-        // Simulate step 3
+        setProvisionStep(2); // "Connecting terminal..."
         setTimeout(() => {
-          setTerminalProvisioning(false);
-          setTerminalSessionActive(true);
-        }, 1000);
-      }, 1000);
-    }, 800);
+          connectWebSocket();
+        }, 800);
+      }, 800);
+    } catch (err: any) {
+      console.error(err);
+      setTerminalProvisioning(false);
+      toast.error(err.response?.data?.message || err.message || "Failed to start container session.");
+    }
   };
 
   // Terminal commands interpreter
@@ -212,144 +312,19 @@ export default function LabDetailPage() {
     const trimmed = cmd.trim();
     if (!trimmed) return;
 
-    const newHistory = [...terminalHistory, `appuser@bdc-workspace:~$ ${trimmed}`];
-    const parts = trimmed.split(" ");
-    const mainCommand = parts[0].toLowerCase();
+    // Track command history locally for Up/Down arrow keys
+    setCommandHistory(prev => {
+      if (prev.length > 0 && prev[prev.length - 1] === trimmed) return prev;
+      return [...prev, trimmed];
+    });
+    setHistoryIndex(-1);
 
-    switch (mainCommand) {
-      case "help":
-        newHistory.push(
-          "Available sandbox commands:",
-          "  help           Show this commands list",
-          "  ls             List files inside workspace folder",
-          "  cat [file]     Print file details to standard output",
-          "  whoami         Print the current session user ID",
-          "  env            Display active session environment parameters",
-          "  ./run.sh       Compile and run automated test checks",
-          "  clear          Clear the console screen logs",
-          "  exit           Close the sandbox workspace session"
-        );
-        break;
-      case "ls":
-        const isLong = parts.includes("-l") || parts.includes("-la") || parts.includes("-a");
-        if (isLong) {
-          newHistory.push(
-            "total 16",
-            "-rw-r--r--  1 appuser  appgroup   182 May 31 15:20 README.md",
-            "-rwxr-xr-x  1 appuser  appgroup   105 May 31 15:20 run.sh",
-            "-rw-r--r--  1 appuser  appgroup   140 May 31 15:20 main.py",
-            "drwxr-xr-x  2 appuser  appgroup  4096 May 31 15:20 output/"
-          );
-        } else {
-          newHistory.push(
-            "README.md       run.sh        main.py       output/"
-          );
-        }
-        break;
-      case "python":
-      case "python3":
-        const pyFile = parts[1] || "";
-        if (pyFile === "main.py") {
-          newHistory.push(
-            "Hello appuser, write list comprehension code here!"
-          );
-        } else if (!pyFile) {
-          newHistory.push(
-            "Python 3.10.12 (default, Jun 20 2023, 14:05:25)",
-            "[GCC 11.3.0] on linux",
-            "Type \"help\", \"copyright\", \"credits\" or \"license\" for more information.",
-            ">>> "
-          );
-        } else {
-          newHistory.push(`python3: can't open file '${pyFile}': [Errno 2] No such file or directory`);
-        }
-        break;
-      case "bash":
-      case "sh":
-        const shFile = parts[1] || "";
-        if (shFile === "run.sh" || shFile === "./run.sh") {
-          newHistory.push(
-            "Initializing test case validations...",
-            "Result: SUCCESS (Passed 2/2)"
-          );
-        } else {
-          newHistory.push(`bash: ${shFile}: No such file or directory`);
-        }
-        break;
-      case "cat":
-        const target = parts[1] || "";
-        if (target.toLowerCase() === "readme.md") {
-          newHistory.push(
-            `# ${lab?.title || "Virtual Lab Workspace"}`,
-            lab?.description || "Welcome to the Linux Terminal scripting container workspace. Read instructions on the left to complete your exercise."
-          );
-        } else if (target.toLowerCase() === "run.sh") {
-          newHistory.push(
-            "#!/bin/bash",
-            "echo 'Initializing test case validations...'",
-            "python3 main.py < tests/input1.txt > tmp.txt",
-            "diff tmp.txt tests/expected1.txt",
-            "if [ $? -eq 0 ]; then",
-            "  echo 'Result: SUCCESS (Passed 2/2)'",
-            "else",
-            "  echo 'Result: FAILED'",
-            "fi"
-          );
-        } else if (target.toLowerCase() === "main.py") {
-          newHistory.push(
-            "def main():",
-            "    print('Hello appuser, write list comprehension code here!')",
-            "",
-            "if __name__ == '__main__':",
-            "    main()"
-          );
-        } else {
-          newHistory.push(`cat: ${target}: File or directory not found`);
-        }
-        break;
-      case "whoami":
-        newHistory.push("appuser");
-        break;
-      case "env":
-        newHistory.push(
-          "USER=appuser",
-          `LAB_ID=${lab?.id}`,
-          `LAB_TYPE=${lab?.labType}`,
-          "CONTAINER_CPU_LIMIT=0.5",
-          "CONTAINER_MEM_LIMIT=512MB",
-          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-        );
-        break;
-      case "clear":
-        setTerminalHistory([]);
-        setCommandInput("");
-        return;
-      case "./run.sh":
-      case "run.sh":
-        newHistory.push(
-          "Executing test case validations...",
-          "Running Case 1: [Sample sum check] ... PASSED",
-          "Running Case 2: [Negative boundary check] ... PASSED",
-          "---",
-          "Result: SUCCESS (Passed 2/2) -- Lab completed!"
-        );
-        break;
-      case "exit":
-        setTerminalSessionActive(false);
-        setTerminalHistory([
-          "Welcome to BDC Virtual Lab Terminal Console v1.0.0",
-          "Allocated workspace container session: bdc-container-node-01e4a",
-          "Type 'help' to see list of available commands.",
-          ""
-        ]);
-        setCommandInput("");
-        return;
-      default:
-        newHistory.push(`bash: ${mainCommand}: command not found`);
+    // Send the command directly to the real terminal over WebSocket
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(trimmed + "\n");
+    } else {
+      setTerminalHistory(prev => [...prev, `appuser@bdc-workspace:~$ ${trimmed}`, "Error: Terminal not connected.", ""]);
     }
-
-    newHistory.push("");
-    setTerminalHistory(newHistory);
     setCommandInput("");
   };
 
@@ -819,6 +794,41 @@ export default function LabDetailPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             runTerminalCommand(commandInput);
+                          } else if (e.key === "ArrowUp") {
+                            e.preventDefault();
+                            if (commandHistory.length > 0) {
+                              const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
+                              setHistoryIndex(newIndex);
+                              setCommandInput(commandHistory[newIndex]);
+                            }
+                          } else if (e.key === "ArrowDown") {
+                            e.preventDefault();
+                            if (historyIndex !== -1) {
+                              if (historyIndex < commandHistory.length - 1) {
+                                const newIndex = historyIndex + 1;
+                                setHistoryIndex(newIndex);
+                                setCommandInput(commandHistory[newIndex]);
+                              } else {
+                                setHistoryIndex(-1);
+                                setCommandInput("");
+                              }
+                            }
+                          } else if (e.key === "Tab") {
+                            e.preventDefault();
+                            if (commandInput.trim()) {
+                              const currentInput = commandInput.trim().toLowerCase();
+                              const matches = commandSuggestions.filter(s => s.startsWith(currentInput));
+                              if (matches.length === 1) {
+                                setCommandInput(matches[0]);
+                              } else if (matches.length > 1) {
+                                setTerminalHistory(prev => [
+                                  ...prev,
+                                  `appuser@bdc-workspace:~$ ${commandInput}`,
+                                  matches.join("    "),
+                                  ""
+                                ]);
+                              }
+                            }
                           }
                         }}
                         className="flex-1 bg-transparent text-slate-100 outline-none border-none caret-blue-550"

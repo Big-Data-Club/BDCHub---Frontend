@@ -16,7 +16,8 @@ import {
   AlertCircle,
   HelpCircle,
   FileText,
-  Edit2
+  Edit2,
+  Cpu
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { labService } from "@/services/labService";
@@ -35,7 +36,7 @@ export default function LabEditPage() {
   
   const isAuthorized = isAdmin || isManager || user?.role === "ROLE_TEACHER";
 
-  const [activeTab, setActiveTab] = useState<"general" | "sections" | "testcases">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "sections" | "testcases" | "sandbox">("general");
   const [lab, setLab] = useState<Lab | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingGeneral, setSavingGeneral] = useState(false);
@@ -80,6 +81,23 @@ export default function LabEditPage() {
   const [editingContentId, setEditingContentId] = useState<number | null>(null);
   const [editingTestCaseId, setEditingTestCaseId] = useState<number | null>(null);
 
+  // Sandbox Form State
+  const [savingSandbox, setSavingSandbox] = useState(false);
+  const [sandboxForm, setSandboxForm] = useState({
+    computeBackend: "K8S",
+    dockerImage: "ubuntu:22.04",
+    cpuCores: 0.5,
+    memoryMb: 512,
+    startupScript: "",
+    allowedPorts: [] as number[],
+    portsInput: "",
+    supportedLanguages: [] as string[],
+    starterCode: {} as Record<string, string>,
+    dbType: "POSTGRESQL",
+    schemaSql: "",
+    seedSql: ""
+  });
+
   const fetchLabDetails = async () => {
     try {
       setLoading(true);
@@ -94,12 +112,73 @@ export default function LabEditPage() {
           maxSessionDurationMin: res.data.maxSessionDurationMin || 120,
           maxConcurrentSessions: res.data.maxConcurrentSessions || 50,
         });
+
+        const runtime = res.data.runtimeConfig || {};
+        setSandboxForm({
+          computeBackend: runtime.compute_backend || "K8S",
+          dockerImage: runtime.docker_image || "ubuntu:22.04",
+          cpuCores: runtime.cpu_cores || 0.5,
+          memoryMb: runtime.memory_mb || 512,
+          startupScript: runtime.startup_script || "",
+          allowedPorts: runtime.allowed_ports || [],
+          portsInput: (runtime.allowed_ports || []).join(", "),
+          supportedLanguages: runtime.supported_languages || [],
+          starterCode: runtime.starter_code || {},
+          dbType: runtime.db_type || "POSTGRESQL",
+          schemaSql: runtime.schema_sql || "",
+          seedSql: runtime.seed_sql || ""
+        });
       }
     } catch (err) {
       toast.error("Failed to load virtual lab details.");
       router.push("/labs/manage");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSandboxSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lab) return;
+    try {
+      setSavingSandbox(true);
+      
+      const parsedPorts = sandboxForm.portsInput
+        .split(",")
+        .map(p => parseInt(p.trim()))
+        .filter(p => !isNaN(p));
+
+      const updatedConfig = {
+        ...lab.runtimeConfig,
+        compute_backend: sandboxForm.computeBackend,
+        docker_image: sandboxForm.dockerImage,
+        cpu_cores: parseFloat(sandboxForm.cpuCores.toString()) || 0.5,
+        memory_mb: parseInt(sandboxForm.memoryMb.toString()) || 512,
+        startup_script: sandboxForm.startupScript,
+        allowed_ports: parsedPorts,
+        supported_languages: sandboxForm.supportedLanguages,
+        starter_code: sandboxForm.starterCode,
+        db_type: sandboxForm.dbType,
+        schema_sql: sandboxForm.schemaSql,
+        seed_sql: sandboxForm.seedSql
+      };
+
+      await labService.updateLab(labId, {
+        title: generalForm.title,
+        description: generalForm.description,
+        category: generalForm.category,
+        level: generalForm.level,
+        maxSessionDurationMin: generalForm.maxSessionDurationMin,
+        maxConcurrentSessions: generalForm.maxConcurrentSessions,
+        runtimeConfig: updatedConfig
+      });
+      
+      toast.success("Sandbox & Runtime configuration updated!");
+      fetchLabDetails();
+    } catch (err) {
+      toast.error("Failed to update sandbox configurations.");
+    } finally {
+      setSavingSandbox(false);
     }
   };
 
@@ -456,6 +535,18 @@ export default function LabEditPage() {
               Grading Test Cases ({testCases.length})
             </button>
           )}
+
+          <button
+            onClick={() => setActiveTab("sandbox")}
+            className={`pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+              activeTab === "sandbox"
+                ? "border-blue-600 text-blue-600 font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-850 hover:border-slate-300 dark:hover:text-slate-300"
+            }`}
+          >
+            <Cpu size={16} />
+            Sandbox & Runtime
+          </button>
         </div>
 
         {/* Tab 1: General Details */}
@@ -1059,8 +1150,246 @@ export default function LabEditPage() {
                     </tbody>
                   </table>
                 </div>
+            </div>
+          )}
+        </div>
+      )}
+        {/* Tab 4: Sandbox & Runtime Settings */}
+        {activeTab === "sandbox" && (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 animate-in fade-in duration-200">
+            <form onSubmit={handleSandboxSubmit} className="space-y-6">
+              
+              {lab.labType === "CODING" && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-850 dark:text-slate-200 mb-3">Supported Coding Languages</h3>
+                    <div className="flex flex-wrap gap-4">
+                      {["python", "java", "cpp", "c", "go", "rust", "scala"].map(lang => (
+                        <label key={lang} className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-350">
+                          <input
+                            type="checkbox"
+                            checked={sandboxForm.supportedLanguages.includes(lang)}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setSandboxForm(prev => {
+                                const list = checked 
+                                  ? [...prev.supportedLanguages, lang]
+                                  : prev.supportedLanguages.filter(l => l !== lang);
+                                
+                                const codeMap = { ...prev.starterCode };
+                                if (checked && !codeMap[lang]) {
+                                  if (lang === "python") codeMap[lang] = "def solution():\n    # TODO: Write solution\n    pass\n";
+                                  else if (lang === "java") codeMap[lang] = "public class Main {\n    public static void main(String[] args) {\n        // TODO: Write solution\n    }\n}\n";
+                                  else if (lang === "cpp") codeMap[lang] = "#include <iostream>\nusing namespace std;\n\nint main() {\n    // TODO: Write solution\n    return 0;\n}\n";
+                                  else if (lang === "c") codeMap[lang] = "#include <stdio.h>\n\nint main() {\n    // TODO: Write solution\n    return 0;\n}\n";
+                                  else if (lang === "go") codeMap[lang] = "package main\n\nimport \"fmt\"\n\nfunc main() {\n    // TODO: Write solution\n}\n";
+                                  else if (lang === "rust") codeMap[lang] = "fn main() {\n    // TODO: Write solution\n}\n";
+                                  else if (lang === "scala") codeMap[lang] = "object Main extends App {\n    // TODO: Write solution\n}\n";
+                                }
+                                return { ...prev, supportedLanguages: list, starterCode: codeMap };
+                              });
+                            }}
+                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          {lang.toUpperCase()}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {sandboxForm.supportedLanguages.length > 0 && (
+                    <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <h3 className="text-sm font-bold text-slate-850 dark:text-slate-200">Starter Templates Code (Custom / //TODO)</h3>
+                      {sandboxForm.supportedLanguages.map(lang => (
+                        <div key={lang} className="space-y-2">
+                          <label className="text-xs font-bold text-slate-500 uppercase">{lang} Template</label>
+                          <textarea
+                            rows={6}
+                            value={sandboxForm.starterCode[lang] || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setSandboxForm(prev => ({
+                                ...prev,
+                                starterCode: {
+                                  ...prev.starterCode,
+                                  [lang]: val
+                                }
+                              }));
+                            }}
+                            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                       bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-mono
+                                       focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                       transition-all text-xs outline-none"
+                            placeholder={`// Write starter code template for ${lang}...`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {lab.labType === "DATABASE" && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Target Database Engine</label>
+                    <select
+                      value={sandboxForm.dbType}
+                      onChange={(e) => setSandboxForm(prev => ({ ...prev, dbType: e.target.value }))}
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
+                                 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                 transition-all text-sm outline-none cursor-pointer"
+                    >
+                      <option value="POSTGRESQL">PostgreSQL</option>
+                      <option value="MYSQL">MySQL</option>
+                      <option value="SQLSERVER">Microsoft SQL Server</option>
+                      <option value="ORACLE">Oracle Database</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Database Initialization Schema (schema.sql)</label>
+                    <textarea
+                      rows={6}
+                      value={sandboxForm.schemaSql}
+                      onChange={(e) => setSandboxForm(prev => ({ ...prev, schemaSql: e.target.value }))}
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-mono
+                                 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                 transition-all text-xs outline-none"
+                      placeholder="CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(100));"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Database Seed Data (seed.sql)</label>
+                    <textarea
+                      rows={6}
+                      value={sandboxForm.seedSql}
+                      onChange={(e) => setSandboxForm(prev => ({ ...prev, seedSql: e.target.value }))}
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-mono
+                                 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                 transition-all text-xs outline-none"
+                      placeholder="INSERT INTO users VALUES (1, 'Alice'), (2, 'Bob');"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {(lab.labType === "WORKSPACE" || lab.labType === "HPC" || lab.labType === "CUSTOM") && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Compute Backend</label>
+                      <select
+                        value={sandboxForm.computeBackend}
+                        onChange={(e) => setSandboxForm(prev => ({ ...prev, computeBackend: e.target.value }))}
+                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                   bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
+                                   focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                   transition-all text-sm outline-none cursor-pointer"
+                      >
+                        <option value="K8S">Kubernetes Sandbox Namespace</option>
+                        <option value="SLURM">SLURM Partition Agent</option>
+                        <option value="REMOTE_SSH">Remote Linux Server (SSH VM)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Docker Image Tag</label>
+                      <input
+                        type="text"
+                        value={sandboxForm.dockerImage}
+                        onChange={(e) => setSandboxForm(prev => ({ ...prev, dockerImage: e.target.value }))}
+                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                   bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
+                                   focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                   transition-all text-sm outline-none"
+                        placeholder="ubuntu:22.04"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Exposed Allowed Ports (Comma-separated)</label>
+                      <input
+                        type="text"
+                        value={sandboxForm.portsInput}
+                        onChange={(e) => setSandboxForm(prev => ({ ...prev, portsInput: e.target.value }))}
+                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                   bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
+                                   focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                   transition-all text-sm outline-none"
+                        placeholder="80, 8080, 443"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">CPU Allocation (Cores)</label>
+                        <input
+                          type="number"
+                          step={0.1}
+                          min={0.1}
+                          max={4.0}
+                          value={sandboxForm.cpuCores}
+                          onChange={(e) => setSandboxForm(prev => ({ ...prev, cpuCores: parseFloat(e.target.value) || 0.5 }))}
+                          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                     bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
+                                     focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                     transition-all text-sm outline-none"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">RAM Memory (MB)</label>
+                        <input
+                          type="number"
+                          step={128}
+                          min={128}
+                          max={8192}
+                          value={sandboxForm.memoryMb}
+                          onChange={(e) => setSandboxForm(prev => ({ ...prev, memoryMb: parseInt(e.target.value) || 512 }))}
+                          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                     bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
+                                     focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                     transition-all text-sm outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Custom Container Startup Shell Script</label>
+                    <textarea
+                      rows={6}
+                      value={sandboxForm.startupScript}
+                      onChange={(e) => setSandboxForm(prev => ({ ...prev, startupScript: e.target.value }))}
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl
+                                 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-mono
+                                 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900
+                                 transition-all text-xs outline-none"
+                      placeholder="#!/bin/bash&#10;apt-get update && apt-get install -y git docker.io"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="submit"
+                  disabled={savingSandbox}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {savingSandbox ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={15} />}
+                  Save Sandbox Configurations
+                </button>
               </div>
-            )}
+
+            </form>
           </div>
         )}
       </div>
