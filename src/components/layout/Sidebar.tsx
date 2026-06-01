@@ -140,7 +140,12 @@ const Sidebar: React.FC = () => {
             .map((section) => {
               const filteredLinks = section.links.filter((link) => {
                 if (isAdmin) return true;
-                return link.label === "Shared Knowledge" || link.label === "Virtual Lab";
+                return (
+                  link.label === "Shared Knowledge" ||
+                  link.label === "Virtual Lab" ||
+                  link.label === "Data Hackathon" ||
+                  link.label === "HCMUT HPC School"
+                );
               });
               return { ...section, links: filteredLinks };
             })
@@ -157,9 +162,12 @@ const Sidebar: React.FC = () => {
                 {section.links.map((link) => {
                   const isActive = pathname === link.route;
                   const Icon = link.icon;
+                  const isExternal = link.route.startsWith("http");
                   const item = (
                     <Link
                       href={link.route}
+                      target={isExternal ? "_blank" : undefined}
+                      rel={isExternal ? "noopener noreferrer" : undefined}
                       className={cn(
                         "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive

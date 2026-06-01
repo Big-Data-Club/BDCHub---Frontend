@@ -1,6 +1,6 @@
-# HPC Summer School 2026 — UI/UX Design System & Aesthetic Analysis
+# HCMUT HPC School 2026 — UI/UX Design System & Aesthetic Analysis
 
-Tài liệu này phân tích chi tiết toàn bộ hệ thống thiết kế giao diện (UI/UX) của trang đăng ký **HPC Summer School 2026**. Tài liệu đã được cập nhật để phản ánh đầy đủ các cải tiến thực tế về mặt cấu trúc Modular, hiệu ứng kính mờ (Glassmorphism), thiết kế Stepper tích hợp toán học và thành phần thông báo Toast nổi cao cấp.
+Tài liệu này phân tích chi tiết toàn bộ hệ thống thiết kế giao diện (UI/UX) của trang đăng ký **HCMUT HPC School 2026**. Tài liệu đã được cập nhật để phản ánh đầy đủ các cải tiến thực tế về mặt cấu trúc Modular, hiệu ứng kính mờ (Glassmorphism), thiết kế Stepper tích hợp toán học và thành phần thông báo Toast nổi cao cấp.
 
 ---
 

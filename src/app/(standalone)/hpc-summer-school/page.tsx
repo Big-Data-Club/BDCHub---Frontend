@@ -257,7 +257,7 @@ export default function HPCSummerSchoolPage() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           formId: "hpc-summer-school-2026-participant",
-          formTitle: "Application Form — HPC Summer School 2026",
+          formTitle: "Application Form — HCMUT HPC School 2026",
           sheetName: "HPC_Summer_School_2026", formType: "registration",
           questions: Object.keys(answers).map(k => ({ id: k, question: k })),
           answers, submittedAt: new Date().toISOString(),
@@ -295,7 +295,7 @@ export default function HPCSummerSchoolPage() {
           <div className="flex items-center gap-3 min-w-0">
             <div className="relative w-[90px] h-12 flex-shrink-0 transform hover:scale-[1.05] hover:rotate-1 transition-all duration-300 bg-white/60 dark:bg-white/60 backdrop-blur-md p-1.5 rounded-xl border border-slate-100 dark:border-white/20 shadow-sm">
               <div className="relative w-full h-full">
-                <Image src={hpcLogo} alt="HPC Summer School" fill className="object-contain dark:brightness-110 dark:contrast-110" />
+                <Image src={hpcLogo} alt="HCMUT HPC School" fill className="object-contain dark:brightness-110 dark:contrast-110" />
               </div>
             </div>
             <div className="min-w-0">

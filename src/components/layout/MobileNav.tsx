@@ -78,7 +78,12 @@ const MobileNav = () => {
               .map((section) => {
                 const filteredLinks = section.links.filter((link) => {
                   if (isAdmin) return true;
-                  return link.label === "Shared Knowledge" || link.label === "Virtual Lab";
+                  return (
+                    link.label === "Shared Knowledge" ||
+                    link.label === "Virtual Lab" ||
+                    link.label === "Data Hackathon" ||
+                    link.label === "HCMUT HPC School"
+                  );
                 });
                 return { ...section, links: filteredLinks };
               })
@@ -93,10 +98,13 @@ const MobileNav = () => {
                   {section.links.map((link) => {
                     const isActive = pathname === link.route;
                     const Icon = link.icon;
+                    const isExternal = link.route.startsWith("http");
                     return (
                       <li key={link.route}>
                         <Link
                           href={link.route}
+                          target={isExternal ? "_blank" : undefined}
+                          rel={isExternal ? "noopener noreferrer" : undefined}
                           onClick={() => setIsOpen(false)}
                           className={cn(
                             "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200",

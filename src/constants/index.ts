@@ -40,6 +40,7 @@ export const sidebarSections = [
     title: "Competition",
     links: [
       { label: "Data Hackathon", route: "/hackathon2025", icon: Dot, iconColor: "text-blue-500" },
+      { label: "HCMUT HPC School", route: "https://hpcc.hcmut.edu.vn/hpc-school", icon: GraduationCap, iconColor: "text-blue-500" },
     ],
   },
 ];

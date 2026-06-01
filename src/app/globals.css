@@ -329,7 +329,7 @@ html:where(.dark) {
   }
 }
 
-/* HPC Summer School 2026 Animations */
+/* HCMUT HPC School 2026 Animations */
 @keyframes langSlideUp {
   0% {
     transform: translateY(18px);
