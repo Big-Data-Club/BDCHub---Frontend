@@ -74,7 +74,16 @@ const MobileNav = () => {
 
           {/* Nav */}
           <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
-            {sidebarSections.map((section, i) => (
+            {sidebarSections
+              .map((section) => {
+                const filteredLinks = section.links.filter((link) => {
+                  if (isAdmin) return true;
+                  return link.label === "Shared Knowledge" || link.label === "Virtual Lab";
+                });
+                return { ...section, links: filteredLinks };
+              })
+              .filter((section) => section.links.length > 0)
+              .map((section, i) => (
               <div key={section.title}>
                 {i > 0 && <div className="border-t border-slate-200 dark:border-slate-800 mb-3" />}
                 <p className="text-xs font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-wider px-3 mb-1.5">

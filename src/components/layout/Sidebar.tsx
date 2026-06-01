@@ -136,7 +136,16 @@ const Sidebar: React.FC = () => {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto no-scrollbar py-3 px-2 space-y-4">
-          {sidebarSections.map((section, i) => (
+          {sidebarSections
+            .map((section) => {
+              const filteredLinks = section.links.filter((link) => {
+                if (isAdmin) return true;
+                return link.label === "Shared Knowledge" || link.label === "Virtual Lab";
+              });
+              return { ...section, links: filteredLinks };
+            })
+            .filter((section) => section.links.length > 0)
+            .map((section, i) => (
             <div key={section.title}>
               {i > 0 && <div className="border-t border-slate-200 dark:border-slate-800 mb-3" />}
               {!isCollapsed && (

@@ -101,16 +101,27 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    // In production, Traefik handles all API routing at the edge.
-    // Rewrites are only needed for local development without Traefik.
-    if (process.env.NODE_ENV === 'production') {
-      return [];
-    }
-
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
     const lmsUrl = process.env.LMS_API_URL || 'http://localhost:8081';
     const aiUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
     const labUrl = process.env.LAB_API_URL || 'http://localhost:8082';
+
+    // In production, Traefik handles all API routing at the edge.
+    // However, the Next.js internal image optimizer requests relative paths (like /files/... or /uploads/...)
+    // from itself (localhost). We need rewrites in production so that Next.js can internally resolve
+    // these requests by fetching from the backend services directly.
+    if (process.env.NODE_ENV === 'production') {
+      return [
+        {
+          source: '/files/:path*',
+          destination: `${lmsUrl}/api/v1/files/serve/:path*`,
+        },
+        {
+          source: '/uploads/:path*',
+          destination: `${backendUrl}/uploads/:path*`,
+        },
+      ];
+    }
 
     return [
       {
