@@ -323,7 +323,7 @@ export default function LabDetailPage() {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(trimmed + "\n");
     } else {
-      setTerminalHistory(prev => [...prev, `appuser@bdc-workspace:~$ ${trimmed}`, "Error: Terminal not connected.", ""]);
+      setTerminalHistory(prev => [...prev, `$ ${trimmed}`, "Error: Terminal not connected.", ""]);
     }
     setCommandInput("");
   };
@@ -786,7 +786,7 @@ export default function LabDetailPage() {
                     
                     {/* Console input prompt */}
                     <div className="border-t border-slate-900 bg-slate-950/80 px-5 py-3 flex items-center gap-2 flex-shrink-0">
-                      <span className="text-emerald-500 font-semibold flex-shrink-0">appuser@bdc-workspace:~$</span>
+                      <span className="text-emerald-500 font-semibold flex-shrink-0">$</span>
                       <input
                         type="text"
                         value={commandInput}
@@ -823,7 +823,7 @@ export default function LabDetailPage() {
                               } else if (matches.length > 1) {
                                 setTerminalHistory(prev => [
                                   ...prev,
-                                  `appuser@bdc-workspace:~$ ${commandInput}`,
+                                  `$ ${commandInput}`,
                                   matches.join("    "),
                                   ""
                                 ]);
