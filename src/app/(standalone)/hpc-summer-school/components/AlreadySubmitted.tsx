@@ -28,11 +28,16 @@ export function AlreadySubmitted({ lang, name, onClear }: AlreadySubmittedProps)
         </h2>
         <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-md mx-auto">{m.desc}</p>
       </div>
-      <div className="border border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-5 space-y-2 max-w-xs mx-auto">
+      <div className="border border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-5 space-y-2.5 max-w-xs mx-auto">
         <p className="text-slate-400 dark:text-slate-500 text-xs">{m.contact}</p>
-        <a href="mailto:hpcc@hcmut.edu.vn" className="text-sm font-semibold text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 transition-colors">
-          hpcc@hcmut.edu.vn →
-        </a>
+        <div className="flex flex-col gap-1.5 items-center">
+          <a href="mailto:bdc@hcmut.edu.vn" className="text-sm font-semibold text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 transition-colors">
+            bdc@hcmut.edu.vn
+          </a>
+          <a href="https://www.facebook.com/BDCofHCMUT" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 transition-colors">
+            Facebook Big Data Club
+          </a>
+        </div>
       </div>
       <button
         onClick={onClear}

@@ -8,6 +8,9 @@ import { HeroVisualCore } from "./hero/HeroVisualCore";
 import { HeroStatsMobile } from "./hero/HeroStatsMobile";
 import { ScrollIndicator } from "./hero/ScrollIndicator";
 
+import Image from "next/image";
+import hpcPoster from "@/assets/hpc-poster.png";
+
 export interface HeroProps {
   totalStagger?: number;
   p?: number;
@@ -73,6 +76,19 @@ export default function Hero({
       animate="visible"
       className="relative min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-28 pb-20 overflow-hidden"
     >
+      {/* Background Poster Image */}
+      <div className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden opacity-[0.14] dark:opacity-[0.06]">
+        {/* Soft gradient fade at the bottom to blend with page background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white dark:to-[#070E1C] z-10" />
+        <Image
+          src={hpcPoster}
+          alt="HPC Summer School Poster Background"
+          fill
+          priority
+          className="object-cover object-top scale-105 origin-top filter saturate-[0.85] contrast-[1.05]"
+        />
+      </div>
+
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
         
         {/* Left Column - Content & Action CTAs */}

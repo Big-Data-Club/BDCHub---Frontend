@@ -5,7 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X, ChevronDown, CalendarDays, ExternalLink, Facebook, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -14,6 +14,7 @@ export default function Navbar() {
   const { status } = useSession();
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isHpcDropdownOpen, setIsHpcDropdownOpen] = useState(false);
   const isAuthenticated = status === "authenticated";
 
   useEffect(() => {
@@ -66,6 +67,68 @@ export default function Navbar() {
                 {item.label}
               </a>
             ))}
+
+            {/* HPC School Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsHpcDropdownOpen(true)}
+              onMouseLeave={() => setIsHpcDropdownOpen(false)}
+            >
+              <button
+                className="flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-cyan-400 hover:opacity-85 transition-all py-2 cursor-pointer"
+              >
+                HPC School 2026
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHpcDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+              
+              <AnimatePresence>
+                {isHpcDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute left-1/2 -translate-x-1/2 mt-1 w-56 rounded-2xl bg-white dark:bg-[#070E1C] border border-slate-200 dark:border-blue-500/10 p-2 shadow-xl backdrop-blur-xl z-50"
+                  >
+                    <a
+                      href="/hpc-summer-school"
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-205 hover:bg-slate-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
+                    >
+                      <CalendarDays className="w-4 h-4 text-cyan-500" />
+                      Đăng ký School
+                    </a>
+                    <a
+                      href="https://hpcc.hcmut.edu.vn/hpc-school"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
+                    >
+                      <ExternalLink className="w-4 h-4 text-blue-500" />
+                      Đi đến School
+                    </a>
+                    <div className="h-px bg-slate-100 dark:bg-blue-500/5 my-1" />
+                    <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Liên hệ BTC
+                    </div>
+                    <a
+                      href="https://www.facebook.com/BDCofHCMUT"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-650 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
+                    >
+                      <Facebook className="w-4 h-4 text-sky-600" />
+                      Qua Facebook
+                    </a>
+                    <a
+                      href="mailto:bdc@hcmut.edu.vn"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-650 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
+                    >
+                      <Mail className="w-4 h-4 text-rose-500" />
+                      Qua Email
+                    </a>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -126,6 +189,46 @@ export default function Navbar() {
                   {item.label}
                 </a>
               ))}
+
+              {/* HPC School Section for Mobile */}
+              <div className="pt-2 border-t border-slate-100 dark:border-blue-500/5 mt-2">
+                <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider dark:text-slate-500">
+                  HPC School 2026
+                </div>
+                <a
+                  href="/hpc-summer-school"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-3 text-base font-semibold text-blue-650 dark:text-cyan-400 hover:bg-slate-50 dark:hover:bg-blue-900/10 rounded-xl transition-all"
+                >
+                  📝 Đăng ký School
+                </a>
+                <a
+                  href="https://hpcc.hcmut.edu.vn/hpc-school"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-3 text-base font-semibold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-blue-900/10 rounded-xl transition-all"
+                >
+                  🌐 Đi đến School
+                </a>
+                <a
+                  href="https://www.facebook.com/BDCofHCMUT"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-3 text-base font-medium text-slate-650 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-blue-900/10 rounded-xl transition-all"
+                >
+                  🔵 Liên hệ qua Facebook
+                </a>
+                <a
+                  href="mailto:bdc@hcmut.edu.vn"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-3 text-base font-medium text-slate-650 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-blue-900/10 rounded-xl transition-all"
+                >
+                  ✉️ Liên hệ qua Email
+                </a>
+              </div>
+
               <div className="pt-4 border-t border-slate-100 dark:border-blue-500/5 mt-2 px-4">
                 {isAuthenticated ? (
                   <button

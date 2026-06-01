@@ -293,11 +293,16 @@ export default function HPCSummerSchoolPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
           {/* Left: logo + title */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-[90px] h-12 flex-shrink-0 transform hover:scale-[1.05] hover:rotate-1 transition-all duration-300 bg-white/60 dark:bg-white/60 backdrop-blur-md p-1.5 rounded-xl border border-slate-100 dark:border-white/20 shadow-sm">
+            <a
+              href="https://hpcc.hcmut.edu.vn/hpc-school"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative w-[90px] h-12 flex-shrink-0 transform hover:scale-[1.05] hover:rotate-1 transition-all duration-300 bg-white/60 dark:bg-white/60 backdrop-blur-md p-1.5 rounded-xl border border-slate-100 dark:border-white/20 shadow-sm block"
+            >
               <div className="relative w-full h-full">
                 <Image src={hpcLogo} alt="HCMUT HPC School" fill className="object-contain dark:brightness-110 dark:contrast-110" />
               </div>
-            </div>
+            </a>
             <div className="min-w-0">
               <h1 className="text-base sm:text-xl font-black text-slate-900 dark:text-white leading-tight truncate tracking-tight">
                 {t.title.includes("2026") ? (
@@ -504,6 +509,25 @@ export default function HPCSummerSchoolPage() {
                 )}
               </div>
             </>
+          )}
+        </div>
+
+        {/* Contact info / inquiries */}
+        <div className="mt-8 text-center text-xs text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-900/30 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/30 rounded-2xl py-3 px-4 max-w-md mx-auto shadow-sm">
+          {lang === "vi" ? (
+            <span>
+              Mọi thắc mắc vui lòng liên hệ{" "}
+              <a href="mailto:bdc@hcmut.edu.vn" className="text-cyan-600 dark:text-cyan-400 hover:underline font-bold">bdc@hcmut.edu.vn</a>
+              {" "}hoặc qua Fanpage{" "}
+              <a href="https://www.facebook.com/BDCofHCMUT" target="_blank" rel="noopener noreferrer" className="text-cyan-600 dark:text-cyan-400 hover:underline font-bold">Big Data Club</a>.
+            </span>
+          ) : (
+            <span>
+              For any inquiries, please contact{" "}
+              <a href="mailto:bdc@hcmut.edu.vn" className="text-cyan-600 dark:text-cyan-400 hover:underline font-bold">bdc@hcmut.edu.vn</a>
+              {" "}or via{" "}
+              <a href="https://www.facebook.com/BDCofHCMUT" target="_blank" rel="noopener noreferrer" className="text-cyan-600 dark:text-cyan-400 hover:underline font-bold">Big Data Club Fanpage</a>.
+            </span>
           )}
         </div>
 
