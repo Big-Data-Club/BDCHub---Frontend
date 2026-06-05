@@ -43,8 +43,11 @@ export function AIIndexButton({
     setLoading(true);
     try {
       await triggerIndex();
+      // triggerIndex handles all status transitions internally.
     } catch {
-      // Status will be updated by the poller
+      // triggerIndex already set status to 'failed' in the poller map and
+      // triggered a re-render. Nothing to do here except clear the local
+      // loading spinner.
     } finally {
       setLoading(false);
     }
