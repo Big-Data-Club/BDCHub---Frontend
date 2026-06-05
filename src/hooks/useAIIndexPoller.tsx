@@ -132,6 +132,20 @@ export function AIIndexPollerProvider({
       for (const [idStr, info] of Object.entries(data)) {
         const id = parseInt(idStr, 10);
         const prev = statusMapRef.current.get(id);
+
+        // Never downgrade a locally-known 'processing' status to 'not_indexed'.
+        // This guards the race window between the Kafka publish and the AI worker's
+        // first status update: the DB may still say 'not_indexed' for a brief period
+        // even after the backend has accepted the request.
+        const isSpuriousDowngrade =
+          prev?.status === "processing" &&
+          (info.status === "not_indexed" || info.status === "unindexed" || info.status === "pending");
+
+        if (isSpuriousDowngrade) {
+          // Keep current processing state; don't overwrite.
+          continue;
+        }
+
         statusMapRef.current.set(id, {
           status: info.status,
           nodes_created: info.nodes_created ?? 0,
@@ -172,24 +186,31 @@ export function AIIndexPollerProvider({
     (contentId: number, initialStatus: IndexStatus) => {
       watchSetRef.current.add(contentId);
 
-      // Seed the status map if not already present
+      // Seed the status map if not already present.
+      // IMPORTANT: call triggerRender() right after so the button repaints
+      // with the correct DB status on the very next micro-task.
+      // Without this, getStatus() returns DEFAULT_STATUS ("not_indexed") on
+      // the first render (before the useEffect runs), and the button stays
+      // stuck on "Chưa index" until the first doPoll() network call completes.
       if (!statusMapRef.current.has(contentId)) {
         statusMapRef.current.set(contentId, {
           status: initialStatus,
           nodes_created: 0,
           chunks_created: 0,
         });
+        // Trigger a re-render so the button picks up initialStatus immediately.
+        triggerRender();
       }
 
-      // Start timer if there's anything to watch
-      if (watchSetRef.current.size > 0 && !timerRef.current) {
-        // Do an immediate poll for this newly registered item,
-        // then start the interval
-        doPoll();
+      // Only start the poll timer if not already running.
+      // doPoll() will be a no-op for purely "not_indexed" items (they are
+      // filtered out), so it's safe to call unconditionally here.
+      if (!timerRef.current) {
+        doPoll(); // immediate poll to fetch counts for "indexed" items
         startTimer();
       }
     },
-    [doPoll, startTimer]
+    [doPoll, startTimer, triggerRender]
   );
 
   const unregister = useCallback(
@@ -208,7 +229,7 @@ export function AIIndexPollerProvider({
 
   const triggerIndex = useCallback(
     async (contentId: number) => {
-      // Optimistically set to processing
+      // Optimistically set to processing immediately so the button gives instant feedback.
       statusMapRef.current.set(contentId, {
         status: "processing",
         nodes_created: 0,
@@ -216,14 +237,34 @@ export function AIIndexPollerProvider({
       });
       triggerRender();
 
-      // Fire the index request
-      await lmsApiClient.post(`/content/${contentId}/ai-index`, {});
-
-      // Make sure we're watching + polling
+      // Make sure we're watching + polling before the HTTP call so status
+      // updates are received even if the call is very fast.
       watchSetRef.current.add(contentId);
       if (!timerRef.current) startTimer();
+
+      try {
+        await lmsApiClient.post(`/content/${contentId}/ai-index`, {});
+        // Backend confirms processing — poll immediately to pick up any fast update.
+        doPoll();
+      } catch (err: any) {
+        // HTTP 409: the server says it's already processing — keep the
+        // optimistic 'processing' state; the poller will update when done.
+        const status = err?.response?.status ?? err?.status;
+        if (status === 409) {
+          // Already processing — no change needed, the optimistic state is correct.
+          return;
+        }
+        // Any other error: revert to 'failed' so the teacher can retry.
+        statusMapRef.current.set(contentId, {
+          status: "failed",
+          nodes_created: 0,
+          chunks_created: 0,
+        });
+        triggerRender();
+        throw err;
+      }
     },
-    [triggerRender, startTimer]
+    [triggerRender, startTimer, doPoll]
   );
 
   const pollNow = useCallback(() => {
