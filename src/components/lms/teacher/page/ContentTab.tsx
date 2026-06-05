@@ -22,7 +22,7 @@ import {
   Plus, Edit3, Upload, Eye, Trash2,
   Play, FileText, HelpCircle, MessageSquare,
   Megaphone, Image as ImageIcon, File,
-  ChevronDown, ChevronRight, Sparkles, History,
+  ChevronDown, ChevronRight, Sparkles, History, BookOpen,
 } from "lucide-react";
 import lmsService from "@/services/lmsService";
 import { SectionModal } from "@/components/lms/teacher/SectionModal";
@@ -85,6 +85,21 @@ const MicroQuizHistoryModal = dynamic(
   { ssr: false },
 );
 
+const GenerateSectionOverviewModal = dynamic(
+  () => import("@/components/lms/teacher/overview/GenerateSectionOverviewModal").then(m => ({ default: m.GenerateSectionOverviewModal })),
+  { ssr: false },
+);
+
+const SectionOverviewDrawer = dynamic(
+  () => import("@/components/lms/teacher/overview/SectionOverviewDrawer").then(m => ({ default: m.SectionOverviewDrawer })),
+  { ssr: false },
+);
+
+const SectionOverviewHistoryModal = dynamic(
+  () => import("@/components/lms/teacher/overview/SectionOverviewHistoryModal").then(m => ({ default: m.SectionOverviewHistoryModal })),
+  { ssr: false },
+);
+
 // ─── Content type icon map ────────────────────────────────────────────────────
 
 const CONTENT_ICON: Record<string, React.ReactNode> = {
@@ -140,6 +155,13 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
   const [quizPresetContentId, setQuizPresetContentId] = useState<number | undefined>();
   const [quizPresetSectionId, setQuizPresetSectionId] = useState<number | undefined>();
   const [activeQuizJobId, setActiveQuizJobId]         = useState<number | null>(null);
+
+  // Section overview modal / drawer state
+  const [showOverviewModal, setShowOverviewModal]       = useState(false);
+  const [showOverviewHistoryModal, setShowOverviewHistoryModal] = useState(false);
+  const [overviewSectionId, setOverviewSectionId]       = useState<number | null>(null);
+  const [overviewSectionTitle, setOverviewSectionTitle] = useState("");
+  const [activeOverviewJobId, setActiveOverviewJobId]   = useState<number | null>(null);
 
   // ── Content loading ─────────────────────────────────────────────────────────
 
@@ -367,6 +389,32 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
                       {deletingSection === sec.id
                         ? <Spinner className="w-4 h-4 border-2" />
                         : <Trash2 className="w-4 h-4" />}
+                    </button>
+
+                    {/* Section overview */}
+                    <button
+                      title="Tạo bài học & quiz tổng quan chương"
+                      className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-indigo-500 transition-colors"
+                      onClick={() => {
+                        setOverviewSectionId(sec.id);
+                        setOverviewSectionTitle(sec.title);
+                        setShowOverviewModal(true);
+                      }}
+                    >
+                      <BookOpen className="w-4 h-4" />
+                    </button>
+
+                    {/* Lịch sử tổng quan */}
+                    <button
+                      title="Lịch sử tạo tổng quan chương"
+                      className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-500 transition-colors"
+                      onClick={() => {
+                        setOverviewSectionId(sec.id);
+                        setOverviewSectionTitle(sec.title);
+                        setShowOverviewHistoryModal(true);
+                      }}
+                    >
+                      <History className="w-4 h-4" />
                     </button>
                   </div>
 
@@ -605,6 +653,44 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
             setShowQuizHistoryModal(false);
             setActiveQuizJobId(jobId);
           }}
+        />
+      )}
+
+      {/* ── Section Overview modals & drawer ── */}
+      {showOverviewModal && overviewSectionId !== null && (
+        <GenerateSectionOverviewModal
+          courseId={courseId}
+          sectionId={overviewSectionId}
+          sectionTitle={overviewSectionTitle}
+          onClose={() => setShowOverviewModal(false)}
+          onJobCreated={(jobId) => {
+            setShowOverviewModal(false);
+            setActiveOverviewJobId(jobId);
+          }}
+        />
+      )}
+
+      {showOverviewHistoryModal && overviewSectionId !== null && (
+        <SectionOverviewHistoryModal
+          courseId={courseId}
+          sectionId={overviewSectionId}
+          sectionTitle={overviewSectionTitle}
+          onClose={() => setShowOverviewHistoryModal(false)}
+          onSelectJob={(jobId) => {
+            setShowOverviewHistoryModal(false);
+            setActiveOverviewJobId(jobId);
+          }}
+        />
+      )}
+
+      {activeOverviewJobId !== null && overviewSectionId !== null && (
+        <SectionOverviewDrawer
+          jobId={activeOverviewJobId}
+          sectionTitle={overviewSectionTitle}
+          sections={sections}
+          onClose={() => setActiveOverviewJobId(null)}
+          onLessonPublished={(sectionId) => reloadSectionContent(sectionId)}
+          onQuizPublished={(sectionId) => reloadSectionContent(sectionId)}
         />
       )}
 
