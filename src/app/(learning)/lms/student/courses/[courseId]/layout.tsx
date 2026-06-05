@@ -32,16 +32,44 @@ import { cn } from "@/lib/utils";
 import { useSetPageContext } from "@/hooks/usePageContext";
 import { ChatFAB } from "@/components/lms/agent/ChatFAB";
 
-// ─── Content type icon map ────────────────────────────────────────────────────
+// ─── Content type icon map & styles ──────────────────────────────────────────
 
-const CONTENT_ICON: Record<string, React.ReactNode> = {
-  VIDEO: <Play className="w-3.5 h-3.5" />,
-  DOCUMENT: <FileText className="w-3.5 h-3.5" />,
-  IMAGE: <ImageIcon className="w-3.5 h-3.5" />,
-  TEXT: <FileText className="w-3.5 h-3.5" />,
-  QUIZ: <HelpCircle className="w-3.5 h-3.5" />,
-  FORUM: <MessageSquare className="w-3.5 h-3.5" />,
-  ANNOUNCEMENT: <Megaphone className="w-3.5 h-3.5" />,
+const CONTENT_TYPE_STYLE: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
+  VIDEO: {
+    bg: "bg-blue-50 dark:bg-blue-950/40",
+    text: "text-blue-600 dark:text-blue-400",
+    icon: <Play className="w-3.5 h-3.5 fill-current" />,
+  },
+  DOCUMENT: {
+    bg: "bg-emerald-50 dark:bg-emerald-950/40",
+    text: "text-emerald-600 dark:text-emerald-400",
+    icon: <FileText className="w-3.5 h-3.5" />,
+  },
+  IMAGE: {
+    bg: "bg-teal-50 dark:bg-teal-950/40",
+    text: "text-teal-600 dark:text-teal-400",
+    icon: <ImageIcon className="w-3.5 h-3.5" />,
+  },
+  TEXT: {
+    bg: "bg-amber-50 dark:bg-amber-950/40",
+    text: "text-amber-600 dark:text-amber-400",
+    icon: <FileText className="w-3.5 h-3.5" />,
+  },
+  QUIZ: {
+    bg: "bg-violet-50 dark:bg-violet-950/40",
+    text: "text-violet-600 dark:text-violet-400",
+    icon: <HelpCircle className="w-3.5 h-3.5" />,
+  },
+  FORUM: {
+    bg: "bg-sky-50 dark:bg-sky-950/40",
+    text: "text-sky-600 dark:text-sky-400",
+    icon: <MessageSquare className="w-3.5 h-3.5" />,
+  },
+  ANNOUNCEMENT: {
+    bg: "bg-rose-50 dark:bg-rose-950/40",
+    text: "text-rose-600 dark:text-rose-400",
+    icon: <Megaphone className="w-3.5 h-3.5" />,
+  },
 };
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
@@ -76,78 +104,103 @@ function SidebarSection({
   const completedMandatory = contents.filter(c => c.is_mandatory && completedIds.has(c.id)).length;
 
   return (
-    <div className="border-b border-slate-100 dark:border-slate-800 last:border-b-0">
+    <div className="border-b border-slate-100 dark:border-slate-800 last:border-b-0 transition-all duration-300">
       {/* Section header */}
       <button
-        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+        className={cn(
+          "w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors duration-200 border-l-2",
+          isExpanded
+            ? "bg-slate-50/50 dark:bg-slate-900/30 border-blue-600"
+            : "hover:bg-slate-50 dark:hover:bg-slate-800/50 border-transparent"
+        )}
         onClick={onToggle}
       >
-        <div className="w-6 h-6 rounded-full bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold flex-shrink-0 border border-blue-200 dark:border-blue-800">
+        <div className={cn(
+          "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0 border transition-all duration-300 shadow-xs",
+          isExpanded
+            ? "bg-blue-600 border-blue-600 text-white"
+            : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+        )}>
           {index + 1}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{section.title}</p>
+          <p className={cn(
+            "text-sm font-semibold truncate transition-colors duration-200",
+            isExpanded ? "text-blue-600 dark:text-blue-400" : "text-slate-800 dark:text-slate-200"
+          )}>
+            {section.title}
+          </p>
           {contents.length > 0 && (
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium flex items-center gap-1.5">
+              <span className="inline-block w-1 h-1 rounded-full bg-slate-400" />
               {mandatoryCount > 0
-                ? `${completedMandatory}/${mandatoryCount} bắt buộc`
-                : `${contents.length} nội dung`}
+                ? `${completedMandatory}/${mandatoryCount} bài bắt buộc`
+                : `${contents.length} tài liệu`}
             </p>
           )}
         </div>
-        {isExpanded
-          ? <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
-          : <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />}
+        <ChevronDown className={cn(
+          "w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0 transition-transform duration-300",
+          isExpanded ? "transform rotate-0 text-blue-600 dark:text-blue-400" : "transform -rotate-90"
+        )} />
       </button>
 
       {/* Content items */}
       {isExpanded && (
-        <div className="pb-1">
+        <div className="pb-2 px-2 pt-1 space-y-1">
           {loading && !contents.length ? (
-            <div className="px-4 py-3 space-y-2">
+            <div className="px-3 py-2 space-y-2">
               {[0, 1, 2].map(i => (
                 <div key={i} className="h-8 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
               ))}
             </div>
           ) : contents.length === 0 ? (
-            <p className="px-4 py-3 text-xs text-slate-400">Chưa có nội dung</p>
+            <p className="px-3 py-2 text-xs text-slate-400 dark:text-slate-500">Chưa có nội dung</p>
           ) : (
             contents.map((c, i) => {
               const isActive = c.id === activeContentId;
               const isDone = completedIds.has(c.id);
+              const style = CONTENT_TYPE_STYLE[c.type] || {
+                bg: "bg-slate-100 dark:bg-slate-800",
+                text: "text-slate-400 dark:text-slate-500",
+                icon: <FileIcon className="w-3.5 h-3.5" />,
+              };
+
               return (
                 <button
                   key={c.id}
                   className={cn(
-                    "w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-colors",
+                    "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all duration-200 group active:scale-[0.98] border-l-4",
                     isActive
-                      ? "bg-blue-50 dark:bg-blue-900/20 border-r-2 border-blue-600"
-                      : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                      ? "bg-blue-50/80 dark:bg-blue-900/20 border-blue-600 text-blue-700 dark:text-blue-300 font-semibold shadow-xs"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/40 hover:text-slate-900 dark:hover:text-slate-100 hover:translate-x-1 border-transparent"
                   )}
                   onClick={() => onSelect(c)}
                 >
-                  {/* Content type icon */}
+                  {/* Content type icon container */}
                   <span className={cn(
-                    "flex-shrink-0",
-                    isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500"
+                    "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200",
+                    isActive
+                      ? "bg-blue-600 text-white"
+                      : cn(style.bg, style.text)
                   )}>
-                    {CONTENT_ICON[c.type] ?? <FileIcon className="w-3.5 h-3.5" />}
+                    {style.icon}
                   </span>
 
                   {/* Title */}
                   <span className={cn(
-                    "text-sm flex-1 truncate",
+                    "text-[13px] flex-1 truncate font-medium",
                     isActive
-                      ? "font-semibold text-blue-700 dark:text-blue-300"
+                      ? "text-blue-600 dark:text-blue-400"
                       : "text-slate-700 dark:text-slate-300"
                   )}>
                     {i + 1}. {c.title}
                   </span>
 
-                  {/* Status dot */}
+                  {/* Status dot / Checkmark */}
                   <span className="flex-shrink-0 w-4 flex items-center justify-center">
                     {isDone ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-500/10" />
                     ) : c.is_mandatory ? (
                       <span className="w-1.5 h-1.5 rounded-full bg-orange-400" title="Bắt buộc" />
                     ) : null}
@@ -409,20 +462,24 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
   const SidebarContent = (
     <div className="h-full flex flex-col">
       {/* Progress header */}
-      <div className="px-4 pt-5 pb-4 border-b border-slate-200 dark:border-slate-800">
-        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-          Tiến độ học tập
-        </p>
+      <div className="px-5 py-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="flex justify-between items-center mb-2">
+          <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            Tiến độ học tập
+          </p>
+          <span className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full">
+            {progressPct}%
+          </span>
+        </div>
         <ProgressBar
           value={completedCount}
           max={totalMandatory || 1}
           color="blue"
           showPercent={false}
-          className="mb-1"
+          className="h-2 rounded-full overflow-hidden mb-2"
         />
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          {completedCount}/{totalMandatory} bài bắt buộc
-          {totalMandatory > 0 && ` · ${progressPct}%`}
+        <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+          Đã hoàn thành <span className="font-bold text-slate-700 dark:text-slate-200">{completedCount}</span> trên <span className="font-bold text-slate-700 dark:text-slate-200">{totalMandatory}</span> bài bắt buộc
         </p>
       </div>
 
@@ -467,22 +524,25 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
             <BreadcrumbNav items={breadcrumbItems} className="flex-1 min-w-0" />
 
             {/* Tab switcher pill */}
-            <div className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1 flex-shrink-0">
-              {TABS.map(tab => (
-                <Link
-                  key={tab.id}
-                  href={`${basePath}${tab.path}`}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors",
-                    activeTabId === tab.id
-                      ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm"
-                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
-                  )}
-                >
-                  {tab.icon}
-                  {tab.label}
-                </Link>
-              ))}
+            <div className="hidden sm:flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-1 flex-shrink-0 shadow-inner">
+              {TABS.map(tab => {
+                const isActive = activeTabId === tab.id;
+                return (
+                  <Link
+                    key={tab.id}
+                    href={`${basePath}${tab.path}`}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95",
+                      isActive
+                        ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/20"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                    )}
+                  >
+                    {tab.icon}
+                    {tab.label}
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Mobile: sidebar toggle */}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { 
   FlaskConical, 
   ChevronLeft, 
@@ -25,6 +25,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import { XTerminal, type XTerminalHandle } from "@/components/terminal/XTerminal";
 
 export default function LabDetailPage() {
   const params = useParams();
@@ -52,16 +53,8 @@ export default function LabDetailPage() {
   const [terminalSessionActive, setTerminalSessionActive] = useState(false);
   const [terminalProvisioning, setTerminalProvisioning] = useState(false);
   const [provisionStep, setProvisionStep] = useState(0);
-  const [terminalHistory, setTerminalHistory] = useState<string[]>([
-    "Welcome to BDC Virtual Lab Terminal Console v1.0.0",
-    "Allocated workspace container session: bdc-container-node-01e4a",
-    "Type 'help' to see list of available commands.",
-    ""
-  ]);
-  const [commandInput, setCommandInput] = useState("");
-  const [commandHistory, setCommandHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const wsRef = React.useRef<WebSocket | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const xtermRef = useRef<XTerminalHandle | null>(null);
 
   useEffect(() => {
     return () => {
@@ -70,20 +63,6 @@ export default function LabDetailPage() {
       }
     };
   }, []);
-
-  const commandSuggestions = [
-    "help",
-    "ls",
-    "ls -la",
-    "cat README.md",
-    "cat run.sh",
-    "cat main.py",
-    "whoami",
-    "env",
-    "./run.sh",
-    "clear",
-    "exit"
-  ];
 
   // Fetch Lab info, sections, and user submissions
   const loadData = useCallback(async () => {
@@ -220,57 +199,33 @@ export default function LabDetailPage() {
       const wsUrl = `${wsProtocol}//${wsHost}/labapiv1/labs/${labId}/session/terminal/ws?token=${encodeURIComponent(token || "")}`;
       
       const socket = new WebSocket(wsUrl);
+      socket.binaryType = "arraybuffer";
       wsRef.current = socket;
 
       socket.onopen = () => {
         setTerminalProvisioning(false);
         setTerminalSessionActive(true);
-        setTerminalHistory([
-          "*** Connected to sandbox container workspace ***",
-          "*** Interactive shell terminal active ***",
-          ""
-        ]);
         toast.success("Sandbox session started!");
+
+        // Send initial terminal size to backend so PTY knows the viewport
+        const dims = xtermRef.current?.getDimensions();
+        if (dims) {
+          socket.send(JSON.stringify({ type: "resize", cols: dims.cols, rows: dims.rows }));
+        }
       };
 
-      socket.onmessage = async (event) => {
-        let text = "";
-        if (event.data instanceof Blob) {
-          text = await event.data.text();
+      socket.onmessage = (event) => {
+        // Pipe raw PTY output directly into xterm.js
+        if (event.data instanceof ArrayBuffer) {
+          xtermRef.current?.write(new Uint8Array(event.data));
         } else {
-          text = event.data;
+          xtermRef.current?.write(event.data);
         }
-
-        setTerminalHistory(prev => {
-          const lines = text.split(/\r?\n/);
-          if (lines.length === 0) return prev;
-          const newHistory = [...prev];
-          
-          if (newHistory.length > 0) {
-            newHistory[newHistory.length - 1] += lines[0];
-          } else {
-            newHistory.push(lines[0]);
-          }
-
-          for (let i = 1; i < lines.length; i++) {
-            newHistory.push(lines[i]);
-          }
-
-          if (newHistory.length > 300) {
-            return newHistory.slice(newHistory.length - 300);
-          }
-          return newHistory;
-        });
       };
 
       socket.onclose = () => {
         setTerminalSessionActive(false);
-        setTerminalHistory(prev => [
-          ...prev,
-          "",
-          "*** Terminal session disconnected ***",
-          ""
-        ]);
+        xtermRef.current?.write("\r\n\x1b[1;31m*** Terminal session disconnected ***\x1b[0m\r\n");
         wsRef.current = null;
       };
 
@@ -284,7 +239,21 @@ export default function LabDetailPage() {
     }
   };
 
-  // Simulated Terminal Provisioner with backend call
+  // Send user keystrokes from xterm to backend WebSocket
+  const handleTerminalData = useCallback((data: string) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: "input", data }));
+    }
+  }, []);
+
+  // Send terminal resize events to backend so PTY adjusts
+  const handleTerminalResize = useCallback((cols: number, rows: number) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: "resize", cols, rows }));
+    }
+  }, []);
+
+  // Terminal Provisioner with backend call
   const startTerminalSession = async () => {
     setTerminalProvisioning(true);
     setProvisionStep(0);
@@ -305,27 +274,6 @@ export default function LabDetailPage() {
       setTerminalProvisioning(false);
       toast.error(err.response?.data?.message || err.message || "Failed to start container session.");
     }
-  };
-
-  // Terminal commands interpreter
-  const runTerminalCommand = (cmd: string) => {
-    const trimmed = cmd.trim();
-    if (!trimmed) return;
-
-    // Track command history locally for Up/Down arrow keys
-    setCommandHistory(prev => {
-      if (prev.length > 0 && prev[prev.length - 1] === trimmed) return prev;
-      return [...prev, trimmed];
-    });
-    setHistoryIndex(-1);
-
-    // Send the command directly to the real terminal over WebSocket
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(trimmed + "\n");
-    } else {
-      setTerminalHistory(prev => [...prev, `$ ${trimmed}`, "Error: Terminal not connected.", ""]);
-    }
-    setCommandInput("");
   };
 
   if (loading) {
@@ -774,68 +722,14 @@ export default function LabDetailPage() {
 
                 {/* Terminal Active (Simulated Console) */}
                 {terminalSessionActive ? (
-                  <div className="flex-1 flex flex-col min-h-0 bg-slate-950 font-mono text-xs text-slate-300 overflow-hidden">
-                    {/* Console output display */}
-                    <div className="flex-1 overflow-y-auto p-5 space-y-1.5 no-scrollbar">
-                      {terminalHistory.map((line, idx) => (
-                        <div key={idx} className="min-h-[1.2rem] whitespace-pre-wrap">
-                          {line}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Console input prompt */}
-                    <div className="border-t border-slate-900 bg-slate-950/80 px-5 py-3 flex items-center gap-2 flex-shrink-0">
-                      <span className="text-emerald-500 font-semibold flex-shrink-0">$</span>
-                      <input
-                        type="text"
-                        value={commandInput}
-                        onChange={(e) => setCommandInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            runTerminalCommand(commandInput);
-                          } else if (e.key === "ArrowUp") {
-                            e.preventDefault();
-                            if (commandHistory.length > 0) {
-                              const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
-                              setHistoryIndex(newIndex);
-                              setCommandInput(commandHistory[newIndex]);
-                            }
-                          } else if (e.key === "ArrowDown") {
-                            e.preventDefault();
-                            if (historyIndex !== -1) {
-                              if (historyIndex < commandHistory.length - 1) {
-                                const newIndex = historyIndex + 1;
-                                setHistoryIndex(newIndex);
-                                setCommandInput(commandHistory[newIndex]);
-                              } else {
-                                setHistoryIndex(-1);
-                                setCommandInput("");
-                              }
-                            }
-                          } else if (e.key === "Tab") {
-                            e.preventDefault();
-                            if (commandInput.trim()) {
-                              const currentInput = commandInput.trim().toLowerCase();
-                              const matches = commandSuggestions.filter(s => s.startsWith(currentInput));
-                              if (matches.length === 1) {
-                                setCommandInput(matches[0]);
-                              } else if (matches.length > 1) {
-                                setTerminalHistory(prev => [
-                                  ...prev,
-                                  `$ ${commandInput}`,
-                                  matches.join("    "),
-                                  ""
-                                ]);
-                              }
-                            }
-                          }
-                        }}
-                        className="flex-1 bg-transparent text-slate-100 outline-none border-none caret-blue-550"
-                        placeholder="Type command (e.g. 'help', 'ls', './run.sh') and press Enter..."
-                        autoFocus
-                      />
-                    </div>
+                  <div className="flex-1 min-h-0 overflow-hidden">
+                    <XTerminal
+                      ref={xtermRef}
+                      onData={handleTerminalData}
+                      onResize={handleTerminalResize}
+                      onReady={() => xtermRef.current?.focus()}
+                      className="w-full h-full"
+                    />
                   </div>
                 ) : null}
               </>

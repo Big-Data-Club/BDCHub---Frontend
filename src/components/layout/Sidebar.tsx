@@ -30,8 +30,8 @@ const Sidebar: React.FC = () => {
   const { isAdmin } = useAuth();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [width, setWidth] = useState(DEFAULT_WIDTH);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [width, setWidth] = useState(MIN_WIDTH);
   const prevWidthRef = useRef(DEFAULT_WIDTH);
   const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
