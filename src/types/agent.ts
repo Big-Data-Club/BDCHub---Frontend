@@ -55,6 +55,15 @@ export interface ToolActivity {
   message?: string;
 }
 
+export interface AIReference {
+  title: string;
+  content: string;
+  relevance_score: number;
+  source_type: "material" | "web";
+  url?: string;
+  page_number?: number;
+}
+
 export interface AgentMessage {
   id: string;
   role: "user" | "assistant";
@@ -76,6 +85,12 @@ export interface AgentMessage {
 
   /** HITL approval request (teacher agent only). */
   hitlRequest?: HITLRequestData;
+
+  /** Cumulative real-time thinking process text (Chain of Thought). */
+  thinking?: string;
+
+  /** Cumulative references retrieved during this turn. */
+  references?: AIReference[];
 }
 
 // ── Request / Response ──────────────────────────────────────────────────────
@@ -126,6 +141,8 @@ export interface AgentHistoryMessage {
     toolActivities?: ToolActivity[];
     uiComponent?: UIComponentData;
     hitlRequest?: HITLRequestData;
+    thinking?: string;
+    references?: AIReference[];
   };
   created_at: string;
 }

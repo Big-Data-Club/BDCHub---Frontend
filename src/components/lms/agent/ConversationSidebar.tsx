@@ -5,7 +5,7 @@ import {
   useImperativeHandle,
   useState,
 } from "react";
-import { MessageSquare, Plus, Clock, Loader2 } from "lucide-react";
+import { MessageSquare, Plus, Clock, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { agentService } from "@/services/agentService";
 import type { AgentSession } from "@/types";
@@ -16,6 +16,7 @@ interface ConversationSidebarProps {
   activeSessionId: string | null;
   onSelectSession: (sessionId: string) => void;
   onNewSession: () => void;
+  onDeleteSession?: (sessionId: string) => void;
   className?: string;
 }
  
@@ -35,6 +36,7 @@ export const ConversationSidebar = forwardRef<
     activeSessionId,
     onSelectSession,
     onNewSession,
+    onDeleteSession,
     className,
   },
   ref,
@@ -112,18 +114,18 @@ export const ConversationSidebar = forwardRef<
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-slate-50 dark:bg-slate-900",
-        "border-r border-slate-200 dark:border-slate-800",
+        "flex flex-col h-full bg-slate-50/85 dark:bg-slate-900/85 backdrop-blur-md",
+        "border-r border-slate-200/60 dark:border-slate-800/60",
         className,
       )}
     >
-      <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="p-4 border-b border-slate-200/60 dark:border-slate-800/60">
         <button
           onClick={onNewSession}
           className={cn(
             "w-full flex items-center justify-center gap-2",
-            "bg-blue-600 hover:bg-blue-700 text-white font-medium",
-            "px-4 py-2.5 rounded-xl transition-all duration-200",
+            "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white font-medium",
+            "px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20",
           )}
         >
           <Plus className="w-4 h-4" />
@@ -131,47 +133,47 @@ export const ConversationSidebar = forwardRef<
         </button>
       </div>
  
-      <div className="flex-1 overflow-y-auto w-full p-2 space-y-1">
+      <div className="flex-1 overflow-y-auto w-full p-2 space-y-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
         {isLoading ? (
           <div className="flex justify-center items-center h-20 text-slate-400">
             <Loader2 className="w-5 h-5 animate-spin" />
           </div>
         ) : sessions.length === 0 ? (
-          <div className="text-center text-sm text-slate-500 py-6">
+          <div className="text-center text-sm text-slate-400/80 py-10">
             Chưa có lịch sử hội thoại
           </div>
         ) : (
           sessions.map((session) => {
             const isActive = session.session_id === activeSessionId;
             return (
-              <button
+              <div
                 key={session.session_id}
                 onClick={() => onSelectSession(session.session_id)}
                 className={cn(
-                  "w-full text-left px-3 py-3 rounded-xl transition-colors duration-200",
+                  "w-full text-left px-3 py-3 rounded-xl transition-all duration-200 border-l-4 cursor-pointer group flex items-center justify-between gap-2 active:scale-[0.98]",
                   isActive
-                    ? "bg-slate-200 dark:bg-slate-800"
-                    : "hover:bg-slate-200/50 dark:hover:bg-slate-800/50",
+                    ? "bg-gradient-to-r from-blue-500/10 to-indigo-500/5 dark:from-blue-500/5 dark:to-indigo-500/2 border-blue-600 dark:border-blue-500 shadow-sm"
+                    : "hover:bg-slate-200/40 dark:hover:bg-slate-800/40 border-transparent",
                 )}
               >
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 text-slate-400">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className={cn("mt-0.5 transition-colors duration-200 flex-shrink-0", isActive ? "text-blue-500 dark:text-blue-400" : "text-slate-400")}>
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p
                       className={cn(
-                        "text-sm font-medium truncate",
+                        "text-sm font-medium truncate transition-colors duration-200",
                         isActive
-                          ? "text-slate-900 dark:text-slate-100"
+                          ? "text-blue-700 dark:text-blue-400 font-semibold"
                           : "text-slate-700 dark:text-slate-300",
                       )}
                     >
                       {session.title || "Cuộc hội thoại chưa đặt tên"}
                     </p>
                     <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
-                      <Clock className="w-3 h-3" />
-                      <span>
+                      <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                      <span className="truncate">
                         {session.last_active_at
                           ? new Date(session.last_active_at).toLocaleDateString(
                               "vi-VN",
@@ -183,12 +185,27 @@ export const ConversationSidebar = forwardRef<
                             )
                           : ""}
                       </span>
-                      <span className="mx-1">•</span>
-                      <span>{session.turn_count} turns</span>
+                      <span className="mx-1 text-slate-300 dark:text-slate-700">•</span>
+                      <span className="truncate">{session.turn_count} lượt gửi</span>
                     </div>
                   </div>
                 </div>
-              </button>
+
+                {onDeleteSession && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm("Bạn có chắc chắn muốn xóa cuộc hội thoại này?")) {
+                        onDeleteSession(session.session_id);
+                      }
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-all duration-150 active:scale-90 flex-shrink-0"
+                    title="Xóa cuộc hội thoại"
+                  >
+                    <Trash2 className="w-4 h-4 animate-in fade-in zoom-in-75 duration-200" />
+                  </button>
+                )}
+              </div>
             );
           })
         )}

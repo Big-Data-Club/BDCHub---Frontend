@@ -6,8 +6,9 @@
  * Layout: full-height flex column with scrollable message area + input bar.
  * Works as a self-contained component that can be embedded in any page.
  */
-import { useRef, useEffect, useCallback } from "react";
-import { MessageSquare, Sparkles, Loader2 } from "lucide-react";
+import { useRef, useEffect, useCallback, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { MessageSquare, Sparkles, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useAgentChat } from "@/hooks/useAgentChat";
@@ -21,6 +22,7 @@ import {
 interface AgentChatPanelProps {
   agentType: "teacher" | "mentor";
   courseId?: number;
+  sessionId?: string;
   className?: string;
 }
 
@@ -50,13 +52,20 @@ const WELCOME: Record<string, { title: string; subtitle: string; hints: string[]
 export function AgentChatPanel({
   agentType,
   courseId,
+  sessionId: propSessionId,
   className,
 }: AgentChatPanelProps) {
   const { data: session } = useSession();
   const userId = session?.user ? Number((session.user as any).id || (session.user as any).userId) : undefined;
 
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const sidebarRef = useRef<ConversationSidebarHandle>(null);
  
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   const handleSessionUpdated = useCallback(
     (update: { sessionId: string; title?: string; reason: string }) => {
       const sidebar = sidebarRef.current;
@@ -71,7 +80,7 @@ export function AgentChatPanel({
     },
     [],
   );
- 
+
   const {
     messages,
     sessionId,
@@ -81,12 +90,30 @@ export function AgentChatPanel({
     stopStreaming,
     startNewChat,
     switchSession,
+    deleteSession,
   } = useAgentChat({
     agentType,
     courseId,
+    initialSessionId: propSessionId,
     userId,
     onSessionUpdated: handleSessionUpdated,
   });
+
+  // Sync state sessionId back to URL query parameters
+  useEffect(() => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    const urlSessionId = current.get("sessionId");
+    
+    if (sessionId) {
+      if (urlSessionId !== sessionId) {
+        current.set("sessionId", sessionId);
+        router.replace(`${pathname}?${current.toString()}`);
+      }
+    } else if (urlSessionId) {
+      current.delete("sessionId");
+      router.replace(`${pathname}?${current.toString()}`);
+    }
+  }, [sessionId, router, pathname, searchParams]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const welcome = WELCOME[agentType];
@@ -120,12 +147,16 @@ export function AgentChatPanel({
               activeSessionId={sessionId}
               onSelectSession={switchSession}
               onNewSession={startNewChat}
-              className="w-1/4 min-w-[250px] max-w-[300px] border-r-0 lg:border-r"
+              onDeleteSession={deleteSession}
+              className={cn(
+                "transition-all duration-300 ease-in-out border-r-0 lg:border-r",
+                sidebarOpen ? "w-1/5 min-w-[220px] max-w-[260px]" : "w-0 min-w-0 max-w-0 opacity-0 overflow-hidden border-r-0 lg:border-r-0"
+              )}
           />
       )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-950">
+      <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-950 overflow-hidden">
         {/* Header */}
       <div
         className={cn(
@@ -134,8 +165,18 @@ export function AgentChatPanel({
           "bg-white dark:bg-slate-900",
         )}
       >
-        <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+        {userId && (
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 flex-shrink-0"
+            title={sidebarOpen ? "Thu gọn thanh bên" : "Mở rộng thanh bên"}
+          >
+            {sidebarOpen ? <PanelLeftClose className="w-5.5 h-5.5" /> : <PanelLeftOpen className="w-5.5 h-5.5" />}
+          </button>
+        )}
+        
+        <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
+          <Sparkles className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">
@@ -150,74 +191,83 @@ export function AgentChatPanel({
       {/* Messages area */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
+        className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
       >
-        {isEmpty ? (
-          /* Empty state — welcome + hint chips */
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-6 py-12">
-            <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <MessageSquare className="w-7 h-7 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50">
-                {welcome.title}
-              </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-500 max-w-sm">
-                {welcome.subtitle}
-              </p>
-            </div>
+        <div className="max-w-4xl mx-auto w-full px-2 sm:px-4 md:px-6 space-y-5">
+          {isEmpty ? (
+            /* Empty state — welcome + hint chips */
+            <div className="flex flex-col items-center justify-center text-center space-y-6 py-16">
+              <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shadow-lg shadow-blue-500/10 animate-in fade-in zoom-in-75 duration-300">
+                <MessageSquare className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+                  {welcome.title}
+                </h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
+                  {welcome.subtitle}
+                </p>
+              </div>
 
-            <div className="flex flex-wrap gap-2 justify-center max-w-md">
-              {welcome.hints.map((hint) => (
-                <button
-                  key={hint}
-                  onClick={() => sendMessage(hint)}
-                  className={cn(
-                    "px-4 py-2 rounded-xl text-sm font-medium",
-                    "bg-white dark:bg-slate-900",
-                    "border border-slate-200 dark:border-slate-800",
-                    "text-slate-600 dark:text-slate-400",
-                    "hover:bg-blue-50 dark:hover:bg-slate-800",
-                    "hover:border-blue-300 dark:hover:border-blue-700",
-                    "hover:text-blue-700 dark:hover:text-blue-400",
-                    "transition-all duration-200 active:scale-95",
-                    "shadow-sm",
-                  )}
-                >
-                  {hint}
-                </button>
+              <div className="flex flex-wrap gap-2 justify-center max-w-md">
+                {welcome.hints.map((hint) => (
+                  <button
+                    key={hint}
+                    onClick={() => sendMessage(hint)}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-sm font-medium",
+                      "bg-white dark:bg-slate-900",
+                      "border border-slate-200 dark:border-slate-800",
+                      "text-slate-600 dark:text-slate-400",
+                      "hover:bg-blue-50 dark:hover:bg-slate-800/80",
+                      "hover:border-blue-300 dark:hover:border-blue-700",
+                      "hover:text-blue-700 dark:hover:text-blue-400",
+                      "transition-all duration-200 active:scale-95",
+                      "shadow-sm",
+                    )}
+                  >
+                    {hint}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {messages.map((msg) => (
+                <AgentMessageBubble
+                  key={msg.id}
+                  message={msg}
+                  onClarificationSelect={(option) => sendMessage(option)}
+                />
               ))}
             </div>
-          </div>
-        ) : (
-          messages.map((msg) => (
-            <AgentMessageBubble
-              key={msg.id}
-              message={msg}
-              onClarificationSelect={(option) => sendMessage(option)}
-            />
-          ))
-        )}
-        
-        {isLoadingHistory && (
-          <div className="flex justify-center items-center py-4">
-            <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
-            <span className="ml-2 text-slate-500">Đang tải lịch sử...</span>
-          </div>
-        )}
+          )}
+          
+          {isLoadingHistory && (
+            <div className="flex justify-center items-center py-6">
+              <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+              <span className="ml-2.5 text-sm text-slate-500">Đang tải lịch sử...</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Input bar */}
-      <AgentInputBar
-        onSend={sendMessage}
-        isStreaming={isStreaming || isLoadingHistory}
-        onStop={stopStreaming}
-        placeholder={
-          agentType === "mentor"
-            ? "Hỏi Mentor về bài học..."
-            : "Nhờ TA hỗ trợ quản lý khóa học..."
-        }
-      />
+      {/* Input bar wrapper */}
+      <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="max-w-4xl mx-auto w-full">
+          <AgentInputBar
+            onSend={sendMessage}
+            isStreaming={isStreaming || isLoadingHistory}
+            onStop={stopStreaming}
+            className="border-t-0 px-4 sm:px-6 py-4"
+            placeholder={
+              agentType === "mentor"
+                ? "Hỏi Mentor về bài học..."
+                : "Nhờ TA hỗ trợ quản lý khóa học..."
+            }
+          />
+        </div>
+      </div>
       </div>
     </div>
   );

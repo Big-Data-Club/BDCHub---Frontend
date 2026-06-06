@@ -68,6 +68,8 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
         toolActivities: m.metadata?.toolActivities || [],
         uiComponent: m.metadata?.uiComponent,
         hitlRequest: m.metadata?.hitlRequest,
+        thinking: m.metadata?.thinking || "",
+        references: m.metadata?.references || [],
       }));
       setMessages(mappedMessages);
     } catch (err) {
@@ -96,8 +98,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
 
   const startNewChat = useCallback(async () => {
     stopStreaming();
-    if (messages.length === 0) {
-      setMessages([]);
+    if (sessionId === null && messages.length === 0) {
       return;
     }
  
@@ -123,7 +124,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
       setSessionId(null);
       setMessages([]);
     }
-  }, [agentType, courseId, userId, messages.length, onSessionUpdated]);
+  }, [agentType, courseId, userId, sessionId, messages.length, onSessionUpdated]);
 
   /**
    * Send a message and process the SSE stream.
@@ -149,6 +150,8 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
         timestamp: Date.now(),
         thinkingSteps: [],
         toolActivities: [],
+        thinking: "",
+        references: [],
       };
 
       setMessages((prev) => [...prev, userMsg, assistantMsg]);
@@ -269,16 +272,20 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
 
       case "thinking":
         setIsThinking(true);
-        updateAssistant(assistantId, (msg) => ({
-          ...msg,
-          thinkingSteps: [
-            ...(msg.thinkingSteps || []),
-            {
-              step: event.data.step,
-              detail: event.data.intent || event.data.token_estimate?.toString(),
-            },
-          ],
-        }));
+        updateAssistant(assistantId, (msg) => {
+          const delta = event.data.delta || "";
+          return {
+            ...msg,
+            thinking: (msg.thinking || "") + delta,
+            thinkingSteps: [
+              ...(msg.thinkingSteps || []),
+              {
+                step: event.data.step || "thinking",
+                detail: event.data.intent || event.data.token_estimate?.toString(),
+              },
+            ],
+          };
+        });
         break;
 
       case "text_delta":
@@ -350,6 +357,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
         updateAssistant(assistantId, (msg) => ({
           ...msg,
           isStreaming: false,
+          references: event.data.references || msg.references,
         }));
         if (event.session_id) {
           onSessionUpdated?.({
@@ -380,6 +388,22 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
     );
   }
 
+  const deleteSession = useCallback(async (sid: string) => {
+    try {
+      await agentService.deleteSession(sid);
+      if (sid === sessionId) {
+        setSessionId(null);
+        setMessages([]);
+      }
+      onSessionUpdated?.({
+        sessionId: sid,
+        reason: "new",
+      });
+    } catch (err) {
+      console.error("Failed to delete session:", err);
+    }
+  }, [sessionId, onSessionUpdated]);
+
   const clearChat = useCallback(() => {
     setMessages([]);
     setSessionId(null);
@@ -396,5 +420,6 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
     clearChat,
     switchSession,
     startNewChat,
+    deleteSession,
   };
 }

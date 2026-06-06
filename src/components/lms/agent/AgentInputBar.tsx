@@ -10,6 +10,7 @@ interface AgentInputBarProps {
   onStop: () => void;
   disabled?: boolean;
   placeholder?: string;
+  className?: string;
 }
 
 export function AgentInputBar({
@@ -18,6 +19,7 @@ export function AgentInputBar({
   onStop,
   disabled,
   placeholder = "Nhập tin nhắn...",
+  className,
 }: AgentInputBarProps) {
   const [input, setInput] = useState("");
 
@@ -38,8 +40,10 @@ export function AgentInputBar({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-end gap-3 p-4 border-t border-slate-200 dark:border-slate-800
-                 bg-white dark:bg-slate-900"
+      className={cn(
+        "flex items-end gap-3 p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900",
+        className
+      )}
     >
       <textarea
         value={input}

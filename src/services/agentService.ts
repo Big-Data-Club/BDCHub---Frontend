@@ -69,9 +69,19 @@ export async function getSessionMessages(
     return data.messages || [];
 }
 
+export async function deleteAgentSession(
+    sessionId: string
+): Promise<void> {
+    const res = await fetch(`/api/ai/agents/sessions/${sessionId}`, {
+        method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete session");
+}
+
 export const agentService = {
   sendMessage: sendAgentMessage,
   listSessions: listAgentSessions,
   createNewSession: createNewAgentSession,
   getSessionMessages: getSessionMessages,
+  deleteSession: deleteAgentSession,
 };
