@@ -152,7 +152,7 @@ export default function MarkdownRenderer({
                     backgroundColor: '#030712' // Tailwind bg-gray-950
                   }}
                   className={cn(
-                    "rounded-xl overflow-hidden !m-0 shadow-lg font-mono text-slate-200",
+                    "rounded-xl overflow-x-auto w-full max-w-full !m-0 shadow-lg font-mono text-slate-200 scrollbar-thin",
                     isChat ? "!p-3 text-[11px] leading-normal" : "!p-4 text-sm"
                   )}
                 >

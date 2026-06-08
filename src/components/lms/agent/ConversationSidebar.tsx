@@ -5,7 +5,7 @@ import {
   useImperativeHandle,
   useState,
 } from "react";
-import { MessageSquare, Plus, Clock, Loader2, Trash2 } from "lucide-react";
+import { MessageSquare, Plus, Clock, Loader2, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { agentService } from "@/services/agentService";
 import type { AgentSession } from "@/types";
@@ -17,6 +17,7 @@ interface ConversationSidebarProps {
   onSelectSession: (sessionId: string) => void;
   onNewSession: () => void;
   onDeleteSession?: (sessionId: string) => void;
+  onCloseMobile?: () => void;
   className?: string;
 }
  
@@ -37,6 +38,7 @@ export const ConversationSidebar = forwardRef<
     onSelectSession,
     onNewSession,
     onDeleteSession,
+    onCloseMobile,
     className,
   },
   ref,
@@ -119,11 +121,11 @@ export const ConversationSidebar = forwardRef<
         className,
       )}
     >
-      <div className="p-4 border-b border-slate-200/60 dark:border-slate-800/60">
+      <div className="p-4 border-b border-slate-200/60 dark:border-slate-800/60 flex items-center gap-2">
         <button
           onClick={onNewSession}
           className={cn(
-            "w-full flex items-center justify-center gap-2",
+            "flex-1 flex items-center justify-center gap-2",
             "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white font-medium",
             "px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20",
           )}
@@ -131,6 +133,15 @@ export const ConversationSidebar = forwardRef<
           <Plus className="w-4 h-4" />
           <span>Đoạn chat mới</span>
         </button>
+        {onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            className="lg:hidden p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors active:scale-95 flex-shrink-0"
+            title="Đóng thanh bên"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
  
       <div className="flex-1 overflow-y-auto w-full p-2 space-y-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">

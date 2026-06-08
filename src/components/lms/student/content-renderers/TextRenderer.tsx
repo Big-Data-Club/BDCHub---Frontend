@@ -34,10 +34,10 @@ export function TextRenderer({
 
   // Sync lesson text to global PageContext for the Chat Sidebar
   useEffect(() => {
-    if (showPanel) {
+    if (markdownBody) {
       patchPageContext({ contentBody: markdownBody });
     }
-  }, [showPanel, markdownBody, patchPageContext]);
+  }, [markdownBody, patchPageContext]);
 
   const [nodeId, setNodeId] = useState<number | null>(null);
 

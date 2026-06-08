@@ -131,13 +131,21 @@ export function AgentChatPanel({
   return (
     <div
       className={cn(
-        "flex h-full w-full",
+        "flex h-full w-full relative",
         "bg-slate-50 dark:bg-slate-950",
         "rounded-2xl border border-slate-200 dark:border-slate-800",
         "overflow-hidden",
         className,
       )}
     >
+      {/* Mobile Sidebar Backdrop */}
+      {userId && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-200"
+        />
+      )}
+
       {/* Sidebar for chat history */}
       {userId && (
           <ConversationSidebar 
@@ -145,12 +153,24 @@ export function AgentChatPanel({
               userId={userId} 
               agentType={agentType} 
               activeSessionId={sessionId}
-              onSelectSession={switchSession}
-              onNewSession={startNewChat}
+              onSelectSession={(sid) => {
+                switchSession(sid);
+                if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                  setSidebarOpen(false);
+                }
+              }}
+              onNewSession={() => {
+                startNewChat();
+                if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                  setSidebarOpen(false);
+                }
+              }}
               onDeleteSession={deleteSession}
+              onCloseMobile={() => setSidebarOpen(false)}
               className={cn(
-                "transition-all duration-300 ease-in-out border-r-0 lg:border-r",
-                sidebarOpen ? "w-1/5 min-w-[220px] max-w-[260px]" : "w-0 min-w-0 max-w-0 opacity-0 overflow-hidden border-r-0 lg:border-r-0"
+                "fixed inset-y-0 left-0 z-50 w-[260px] transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:z-0 lg:border-r",
+                sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+                "lg:w-1/5 lg:min-w-[220px] lg:max-w-[260px]"
               )}
           />
       )}
