@@ -12,7 +12,8 @@ import {
   FileText,
   ChevronRight,
   Sparkles,
-  Layers
+  Layers,
+  Mail
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { redirect } from "next/navigation";
@@ -44,12 +45,20 @@ const SETTINGS_CARDS: SettingCard[] = [
     color: "bg-emerald-500",
   },
   {
+    title: "Mail Delivery",
+    description: "Send system-wide emails, compose announcements, and attach official signatures.",
+    icon: Mail,
+    href: "/settings/mail",
+    status: "active",
+    color: "bg-purple-500",
+  },
+  {
     title: "General Settings",
     description: "Configure basic system properties, club information, and global defaults.",
     icon: SettingsIcon,
     href: "#",
     status: "soon",
-    color: "bg-purple-500",
+    color: "bg-slate-500",
   },
   {
     title: "User Management",

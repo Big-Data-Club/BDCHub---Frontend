@@ -19,6 +19,7 @@ services:
       args:
         - BUILD_DATE=${BUILD_DATE:-unknown}
         - VERSION=${VERSION:-1.0.0}
+        - NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
     image: ${DOCKER_USERNAME}/bdc-frontend:${IMAGE_TAG:-latest}
     container_name: nextjs-prod
     restart: unless-stopped

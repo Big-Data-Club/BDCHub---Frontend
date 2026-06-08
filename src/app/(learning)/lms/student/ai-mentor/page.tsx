@@ -15,7 +15,7 @@ export default function AIMentorPage() {
   const sessionId = searchParams.get("sessionId") || undefined;
 
   return (
-    <div className="h-[calc(100vh-10rem)]">
+    <div className="h-[calc(100dvh-6.5rem)] lg:h-[calc(100vh-10rem)]">
       <AgentChatPanel
         agentType="mentor"
         courseId={courseId}
