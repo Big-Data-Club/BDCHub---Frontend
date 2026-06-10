@@ -18,6 +18,7 @@ import { useUser } from "@/store/UserContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import SafeImage from "../common/SafeImage";
+import lmsService from "@/services/lmsService";
 
 const MIN_WIDTH = 64;
 const MAX_WIDTH = 280;
@@ -34,8 +35,18 @@ const Sidebar: React.FC = () => {
   const [width, setWidth] = useState(MIN_WIDTH);
   const prevWidthRef = useRef(DEFAULT_WIDTH);
   const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
+  const [lmsRoles, setLmsRoles] = useState<string[]>([]);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    if (user) {
+      lmsService.getMyRoles()
+        .then(roles => {
+          if (roles) setLmsRoles(roles);
+        })
+        .catch(err => console.error("Error fetching LMS roles for Sidebar:", err));
+    }
+  }, [user]);
 
   const toggleSidebar = () => {
     if (!isCollapsed) {
@@ -140,9 +151,15 @@ const Sidebar: React.FC = () => {
             .map((section) => {
               const filteredLinks = section.links.filter((link) => {
                 if (isAdmin) return true;
-                if (link.label === "Hướng dẫn Học viên") return true;
+                
+                const selectedRole = typeof window !== "undefined" ? sessionStorage.getItem("lms_selected_role") : null;
+                const isTeacher = user?.role === "ROLE_TEACHER" || user?.role === "ROLE_MANAGER" || lmsRoles.includes("TEACHER") || selectedRole === "TEACHER";
+                
+                if (link.label === "Hướng dẫn Học viên") {
+                  return true;
+                }
                 if (link.label === "Hướng dẫn Giảng viên") {
-                  return user?.role === "ROLE_TEACHER" || user?.role === "ROLE_MANAGER";
+                  return isTeacher;
                 }
                 return (
                   link.label === "Shared Knowledge" ||

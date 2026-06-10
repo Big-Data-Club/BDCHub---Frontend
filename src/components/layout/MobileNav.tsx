@@ -8,11 +8,12 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { sidebarSections, LogoIcon } from "@/constants";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@/store/UserContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import SafeImage from "../common/SafeImage";
+import lmsService from "@/services/lmsService";
 
 const MobileNav = () => {
   const pathname = usePathname();
@@ -21,6 +22,17 @@ const MobileNav = () => {
   const { isAdmin } = useAuth();
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const [lmsRoles, setLmsRoles] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      lmsService.getMyRoles()
+        .then(roles => {
+          if (roles) setLmsRoles(roles);
+        })
+        .catch(err => console.error("Error fetching LMS roles for MobileNav:", err));
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     setUser(null);
@@ -78,9 +90,15 @@ const MobileNav = () => {
               .map((section) => {
                 const filteredLinks = section.links.filter((link) => {
                   if (isAdmin) return true;
-                  if (link.label === "Hướng dẫn Học viên") return true;
+                  
+                  const selectedRole = typeof window !== "undefined" ? sessionStorage.getItem("lms_selected_role") : null;
+                  const isTeacher = user?.role === "ROLE_TEACHER" || user?.role === "ROLE_MANAGER" || lmsRoles.includes("TEACHER") || selectedRole === "TEACHER";
+                  
+                  if (link.label === "Hướng dẫn Học viên") {
+                    return true;
+                  }
                   if (link.label === "Hướng dẫn Giảng viên") {
-                    return user?.role === "ROLE_TEACHER" || user?.role === "ROLE_MANAGER";
+                    return isTeacher;
                   }
                   return (
                     link.label === "Shared Knowledge" ||

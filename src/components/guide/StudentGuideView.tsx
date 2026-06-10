@@ -16,7 +16,8 @@ import {
   FileCheck,
   Award,
   ChevronRight,
-  UserCheck
+  UserCheck,
+  Upload
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,9 +38,11 @@ export function StudentGuideView() {
   const [lessonTab, setLessonTab] = useState<"pdf" | "video" | "markdown">("pdf");
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // 3. Quiz State
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  // 3. Quiz Taking State (Real Mock representing take page)
+  const [mockCurrentQuestion, setMockCurrentQuestion] = useState<number>(0);
+  const [mockAnswers, setMockAnswers] = useState<{ [key: number]: any }>({});
+  const [mockTimeLeft, setMockTimeLeft] = useState<number>(900); // 15:00
+  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
 
   // 4. Chatbot State
   const [messages, setMessages] = useState<Message[]>([
@@ -58,6 +61,21 @@ export function StudentGuideView() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
+  // Mock Timer countdown
+  useEffect(() => {
+    if (activeTab !== 2 || quizSubmitted) return;
+    const interval = setInterval(() => {
+      setMockTimeLeft(prev => {
+        if (prev <= 0) {
+          setQuizSubmitted(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeTab, quizSubmitted]);
+
   // Handle Enrollment simulation
   const handleEnroll = () => {
     setEnrollStatus("loading");
@@ -75,24 +93,22 @@ export function StudentGuideView() {
     const text = textToSend || chatInput;
     if (!text.trim()) return;
 
-    // Add user message
     const userMsgId = Date.now().toString();
     setMessages(prev => [...prev, { id: userMsgId, sender: "user", text }]);
     if (!textToSend) setChatInput("");
     setIsTyping(true);
 
-    // Simulate AI response
     setTimeout(() => {
       setIsTyping(false);
       let aiText = "Xin lỗi, mình chưa có dữ liệu cho câu hỏi này. Bạn hãy thử chọn một chủ đề gợi ý ở dưới nhé!";
       const query = text.toLowerCase();
       
       if (query.includes("rdd") || query.includes("resilient")) {
-        aiText = "RDD (Resilient Distributed Dataset) là cấu trúc dữ liệu cốt lõi của Spark. Nó là tập hợp các đối tượng được phân tán trên các nút của cụm máy chủ và có thể xử lý song song. Điểm đặc biệt của RDD là tính năng phục hồi lỗi tự động (Resilient) nhờ vào đồ thị tuần tự thực thi (Lineage Graph).";
+        aiText = "RDD (Resilient Distributed Dataset) là cấu trúc dữ liệu cốt lõi của Spark. Nó đại diện cho tập hợp dữ liệu bất biến, phân tán, cho phép tính toán song song song và có khả năng phục hồi tự động khi xảy ra lỗi trên cluster.";
       } else if (query.includes("tóm tắt") || query.includes("pdf")) {
-        aiText = "Tài liệu PDF 'Chương 2: Apache Spark Dataframe' nói về cách khởi tạo SparkSession, đọc dữ liệu từ tệp CSV/JSON vào DataFrame và thực hiện các phép biến đổi như select, filter, groupBy. Điểm cốt lõi là cơ chế tối ưu hóa truy vấn của Catalyst Optimizer.";
+        aiText = "Tài liệu này hướng dẫn cách đọc dữ liệu vào Spark DataFrame thông qua SparkSession, thực hiện các biến đổi cơ bản như lọc dữ liệu (.filter), chiếu cột (.select), gom nhóm (.groupBy) và tối ưu truy vấn bằng Catalyst Optimizer.";
       } else if (query.includes("spark") && query.includes("mapreduce")) {
-        aiText = "Điểm khác biệt lớn nhất là tốc độ: Apache Spark thực hiện tính toán trên bộ nhớ trong (in-memory processing), trong khi MapReduce phải đọc/ghi liên tục xuống đĩa cứng (HDFS). Nhờ đó, Spark nhanh hơn MapReduce gấp 10-100 lần đối với các tác vụ lặp đi lặp lại (như học máy).";
+        aiText = "Khác biệt cốt lõi là tốc độ và lưu trữ: Spark xử lý in-memory (trong bộ nhớ RAM) nên nhanh gấp 10-100 lần MapReduce vốn phải đọc/ghi dữ liệu xuống đĩa cứng liên tục sau mỗi bước tính toán.";
       }
 
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "ai", text: aiText }]);
@@ -103,35 +119,83 @@ export function StudentGuideView() {
     handleSendMessage(prompt);
   };
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const mockQuestions = [
+    {
+      id: 1,
+      type: "SINGLE_CHOICE",
+      text: "Trong Apache Spark, RDD viết tắt của cụm từ nào?",
+      points: 10,
+      options: [
+        { id: "a", text: "Resilient Distributed Dataset" },
+        { id: "b", text: "Relational Database Driver" },
+        { id: "c", text: "Random Distributed Directory" }
+      ]
+    },
+    {
+      id: 2,
+      type: "SHORT_ANSWER",
+      text: "Điền tên ngôn ngữ lập trình chính được dùng để viết Apache Spark:",
+      points: 5
+    },
+    {
+      id: 3,
+      type: "FILE_UPLOAD",
+      text: "Nộp file báo cáo thực hành Spark Core (định dạng PDF hoặc ZIP):",
+      points: 20
+    }
+  ];
+
+  const handleMockAnswer = (questionId: number, answerData: any) => {
+    setMockAnswers(prev => ({ ...prev, [questionId]: answerData }));
+  };
+
+  const isMockAnswered = (idx: number) => {
+    const q = mockQuestions[idx];
+    const ans = mockAnswers[q.id];
+    if (!ans) return false;
+    if (q.type === "SINGLE_CHOICE") return !!ans.selected_option_id;
+    if (q.type === "SHORT_ANSWER") return ans.answer_text && ans.answer_text.trim().length > 0;
+    if (q.type === "FILE_UPLOAD") return !!ans.file_name;
+    return true;
+  };
+
+  const totalAnswered = mockQuestions.filter((_, idx) => isMockAnswered(idx)).length;
+
   const guideSteps = [
     {
       title: "1. Khám phá & Đăng ký Khóa học",
       icon: Search,
       desc: "Tìm kiếm và tham gia vào các khóa học chất lượng cao.",
       details: [
-        { title: "Truy cập Khám phá", text: "Từ menu chính, chọn 'Shared Knowledge' rồi chuyển đến mục 'Khám phá Khóa học' (/lms/student/discover)." },
-        { title: "Tìm kiếm & Lọc", text: "Sử dụng thanh tìm kiếm theo tên khóa học, hoặc lọc theo danh mục học tập phù hợp với mục tiêu của bạn." },
-        { title: "Đăng ký một chạm", text: "Bấm nút 'Đăng ký' để ghi danh ngay lập tức và bắt đầu hành trình học tập." }
+        { title: "Mở trang Khám phá", text: "Truy cập đường dẫn Khám phá Khóa học (/lms/student/discover) từ thanh menu trái 'Shared Knowledge' để xem tất cả các khóa học hiện có." },
+        { title: "Bộ lọc & Tìm kiếm", text: "Nhập từ khóa tìm kiếm khóa học mong muốn, hoặc lọc khóa học theo danh mục lĩnh vực quan tâm để chọn khóa học chuẩn xác." },
+        { title: "Ghi danh học tập", text: "Bấm nút 'Đăng ký học'. Khi hiển thị 'Đã đăng ký thành công', khóa học sẽ tự động được thêm vào Dashboard của bạn." }
       ]
     },
     {
       title: "2. Xem tài liệu & Học tập",
       icon: BookOpen,
-      desc: "Học tập linh hoạt với nhiều loại tài liệu (PDF, Video, Markdown).",
+      desc: "Học tập linh hoạt với nhiều loại tài liệu (PDF, Video, Ghi chú).",
       details: [
-        { title: "Vào lớp học", text: "Truy cập Dashboard học viên (/lms/student) để thấy danh sách các khóa học bạn đã đăng ký." },
-        { title: "Trình duyệt thông minh", text: "Bên trong khóa học, chọn các bài học trong Outline. Trình xem tài liệu hỗ trợ định dạng PDF, Video bài giảng trực quan, hoặc bài viết ghi chú." },
-        { title: "Tự động lưu tiến độ", text: "Hệ thống sẽ ghi nhận trạng thái hoàn thành khi bạn xem hết video hoặc cuộn hết tài liệu." }
+        { title: "Chọn khóa học tại Dashboard", text: "Truy cập `/lms/student` để thấy tất cả các khóa học bạn đã đăng ký và nhấp chọn để bắt đầu học (/lms/student/courses/[courseId]/learn)." },
+        { title: "Outline bài giảng", text: "Bên trái là danh sách các bài giảng được cấu trúc phân cấp. Hãy nhấp chọn bài để học theo đúng lộ trình." },
+        { title: "Trình duyệt thông minh", text: "Nội dung bài học tự động chuyển đổi tabs: Trình đọc tài liệu PDF (hỗ trợ toàn màn hình), Trình phát Video, hoặc soạn thảo Ghi chú cá nhân để lưu lại kiến thức." }
       ]
     },
     {
       title: "3. Làm bài Kiểm tra (Quiz)",
       icon: FileCheck,
-      desc: "Kiểm tra kiến thức trực tiếp và nhận đánh giá chi tiết tức thì.",
+      desc: "Làm bài kiểm tra tương tác với thời gian đếm ngược và thanh tiến độ.",
       details: [
-        { title: "Bắt đầu làm bài", text: "Nhấp vào các mục Quiz trong Outline. Đọc kỹ yêu cầu, số lần thử và thời gian làm bài trước khi bấm bắt đầu." },
-        { title: "Đa dạng định dạng", text: "Làm các câu hỏi trắc nghiệm, điền vào chỗ trống (dạng chọn dropdown hoặc gõ văn bản), hoặc tải file lên đối với bài tập tự luận." },
-        { title: "Phản hồi thông minh", text: "Sau khi nộp bài, bạn sẽ nhận được điểm số và lời giải chi tiết cho từng câu hỏi để ôn tập lại kiến thức." }
+        { title: "Thời gian đếm ngược & Tiến độ", text: "Trang làm quiz (/lms/student/courses/[courseId]/quiz/[quizId]/take) hiển thị đồng hồ ⏱️ đếm ngược. Thanh Progress Bar sẽ tự động cập nhật khi bạn trả lời câu hỏi." },
+        { title: "Bảng điều hướng câu hỏi", text: "Sử dụng hàng nút số thứ tự câu hỏi ở dưới để chuyển nhanh: Câu màu xanh lá (Đã trả lời), màu xám (Chưa trả lời) và màu xanh dương (Câu hiện tại)." },
+        { title: "Nộp bài & Phản hồi chi tiết", text: "Nhấp 'Nộp bài' ở câu cuối cùng. Sau khi hệ thống xác nhận và chấm điểm (Auto-grade), bạn sẽ được chuyển đến trang chi tiết kết quả để xem điểm, số câu đúng và giải thích." }
       ]
     },
     {
@@ -139,9 +203,9 @@ export function StudentGuideView() {
       icon: Sparkles,
       desc: "Hỏi đáp thông minh 24/7 trực tiếp trên ngữ cảnh tài liệu học tập.",
       details: [
-        { title: "Hỏi đáp tài liệu", text: "Khi đang đọc PDF, mở ngăn kéo Ask AI (nút lơ lửng AI) để hỏi nhanh bất cứ khái niệm nào trong trang hiện tại." },
-        { title: "AI Mentor khóa học", text: "Truy cập mục 'AI Mentor' của khóa học để thảo luận sâu hơn về kiến thức, yêu cầu tóm tắt chương, hoặc giải thích các ví dụ code khó." },
-        { title: "Tham chiếu chính xác", text: "AI Mentor luôn trích dẫn nguồn tài liệu tham khảo chính xác từ bài học để bạn kiểm chứng thông tin." }
+        { title: "Ask AI Drawer (Hỏi nhanh)", text: "Nhấp biểu tượng sấm sét AI bay lơ lửng khi đang xem PDF để mở ngăn hỏi nhanh trên đúng trang tài liệu đang đọc." },
+        { title: "Hỏi đáp ngữ cảnh sâu", text: "Vào trang 'AI Mentor' của khóa học để thảo luận sâu, yêu cầu AI giải thích thuật ngữ khó, viết code ví dụ hoặc tóm tắt bài giảng." },
+        { title: "Trích dẫn tài liệu", text: "AI sẽ trả lời kèm các nguồn trích dẫn từ bài giảng giúp bạn dễ dàng xem lại chi tiết nội dung gốc." }
       ]
     },
     {
@@ -149,9 +213,9 @@ export function StudentGuideView() {
       icon: BrainCircuit,
       desc: "Ghi nhớ kiến thức dài hạn bằng Flashcard và thuật toán Lặp lại ngắt quãng.",
       details: [
-        { title: "Ôn tập Flashcard", text: "Sử dụng Flashcard ngắn gọn để học nhanh các định nghĩa thuật ngữ, công thức toán học hoặc đoạn code mẫu." },
-        { title: "Lặp lại ngắt quãng", text: "Đánh giá độ nhớ của bạn (Quên / Khó / Dễ). Hệ thống sẽ tự động lên lịch nhắc nhở ôn tập lại vào thời điểm tối ưu nhất." },
-        { title: "Theo dõi lỗ hổng kiến thức", text: "Tính năng Weakness Tracker sẽ phân tích lịch sử làm quiz để chỉ ra các chủ đề bạn đang bị hổng kiến thức và gợi ý học lại." }
+        { title: "Học nhanh qua Flashcards", text: "Mở bộ Flashcard để học nhanh các khái niệm chính dạng hỏi-đáp. Click để lật thẻ và xem định nghĩa mặt sau." },
+        { title: "Xếp lịch Lặp lại ngắt quãng", text: "Bấm nút tự đánh giá mức độ nhớ: 'Quên' (học lại ngày mai), 'Khó' (học lại sau 3 ngày), 'Dễ' (ôn lại sau 7 ngày)." },
+        { title: "Weakness Tracker (Kiến thức yếu)", text: "Xem biểu đồ phân tích các phần kiến thức bạn thường làm sai trong quiz để chủ động xem lại bài giảng." }
       ]
     }
   ];
@@ -168,7 +232,7 @@ export function StudentGuideView() {
             Hướng dẫn Học viên từ A - Z
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
-            Khám phá cách học tập hiệu quả, tương tác với AI và làm bài đánh giá trên hệ thống LMS.
+            Hướng dẫn chi tiết quy trình đăng ký, học bài giảng, làm bài thi quiz, trò chuyện cùng AI Mentor và ôn tập micro learning.
           </p>
         </div>
       </div>
@@ -190,7 +254,12 @@ export function StudentGuideView() {
                     setActiveTab(idx);
                     // Reset sub-states when switching tabs to make interaction fresh
                     if (idx === 0) resetEnroll();
-                    if (idx === 2) { setSelectedAnswer(null); setQuizSubmitted(false); }
+                    if (idx === 2) { 
+                      setMockAnswers({}); 
+                      setMockCurrentQuestion(0); 
+                      setMockTimeLeft(900); 
+                      setQuizSubmitted(false); 
+                    }
                     if (idx === 4) { setIsFlipped(false); setCardLevel(null); }
                   }}
                   className={cn(
@@ -245,13 +314,13 @@ export function StudentGuideView() {
                 <div className="flex gap-2.5">
                   <Sparkles className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="text-xs font-bold text-blue-950 dark:text-blue-300">Mẹo hữu ích</h5>
+                    <h5 className="text-xs font-bold text-blue-950 dark:text-blue-300">Mẹo của bạn</h5>
                     <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                      {activeTab === 0 && "Bạn có thể tham gia nhiều khóa học cùng một lúc. Hãy bắt đầu với các khóa cơ bản trước khi sang nâng cao."}
-                      {activeTab === 1 && "Dùng mục Ghi chú để lưu lại thông tin quan trọng. Ghi chú sẽ tự động được đồng bộ với tài khoản của bạn."}
-                      {activeTab === 2 && "Bạn có thể làm lại quiz để nâng cao điểm số. Hãy đọc kỹ phần giải thích đáp án sau khi nộp bài."}
-                      {activeTab === 3 && "Nếu câu trả lời của AI chưa rõ ràng, bạn hãy thử yêu cầu: 'Giải thích bằng ví dụ cụ thể' hoặc 'Viết code minh họa'."}
-                      {activeTab === 4 && "Hãy hình thành thói quen ôn tập Flashcard hàng ngày. Thuật toán Spaced Repetition sẽ giúp bạn ghi nhớ sâu hơn 80%."}
+                      {activeTab === 0 && "Nếu gặp khó khăn trong việc tìm khóa học, bạn có thể chuyển danh mục lọc để hiển thị danh sách khóa học thuộc chủ đề cụ thể."}
+                      {activeTab === 1 && "Khi viết ghi chú cá nhân, thông tin sẽ được lưu tức thì. Bạn có thể mở lại ghi chú này ở bất kỳ thiết bị nào."}
+                      {activeTab === 2 && "Hãy để ý màu sắc của các câu hỏi dưới chân trang làm bài. Chúng sẽ giúp bạn tránh bỏ sót các câu hỏi chưa trả lời trước khi nộp bài."}
+                      {activeTab === 3 && "Sử dụng AI Mentor thường xuyên giúp bạn hiểu bài nhanh hơn. Bạn cũng có thể yêu cầu AI tóm lược nội dung của 1 trang cụ thể bằng cách trích dẫn trang đó."}
+                      {activeTab === 4 && "Đừng bỏ qua việc đánh giá mức độ nhớ của Flashcard. Thuật toán Lặp lại ngắt quãng sẽ chỉ nhắc bạn học lại khi bộ não sắp sửa quên đi."}
                     </p>
                   </div>
                 </div>
@@ -263,10 +332,19 @@ export function StudentGuideView() {
           <div className="space-y-2">
             <div className="flex justify-between items-center px-1">
               <p className="text-xs font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-wider">
-                Giao diện minh họa (Có thể tương tác)
+                Giao diện học viên mô phỏng (Có thể tương tác)
               </p>
-              {activeTab === 0 && enrollStatus !== "idle" && (
-                <button onClick={resetEnroll} className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-medium">
+              {((activeTab === 0 && enrollStatus !== "idle") || (activeTab === 2 && quizSubmitted)) && (
+                <button 
+                  onClick={() => {
+                    resetEnroll();
+                    setMockAnswers({});
+                    setMockCurrentQuestion(0);
+                    setMockTimeLeft(900);
+                    setQuizSubmitted(false);
+                  }} 
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-medium"
+                >
                   <RotateCw className="h-3 w-3" /> Reset Mockup
                 </button>
               )}
@@ -433,69 +511,180 @@ export function StudentGuideView() {
                 </div>
               )}
 
-              {/* MOCKUP 3: QUIZ */}
+              {/* MOCKUP 3: REAL QUIZ TAKE VIEW */}
               {activeTab === 2 && (
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl w-full max-w-sm shadow-md p-4 space-y-3">
-                  <div className="flex justify-between items-center text-[9px] text-slate-500">
-                    <span>Câu 1 trên 5</span>
-                    <span className="text-amber-500 font-bold bg-amber-50 dark:bg-amber-950/30 px-1.5 py-0.5 rounded">Điểm: +10</span>
-                  </div>
+                <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-850 rounded-xl w-full max-w-md shadow-md p-4 space-y-4 text-left">
                   
-                  <h4 className="text-xs font-extrabold text-slate-900 dark:text-slate-100">
-                    Trong Apache Spark, RDD viết tắt của từ gì?
-                  </h4>
-
-                  <div className="space-y-1.5">
-                    {[
-                      { key: "A", text: "Relational Data Database" },
-                      { key: "B", text: "Resilient Distributed Dataset" },
-                      { key: "C", text: "Random Distributed Data" },
-                      { key: "D", text: "Realtime Data Delivery" }
-                    ].map((opt) => {
-                      const isSelected = selectedAnswer === opt.key;
-                      const isCorrect = opt.key === "B";
-                      return (
-                        <button
-                          key={opt.key}
-                          disabled={quizSubmitted}
-                          onClick={() => setSelectedAnswer(opt.key)}
-                          className={cn(
-                            "w-full text-left p-2.5 rounded-lg border text-[10px] font-semibold flex items-center justify-between transition-all",
-                            quizSubmitted
-                              ? isCorrect
-                                ? "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400"
-                                : isSelected
-                                  ? "border-red-500 bg-red-500/10 text-red-700 dark:text-red-400"
-                                  : "border-slate-150 dark:border-slate-800 text-slate-400"
-                              : isSelected
-                                ? "border-blue-600 bg-blue-600/5 text-blue-600"
-                                : "border-slate-150 dark:border-slate-800 text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800"
-                          )}
-                        >
-                          <span>{opt.key}. {opt.text}</span>
-                          {quizSubmitted && isCorrect && <Check className="h-3.5 w-3.5 text-green-500" />}
-                        </button>
-                      );
-                    })}
+                  {/* Top Progress bar and Timer */}
+                  <div className="bg-slate-50 dark:bg-slate-850/50 p-2.5 rounded-lg border flex justify-between items-center">
+                    <div className="flex-1 mr-4">
+                      <div className="flex justify-between text-[8px] text-slate-500 mb-1">
+                        <span>Tiến độ</span>
+                        <span>{totalAnswered}/3 câu đã trả lời</span>
+                      </div>
+                      <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5">
+                        <div 
+                          className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                          style={{ width: `${(totalAnswered / 3) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    {!quizSubmitted && (
+                      <div className="bg-blue-100 text-blue-700 px-2.5 py-1.5 rounded-lg font-mono font-bold text-[11px] flex-shrink-0">
+                        ⏱️ {formatTime(mockTimeLeft)}
+                      </div>
+                    )}
                   </div>
 
+                  {/* Active Question Render */}
                   {!quizSubmitted ? (
-                    <button
-                      disabled={!selectedAnswer}
-                      onClick={() => setQuizSubmitted(true)}
-                      className={cn(
-                        "w-full font-bold rounded-lg py-1.5 text-xs transition-all active:scale-95 text-white shadow-sm",
-                        selectedAnswer ? "bg-blue-600 hover:bg-blue-700" : "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed"
-                      )}
-                    >
-                      Nộp bài
-                    </button>
-                  ) : (
-                    <div className="bg-slate-50 dark:bg-slate-800/40 rounded-lg p-2.5 border border-slate-100 dark:border-slate-850">
-                      <p className="text-[9px] font-bold text-slate-800 dark:text-slate-200">💡 Giải thích chi tiết:</p>
-                      <p className="text-[8px] text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">
-                        Chính xác! RDD là một tập hợp các bản ghi dữ liệu phân tán, bất biến và có thể xử lý song song trên toàn cụm Spark Cluster.
+                    <div className="border border-slate-150 dark:border-slate-800 rounded-lg p-3 space-y-3 bg-slate-50/20">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded font-black border border-blue-200 dark:border-blue-900/20">
+                          Câu {mockCurrentQuestion + 1}/3
+                        </span>
+                        <span className="text-[9px] bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded font-bold border border-purple-200 dark:border-purple-900/30">
+                          {mockQuestions[mockCurrentQuestion].points} điểm
+                        </span>
+                        {mockCurrentQuestion === 2 && (
+                          <span className="text-[8px] text-red-500 font-bold">* Bắt buộc</span>
+                        )}
+                      </div>
+
+                      <p className="text-[10px] font-bold text-slate-900 dark:text-slate-100">
+                        {mockQuestions[mockCurrentQuestion].text}
                       </p>
+
+                      {/* Question Answer Inputs */}
+                      <div className="pt-1">
+                        {mockQuestions[mockCurrentQuestion].type === "SINGLE_CHOICE" && (
+                          <div className="space-y-1.5">
+                            {mockQuestions[mockCurrentQuestion].options?.map((opt) => {
+                              const isSelected = mockAnswers[1]?.selected_option_id === opt.id;
+                              return (
+                                <label 
+                                  key={opt.id}
+                                  className={cn(
+                                    "flex items-center gap-2 p-2 border rounded-lg cursor-pointer text-[9px] transition-all",
+                                    isSelected 
+                                      ? "border-blue-500 bg-blue-500/5 text-blue-600 font-bold" 
+                                      : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                  )}
+                                >
+                                  <input 
+                                    type="radio" 
+                                    name="mock_q1"
+                                    checked={isSelected}
+                                    onChange={() => handleMockAnswer(1, { selected_option_id: opt.id })}
+                                    className="w-3.5 h-3.5"
+                                  />
+                                  <span>{opt.text}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {mockQuestions[mockCurrentQuestion].type === "SHORT_ANSWER" && (
+                          <input 
+                            type="text"
+                            value={mockAnswers[2]?.answer_text || ""}
+                            onChange={(e) => handleMockAnswer(2, { answer_text: e.target.value })}
+                            placeholder="Gõ đáp án của bạn..."
+                            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-[9.5px] outline-none text-slate-800 dark:text-slate-250 focus:border-blue-500"
+                          />
+                        )}
+
+                        {mockQuestions[mockCurrentQuestion].type === "FILE_UPLOAD" && (
+                          <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-3 text-center bg-slate-50 dark:bg-slate-850/50 space-y-2">
+                            {mockAnswers[3]?.file_name ? (
+                              <div className="text-[9px] text-green-600 font-bold flex items-center justify-center gap-1">
+                                <Check className="h-3.5 w-3.5" /> File: {mockAnswers[3].file_name}
+                              </div>
+                            ) : (
+                              <>
+                                <Upload className="h-5 w-5 text-slate-400 mx-auto" />
+                                <button 
+                                  onClick={() => handleMockAnswer(3, { file_name: "spark_core_report.pdf" })}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white rounded text-[8px] font-bold px-2.5 py-1 transition-all active:scale-95"
+                                >
+                                  Chọn file tải lên
+                                </button>
+                              </>
+                            )}
+                            <p className="text-[7.5px] text-slate-450">ZIP, PDF tối đa 50MB</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 space-y-3">
+                      <div className="h-10 w-10 bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+                        ✓
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Đã nộp bài thành công!</h4>
+                        <p className="text-[8.5px] text-slate-500 mt-1">
+                          Điểm số của bạn: <span className="font-bold text-blue-600">
+                            {((mockAnswers[1]?.selected_option_id === "a" ? 10 : 0) + 
+                              (mockAnswers[2]?.answer_text?.toLowerCase().includes("scala") ? 5 : 0))}/35 điểm
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Navigation controls under question */}
+                  {!quizSubmitted && (
+                    <div className="flex justify-between items-center gap-3 pt-2">
+                      <button 
+                        onClick={() => setMockCurrentQuestion(p => Math.max(0, p - 1))}
+                        disabled={mockCurrentQuestion === 0}
+                        className="px-2.5 py-1 text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-350 rounded font-bold disabled:opacity-40"
+                      >
+                        ← Câu trước
+                      </button>
+
+                      {/* Numbered Index buttons */}
+                      <div className="flex gap-1">
+                        {mockQuestions.map((_, idx) => {
+                          const isActive = mockCurrentQuestion === idx;
+                          const isAnswered = isMockAnswered(idx);
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => setMockCurrentQuestion(idx)}
+                              className={cn(
+                                "w-6 h-6 rounded text-[9px] font-black transition-all",
+                                isActive 
+                                  ? "bg-blue-600 text-white" 
+                                  : isAnswered 
+                                    ? "bg-green-100 dark:bg-green-950/20 text-green-600 border border-green-300 dark:border-green-800" 
+                                    : "bg-slate-100 dark:bg-slate-850 text-slate-500 border border-slate-200 dark:border-slate-800"
+                              )}
+                            >
+                              {idx + 1}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {mockCurrentQuestion === 2 ? (
+                        <button 
+                          onClick={() => setQuizSubmitted(true)}
+                          className="px-2.5 py-1 text-[9px] bg-green-600 hover:bg-green-700 text-white rounded font-bold"
+                        >
+                          Nộp bài
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => setMockCurrentQuestion(p => Math.min(2, p + 1))}
+                          className="px-2.5 py-1 text-[9px] bg-blue-600 hover:bg-blue-700 text-white rounded font-bold"
+                        >
+                          Câu sau →
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
