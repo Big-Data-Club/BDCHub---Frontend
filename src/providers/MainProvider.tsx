@@ -5,6 +5,7 @@ import { useEffect, ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { UserProvider, useUser } from "@/store/UserContext";
+import { useTracker } from "@/hooks/useTracker";
 
 function SessionMonitor() {
   const { data: session, status } = useSession();
@@ -33,11 +34,18 @@ function SessionMonitor() {
   return null;
 }
 
+function TrackerMonitor() {
+  const { user } = useUser();
+  useTracker(user?.id);
+  return null;
+}
+
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <UserProvider>
       <SessionProvider refetchInterval={5 * 60}>
         <SessionMonitor />
+        <TrackerMonitor />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -50,4 +58,4 @@ export default function Providers({ children }: { children: ReactNode }) {
       </SessionProvider>
     </UserProvider>
   );
-}
+}
