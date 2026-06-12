@@ -22,11 +22,13 @@ import { Step3 } from "./components/Step3";
 import { Success } from "./components/Success";
 import { AlreadySubmitted } from "./components/AlreadySubmitted";
 import { Toast } from "./components/Toast";
+import { ClosedForm } from "./components/ClosedForm";
 import universitiesData from "./universities.json";
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 const LS_DRAFT = "hpc_ss_2026_draft";
 const LS_DONE  = "hpc_ss_2026_submitted";
+const IS_CLOSED = true;
 
 const EMPTY: FormData = {
   agreePrivacy: false, fullName: "", dob: "", studentId: "", emailUni: "",
@@ -358,7 +360,7 @@ export default function HPCSummerSchoolPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-2 sm:py-3.5">
 
         {/* ── Progress tracker (Integrated Overlay Stepper) ── */}
-        {!submitted && !alreadySubmitted && (
+        {!submitted && !alreadySubmitted && !IS_CLOSED && (
           <div className="relative mb-11 mt-4 w-full px-8 sm:px-16">
             {/* Background Track Line - Anchored at the centers of first and last circles */}
             <div className="absolute top-[18px] left-[50px] right-[50px] sm:left-[82px] sm:right-[82px] h-1 bg-slate-200 dark:bg-slate-800/80 -translate-y-1/2 rounded-full" />
@@ -437,7 +439,7 @@ export default function HPCSummerSchoolPage() {
         {/* Toast for Draft Restoration Notification */}
         <Toast
           message={lang === "en" ? "Your previous progress has been restored." : "Tiến độ điền form trước đó đã được khôi phục."}
-          isVisible={draftRestored && !submitted && !alreadySubmitted}
+          isVisible={draftRestored && !submitted && !alreadySubmitted && !IS_CLOSED}
           onClose={() => setDraftRestored(false)}
         />
 
@@ -446,6 +448,8 @@ export default function HPCSummerSchoolPage() {
             <Success t={t} name={form.fullName} />
           ) : alreadySubmitted ? (
             <AlreadySubmitted lang={lang} name={savedName} onClear={handleClear} />
+          ) : IS_CLOSED ? (
+            <ClosedForm lang={lang} />
           ) : (
             <>
               <div key={step} className={`relative z-10 ${direction === "next" ? "animate-slide-next" : "animate-slide-prev"}`}>

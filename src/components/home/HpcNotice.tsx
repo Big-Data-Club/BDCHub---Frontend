@@ -56,14 +56,14 @@ export default function HpcNotice() {
               <div className="flex items-center gap-1.5 mb-0.5">
                 <Bell className="w-3.5 h-3.5 text-cyan-500 animate-bounce" />
                 <span className="text-[10px] font-black uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
-                  Thông báo tuyển sinh
+                  Thông báo
                 </span>
               </div>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-snug">
-                HCMUT HPC School 2026 đang diễn ra!
+                Đăng ký HPC School 2026 đã đóng!
               </h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                Đăng ký ngay để không bỏ lỡ khóa đào tạo hiệu năng cao.
+                Kiểm tra email của bạn trong 24h tới để nhận phản hồi từ BTC.
               </p>
             </div>
           </div>
@@ -74,7 +74,7 @@ export default function HpcNotice() {
               href="/hpc-summer-school"
               className="group flex items-center gap-1 px-3.5 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold rounded-xl shadow-sm transition-all duration-200 active:scale-95"
             >
-              Đăng ký
+              Chi tiết
               <ArrowRight className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
 
