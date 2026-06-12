@@ -221,7 +221,6 @@ export default function MarkdownRenderer({
                 loading="lazy"
                 {...props}
               />
-              /* {alt && <span className="text-[10px] text-gray-400 mt-1.5 italic">{alt}</span>} */
             </div>
           ),
 
