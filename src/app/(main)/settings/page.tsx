@@ -13,7 +13,8 @@ import {
   ChevronRight,
   Sparkles,
   Layers,
-  Mail
+  Mail,
+  MessageSquare
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { redirect } from "next/navigation";
@@ -51,6 +52,14 @@ const SETTINGS_CARDS: SettingCard[] = [
     href: "/settings/mail",
     status: "active",
     color: "bg-purple-500",
+  },
+  {
+    title: "Chat Roles",
+    description: "Quản lý kênh chat, phân quyền truy cập theo role và whitelist người dùng.",
+    icon: MessageSquare,
+    href: "/settings/chat-roles",
+    status: "active",
+    color: "bg-cyan-500",
   },
   {
     title: "General Settings",
