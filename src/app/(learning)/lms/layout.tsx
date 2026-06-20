@@ -15,7 +15,7 @@ export default async function MainLayout({ children }: MainLayoutProps) {
     redirect("/");
   }
   return (
-    <div className="flex min-h-screen w-screen flex-col bg-slate-50 dark:bg-slate-950">
+    <div className="flex min-h-screen w-full max-w-full flex-col bg-slate-50 dark:bg-slate-950">
       <div className="flex flex-1">
         <div className="sticky top-0 h-screen flex-shrink-0 hidden md:block">
           <Sidebar />
