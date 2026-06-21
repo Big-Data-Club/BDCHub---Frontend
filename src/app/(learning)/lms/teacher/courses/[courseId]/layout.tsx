@@ -11,7 +11,6 @@ import { Badge, Spinner } from "@/components/lms/shared";
 import { Course } from "@/types";
 import { cn } from "@/lib/utils";
 import { useSetPageContext } from "@/hooks/usePageContext";
-import { ChatFAB } from "@/components/lms/agent/ChatFAB";
 
 // Lazy-load modal — only needed when user clicks "Chỉnh sửa"
 const EditCourseModal = dynamic(
@@ -187,9 +186,6 @@ export default function CourseDetailLayout({ children }: { children: React.React
           onSuccess={() => { setShowEditModal(false); loadCourse(); }}
         />
       )}
-
-      {/* ── AI Chat FAB — only visible within a course ── */}
-      <ChatFAB />
     </div>
   );
 }
