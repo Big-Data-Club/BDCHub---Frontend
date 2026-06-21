@@ -26,6 +26,7 @@ interface AgentChatPanelProps {
   courseId?: number;
   sessionId?: string;
   className?: string;
+  defaultSidebarOpen?: boolean;
 }
 
 const WELCOME: Record<string, { title: string; subtitle: string; hints: string[] }> = {
@@ -56,6 +57,7 @@ export function AgentChatPanel({
   courseId,
   sessionId: propSessionId,
   className,
+  defaultSidebarOpen = true,
 }: AgentChatPanelProps) {
   const { data: session } = useSession();
   const userId = session?.user ? Number((session.user as any).id || (session.user as any).userId) : undefined;
@@ -66,7 +68,7 @@ export function AgentChatPanel({
 
   const sidebarRef = useRef<ConversationSidebarHandle>(null);
  
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(defaultSidebarOpen);
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
 

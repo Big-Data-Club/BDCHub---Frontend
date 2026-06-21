@@ -225,6 +225,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
               key={agentType} // Re-mounts the panel when switching agent types to reset internal state correctly
               agentType={agentType}
               className="h-full border-none rounded-none"
+              defaultSidebarOpen={false}
             />
           </div>
         </div>
