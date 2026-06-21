@@ -6,8 +6,8 @@ interface FileTreeProps {
   files: LatexFile[];
   activeFile: LatexFile | null;
   onSelect: (file: LatexFile) => void;
-  onDelete: (id: number) => void;
-  onUploadClick: () => void;
+  onDelete?: (id: number) => void;
+  onUploadClick?: () => void;
 }
 
 export function FileTree({ files, activeFile, onSelect, onDelete, onUploadClick }: FileTreeProps) {

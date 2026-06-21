@@ -7,6 +7,9 @@ import type {
   TexPackage,
   CreateProjectRequest,
   UpdateProjectRequest,
+  Collaborator,
+  LatexComment,
+  ShareLink,
 } from "@/types";
 
 class LatexService {
@@ -135,6 +138,97 @@ class LatexService {
     const response = await latexApiClient.get("/packages", {
       params: { q: query },
     });
+    return response.data;
+  }
+
+  // ─── Collaborators ────────────────────────────────────────────────────────
+
+  async addCollaborator(projectId: number, email: string, role: string) {
+    const response = await latexApiClient.post(`/projects/${projectId}/collaborators`, { email, role });
+    return response.data;
+  }
+
+  async listCollaborators(projectId: number) {
+    const response = await latexApiClient.get(`/projects/${projectId}/collaborators`);
+    return response.data;
+  }
+
+  async updateCollaboratorRole(projectId: number, userId: number, role: string) {
+    const response = await latexApiClient.put(`/projects/${projectId}/collaborators/${userId}`, { role });
+    return response.data;
+  }
+
+  async removeCollaborator(projectId: number, userId: number) {
+    const response = await latexApiClient.delete(`/projects/${projectId}/collaborators/${userId}`);
+    return response.data;
+  }
+
+  // ─── Comments ─────────────────────────────────────────────────────────────
+
+  async createComment(
+    projectId: number,
+    data: {
+      file_id: number;
+      content: string;
+      selection_start?: number;
+      selection_end?: number;
+      selected_text?: string;
+      parent_id?: number;
+    }
+  ) {
+    const response = await latexApiClient.post(`/projects/${projectId}/comments`, data);
+    return response.data;
+  }
+
+  async listProjectComments(projectId: number) {
+    const response = await latexApiClient.get(`/projects/${projectId}/comments`);
+    return response.data;
+  }
+
+  async listFileComments(projectId: number, fileId: number) {
+    const response = await latexApiClient.get(`/projects/${projectId}/files/${fileId}/comments`);
+    return response.data;
+  }
+
+  async updateComment(projectId: number, commentId: number, content: string) {
+    const response = await latexApiClient.put(`/projects/${projectId}/comments/${commentId}`, { content });
+    return response.data;
+  }
+
+  async deleteComment(projectId: number, commentId: number) {
+    const response = await latexApiClient.delete(`/projects/${projectId}/comments/${commentId}`);
+    return response.data;
+  }
+
+  async resolveComment(projectId: number, commentId: number) {
+    const response = await latexApiClient.post(`/projects/${projectId}/comments/${commentId}/resolve`);
+    return response.data;
+  }
+
+  async unresolveComment(projectId: number, commentId: number) {
+    const response = await latexApiClient.post(`/projects/${projectId}/comments/${commentId}/unresolve`);
+    return response.data;
+  }
+
+  // ─── Share Links ──────────────────────────────────────────────────────────
+
+  async createShareLink(projectId: number, role: string) {
+    const response = await latexApiClient.post(`/projects/${projectId}/share-links`, { role });
+    return response.data;
+  }
+
+  async listShareLinks(projectId: number) {
+    const response = await latexApiClient.get(`/projects/${projectId}/share-links`);
+    return response.data;
+  }
+
+  async deactivateShareLink(projectId: number, linkId: number) {
+    const response = await latexApiClient.delete(`/projects/${projectId}/share-links/${linkId}`);
+    return response.data;
+  }
+
+  async joinViaShareLink(token: string) {
+    const response = await latexApiClient.post(`/share/join/${token}`);
     return response.data;
   }
 }

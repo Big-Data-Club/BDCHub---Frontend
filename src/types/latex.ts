@@ -11,6 +11,7 @@ export interface LatexProject {
   last_compiled_at?: string;
   created_at: string;
   updated_at: string;
+  user_role?: "owner" | "editor" | "reviewer" | "viewer";
 }
 
 export interface LatexFile {
@@ -66,4 +67,47 @@ export interface UpdateProjectRequest {
   description?: string;
   compiler?: "pdflatex" | "xelatex" | "lualatex";
   main_file?: string;
+}
+
+// ── Collaboration ────────────────────────────────────────────────────────────
+
+export interface Collaborator {
+  id: number;
+  project_id: number;
+  user_id: number;
+  user_email: string;
+  role: "editor" | "reviewer" | "viewer";
+  added_by: number;
+  created_at: string;
+}
+
+export interface LatexComment {
+  id: number;
+  project_id: number;
+  file_id: number;
+  user_id: number;
+  user_email: string;
+  content: string;
+  selection_start?: number;
+  selection_end?: number;
+  selected_text?: string;
+  parent_id?: number;
+  resolved: boolean;
+  resolved_by?: number;
+  resolved_at?: string;
+  replies?: LatexComment[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ShareLink {
+  id: number;
+  project_id: number;
+  token: string;
+  role: "editor" | "reviewer" | "viewer";
+  created_by: number;
+  active: boolean;
+  expires_at?: string;
+  created_at: string;
+  url: string;
 }

@@ -1,17 +1,29 @@
 import React, { useEffect, useRef } from "react";
+import { Eye } from "lucide-react";
 import type { LatexFile } from "@/types";
+
+interface TextSelection {
+  start: number;
+  end: number;
+  text: string;
+}
 
 interface TexEditorProps {
   file: LatexFile | null;
   content: string;
   isDirty: boolean;
   loading: boolean;
+  userRole?: string;
   onChange: (value: string) => void;
   onSave: () => void;
+  onTextSelect?: (selection: TextSelection | null) => void;
 }
 
-export function TexEditor({ file, content, isDirty, loading, onChange, onSave }: TexEditorProps) {
+export function TexEditor({ file, content, isDirty, loading, userRole, onChange, onSave, onTextSelect }: TexEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const isReadOnly = userRole === "viewer" || userRole === "reviewer";
+  const canEdit = !isReadOnly;
 
   // Auto-resize line numbers based on content line count
   const lineCount = content.split("\n").length;
@@ -19,14 +31,14 @@ export function TexEditor({ file, content, isDirty, loading, onChange, onSave }:
 
   // Tab key indent helper
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (isReadOnly) return;
     if (e.key === "Tab") {
       e.preventDefault();
       const start = e.currentTarget.selectionStart;
       const end = e.currentTarget.selectionEnd;
       const value = e.currentTarget.value;
-      const nextValue = value.substring(0, start) + "  " + value.substring(end); // use 2 spaces for tab
+      const nextValue = value.substring(0, start) + "  " + value.substring(end);
       onChange(nextValue);
-      // Wait for React to render and reset cursor
       setTimeout(() => {
         if (textareaRef.current) {
           textareaRef.current.selectionStart = textareaRef.current.selectionEnd = start + 2;
@@ -35,6 +47,21 @@ export function TexEditor({ file, content, isDirty, loading, onChange, onSave }:
     } else if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
       onSave();
+    }
+  };
+
+  // Capture text selection for comment creation
+  const handleMouseUp = () => {
+    if (!onTextSelect) return;
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    if (start !== end) {
+      const text = ta.value.substring(start, end);
+      onTextSelect({ start, end, text });
+    } else {
+      onTextSelect(null);
     }
   };
 
@@ -72,14 +99,20 @@ export function TexEditor({ file, content, isDirty, loading, onChange, onSave }:
           <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">
             {file.filename}
           </span>
-          {isDirty && (
+          {isDirty && canEdit && (
             <span className="text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-200/40">
               Đã chỉnh sửa
             </span>
           )}
+          {isReadOnly && (
+            <span className="inline-flex items-center gap-1 text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-200 dark:border-slate-700">
+              <Eye size={10} />
+              Chỉ đọc
+            </span>
+          )}
         </div>
         <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-          Ctrl + S để lưu tệp nhanh
+          {canEdit ? "Ctrl + S để lưu tệp nhanh" : isReadOnly && userRole === "reviewer" ? "Chọn văn bản để bình luận" : ""}
         </span>
       </div>
 
@@ -103,14 +136,25 @@ export function TexEditor({ file, content, isDirty, loading, onChange, onSave }:
           <textarea
             ref={textareaRef}
             value={content}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => !isReadOnly && onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent text-slate-800 dark:text-slate-100 py-4 px-4 h-full w-full outline-none resize-none overflow-y-auto h-6-line-height"
-            style={{
-              lineHeight: "1.5rem",
-            }}
+            onMouseUp={handleMouseUp}
+            readOnly={isReadOnly}
+            className={`flex-1 bg-transparent py-4 px-4 h-full w-full outline-none resize-none overflow-y-auto ${
+              isReadOnly
+                ? "text-slate-600 dark:text-slate-400 cursor-text"
+                : "text-slate-800 dark:text-slate-100"
+            }`}
+            style={{ lineHeight: "1.5rem" }}
             spellCheck={false}
           />
+
+          {/* Read-only overlay hint */}
+          {isReadOnly && userRole === "reviewer" && (
+            <div className="absolute bottom-3 right-3 pointer-events-none">
+              <span className="text-[10px] text-slate-400/70 dark:text-slate-500/70 italic">Chọn văn bản để bình luận</span>
+            </div>
+          )}
         </div>
       )}
     </div>
