@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { latexService } from "@/services/latexService";
+import { getAccessToken } from "@/services/authToken";
 import type { CompileJob } from "@/types";
 
 export function useCompilation() {
@@ -34,7 +35,8 @@ export function useCompilation() {
           if (updatedJob.status === "success") {
             clearPolling();
             setCompiling(false);
-            setPdfUrl(latexService.getCompilePdfUrl(jobId));
+            const token = await getAccessToken();
+            setPdfUrl(latexService.getCompilePdfUrl(jobId, token));
             setLog(updatedJob.log_output || null);
             setErrorMsg(null);
           } else if (updatedJob.status === "failed" || updatedJob.status === "timeout") {

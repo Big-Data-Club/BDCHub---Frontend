@@ -95,8 +95,9 @@ class LatexService {
     return response.data;
   }
 
-  getCompilePdfUrl(jobId: string): string {
-    return `/latexapiv1/compile/jobs/${jobId}/pdf`;
+  getCompilePdfUrl(jobId: string, token?: string | null): string {
+    const baseUrl = `/latexapiv1/compile/jobs/${jobId}/pdf`;
+    return token ? `${baseUrl}?token=${token}` : baseUrl;
   }
 
   async getCompileLog(jobId: string) {
