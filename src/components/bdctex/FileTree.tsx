@@ -47,6 +47,7 @@ export function FileTree({
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set<string>());
   const [editingFileId, setEditingFileId] = useState<number | null>(null);
   const [editName, setEditName] = useState<string>("");
+  const [isDragOverRoot, setIsDragOverRoot] = useState(false);
 
   // Auto-expand all folders on mount or when files list changes
   useEffect(() => {
@@ -201,9 +202,68 @@ export function FileTree({
     }
   };
 
+  const handleDropOnFolder = (dragData: any, targetFolder: string) => {
+    if (!onRename) return;
+
+    if (dragData.type === "file") {
+      const { id, filename } = dragData;
+      const parts = filename.split("/");
+      const baseName = parts[parts.length - 1];
+
+      // New path
+      const newFilename = targetFolder ? `${targetFolder}/${baseName}` : baseName;
+      if (newFilename === filename) return;
+
+      if (files.some((f) => f.filename === newFilename)) {
+        alert(`Tệp tin "${baseName}" đã tồn tại ở vị trí đích!`);
+        return;
+      }
+
+      onRename(id, newFilename);
+    } else if (dragData.type === "folder") {
+      const sourceFolder = dragData.path;
+      if (targetFolder === sourceFolder) return;
+      if (targetFolder.startsWith(sourceFolder + "/")) {
+        alert("Không thể di chuyển thư mục cha vào thư mục con!");
+        return;
+      }
+
+      const sourceParts = sourceFolder.split("/");
+      const folderBaseName = sourceParts[sourceParts.length - 1];
+      const newFolderPath = targetFolder ? `${targetFolder}/${folderBaseName}` : folderBaseName;
+
+      const prefix = sourceFolder + "/";
+      const filesToMove = files.filter(
+        (f) => f.filename.startsWith(prefix) || f.filename === sourceFolder + "/.keep"
+      );
+
+      if (filesToMove.length === 0) return;
+
+      let hasDuplicate = false;
+      filesToMove.forEach((f) => {
+        const relativePath = f.filename.slice(sourceFolder.length);
+        const targetFilename = newFolderPath + relativePath;
+        if (files.some((ef) => ef.filename === targetFilename)) {
+          hasDuplicate = true;
+        }
+      });
+
+      if (hasDuplicate) {
+        alert(`Không thể di chuyển vì một số tệp trong thư mục "${folderBaseName}" đã tồn tại ở đích!`);
+        return;
+      }
+
+      // Perform moves
+      filesToMove.forEach((f) => {
+        const relativePath = f.filename.slice(sourceFolder.length);
+        const newFilename = newFolderPath + relativePath;
+        onRename(f.id, newFilename);
+      });
+    }
+  };
+
   // Recursive tree renderer
   const renderTree = (node: TreeNode, depth: number = 0) => {
-    // Hide .keep placeholder files from rendering
     const sortedChildren = Object.values(node.children)
       .filter((child) => child.name !== ".keep")
       .sort((a, b) => {
@@ -221,6 +281,35 @@ export function FileTree({
           <div key={child.path} className="flex flex-col">
             <div
               onClick={() => toggleFolder(child.path)}
+              draggable={!!onRename}
+              onDragStart={(e) => {
+                e.dataTransfer.setData(
+                  "text/plain",
+                  JSON.stringify({ type: "folder", path: child.path })
+                );
+                e.dataTransfer.effectAllowed = "move";
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.currentTarget.classList.add("bg-blue-50/80", "dark:bg-blue-950/30");
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.currentTarget.classList.remove("bg-blue-50/80", "dark:bg-blue-950/30");
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.currentTarget.classList.remove("bg-blue-50/80", "dark:bg-blue-950/30");
+                try {
+                  const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+                  handleDropOnFolder(data, child.path);
+                } catch (err) {
+                  console.error(err);
+                }
+              }}
               className="group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/40 select-none transition-colors duration-150"
               style={{ paddingLeft: `${depth * 12 + 8}px` }}
             >
@@ -280,6 +369,14 @@ export function FileTree({
           <div
             key={file.id}
             onClick={() => !isEditing && onSelect(file)}
+            draggable={!isEditing && !!onRename}
+            onDragStart={(e) => {
+              e.dataTransfer.setData(
+                "text/plain",
+                JSON.stringify({ type: "file", id: file.id, filename: file.filename })
+              );
+              e.dataTransfer.effectAllowed = "move";
+            }}
             className={`group flex items-center justify-between px-2 py-1.5 rounded-lg cursor-pointer transition-all duration-150 select-none ${
               isActive
                 ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-medium"
@@ -395,8 +492,31 @@ export function FileTree({
         </div>
       </div>
 
-      {/* Files List */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1">
+      {/* Files List containing Drop zone for root level */}
+      <div
+        className={`flex-1 overflow-y-auto p-2 space-y-1 transition-colors duration-200 ${
+          isDragOverRoot ? "bg-slate-50 dark:bg-slate-800/35 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg m-1" : ""
+        }`}
+        onDragOver={(e) => {
+          if (!onRename) return;
+          e.preventDefault();
+          setIsDragOverRoot(true);
+        }}
+        onDragLeave={() => {
+          setIsDragOverRoot(false);
+        }}
+        onDrop={(e) => {
+          if (!onRename) return;
+          e.preventDefault();
+          setIsDragOverRoot(false);
+          try {
+            const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+            handleDropOnFolder(data, "");
+          } catch (err) {
+            console.error("Drop error:", err);
+          }
+        }}
+      >
         {files.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-xs text-slate-400">Không có tệp nào.</p>
