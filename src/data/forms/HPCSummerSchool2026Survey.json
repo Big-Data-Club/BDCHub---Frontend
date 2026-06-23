@@ -13,7 +13,7 @@
       "question": "Họ và tên",
       "required": false,
       "placeholder": "Nguyễn Văn A",
-      "note": "Họ tên có thể để trống, nhưng khuyến khích điền để BTC kết nối các cơ hội Lab/Internship sau này",
+      "note": "Họ tên có thể để trống (khảo sát ẩn danh), nhưng khuyến khích điền để BTC đối chiếu dữ liệu tuyển chọn và kết nối các cơ hội Lab/Internship sau này",
       "constraints": {
         "maxLength": 100
       }
@@ -28,56 +28,9 @@
       "constraints": {}
     },
     {
-      "id": "phone",
-      "type": "short",
-      "question": "Số điện thoại",
-      "required": false,
-      "placeholder": "09xxxxxxxx",
-      "note": "",
-      "constraints": {
-        "maxLength": 15
-      }
-    },
-    {
-      "id": "role",
-      "type": "single",
-      "question": "PHẦN 1: THÔNG TIN CHUNG - Vai trò hiện tại của bạn là gì?",
-      "required": true,
-      "options": [
-        "Sinh viên Đại học Bách Khoa TP.HCM (HCMUT)",
-        "Sinh viên Đại học thành viên thuộc ĐHQG-HCM",
-        "Sinh viên các trường Đại học ngoài ĐHQG-HCM",
-        "Học viên Cao học / Nghiên cứu sinh (NCS)",
-        "Kỹ sư / Chuyên viên tại Doanh nghiệp",
-        "Nghiên cứu viên tại các Viện/Trung tâm nghiên cứu",
-        "Khác"
-      ],
-      "note": "Thông tin này giúp BTC phân nhóm và phân tích nhu cầu học viên",
-      "constraints": {}
-    },
-    {
-      "id": "source",
-      "type": "multiple",
-      "question": "Bạn biết đến HCMUT HPC Summer School 2026 qua kênh nào?",
-      "required": true,
-      "options": [
-        "Fanpage/Website chính thức của Trường/Khoa",
-        "Thư mời trực tiếp gửi qua Email",
-        "Bạn bè, anh chị khóa trước giới thiệu",
-        "Giảng viên/Thầy cô hướng dẫn giới thiệu",
-        "Các cộng đồng học thuật/công nghệ trên mạng xã hội",
-        "Khác"
-      ],
-      "note": "Có thể chọn nhiều phương án",
-      "constraints": {
-        "minChoices": 1,
-        "maxChoices": 6
-      }
-    },
-    {
       "id": "before_background",
       "type": "matrix",
-      "question": "PHẦN 2: TRẢI NGHIỆM TRƯỚC SỰ KIỆN - Hãy đánh giá mức độ tự tin của bạn đối với các mảng kiến thức sau TRƯỚC khi tham gia School",
+      "question": "PHẦN 1: TRẢI NGHIỆM TRƯỚC SỰ KIỆN - Hãy đánh giá mức độ tự tin của bạn đối với các mảng kiến thức sau TRƯỚC khi tham gia School",
       "required": true,
       "note": "Thang điểm từ 1 (Hoàn toàn chưa biết) đến 5 (Rất thành thạo)",
       "rowLabel": "Kỹ năng / Kiến thức",
@@ -97,45 +50,37 @@
       "constraints": {}
     },
     {
-      "id": "pre_materials",
-      "type": "single",
-      "question": "Tài liệu hướng dẫn tự học Linux/Git/Cơ bản do BTC gửi trước chương trình có hữu ích không?",
+      "id": "pre_announcement",
+      "type": "rating",
+      "question": "Quy trình thông báo kết quả tuyển chọn học viên (qua Email) và hướng dẫn chuẩn bị ban đầu (cài đặt VPN, SSH key, lưu ý laptop...) có rõ ràng và kịp thời không?",
       "required": true,
-      "options": [
-        "Rất hữu ích, nội dung đầy đủ và dễ hiểu",
-        "Hữu ích, nhưng hơi khó hiểu đối với người mới",
-        "Bình thường, tôi tự tìm tài liệu khác để đọc",
-        "Không thực sự hữu ích / Quá sơ sài",
-        "Tôi đã có nền tảng vững nên không cần đọc",
-        "Tôi không nhận được hoặc không biết có tài liệu này"
-      ],
-      "note": "",
+      "note": "1 = Rất mơ hồ/Trễ, 5 = Rất rõ ràng & Kịp thời",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Mơ hồ/Trễ",
+        "maxLabel": "Rõ ràng/Kịp thời"
+      },
       "constraints": {}
     },
     {
-      "id": "core_goal",
-      "type": "multiple",
-      "question": "Mục tiêu lớn nhất của bạn khi đăng ký tham gia HPC Summer School 2026 là gì?",
+      "id": "messenger_channel",
+      "type": "rating",
+      "question": "Kênh liên lạc hỗ trợ (nhóm Messenger) trước sự kiện có giúp ích cho bạn trong việc cập nhật thông tin nhanh và kết nối với BTC/TA không?",
       "required": true,
-      "options": [
-        "Học kỹ năng thực chiến về Slurm, Apptainer để phục vụ NCKH/Đồ án tốt nghiệp",
-        "Hiểu sâu hơn về tối ưu hóa phần cứng, lập trình song song hiệu năng cao",
-        "Học cách triển khai các mô hình AI/Deep Learning quy mô lớn (LLM, Distributed Training)",
-        "Mở rộng mạng lưới quan hệ (Networking) với chuyên gia và bạn học",
-        "Tìm kiếm cơ hội thực tập, việc làm hoặc tham gia Lab nghiên cứu",
-        "Trải nghiệm thực tế hệ thống Siêu máy tính (HPC Cluster) của trường",
-        "Khác"
-      ],
-      "note": "Chọn tối đa 2 lựa chọn",
-      "constraints": {
-        "minChoices": 1,
-        "maxChoices": 2
-      }
+      "note": "1 = Không giúp ích, 5 = Cực kỳ hữu ích",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Không giúp ích",
+        "maxLabel": "Cực kỳ hữu ích"
+      },
+      "constraints": {}
     },
     {
       "id": "goal_achievement",
       "type": "rating",
-      "question": "PHẦN 3: TRẢI NGHIỆM HỌC THUẬT & THỰC HÀNH - Sau khi kết thúc chương trình, bạn tự đánh giá mình đã đạt được bao nhiêu phần trăm mục tiêu ban đầu đề ra?",
+      "question": "PHẦN 2: TRẢI NGHIỆM HỌC THUẬT & THỰC HÀNH - Sau khi kết thúc chương trình, bạn tự đánh giá mình đã đạt được bao nhiêu phần trăm mục tiêu ban đầu đề ra?",
       "required": true,
       "note": "1 = Chưa đạt được gì, 5 = Đạt được hoàn toàn kỳ vọng",
       "scale": {
@@ -244,7 +189,7 @@
     {
       "id": "hackathon_difficulty",
       "type": "single",
-      "question": "PHẦN 4: TRẢI NGHIỆM HACKATHON, SEMINAR & HỖ TRỢ KỸ THUẬT - Đề bài và thời gian làm bài của Mini Hackathon (Distributed LLM Workflow) thế nào?",
+      "question": "PHẦN 3: TRẢI NGHIỆM HACKATHON, SEMINAR & HỖ TRỢ KỸ THUẬT - Đề bài và thời gian làm bài của Mini Hackathon (Distributed LLM Workflow) thế nào?",
       "required": true,
       "options": [
         "Quá khó so với kiến thức học, vượt quá khả năng của đội",
@@ -328,7 +273,7 @@
     {
       "id": "logistics_matrix",
       "type": "matrix",
-      "question": "PHẦN 5: CÔNG TÁC HẬU CẦN & LOGISTICS - Hãy đánh giá mức độ hài lòng về các điều kiện hậu cần",
+      "question": "PHẦN 4: CÔNG TÁC HẬU CẦN & LOGISTICS - Hãy đánh giá mức độ hài lòng về các điều kiện hậu cần",
       "required": true,
       "note": "Thang điểm từ 1 (Tệ) đến 5 (Xuất sắc)",
       "rowLabel": "Dịch vụ Hậu cần",
@@ -380,7 +325,7 @@
     {
       "id": "nps_score",
       "type": "rating",
-      "question": "PHẦN 6: ĐÁNH GIÁ ĐẦU RA, SỰ GẮN KẾT & ĐÓNG GÓP - Trên thang điểm từ 0 đến 10, mức độ sẵn sàng của bạn trong việc giới thiệu HPC Summer School cho bạn bè/đồng nghiệp là bao nhiêu?",
+      "question": "PHẦN 5: ĐÁNH GIÁ ĐẦU RA, SỰ GẮN KẾT & ĐÓNG GÓP - Trên thang điểm từ 0 đến 10, mức độ sẵn sàng của bạn trong việc giới thiệu HPC Summer School cho bạn bè/đồng nghiệp là bao nhiêu?",
       "required": true,
       "note": "0 = Hoàn toàn không, 10 = Chắc chắn giới thiệu",
       "scale": {
