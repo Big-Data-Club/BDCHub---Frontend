@@ -1,0 +1,450 @@
+{
+  "formId": "hpc-summer-school-2026-survey",
+  "formTitle": "KHẢO SÁT TRẢI NGHIỆM HỌC VIÊN — HCMUT HPC SUMMER SCHOOL 2026",
+  "formDescription": "Khảo sát này giúp Ban Tổ Chức (BTC) đánh giá hiệu quả chương trình và thấu hiểu trải nghiệm thực tế của học viên nhằm không ngừng cải thiện chất lượng cho các mùa sau. Thời gian hoàn thành: 5-10 phút.",
+  "formType": "survey",
+  "sheetName": "HPC_Survey_2026",
+  "thankYouMessage": "Cảm ơn bạn đã hoàn thành khảo sát! Mọi ý kiến đóng góp của bạn đều vô cùng quý giá để xây dựng một HPC School tốt hơn.",
+  "allowMultipleSubmissions": true,
+  "questions": [
+    {
+      "id": "full_name",
+      "type": "short",
+      "question": "Họ và tên",
+      "required": false,
+      "placeholder": "Nguyễn Văn A",
+      "note": "Họ tên có thể để trống, nhưng khuyến khích điền để BTC kết nối các cơ hội Lab/Internship sau này",
+      "constraints": {
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "question": "Email liên hệ",
+      "required": false,
+      "placeholder": "example@email.com",
+      "note": "Để BTC gửi chứng nhận và kết nối cơ hội sau sự kiện",
+      "constraints": {}
+    },
+    {
+      "id": "phone",
+      "type": "short",
+      "question": "Số điện thoại",
+      "required": false,
+      "placeholder": "09xxxxxxxx",
+      "note": "",
+      "constraints": {
+        "maxLength": 15
+      }
+    },
+    {
+      "id": "role",
+      "type": "single",
+      "question": "PHẦN 1: THÔNG TIN CHUNG - Vai trò hiện tại của bạn là gì?",
+      "required": true,
+      "options": [
+        "Sinh viên Đại học Bách Khoa TP.HCM (HCMUT)",
+        "Sinh viên Đại học thành viên thuộc ĐHQG-HCM",
+        "Sinh viên các trường Đại học ngoài ĐHQG-HCM",
+        "Học viên Cao học / Nghiên cứu sinh (NCS)",
+        "Kỹ sư / Chuyên viên tại Doanh nghiệp",
+        "Nghiên cứu viên tại các Viện/Trung tâm nghiên cứu",
+        "Khác"
+      ],
+      "note": "Thông tin này giúp BTC phân nhóm và phân tích nhu cầu học viên",
+      "constraints": {}
+    },
+    {
+      "id": "source",
+      "type": "multiple",
+      "question": "Bạn biết đến HCMUT HPC Summer School 2026 qua kênh nào?",
+      "required": true,
+      "options": [
+        "Fanpage/Website chính thức của Trường/Khoa",
+        "Thư mời trực tiếp gửi qua Email",
+        "Bạn bè, anh chị khóa trước giới thiệu",
+        "Giảng viên/Thầy cô hướng dẫn giới thiệu",
+        "Các cộng đồng học thuật/công nghệ trên mạng xã hội",
+        "Khác"
+      ],
+      "note": "Có thể chọn nhiều phương án",
+      "constraints": {
+        "minChoices": 1,
+        "maxChoices": 6
+      }
+    },
+    {
+      "id": "before_background",
+      "type": "matrix",
+      "question": "PHẦN 2: TRẢI NGHIỆM TRƯỚC SỰ KIỆN - Hãy đánh giá mức độ tự tin của bạn đối với các mảng kiến thức sau TRƯỚC khi tham gia School",
+      "required": true,
+      "note": "Thang điểm từ 1 (Hoàn toàn chưa biết) đến 5 (Rất thành thạo)",
+      "rowLabel": "Kỹ năng / Kiến thức",
+      "rows": [
+        {"id": "linux_cli", "text": "Hệ điều hành Linux & Giao diện dòng lệnh (CLI)"},
+        {"id": "hpc_architecture", "text": "Kiến thức về Phần cứng & Kiến trúc hệ thống HPC"},
+        {"id": "parallel_programming", "text": "Lập trình song song (OpenMP, MPI, CUDA)"},
+        {"id": "ai_deep_learning", "text": "Kiến thức về AI / Deep Learning / Machine Learning"}
+      ],
+      "columns": [
+        {"label": "1 (Yếu)", "value": "1"},
+        {"label": "2", "value": "2"},
+        {"label": "3 (Trung bình)", "value": "3"},
+        {"label": "4", "value": "4"},
+        {"label": "5 (Tốt)", "value": "5"}
+      ],
+      "constraints": {}
+    },
+    {
+      "id": "pre_materials",
+      "type": "single",
+      "question": "Tài liệu hướng dẫn tự học Linux/Git/Cơ bản do BTC gửi trước chương trình có hữu ích không?",
+      "required": true,
+      "options": [
+        "Rất hữu ích, nội dung đầy đủ và dễ hiểu",
+        "Hữu ích, nhưng hơi khó hiểu đối với người mới",
+        "Bình thường, tôi tự tìm tài liệu khác để đọc",
+        "Không thực sự hữu ích / Quá sơ sài",
+        "Tôi đã có nền tảng vững nên không cần đọc",
+        "Tôi không nhận được hoặc không biết có tài liệu này"
+      ],
+      "note": "",
+      "constraints": {}
+    },
+    {
+      "id": "core_goal",
+      "type": "multiple",
+      "question": "Mục tiêu lớn nhất của bạn khi đăng ký tham gia HPC Summer School 2026 là gì?",
+      "required": true,
+      "options": [
+        "Học kỹ năng thực chiến về Slurm, Apptainer để phục vụ NCKH/Đồ án tốt nghiệp",
+        "Hiểu sâu hơn về tối ưu hóa phần cứng, lập trình song song hiệu năng cao",
+        "Học cách triển khai các mô hình AI/Deep Learning quy mô lớn (LLM, Distributed Training)",
+        "Mở rộng mạng lưới quan hệ (Networking) với chuyên gia và bạn học",
+        "Tìm kiếm cơ hội thực tập, việc làm hoặc tham gia Lab nghiên cứu",
+        "Trải nghiệm thực tế hệ thống Siêu máy tính (HPC Cluster) của trường",
+        "Khác"
+      ],
+      "note": "Chọn tối đa 2 lựa chọn",
+      "constraints": {
+        "minChoices": 1,
+        "maxChoices": 2
+      }
+    },
+    {
+      "id": "goal_achievement",
+      "type": "rating",
+      "question": "PHẦN 3: TRẢI NGHIỆM HỌC THUẬT & THỰC HÀNH - Sau khi kết thúc chương trình, bạn tự đánh giá mình đã đạt được bao nhiêu phần trăm mục tiêu ban đầu đề ra?",
+      "required": true,
+      "note": "1 = Chưa đạt được gì, 5 = Đạt được hoàn toàn kỳ vọng",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Chưa đạt được gì",
+        "maxLabel": "Đạt hoàn toàn"
+      },
+      "constraints": {}
+    },
+    {
+      "id": "session_volume",
+      "type": "matrix",
+      "question": "Hãy đánh giá KHỐI LƯỢNG KIẾN THỨC của từng Session",
+      "required": true,
+      "note": "Thang điểm từ 1 (Quá ít/Sơ sài) đến 5 (Quá tải/Quá nặng)",
+      "rowLabel": "Session",
+      "rows": [
+        {"id": "s1_s2", "text": "Session 1 & 2 (HPC Systems, Architecture & Slurm Job Scheduler)"},
+        {"id": "s3_s4", "text": "Session 3 & 4 (Parallel Programming Models & HPC Workflows)"},
+        {"id": "s5_s6", "text": "Session 5 & 6 (Reproducible Environments & Performance Measurement)"},
+        {"id": "s7_s8", "text": "Session 7 & 8 (GPU/Accelerator Computing & Data-Intensive Workflows)"}
+      ],
+      "columns": [
+        {"label": "1 (Quá ít)", "value": "1"},
+        {"label": "2", "value": "2"},
+        {"label": "3 (Vừa vặn)", "value": "3"},
+        {"label": "4", "value": "4"},
+        {"label": "5 (Quá tải)", "value": "5"}
+      ],
+      "constraints": {}
+    },
+    {
+      "id": "session_practicality",
+      "type": "matrix",
+      "question": "Hãy đánh giá TÍNH THỰC TIỄN & THỰC HÀNH của từng Session",
+      "required": true,
+      "note": "Thang điểm từ 1 (Lý thuyết suông) đến 5 (Rất thực chiến/Áp dụng tốt)",
+      "rowLabel": "Session",
+      "rows": [
+        {"id": "s1_s2", "text": "Session 1 & 2 (HPC Systems, Architecture & Slurm Job Scheduler)"},
+        {"id": "s3_s4", "text": "Session 3 & 4 (Parallel Programming Models & HPC Workflows)"},
+        {"id": "s5_s6", "text": "Session 5 & 6 (Reproducible Environments & Performance Measurement)"},
+        {"id": "s7_s8", "text": "Session 7 & 8 (GPU/Accelerator Computing & Data-Intensive Workflows)"}
+      ],
+      "columns": [
+        {"label": "1 (Lý thuyết)", "value": "1"},
+        {"label": "2", "value": "2"},
+        {"label": "3 (Tương đối)", "value": "3"},
+        {"label": "4", "value": "4"},
+        {"label": "5 (Rất thực chiến)", "value": "5"}
+      ],
+      "constraints": {}
+    },
+    {
+      "id": "pacing",
+      "type": "single",
+      "question": "Nhìn chung, nhịp độ kết hợp lý thuyết và thực hành trên lớp thế nào đối với năng lực tiếp thu của bạn?",
+      "required": true,
+      "options": [
+        "Quá nhanh, tôi bị ngợp hoàn toàn",
+        "Hơi nhanh, cần nhiều thời gian tự xem lại tài liệu mới hiểu",
+        "Vừa vặn, tốc độ lý thuyết và thực hành được cân bằng tốt",
+        "Hơi chậm, tôi muốn đi sâu vào các case study phức tạp hơn",
+        "Quá chậm, dễ gây buồn ngủ"
+      ],
+      "note": "",
+      "constraints": {}
+    },
+    {
+      "id": "lab_sheets",
+      "type": "single",
+      "question": "Các bước hướng dẫn thực hành trong Lab Sheets có rõ ràng và giúp bạn tự làm được không?",
+      "required": true,
+      "options": [
+        "Rất rõ ràng, step-by-step dễ làm theo",
+        "Tương đối rõ ràng, nhưng đôi chỗ viết tắt hoặc thiếu bước trung gian",
+        "Khó theo dõi, code ví dụ bị lỗi hoặc không khớp với thực tế",
+        "Rất kém, tôi phải phụ thuộc hoàn toàn vào sự trợ giúp của TA"
+      ],
+      "note": "",
+      "constraints": {}
+    },
+    {
+      "id": "useful_skills",
+      "type": "long",
+      "question": "Kiến thức/Kỹ năng nào bạn cảm thấy hữu ích nhất và có thể áp dụng ngay?",
+      "required": false,
+      "placeholder": "Nêu cụ thể kỹ năng hoặc nội dung bạn tâm đắc nhất...",
+      "note": "",
+      "constraints": {
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "unreasonable_content",
+      "type": "long",
+      "question": "Theo bạn, phần nội dung hoặc session nào chưa hợp lý (bị dư thừa, hoặc quá lý thuyết, cần lược bỏ/thay thế)?",
+      "required": false,
+      "placeholder": "Ghi nhận xét của bạn để BTC điều chỉnh giáo trình...",
+      "note": "",
+      "constraints": {
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "hackathon_difficulty",
+      "type": "single",
+      "question": "PHẦN 4: TRẢI NGHIỆM HACKATHON, SEMINAR & HỖ TRỢ KỸ THUẬT - Đề bài và thời gian làm bài của Mini Hackathon (Distributed LLM Workflow) thế nào?",
+      "required": true,
+      "options": [
+        "Quá khó so với kiến thức học, vượt quá khả năng của đội",
+        "Thử thách nhưng vừa sức, kích thích tư duy giải quyết vấn đề",
+        "Vừa vặn, áp dụng trực tiếp được kiến thức đã học",
+        "Hơi dễ, không mang tính phân loại cao"
+      ],
+      "note": "",
+      "constraints": {}
+    },
+    {
+      "id": "hackathon_time",
+      "type": "single",
+      "question": "Thời gian làm bài Hackathon (buổi sáng Ngày 3) có hợp lý không?",
+      "required": true,
+      "options": [
+        "Quá ngắn, không kịp hoàn thành",
+        "Hơi thiếu, cần thêm khoảng 1-2 tiếng nữa",
+        "Hợp lý cho quy mô bài tập thực chiến",
+        "Quá dài, đội chúng tôi làm xong sớm và phải đợi lâu"
+      ],
+      "note": "",
+      "constraints": {}
+    },
+    {
+      "id": "teamwork_rating",
+      "type": "rating",
+      "question": "Bạn đánh giá thế nào về sự tương tác, phối hợp làm việc trong nhóm của mình?",
+      "required": true,
+      "note": "1 = Rời rạc, không hiệu quả, 5 = Phối hợp rất tốt",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Rời rạc",
+        "maxLabel": "Rất hiệu quả"
+      },
+      "constraints": {}
+    },
+    {
+      "id": "seminar_value",
+      "type": "rating",
+      "question": "Các bài chia sẻ từ chuyên gia (Industry Keynote & Research HPC-AI) có mở rộng được tầm nhìn của bạn không?",
+      "required": true,
+      "note": "1 = Hoàn toàn không giúp ích, 5 = Rất truyền cảm hứng và mở rộng tầm nhìn",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Không giúp ích",
+        "maxLabel": "Truyền cảm hứng"
+      },
+      "constraints": {}
+    },
+    {
+      "id": "ta_support",
+      "type": "rating",
+      "question": "Mức độ nhiệt tình và năng lực chuyên môn của các TA trong việc gỡ lỗi, hướng dẫn thực hành?",
+      "required": true,
+      "note": "1 = Kém nhiệt tình/Không hỗ trợ tốt, 5 = Rất nhiệt tình và chuyên môn vững",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Chưa tốt",
+        "maxLabel": "Rất tốt"
+      },
+      "constraints": {}
+    },
+    {
+      "id": "cluster_stability",
+      "type": "rating",
+      "question": "Sự ổn định của tài khoản, server, VPN và workspace do Cluster Admin cung cấp?",
+      "required": true,
+      "note": "1 = Lỗi liên tục gây gián đoạn, 5 = Rất mượt mà, ổn định",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Chập chờn",
+        "maxLabel": "Mượt mà"
+      },
+      "constraints": {}
+    },
+    {
+      "id": "logistics_matrix",
+      "type": "matrix",
+      "question": "PHẦN 5: CÔNG TÁC HẬU CẦN & LOGISTICS - Hãy đánh giá mức độ hài lòng về các điều kiện hậu cần",
+      "required": true,
+      "note": "Thang điểm từ 1 (Tệ) đến 5 (Xuất sắc)",
+      "rowLabel": "Dịch vụ Hậu cần",
+      "rows": [
+        {"id": "venue", "text": "Địa điểm học (Phòng lab, máy lạnh, ánh sáng, bàn ghế)"},
+        {"id": "wifi", "text": "Kết nối mạng (Wifi tại phòng học)"},
+        {"id": "power_sockets", "text": "Hệ thống ổ cắm điện cho Laptop cá nhân"},
+        {"id": "teabreak", "text": "Chất lượng Teabreak giải lao (Bánh, nước, trái cây)"},
+        {"id": "lunch", "text": "Chất lượng bữa trưa do BTC chuẩn bị (nếu có)"},
+        {"id": "checkin_gifts", "text": "Quy trình Check-in, tài liệu in ấn và quà tặng (Merchandise)"}
+      ],
+      "columns": [
+        {"label": "1 (Tệ)", "value": "1"},
+        {"label": "2", "value": "2"},
+        {"label": "3 (Tạm ổn)", "value": "3"},
+        {"label": "4", "value": "4"},
+        {"label": "5 (Xuất sắc)", "value": "5"}
+      ],
+      "constraints": {}
+    },
+    {
+      "id": "schedule_pacing",
+      "type": "single",
+      "question": "Lịch trình học kéo dài từ 07:30 sáng đến 17:00 chiều mỗi ngày có quá sức với bạn không?",
+      "required": true,
+      "options": [
+        "Quá nặng, tôi bị kiệt sức và giảm tiếp thu",
+        "Khá mệt, nhưng vẫn ở mức chấp nhận được",
+        "Vừa sức, cường độ này là hợp lý đối với Summer School",
+        "Thoải mái, tôi đã quen với cường độ học tập này"
+      ],
+      "note": "",
+      "constraints": {}
+    },
+    {
+      "id": "lunch_break",
+      "type": "single",
+      "question": "Khung giờ nghỉ trưa từ 11:30 đến 13:30 có đủ để bạn phục hồi năng lượng?",
+      "required": true,
+      "options": [
+        "Hoàn toàn đủ, tôi có thời gian ngủ trưa nhẹ",
+        "Vừa đủ để đi ăn và quay lại lớp",
+        "Quá ngắn, không kịp nghỉ ngơi",
+        "Quá dài, có thể rút ngắn xuống 1.5 tiếng để kết thúc buổi chiều sớm hơn"
+      ],
+      "note": "",
+      "constraints": {}
+    },
+    {
+      "id": "nps_score",
+      "type": "rating",
+      "question": "PHẦN 6: ĐÁNH GIÁ ĐẦU RA, SỰ GẮN KẾT & ĐÓNG GÓP - Trên thang điểm từ 0 đến 10, mức độ sẵn sàng của bạn trong việc giới thiệu HPC Summer School cho bạn bè/đồng nghiệp là bao nhiêu?",
+      "required": true,
+      "note": "0 = Hoàn toàn không, 10 = Chắc chắn giới thiệu",
+      "scale": {
+        "min": 0,
+        "max": 10,
+        "minLabel": "Không giới thiệu",
+        "maxLabel": "Chắc chắn"
+      },
+      "constraints": {}
+    },
+    {
+      "id": "future_engagement",
+      "type": "single",
+      "question": "Nếu năm sau BTC tổ chức một HPC School ở level nâng cao hơn, bạn có sẵn sàng tiếp tục đồng hành không?",
+      "required": true,
+      "options": [
+        "Có, chắc chắn tôi sẽ đăng ký tham gia",
+        "Có thể, tùy thuộc vào khung thời gian tổ chức",
+        "Có thể, tùy thuộc vào chủ đề công nghệ cụ thể",
+        "Không, tôi thấy kiến thức hiện tại đã đủ/không còn phù hợp"
+      ],
+      "note": "",
+      "constraints": {}
+    },
+    {
+      "id": "future_action",
+      "type": "multiple",
+      "question": "Bạn dự định áp dụng những gì đã học tại School vào đâu trong 6 tháng tới?",
+      "required": true,
+      "options": [
+        "Làm đồ án môn học / Đồ án tốt nghiệp / Luận văn Thạc sĩ",
+        "Ứng dụng tối ưu hóa hệ thống chạy code trong Lab nghiên cứu hiện tại",
+        "Tối ưu hóa hiệu năng/giảm chi phí hạ tầng cho các dự án tại doanh nghiệp đang làm",
+        "Tiếp tục tự học, nghiên cứu sâu hơn để thi các chứng chỉ về HPC/AI (NVIDIA, v.v.)",
+        "Chia sẻ lại kiến thức cho các thành viên khác trong câu lạc bộ/đội nhóm",
+        "Chưa có kế hoạch cụ thể"
+      ],
+      "note": "Chọn tất cả các phương án phù hợp",
+      "constraints": {
+        "minChoices": 1,
+        "maxChoices": 6
+      }
+    },
+    {
+      "id": "magic_wand_improvement",
+      "type": "long",
+      "question": "Nếu có một 'chiếc đũa thần' để thay đổi 1 điều duy nhất giúp School năm sau hoàn hảo hơn, bạn sẽ thay đổi điều gì?",
+      "required": true,
+      "placeholder": "Ghi ý kiến đóng góp quan trọng nhất của bạn tại đây...",
+      "note": "",
+      "constraints": {
+        "maxLength": 1000
+      }
+    },
+    {
+      "id": "final_wishes",
+      "type": "long",
+      "question": "Hãy chia sẻ bất kỳ lời chúc, lời nhắn gửi hay lời cảm ơn nào bạn muốn gửi tới Ban tổ chức, các Thầy Cô, diễn giả hoặc TA (tùy chọn):",
+      "required": false,
+      "placeholder": "Lời nhắn gửi của bạn...",
+      "note": "",
+      "constraints": {
+        "maxLength": 1000
+      }
+    }
+  ]
+}

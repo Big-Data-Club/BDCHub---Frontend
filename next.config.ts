@@ -125,14 +125,22 @@ const nextConfig: NextConfig = {
       ];
     }
 
+    const isRemote = (url: string) => url.startsWith('http://bdc.hpcc.vn') || url.startsWith('https://bdc.hpcc.vn');
+
+    const backendDest = isRemote(backendUrl) ? `${backendUrl}/apiv1/:path*` : `${backendUrl}/:path*`;
+    const lmsDest = isRemote(lmsUrl) ? `${lmsUrl}/lmsapiv1/:path*` : `${lmsUrl}/api/v1/:path*`;
+    const labDest = isRemote(labUrl) ? `${labUrl}/labapiv1/:path*` : `${labUrl}/api/v1/:path*`;
+    const chatDest = isRemote(chatUrl) ? `${chatUrl}/chatapiv1/:path*` : `${chatUrl}/api/v1/:path*`;
+    const latexDest = isRemote(latexUrl) ? `${latexUrl}/latexapiv1/:path*` : `${latexUrl}/api/v1/:path*`;
+
     return [
       {
         source: '/apiv1/:path*',
-        destination: `${backendUrl}/:path*`, 
+        destination: backendDest, 
       },
       {
         source: '/labapiv1/:path*',
-        destination: `${labUrl}/api/v1/:path*`, 
+        destination: labDest, 
       },
       {
         source: '/uploads/:path*',
@@ -140,15 +148,15 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/lmsapiv1/:path*',
-        destination: `${lmsUrl}/api/v1/:path*`, 
+        destination: lmsDest, 
       },
       {
         source: '/chatapiv1/:path*',
-        destination: `${chatUrl}/api/v1/:path*`,
+        destination: chatDest,
       },
       {
         source: '/latexapiv1/:path*',
-        destination: `${latexUrl}/api/v1/:path*`,
+        destination: latexDest,
       },
       {
         source: '/lmsapidocs/:path*',
