@@ -271,9 +271,69 @@
       "constraints": {}
     },
     {
+      "id": "lms_usage_frequency",
+      "type": "single",
+      "question": "PHẦN 4: TRẢI NGHIỆM HỆ THỐNG QUẢN LÝ HỌC TẬP (LMS PLATFORM) - Tần suất bạn truy cập và sử dụng hệ thống LMS của chương trình trong 3 ngày học?",
+      "required": true,
+      "options": [
+        "Truy cập liên tục để tải tài liệu và làm quiz song song giờ học",
+        "Chỉ truy cập cuối ngày để ôn tập và làm quiz",
+        "Thỉnh thoảng truy cập khi được giảng viên/TA yêu cầu",
+        "Hầu như không sử dụng"
+      ],
+      "note": "Thông tin này giúp BTC đánh giá thói quen tương tác với hệ thống LMS",
+      "constraints": {}
+    },
+    {
+      "id": "lms_features_utility",
+      "type": "matrix",
+      "question": "Hãy đánh giá tính hữu ích và sự ổn định của các phân hệ tính năng trên LMS",
+      "required": true,
+      "note": "Thang điểm từ 1 (Rất tệ/Không hữu ích) đến 5 (Rất tốt/Cực kỳ hữu ích)",
+      "rowLabel": "Phân hệ tính năng",
+      "rows": [
+        {"id": "lms_documents", "text": "Kho lưu trữ slide bài giảng, code ví dụ và video ghi hình"},
+        {"id": "lms_quizzes", "text": "Hệ thống làm trắc nghiệm ôn tập (Quizzes) sau các buổi học"},
+        {"id": "lms_forum", "text": "Diễn đàn trao đổi, thảo luận giải đáp thắc mắc (Forum)"}
+      ],
+      "columns": [
+        {"label": "1 (Rất tệ)", "value": "1"},
+        {"label": "2", "value": "2"},
+        {"label": "3 (Tạm ổn)", "value": "3"},
+        {"label": "4", "value": "4"},
+        {"label": "5 (Rất tốt)", "value": "5"}
+      ],
+      "constraints": {}
+    },
+    {
+      "id": "lms_ai_support",
+      "type": "rating",
+      "question": "Nếu có trải nghiệm các tính năng AI hỗ trợ trên LMS (như AI giải thích lỗi sai Quiz, gợi ý ôn tập), hãy đánh giá mức độ hài lòng:",
+      "required": false,
+      "note": "1 = Hoàn toàn không hài lòng, 5 = Cực kỳ hài lòng (Để trống nếu chưa từng sử dụng)",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Chưa tốt",
+        "maxLabel": "Cực kỳ hài lòng"
+      },
+      "constraints": {}
+    },
+    {
+      "id": "lms_pain_points",
+      "type": "long",
+      "question": "Những khó khăn hoặc lỗi kỹ thuật bạn gặp phải khi sử dụng LMS (như giật lag, lỗi đăng nhập, giao diện khó tìm tài liệu...)?",
+      "required": false,
+      "placeholder": "Ghi nhận xét của bạn để đội phát triển cải tiến UI/UX hệ thống...",
+      "note": "",
+      "constraints": {
+        "maxLength": 500
+      }
+    },
+    {
       "id": "logistics_matrix",
       "type": "matrix",
-      "question": "PHẦN 4: CÔNG TÁC HẬU CẦN & LOGISTICS - Hãy đánh giá mức độ hài lòng về các điều kiện hậu cần",
+      "question": "PHẦN 5: CÔNG TÁC HẬU CẦN & LOGISTICS - Hãy đánh giá mức độ hài lòng về các điều kiện hậu cần",
       "required": true,
       "note": "Thang điểm từ 1 (Tệ) đến 5 (Xuất sắc)",
       "rowLabel": "Dịch vụ Hậu cần",
@@ -325,7 +385,7 @@
     {
       "id": "nps_score",
       "type": "rating",
-      "question": "PHẦN 5: ĐÁNH GIÁ ĐẦU RA, SỰ GẮN KẾT & ĐÓNG GÓP - Trên thang điểm từ 0 đến 10, mức độ sẵn sàng của bạn trong việc giới thiệu HPC Summer School cho bạn bè/đồng nghiệp là bao nhiêu?",
+      "question": "PHẦN 6: ĐÁNH GIÁ ĐẦU RA, SỰ GẮN KẾT & ĐÓNG GÓP - Trên thang điểm từ 0 đến 10, mức độ sẵn sàng của bạn trong việc giới thiệu HPC Summer School cho bạn bè/đồng nghiệp là bao nhiêu?",
       "required": true,
       "note": "0 = Hoàn toàn không, 10 = Chắc chắn giới thiệu",
       "scale": {
