@@ -3,7 +3,7 @@ import { lmsApiClient } from "./lmsApiClient";
 class LMSService {
   private rolesPromise: Promise<string[] | null> | null = null;
   private cachedRoles: string[] | null = null;
-  private contentCache: Record<number, Promise<any>> = {};
+  private contentCache: Record<number, Promise<any> | undefined> = {};
 
   // ─── User ─────────────────────────────────────────────────────────────────
 
