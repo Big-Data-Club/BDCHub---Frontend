@@ -191,31 +191,16 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
               <div className="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg w-full">
                 <button
                   onClick={() => {
-                    setAgentType("mentor");
                     setActiveTab("chat");
                   }}
                   className={cn(
                     "flex-1 text-[10px] sm:text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
-                    activeTab === "chat" && agentType === "mentor"
+                    activeTab === "chat"
                       ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                   )}
                 >
-                  Virtual Mentor
-                </button>
-                <button
-                  onClick={() => {
-                    setAgentType("teacher");
-                    setActiveTab("chat");
-                  }}
-                  className={cn(
-                    "flex-1 text-[10px] sm:text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
-                    activeTab === "chat" && agentType === "teacher"
-                      ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
-                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
-                  )}
-                >
-                  Virtual Assistant
+                  {agentType === "teacher" ? "AI Virtual Assistant" : "AI Mentor"}
                 </button>
                 <button
                   onClick={() => setActiveTab("notebook")}
@@ -226,7 +211,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                   )}
                 >
-                  Notebook
+                  Vở ghi (Notebook)
                 </button>
               </div>
             </div>
