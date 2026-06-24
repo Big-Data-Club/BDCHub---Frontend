@@ -99,10 +99,14 @@
       "note": "Thang điểm từ 1 (Quá ít/Sơ sài) đến 5 (Quá tải/Quá nặng)",
       "rowLabel": "Session",
       "rows": [
-        {"id": "s1_s2", "text": "Session 1 & 2 (HPC Systems, Architecture & Slurm Job Scheduler)"},
-        {"id": "s3_s4", "text": "Session 3 & 4 (Parallel Programming Models & HPC Workflows)"},
-        {"id": "s5_s6", "text": "Session 5 & 6 (Reproducible Environments & Performance Measurement)"},
-        {"id": "s7_s8", "text": "Session 7 & 8 (GPU/Accelerator Computing & Data-Intensive Workflows)"}
+        {"id": "s1", "text": "Session 1: HPC Systems & Architecture"},
+        {"id": "s2", "text": "Session 2: Slurm Job Scheduler"},
+        {"id": "s3", "text": "Session 3: Parallel Programming Models (MPI/OpenMP)"},
+        {"id": "s4", "text": "Session 4: HPC Workflows"},
+        {"id": "s5", "text": "Session 5: Reproducible Environments (Apptainer/Docker)"},
+        {"id": "s6", "text": "Session 6: Performance Measurement & Profiling"},
+        {"id": "s7", "text": "Session 7: GPU Computing (CUDA)"},
+        {"id": "s8", "text": "Session 8: Data-Intensive & AI Workflows"}
       ],
       "columns": [
         {"label": "1 (Quá ít)", "value": "1"},
@@ -121,10 +125,14 @@
       "note": "Thang điểm từ 1 (Lý thuyết suông) đến 5 (Rất thực chiến/Áp dụng tốt)",
       "rowLabel": "Session",
       "rows": [
-        {"id": "s1_s2", "text": "Session 1 & 2 (HPC Systems, Architecture & Slurm Job Scheduler)"},
-        {"id": "s3_s4", "text": "Session 3 & 4 (Parallel Programming Models & HPC Workflows)"},
-        {"id": "s5_s6", "text": "Session 5 & 6 (Reproducible Environments & Performance Measurement)"},
-        {"id": "s7_s8", "text": "Session 7 & 8 (GPU/Accelerator Computing & Data-Intensive Workflows)"}
+        {"id": "s1", "text": "Session 1: HPC Systems & Architecture"},
+        {"id": "s2", "text": "Session 2: Slurm Job Scheduler"},
+        {"id": "s3", "text": "Session 3: Parallel Programming Models (MPI/OpenMP)"},
+        {"id": "s4", "text": "Session 4: HPC Workflows"},
+        {"id": "s5", "text": "Session 5: Reproducible Environments (Apptainer/Docker)"},
+        {"id": "s6", "text": "Session 6: Performance Measurement & Profiling"},
+        {"id": "s7", "text": "Session 7: GPU Computing (CUDA)"},
+        {"id": "s8", "text": "Session 8: Data-Intensive & AI Workflows"}
       ],
       "columns": [
         {"label": "1 (Lý thuyết)", "value": "1"},
@@ -166,24 +174,68 @@
     },
     {
       "id": "useful_skills",
-      "type": "long",
-      "question": "Kiến thức/Kỹ năng nào bạn cảm thấy hữu ích nhất và có thể áp dụng ngay?",
+      "type": "multiple",
+      "question": "Kiến thức/Kỹ năng nào bạn cảm thấy hữu ích nhất và có thể áp dụng ngay vào công việc/nghiên cứu?",
+      "required": true,
+      "options": [
+        "Thao tác Linux CLI & Quản lý công việc bằng lệnh Slurm",
+        "Biên dịch và chạy ứng dụng song song với OpenMP & MPI",
+        "Đóng gói môi trường tái tạo bằng Docker & Apptainer",
+        "Đo lường, định cấu hình và phân tích hiệu năng (Performance Profiling)",
+        "Lập trình song song trên GPU bằng CUDA",
+        "Triển khai các luồng công việc AI/Deep Learning quy mô lớn (LLM, Distributed Training)",
+        "Kỹ năng gỡ lỗi (Debugging) và tối ưu hóa hệ thống HPC",
+        "Khác (Vui lòng ghi rõ ở câu dưới)"
+      ],
+      "note": "Có thể chọn nhiều mục",
+      "constraints": {
+        "minChoices": 1,
+        "maxChoices": 8
+      }
+    },
+    {
+      "id": "useful_skills_other",
+      "type": "short",
+      "question": "Nếu chọn 'Khác' ở câu trên, vui lòng ghi rõ kỹ năng/kiến thức đó tại đây:",
       "required": false,
-      "placeholder": "Nêu cụ thể kỹ năng hoặc nội dung bạn tâm đắc nhất...",
+      "placeholder": "Ví dụ: Kỹ năng quản lý tài nguyên tính toán...",
       "note": "",
       "constraints": {
-        "maxLength": 500
+        "maxLength": 300
       }
     },
     {
       "id": "unreasonable_content",
-      "type": "long",
+      "type": "multiple",
       "question": "Theo bạn, phần nội dung hoặc session nào chưa hợp lý (bị dư thừa, hoặc quá lý thuyết, cần lược bỏ/thay thế)?",
+      "required": true,
+      "options": [
+        "Session 1: HPC Systems & Architecture (Quá nhiều lý thuyết phần cứng)",
+        "Session 2: Slurm Job Scheduler (Quá nhanh hoặc thiếu bài thực hành)",
+        "Session 3: Parallel Programming Models (Phần MPI/OpenMP quá nặng và khó hiểu)",
+        "Session 4: HPC Workflows (Lý thuyết luồng công việc hơi mơ hồ)",
+        "Session 5: Reproducible Environments (Môi trường Apptainer/Docker khó cài đặt)",
+        "Session 6: Performance Measurement & Profiling (Cách đo lường quá phức tạp)",
+        "Session 7: GPU Computing (Lập trình CUDA quá khó đối với người mới)",
+        "Session 8: Data-Intensive & AI Workflows (Thời lượng thực hành phân tán quá ngắn)",
+        "Không có phần nào dư thừa, nội dung thiết kế hợp lý",
+        "Khác (Vui lòng ghi rõ ở câu dưới)"
+      ],
+      "note": "Có thể chọn nhiều mục",
+      "constraints": {
+        "minChoices": 1,
+        "maxChoices": 10
+      }
+    },
+    {
+      "id": "unreasonable_content_other",
+      "type": "short",
+      "question": "Nếu chọn 'Khác' ở câu trên, vui lòng ghi rõ phần chưa hợp lý tại đây:",
       "required": false,
-      "placeholder": "Ghi nhận xét của bạn để BTC điều chỉnh giáo trình...",
+      "placeholder": "Ghi cụ thể nội dung cần lược bớt/điều chỉnh...",
       "note": "",
       "constraints": {
-        "maxLength": 500
+        "maxLength": 300
       }
     },
     {
@@ -215,9 +267,50 @@
       "constraints": {}
     },
     {
+      "id": "hackathon_rubric",
+      "type": "single",
+      "question": "Thể lệ thi và các tiêu chí chấm điểm (rubric) của Hackathon có được BTC công bố rõ ràng từ trước không?",
+      "required": true,
+      "options": [
+        "Rất rõ ràng, giúp đội thi dễ bám sát và định hướng bài làm",
+        "Có công bố nhưng hơi mơ hồ, cần TA giải thích thêm",
+        "Không rõ ràng, đội thi không nắm được thang điểm đánh giá"
+      ],
+      "note": "",
+      "constraints": {}
+    },
+    {
+      "id": "hackathon_grading",
+      "type": "rating",
+      "question": "Đánh giá mức độ minh bạch, công bằng và tính chuyên môn của Ban giám khảo trong quá trình chấm điểm & nhận xét các bài thi Hackathon:",
+      "required": true,
+      "note": "1 = Thiếu minh bạch/Nhận xét chưa thỏa đáng, 5 = Rất công bằng & Chuyên nghiệp",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Chưa thỏa đáng",
+        "maxLabel": "Rất công bằng"
+      },
+      "constraints": {}
+    },
+    {
+      "id": "hackathon_tech_support",
+      "type": "rating",
+      "question": "Mức độ hỗ trợ kỹ thuật từ TA và Cluster Admin trong việc gỡ lỗi hệ thống/server (VPN, cấp thêm GPU, lỗi kết nối node...) trong thời gian thi Hackathon?",
+      "required": true,
+      "note": "1 = Hỗ trợ chậm trễ/Không giải quyết được lỗi hạ tầng, 5 = Hỗ trợ rất nhanh & Kịp thời",
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Chậm/Chưa tốt",
+        "maxLabel": "Rất kịp thời"
+      },
+      "constraints": {}
+    },
+    {
       "id": "teamwork_rating",
       "type": "rating",
-      "question": "Bạn đánh giá thế nào về sự tương tác, phối hợp làm việc trong nhóm của mình?",
+      "question": "Bạn đánh giá thế nào về sự tương tác, phối hợp làm việc trong nhóm của mình lúc thi Hackathon?",
       "required": true,
       "note": "1 = Rời rạc, không hiệu quả, 5 = Phối hợp rất tốt",
       "scale": {
@@ -229,9 +322,20 @@
       "constraints": {}
     },
     {
+      "id": "hackathon_feedback_other",
+      "type": "short",
+      "question": "Ý kiến đóng góp hoặc đề xuất khác của bạn để cải thiện khâu tổ chức thi và chấm điểm Hackathon:",
+      "required": false,
+      "placeholder": "Ví dụ: Nên kéo dài thời gian thuyết trình, chuẩn bị tài nguyên server ổn định hơn...",
+      "note": "",
+      "constraints": {
+        "maxLength": 300
+      }
+    },
+    {
       "id": "seminar_value",
       "type": "rating",
-      "question": "Các bài chia sẻ từ chuyên gia (Industry Keynote & Research HPC-AI) có mở rộng được tầm nhìn của bạn không?",
+      "question": "Các bài chia sẻ từ chuyên gia (Industry Keynote & Research HPC-AI) vào buổi chiều có mở rộng được tầm nhìn của bạn không?",
       "required": true,
       "note": "1 = Hoàn toàn không giúp ích, 5 = Rất truyền cảm hứng và mở rộng tầm nhìn",
       "scale": {
@@ -245,7 +349,7 @@
     {
       "id": "ta_support",
       "type": "rating",
-      "question": "Mức độ nhiệt tình và năng lực chuyên môn của các TA trong việc gỡ lỗi, hướng dẫn thực hành?",
+      "question": "Đánh giá chung: Mức độ nhiệt tình và năng lực chuyên môn của các TA trong việc hướng dẫn thực hành suốt chương trình?",
       "required": true,
       "note": "1 = Kém nhiệt tình/Không hỗ trợ tốt, 5 = Rất nhiệt tình và chuyên môn vững",
       "scale": {
@@ -259,7 +363,7 @@
     {
       "id": "cluster_stability",
       "type": "rating",
-      "question": "Sự ổn định của tài khoản, server, VPN và workspace do Cluster Admin cung cấp?",
+      "question": "Đánh giá chung: Sự ổn định của tài khoản, server, VPN và workspace do Cluster Admin cung cấp suốt chương trình?",
       "required": true,
       "note": "1 = Lỗi liên tục gây gián đoạn, 5 = Rất mượt mà, ổn định",
       "scale": {
@@ -321,13 +425,33 @@
     },
     {
       "id": "lms_pain_points",
-      "type": "long",
-      "question": "Những khó khăn hoặc lỗi kỹ thuật bạn gặp phải khi sử dụng LMS (như giật lag, lỗi đăng nhập, giao diện khó tìm tài liệu...)?",
+      "type": "multiple",
+      "question": "Những khó khăn hoặc lỗi kỹ thuật bạn thường gặp phải khi sử dụng LMS?",
+      "required": true,
+      "options": [
+        "Giao diện khó sử dụng, khó tìm tài liệu học tập",
+        "Hệ thống phản hồi chậm, lag giật khi làm Quiz đông người",
+        "Lỗi nộp bài Quiz hoặc không xem được điểm/giải thích lỗi sai",
+        "Diễn đàn thảo luận (Forum) chưa thân thiện, ít tương tác",
+        "Tính năng AI hỗ trợ chưa thực sự hiệu quả/giải thích sai lệch",
+        "Không gặp khó khăn nào, hệ thống hoạt động rất mượt mà",
+        "Khác (Vui lòng ghi rõ ở câu dưới)"
+      ],
+      "note": "Có thể chọn nhiều mục",
+      "constraints": {
+        "minChoices": 1,
+        "maxChoices": 7
+      }
+    },
+    {
+      "id": "lms_pain_points_other",
+      "type": "short",
+      "question": "Nếu chọn 'Khác' ở câu trên, vui lòng ghi rõ lỗi/khó khăn tại đây:",
       "required": false,
-      "placeholder": "Ghi nhận xét của bạn để đội phát triển cải tiến UI/UX hệ thống...",
+      "placeholder": "Ghi cụ thể lỗi kỹ thuật hoặc góp ý UI/UX cho LMS...",
       "note": "",
       "constraints": {
-        "maxLength": 500
+        "maxLength": 300
       }
     },
     {
@@ -431,13 +555,34 @@
     },
     {
       "id": "magic_wand_improvement",
-      "type": "long",
+      "type": "multiple",
       "question": "Nếu có một 'chiếc đũa thần' để thay đổi 1 điều duy nhất giúp School năm sau hoàn hảo hơn, bạn sẽ thay đổi điều gì?",
       "required": true,
-      "placeholder": "Ghi ý kiến đóng góp quan trọng nhất của bạn tại đây...",
+      "options": [
+        "Tăng thời lượng thực hành (Hands-on Labs) trên lớp và giảm lý thuyết",
+        "Cấp tài nguyên tính toán mạnh mẽ hơn (HPC Cluster/GPU) cho từng học viên thực hành",
+        "Tăng cường hỗ trợ từ TA (hướng dẫn gỡ lỗi nhanh hơn, chi tiết hơn)",
+        "Kéo dài thời lượng chương trình (ví dụ: 4-5 ngày thay vì 3 ngày) để không bị ngợp",
+        "Tập trung sâu hơn nữa vào các bài toán AI/LLM phân tán thực tế",
+        "Cung cấp tài liệu định hướng và lưu ý chuẩn bị sớm hơn nữa trước chương trình",
+        "Nâng cấp công tác hậu cần (chất lượng teabreak, bữa trưa, wifi phòng lab)",
+        "Khác (Vui lòng ghi rõ ở câu dưới)"
+      ],
+      "note": "Chọn 1 thay đổi quan trọng nhất với bạn",
+      "constraints": {
+        "minChoices": 1,
+        "maxChoices": 1
+      }
+    },
+    {
+      "id": "magic_wand_improvement_other",
+      "type": "short",
+      "question": "Nếu chọn 'Khác' ở câu trên, vui lòng ghi rõ đề xuất cải tiến tại đây:",
+      "required": false,
+      "placeholder": "Ghi cụ thể ý kiến đóng góp quan trọng nhất của bạn...",
       "note": "",
       "constraints": {
-        "maxLength": 1000
+        "maxLength": 300
       }
     },
     {
