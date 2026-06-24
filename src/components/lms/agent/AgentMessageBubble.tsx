@@ -8,6 +8,7 @@ import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
 import { WidgetRenderer } from "./WidgetRenderer";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import lmsService from "@/services/lmsService";
 
 interface AgentMessageBubbleProps {
   message: AgentMessage;
@@ -15,6 +16,40 @@ interface AgentMessageBubbleProps {
   isSelectedForLogs?: boolean;
   onSelectForLogs?: () => void;
 }
+
+const ReferenceLink = ({ contentId, title, pageNumber }: { contentId: number; title: string; pageNumber?: number }) => {
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    lmsService.getContent(contentId)
+      .then((res) => {
+        const content = res?.data || res;
+        if (content && content.file_path) {
+          let fileUrl = `/lmsapiv1/files/serve/${content.file_path}`;
+          if (pageNumber) {
+            fileUrl += `#page=${pageNumber}`;
+          }
+          setUrl(fileUrl);
+        }
+      })
+      .catch((err) => console.error("Failed to load reference content", err));
+  }, [contentId, pageNumber]);
+
+  if (url) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:text-blue-500 hover:underline transition-colors break-all"
+      >
+        {title}
+      </a>
+    );
+  }
+
+  return <span>{title}</span>;
+};
 
 export function AgentMessageBubble({
   message,
@@ -201,6 +236,12 @@ export function AgentMessageBubble({
                           >
                             {ref.title}
                           </a>
+                        ) : ref.content_id ? (
+                          <ReferenceLink
+                            contentId={ref.content_id}
+                            title={ref.title || "Tài liệu khóa học"}
+                            pageNumber={ref.page_number}
+                          />
                         ) : (
                           <span>{ref.title}</span>
                         )}

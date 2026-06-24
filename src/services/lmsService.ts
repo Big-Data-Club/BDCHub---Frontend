@@ -3,6 +3,7 @@ import { lmsApiClient } from "./lmsApiClient";
 class LMSService {
   private rolesPromise: Promise<string[] | null> | null = null;
   private cachedRoles: string[] | null = null;
+  private contentCache: Record<number, Promise<any>> = {};
 
   // ─── User ─────────────────────────────────────────────────────────────────
 
@@ -159,8 +160,16 @@ class LMSService {
   }
 
   async getContent(contentId: number) {
-    const response = await lmsApiClient.get(`/content/${contentId}`);
-    return response.data;
+    if (this.contentCache[contentId]) {
+      return this.contentCache[contentId];
+    }
+    this.contentCache[contentId] = lmsApiClient.get(`/content/${contentId}`)
+      .then(response => response.data)
+      .catch(err => {
+        delete this.contentCache[contentId];
+        throw err;
+      });
+    return this.contentCache[contentId];
   }
 
   async listContent(sectionId: number) {

@@ -94,6 +94,7 @@ export interface AIReference {
   source_type: "material" | "web";
   url?: string;
   page_number?: number;
+  content_id?: number;
 }
 
 export interface AgentMessage {
