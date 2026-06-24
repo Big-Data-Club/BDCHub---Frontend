@@ -40,23 +40,44 @@ const optionItemClasses = "flex items-start gap-3 cursor-pointer group p-3 round
 
 // 1. Single Choice (Radio)
 export const SingleChoiceQuestion = ({ question, value, onChange, error }: any) => {
+  const isSelectedOther = value && (value.startsWith("Khác") || value.startsWith("Khác:"));
+
   return (
     <QuestionCard>
       <QuestionHeader question={question.question} required={question.required} note={question.note} />
       <div className="space-y-1">
-        {question.options.map((option: string, idx: number) => (
-          <label key={idx} className={optionItemClasses}>
-            <input
-              type="radio"
-              name={question.id}
-              value={option}
-              checked={value === option}
-              onChange={(e) => onChange(question.id, e.target.value)}
-              className="w-5 h-5 mt-0.5 accent-blue-600 cursor-pointer"
-            />
-            <span className="text-slate-700 dark:text-slate-300 font-medium group-hover:text-slate-900 dark:group-hover:text-white">{option}</span>
-          </label>
-        ))}
+        {question.options.map((option: string, idx: number) => {
+          const isOtherOption = option.startsWith("Khác");
+          const isChecked = isOtherOption ? (isSelectedOther ? true : false) : value === option;
+
+          return (
+            <div key={idx} className="flex flex-col">
+              <label className={optionItemClasses}>
+                <input
+                  type="radio"
+                  name={question.id}
+                  value={option}
+                  checked={isChecked}
+                  onChange={(e) => onChange(question.id, e.target.value)}
+                  className="w-5 h-5 mt-0.5 accent-blue-600 cursor-pointer"
+                />
+                <span className="text-slate-700 dark:text-slate-300 font-medium group-hover:text-slate-900 dark:group-hover:text-white">{option}</span>
+              </label>
+              {isOtherOption && isSelectedOther && (
+                <input
+                  type="text"
+                  placeholder="Vui lòng ghi rõ..."
+                  value={value.startsWith("Khác:") ? value.replace("Khác: ", "") : ""}
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    onChange(question.id, text ? `Khác: ${text}` : option);
+                  }}
+                  className="ml-8 mt-2 mb-3 w-[calc(100%-2.5rem)] border border-slate-300 dark:border-blue-500/20 rounded-xl p-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-slate-50 dark:bg-[#0D192E] transition-all"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
       <ErrorMsg error={error} />
     </QuestionCard>
@@ -66,10 +87,13 @@ export const SingleChoiceQuestion = ({ question, value, onChange, error }: any) 
 // 2. Multiple Choice (Checkbox)
 export const MultipleChoiceQuestion = ({ question, value = [], onChange, error }: any) => {
   const handleCheckboxChange = (option: string) => {
-    const newValue = value.includes(option)
-      ? value.filter((v: string) => v !== option)
+    const isOther = option.startsWith("Khác");
+    const isSelected = value.some((v: string) => isOther ? (v === option || v.startsWith("Khác:")) : v === option);
+
+    const newValue = isSelected
+      ? value.filter((v: string) => isOther ? !(v === option || v.startsWith("Khác:")) : v !== option)
       : [...value, option];
-    
+
     if (question.constraints?.minChoices && newValue.length < question.constraints.minChoices && newValue.length > 0) {
       onChange(question.id, newValue);
       return;
@@ -89,17 +113,40 @@ export const MultipleChoiceQuestion = ({ question, value = [], onChange, error }
     <QuestionCard>
       <QuestionHeader question={question.question} required={question.required} note={question.note} constraints={constraintsText} />
       <div className="space-y-1">
-        {question.options.map((option: string, idx: number) => (
-          <label key={idx} className={optionItemClasses}>
-            <input
-              type="checkbox"
-              checked={value.includes(option)}
-              onChange={() => handleCheckboxChange(option)}
-              className="w-5 h-5 mt-0.5 accent-blue-600 cursor-pointer rounded"
-            />
-            <span className="text-slate-700 dark:text-slate-300 font-medium group-hover:text-slate-900 dark:group-hover:text-white">{option}</span>
-          </label>
-        ))}
+        {question.options.map((option: string, idx: number) => {
+          const isOtherOption = option.startsWith("Khác");
+          const selectedOtherValue = value.find((v: string) => isOtherOption ? (v === option || v.startsWith("Khác:")) : v === option);
+          const isChecked = !!selectedOtherValue;
+
+          return (
+            <div key={idx} className="flex flex-col">
+              <label className={optionItemClasses}>
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => handleCheckboxChange(option)}
+                  className="w-5 h-5 mt-0.5 accent-blue-600 cursor-pointer rounded"
+                />
+                <span className="text-slate-700 dark:text-slate-300 font-medium group-hover:text-slate-900 dark:group-hover:text-white">{option}</span>
+              </label>
+              {isOtherOption && isChecked && (
+                <input
+                  type="text"
+                  placeholder="Vui lòng ghi rõ..."
+                  value={selectedOtherValue.startsWith("Khác:") ? selectedOtherValue.replace("Khác: ", "") : ""}
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    const newValue = value.map((v: string) =>
+                      (v === option || v.startsWith("Khác:")) ? (text ? `Khác: ${text}` : option) : v
+                    );
+                    onChange(question.id, newValue);
+                  }}
+                  className="ml-8 mt-2 mb-3 w-[calc(100%-2.5rem)] border border-slate-300 dark:border-blue-500/20 rounded-xl p-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-slate-50 dark:bg-[#0D192E] transition-all"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
       <ErrorMsg error={error} />
     </QuestionCard>

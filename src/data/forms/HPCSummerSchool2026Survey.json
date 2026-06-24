@@ -185,23 +185,12 @@
         "Lập trình song song trên GPU bằng CUDA",
         "Triển khai các luồng công việc AI/Deep Learning quy mô lớn (LLM, Distributed Training)",
         "Kỹ năng gỡ lỗi (Debugging) và tối ưu hóa hệ thống HPC",
-        "Khác (Vui lòng ghi rõ ở câu dưới)"
+        "Khác (Vui lòng ghi rõ bên dưới)"
       ],
       "note": "Có thể chọn nhiều mục",
       "constraints": {
         "minChoices": 1,
         "maxChoices": 8
-      }
-    },
-    {
-      "id": "useful_skills_other",
-      "type": "short",
-      "question": "Nếu chọn 'Khác' ở câu trên, vui lòng ghi rõ kỹ năng/kiến thức đó tại đây:",
-      "required": false,
-      "placeholder": "Ví dụ: Kỹ năng quản lý tài nguyên tính toán...",
-      "note": "",
-      "constraints": {
-        "maxLength": 300
       }
     },
     {
@@ -219,23 +208,12 @@
         "Session 7: GPU Computing (Lập trình CUDA quá khó đối với người mới)",
         "Session 8: Data-Intensive & AI Workflows (Thời lượng thực hành phân tán quá ngắn)",
         "Không có phần nào dư thừa, nội dung thiết kế hợp lý",
-        "Khác (Vui lòng ghi rõ ở câu dưới)"
+        "Khác (Vui lòng ghi rõ bên dưới)"
       ],
       "note": "Có thể chọn nhiều mục",
       "constraints": {
         "minChoices": 1,
         "maxChoices": 10
-      }
-    },
-    {
-      "id": "unreasonable_content_other",
-      "type": "short",
-      "question": "Nếu chọn 'Khác' ở câu trên, vui lòng ghi rõ phần chưa hợp lý tại đây:",
-      "required": false,
-      "placeholder": "Ghi cụ thể nội dung cần lược bớt/điều chỉnh...",
-      "note": "",
-      "constraints": {
-        "maxLength": 300
       }
     },
     {
@@ -324,7 +302,7 @@
     {
       "id": "hackathon_feedback_other",
       "type": "short",
-      "question": "Ý kiến đóng góp hoặc đề xuất khác của bạn để cải thiện khâu tổ chức thi và chấm điểm Hackathon:",
+      "question": "Ý kiến đóng góp hoặc đề xuất khác của bạn để cải thiện khâu tổ chức thi và chấm điểm Hackathon (tùy chọn):",
       "required": false,
       "placeholder": "Ví dụ: Nên kéo dài thời gian thuyết trình, chuẩn bị tài nguyên server ổn định hơn...",
       "note": "",
@@ -435,23 +413,12 @@
         "Diễn đàn thảo luận (Forum) chưa thân thiện, ít tương tác",
         "Tính năng AI hỗ trợ chưa thực sự hiệu quả/giải thích sai lệch",
         "Không gặp khó khăn nào, hệ thống hoạt động rất mượt mà",
-        "Khác (Vui lòng ghi rõ ở câu dưới)"
+        "Khác (Vui lòng ghi rõ bên dưới)"
       ],
       "note": "Có thể chọn nhiều mục",
       "constraints": {
         "minChoices": 1,
         "maxChoices": 7
-      }
-    },
-    {
-      "id": "lms_pain_points_other",
-      "type": "short",
-      "question": "Nếu chọn 'Khác' ở câu trên, vui lòng ghi rõ lỗi/khó khăn tại đây:",
-      "required": false,
-      "placeholder": "Ghi cụ thể lỗi kỹ thuật hoặc góp ý UI/UX cho LMS...",
-      "note": "",
-      "constraints": {
-        "maxLength": 300
       }
     },
     {
@@ -556,7 +523,7 @@
     {
       "id": "magic_wand_improvement",
       "type": "multiple",
-      "question": "Nếu có một 'chiếc đũa thần' để thay đổi 1 điều duy nhất giúp School năm sau hoàn hảo hơn, bạn sẽ thay đổi điều gì?",
+      "question": "Nếu có một 'chiếc đũa thần' để thay đổi các điều duy nhất giúp School năm sau hoàn hảo hơn, bạn sẽ thay đổi điều gì?",
       "required": true,
       "options": [
         "Tăng thời lượng thực hành (Hands-on Labs) trên lớp và giảm lý thuyết",
@@ -566,23 +533,12 @@
         "Tập trung sâu hơn nữa vào các bài toán AI/LLM phân tán thực tế",
         "Cung cấp tài liệu định hướng và lưu ý chuẩn bị sớm hơn nữa trước chương trình",
         "Nâng cấp công tác hậu cần (chất lượng teabreak, bữa trưa, wifi phòng lab)",
-        "Khác (Vui lòng ghi rõ ở câu dưới)"
+        "Khác (Vui lòng ghi rõ bên dưới)"
       ],
-      "note": "Chọn 1 thay đổi quan trọng nhất với bạn",
+      "note": "Chọn tối đa 3 thay đổi quan trọng nhất với bạn",
       "constraints": {
         "minChoices": 1,
-        "maxChoices": 1
-      }
-    },
-    {
-      "id": "magic_wand_improvement_other",
-      "type": "short",
-      "question": "Nếu chọn 'Khác' ở câu trên, vui lòng ghi rõ đề xuất cải tiến tại đây:",
-      "required": false,
-      "placeholder": "Ghi cụ thể ý kiến đóng góp quan trọng nhất của bạn...",
-      "note": "",
-      "constraints": {
-        "maxLength": 300
+        "maxChoices": 3
       }
     },
     {
