@@ -78,10 +78,28 @@ export async function deleteAgentSession(
     if (!res.ok) throw new Error("Failed to delete session");
 }
 
+export async function listNotebookEntries(courseId?: number): Promise<any[]> {
+    const params = new URLSearchParams();
+    if (courseId) params.append("course_id", String(courseId));
+    const res = await fetch(`/api/ai/agents/notebook?${params.toString()}`);
+    if (!res.ok) throw new Error("Failed to fetch notebook entries");
+    const data = await res.json();
+    return data.notes || [];
+}
+
+export async function deleteNotebookEntry(id: string): Promise<void> {
+    const res = await fetch(`/api/ai/agents/notebook?id=${id}`, {
+        method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete notebook entry");
+}
+
 export const agentService = {
   sendMessage: sendAgentMessage,
   listSessions: listAgentSessions,
   createNewSession: createNewAgentSession,
   getSessionMessages: getSessionMessages,
   deleteSession: deleteAgentSession,
+  listNotebook: listNotebookEntries,
+  deleteNotebookEntry: deleteNotebookEntry,
 };

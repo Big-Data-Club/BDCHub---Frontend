@@ -3,10 +3,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Sparkles, X } from "lucide-react";
+import { Sparkles, X, Book } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { usePageContext } from "@/hooks/usePageContext";
 import { AgentChatPanel } from "../lms/agent/AgentChatPanel";
+import { AgentNotebookPanel } from "../lms/agent/AgentNotebookPanel";
 
 export function CoworkerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,9 +19,11 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [width, setWidth] = useState<number>(450);
   const [agentType, setAgentType] = useState<"mentor" | "teacher">("mentor");
+  const [activeTab, setActiveTab] = useState<"chat" | "notebook">("chat");
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
+  const pageContext = usePageContext();
 
   // Initialize and persist state on mount
   useEffect(() => {
@@ -186,10 +190,13 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
             <div className="flex-1">
               <div className="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg w-full">
                 <button
-                  onClick={() => setAgentType("mentor")}
+                  onClick={() => {
+                    setAgentType("mentor");
+                    setActiveTab("chat");
+                  }}
                   className={cn(
-                    "flex-1 text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
-                    agentType === "mentor"
+                    "flex-1 text-[10px] sm:text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
+                    activeTab === "chat" && agentType === "mentor"
                       ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                   )}
@@ -197,15 +204,29 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
                   Virtual Mentor
                 </button>
                 <button
-                  onClick={() => setAgentType("teacher")}
+                  onClick={() => {
+                    setAgentType("teacher");
+                    setActiveTab("chat");
+                  }}
                   className={cn(
-                    "flex-1 text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
-                    agentType === "teacher"
+                    "flex-1 text-[10px] sm:text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
+                    activeTab === "chat" && agentType === "teacher"
                       ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                   )}
                 >
                   Virtual Assistant
+                </button>
+                <button
+                  onClick={() => setActiveTab("notebook")}
+                  className={cn(
+                    "flex-1 text-[10px] sm:text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
+                    activeTab === "notebook"
+                      ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                  )}
+                >
+                  Notebook
                 </button>
               </div>
             </div>
@@ -219,14 +240,21 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
             </button>
           </div>
 
-          {/* Active Chat Panel */}
+          {/* Active Panel (Chat or Notebook) */}
           <div className="flex-1 min-h-0 overflow-hidden">
-            <AgentChatPanel
-              key={agentType} // Re-mounts the panel when switching agent types to reset internal state correctly
-              agentType={agentType}
-              className="h-full border-none rounded-none"
-              defaultSidebarOpen={false}
-            />
+            {activeTab === "chat" ? (
+              <AgentChatPanel
+                key={agentType} // Re-mounts the panel when switching agent types to reset internal state correctly
+                agentType={agentType}
+                className="h-full border-none rounded-none"
+                defaultSidebarOpen={false}
+              />
+            ) : (
+              <AgentNotebookPanel
+                courseId={pageContext?.courseId ? Number(pageContext.courseId) : undefined}
+                className="h-full"
+              />
+            )}
           </div>
         </div>
       )}
