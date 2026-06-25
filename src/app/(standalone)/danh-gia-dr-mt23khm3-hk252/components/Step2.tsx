@@ -1,6 +1,6 @@
 import React from "react";
-import { FormData, Errors, MAX_SCORES, THRESHOLDS } from "../types";
-import { FL, FIn, UploadZone } from "./FormFields";
+import { FormData, Errors, THRESHOLDS } from "../types";
+import { FIn, UploadZone } from "./FormFields";
 
 interface Step2Props {
   data: FormData;

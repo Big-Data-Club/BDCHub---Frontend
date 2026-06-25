@@ -217,7 +217,66 @@ export default function TrainingPointFormPage() {
     }
   };
 
-  // Validation Logic per step
+  // Pure function to check validity of a step without updating React state (no side effects)
+  const isStepValid = (stepNum: number, currentForm: FormData) => {
+    if (stepNum === 1) {
+      if (!currentForm.lastName.trim()) return false;
+      if (!currentForm.firstName.trim()) return false;
+      
+      const studentIdPattern = /^\d{7}$/;
+      if (!currentForm.studentId.trim() || !studentIdPattern.test(currentForm.studentId.trim())) {
+        return false;
+      }
+
+      if (!currentForm.email.trim() || !currentForm.email.toLowerCase().endsWith("@hcmut.edu.vn")) {
+        return false;
+      }
+    } else if (stepNum === 2) {
+      const checkScore = (val: string, max: number) => {
+        if (!val.trim()) return false;
+        const num = parseFloat(val);
+        if (isNaN(num) || num < 0 || num > max) return false;
+        return true;
+      };
+
+      if (!checkScore(currentForm.score1, MAX_SCORES.score1)) return false;
+      if (!checkScore(currentForm.score2, MAX_SCORES.score2)) return false;
+      if (!checkScore(currentForm.score3, MAX_SCORES.score3)) return false;
+      if (!checkScore(currentForm.score4, MAX_SCORES.score4)) return false;
+      if (!checkScore(currentForm.score5, MAX_SCORES.score5)) return false;
+
+      if (!currentForm.score6.trim() || isNaN(parseFloat(currentForm.score6)) || parseFloat(currentForm.score6) < 0) {
+        return false;
+      }
+
+      // Check conditional evidence uploads
+      const s1 = parseFloat(currentForm.score1) || 0;
+      if (s1 > THRESHOLDS.score1 && !currentForm.evidenceUrl1) return false;
+
+      const s2 = parseFloat(currentForm.score2) || 0;
+      if (s2 > THRESHOLDS.score2 && !currentForm.evidenceUrl2) return false;
+
+      const s3 = parseFloat(currentForm.score3) || 0;
+      if (s3 > THRESHOLDS.score3 && !currentForm.evidenceUrl3) return false;
+
+      const s4 = parseFloat(currentForm.score4) || 0;
+      if (s4 > THRESHOLDS.score4 && !currentForm.evidenceUrl4) return false;
+
+      const s5 = parseFloat(currentForm.score5) || 0;
+      if (s5 >= THRESHOLDS.score5 && !currentForm.evidenceUrl5) return false;
+
+      const s6 = parseFloat(currentForm.score6) || 0;
+      if (s6 > 0 && !currentForm.evidenceUrl6) return false;
+    } else if (stepNum === 3) {
+      if (!currentForm.password.trim() || currentForm.password.trim().length < 8 || currentForm.password.trim().length > 12) {
+        return false;
+      }
+      if (!currentForm.agreeTruth) return false;
+    }
+    return true;
+  };
+
+  // Validation Logic per step that sets error state for the UI
   const validate = (stepNum = step) => {
     const e: Errors = {};
 
@@ -520,12 +579,21 @@ export default function TrainingPointFormPage() {
                   const isActive = step === s;
                   const isCompleted = step > s;
 
+                  // To check if step 's' is reachable: all previous steps must be valid
+                  let canGoToStep = true;
+                  for (let prevStep = 1; prevStep < s; prevStep++) {
+                    if (!isStepValid(prevStep, form)) {
+                      canGoToStep = false;
+                      break;
+                    }
+                  }
+
                   return (
                     <button
                       key={s}
-                      disabled={s > step && !validate(step)}
+                      disabled={!canGoToStep}
                       onClick={() => handleEditStep(s)}
-                      className="flex items-center gap-2 group text-left cursor-pointer focus:outline-none disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 group text-left cursor-pointer focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <div
                         className={`w-7 h-7 rounded-full border flex items-center justify-center text-xs font-black transition-all duration-300 flex-shrink-0
@@ -540,7 +608,7 @@ export default function TrainingPointFormPage() {
                         )}
                       </div>
                       <span
-                        className={`text-xs font-bold hidden md:inline-block transition-colors duration-250
+                        className={`text-xs font-bold hidden md:inline-block transition-colors duration-255
                           ${isActive ? "text-cyan-600 dark:text-cyan-400" : isCompleted ? "text-slate-700 dark:text-slate-350" : "text-slate-400 dark:text-slate-600"}`}
                       >
                         {label}

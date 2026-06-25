@@ -28,7 +28,7 @@ export function AlreadySubmitted({ onClear }: AlreadySubmittedProps) {
       } else {
         setError("Không tìm thấy dữ liệu đã nộp. Vui lòng tạo bản nộp mới.");
       }
-    } catch (err) {
+    } catch {
       setError("Có lỗi xảy ra khi đọc dữ liệu cũ.");
     }
   };
@@ -38,13 +38,6 @@ export function AlreadySubmitted({ onClear }: AlreadySubmittedProps) {
   };
 
   if (isAuthenticated && submittedData) {
-    const s1 = parseFloat(submittedData.score1) || 0;
-    const s2 = parseFloat(submittedData.score2) || 0;
-    const s3 = parseFloat(submittedData.score3) || 0;
-    const s4 = parseFloat(submittedData.score4) || 0;
-    const s5 = parseFloat(submittedData.score5) || 0;
-    const s6 = parseFloat(submittedData.score6) || 0;
-    const finalScore = Math.min(100, s1 + s2 + s3 + s4 + s5 + s6);
 
     return (
       <div className="space-y-6 animate-fadeIn">

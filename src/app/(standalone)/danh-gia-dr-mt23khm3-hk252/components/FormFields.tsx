@@ -103,7 +103,7 @@ export function UploadZone({
       } else {
         setLocalErr(json.message || "Tải lên thất bại. Vui lòng thử lại.");
       }
-    } catch (err) {
+    } catch {
       setLocalErr("Không thể kết nối đến máy chủ để tải file.");
     } finally {
       setUploading(false);

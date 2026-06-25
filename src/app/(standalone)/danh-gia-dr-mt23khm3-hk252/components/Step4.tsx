@@ -1,5 +1,4 @@
-import React from "react";
-import { FormData, MAX_SCORES } from "../types";
+import { FormData } from "../types";
 
 interface Step4Props {
   data: FormData;
@@ -41,7 +40,7 @@ export function Step4({ data, onEditStep }: Step4Props) {
           Xem lại thông tin tự đánh giá
         </h2>
         <p className="text-slate-500 dark:text-slate-450 text-sm">
-          Kiểm tra kỹ các thông tin dưới đây. Nhấn nút "Quay lại" hoặc click vào biểu tượng chỉnh sửa kế bên tiêu đề để sửa đổi nếu có sai sót.
+          Kiểm tra kỹ các thông tin dưới đây. Nhấn nút &quot;Quay lại&quot; hoặc click vào biểu tượng chỉnh sửa kế bên tiêu đề để sửa đổi nếu có sai sót.
         </p>
       </div>
 
