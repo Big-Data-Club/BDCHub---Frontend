@@ -170,7 +170,7 @@ export default function TeacherDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           {/* Chart 1: Registration Timeline */}
-          <Card className="p-5 flex flex-col h-[350px]">
+          <Card className="p-5 flex flex-col h-[350px] min-w-0">
             <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm mb-4 flex items-center gap-1.5">
               <TrendingUp className="w-4 h-4 text-blue-500" />
               Lượt đăng ký mới của học viên (10 ngày gần đây)
@@ -180,7 +180,7 @@ export default function TeacherDashboard() {
                 Chưa ghi nhận lượt đăng ký mới nào trong những ngày gần đây.
               </div>
             ) : (
-              <div className="flex-1">
+              <div className="flex-1 min-h-0 w-full relative">
                 {mounted && (
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={registrationTimeline} margin={{ left: -10, right: 10, top: 10, bottom: 5 }}>
@@ -197,7 +197,7 @@ export default function TeacherDashboard() {
           </Card>
 
           {/* Chart 2: Course Engagement comparison */}
-          <Card className="p-5 flex flex-col h-[350px]">
+          <Card className="p-5 flex flex-col h-[350px] min-w-0">
             <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm mb-4 flex items-center gap-1.5">
               <Award className="w-4 h-4 text-purple-500" />
               So sánh Độ hoàn thành & Điểm Quiz theo khóa học
@@ -207,7 +207,7 @@ export default function TeacherDashboard() {
                 Chưa có dữ liệu khóa học đã xuất bản nào để so sánh.
               </div>
             ) : (
-              <div className="flex-1">
+              <div className="flex-1 min-h-0 w-full relative">
                 {mounted && (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart

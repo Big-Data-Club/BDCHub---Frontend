@@ -49,13 +49,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Admin LMS</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Xin chào, {userName}</p>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-50 truncate whitespace-nowrap">Admin LMS</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-[120px] sm:max-w-[200px] truncate whitespace-nowrap" title={`Xin chào, ${userName}`}>Xin chào, {userName}</p>
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-1">
               {navItems.map((item) => {
                 const isActive = pathname === item.href || 
                   (item.href !== "/lms/admin" && pathname.startsWith(item.href));
@@ -92,7 +92,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
 
-          <nav className="md:hidden flex items-center space-x-1 pb-3 overflow-x-auto">
+          <nav className="lg:hidden flex items-center space-x-1 pb-3 overflow-x-auto">
             {navItems.map((item) => {
               const isActive = pathname === item.href || 
                 (item.href !== "/lms/admin" && pathname.startsWith(item.href));

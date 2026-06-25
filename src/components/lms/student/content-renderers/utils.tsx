@@ -65,20 +65,21 @@ export function StatPill({ label, value }: { label: string; value: string }) {
 }
 
 export function DownloadLink({
-  href, label, secondary = false, compact = false,
+  href, label, secondary = false, compact = false, className,
 }: {
-  href: string; label: string; secondary?: boolean; compact?: boolean;
+  href: string; label: string; secondary?: boolean; compact?: boolean; className?: string;
 }) {
   return (
     <a
       href={href}
       download
       className={cn(
-        "inline-flex items-center gap-1.5 font-medium rounded-xl shadow-sm transition-all active:scale-95",
+        "inline-flex items-center justify-center gap-1.5 font-medium rounded-xl shadow-sm transition-all active:scale-95 whitespace-nowrap",
         compact ? "px-3 py-1.5 text-sm" : "px-4 py-2 text-sm",
         secondary
           ? "bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
-          : "bg-blue-600 hover:bg-blue-700 text-white"
+          : "bg-blue-600 hover:bg-blue-700 text-white",
+        className
       )}
     >
       📥 {label}

@@ -304,7 +304,7 @@ export default function StudentDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* ── Column 1: Courses List ── */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-6 min-w-0">
           <Card className="overflow-hidden h-full flex flex-col">
             <div className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
               <div>
@@ -359,17 +359,17 @@ export default function StudentDashboard() {
         </div>
 
         {/* ── Column 2 & 3: Personal Insights ── */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6 min-w-0">
           {selectedCourseId ? (
             <Card className="p-6 space-y-6">
               {/* Selector and course name */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-5 gap-4">
-                <div>
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
-                    <Target className="w-3.5 h-3.5" />
-                    Phân tích học tập cá nhân
+                    <Target className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="truncate">Phân tích học tập cá nhân</span>
                   </div>
-                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-50 mt-1">
+                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-50 mt-1 truncate" title={currentCourse?.course_title}>
                     {currentCourse?.course_title || `Chi tiết Khóa học #${selectedCourseId}`}
                   </h3>
                 </div>
@@ -377,7 +377,7 @@ export default function StudentDashboard() {
                 <select
                   value={selectedCourseId ?? ""}
                   onChange={e => setSelectedCourseId(Number(e.target.value))}
-                  className="py-2 px-3 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="py-2 px-3 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 flex-shrink-0 sm:max-w-[200px]"
                 >
                   {acceptedEnrollments.map(e => (
                     <option key={e.course_id} value={e.course_id}>
@@ -444,7 +444,7 @@ export default function StudentDashboard() {
                               <p className="text-xs text-slate-500">Chưa có bài học nào trong khóa học này.</p>
                             </div>
                           ) : (
-                            <div className="flex-1">
+                            <div className="flex-1 min-h-0 w-full relative">
                               {mounted && (
                                 <ResponsiveContainer width="100%" height="100%">
                                   <BarChart data={getFormatData()} margin={{ left: -15, right: 10, top: 10, bottom: 5 }}>
@@ -515,7 +515,7 @@ export default function StudentDashboard() {
                               <p className="text-xs text-slate-500">Chưa có đủ dữ liệu tương tác để phân tích độ thông thạo chủ đề.</p>
                             </div>
                           ) : (
-                            <div className="flex-1">
+                            <div className="flex-1 min-h-0 w-full relative">
                               {mounted && (
                                 <ResponsiveContainer width="100%" height="100%">
                                   <RadarChart cx="50%" cy="50%" outerRadius="70%" data={heatmapData}>
@@ -550,7 +550,7 @@ export default function StudentDashboard() {
                             </div>
                           ) : (
                             <div className="flex-1 flex flex-col justify-between">
-                              <div className="flex-1 max-h-[160px] overflow-auto pr-1">
+                              <div className="flex-1 max-h-[160px] overflow-auto pr-1 w-full relative">
                                 {mounted && (
                                   <ResponsiveContainer width="100%" height={Math.max(120, quizScores.length * 40)}>
                                     <BarChart

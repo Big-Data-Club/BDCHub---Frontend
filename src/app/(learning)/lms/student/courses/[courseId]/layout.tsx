@@ -562,7 +562,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
 
         {/* ── Header ── */}
-        <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <header className="sticky top-16 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
           <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center gap-3">
             <BreadcrumbNav items={breadcrumbItems} className="flex-1 min-w-0" />
 
@@ -635,7 +635,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
         <div className="flex-1 max-w-screen-2xl mx-auto w-full flex overflow-hidden">
 
           {/* Desktop sidebar */}
-          <aside className="hidden lg:flex flex-col w-72 xl:w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-hidden">
+          <aside className="hidden lg:flex flex-col w-72 xl:w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0 sticky top-[120px] h-[calc(100vh-120px)] overflow-hidden">
             {SidebarContent}
           </aside>
 

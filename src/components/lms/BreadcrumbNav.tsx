@@ -26,7 +26,7 @@ export function BreadcrumbNav({ items, className }: BreadcrumbNavProps) {
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn("flex items-center gap-1.5 text-sm flex-wrap", className)}
+      className={cn("flex items-center gap-1.5 text-sm flex-nowrap overflow-hidden", className)}
     >
       <Link
         href="/lms/teacher"

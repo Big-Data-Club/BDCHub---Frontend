@@ -24,24 +24,26 @@ export function DocumentRenderer({ content }: DocumentRendererProps) {
   return (
     <div className="space-y-4">
       {/* File info card */}
-      <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl">
-        <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 rounded-xl flex items-center justify-center flex-shrink-0 text-lg">
-          {isPdf ? "📄" : isOfficeDoc ? "📊" : "📋"}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 rounded-xl flex items-center justify-center flex-shrink-0 text-lg">
+            {isPdf ? "📄" : isOfficeDoc ? "📊" : "📋"}
+          </div>
+          <div className="min-w-0">
+            <p className="font-semibold text-slate-900 dark:text-slate-50 truncate" title={fileName}>{fileName}</p>
+            {fileSize && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{fileSize}</p>}
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-slate-900 dark:text-slate-50 truncate">{fileName}</p>
-          {fileSize && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{fileSize}</p>}
-        </div>
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start flex-wrap sm:flex-nowrap">
           <a
             href={docUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-all active:scale-95"
+            className="flex-1 sm:flex-none text-center px-3 py-1.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all active:scale-95 whitespace-nowrap"
           >
             Xem
           </a>
-          <DownloadLink href={downloadUrl} label="Tải xuống" secondary compact />
+          <DownloadLink href={downloadUrl} label="Tải xuống" secondary compact className="flex-1 sm:flex-none w-full" />
         </div>
       </div>
 
