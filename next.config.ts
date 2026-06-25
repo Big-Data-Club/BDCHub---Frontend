@@ -106,7 +106,6 @@ const nextConfig: NextConfig = {
     const aiUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
     const labUrl = process.env.LAB_API_URL || 'http://localhost:8082';
     const chatUrl = process.env.CHAT_API_URL || 'http://localhost:8083';
-    const latexUrl = process.env.LATEX_API_URL || 'http://localhost:8084';
 
     // In production, Traefik handles all API routing at the edge.
     // However, the Next.js internal image optimizer requests relative paths (like /files/... or /uploads/...)
@@ -131,7 +130,6 @@ const nextConfig: NextConfig = {
     const lmsDest = isRemote(lmsUrl) ? `${lmsUrl}/lmsapiv1/:path*` : `${lmsUrl}/api/v1/:path*`;
     const labDest = isRemote(labUrl) ? `${labUrl}/labapiv1/:path*` : `${labUrl}/api/v1/:path*`;
     const chatDest = isRemote(chatUrl) ? `${chatUrl}/chatapiv1/:path*` : `${chatUrl}/api/v1/:path*`;
-    const latexDest = isRemote(latexUrl) ? `${latexUrl}/latexapiv1/:path*` : `${latexUrl}/api/v1/:path*`;
 
     return [
       {
@@ -153,10 +151,6 @@ const nextConfig: NextConfig = {
       {
         source: '/chatapiv1/:path*',
         destination: chatDest,
-      },
-      {
-        source: '/latexapiv1/:path*',
-        destination: latexDest,
       },
       {
         source: '/lmsapidocs/:path*',

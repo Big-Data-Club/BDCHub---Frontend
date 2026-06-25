@@ -167,7 +167,6 @@ const Sidebar: React.FC = () => {
                   link.label === "Shared Knowledge" ||
                   link.label === "Virtual Lab" ||
                   link.label === "Chat" ||
-                  link.label === "BDCTex" ||
                   link.label === "Data Hackathon" ||
                   link.label === "HCMUT HPC School"
                 );

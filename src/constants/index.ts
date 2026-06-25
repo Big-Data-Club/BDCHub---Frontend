@@ -9,7 +9,6 @@ import {
   GraduationCap,
   BookOpen,
   MessageSquare,
-  FileText,
 } from "lucide-react";
 import bdclogo from "@/assets/bdclogo.png";
 
@@ -38,7 +37,6 @@ export const sidebarSections = [
       { label: "Shared Knowledge",route: "/lms",          icon: GraduationCap,   iconColor: "text-blue-500" },
       { label: "Virtual Lab",     route: "/labs",         icon: FlaskConical,    iconColor: "text-blue-500" },
       { label: "Chat",            route: "/chat",         icon: MessageSquare,   iconColor: "text-blue-500" },
-      { label: "BDCTex",          route: "/bdctex",       icon: FileText,        iconColor: "text-blue-500" },
     ],
   },
   {
