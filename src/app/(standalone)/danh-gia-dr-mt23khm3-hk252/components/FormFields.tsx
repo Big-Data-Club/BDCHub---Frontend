@@ -29,7 +29,7 @@ export function FIn({ error, suffix, ...p }: React.InputHTMLAttributes<HTMLInput
   return (
     <div className="relative w-full">
       <div className="relative flex items-center">
-        <input {...p} className={`${inputCls} ${error ? errInputCls : ""} ${suffix ? "pr-24" : ""}`} />
+        <input {...p} className={`${inputCls} ${error ? errInputCls : ""} ${suffix ? "pr-14" : ""}`} />
         {suffix && (
           <div className="absolute right-4 text-sm font-bold text-slate-400 dark:text-slate-500">
             {suffix}

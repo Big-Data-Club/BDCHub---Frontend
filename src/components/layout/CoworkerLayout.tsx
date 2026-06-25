@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePageContext } from "@/hooks/usePageContext";
 import { AgentChatPanel } from "../lms/agent/AgentChatPanel";
 import { AgentNotebookPanel } from "../lms/agent/AgentNotebookPanel";
+import { NotificationPopover } from "@/components/lms/notifications/NotificationPopover";
 
 export function CoworkerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -272,6 +273,16 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
           
           <Sparkles className="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300" />
         </button>
+      )}
+
+      {/* Persistent Global Notification Bell (only for authenticated sessions) */}
+      {status === "authenticated" && (!isOpen || !isMobile) && (
+        <div 
+          className="fixed top-4 transition-all duration-300 z-[40]"
+          style={{ right: isOpen ? `${width + 16}px` : "16px" }}
+        >
+          <NotificationPopover />
+        </div>
       )}
     </div>
   );

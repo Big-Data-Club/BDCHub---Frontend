@@ -5,6 +5,7 @@ import { useEffect, ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { UserProvider, useUser } from "@/store/UserContext";
+import { NotificationProvider } from "@/store/NotificationContext";
 import { PageContextProvider } from "@/hooks/usePageContext";
 import { CoworkerLayout } from "@/components/layout/CoworkerLayout";
 
@@ -47,9 +48,11 @@ export default function Providers({ children }: { children: ReactNode }) {
           storageKey="bdc-theme"
         >
           <PageContextProvider>
-            <CoworkerLayout>
-              {children}
-            </CoworkerLayout>
+            <NotificationProvider>
+              <CoworkerLayout>
+                {children}
+              </CoworkerLayout>
+            </NotificationProvider>
           </PageContextProvider>
           <Toaster />
         </ThemeProvider>

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ChevronsLeft, ChevronsRight, LogOut, Sun, Moon, Settings } from "lucide-react";
 import { useUser } from "@/store/UserContext";
+import { useNotifications } from "@/store/NotificationContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import SafeImage from "../common/SafeImage";
@@ -28,6 +29,7 @@ const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { user, setUser } = useUser();
+  const { unreadAlertsCount } = useNotifications();
   const { isAdmin } = useAuth();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -186,6 +188,7 @@ const Sidebar: React.FC = () => {
                   const isActive = pathname === link.route;
                   const Icon = link.icon;
                   const isExternal = link.route.startsWith("http");
+                  const hasBadge = link.route === "/lms" && unreadAlertsCount > 0;
                   const item = (
                     <Link
                       href={link.route}
@@ -199,8 +202,22 @@ const Sidebar: React.FC = () => {
                         isCollapsed && "justify-center px-2"
                       )}
                     >
-                      <Icon className="h-4 w-4 flex-shrink-0" />
-                      {!isCollapsed && link.label}
+                      <div className="relative">
+                        <Icon className="h-4 w-4 flex-shrink-0" />
+                        {isCollapsed && hasBadge && (
+                          <span className="absolute -top-1.5 -right-1.5 h-2 w-2 rounded-full bg-red-500 ring-1 ring-white dark:ring-slate-900 animate-pulse" />
+                        )}
+                      </div>
+                      {!isCollapsed && (
+                        <>
+                          <span>{link.label}</span>
+                          {hasBadge && (
+                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white leading-none">
+                              {unreadAlertsCount > 9 ? "9+" : unreadAlertsCount}
+                            </span>
+                          )}
+                        </>
+                      )}
                     </Link>
                   );
                   return (

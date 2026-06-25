@@ -79,7 +79,7 @@ export function Step2({ data, errors, onChange, onUploaded, onUploading }: Step2
                 Điểm tối đa: <span className="font-semibold text-slate-650 dark:text-slate-350">20 điểm</span>
               </p>
             </div>
-            <div className="w-full md:w-32 flex-shrink-0">
+            <div className="w-full md:w-40 flex-shrink-0">
               <FIn
                 type="number"
                 min="0"
@@ -117,7 +117,7 @@ export function Step2({ data, errors, onChange, onUploaded, onUploading }: Step2
                 Điểm tối đa: <span className="font-semibold text-slate-650 dark:text-slate-350">25 điểm</span>
               </p>
             </div>
-            <div className="w-full md:w-32 flex-shrink-0">
+            <div className="w-full md:w-40 flex-shrink-0">
               <FIn
                 type="number"
                 min="0"
@@ -155,7 +155,7 @@ export function Step2({ data, errors, onChange, onUploaded, onUploading }: Step2
                 Điểm tối đa: <span className="font-semibold text-slate-650 dark:text-slate-350">20 điểm</span>
               </p>
             </div>
-            <div className="w-full md:w-32 flex-shrink-0">
+            <div className="w-full md:w-40 flex-shrink-0">
               <FIn
                 type="number"
                 min="0"
@@ -196,7 +196,7 @@ export function Step2({ data, errors, onChange, onUploaded, onUploading }: Step2
                 * Tất cả hoạt động từ các đoàn thể, tổ chức chính thức trong trường đều được chấp nhận.
               </p>
             </div>
-            <div className="w-full md:w-32 flex-shrink-0">
+            <div className="w-full md:w-40 flex-shrink-0">
               <FIn
                 type="number"
                 min="0"
@@ -238,7 +238,7 @@ export function Step2({ data, errors, onChange, onUploaded, onUploading }: Step2
                 * Tất cả hoạt động từ các đoàn thể, tổ chức chính thức trong trường đều được chấp nhận.
               </p>
             </div>
-            <div className="w-full md:w-32 flex-shrink-0">
+            <div className="w-full md:w-40 flex-shrink-0">
               <FIn
                 type="number"
                 min="0"
@@ -280,7 +280,7 @@ export function Step2({ data, errors, onChange, onUploaded, onUploading }: Step2
                 Điểm tự do (Yêu cầu có kèm minh chứng).
               </p>
             </div>
-            <div className="w-full md:w-32 flex-shrink-0">
+            <div className="w-full md:w-40 flex-shrink-0">
               <FIn
                 type="number"
                 min="0"

@@ -480,7 +480,7 @@ export default function TrainingPointFormPage() {
   ];
 
   return (
-    <div className="w-full overflow-x-hidden pb-12 pt-20 sm:pt-24 select-none">
+    <div className="w-full overflow-x-hidden pb-12 pt-20 sm:pt-24">
       {/* ── Fixed Sticky Header ── */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
