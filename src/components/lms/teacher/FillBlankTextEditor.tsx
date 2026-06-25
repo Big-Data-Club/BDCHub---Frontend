@@ -138,7 +138,10 @@ export default function FillBlankTextEditor({
         }
       }
     };
-     return (
+    input.click();
+  };
+
+  return (
     <div className="space-y-6 text-slate-900 dark:text-slate-100">
       {/* Instructions */}
       <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
