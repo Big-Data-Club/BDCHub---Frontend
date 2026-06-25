@@ -51,8 +51,19 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Update default agentType based on user role when user loads
+  // Update default agentType based on user role and current pathname context
   useEffect(() => {
+    if (pathname) {
+      if (pathname.includes("/lms/student")) {
+        setAgentType("mentor");
+        return;
+      }
+      if (pathname.includes("/lms/teacher")) {
+        setAgentType("teacher");
+        return;
+      }
+    }
+
     if (user?.role) {
       const isAdminOrTeacher = 
         user.role === "ROLE_ADMIN" || 
@@ -61,7 +72,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
       
       setAgentType(isAdminOrTeacher ? "teacher" : "mentor");
     }
-  }, [user]);
+  }, [user, pathname]);
 
   // Persist state changes
   const handleToggleOpen = useCallback(() => {

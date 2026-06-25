@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import { useMarkdownImage } from '@/hooks/useMarkdownImage';
+import { useTheme } from 'next-themes';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
@@ -26,6 +27,7 @@ export default function MarkdownEditor({
 }: MarkdownEditorProps) {
   const { uploadImage, uploading } = useMarkdownImage();
   const [uploadError, setUploadError] = useState<string>('');
+  const { resolvedTheme } = useTheme();
 
   const handlePaste = async (e: React.ClipboardEvent<HTMLDivElement>) => {
     const items = e.clipboardData?.items;
@@ -54,9 +56,9 @@ export default function MarkdownEditor({
   };
 
   return (
-    <div className="w-full" data-color-mode="light">
+    <div className="w-full" data-color-mode={resolvedTheme === 'dark' ? 'dark' : 'light'}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
           {label}
         </label>
       )}
@@ -64,7 +66,7 @@ export default function MarkdownEditor({
       <div
         onPaste={handlePaste}
         className={`border rounded-lg overflow-hidden transition-all focus-within:ring-2 focus-within:ring-blue-500/20 ${
-          error ? 'border-red-500' : 'border-gray-200'
+          error ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'
         }`}
       >
         <MDEditor
@@ -88,31 +90,31 @@ export default function MarkdownEditor({
 
       {/* Error / Loading Indicators */}
       {error && (
-        <p className="text-sm text-red-600 mt-1.5 flex items-center gap-1.5">
+        <p className="text-sm text-red-600 dark:text-red-400 mt-1.5 flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           {error}
         </p>
       )}
       
       {uploadError && (
-        <p className="text-sm text-amber-600 mt-1.5 flex items-center gap-1.5 font-medium">
+        <p className="text-sm text-amber-600 dark:text-amber-400 mt-1.5 flex items-center gap-1.5 font-medium">
           ⚠️ <span>Lỗi tải ảnh: {uploadError}</span>
         </p>
       )}
 
       {uploading && (
-        <div className="mt-2 flex items-center gap-2 text-sm text-blue-600 font-medium animate-pulse">
-          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="mt-2 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-medium animate-pulse">
+          <div className="w-4 h-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
           Đang tải ảnh lên hệ thống...
         </div>
       )}
 
       {/* Help text */}
       <div className="flex justify-between items-center mt-2.5">
-        <p className="text-[11px] text-gray-400">
+        <p className="text-[11px] text-gray-400 dark:text-slate-500">
           💡 <strong>Mẹo:</strong> Dán ảnh trực tiếp từ clipboard để tự động tải lên.
         </p>
-        <p className="text-[11px] text-gray-400">
+        <p className="text-[11px] text-gray-400 dark:text-slate-500">
           Hỗ trợ: **đậm**, *nghiêng*, `code`, [liên kết](url), # Tiêu đề, $math$, v.v.
         </p>
       </div>

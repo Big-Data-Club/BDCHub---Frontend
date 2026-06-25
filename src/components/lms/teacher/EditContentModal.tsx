@@ -305,18 +305,18 @@ export default function EditContentModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b sticky top-0 bg-white z-10">
-          <h2 className="text-xl font-bold">Chỉnh sửa nội dung</h2>
-          <p className="text-sm text-gray-600 mt-1">
+      <div className="bg-white dark:bg-slate-900 border dark:border-slate-800/80 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100">
+        <div className="p-6 border-b dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900 z-10">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Chỉnh sửa nội dung</h2>
+          <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
             {getContentTypeLabel(content.type)} - {content.title}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Type Info */}
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700">
+          <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-lg">
+            <p className="text-sm text-blue-700 dark:text-blue-400">
               <strong>Loại nội dung:</strong> {getContentTypeLabel(content.type)}
               <br />
               <strong>Ngày tạo:</strong>{" "}
@@ -328,12 +328,12 @@ export default function EditContentModal({
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium mb-2">Tiêu đề *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tiêu đề *</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
               disabled={loading}
             />
@@ -341,11 +341,11 @@ export default function EditContentModal({
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium mb-2">Mô tả</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Mô tả</label>
             <textarea
               value={formData.description}
               onChange={(e) => handleDescriptionChange(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               rows={3}
               disabled={loading}
             />
@@ -353,11 +353,11 @@ export default function EditContentModal({
 
           {/* QUIZ Settings */}
           {content.type === "QUIZ" && quizSettings && (
-            <div className="border-t pt-4">
+            <div className="border-t dark:border-slate-800 pt-4">
               {loadingQuiz ? (
                 <div className="text-center py-4">
                   <div className="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-sm text-gray-600 mt-2">Đang tải cài đặt quiz...</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 mt-2">Đang tải cài đặt quiz...</p>
                 </div>
               ) : (
                 <QuizSettingsForm
@@ -385,12 +385,12 @@ export default function EditContentModal({
             content.type === "IMAGE") && (
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium">File</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">File</label>
                 {currentFile && (
                   <button
                     type="button"
                     onClick={() => setShowFileUpload(!showFileUpload)}
-                    className="text-xs text-blue-600 hover:text-blue-700"
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                   >
                     {showFileUpload ? "Hủy" : "Đổi file"}
                   </button>
@@ -398,19 +398,19 @@ export default function EditContentModal({
               </div>
 
               {currentFile && !showFileUpload && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg mb-4">
+                <div className="p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 rounded-lg mb-4">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-green-700 mb-1">
+                      <p className="text-sm font-medium text-green-700 dark:text-green-400 mb-1">
                         ✓ File hiện tại
                       </p>
-                      <p className="text-sm text-green-600">
+                      <p className="text-sm text-green-600 dark:text-green-400">
                         📁 {currentFile.file_name}
                       </p>
-                      <p className="text-xs text-green-600">
+                      <p className="text-xs text-green-600 dark:text-green-400">
                         📊 {formatFileSize(currentFile.file_size)}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1 font-mono break-all">
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 font-mono break-all">
                         {currentFile.file_path}
                       </p>
                     </div>
@@ -459,8 +459,8 @@ export default function EditContentModal({
               )}
 
               {!currentFile && (
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-700 mb-3">
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900/40 rounded-lg">
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400 mb-3">
                     ⚠️ Chưa có file được tải lên
                   </p>
                   <FileUpload
@@ -474,7 +474,7 @@ export default function EditContentModal({
 
           {/* Order Index */}
           <div>
-            <label className="block text-sm font-medium mb-2">Thứ tự</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Thứ tự</label>
             <input
               type="number"
               value={formData.order_index}
@@ -484,7 +484,7 @@ export default function EditContentModal({
                   order_index: parseInt(e.target.value) || 0,
                 })
               }
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               min="0"
               disabled={loading}
             />
@@ -499,18 +499,18 @@ export default function EditContentModal({
               onChange={(e) =>
                 setFormData({ ...formData, is_mandatory: e.target.checked })
               }
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-slate-700 rounded focus:ring-blue-500 bg-white dark:bg-slate-800"
               disabled={loading}
             />
-            <label htmlFor="is-mandatory" className="ml-2 text-sm font-medium">
+            <label htmlFor="is-mandatory" className="ml-2 text-sm font-medium text-slate-700 dark:text-slate-300">
               Nội dung bắt buộc
             </label>
           </div>
 
           {/* Info */}
           {content.type !== "QUIZ" && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-700">
+            <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
                 <strong>💡 Lưu ý:</strong> Khi bạn cập nhật file, học viên sẽ nhận
                 được file mới khi họ truy cập lại nội dung. Tiêu đề và mô tả cũng sẽ
                 được cập nhật ngay lập tức.
@@ -520,7 +520,7 @@ export default function EditContentModal({
         </form>
 
         {/* Actions */}
-        <div className="flex gap-3 p-6 border-t sticky bottom-0 bg-white">
+        <div className="flex gap-3 p-6 border-t dark:border-slate-800 sticky bottom-0 bg-white dark:bg-slate-900">
           <Button
             type="submit"
             onClick={handleSubmit}
@@ -543,7 +543,7 @@ export default function EditContentModal({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+            className="px-4 py-2 bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-750 disabled:opacity-50"
           >
             Hủy
           </Button>

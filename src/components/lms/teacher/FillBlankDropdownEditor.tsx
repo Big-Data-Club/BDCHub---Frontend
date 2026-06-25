@@ -198,12 +198,12 @@ export default function FillBlankDropdownEditor({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-slate-900 dark:text-slate-100">
       {/* Instructions */}
-      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-        <h4 className="font-semibold text-purple-900 mb-2">💡 Hướng dẫn</h4>
-        <ul className="text-sm text-purple-800 space-y-1 list-disc list-inside">
-          <li>Sử dụng <code className="bg-purple-100 px-1 rounded">{`{BLANK_1}`}</code>, <code className="bg-purple-100 px-1 rounded">{`{BLANK_2}`}</code>, ... trong câu hỏi</li>
+      <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+        <h4 className="font-semibold text-purple-900 dark:text-purple-300 mb-2">💡 Hướng dẫn</h4>
+        <ul className="text-sm text-purple-800 dark:text-purple-400 space-y-1 list-disc list-inside">
+          <li>Sử dụng <code className="bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-350 px-1 rounded">{`{BLANK_1}`}</code>, <code className="bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-350 px-1 rounded">{`{BLANK_2}`}</code>, ... trong câu hỏi</li>
           <li>Mỗi blank phải có <strong>ít nhất 2 options</strong></li>
           <li>Mỗi blank phải có <strong>đúng 1 đáp án đúng</strong></li>
           <li>Học viên sẽ chọn từ dropdown</li>
@@ -212,7 +212,7 @@ export default function FillBlankDropdownEditor({
 
       {/* Question Text Input */}
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           Câu hỏi với blanks *
         </label>
         <div className="relative">
@@ -230,14 +230,14 @@ export default function FillBlankDropdownEditor({
             disabled={uploading}
             variant="ghost"
             size="sm"
-            className="absolute bottom-3 right-3 text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+            className="absolute bottom-3 right-3 text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
             title="Chèn ảnh"
           >
             <Image className="w-4 h-4 mr-2" />
             {uploading ? 'Đang tải...' : 'Chèn ảnh'}
           </Button>
         </div>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
           {settings.blank_count > 0
             ? `✓ Đã phát hiện ${settings.blank_count} blank(s)`
             : '⚠️ Chưa có blank nào. Sử dụng {BLANK_1}, {BLANK_2}, ...'}
@@ -246,8 +246,8 @@ export default function FillBlankDropdownEditor({
 
       {/* Blank Configuration */}
       {settings.blanks.length > 0 && (
-        <div className="border-t pt-6">
-          <h3 className="font-semibold text-lg mb-4">Cấu hình Dropdown Options</h3>
+        <div className="border-t dark:border-slate-800 pt-6">
+          <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-100 mb-4">Cấu hình Dropdown Options</h3>
           
           {settings.blanks.map((blank) => {
             const optionsForBlank = getOptionsForBlank(blank.blank_id);
@@ -258,16 +258,18 @@ export default function FillBlankDropdownEditor({
               <div
                 key={blank.blank_id}
                 className={`border rounded-lg p-4 mb-4 ${
-                  hasErrors ? 'bg-red-50 border-red-300' : 'bg-gray-50'
+                  hasErrors 
+                    ? 'bg-red-50 dark:bg-red-950/10 border-red-300 dark:border-red-800' 
+                    : 'bg-gray-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
                 }`}
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-bold">
+                    <span className="px-3 py-1 bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 rounded-full text-sm font-bold">
                       {`{BLANK_${blank.blank_id}}`}
                     </span>
                     {hasErrors && (
-                      <span className="text-xs text-red-600 font-medium">
+                      <span className="text-xs text-red-600 dark:text-red-400 font-medium">
                         ⚠️ {errors.join(' • ')}
                       </span>
                     )}
@@ -284,14 +286,14 @@ export default function FillBlankDropdownEditor({
 
                 {/* Blank Label */}
                 <div className="mb-4">
-                  <label className="block text-xs font-medium mb-1 text-gray-700">
+                  <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-slate-350">
                     Tên hiển thị
                   </label>
                   <input
                     type="text"
                     value={blank.label || ''}
                     onChange={(e) => updateBlankLabel(blank.blank_id, e.target.value)}
-                    className="w-full px-3 py-2 text-sm border rounded-lg"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/25"
                     placeholder="VD: Loại ngôn ngữ"
                   />
                 </div>
@@ -299,8 +301,8 @@ export default function FillBlankDropdownEditor({
                 {/* Options List */}
                 <div className="space-y-2">
                   {optionsForBlank.length === 0 ? (
-                    <div className="text-center py-4 bg-white border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-gray-500 mb-2">
+                    <div className="text-center py-4 bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
+                      <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">
                         Chưa có option nào
                       </p>
                       <Button
@@ -316,7 +318,7 @@ export default function FillBlankDropdownEditor({
                     optionsForBlank.map((option) => (
                       <div
                         key={option.originalIndex}
-                        className="bg-white border rounded-lg p-3 flex items-center gap-2"
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 flex items-center gap-2"
                       >
                         {/* Correct Radio */}
                         <input
@@ -345,9 +347,9 @@ export default function FillBlankDropdownEditor({
                               e.target.value
                             )
                           }
-                          className={`flex-1 px-3 py-2 text-sm border rounded-lg ${
+                          className={`flex-1 px-3 py-2 text-sm border border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/25 ${
                             option.is_correct
-                              ? 'bg-green-50 border-green-300 font-medium'
+                              ? 'bg-green-50 dark:bg-green-950/20 border-green-300 dark:border-green-800 text-green-700 dark:text-green-350 font-medium'
                               : ''
                           }`}
                           placeholder="Nội dung option..."
@@ -365,7 +367,7 @@ export default function FillBlankDropdownEditor({
                               parseInt(e.target.value)
                             )
                           }
-                          className="w-16 px-2 py-2 text-sm text-center border rounded-lg"
+                          className="w-16 px-2 py-2 text-sm text-center border border-slate-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/25"
                           min="0"
                           title="Thứ tự"
                         />
@@ -376,7 +378,7 @@ export default function FillBlankDropdownEditor({
                             type="button"
                             onClick={() => removeOption(option.originalIndex)}
                             variant="outline"
-                            className="px-3 py-2 text-red-600 hover:bg-red-50"
+                            className="px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 border-red-200 dark:border-red-800/60"
                           >
                             ✕
                           </Button>
@@ -386,7 +388,7 @@ export default function FillBlankDropdownEditor({
                   )}
                 </div>
 
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-500 dark:text-slate-450 mt-2">
                   💡 Click radio để chọn đáp án đúng. Số bên phải là thứ tự hiển thị.
                 </p>
               </div>
@@ -397,8 +399,8 @@ export default function FillBlankDropdownEditor({
 
       {/* Validation Summary */}
       {settings.blanks.length > 0 && (
-        <div className="bg-gray-50 border rounded-lg p-4">
-          <h4 className="font-semibold text-sm mb-2">📊 Tổng quan</h4>
+        <div className="bg-gray-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
+          <h4 className="font-semibold text-sm mb-2 text-slate-900 dark:text-slate-100">📊 Tổng quan</h4>
           <ul className="text-sm space-y-1">
             <li>• Tổng số blanks: <strong>{settings.blank_count}</strong></li>
             <li>• Tổng số options: <strong>{localOptions.length}</strong></li>
@@ -410,7 +412,7 @@ export default function FillBlankDropdownEditor({
               return (
                 <li
                   key={blank.blank_id}
-                  className={isValid ? 'text-green-600' : 'text-red-600'}
+                  className={isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}
                 >
                   • {`{BLANK_${blank.blank_id}}`}: <strong>{options.length}</strong> options
                   {isValid ? ' ✓' : ' ⚠️'}

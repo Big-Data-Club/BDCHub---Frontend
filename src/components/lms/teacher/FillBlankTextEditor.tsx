@@ -138,16 +138,13 @@ export default function FillBlankTextEditor({
         }
       }
     };
-    input.click();
-  };
-
-  return (
-    <div className="space-y-6">
+     return (
+    <div className="space-y-6 text-slate-900 dark:text-slate-100">
       {/* Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-semibold text-blue-900 mb-2">💡 Hướng dẫn</h4>
-        <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-          <li>Sử dụng <code className="bg-blue-100 px-1 rounded">{`{BLANK_1}`}</code>, <code className="bg-blue-100 px-1 rounded">{`{BLANK_2}`}</code>, ... trong câu hỏi</li>
+      <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">💡 Hướng dẫn</h4>
+        <ul className="text-sm text-blue-800 dark:text-blue-400 space-y-1 list-disc list-inside">
+          <li>Sử dụng <code className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-1 rounded">{`{BLANK_1}`}</code>, <code className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-1 rounded">{`{BLANK_2}`}</code>, ... trong câu hỏi</li>
           <li>Blanks sẽ tự động được phát hiện</li>
           <li>Có thể thêm nhiều đáp án đúng cho mỗi blank</li>
           <li>Học viên sẽ nhập text vào các ô trống</li>
@@ -156,7 +153,7 @@ export default function FillBlankTextEditor({
 
       {/* Question Text Input */}
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           Câu hỏi với blanks *
         </label>
         <div className="relative">
@@ -174,14 +171,14 @@ export default function FillBlankTextEditor({
             disabled={uploading}
             variant="ghost"
             size="sm"
-            className="absolute bottom-3 right-3 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            className="absolute bottom-3 right-3 text-slate-500 hover:text-blue-600 dark:text-slate-450 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             title="Chèn ảnh"
           >
             <Image className="w-4 h-4 mr-2" />
             {uploading ? 'Đang tải...' : 'Chèn ảnh'}
           </Button>
         </div>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
           {settings.blank_count > 0
             ? `✓ Đã phát hiện ${settings.blank_count} blank(s)`
             : '⚠️ Chưa có blank nào. Sử dụng {BLANK_1}, {BLANK_2}, ...'}
@@ -190,16 +187,16 @@ export default function FillBlankTextEditor({
 
       {/* Blank Configuration */}
       {settings.blanks.length > 0 && (
-        <div className="border-t pt-6">
-          <h3 className="font-semibold text-lg mb-4">Cấu hình Blanks</h3>
+        <div className="border-t dark:border-slate-800 pt-6">
+          <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-50 mb-4">Cấu hình Blanks</h3>
           
           {settings.blanks.map((blank) => {
             const answersForBlank = getAnswersForBlank(blank.blank_id);
             
             return (
-              <div key={blank.blank_id} className="border rounded-lg p-4 mb-4 bg-gray-50">
+              <div key={blank.blank_id} className="border border-slate-200 dark:border-slate-800 rounded-lg p-4 mb-4 bg-gray-50 dark:bg-slate-800/40">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-bold">
+                  <span className="px-3 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-350 rounded-full text-sm font-bold">
                     {`{BLANK_${blank.blank_id}}`}
                   </span>
                 </div>
@@ -207,26 +204,26 @@ export default function FillBlankTextEditor({
                 {/* Blank Label & Placeholder */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-gray-700">
+                    <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-slate-350">
                       Tên hiển thị
                     </label>
                     <input
                       type="text"
                       value={blank.label || ''}
                       onChange={(e) => updateBlankConfig(blank.blank_id, 'label', e.target.value)}
-                      className="w-full px-3 py-2 text-sm border rounded-lg"
+                      className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/25"
                       placeholder="VD: Tên quốc gia"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-gray-700">
+                    <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-slate-350">
                       Placeholder (gợi ý)
                     </label>
                     <input
                       type="text"
                       value={blank.placeholder || ''}
                       onChange={(e) => updateBlankConfig(blank.blank_id, 'placeholder', e.target.value)}
-                      className="w-full px-3 py-2 text-sm border rounded-lg"
+                      className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/25"
                       placeholder="VD: Nhập tên quốc gia"
                     />
                   </div>
@@ -235,7 +232,7 @@ export default function FillBlankTextEditor({
                 {/* Correct Answers for this Blank */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300">
                       Đáp án đúng ({answersForBlank.length})
                     </label>
                     <Button
@@ -249,8 +246,8 @@ export default function FillBlankTextEditor({
                   </div>
 
                   {answersForBlank.length === 0 ? (
-                    <div className="text-center py-4 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-sm text-red-600">
+                    <div className="text-center py-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+                      <p className="text-sm text-red-600 dark:text-red-400">
                         ⚠️ Chưa có đáp án đúng cho blank này
                       </p>
                       <Button
@@ -267,7 +264,7 @@ export default function FillBlankTextEditor({
                       {answersForBlank.map((answer) => (
                         <div
                           key={answer.originalIndex}
-                          className="bg-white border rounded-lg p-3 space-y-2"
+                          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 space-y-2"
                         >
                           <div className="flex gap-2">
                             <input
@@ -280,7 +277,7 @@ export default function FillBlankTextEditor({
                                   e.target.value
                                 )
                               }
-                              className="flex-1 px-3 py-2 text-sm border rounded-lg"
+                              className="flex-1 px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/25"
                               placeholder="Đáp án đúng..."
                               required
                             />
@@ -288,13 +285,13 @@ export default function FillBlankTextEditor({
                               type="button"
                               onClick={() => removeCorrectAnswer(answer.originalIndex)}
                               variant="outline"
-                              className="px-3 py-2 text-red-600 hover:bg-red-50"
+                              className="px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 border-red-200 dark:border-red-800"
                             >
                               ✕
                             </Button>
                           </div>
 
-                          <div className="flex gap-4 text-xs">
+                          <div className="flex gap-4 text-xs text-slate-700 dark:text-slate-355">
                             <label className="flex items-center cursor-pointer">
                               <input
                                 type="checkbox"
@@ -306,7 +303,7 @@ export default function FillBlankTextEditor({
                                     e.target.checked
                                   )
                                 }
-                                className="mr-2"
+                                className="mr-2 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500/25 bg-white dark:bg-slate-900"
                               />
                               Phân biệt HOA/thường
                             </label>
@@ -321,7 +318,7 @@ export default function FillBlankTextEditor({
                                     e.target.checked
                                   )
                                 }
-                                className="mr-2"
+                                className="mr-2 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500/25 bg-white dark:bg-slate-900"
                               />
                               Khớp chính xác
                             </label>
@@ -339,15 +336,15 @@ export default function FillBlankTextEditor({
 
       {/* Validation Summary */}
       {settings.blanks.length > 0 && (
-        <div className="bg-gray-50 border rounded-lg p-4">
-          <h4 className="font-semibold text-sm mb-2">📊 Tổng quan</h4>
+        <div className="bg-gray-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
+          <h4 className="font-semibold text-sm mb-2 text-slate-900 dark:text-slate-100">📊 Tổng quan</h4>
           <ul className="text-sm space-y-1">
             <li>• Tổng số blanks: <strong>{settings.blank_count}</strong></li>
             <li>• Tổng số đáp án: <strong>{localAnswers.length}</strong></li>
             {settings.blanks.map(blank => {
               const count = localAnswers.filter(a => a.blank_id === blank.blank_id).length;
               return (
-                <li key={blank.blank_id} className={count === 0 ? 'text-red-600' : 'text-green-600'}>
+                <li key={blank.blank_id} className={count === 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>
                   • {`{BLANK_${blank.blank_id}}`}: <strong>{count}</strong> đáp án
                   {count === 0 && ' ⚠️'}
                 </li>
