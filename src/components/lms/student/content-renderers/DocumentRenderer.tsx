@@ -43,7 +43,7 @@ export function DocumentRenderer({ content }: DocumentRendererProps) {
           >
             Xem
           </a>
-          <DownloadLink href={downloadUrl} label="Tải xuống" secondary compact className="flex-1 sm:flex-none w-full" />
+          <DownloadLink href={downloadUrl} label="Tải xuống" secondary compact className="flex-1 sm:flex-none w-full sm:w-auto" />
         </div>
       </div>
 
