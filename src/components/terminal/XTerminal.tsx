@@ -113,12 +113,12 @@ export const XTerminal = forwardRef<XTerminalHandle, XTerminalProps>(
           }
         });
 
-        // Listen for user keystrokes → forward to WebSocket
+        // Listen for user keystrokes -> forward to WebSocket
         term.onData((data) => {
           onData?.(data);
         });
 
-        // Listen for terminal resize events → notify parent
+        // Listen for terminal resize events -> notify parent
         term.onResize(({ cols, rows }) => {
           onResize?.(cols, rows);
         });

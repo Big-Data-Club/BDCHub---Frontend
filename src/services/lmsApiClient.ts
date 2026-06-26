@@ -16,7 +16,7 @@ lmsApiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-// ── Handle 401 → clear cache & sign out ─────────────────────────────────
+// ── Handle 401 -> clear cache & sign out ─────────────────────────────────
 lmsApiClient.interceptors.response.use(
   (response) => response,
   async (error) => {

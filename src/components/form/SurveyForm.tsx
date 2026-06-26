@@ -226,7 +226,7 @@ export default function SurveyForm({ formData }: { formData: any }) {
 
         {currentPage < totalPages - 1 ? (
           <Button onClick={handleNext} className="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm dark:shadow-blue-900/20 active:scale-95 transition-all duration-200">
-            Trang tiếp theo →
+            Trang tiếp theo ->
           </Button>
         ) : (
           <Button onClick={handleSubmit} disabled={loading} className={`w-full sm:w-auto px-10 py-3 font-bold rounded-xl shadow-md transition-all duration-200 active:scale-95 ${

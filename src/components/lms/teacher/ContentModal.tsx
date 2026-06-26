@@ -14,12 +14,12 @@
  * inlined. That made it hard to understand, test, or extend.  The new
  * structure keeps each type's concerns isolated:
  *
- *   TextContentForm              → markdown editor
- *   VideoContentForm             → YouTube / Server / URL
- *   DocumentContentForm          → file upload
- *   ImageContentForm             → file upload + URL
- *   QuizContentForm              → QuizSettingsForm wrapper
- *   ForumAnnouncementContentForm → info card (no upload needed)
+ *   TextContentForm              -> markdown editor
+ *   VideoContentForm             -> YouTube / Server / URL
+ *   DocumentContentForm          -> file upload
+ *   ImageContentForm             -> file upload + URL
+ *   QuizContentForm              -> QuizSettingsForm wrapper
+ *   ForumAnnouncementContentForm -> info card (no upload needed)
  */
 
 import { useState } from "react";

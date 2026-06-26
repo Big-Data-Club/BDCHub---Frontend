@@ -3,7 +3,7 @@
 /**
  * ContentTab
  *
- * Manages the full section → content tree for a course.
+ * Manages the full section -> content tree for a course.
  * Extracted from the old monolithic [courseId]/page.tsx so it can be
  * mounted as a standalone page and independently loaded/refreshed.
  *

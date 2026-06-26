@@ -401,7 +401,7 @@ export default function FeaturePage() {
 | `backdrop-blur` trên sidebar/navbar | `bg-white dark:bg-[#070E1C]` solid |
 | `dark:bg-slate-900` cho LMS cards | `dark:bg-[#0F1E35]` |
 | Thiếu `dark:` pair trên màu bất kỳ | Mọi `bg/text/border` cần dark pair |
-| Multi-colour gradient rực rỡ | Solid hoặc cùng dải (blue→cyan) |
+| Multi-colour gradient rực rỡ | Solid hoặc cùng dải (blue->cyan) |
 | Inline `style={{}}` | Tailwind only |
 | `active:scale-95` thiếu trên button | Mọi clickable element cần press feedback |
 | `console.log` trong code commit | Remove trước PR |

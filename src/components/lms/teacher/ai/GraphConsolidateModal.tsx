@@ -163,7 +163,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
               <p className="text-sm font-medium">Đã hoàn tất hợp nhất</p>
               {preview && (
                 <p className="text-xs text-slate-500 mt-1">
-                  Graph từ {preview.total_nodes_before} → {preview.total_nodes_after} nodes
+                  Graph từ {preview.total_nodes_before} -> {preview.total_nodes_after} nodes
                 </p>
               )}
             </div>

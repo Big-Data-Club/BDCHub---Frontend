@@ -24,7 +24,7 @@ export interface LmsRole {
 export const permissionService = {
   /**
    * Fetch all LMS role_definitions.
-   * Proxy rewrites /lmsapiv1/* → LMS_URL/api/v1/*
+   * Proxy rewrites /lmsapiv1/* -> LMS_URL/api/v1/*
    * So we call /admin/roles (NOT /api/v1/admin/roles).
    */
   getLmsRoles: async (): Promise<LmsRole[]> => {

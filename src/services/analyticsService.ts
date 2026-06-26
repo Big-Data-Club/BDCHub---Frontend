@@ -6,10 +6,10 @@ import { lmsApiClient } from "./lmsApiClient";
  * Handles analytics data for both teachers and students.
  *
  * ─── Backend endpoints needed ──────────────────────────────────────────────
- * GET  /courses/{courseId}/quiz-analytics          → Teacher: quiz performance summary
- * GET  /courses/{courseId}/student-progress-overview  → Teacher: all students progress
- * GET  /quizzes/{quizId}/all-attempts              → Teacher: all student attempts for a quiz
- * GET  /courses/{courseId}/my-quiz-scores          → Student: own quiz scores in course
+ * GET  /courses/{courseId}/quiz-analytics          -> Teacher: quiz performance summary
+ * GET  /courses/{courseId}/student-progress-overview  -> Teacher: all students progress
+ * GET  /quizzes/{quizId}/all-attempts              -> Teacher: all student attempts for a quiz
+ * GET  /courses/{courseId}/my-quiz-scores          -> Student: own quiz scores in course
  * ───────────────────────────────────────────────────────────────────────────
  */
 

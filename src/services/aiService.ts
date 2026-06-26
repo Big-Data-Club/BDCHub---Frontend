@@ -166,7 +166,7 @@ export interface ConsolidationGroup {
   reason: string;
   /** "hard" | "soft" | "micro" */
   kind: string;
-  /** Map of "<id>" → display name, including the survivor */
+  /** Map of "<id>" -> display name, including the survivor */
   old_names: Record<string, string>;
 }
 

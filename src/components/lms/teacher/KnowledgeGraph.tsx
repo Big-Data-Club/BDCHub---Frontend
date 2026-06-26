@@ -63,7 +63,7 @@ const RELATION_STYLES: Record<string, RelationStyle> = {
   },
   parent_child: {
     color: "#8b5cf6",   // Violet-500
-    label: "Parent → Child",
+    label: "Parent -> Child",
     labelVi: "Bao gồm",
   },
 };
@@ -293,7 +293,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
           linkDirectionalArrowRelPos={0.85}
           linkDirectionalArrowColor={getLinkColor}
 
-          // Hạt chạy truyền dữ liệu (chỉ khi không chọn node → tránh visual noise)
+          // Hạt chạy truyền dữ liệu (chỉ khi không chọn node -> tránh visual noise)
           linkDirectionalParticles={(link: any) => {
             if (selectedNode) return isLinkNeighbor(link) ? 2 : 0;
             return 1;
@@ -446,7 +446,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
                             className="inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full border font-medium transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 cursor-default"
                             style={{ borderColor: style.color + "40", color: style.color, backgroundColor: style.color + "08" }}
                           >
-                            {isOutgoing ? "→" : "←"} {otherNode?.name ?? `#${otherId}`}
+                            {isOutgoing ? "->" : "←"} {otherNode?.name ?? `#${otherId}`}
                             <span className="opacity-60 font-normal">({style.labelVi})</span>
                           </span>
                         );

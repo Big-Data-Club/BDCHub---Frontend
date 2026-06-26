@@ -34,11 +34,11 @@ There are **3 ways** to embed a Spline scene. Choose based on your stack:
 
 ```
 Is this a React or Next.js project?
-  → YES: Use @splinetool/react-spline (see REACT_INTEGRATION.md)
-  → NO:
+  -> YES: Use @splinetool/react-spline (see REACT_INTEGRATION.md)
+  -> NO:
       Do you need programmatic control (events, variables, animations)?
-        → YES: Use @splinetool/runtime (see VANILLA_INTEGRATION.md)
-        → NO: Use iframe embed (simplest option)
+        -> YES: Use @splinetool/runtime (see VANILLA_INTEGRATION.md)
+        -> NO: Use iframe embed (simplest option)
 ```
 
 ---
@@ -317,7 +317,7 @@ export function SplineScene({ scene, className }) {
 
 Before exporting, run through this in the Spline editor:
 
-1. Open the **Performance panel** (View → Performance)
+1. Open the **Performance panel** (View -> Performance)
 2. Check polygon count — aim for under 150k
 3. Remove any hidden or off-screen objects
 4. Reduce segments on smooth objects (spheres, cylinders)

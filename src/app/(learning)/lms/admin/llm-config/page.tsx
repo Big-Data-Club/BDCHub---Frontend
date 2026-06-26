@@ -15,7 +15,7 @@ const TABS: { id: Tab; label: string; description: string }[] = [
   { id: "providers", label: "Providers", description: "Nhà cung cấp LLM" },
   { id: "keys",      label: "API Keys",  description: "Pool key theo provider" },
   { id: "models",    label: "Models",    description: "Model catalog" },
-  { id: "bindings",  label: "Bindings",  description: "Task → fallback chain" },
+  { id: "bindings",  label: "Bindings",  description: "Task -> fallback chain" },
   { id: "usage",     label: "Usage",     description: "Tokens / latency / fallback" },
   { id: "test",      label: "Test",      description: "Sanity check 1 prompt" },
 ];

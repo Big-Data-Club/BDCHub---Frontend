@@ -172,7 +172,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           <Calendar size={11} />
           <span>
             {formatDate(task.startDate)}
-            {task.startDate && task.endDate && " → "}
+            {task.startDate && task.endDate && " -> "}
             {formatDate(task.endDate)}
           </span>
         </div>

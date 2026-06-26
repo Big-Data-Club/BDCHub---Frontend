@@ -573,7 +573,7 @@ export default function QuizReviewPage({
                     rel="noopener noreferrer"
                     className="text-blue-600 dark:text-blue-400 hover:underline text-xs"
                   >
-                    Tải xuống →
+                    Tải xuống ->
                   </a>
                 )}
               </div>

@@ -24,7 +24,7 @@ function playChatSound() {
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.type = "triangle";
-    // Pitch sweep: 880 Hz → 660 Hz over 120 ms
+    // Pitch sweep: 880 Hz -> 660 Hz over 120 ms
     osc.frequency.setValueAtTime(880, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
     gain.gain.setValueAtTime(0.25, ctx.currentTime);

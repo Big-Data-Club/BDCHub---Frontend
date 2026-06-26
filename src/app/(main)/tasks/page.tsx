@@ -72,7 +72,7 @@ const KanbanBoard: React.FC = () => {
     })();
   }, []);
 
-  // Sync tasks → columns
+  // Sync tasks -> columns
   useEffect(() => {
     setColumns((prev) =>
       prev.map((col) => ({ ...col, tasks: tasks.filter((t) => t.columnId === col.id) }))

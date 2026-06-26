@@ -4,7 +4,7 @@
  * useAIIndexPoller — Centralized polling coordinator for AI index status.
  *
  * Problem: Each AIIndexButton used to run its own setInterval polling.
- * With 20 documents, that's 20 requests/6s → rate-limited.
+ * With 20 documents, that's 20 requests/6s -> rate-limited.
  *
  * Solution: One timer, one batch request for ALL active content IDs.
  *
