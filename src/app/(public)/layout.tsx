@@ -6,7 +6,7 @@ type PublicLayoutProps = {
 
 /**
  * Layout for public token-based pages (password confirmation, reset).
- * No session guard — these pages must be accessible regardless of auth state.
+ * No session guard - these pages must be accessible regardless of auth state.
  */
 export default function PublicLayout({ children }: PublicLayoutProps) {
   return (

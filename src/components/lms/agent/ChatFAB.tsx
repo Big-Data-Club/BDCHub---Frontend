@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ChatFAB — floating action button to toggle the AI Chat Sidebar.
+ * ChatFAB - floating action button to toggle the AI Chat Sidebar.
  *
  * Fixed position, bottom-right. Shows a sparkle icon with a subtle
  * pulse animation. Manages the open/close state of the ChatSidebar.
@@ -14,13 +14,13 @@ import dynamic from "next/dynamic";
 import { Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Lazy-load the heavy ChatSidebar — only fetched when FAB is clicked or hovered
+// Lazy-load the heavy ChatSidebar - only fetched when FAB is clicked or hovered
 const ChatSidebar = dynamic(
   () => import("./ChatSidebar").then((mod) => ({ default: mod.ChatSidebar })),
   { ssr: false },
 );
 
-// Preload trigger — call import() once to warm the chunk cache
+// Preload trigger - call import() once to warm the chunk cache
 let _preloaded = false;
 function preloadChatSidebar() {
   if (_preloaded) return;
@@ -30,7 +30,7 @@ function preloadChatSidebar() {
 
 export function ChatFAB() {
   const [isOpen, setIsOpen] = useState(false);
-  // Track if sidebar was ever opened — only mount after first open
+  // Track if sidebar was ever opened - only mount after first open
   const [hasOpened, setHasOpened] = useState(false);
 
   const handleToggle = useCallback(() => {

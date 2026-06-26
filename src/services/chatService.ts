@@ -93,14 +93,14 @@ export async function setChannelRoles(
 }
 
 // getChannelUsers returns the full user objects for a channel's whitelist.
-// The backend JOINs in a single query — no N+1.
+// The backend JOINs in a single query - no N+1.
 export async function getChannelUsers(channelId: number): Promise<ChatUser[]> {
   const res = await chatApiClient.get(`/admin/channels/${channelId}/users`);
   return (res.data.data?.users ?? []).map(mapUser);
 }
 
 // setChannelUsers atomically replaces the whitelist and returns the updated full list.
-// The backend returns the new state in the same response — no follow-up GET needed.
+// The backend returns the new state in the same response - no follow-up GET needed.
 export async function setChannelUsers(channelId: number, userIds: number[]): Promise<ChatUser[]> {
   const res = await chatApiClient.put(`/admin/channels/${channelId}/users`, { user_ids: userIds });
   return (res.data.data?.users ?? []).map(mapUser);

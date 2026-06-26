@@ -254,7 +254,7 @@ const MyAccountPage: React.FC = () => {
           />
         )}
 
-        {/* Stats — always visible */}
+        {/* Stats - always visible */}
         <AccountStats fullUserData={fullUserData} />
       </div>
     </div>

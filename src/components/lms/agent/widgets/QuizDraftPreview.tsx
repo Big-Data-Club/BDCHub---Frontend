@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * QuizDraftPreview — HITL widget for teacher to review AI-generated quiz drafts.
+ * QuizDraftPreview - HITL widget for teacher to review AI-generated quiz drafts.
  * Teacher can approve (sends to existing LMS quiz system) or reject each question.
  */
 import { useState } from "react";

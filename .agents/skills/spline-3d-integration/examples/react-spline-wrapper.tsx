@@ -1,5 +1,5 @@
 /**
- * SplineScene — Production-ready lazy-loaded Spline wrapper
+ * SplineScene - Production-ready lazy-loaded Spline wrapper
  *
  * Usage:
  *   <SplineScene
@@ -34,7 +34,7 @@ interface SplineSceneProps {
  * A lazy-loaded Spline scene component.
  *
  * IMPORTANT: The parent container MUST have explicit width and height.
- * The Spline canvas expands to fill its parent — if the parent has
+ * The Spline canvas expands to fill its parent - if the parent has
  * 0 height, you'll see nothing.
  *
  * Example parent styling:
@@ -64,7 +64,7 @@ export function SplineScene({ scene, className, onLoad }: SplineSceneProps) {
     );
 }
 
-/** Simple CSS spinner — no dependencies */
+/** Simple CSS spinner - no dependencies */
 function LoadingSpinner() {
     return (
         <span
@@ -82,7 +82,7 @@ function LoadingSpinner() {
 
 /**
  * Inject the spinner keyframes into the document.
- * This runs once on module load — no side effects on re-render.
+ * This runs once on module load - no side effects on re-render.
  */
 if (typeof document !== 'undefined') {
     const styleId = 'spline-scene-styles';

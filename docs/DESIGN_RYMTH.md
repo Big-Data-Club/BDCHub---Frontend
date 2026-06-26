@@ -1,4 +1,4 @@
-# BDC — Design Rhythm v3.0
+# BDC - Design Rhythm v3.0
 ## Enterprise AI · Academic Intelligence · Precision-First
 
 > Tài liệu chuẩn hóa UI/UX cho Big Data Club.
@@ -24,7 +24,7 @@ AI-Native Identity. Enterprise Precision.
 
 ### Cảm giác mục tiêu
 
-Giao diện phải **cảm giác như** sản phẩm của một công ty công nghệ lớn — không phải đồ án sinh viên.
+Giao diện phải **cảm giác như** sản phẩm của một công ty công nghệ lớn - không phải đồ án sinh viên.
 
 ✅ Futuristic · Intelligent · Premium · Scalable · Enterprise-ready  
 ❌ Startup chaos · Infographic clutter · Cartoon UI · Cyberpunk overload
@@ -33,11 +33,11 @@ Giao diện phải **cảm giác như** sản phẩm của một công ty công 
 
 ## 2. Color System
 
-### 2.1 Dark Mode (Primary — Default cho LMS/Dashboard)
+### 2.1 Dark Mode (Primary - Default cho LMS/Dashboard)
 
 Dark mode là gương mặt đại diện của BDC. Mọi màu phải đủ contrast, không bao giờ thuần đen.
 
-#### Backgrounds — Layered system (tối -> sáng)
+#### Backgrounds - Layered system (tối -> sáng)
 
 | Layer | Class / Value | Hex | Dùng cho |
 |---|---|---|---|
@@ -49,9 +49,9 @@ Dark mode là gương mặt đại diện của BDC. Mọi màu phải đủ con
 | Input bg | `bg-[#0D192E]` | `#0D192E` | Inputs, selects |
 | Hover state | `bg-[#162644]` | `#162644` | hover trên card/row |
 
-> **Rule:** Không dùng `bg-slate-900` / `bg-slate-950` cho dark mode LMS — dùng blue-navy palette trên. `slate` chỉ dùng cho Dashboard (main).
+> **Rule:** Không dùng `bg-slate-900` / `bg-slate-950` cho dark mode LMS - dùng blue-navy palette trên. `slate` chỉ dùng cho Dashboard (main).
 
-#### Border — Luôn subtle, không bao giờ harsh
+#### Border - Luôn subtle, không bao giờ harsh
 
 | Usage | Value | Tailwind tương đương |
 |---|---|---|
@@ -69,9 +69,9 @@ Dark mode là gương mặt đại diện của BDC. Mọi màu phải đủ con
 | Primary hover | `bg-blue-700` | `#1D4ED8` | Button hover |
 | AI Cyan accent | `text-cyan-400` | `#22D3EE` | Pipeline labels, AI badges, step numbers |
 | Purple accent | `text-violet-400` | `#A78BFA` | Tags, secondary highlights |
-| Gradient hero | `from-blue-400 to-cyan-400` | — | Hero titles, gradient text |
+| Gradient hero | `from-blue-400 to-cyan-400` | - | Hero titles, gradient text |
 
-#### Typography — Dark
+#### Typography - Dark
 
 | Role | Class | Hex |
 |---|---|---|
@@ -87,9 +87,9 @@ Dark mode là gương mặt đại diện của BDC. Mọi màu phải đủ con
 
 ### 2.2 Light Mode (Dashboard / App Shell)
 
-Light mode phải cảm giác **premium enterprise** — không flat, không generic SaaS.
+Light mode phải cảm giác **premium enterprise** - không flat, không generic SaaS.
 
-#### Backgrounds — Layered
+#### Backgrounds - Layered
 
 | Layer | Class | Hex | Dùng cho |
 |---|---|---|---|
@@ -110,7 +110,7 @@ Light mode phải cảm giác **premium enterprise** — không flat, không gen
 | Input focus | `border-blue-500` | `#3B82F6` |
 | Divider | `border-slate-200` | `#E2E8F0` |
 
-#### Typography — Light
+#### Typography - Light
 
 | Role | Class | Hex |
 |---|---|---|
@@ -131,9 +131,9 @@ Light mode phải cảm giác **premium enterprise** — không flat, không gen
 
 ---
 
-## 3. Dark Mode — Token Mapping đầy đủ
+## 3. Dark Mode - Token Mapping đầy đủ
 
-Mọi component đều phải khai báo cặp `light / dark:` — không bao giờ thiếu một bên.
+Mọi component đều phải khai báo cặp `light / dark:` - không bao giờ thiếu một bên.
 
 | Role | Light | Dark |
 |---|---|---|
@@ -207,7 +207,7 @@ font-family: 'Inter', 'Geist', system-ui, sans-serif;
 ">
 ```
 
-#### AI Feature Card (với subtle glow — Dark Only)
+#### AI Feature Card (với subtle glow - Dark Only)
 
 ```tsx
 <div className="
@@ -376,7 +376,7 @@ font-family: 'Inter', 'Geist', system-ui, sans-serif;
   border-r border-slate-200 dark:border-blue-500/8
   h-full
 ">
-  {/* Nav item — default */}
+  {/* Nav item - default */}
   <a className="
     flex items-center gap-3 px-4 py-2.5 rounded-xl mx-2
     text-slate-600 dark:text-slate-400
@@ -385,7 +385,7 @@ font-family: 'Inter', 'Geist', system-ui, sans-serif;
     transition-all duration-200
   ">
 
-  {/* Nav item — active */}
+  {/* Nav item - active */}
   <a className="
     flex items-center gap-3 px-4 py-2.5 rounded-xl mx-2
     bg-blue-600 text-white
@@ -463,7 +463,7 @@ font-family: 'Inter', 'Geist', system-ui, sans-serif;
 
 ---
 
-### 5.10 Auth Pages — Cosmic Glass Aesthetic
+### 5.10 Auth Pages - Cosmic Glass Aesthetic
 
 Auth pages (login, register, pending, confirm-password) dùng **glassmorphic card** với cosmic background.
 
@@ -494,7 +494,7 @@ import { AuthShell } from "@/components/login/AuthShell";
 ">
 ```
 
-> **Rule:** Auth pages use `backdrop-blur-xl` on cards — this is the ONE exception to the "no backdrop-blur on layout shell" rule. The blur is on the card only, not on nav/sidebar.
+> **Rule:** Auth pages use `backdrop-blur-xl` on cards - this is the ONE exception to the "no backdrop-blur on layout shell" rule. The blur is on the card only, not on nav/sidebar.
 
 #### Theme Toggle Placement
 
@@ -505,7 +505,7 @@ import { AuthShell } from "@/components/login/AuthShell";
 #### Cosmic Background (`Background.tsx`)
 
 - **Dark mode:** Full cosmic star-field with twinkling stars, nebula blobs, and shooting stars
-- **Light mode:** Very subtle — muted stars, nearly invisible nebulae
+- **Light mode:** Very subtle - muted stars, nearly invisible nebulae
 - **Interactive:** Mouse parallax on star layers, constellation lines to cursor
 
 ---
@@ -521,10 +521,10 @@ import { AuthShell } from "@/components/login/AuthShell";
 {/* Section spacing */}
 <section className="space-y-8">
 
-{/* Grid — pipeline cards */}
+{/* Grid - pipeline cards */}
 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 
-{/* Grid — feature cards */}
+{/* Grid - feature cards */}
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 ```
 
@@ -543,7 +543,7 @@ import { AuthShell } from "@/components/login/AuthShell";
 
 ## 7. AI-Native Visual Elements
 
-Những element này định nghĩa bản sắc AI của BDC — dùng có chọn lọc, không lạm dụng.
+Những element này định nghĩa bản sắc AI của BDC - dùng có chọn lọc, không lạm dụng.
 
 ### Pipeline Connector Arrow
 
@@ -596,7 +596,7 @@ Những element này định nghĩa bản sắc AI của BDC — dùng có chọ
 
 ---
 
-## 8. Dark Mode — Setup
+## 8. Dark Mode - Setup
 
 ```tsx
 // tailwind.config.ts
@@ -644,7 +644,7 @@ export function ThemeToggle() {
 
 ---
 
-## 9. Anti-Patterns — Tuyệt đối tránh
+## 9. Anti-Patterns - Tuyệt đối tránh
 
 | ❌ Đừng làm | ✅ Thay bằng |
 |---|---|

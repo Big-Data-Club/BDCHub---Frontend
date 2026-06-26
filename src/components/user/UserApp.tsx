@@ -170,7 +170,7 @@ export default function UserApp() {
 
             {/* Filters & Actions */}
             <div className="flex flex-wrap gap-3 w-full lg:w-auto">
-              {/* Team Filter — dynamic from data */}
+              {/* Team Filter - dynamic from data */}
               <select
                 value={teamFilter}
                 onChange={(e) => setTeamFilter(e.target.value)}
@@ -182,7 +182,7 @@ export default function UserApp() {
                 ))}
               </select>
 
-              {/* Type Filter — dynamic from data */}
+              {/* Type Filter - dynamic from data */}
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
@@ -194,7 +194,7 @@ export default function UserApp() {
                 ))}
               </select>
 
-              {/* Role Filter — dynamic from data */}
+              {/* Role Filter - dynamic from data */}
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}

@@ -59,7 +59,7 @@
         }
       }
     },
-    "usage_notes": "Works best on hero titles 48px+ against solid backgrounds. On body text (<24px), reduce blur_px to 6 and stagger_ms to 15. Avoid on very long strings (>40 chars) — total stagger becomes too long; in that case switch target to 'per-word'."
+    "usage_notes": "Works best on hero titles 48px+ against solid backgrounds. On body text (<24px), reduce blur_px to 6 and stagger_ms to 15. Avoid on very long strings (>40 chars) - total stagger becomes too long; in that case switch target to 'per-word'."
   },
   "showcase": {
     "content": {

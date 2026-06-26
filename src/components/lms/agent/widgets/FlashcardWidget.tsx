@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * FlashcardWidget — flip-card UI for generated flashcards.
+ * FlashcardWidget - flip-card UI for generated flashcards.
  */
 import { useState } from "react";
 import { cn } from "@/lib/utils";

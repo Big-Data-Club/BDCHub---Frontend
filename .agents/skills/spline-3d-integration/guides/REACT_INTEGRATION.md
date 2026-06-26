@@ -129,7 +129,7 @@ function InteractiveScene() {
 
 ---
 
-## Variables — Connecting React State to 3D
+## Variables - Connecting React State to 3D
 
 Spline variables let you drive 3D animations from your React state:
 
@@ -317,12 +317,12 @@ function FadeInScene({ scene }) {
 
 ### 1. Container Has No Height
 ```tsx
-// ❌ BAD — Spline fills its parent, but parent has 0 height
+// ❌ BAD - Spline fills its parent, but parent has 0 height
 <div>
   <Spline scene="..." />
 </div>
 
-// ✅ GOOD — Parent has explicit height
+// ✅ GOOD - Parent has explicit height
 <div style={{ width: '100%', height: '100vh' }}>
   <Spline scene="..." />
 </div>
@@ -330,32 +330,32 @@ function FadeInScene({ scene }) {
 
 ### 2. Not Lazy Loading
 ```tsx
-// ❌ BAD — Loads 500KB+ on initial render
+// ❌ BAD - Loads 500KB+ on initial render
 import Spline from '@splinetool/react-spline';
 
-// ✅ GOOD — Only loads when component renders
+// ✅ GOOD - Only loads when component renders
 const Spline = lazy(() => import('@splinetool/react-spline'));
 ```
 
 ### 3. SSR Crashes in Next.js
 ```tsx
-// ❌ BAD — Spline uses `window`, crashes on server
+// ❌ BAD - Spline uses `window`, crashes on server
 import Spline from '@splinetool/react-spline';
 
-// ✅ GOOD — Skip SSR
+// ✅ GOOD - Skip SSR
 import dynamic from 'next/dynamic';
 const Spline = dynamic(() => import('@splinetool/react-spline'), { ssr: false });
 
-// ✅ ALSO GOOD — Use the Next.js-specific import
+// ✅ ALSO GOOD - Use the Next.js-specific import
 import Spline from '@splinetool/react-spline/next';
 ```
 
 ### 4. Missing 'use client' in App Router
 ```tsx
-// ❌ BAD — Server component by default in Next.js 14+
+// ❌ BAD - Server component by default in Next.js 14+
 import Spline from '@splinetool/react-spline';
 
-// ✅ GOOD — Mark as client component
+// ✅ GOOD - Mark as client component
 'use client';
 import Spline from '@splinetool/react-spline';
 ```

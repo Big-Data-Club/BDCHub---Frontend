@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * useAIIndexPoller — Centralized polling coordinator for AI index status.
+ * useAIIndexPoller - Centralized polling coordinator for AI index status.
  *
  * Problem: Each AIIndexButton used to run its own setInterval polling.
  * With 20 documents, that's 20 requests/6s -> rate-limited.
@@ -244,14 +244,14 @@ export function AIIndexPollerProvider({
 
       try {
         await lmsApiClient.post(`/content/${contentId}/ai-index`, {});
-        // Backend confirms processing — poll immediately to pick up any fast update.
+        // Backend confirms processing - poll immediately to pick up any fast update.
         doPoll();
       } catch (err: any) {
-        // HTTP 409: the server says it's already processing — keep the
+        // HTTP 409: the server says it's already processing - keep the
         // optimistic 'processing' state; the poller will update when done.
         const status = err?.response?.status ?? err?.status;
         if (status === 409) {
-          // Already processing — no change needed, the optimistic state is correct.
+          // Already processing - no change needed, the optimistic state is correct.
           return;
         }
         // Any other error: revert to 'failed' so the teacher can retry.

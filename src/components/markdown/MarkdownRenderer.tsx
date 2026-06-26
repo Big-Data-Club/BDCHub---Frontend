@@ -113,7 +113,7 @@ export default function MarkdownRenderer({
             <li className={isChat ? "pl-0.5" : "pl-1"} {...props} />
           ),
 
-          // Code Blocks — handled at the `pre` level (react-markdown v10 removed
+          // Code Blocks - handled at the `pre` level (react-markdown v10 removed
           // the `inline` prop from `code`; `pre` only wraps fenced blocks, never
           // inline code, so this is the correct v10 detection pattern).
           pre: ({ children }: any) => {
@@ -162,7 +162,7 @@ export default function MarkdownRenderer({
             );
           },
 
-          // Inline Code — `code` is now exclusively for inline spans in v10
+          // Inline Code - `code` is now exclusively for inline spans in v10
           code: ({ children, ...props }: any) => (
             <code
               className="bg-gray-100 dark:bg-gray-800/50 px-1.5 py-0.5 rounded text-sm font-mono text-red-500 dark:text-red-400 font-medium"

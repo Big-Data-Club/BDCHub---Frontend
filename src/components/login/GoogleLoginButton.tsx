@@ -34,7 +34,7 @@ export function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
       const data = await res.json();
 
       if (res.status === 404) {
-        // User doesn't exist — redirect to registration with Google profile
+        // User doesn't exist - redirect to registration with Google profile
         sessionStorage.setItem("googleProfile", JSON.stringify({
           ...data,
           idToken,

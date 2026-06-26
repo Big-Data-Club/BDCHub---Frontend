@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * KnowledgeGapMap — visualizes student knowledge weaknesses.
+ * KnowledgeGapMap - visualizes student knowledge weaknesses.
  * Shows mastery bars and prerequisite chains.
  */
 import { cn } from "@/lib/utils";

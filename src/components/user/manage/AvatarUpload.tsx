@@ -47,7 +47,7 @@ export default function AvatarUpload({ previewUrl, fullUserData, onFileChange }:
       {/* Info */}
       <div>
         <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">
-          {fullUserData?.name || "—"}
+          {fullUserData?.name || "-"}
         </h3>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
           {fullUserData?.email}

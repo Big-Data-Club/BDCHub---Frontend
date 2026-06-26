@@ -25,7 +25,7 @@ export default function ForgotPasswordModal({ open, onClose }: ForgotPasswordMod
       await userService.forgotPassword(email);
       setState("success");
     } catch {
-      // Generic error — don't expose backend details
+      // Generic error - don't expose backend details
       setState("error");
       setErrorText("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
     }
@@ -48,7 +48,7 @@ export default function ForgotPasswordModal({ open, onClose }: ForgotPasswordMod
       role="dialog"
       aria-labelledby="forgot-password-title"
     >
-      {/* Backdrop — Design Rhythm standard */}
+      {/* Backdrop - Design Rhythm standard */}
       <div
         className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
         onClick={handleClose}

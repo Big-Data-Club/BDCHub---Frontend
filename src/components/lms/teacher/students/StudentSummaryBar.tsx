@@ -47,7 +47,7 @@ export function StudentSummaryBar({ students }: Props) {
       iconBg: "bg-violet-50 dark:bg-violet-950/30",
       iconColor: "text-violet-600 dark:text-violet-400",
       label: "Điểm quiz TB",
-      value: avgQuiz != null ? `${avgQuiz.toFixed(1)}%` : "—",
+      value: avgQuiz != null ? `${avgQuiz.toFixed(1)}%` : "-",
       sub: avgQuiz != null ? (avgQuiz >= 70 ? "Tốt" : "Cần chú ý") : "Chưa có dữ liệu",
     },
     {

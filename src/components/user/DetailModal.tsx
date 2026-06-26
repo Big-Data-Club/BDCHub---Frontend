@@ -187,7 +187,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
 
       {/* Modal */}
       <div className="relative z-10 w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
-        {/* ── Header — Profile Card ── */}
+        {/* ── Header - Profile Card ── */}
         <div className="relative p-6 pb-5 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
           {/* Actions */}
           <div className="absolute top-4 right-4 flex items-center gap-1.5">
@@ -264,7 +264,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
           </div>
         )}
 
-        {/* ── Content — Scrollable ── */}
+        {/* ── Content - Scrollable ── */}
         <div className="p-6 space-y-5 overflow-y-auto flex-1">
           {isEditing ? (
             /* ── Edit Mode ────────────────────────────── */
@@ -416,7 +416,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
           ) : (
             /* ── View Mode ────────────────────────────── */
             <>
-              {/* Info Grid — Icon-labeled fields */}
+              {/* Info Grid - Icon-labeled fields */}
               <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                 {/* Code */}
                 <div className="flex items-start gap-3">

@@ -6,7 +6,7 @@ export default function EventTimeline({ timelines }: { timelines: TimelineDay[] 
   return (
     <div className="py-20 bg-slate-50 dark:bg-[#0A1628] border-b border-slate-200 dark:border-blue-500/10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section header — pipeline style */}
+        {/* Section header - pipeline style */}
         <div className="flex items-center gap-4 mb-16">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent to-blue-500/30 dark:to-cyan-400/20" />
           <h2 className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-cyan-400 whitespace-nowrap">

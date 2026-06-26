@@ -6,9 +6,9 @@
  * Mounted at the bottom of the MicroLessonViewer. Three primary
  * actions sit in a single horizontal bar:
  *
- *   1. Flashcards   — flip-card revision (3–5 cards)
- *   2. Quick Check  — 1–2 ultra-short MCQ generated from this lesson
- *   3. Ask AI       — opens a contextual chat drawer; the lesson body
+ *   1. Flashcards   - flip-card revision (3–5 cards)
+ *   2. Quick Check  - 1–2 ultra-short MCQ generated from this lesson
+ *   3. Ask AI       - opens a contextual chat drawer; the lesson body
  *                     is invisibly stitched into the agent's system
  *                     prompt via `system_context`.
  *
@@ -30,7 +30,7 @@ import type { MicroLessonContext, QuickActionTab } from "./types";
 interface QuickActionPanelProps {
   ctx: MicroLessonContext;
   /**
-   * Optional override — set true after the parent decides the student
+   * Optional override - set true after the parent decides the student
    * has finished reading (scrolled to bottom, clicked "Mark complete",
    * etc). Defaults to firing automatically after 30s.
    */

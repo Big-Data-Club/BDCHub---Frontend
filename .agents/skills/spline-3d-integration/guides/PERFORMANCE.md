@@ -54,9 +54,9 @@ Each light source multiplies the rendering work.
 | 4+ | ❌ Noticeable slowdown |
 
 **Alternatives to extra lights:**
-- **Matcap materials** — Bake lighting into the material. Looks great, costs nothing to render.
-- **Fresnel layers** — Simulate edge lighting without an actual light source.
-- **Emissive materials** — Make objects glow without a light.
+- **Matcap materials** - Bake lighting into the material. Looks great, costs nothing to render.
+- **Fresnel layers** - Simulate edge lighting without an actual light source.
+- **Emissive materials** - Make objects glow without a light.
 
 ### 4. Clean Up Hidden Objects
 
@@ -76,9 +76,9 @@ Each image/texture in a material increases the file size.
 When exporting from Spline:
 
 ### Geometry Quality
-- **Performance** — Recommended for web. Reduces polygon precision.
-- **Balanced** — Middle ground.
-- **Quality** — Use only if visual precision matters more than performance.
+- **Performance** - Recommended for web. Reduces polygon precision.
+- **Balanced** - Middle ground.
+- **Quality** - Use only if visual precision matters more than performance.
 
 ### Image Compression
 - Enable compression for all textures
@@ -87,7 +87,7 @@ When exporting from Spline:
 
 ### Geometry Compression
 - **Enable this.** It can reduce scene file size by 50-80%.
-- Very high compression may cause visible artifacts on smooth surfaces — test it
+- Very high compression may cause visible artifacts on smooth surfaces - test it
 
 ---
 
@@ -117,7 +117,7 @@ const Spline = dynamic(() => import('@splinetool/react-spline'), {
 });
 ```
 
-#### Vanilla JS — Intersection Observer
+#### Vanilla JS - Intersection Observer
 Only load the scene when user scrolls to it:
 
 ```js
@@ -159,7 +159,7 @@ Mobile GPUs are **10-50x weaker** than desktop GPUs. Plan for this.
 
 ### Option 1: Simplified Mobile Scene
 
-Create two versions of your scene — one for desktop, one for mobile:
+Create two versions of your scene - one for desktop, one for mobile:
 
 ```tsx
 const isMobile = window.innerWidth < 768;

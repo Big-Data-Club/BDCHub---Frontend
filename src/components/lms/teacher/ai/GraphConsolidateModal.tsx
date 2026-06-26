@@ -108,9 +108,9 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
         }
       }
 
-      // Soft timeout — the job may still finish later, but stop blocking the UI.
+      // Soft timeout - the job may still finish later, but stop blocking the UI.
       setPhase("done");
-      toast("Hợp nhất đang chạy nền — graph sẽ tự cập nhật.", { icon: "ℹ️" });
+      toast("Hợp nhất đang chạy nền - graph sẽ tự cập nhật.", { icon: "ℹ️" });
       onCompleted();
     } catch (e: any) {
       setError(e?.response?.data?.error ?? e?.message ?? "Không thể chạy hợp nhất");
@@ -182,13 +182,13 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
               <div className="mb-4 p-3 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800 text-sm text-violet-700 dark:text-violet-300">
                 {preview.groups.length === 0 ? (
                   <span>
-                    Graph đã sạch — không có nhóm nào cần hợp nhất.
+                    Graph đã sạch - không có nhóm nào cần hợp nhất.
                   </span>
                 ) : (
                   <span>
                     Sẽ hợp nhất{" "}
                     <strong>{stats.willAbsorb + stats.selectedGroups}</strong> nodes
-                    thành <strong>{stats.selectedGroups}</strong> nhóm — graph còn{" "}
+                    thành <strong>{stats.selectedGroups}</strong> nhóm - graph còn{" "}
                     <strong>{preview.total_nodes_before - stats.willAbsorb}</strong>/{
                       preview.total_nodes_before
                     }{" "}

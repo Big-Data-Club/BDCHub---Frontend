@@ -179,7 +179,7 @@ export default function ForumPostCard({
             </h3>
           </div>
 
-          {/* Body Preview — stripped markdown for performance */}
+          {/* Body Preview - stripped markdown for performance */}
           <p className="text-slate-600 dark:text-slate-400 text-sm mb-3 line-clamp-2">
             {stripMarkdown(localPost.body)}
           </p>

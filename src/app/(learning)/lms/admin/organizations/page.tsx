@@ -957,7 +957,7 @@ export default function OrganizationsPage() {
           <span className="font-semibold">Super Admin only.</span> Creating or
           deactivating organizations requires Super Admin privileges. PUBLIC
           courses can be enrolled by anyone. ORG_ONLY courses require org
-          membership — cross-org access must be granted by Super Admin.
+          membership - cross-org access must be granted by Super Admin.
         </p>
       </div>
 

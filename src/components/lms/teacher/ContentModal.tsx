@@ -3,7 +3,7 @@
 /**
  * ContentModal (refactored)
  *
- * This component is intentionally thin — it owns the shared form fields
+ * This component is intentionally thin - it owns the shared form fields
  * (title, description, type selector, order_index, is_mandatory) and the
  * submit/cancel buttons.  All type-specific UI is delegated to the
  * content-forms/ components.

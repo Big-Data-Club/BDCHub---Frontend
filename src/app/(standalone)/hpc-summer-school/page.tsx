@@ -237,7 +237,7 @@ export default function HPCSummerSchoolPage() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      // Capture client IP (non-critical — silently skip on failure)
+      // Capture client IP (non-critical - silently skip on failure)
       let clientIp = "Unknown";
       try {
         const ipRes  = await fetch("/api/get-ip");
@@ -259,7 +259,7 @@ export default function HPCSummerSchoolPage() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           formId: "hpc-summer-school-2026-participant",
-          formTitle: "Application Form — HCMUT HPC School 2026",
+          formTitle: "Application Form - HCMUT HPC School 2026",
           sheetName: "HPC_Summer_School_2026", formType: "registration",
           questions: Object.keys(answers).map(k => ({ id: k, question: k })),
           answers, submittedAt: new Date().toISOString(),
@@ -322,7 +322,7 @@ export default function HPCSummerSchoolPage() {
 
           {/* Right: org logos + theme + lang */}
           <div className="flex items-center gap-3.5 flex-shrink-0">
-            {/* Org logos — hidden on mobile */}
+            {/* Org logos - hidden on mobile */}
             <div className="hidden sm:flex items-center gap-3 bg-white/60 dark:bg-white/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-100 dark:border-white/20 shadow-sm">
               {ORGANIZERS.map(o => (
                 <div key={o.alt} className={`relative flex-shrink-0 ${o.cls}`}>

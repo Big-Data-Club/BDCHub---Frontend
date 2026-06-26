@@ -101,11 +101,11 @@ export function buildTaskRows(tasks: TaskWithColor[], days: Date[]): TaskRow[] {
 }
 
 export function formatShort(date: Date | null): string {
-  if (!date) return "—";
+  if (!date) return "-";
   return date.toLocaleDateString("vi-VN", { month: "short", day: "numeric" });
 }
 
 export function formatDateTime(date: Date | null): string {
-  if (!date) return "—";
+  if (!date) return "-";
   return date.toLocaleString("vi-VN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }

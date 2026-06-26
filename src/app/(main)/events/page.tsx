@@ -133,7 +133,7 @@ export default function EventsPage() {
             </div>
           </div>
 
-          {/* Add button — admin only */}
+          {/* Add button - admin only */}
           {isAdmin && (
             <button
               onClick={() => handleOpenModal("add")}

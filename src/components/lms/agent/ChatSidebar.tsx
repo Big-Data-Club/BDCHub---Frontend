@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ChatSidebar — slide-out AI chat panel from the right edge.
+ * ChatSidebar - slide-out AI chat panel from the right edge.
  *
  * Lightweight overlay that reads the current PageContext to give
  * the AI engine full awareness of what the user is viewing.
@@ -258,7 +258,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
                     : pageContext.pageType === "course_detail" && pageContext.courseName
                       ? `Khóa học: ${pageContext.courseName}`
                       : pageContext.pageType === "quiz"
-                        ? `Quiz — ${pageContext.courseName || "Không rõ khóa"}`
+                        ? `Quiz - ${pageContext.courseName || "Không rõ khóa"}`
                         : `Trang: ${pageContext.pageType}`}
                 </p>
               </div>

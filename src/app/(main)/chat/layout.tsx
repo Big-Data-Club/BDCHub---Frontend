@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Chat — Big Data Club",
+  title: "Chat - Big Data Club",
   description: "Kênh chat realtime của Big Data Club. Trao đổi, thảo luận cùng các thành viên.",
 };
 

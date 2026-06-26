@@ -499,7 +499,7 @@ export default function TrainingPointFormPage() {
                 Tự đánh giá điểm rèn luyện
               </h1>
               <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
-                Lớp MT23KHM3 — Học kỳ 252
+                Lớp MT23KHM3 - Học kỳ 252
               </p>
             </div>
           </div>

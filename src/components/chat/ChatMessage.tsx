@@ -75,7 +75,7 @@ export default function ChatMessage({ message, prevMessage, onDelete }: ChatMess
         "hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-100",
         showAvatar && "mt-3"
       )}>
-        {/* Avatar column — always takes up space to align messages */}
+        {/* Avatar column - always takes up space to align messages */}
         <div className="w-9 flex-shrink-0 mt-0.5">
           {showAvatar ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -117,7 +117,7 @@ export default function ChatMessage({ message, prevMessage, onDelete }: ChatMess
               {message.body}
             </p>
 
-            {/* Delete button — hover only, own message or admin */}
+            {/* Delete button - hover only, own message or admin */}
             {!message.isDeleted && onDelete && canDelete && (
               <button
                 onClick={() => onDelete(message.id)}

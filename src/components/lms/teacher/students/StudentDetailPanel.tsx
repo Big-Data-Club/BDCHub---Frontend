@@ -109,7 +109,7 @@ export function StudentDetailPanel({ student, courseId, onClose }: Props) {
 
   useEffect(() => {
     setLoadingQuiz(true);
-    // Get quiz-analytics for the course (teacher view) — filtered by student
+    // Get quiz-analytics for the course (teacher view) - filtered by student
     // We use getQuizAllAttempts per quiz is expensive; use course quiz-analytics instead
     // For now we fetch course quiz analytics and filter by available data
     // A better endpoint would be GET /courses/{courseId}/student/{studentId}/quiz-scores
@@ -119,7 +119,7 @@ export function StudentDetailPanel({ student, courseId, onClose }: Props) {
   }, [student.student_id, courseId]);
 
   const formatDate = (d: string | null) =>
-    d ? new Date(d).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—";
+    d ? new Date(d).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "-";
 
   return (
     <div className="fixed right-0 top-14 bottom-0 w-[340px] xl:w-[400px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-xl z-20 flex flex-col overflow-hidden">

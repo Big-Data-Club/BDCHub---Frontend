@@ -16,7 +16,7 @@ export default function ChatPage() {
       </div>
     }>
       <ChatProvider>
-        {/* Slack-style: channel list | message panel — fills the layout container */}
+        {/* Slack-style: channel list | message panel - fills the layout container */}
         <div className="flex h-full overflow-hidden">
           <ChatSidebar />
           <ChatPanel />

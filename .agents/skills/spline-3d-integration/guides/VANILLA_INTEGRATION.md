@@ -1,6 +1,6 @@
 # Vanilla JavaScript Integration
 
-Guide for embedding Spline 3D scenes in plain HTML/JavaScript projects — no React or framework required.
+Guide for embedding Spline 3D scenes in plain HTML/JavaScript projects - no React or framework required.
 
 ---
 

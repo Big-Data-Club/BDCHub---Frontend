@@ -1,9 +1,9 @@
 /**
- * Next.js Route Handler — SSE proxy for agent chat.
+ * Next.js Route Handler - SSE proxy for agent chat.
  *
  * This streams the response from ai-service directly to the browser.
  * Using a Route Handler (instead of Go proxy) because:
- *   1. SSE requires unbuffered streaming — Go Gin doesn't handle this well.
+ *   1. SSE requires unbuffered streaming - Go Gin doesn't handle this well.
  *   2. We can inject auth server-side (user can't spoof user_id).
  *   3. No Go code changes needed.
  */

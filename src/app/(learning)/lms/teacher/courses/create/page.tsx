@@ -232,7 +232,7 @@ export default function CreateCoursePage() {
                     : "border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-400"
                 }`}
               >
-                🌐 Public — Ai cũng có thể đăng ký
+                🌐 Public - Ai cũng có thể đăng ký
               </button>
               <button
                 type="button"

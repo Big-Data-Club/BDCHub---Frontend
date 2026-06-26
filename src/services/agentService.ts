@@ -11,7 +11,7 @@ import { lmsApiClient } from "./lmsApiClient";
 /**
  * Send a chat message and get an SSE stream response.
  *
- * Returns the raw Response — the caller (useAgentChat hook)
+ * Returns the raw Response - the caller (useAgentChat hook)
  * reads the stream via response.body.getReader().
  */
 export async function sendAgentMessage(

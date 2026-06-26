@@ -139,7 +139,7 @@ export function AgentMessageBubble({
                   <Check className="w-3 h-3" />
                 )}
                 <span className="font-semibold">{t.tool}</span>
-                {t.message && <span className="opacity-70">— {t.message}</span>}
+                {t.message && <span className="opacity-70">- {t.message}</span>}
               </div>
             ))}
           </div>

@@ -1,5 +1,5 @@
 /**
- * InteractiveSplineScene — Full interactive example
+ * InteractiveSplineScene - Full interactive example
  *
  * Demonstrates:
  *   1. Lazy loading the Spline component
@@ -10,7 +10,7 @@
  *   6. Scroll-driven animations
  *   7. Mobile responsiveness with static fallback
  *
- * This is a reference implementation — copy the patterns you need.
+ * This is a reference implementation - copy the patterns you need.
  */
 
 'use client';
@@ -207,7 +207,7 @@ export default function InteractiveSplineScene() {
                 />
             </Suspense>
 
-            {/* UI Overlay — example controls */}
+            {/* UI Overlay - example controls */}
             {isLoaded && (
                 <div
                     style={{

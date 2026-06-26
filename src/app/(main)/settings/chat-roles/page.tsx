@@ -31,7 +31,7 @@ interface ChannelRowProps {
 function ChannelRow({ channel, onDeleted, onUpdated }: ChannelRowProps) {
   const [expanded, setExpanded] = useState(false);
   const [roles, setRoles] = useState<ChannelRoleEntry[]>([]);
-  // pendingUsers: what will be saved — mutated locally on add/remove
+  // pendingUsers: what will be saved - mutated locally on add/remove
   const [pendingUsers, setPendingUsers] = useState<ChatUser[]>([]);
   const [rolesLoading, setRolesLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -54,7 +54,7 @@ function ChannelRow({ channel, onDeleted, onUpdated }: ChannelRowProps) {
   const loadDetails = async () => {
     setRolesLoading(true);
     try {
-      // Parallel fetch — no serial waterfall
+      // Parallel fetch - no serial waterfall
       const [r, u] = await Promise.all([
         getChannelRoles(channel.id),
         getChannelUsers(channel.id),  // returns ChatUser[] with full details
@@ -114,7 +114,7 @@ function ChannelRow({ channel, onDeleted, onUpdated }: ChannelRowProps) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // ── Optimistic add/remove — pure local state mutations ───────────────────
+  // ── Optimistic add/remove - pure local state mutations ───────────────────
   const handleAddUser = useCallback((user: ChatUser) => {
     setPendingUsers((prev) =>
       prev.find((u) => u.id === user.id) ? prev : [...prev, user]
@@ -128,13 +128,13 @@ function ChannelRow({ channel, onDeleted, onUpdated }: ChannelRowProps) {
     setPendingUsers((prev) => prev.filter((u) => u.id !== userId));
   }, []);
 
-  // ── Save whitelist — one PUT, response contains updated list ─────────────
+  // ── Save whitelist - one PUT, response contains updated list ─────────────
   const handleSaveWhitelist = async () => {
     setSavingWhitelist(true);
     try {
       const ids = pendingUsers.map((u) => u.id);
       const updated = await setChannelUsers(channel.id, ids);
-      // Replace from authoritative server response — no extra GET needed
+      // Replace from authoritative server response - no extra GET needed
       setPendingUsers(updated);
     } finally {
       setSavingWhitelist(false);
@@ -221,7 +221,7 @@ function ChannelRow({ channel, onDeleted, onUpdated }: ChannelRowProps) {
         }
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm text-slate-800 dark:text-slate-100">{channel.name}</p>
-          <p className="text-xs text-slate-400 truncate">{channel.slug}{channel.description ? ` — ${channel.description}` : ""}</p>
+          <p className="text-xs text-slate-400 truncate">{channel.slug}{channel.description ? ` - ${channel.description}` : ""}</p>
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); setEditing(true); setExpanded(true); }}

@@ -118,7 +118,7 @@ function Avatar({ name }: { name: string }) {
 }
 
 function formatDate(d: string | null) {
-  if (!d) return "—";
+  if (!d) return "-";
   return new Date(d).toLocaleDateString("vi-VN", {
     day: "2-digit", month: "2-digit", year: "numeric",
   });

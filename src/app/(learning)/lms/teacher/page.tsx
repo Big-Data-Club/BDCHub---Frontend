@@ -323,7 +323,7 @@ export default function TeacherDashboard() {
                         {stat.avgQuiz !== null ? (
                           <span className="font-bold text-slate-800 dark:text-slate-200">{Math.round(stat.avgQuiz)}%</span>
                         ) : (
-                          <span className="text-slate-400 dark:text-slate-600">— (Không có Quiz)</span>
+                          <span className="text-slate-400 dark:text-slate-600">- (Không có Quiz)</span>
                         )}
                       </td>
 

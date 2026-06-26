@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Student Course — Learn Page
+ * Student Course - Learn Page
  * Route: /lms/student/courses/[courseId]/learn
  *
  * Displays the content viewer with prev/next navigation.

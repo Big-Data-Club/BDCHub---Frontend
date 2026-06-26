@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
     <footer className="relative bg-white/80 dark:bg-[#070E1C]/85 backdrop-blur-xl
                        border-t border-slate-200 dark:border-blue-500/8
                        w-full flex-shrink-0">
-      {/* Cosmic glow line — dark mode only */}
+      {/* Cosmic glow line - dark mode only */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 dark:via-cyan-400/15 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

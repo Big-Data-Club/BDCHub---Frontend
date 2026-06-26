@@ -101,7 +101,7 @@ const Background: React.FC = () => {
       });
     };
 
-    // 4. Visibility change handler — restart animation loop when tab becomes visible
+    // 4. Visibility change handler - restart animation loop when tab becomes visible
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         worker?.postMessage({ type: 'resume' });

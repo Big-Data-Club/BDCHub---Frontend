@@ -73,7 +73,7 @@ export function SpacedRepetitionWidget({ courseId }: Props) {
         setRevealed(false);
       }
     } catch {
-      // fail silently — still advance
+      // fail silently - still advance
       if (current + 1 >= dueCards.length) setDone(true);
       else { setCurrent((c) => c + 1); setRevealed(false); }
     } finally {

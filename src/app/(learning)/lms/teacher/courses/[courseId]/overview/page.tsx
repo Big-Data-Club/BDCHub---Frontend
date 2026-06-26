@@ -64,7 +64,7 @@ export default function CourseOverviewPage() {
     <div className="space-y-5">
       {error && <Alert type="error">{error}</Alert>}
 
-      {/* Publish action — only for DRAFT courses */}
+      {/* Publish action - only for DRAFT courses */}
       {course?.status === "DRAFT" && (
         <div className="flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl">
           <div>

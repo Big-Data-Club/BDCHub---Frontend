@@ -483,7 +483,7 @@ function QuizCard({
                 onChange={e => setPickedSection(Number(e.target.value) || 0)}
                 className="flex-1 px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs"
               >
-                <option value="">— Chọn chương để xuất bản —</option>
+                <option value="">- Chọn chương để xuất bản -</option>
                 {sections.map(s => (
                   <option key={s.id} value={s.id}>{s.title}</option>
                 ))}

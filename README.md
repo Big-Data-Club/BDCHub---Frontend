@@ -1,6 +1,6 @@
 # BDCHub Frontend
 
-The official web interface for the **BDC Platform — AI-Powered Microservices LMS**. This application provides a minimalist, high-performance user experience built with Next.js, specifically designed for the Big Data Club ecosystem.
+The official web interface for the **BDC Platform - AI-Powered Microservices LMS**. This application provides a minimalist, high-performance user experience built with Next.js, specifically designed for the Big Data Club ecosystem.
 
 ## Overview
 

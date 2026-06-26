@@ -164,7 +164,7 @@ export default function ForumPostDetail({
               {post.title}
             </h1>
 
-            {/* Body — Markdown Rendered */}
+            {/* Body - Markdown Rendered */}
             <div className="mb-6">
               <MarkdownRenderer content={post.body} />
             </div>

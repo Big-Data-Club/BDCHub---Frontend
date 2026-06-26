@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * StudyPlanWidget — renders a personalized study plan from the mentor agent.
+ * StudyPlanWidget - renders a personalized study plan from the mentor agent.
  *
  * Backend schema (get_study_plan.py ui_instruction.props):
  *   { plan: PlanSection[], due_today: number }
@@ -32,7 +32,7 @@ interface StudyPlanWidgetProps {
   props: {
     plan?: PlanSection[];
     due_today?: number;
-    /** Legacy format — array of { topic, reason, priority, mastery } */
+    /** Legacy format - array of { topic, reason, priority, mastery } */
     items?: { topic: string; reason?: string; priority?: string; mastery?: number }[];
     title?: string;
   };

@@ -95,7 +95,7 @@ export function AIIndexButton({
     },
     failed: {
       icon: <ErrorIcon />,
-      label: "Lỗi — thử lại",
+      label: "Lỗi - thử lại",
       color: "text-red-500 dark:text-red-400",
       bg: "hover:bg-red-50 dark:hover:bg-red-950/30",
       border: "border-red-300 dark:border-red-600",

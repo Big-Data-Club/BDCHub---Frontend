@@ -9,7 +9,7 @@ interface ForumMarkdownEditorProps {
   placeholder?: string;
   rows?: number;
   disabled?: boolean;
-  /** Compact mode for reply forms — smaller, no toolbar description */
+  /** Compact mode for reply forms - smaller, no toolbar description */
   compact?: boolean;
 }
 

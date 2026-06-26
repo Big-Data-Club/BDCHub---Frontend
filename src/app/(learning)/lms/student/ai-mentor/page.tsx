@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Student AI Mentor — chat page.
+ * Student AI Mentor - chat page.
  * Full-height chat panel with mentor agent for learning assistance.
  */
 import { useSearchParams } from "next/navigation";

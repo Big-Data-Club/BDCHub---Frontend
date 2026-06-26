@@ -280,7 +280,7 @@ const TaskScoreModal: React.FC<TaskScoreModalProps> = ({
                         <td className="py-3 px-4 text-center text-xs text-slate-400 dark:text-slate-600">
                           {userScore?.appliedAt
                             ? new Date(userScore.appliedAt).toLocaleDateString("vi-VN")
-                            : "—"}
+                            : "-"}
                         </td>
 
                         {/* Actions */}
@@ -330,7 +330,7 @@ const TaskScoreModal: React.FC<TaskScoreModalProps> = ({
           {deductingScore && canManageScores && (
             <div className="border border-orange-200 dark:border-orange-800 rounded-2xl p-4 bg-orange-50 dark:bg-orange-950/30">
               <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-3">
-                Deduct Score — {taskAssignees.find((u) => u.id === deductingScore.userId)?.name}
+                Deduct Score - {taskAssignees.find((u) => u.id === deductingScore.userId)?.name}
               </h3>
               <div className="space-y-3">
                 <div>

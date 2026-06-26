@@ -117,7 +117,7 @@ function KeyRow({
         {k.used_today_tokens.toLocaleString()}
       </td>
       <td className="px-4 py-3 text-right tabular-nums text-slate-500 dark:text-slate-500">
-        {k.daily_token_limit?.toLocaleString() ?? <span className="text-slate-300 dark:text-slate-600">—</span>}
+        {k.daily_token_limit?.toLocaleString() ?? <span className="text-slate-300 dark:text-slate-600">-</span>}
       </td>
       <td className="px-4 py-3">
         <div className="flex justify-end gap-2">

@@ -280,7 +280,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
       }
       setProgressDetail(detail ?? []);
     } catch {
-      // Progress API may not be available yet — degrade gracefully
+      // Progress API may not be available yet - degrade gracefully
     }
   }, [id]);
 

@@ -27,7 +27,7 @@ interface Props {
 /**
  * QuizSettingsModal
  *
- * Extracted from TeacherQuizManagePage — owns the ⚙️ modal UI only.
+ * Extracted from TeacherQuizManagePage - owns the ⚙️ modal UI only.
  * State (quiz) is lifted up; parent passes onChange + onSave.
  */
 export function QuizSettingsModal({ quiz, onChange, onSave, onClose }: Props) {
@@ -129,7 +129,7 @@ export function QuizSettingsModal({ quiz, onChange, onSave, onClose }: Props) {
                 </label>
               ))}
 
-              {/* Publish toggle — highlighted */}
+              {/* Publish toggle - highlighted */}
               <label className="flex items-center gap-2.5 cursor-pointer p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl mt-1">
                 <input
                   type="checkbox"

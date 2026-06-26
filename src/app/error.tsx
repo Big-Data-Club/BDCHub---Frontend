@@ -44,7 +44,7 @@ export default function GlobalError({ error, reset }: Props) {
           <pre className="whitespace-pre-wrap mt-2 text-[11px] bg-slate-100 dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-700">{String(error?.stack ?? "Không có stack")}</pre>
         </details>
 
-        <p className="mt-4 text-xs text-slate-400 dark:text-slate-500">Nếu lỗi vẫn tiếp diễn, hãy gửi log cho team dev — họ sẽ cảm ơn bạn 😊</p>
+        <p className="mt-4 text-xs text-slate-400 dark:text-slate-500">Nếu lỗi vẫn tiếp diễn, hãy gửi log cho team dev - họ sẽ cảm ơn bạn 😊</p>
     </>
   );
 }

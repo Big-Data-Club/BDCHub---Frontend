@@ -232,7 +232,7 @@ export function FlashcardDeck({ ctx }: FlashcardDeckProps) {
         <span className="font-medium">{flipped ? labels.back : labels.front}</span>
       </div>
 
-      {/* Card surface — solid neutral, hairline border, no gradient. */}
+      {/* Card surface - solid neutral, hairline border, no gradient. */}
       <button
         type="button"
         onClick={handleFlip}

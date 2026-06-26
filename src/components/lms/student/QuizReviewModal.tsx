@@ -119,7 +119,7 @@ interface QuizReviewPageProps {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-/** Circular score ring — SVG, no external deps */
+/** Circular score ring - SVG, no external deps */
 function ScoreRing({
   percentage,
   passed,
@@ -443,7 +443,7 @@ export default function QuizReviewPage({
                   </div>
                   {isStudentChoice && !isCorrect && showCorrect && (
                     <p className="text-xs text-red-500 dark:text-red-400 mt-1 font-medium">
-                      Đáp án bạn đã chọn — Sai
+                      Đáp án bạn đã chọn - Sai
                     </p>
                   )}
                   {!isStudentChoice && isCorrect && showCorrect && (
@@ -1155,7 +1155,7 @@ export default function QuizReviewPage({
                           </div>
                         )}
 
-                        {/* AI analysis button — only for wrong answers */}
+                        {/* AI analysis button - only for wrong answers */}
                         {!isCorrect && hasGraded && !essay && (
                           <button
                             onClick={() =>
@@ -1183,7 +1183,7 @@ export default function QuizReviewPage({
 
       </div>
 
-      {/* AI Diagnosis Modal — still overlay, but triggered from within the page */}
+      {/* AI Diagnosis Modal - still overlay, but triggered from within the page */}
       {diagnosisTarget && (
         <AIDiagnosisModal
           attemptId={attemptId}

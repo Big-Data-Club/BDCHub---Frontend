@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * useAgentChat — SSE stream parser and chat state manager.
+ * useAgentChat - SSE stream parser and chat state manager.
  *
  * Connects to the agent SSE endpoint, parses events in real-time,
  * and maintains the message list with streaming text, tool activities,
@@ -30,7 +30,7 @@ interface UseAgentChatOptions {
   pageContext?: Record<string, any> | null;
   /**
    * Out-of-band context invisibly stitched into the agent's system
-   * prompt — used by the Quick Action Panel "Ask AI" button so the
+   * prompt - used by the Quick Action Panel "Ask AI" button so the
    * model knows exactly which micro-lesson the student is reading.
    */
   systemContext?: Record<string, any> | null;

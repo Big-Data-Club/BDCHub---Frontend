@@ -21,7 +21,7 @@ const SelectTrigger = React.forwardRef<
     className={cn(
       // Base layout
       "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border px-3 py-2 text-sm shadow-sm",
-      // Light mode — solid input background so it's never transparent
+      // Light mode - solid input background so it's never transparent
       "bg-slate-50 border-slate-300 text-slate-900",
       // Dark mode
       "dark:bg-[#0D192E] dark:border-blue-500/20 dark:text-slate-100",
@@ -90,12 +90,12 @@ const SelectContent = React.forwardRef<
       className={cn(
         "relative z-50 min-w-[8rem] rounded-xl border",
         // Cap height to available viewport space (Radix provides this var); fallback to 384px.
-        // Use overflow-hidden — NOT overflow-y-auto — so Radix's own ScrollUpButton/ScrollDownButton
+        // Use overflow-hidden - NOT overflow-y-auto - so Radix's own ScrollUpButton/ScrollDownButton
         // handle scrolling correctly. overflow-y-auto on the Content breaks their logic.
         "max-h-[min(384px,var(--radix-select-content-available-height,384px))] overflow-hidden overflow-x-hidden",
         // Light mode
         "bg-white border-slate-200 text-slate-900 shadow-lg",
-        // Dark mode — explicit BDC Design Rhythm tokens (bg-popover CSS variable unreliable in dark LMS)
+        // Dark mode - explicit BDC Design Rhythm tokens (bg-popover CSS variable unreliable in dark LMS)
         "dark:bg-[#0F1E35] dark:border-blue-500/20 dark:text-slate-100 dark:shadow-none",
         // Animations
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -116,7 +116,7 @@ const SelectContent = React.forwardRef<
         className={cn(
           "p-1",
           position === "popper" &&
-            // min-h instead of h — prevents viewport from being locked to trigger height (scroll fix)
+            // min-h instead of h - prevents viewport from being locked to trigger height (scroll fix)
             "min-h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
       >

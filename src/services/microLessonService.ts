@@ -41,7 +41,7 @@ export interface MicroLesson {
   source_content_id?: { Int64: number; Valid: boolean };
   title: string;
   summary?: { String: string; Valid: boolean };
-  objectives: string[] | null | unknown;        // JSON column — parsed below
+  objectives: string[] | null | unknown;        // JSON column - parsed below
   markdown_content: string;
   estimated_minutes: number;
   order_index: number;

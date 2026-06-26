@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import "@xterm/xterm/css/xterm.css";
 
-// Dynamic import types — actual modules loaded in useEffect to avoid SSR issues
+// Dynamic import types - actual modules loaded in useEffect to avoid SSR issues
 import type { Terminal as XTermTerminal } from "@xterm/xterm";
 import type { FitAddon as XTermFitAddon } from "@xterm/addon-fit";
 

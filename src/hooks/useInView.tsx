@@ -3,11 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 /**
- * useInView — Intersection Observer hook for lazy rendering.
+ * useInView - Intersection Observer hook for lazy rendering.
  *
  * Returns a ref callback and an `isInView` boolean.
  * Once the element enters the viewport, `isInView` becomes true
- * and stays true (one-shot trigger — never reverts to false).
+ * and stays true (one-shot trigger - never reverts to false).
  *
  * Usage:
  *   const { ref, isInView } = useInView({ rootMargin: "200px" });
@@ -37,7 +37,7 @@ export function useInView(options?: IntersectionObserverInit) {
         ([entry]) => {
           if (entry.isIntersecting) {
             setIsInView(true);
-            // Once seen, disconnect — one-shot
+            // Once seen, disconnect - one-shot
             observerRef.current?.disconnect();
             observerRef.current = null;
           }

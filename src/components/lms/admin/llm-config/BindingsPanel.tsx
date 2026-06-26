@@ -334,7 +334,7 @@ function BindingDialog({
                 {(catalogue?.task_codes ?? []).map((t) => (
                   <SelectItem key={t} value={t}><code className="font-mono text-xs">{t}</code></SelectItem>
                 ))}
-                <SelectItem value="__custom" className="text-slate-500 italic">— Tự định nghĩa —</SelectItem>
+                <SelectItem value="__custom" className="text-slate-500 italic">- Tự định nghĩa -</SelectItem>
               </SelectContent>
             </Select>
             {taskCode === "__custom" && (

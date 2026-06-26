@@ -314,7 +314,7 @@ class AIService {
   }
 
   /**
-   * Global knowledge graph — all courses, all nodes, all edges.
+   * Global knowledge graph - all courses, all nodes, all edges.
    * Used by Admin Dashboard and the global knowledge map page.
    * Requires the ai-service /ai/knowledge-graph/global endpoint
    * to be proxied by Go lms-service at /ai/knowledge-graph/global.
@@ -375,7 +375,7 @@ class AIService {
   }
 
   /**
-   * Quick Action Panel — generate 1–2 ultra-short MCQ "Concept Check"
+   * Quick Action Panel - generate 1–2 ultra-short MCQ "Concept Check"
    * questions tied to a micro-lesson body or knowledge node.
    */
   async generateConceptCheck(req: ConceptCheckRequest): Promise<ConceptCheckResponse> {
@@ -390,7 +390,7 @@ class AIService {
   }
 }
 
-// ─── Quick Action Panel — Concept Check ───────────────────────────────
+// ─── Quick Action Panel - Concept Check ───────────────────────────────
 
 export interface ConceptCheckRequest {
   text_chunk?: string;

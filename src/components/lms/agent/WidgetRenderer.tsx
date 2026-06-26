@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * WidgetRenderer — dynamic component dispatcher for Generative UI.
+ * WidgetRenderer - dynamic component dispatcher for Generative UI.
  *
  * Maps backend `component` names to actual React components.
  * When a tool returns ui_instruction, this renders the appropriate widget.

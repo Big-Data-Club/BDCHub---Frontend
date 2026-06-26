@@ -113,7 +113,7 @@ export function HeroTitle({
       style={isScrubMode ? { opacity: 1, scale: 1 } : undefined}
       className="will-change-transform [backface-visibility:hidden] w-full origin-center lg:origin-left"
     >
-      {/* Title — bottom-up-letters per-character reveal (crisp edges, zero blur, Apple-style stagger) */}
+      {/* Title - bottom-up-letters per-character reveal (crisp edges, zero blur, Apple-style stagger) */}
       <h1 
         className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight pt-2 pb-4 pl-0 pr-1 leading-[1.15] block text-center lg:text-left"
         style={isScrubMode ? { transform: `scale(${confirmScale})` } : undefined}

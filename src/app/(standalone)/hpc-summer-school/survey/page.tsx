@@ -13,7 +13,7 @@ type Lang = "en" | "vi";
 const T = {
   vi: {
     title: "HPC School Survey",
-    tagline: "HPCC × CSE × Big Data Club — HCMUT",
+    tagline: "HPCC × CSE × Big Data Club - HCMUT",
     langToggle: "English",
     contact: (
       <span>
@@ -26,7 +26,7 @@ const T = {
   },
   en: {
     title: "HPC School Survey",
-    tagline: "HPCC × CSE × Big Data Club — HCMUT",
+    tagline: "HPCC × CSE × Big Data Club - HCMUT",
     langToggle: "Tiếng Việt",
     contact: (
       <span>
@@ -83,7 +83,7 @@ export default function HPCSchoolSurveyPage() {
 
           {/* Right: org logos + theme + lang */}
           <div className="flex items-center gap-3.5 flex-shrink-0">
-            {/* Org logos — hidden on mobile */}
+            {/* Org logos - hidden on mobile */}
             <div className="hidden sm:flex items-center gap-3 bg-white/60 dark:bg-white/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-100 dark:border-white/20 shadow-sm">
               {ORGANIZERS.map(o => (
                 <div key={o.alt} className={`relative flex-shrink-0 ${o.cls}`}>

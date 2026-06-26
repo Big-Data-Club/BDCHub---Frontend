@@ -11,12 +11,12 @@ Master guide for embedding interactive 3D scenes from [Spline.design](https://sp
 
 ## What Is Spline?
 
-Spline is a **browser-based 3D design tool** — think of it as Figma, but for 3D. Designers create interactive 3D scenes (objects, materials, animations, physics, events) in the Spline editor, then export them for the web.
+Spline is a **browser-based 3D design tool** - think of it as Figma, but for 3D. Designers create interactive 3D scenes (objects, materials, animations, physics, events) in the Spline editor, then export them for the web.
 
 - **Free tier** available (with watermark)
 - Scenes are hosted by Spline and loaded at runtime
 - Supports mouse, scroll, keyboard, and touch interactions
-- Built on WebGL — works in all modern browsers
+- Built on WebGL - works in all modern browsers
 
 ---
 
@@ -51,7 +51,7 @@ Is this a React or Next.js project?
 2. Click **Export** (top-right)
 3. Select **Code**
 4. Choose **React** or **Vanilla JS**
-5. Copy the scene URL — it looks like:
+5. Copy the scene URL - it looks like:
    ```
    https://prod.spline.design/aBcDeFgHiJkLmNoP/scene.splinecode
    ```
@@ -98,7 +98,7 @@ export default function MyScene() {
 
 ---
 
-## Runtime API — Key Methods
+## Runtime API - Key Methods
 
 Once a scene is loaded, you can interact with it programmatically. These methods work in **both** React (via `onLoad` callback) and vanilla JS (via the `Application` instance).
 
@@ -164,7 +164,7 @@ Spline scenes can have **variables** (defined in the editor). You can read and w
 // Read
 const score = splineApp.getVariable('score');
 
-// Write — this updates the scene in real-time
+// Write - this updates the scene in real-time
 splineApp.setVariable('score', 42);
 splineApp.setVariable('isActive', true);
 splineApp.setVariable('userName', 'Visitor');
@@ -199,7 +199,7 @@ cube.scale.z = 1.5;
 
 ### 1. Hero Section with 3D Scene
 
-The most popular pattern — a split layout with text on one side and a 3D scene on the other. See `examples/react-spline-wrapper.tsx` for the recommended lazy-loaded component.
+The most popular pattern - a split layout with text on one side and a 3D scene on the other. See `examples/react-spline-wrapper.tsx` for the recommended lazy-loaded component.
 
 ```tsx
 <div className="hero">
@@ -318,13 +318,13 @@ export function SplineScene({ scene, className }) {
 Before exporting, run through this in the Spline editor:
 
 1. Open the **Performance panel** (View -> Performance)
-2. Check polygon count — aim for under 150k
+2. Check polygon count - aim for under 150k
 3. Remove any hidden or off-screen objects
 4. Reduce segments on smooth objects (spheres, cylinders)
 5. Under Export settings:
    - Set **Geometry Quality** to "Performance"
    - Enable **Image Compression**
-6. Test on mobile — if it's slow, simplify further
+6. Test on mobile - if it's slow, simplify further
 
 ---
 
@@ -406,12 +406,12 @@ function SceneWithLoader({ scene }) {
 
 ## Detailed Guides
 
-- **[React & Next.js Integration](guides/REACT_INTEGRATION.md)** — Lazy loading, wrapper components, Next.js specifics, TypeScript
-- **[Vanilla JS Integration](guides/VANILLA_INTEGRATION.md)** — Canvas setup, CDN usage, event handling, animation loops
-- **[Performance Optimization](guides/PERFORMANCE.md)** — Deep dive on scene optimization, export settings, mobile strategies
+- **[React & Next.js Integration](guides/REACT_INTEGRATION.md)** - Lazy loading, wrapper components, Next.js specifics, TypeScript
+- **[Vanilla JS Integration](guides/VANILLA_INTEGRATION.md)** - Canvas setup, CDN usage, event handling, animation loops
+- **[Performance Optimization](guides/PERFORMANCE.md)** - Deep dive on scene optimization, export settings, mobile strategies
 
 ## Examples
 
-- **[react-spline-wrapper.tsx](examples/react-spline-wrapper.tsx)** — Production-ready lazy-loaded React wrapper
-- **[vanilla-embed.html](examples/vanilla-embed.html)** — Minimal vanilla JS embed
-- **[interactive-scene.tsx](examples/interactive-scene.tsx)** — Full interactive example with events, variables, and camera
+- **[react-spline-wrapper.tsx](examples/react-spline-wrapper.tsx)** - Production-ready lazy-loaded React wrapper
+- **[vanilla-embed.html](examples/vanilla-embed.html)** - Minimal vanilla JS embed
+- **[interactive-scene.tsx](examples/interactive-scene.tsx)** - Full interactive example with events, variables, and camera

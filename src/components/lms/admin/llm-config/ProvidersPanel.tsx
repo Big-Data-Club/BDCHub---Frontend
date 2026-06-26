@@ -78,7 +78,7 @@ function ProviderRow({
 
   const toggle = async () => {
     const next = !isEnabled;
-    setIsEnabled(next);             // optimistic — instant visual
+    setIsEnabled(next);             // optimistic - instant visual
     setBusy(true);
     try {
       await llmConfigService.updateProvider(provider.id, { enabled: next });
@@ -111,7 +111,7 @@ function ProviderRow({
         </span>
       </td>
       <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs font-mono">
-        {provider.base_url || <span className="text-slate-300 dark:text-slate-600">—</span>}
+        {provider.base_url || <span className="text-slate-300 dark:text-slate-600">-</span>}
       </td>
       <td className="px-4 py-3 text-center">
         <Switch

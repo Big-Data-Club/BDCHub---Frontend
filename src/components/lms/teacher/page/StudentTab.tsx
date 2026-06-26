@@ -110,7 +110,7 @@ export function StudentsTab({ courseId }: Props) {
 
       {/* Main area: table + optional detail panel side-by-side */}
       <div className={`flex gap-6 ${selected ? "items-start" : ""}`}>
-        {/* Table — shrinks when panel is open */}
+        {/* Table - shrinks when panel is open */}
         <div className={`min-w-0 ${selected ? "flex-1" : "w-full"}`}>
           <StudentProgressTable
             students={filtered}
@@ -123,7 +123,7 @@ export function StudentsTab({ courseId }: Props) {
           />
         </div>
 
-        {/* Inline detail panel (not fixed) — appears when a student is selected */}
+        {/* Inline detail panel (not fixed) - appears when a student is selected */}
         {selected && (
           <div className="w-80 xl:w-96 flex-shrink-0 sticky top-4">
             <InlineStudentDetail
@@ -152,7 +152,7 @@ function InlineStudentDetail({
   onClose: () => void;
 }) {
   const formatDate = (d: string | null) =>
-    d ? new Date(d).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—";
+    d ? new Date(d).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "-";
 
   const colors = [
     "from-blue-400 to-blue-600", "from-violet-400 to-violet-600",
@@ -238,7 +238,7 @@ function InlineStudentDetail({
           <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-800/50">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-amber-700 dark:text-amber-400">
-              Tiến độ dưới 20% — nên liên hệ hỗ trợ.
+              Tiến độ dưới 20% - nên liên hệ hỗ trợ.
             </p>
           </div>
         )}

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * AgentChatPanel — main chat container for both Mentor and Teacher agents.
+ * AgentChatPanel - main chat container for both Mentor and Teacher agents.
  *
  * Layout: full-height flex column with scrollable message area + input bar.
  * Works as a self-contained component that can be embedded in any page.
@@ -250,7 +250,7 @@ export function AgentChatPanel({
       >
         <div className="max-w-4xl mx-auto w-full px-2 sm:px-4 md:px-6 space-y-5">
           {isEmpty ? (
-            /* Empty state — welcome + hint chips */
+            /* Empty state - welcome + hint chips */
             <div className="flex flex-col items-center justify-center text-center space-y-6 py-16">
               <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shadow-lg shadow-blue-500/10 animate-in fade-in zoom-in-75 duration-300">
                 <MessageSquare className="w-8 h-8 text-blue-600 dark:text-blue-400" />

@@ -1,7 +1,7 @@
 ---
 name: bdc-frontend
 description: >
-  Use for every task touching frontend/src/ — components, hooks, service calls,
+  Use for every task touching frontend/src/ - components, hooks, service calls,
   page routes, API route handlers, Tailwind styling, dark mode, modals, forms,
   or any new feature. Also consult when wiring up environment variables,
   proxy-aware fetches, reviewing code consistency, or building AI-native UI
@@ -28,7 +28,7 @@ requires:
   - DESIGN_RHYTHM.md
 ---
 
-# BDC Frontend — Developer Skill v3.0
+# BDC Frontend - Developer Skill v3.0
 
 **Runtime:** Node.js 20 Alpine  
 **Framework:** Next.js 14 App Router  
@@ -50,11 +50,11 @@ frontend/src/
 ├── app/
 │   ├── (auth)/               login, confirm-password-change
 │   ├── (landing)/            public landing pages
-│   ├── (main)/               authenticated sidebar app — dashboard, events, tasks, users
-│   ├── (learning)/lms/       LMS area — admin, student, teacher, forums
-│   └── api/                  Route Handlers — NextAuth, upload, youtube, health
+│   ├── (main)/               authenticated sidebar app - dashboard, events, tasks, users
+│   ├── (learning)/lms/       LMS area - admin, student, teacher, forums
+│   └── api/                  Route Handlers - NextAuth, upload, youtube, health
 ├── components/
-│   ├── ui/                   shadcn/ui primitives — DO NOT modify directly
+│   ├── ui/                   shadcn/ui primitives - DO NOT modify directly
 │   ├── layout/               Sidebar, MobileNav, Navbar, Footer, ThemeToggle, Background
 │   ├── common/               SafeImage, LoadingState, EmptyState, SectionHeader
 │   ├── dashboard/            announcement/, event/, calendar/, modals/
@@ -62,18 +62,18 @@ frontend/src/
 │   ├── lms/student/          AIDiagnosisModal, ContentViewer, QuizHistoryModal
 │   └── lms/teacher/          AINodeManager, AIQuizGenPanel, BulkUploadModal
 ├── hooks/                    useAuth, useCurrentUser, useAnnouncements, useEvents, useTasks
-├── services/                 ALL fetch() calls — never in components or hooks
-├── types/                    All shared TypeScript interfaces — re-export from index.ts
+├── services/                 ALL fetch() calls - never in components or hooks
+├── types/                    All shared TypeScript interfaces - re-export from index.ts
 ├── store/UserContext.tsx      Global user state
 ├── providers/MainProvider.tsx SessionProvider + UserContext + ThemeProvider
-└── utils/                    Pure helpers — no React imports
+└── utils/                    Pure helpers - no React imports
 ```
 
 ---
 
 ## Proxy Rewrites (next.config.ts)
 
-Never call backend ports directly. Use proxy paths — works in Docker and production.
+Never call backend ports directly. Use proxy paths - works in Docker and production.
 
 | Frontend path | Proxies to | Purpose |
 |---|---|---|
@@ -86,7 +86,7 @@ Never call backend ports directly. Use proxy paths — works in Docker and produ
 // ✅ Correct
 const res = await fetch("/apiv1/announcements");
 
-// ❌ Wrong — breaks in Docker
+// ❌ Wrong - breaks in Docker
 const res = await fetch("http://localhost:8080/announcements");
 ```
 
@@ -417,20 +417,20 @@ export default function FeaturePage() {
 ```
 ── Types & Services ────────────────────────────────────────────────────
 [ ] New type in src/types/ và re-export từ index.ts
-[ ] Service dùng api.ts hoặc lmsApiClient.ts — không raw fetch() trong hook/component
+[ ] Service dùng api.ts hoặc lmsApiClient.ts - không raw fetch() trong hook/component
 [ ] Props interface tên <Component>Props, fully typed
 
 ── Architecture ────────────────────────────────────────────────────────
 [ ] Hook theo pattern CRUD + modal
 [ ] Component đặt đúng folder với named export
-[ ] page.tsx là composition only — không có useState/useEffect/fetch
+[ ] page.tsx là composition only - không có useState/useEffect/fetch
 
-── Styling — Light Mode ────────────────────────────────────────────────
+── Styling - Light Mode ────────────────────────────────────────────────
 [ ] Card: bg-white border-slate-200 rounded-2xl shadow-sm
 [ ] Input: border-slate-300 focus:ring-blue-500/20 focus:border-blue-500
 [ ] Button: bg-blue-600 active:scale-95 transition-all duration-200
 
-── Styling — Dark Mode ─────────────────────────────────────────────────
+── Styling - Dark Mode ─────────────────────────────────────────────────
 [ ] Card: dark:bg-[#0F1E35] dark:border-blue-500/10 dark:shadow-none
 [ ] Input: dark:bg-[#0D192E] dark:border-blue-500/20 dark:focus:ring-cyan-400/20
 [ ] Page bg: dark:bg-[#050B18]
@@ -443,7 +443,7 @@ export default function FeaturePage() {
 [ ] Border subtle dark: dùng opacity (dark:border-blue-500/10)
 
 ── UX ──────────────────────────────────────────────────────────────────
-[ ] Loading dùng <LoadingState /> — không custom spinner
+[ ] Loading dùng <LoadingState /> - không custom spinner
 [ ] Empty state có message rõ ràng
 [ ] Admin mutations được guard bởi checkAdminAccess()
 [ ] Modal có overlay + rounded-2xl panel

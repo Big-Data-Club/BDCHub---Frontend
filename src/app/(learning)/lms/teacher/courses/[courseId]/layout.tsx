@@ -12,7 +12,7 @@ import { Course } from "@/types";
 import { cn } from "@/lib/utils";
 import { useSetPageContext } from "@/hooks/usePageContext";
 
-// Lazy-load modal — only needed when user clicks "Chỉnh sửa"
+// Lazy-load modal - only needed when user clicks "Chỉnh sửa"
 const EditCourseModal = dynamic(
   () => import("@/components/lms/teacher/EditCourseModal").then(m => ({ default: m.EditCourseModal })),
   { ssr: false },

@@ -142,7 +142,7 @@ export function EditCourseModal({ course, onClose, onSuccess }: {
                 onChange={(e) => setFormData({ ...formData, visibility: e.target.value as "PUBLIC" | "ORG_ONLY" })}
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent font-medium"
               >
-                <option value="PUBLIC">🌐 Public — Ai cũng có thể đăng ký</option>
+                <option value="PUBLIC">🌐 Public - Ai cũng có thể đăng ký</option>
                 <option value="ORG_ONLY">🔒 Chỉ thành viên tổ chức</option>
               </select>
             </div>

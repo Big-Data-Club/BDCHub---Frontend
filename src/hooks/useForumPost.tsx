@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { useCurrentUser } from "./useCurrentUser";
 
 /**
- * useForumPost — Optimistic state management for a forum post detail page.
+ * useForumPost - Optimistic state management for a forum post detail page.
  *
  * Key design decisions:
  * - Optimistic insert: new comments appear instantly (< 50ms)
@@ -46,7 +46,7 @@ export function useForumPost(postId: number) {
       const response = await forumService.listComments(postId);
       setComments(response.data || []);
     } catch {
-      // Silent fail on comment load — don't block the UI
+      // Silent fail on comment load - don't block the UI
     } finally {
       setCommentsLoading(false);
     }
@@ -332,7 +332,7 @@ export function useForumPost(postId: number) {
         toast.success("Đã xóa");
         scheduleReconcile();
       } catch {
-        // Rollback — full refetch since tree manipulation is complex
+        // Rollback - full refetch since tree manipulation is complex
         toast.error("Không thể xóa");
         loadComments();
         loadPost();

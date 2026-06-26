@@ -94,7 +94,7 @@ export default function ForumCreatePost({
               <li>• Viết tiêu đề rõ ràng, súc tích</li>
               <li>• Mô tả chi tiết vấn đề bạn gặp phải</li>
               <li>
-                • Hỗ trợ Markdown — dùng **đậm**, *nghiêng*, `code`,
+                • Hỗ trợ Markdown - dùng **đậm**, *nghiêng*, `code`,
                 ```code block```
               </li>
               <li>• Thêm tags để dễ tìm kiếm</li>
@@ -126,7 +126,7 @@ export default function ForumCreatePost({
             )}
           </div>
 
-          {/* Body — Markdown Editor */}
+          {/* Body - Markdown Editor */}
           <div>
             <label className="block text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">
               Nội dung chi tiết <span className="text-red-500">*</span>

@@ -35,7 +35,7 @@ export default function UserRow({ user, onClick, onToggleStatus, isAdmin }: { us
 
         {/* Org */}
         <div className="col-span-2 text-center text-sm text-slate-700 dark:text-slate-300 truncate" title={user.organization}>
-          {user.organization || "—"}
+          {user.organization || "-"}
         </div>
 
         {/* Score */}

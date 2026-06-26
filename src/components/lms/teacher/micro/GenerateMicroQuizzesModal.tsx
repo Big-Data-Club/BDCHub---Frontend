@@ -164,7 +164,7 @@ export function GenerateMicroQuizzesModal({
                   onChange={e => setContentId(Number(e.target.value) || undefined)}
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm"
                 >
-                  <option value="">— Chọn tài liệu —</option>
+                  <option value="">- Chọn tài liệu -</option>
                   {allContents.map(c => (
                     <option key={c.id} value={c.id}>
                       [{c.type}] {c.title}
@@ -211,7 +211,7 @@ export function GenerateMicroQuizzesModal({
                 onChange={e => setSectionId(Number(e.target.value) || undefined)}
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm"
               >
-                <option value="">— Chưa chọn —</option>
+                <option value="">- Chưa chọn -</option>
                 {sections.map(s => (
                   <option key={s.id} value={s.id}>{s.title}</option>
                 ))}

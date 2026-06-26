@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Student Course — Stats Page
+ * Student Course - Stats Page
  * Route: /lms/student/courses/[courseId]/stats
  *
  * Displays:
@@ -225,14 +225,14 @@ export default function StatsPage() {
         />
         <KpiCard
           label="Quiz đã đạt"
-          value={quizScores.length > 0 ? `${passedQuizzes}/${quizScores.length}` : "—"}
+          value={quizScores.length > 0 ? `${passedQuizzes}/${quizScores.length}` : "-"}
           sub={quizScores.length > 0 ? `${((passedQuizzes / quizScores.length) * 100).toFixed(0)}% tỷ lệ` : "Chưa có quiz"}
           accent="bg-violet-500"
           pct={quizScores.length > 0 ? (passedQuizzes / quizScores.length) * 100 : 0}
         />
         <KpiCard
           label="Điểm TB quiz"
-          value={avgPct != null ? `${avgPct.toFixed(1)}%` : "—"}
+          value={avgPct != null ? `${avgPct.toFixed(1)}%` : "-"}
           sub={avgPct != null ? (avgPct >= 70 ? "Tốt" : "Cần cải thiện") : "Chưa làm quiz"}
           accent={avgPct != null && avgPct >= 70 ? "bg-amber-400" : "bg-red-400"}
           pct={avgPct ?? 0}

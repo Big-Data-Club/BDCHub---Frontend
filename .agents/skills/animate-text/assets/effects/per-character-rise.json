@@ -4,7 +4,7 @@
   "portable_spec": {
     "id": "per-character-rise",
     "display_name": "Per-Character Rise",
-    "description": "Letters slide up from below with no blur — crisp, deliberate, kinetic. Apple's clean tvOS-style reveal.",
+    "description": "Letters slide up from below with no blur - crisp, deliberate, kinetic. Apple's clean tvOS-style reveal.",
     "inspiration": "Apple tvOS, Fitness+ intros, iPadOS home screen title appearances.",
     "target": "per-character",
     "signature_easing": "cubic-bezier(0.2, 0.8, 0.2, 1)",
@@ -55,7 +55,7 @@
         }
       }
     },
-    "usage_notes": "Works on 40px+ headlines. Zero blur keeps it sharp — that's the key distinction from soft-blur-in. Stagger 24ms gives it quicker momentum; don't go below 16ms or it flattens."
+    "usage_notes": "Works on 40px+ headlines. Zero blur keeps it sharp - that's the key distinction from soft-blur-in. Stagger 24ms gives it quicker momentum; don't go below 16ms or it flattens."
   },
   "showcase": {
     "content": {

@@ -35,7 +35,7 @@ export default function EventDetails({ event }: { event: EventConfig }) {
               {event.structure.map((item, idx) => (
                 <div key={idx} className="bg-slate-50 dark:bg-[#0A1628] p-4 rounded-xl border border-slate-100 dark:border-blue-500/10">
                   <p className="font-bold text-slate-900 dark:text-white mb-1">{item.phase}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">{item.time} — {item.description}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{item.time} - {item.description}</p>
                 </div>
               ))}
             </div>

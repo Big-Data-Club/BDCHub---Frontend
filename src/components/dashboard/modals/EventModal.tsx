@@ -166,7 +166,7 @@ export function EventModal({ open, mode, event, onOpenChange, onChange, onSave }
             </div>
           </section>
 
-          {/* Tasks — view mode only */}
+          {/* Tasks - view mode only */}
           {isViewMode && (
             <section>
               <div className="flex items-center justify-between mb-3">

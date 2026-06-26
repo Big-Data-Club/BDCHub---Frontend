@@ -82,7 +82,7 @@ export default function ProfileTab({
             />
           </div>
 
-          {/* MSSV — read-only */}
+          {/* MSSV - read-only */}
           <div>
             <label className={labelClass}>
               <Tag className="w-4 h-4 inline-block mr-1.5 text-slate-400" />

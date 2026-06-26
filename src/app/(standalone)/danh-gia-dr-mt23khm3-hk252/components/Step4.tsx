@@ -63,15 +63,15 @@ export function Step4({ data, onEditStep }: Step4Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3.5 gap-x-6 text-sm">
           <div>
             <span className="block text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">Họ và Tên</span>
-            <span className="font-bold text-slate-800 dark:text-slate-200">{data.fullName || "—"}</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">{data.fullName || "-"}</span>
           </div>
           <div>
             <span className="block text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">Mã số sinh viên</span>
-            <span className="font-bold text-slate-800 dark:text-slate-200">{data.studentId || "—"}</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">{data.studentId || "-"}</span>
           </div>
           <div className="sm:col-span-2">
             <span className="block text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">Email liên hệ</span>
-            <span className="font-bold text-slate-800 dark:text-slate-200">{data.email || "—"}</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">{data.email || "-"}</span>
           </div>
         </div>
       </div>

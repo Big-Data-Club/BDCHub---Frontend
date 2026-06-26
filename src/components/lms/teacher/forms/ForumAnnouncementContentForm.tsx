@@ -7,7 +7,7 @@ import type { ContentFormProps } from "@/types";
  * ForumAnnouncementContentForm
  *
  * Forum and Announcement content types don't need file uploads or
- * complex settings — they're purely structural nodes. This form renders
+ * complex settings - they're purely structural nodes. This form renders
  * an info card explaining what will be created.
  */
 export function ForumAnnouncementContentForm({ formData }: ContentFormProps) {

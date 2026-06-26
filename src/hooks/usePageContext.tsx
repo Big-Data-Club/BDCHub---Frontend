@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * usePageContext — global page-context provider for AI Chat Sidebar.
+ * usePageContext - global page-context provider for AI Chat Sidebar.
  *
  * Each LMS page calls `setPageContext(...)` to declare what
  * the user is currently viewing. The ChatSidebar reads this
@@ -89,7 +89,7 @@ export function usePageContext(): PageContext | null {
 export function useSetPageContext() {
   const ctx = useContext(PageCtx);
   if (!ctx) {
-    // Outside provider — return noops so pages don't crash
+    // Outside provider - return noops so pages don't crash
     return {
       setPageContext: (_ctx: PageContext) => {},
       patchPageContext: (_patch: Partial<PageContext>) => {},

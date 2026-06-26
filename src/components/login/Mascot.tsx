@@ -44,7 +44,7 @@ export default function Mascot({ isBlindfolded }: { isBlindfolded: boolean }) {
   return (
     <div className="relative w-32 h-32 mx-auto mb-8 flex justify-center items-center">
       <svg viewBox="0 0 120 120" className="w-full h-full drop-shadow-sm">
-        {/* Glow effect behind mascot — dark mode only */}
+        {/* Glow effect behind mascot - dark mode only */}
         {isDark && (
           <circle cx="60" cy="60" r="55" fill="url(#mascotGlow)" opacity="0.4" />
         )}

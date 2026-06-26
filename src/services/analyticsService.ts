@@ -168,7 +168,7 @@ export interface StudentAnalyticsSummaryResponse {
   heatmap: any[];
 }
 
-// ─── Quick Action Panel — Micro-Interaction tracking ──────────────────────
+// ─── Quick Action Panel - Micro-Interaction tracking ──────────────────────
 
 export type MicroInteractionAction =
   | "lesson_view"
@@ -276,12 +276,12 @@ class AnalyticsService {
     return response.data;
   }
 
-  // ─── Quick Action Panel — micro-interaction tracking ──────────────────
+  // ─── Quick Action Panel - micro-interaction tracking ──────────────────
 
   /**
    * Send a single Quick Action Panel interaction. The endpoint is
    * fire-and-forget on the backend (raw row + Kafka publish), so
-   * the FE should also fire-and-forget — never block the UI on it.
+   * the FE should also fire-and-forget - never block the UI on it.
    */
   async trackMicroInteraction(
     payload: MicroInteractionRequest,

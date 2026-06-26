@@ -1,6 +1,6 @@
 {
   "formId": "hpc-summer-school-2026-organizer",
-  "formTitle": "ĐƠN ĐĂNG KÝ ORGANIZER — 1ST HPC SUMMER SCHOOL 2026",
+  "formTitle": "ĐƠN ĐĂNG KÝ ORGANIZER - 1ST HPC SUMMER SCHOOL 2026",
   "formDescription": "Form đăng ký dành cho Ban Tổ Chức (Organizer) chương trình HCMUT HPC School 2026 - tổ chức bởi HPC Lab x CSE xBig Data Club (HCMUT).",
   "formType": "registration",
   "sheetName": "HPC_Organizer_2026",
@@ -10,7 +10,7 @@
     {
       "id": "section_1_label",
       "type": "short",
-      "question": "PHẦN 1: THÔNG TIN CÁ NHÂN — Họ và tên",
+      "question": "PHẦN 1: THÔNG TIN CÁ NHÂN - Họ và tên",
       "required": true,
       "placeholder": "Nguyễn Văn A",
       "note": "",
@@ -52,7 +52,7 @@
     {
       "id": "major_year",
       "type": "short",
-      "question": "PHẦN 2: NỀN TẢNG HỌC VẤN & NGHIÊN CỨU — Ngành học / Khoá",
+      "question": "PHẦN 2: NỀN TẢNG HỌC VẤN & NGHIÊN CỨU - Ngành học / Khoá",
       "required": true,
       "placeholder": "Khoa học Máy tính / Khoá 2023",
       "note": "Chương trình ưu tiên sinh viên năm 3-4 quan tâm đến Systems/AI",
@@ -96,16 +96,16 @@
     {
       "id": "role_preference",
       "type": "multiple",
-      "question": "PHẦN 3: VAI TRÒ & TINH THẦN \"TỰ ĐỀ XUẤT\" — Bạn muốn phụ trách (những) nhóm công việc nào dưới đây?",
+      "question": "PHẦN 3: VAI TRÒ & TINH THẦN \"TỰ ĐỀ XUẤT\" - Bạn muốn phụ trách (những) nhóm công việc nào dưới đây?",
       "required": true,
       "options": [
-        "Program — Chuẩn bị tài liệu, form, checklist",
-        "Logistics — Phụ trách phòng ốc, ăn uống",
-        "Tech Support — Setup máy, môi trường",
-        "Experience — Check-in, Q&A, thu thập feedback",
-        "Media — Thiết kế poster, viết bài đăng, recap",
-        "Guest — Đón tiếp Sponsor / Ban giám khảo",
-        "Documentation — Lưu trữ & đánh giá dữ liệu cho các năm sau"
+        "Program - Chuẩn bị tài liệu, form, checklist",
+        "Logistics - Phụ trách phòng ốc, ăn uống",
+        "Tech Support - Setup máy, môi trường",
+        "Experience - Check-in, Q&A, thu thập feedback",
+        "Media - Thiết kế poster, viết bài đăng, recap",
+        "Guest - Đón tiếp Sponsor / Ban giám khảo",
+        "Documentation - Lưu trữ & đánh giá dữ liệu cho các năm sau"
       ],
       "note": "Có thể chọn nhiều nhóm công việc. Vai trò Organizer đòi hỏi tư duy chủ động và khả năng điều phối chương trình kỹ thuật.",
       "constraints": {
@@ -119,7 +119,7 @@
       "question": "Bạn có muốn tự đề xuất thêm nhóm công việc / ý tưởng nào khác không?",
       "required": false,
       "placeholder": "Ví dụ: Sponsorship outreach, Community engagement, Workshop facilitation...",
-      "note": "Đây là cơ hội để bạn thể hiện tinh thần \"Tự đề xuất\" — hãy chia sẻ ý tưởng sáng tạo của bạn!",
+      "note": "Đây là cơ hội để bạn thể hiện tinh thần \"Tự đề xuất\" - hãy chia sẻ ý tưởng sáng tạo của bạn!",
       "constraints": {
         "maxLength": 600
       }
@@ -149,10 +149,10 @@
     {
       "id": "ux_proposal",
       "type": "long",
-      "question": "PHẦN 4: GÓC NHÌN USER-CENTRIC — Bạn có đề xuất gì để thiết kế trải nghiệm người học (User Experience) trong 3 ngày diễn ra Summer School được tốt nhất?",
+      "question": "PHẦN 4: GÓC NHÌN USER-CENTRIC - Bạn có đề xuất gì để thiết kế trải nghiệm người học (User Experience) trong 3 ngày diễn ra Summer School được tốt nhất?",
       "required": false,
       "placeholder": "Chia sẻ ý tưởng của bạn về cách làm cho trải nghiệm học tập của participants thật sự ấn tượng và hiệu quả...",
-      "note": "Câu hỏi tùy chọn — Đây là cơ hội để bạn thể hiện tư duy thiết kế trải nghiệm",
+      "note": "Câu hỏi tùy chọn - Đây là cơ hội để bạn thể hiện tư duy thiết kế trải nghiệm",
       "constraints": {
         "maxLength": 1000
       }

@@ -55,7 +55,7 @@ export const ORGANIZERS: Organizer[] = [
 
 export const T = {
   en: {
-    tagline: "HPCC × CSE × Big Data Club — HCMUT",
+    tagline: "HPCC × CSE × Big Data Club - HCMUT",
     title: "HCMUT HPC School 2026",
     subtitle: "Start Local · Compute at Scale",
     langToggle: "Tiếng Việt",
@@ -111,7 +111,7 @@ export const T = {
     researchPh: "e.g. HPC, GPU Computing, Distributed AI, Systems Programming…",
     pubLabel: "Scientific Publications / Notable Research Projects (if any)",
     pubHint: "List paper titles, conference/journal names, or provide links. Leave blank if not applicable.",
-    pubPh: "e.g.\n• [SOSP'25] Paper Title — Conference Name\n• Research Project: Title — Role: Research Member\n• https://arxiv.org/abs/...",
+    pubPh: "e.g.\n• [SOSP'25] Paper Title - Conference Name\n• Research Project: Title - Role: Research Member\n• https://arxiv.org/abs/...",
     motivationLabel: "Motivation Statement",
     motivationHint: "What do you hope to learn and achieve over the 3 days of HCMUT HPC School 2026?",
     motivationPh: "Share your motivation and goals…",
@@ -149,10 +149,10 @@ export const T = {
       { label: "BDC Hub", href: "https://bdc.hpcc.vn/", color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
       { label: "Facebook BDC", href: "https://www.facebook.com/BDCofHCMUT", color: "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300" },
     ],
-    copyright: "© 2026 High-Performance Computing Center — HCMUT. All rights reserved.",
+    copyright: "© 2026 High-Performance Computing Center - HCMUT. All rights reserved.",
   },
   vi: {
-    tagline: "HPCC × CSE × Big Data Club — HCMUT",
+    tagline: "HPCC × CSE × Big Data Club - HCMUT",
     title: "HCMUT HPC School 2026",
     subtitle: "Start Local · Compute at Scale",
     langToggle: "English",
@@ -208,7 +208,7 @@ export const T = {
     researchPh: "VD: HPC, GPU Computing, Distributed AI, Systems Programming…",
     pubLabel: "Bài báo khoa học / Đề tài nghiên cứu nổi bật (nếu có)",
     pubHint: "Liệt kê tên bài báo, hội nghị/tạp chí hoặc đính kèm link. Để trống nếu chưa có.",
-    pubPh: "VD:\n• [SOSP'25] Tên bài báo — Conference Name\n• Đề tài NCKH: Tên đề tài — Vai trò: Thành viên\n• https://arxiv.org/abs/...",
+    pubPh: "VD:\n• [SOSP'25] Tên bài báo - Conference Name\n• Đề tài NCKH: Tên đề tài - Vai trò: Thành viên\n• https://arxiv.org/abs/...",
     motivationLabel: "Nguyện vọng tham gia",
     motivationHint: "Bạn mong muốn học hỏi và đạt được điều gì sau 3 ngày của HCMUT HPC School 2026?",
     motivationPh: "Chia sẻ nguyện vọng và mục tiêu của bạn…",
@@ -246,7 +246,7 @@ export const T = {
       { label: "BDC Hub", href: "https://bdc.hpcc.vn/", color: "text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" },
       { label: "Facebook BDC", href: "https://www.facebook.com/BDCofHCMUT", color: "text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300" },
     ],
-    copyright: "© 2026 Trung tâm Tính toán Hiệu năng Cao — HCMUT. All rights reserved.",
+    copyright: "© 2026 Trung tâm Tính toán Hiệu năng Cao - HCMUT. All rights reserved.",
   },
 } as const;
 

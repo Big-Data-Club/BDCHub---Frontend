@@ -15,7 +15,7 @@ import { listChannels, listMessages, sendMessageRest, getOrCreateDM } from "@/se
 
 // ─── Notification helpers ─────────────────────────────────────────────────────
 
-/** Play a short "ting" chime using Web Audio API — no file/network needed. */
+/** Play a short "ting" chime using Web Audio API - no file/network needed. */
 function playChatSound() {
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -34,7 +34,7 @@ function playChatSound() {
     // Release AudioContext after the chime finishes
     osc.onended = () => ctx.close();
   } catch {
-    // AudioContext blocked or unavailable — silently ignore
+    // AudioContext blocked or unavailable - silently ignore
   }
 }
 
@@ -335,13 +335,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     async (body: string) => {
       if (!activeChannelId || !body.trim()) return;
 
-      // Prefer WebSocket — fall back to REST if WS not connected
+      // Prefer WebSocket - fall back to REST if WS not connected
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(
           JSON.stringify({ type: "message", channel_id: activeChannelId, body: body.trim() })
         );
       } else {
-        // REST fallback — message will arrive via WS event from server
+        // REST fallback - message will arrive via WS event from server
         await sendMessageRest(activeChannelId, body.trim());
       }
     },
@@ -351,7 +351,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   // ── Delete message (WS only) ──────────────────────────────────────────────────
   const deleteMessage = useCallback((msgId: number) => {
     if (!activeChannelId) return;
-    // Optimistically update UI — server will broadcast delete event
+    // Optimistically update UI - server will broadcast delete event
     setMessagesByChannel((prev) => ({
       ...prev,
       [activeChannelId]: (prev[activeChannelId] ?? []).map((m) =>

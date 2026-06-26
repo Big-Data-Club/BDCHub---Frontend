@@ -9,7 +9,7 @@ import { X, ExternalLink, Link2, BookOpen, BrainCircuit, Trash2 } from "lucide-r
 import aiService from "@/services/aiService";
 import toast from "react-hot-toast";
 
-// Canvas-based — phải dynamic import vì không hỗ trợ SSR
+// Canvas-based - phải dynamic import vì không hỗ trợ SSR
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
   loading: () => (

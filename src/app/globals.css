@@ -19,7 +19,7 @@ html, body {
   padding: 0;
 }
 
-/* Base page bg — sits behind the fixed canvas */
+/* Base page bg - sits behind the fixed canvas */
 html {
   background-color: #f8fafc; /* slate-50 */
 }

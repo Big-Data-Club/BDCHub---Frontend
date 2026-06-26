@@ -327,7 +327,7 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
                 onChange={e => setForm(f => ({ ...f, parent_id: e.target.value }))}
                 className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
               >
-                <option value="">— Root node —</option>
+                <option value="">- Root node -</option>
                 {nodes.map(n => (
                   <option key={n.id} value={n.id}>{n.name_vi || n.name}</option>
                 ))}

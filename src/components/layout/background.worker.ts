@@ -620,7 +620,7 @@ self.onmessage = (e) => {
       config.prefersReducedMotion = data.prefersReducedMotion;
       break;
     case 'resume':
-      // Tab became visible again — restart the animation loop if it died
+      // Tab became visible again - restart the animation loop if it died
       if (!animationRunning && ctx) {
         animationRunning = true;
         requestAnimationFrame(draw);

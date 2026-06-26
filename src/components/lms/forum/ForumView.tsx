@@ -63,7 +63,7 @@ export default function ForumView({
         }
       }
 
-      // Background reconcile — refresh the list silently
+      // Background reconcile - refresh the list silently
       setTimeout(() => {
         loadPosts();
       }, 300);

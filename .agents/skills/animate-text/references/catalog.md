@@ -7,7 +7,7 @@ This skill bundles 24 specs. The website currently showcases 20 of them.
 ## Website Catalog
 
 - `soft-blur-in` (per-character) Per-character fade-in with a gentle blur and upward motion. Apple's signature hero-title reveal.
-- `per-character-rise` (per-character) Letters slide up from below with no blur — crisp, deliberate, kinetic. Apple's clean tvOS-style reveal.
+- `per-character-rise` (per-character) Letters slide up from below with no blur - crisp, deliberate, kinetic. Apple's clean tvOS-style reveal.
 - `per-word-crossfade` (per-word) Words gently fade into place one after another, with a short vertical drift for a calm keynote rhythm.
 - `spring-scale-in` (per-word) Words pop in with a soft overshoot scale, like a physical spring settling into place.
 - `mask-reveal-up` (per-line) Lines reveal upward with a soft masked feel and compact stagger.

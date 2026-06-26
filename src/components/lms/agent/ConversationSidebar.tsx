@@ -84,7 +84,7 @@ export const ConversationSidebar = forwardRef<
         setSessions((prev) => {
           const idx = prev.findIndex((s) => s.session_id === sessionId);
           if (idx === -1) {
-            // Unknown session — pull a fresh list asynchronously.
+            // Unknown session - pull a fresh list asynchronously.
             fetchSessions();
             return prev;
           }

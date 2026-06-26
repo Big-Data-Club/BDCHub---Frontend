@@ -132,7 +132,7 @@ export function AIHeatmapSection({ courseId, role }: Props) {
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               {role === "teacher"
-                ? "Tỉ lệ sai theo chủ đề — màu đỏ = cần chú ý nhất"
+                ? "Tỉ lệ sai theo chủ đề - màu đỏ = cần chú ý nhất"
                 : "AI phân tích lỗi sai của bạn theo từng chủ đề"}
             </p>
           </div>

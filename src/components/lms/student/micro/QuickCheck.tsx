@@ -9,9 +9,9 @@
  * to be answerable from what the student just read.
  *
  * Analytics events:
- *   * quick_check_attempt   — every submitted answer (with score 0/1)
- *   * quick_check_correct   — convenience event for correct submissions
- *   * quick_check_incorrect — convenience event for wrong submissions
+ *   * quick_check_attempt   - every submitted answer (with score 0/1)
+ *   * quick_check_correct   - convenience event for correct submissions
+ *   * quick_check_incorrect - convenience event for wrong submissions
  *
  * The composite mastery worker on the LMS side blends `quick_check_*`
  * events into the "mini quiz" component (20% weight) of the heatmap.
@@ -70,7 +70,7 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
     setError("");
     try {
       const res = await aiService.generateConceptCheck({
-        // Sending the lesson body directly is the "cheap path" — the
+        // Sending the lesson body directly is the "cheap path" - the
         // AI service skips RAG retrieval and grounds the question in
         // exactly what the student is reading.
         text_chunk: ctx.lessonText,

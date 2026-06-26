@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Teacher AI Assistant — chat page.
+ * Teacher AI Assistant - chat page.
  * Full-height chat panel with teacher agent for course management support.
  */
 import { useSearchParams } from "next/navigation";

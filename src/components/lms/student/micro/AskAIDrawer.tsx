@@ -7,7 +7,7 @@
  * the Quick Action Panel. The chatbot here is the same Mentor agent
  * used elsewhere in the app, but the request payload is augmented
  * with a `system_context` block containing the verbatim micro-lesson
- * body — so the model grounds every answer in what the student is
+ * body - so the model grounds every answer in what the student is
  * actually reading. The student never sees this hidden context; only
  * the model does.
  *
@@ -35,7 +35,7 @@ export function AskAIDrawer({ ctx, open, onClose }: AskAIDrawerProps) {
 
   const lang = ctx.language ?? "vi";
 
-  // Stable systemContext object — build once per lesson so the hook's
+  // Stable systemContext object - build once per lesson so the hook's
   // dependency array doesn't churn on every keystroke.
   const systemContext = useMemo(
     () => ({
@@ -120,7 +120,7 @@ export function AskAIDrawer({ ctx, open, onClose }: AskAIDrawerProps) {
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* Backdrop — flat neutral, no gradient. */}
+      {/* Backdrop - flat neutral, no gradient. */}
       <div
         className="absolute inset-0 bg-slate-900/30 dark:bg-black/50"
         onClick={onClose}

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * QuizCreationWizard — Enhanced HITL widget for teachers.
+ * QuizCreationWizard - Enhanced HITL widget for teachers.
  * Allows configuring quiz settings (title, duration, section) and 
  * reviewing AI-generated questions before publishing in one flow.
  */

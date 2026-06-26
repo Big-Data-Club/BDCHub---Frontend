@@ -146,7 +146,7 @@ export interface AgentChatRequest {
   page_context?: Record<string, any>;
 
   /**
-   * Out-of-band system context — used by the Quick Action Panel "Ask AI"
+   * Out-of-band system context - used by the Quick Action Panel "Ask AI"
    * button to invisibly inject the current micro-lesson body so the model
    * grounds its answer in the exact lesson the student is reading.
    */
