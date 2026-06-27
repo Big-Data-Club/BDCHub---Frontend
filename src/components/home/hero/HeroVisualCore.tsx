@@ -79,7 +79,7 @@ export function HeroVisualCore({
           {/* Lead Satellite Node */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.8)] dark:shadow-[0_0_12px_rgba(96,165,250,0.9)] z-10" />
 
-          {/* Seamless Tapering & Fading SVG Trail (Clockwise movement -> counter-clockwise trail) */}
+          {/* Seamless Tapering & Fading SVG Trail (Clockwise movement → counter-clockwise trail) */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="blueCometGrad" x1="128" y1="0" x2="37.5" y2="37.5" gradientUnits="userSpaceOnUse">
@@ -107,7 +107,7 @@ export function HeroVisualCore({
           {/* Lead Satellite Node at 6 o'clock (bottom) */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 rounded-full bg-cyan-500 dark:bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.8)] dark:shadow-[0_0_12px_rgba(34,211,238,0.9)] z-10" />
 
-          {/* Seamless Tapering & Fading SVG Trail (Counter-clockwise movement -> clockwise trail) */}
+          {/* Seamless Tapering & Fading SVG Trail (Counter-clockwise movement → clockwise trail) */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="cyanCometGrad" x1="96" y1="192" x2="28.1" y2="163.9" gradientUnits="userSpaceOnUse">

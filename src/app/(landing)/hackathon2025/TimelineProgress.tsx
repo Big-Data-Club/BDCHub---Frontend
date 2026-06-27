@@ -223,7 +223,7 @@ export default function TimelineProgress({
                     className="absolute top-0 left-0"
                     style={{ left: `${position}%` }}
                   >
-                    {/* Container chứa toàn bộ: Card -> Line -> Dot, căn giữa theo dot */}
+                    {/* Container chứa toàn bộ: Card → Line → Dot, căn giữa theo dot */}
                     <div className="absolute left-0 top-0 -translate-x-1/2 flex flex-col items-center">
                       
                       {/* Card ở trên (nếu isTopRow = true) */}

@@ -21,13 +21,13 @@ The redesign achieves three core objectives:
 Before the redesign, a guest user encountered multiple competing actions pointing to identical sections:
 
 ```plaintext
-[Navbar]               "Về CLB" ---> Scrolls to #about
-                       "Dự Án"  ---> Scrolls to #projects
+[Navbar]               "Về CLB" --→ Scrolls to #about
+                       "Dự Án"  --→ Scrolls to #projects
 
-[Hero Buttons]         "Khám phá dự án" (Primary) ---> Scrolls to #projects
-                       "Tìm hiểu thêm"  (Secondary) -> Scrolls to #about
+[Hero Buttons]         "Khám phá dự án" (Primary) --→ Scrolls to #projects
+                       "Tìm hiểu thêm"  (Secondary) → Scrolls to #about
 
-[Scroll Indicator]     "Khám phá" (Text Label) ------> Scrolls to #about
+[Scroll Indicator]     "Khám phá" (Text Label) -----→ Scrolls to #about
 ```
 
 ### The Cognitive Pitfalls
@@ -68,11 +68,11 @@ To solve these bottlenecks, the layout is redesigned into a modern **2-Column Sp
 * **Title & Text Alignment**: Aligned to the left (`lg:text-left lg:items-start`) on desktop, and centered on mobile to prioritize read-flow.
 * **Primary Conversion Gateways (CTAs)**:
   * **Unauthenticated Users (Guests)**:
-    * *Primary (Filled Blue)*: **"Bắt đầu ngay" (Start Now)** -> Redirects to `/login`. Drives user registration and onboarding to the LMS.
-    * *Secondary (Minimal Outlined)*: **"Xem dự án" (View Projects)** -> Scrolls to `#projects`.
+    * *Primary (Filled Blue)*: **"Bắt đầu ngay" (Start Now)** → Redirects to `/login`. Drives user registration and onboarding to the LMS.
+    * *Secondary (Minimal Outlined)*: **"Xem dự án" (View Projects)** → Scrolls to `#projects`.
   * **Authenticated Users (Members)**:
-    * *Primary (Filled Blue)*: **"Bảng quản trị" (Dashboard)** -> Redirects to `/dashboard`.
-    * *Secondary (Minimal Outlined)*: **"Về BDC Hub" (About BDC)** -> Scrolls to `#about`.
+    * *Primary (Filled Blue)*: **"Bảng quản trị" (Dashboard)** → Redirects to `/dashboard`.
+    * *Secondary (Minimal Outlined)*: **"Về BDC Hub" (About BDC)** → Scrolls to `#about`.
 
 ### 3.2 Right Column: Interactive Ambient Visual Core & Glassmorphic Stats
 

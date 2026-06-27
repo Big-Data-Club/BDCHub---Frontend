@@ -682,7 +682,7 @@ export function StudentGuideView() {
                           onClick={() => setMockCurrentQuestion(p => Math.min(2, p + 1))}
                           className="px-2.5 py-1 text-[9px] bg-blue-600 hover:bg-blue-700 text-white rounded font-bold"
                         >
-                          Câu sau ->
+                          Câu sau →
                         </button>
                       )}
                     </div>

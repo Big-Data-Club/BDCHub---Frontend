@@ -33,7 +33,7 @@ Bộ chỉ báo tiến trình được nâng cấp lên chuẩn **Integrated Ove
   * Để ngăn độ dài chữ khác biệt (ví dụ: *"Privacy & Data Protection"* so với *"Quyền Riêng Tư"*) kéo giãn hoặc làm lệch vị trí ô số, các nhãn chữ được đưa ra khỏi luồng Flex và neo độc lập bằng:
     * `absolute top-11 left-1/2 -translate-x-1/2 w-[120px] sm:w-[150px]`
   * Nhờ đó, cả 3 ô số luôn được xếp đối xứng tuyệt đối qua trục giữa của trang web.
-* **Dòng chảy mượt mà:** Trục progress bar chạy xuyên suốt từ `left-[18px]` đến `right-[18px]`, giúp dải màu Gradient thương hiệu (`from-cyan-500 via-cyan-400 to-blue-500`) dừng lại và bắt đầu chính xác tại tâm của ô bước tương ứng (`0%` -> `50%` -> `100%`) một cách hoàn mỹ.
+* **Dòng chảy mượt mà:** Trục progress bar chạy xuyên suốt từ `left-[18px]` đến `right-[18px]`, giúp dải màu Gradient thương hiệu (`from-cyan-500 via-cyan-400 to-blue-500`) dừng lại và bắt đầu chính xác tại tâm của ô bước tương ứng (`0%` → `50%` → `100%`) một cách hoàn mỹ.
 
 ---
 

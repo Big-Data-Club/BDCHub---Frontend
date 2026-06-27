@@ -17,7 +17,7 @@ export interface QuizCourseInfo {
  * useQuizCourse
  *
  * Resolves the full breadcrumb chain for a quiz page:
- *   quizId -> quiz.content_id -> content.section_id -> section.course_id -> course.title
+ *   quizId → quiz.content_id → content.section_id → section.course_id → course.title
  *
  * Usage:
  *   const { courseId, courseTitle, quizTitle, loading } = useQuizCourse(quizId);
@@ -39,7 +39,7 @@ export function useQuizCourse(quizId: number): QuizCourseInfo {
 
     const resolve = async () => {
       try {
-        // Step 1: quiz -> content_id + title
+        // Step 1: quiz → content_id + title
         const quizRes = await quizService.getQuiz(quizId);
         const quiz = quizRes?.data ?? quizRes;
         if (cancelled) return;
@@ -52,7 +52,7 @@ export function useQuizCourse(quizId: number): QuizCourseInfo {
           return;
         }
 
-        // Step 2: content -> section_id
+        // Step 2: content → section_id
         const contentRes = await lmsService.getContent(contentId);
         const content = contentRes?.data ?? contentRes;
         if (cancelled) return;
@@ -63,7 +63,7 @@ export function useQuizCourse(quizId: number): QuizCourseInfo {
           return;
         }
 
-        // Step 3: section -> course_id
+        // Step 3: section → course_id
         const sectionRes = await lmsService.getSection(sectionId);
         const section = sectionRes?.data ?? sectionRes;
         if (cancelled) return;
@@ -74,7 +74,7 @@ export function useQuizCourse(quizId: number): QuizCourseInfo {
           return;
         }
 
-        // Step 4: course -> title
+        // Step 4: course → title
         const courseRes = await lmsService.getCourse(courseId);
         const course = courseRes?.data ?? courseRes;
         if (cancelled) return;

@@ -36,9 +36,9 @@ Qua rà soát chuyên sâu, chúng tôi phát hiện lỗi phát sinh từ sự 
 
 ```mermaid
 graph TD
-    A["Lớp 1 (Outer Div): .animate-entrance-X"] -->|Chỉ chịu trách nhiệm bay vào| B["Lớp 2 (Middle Div): .animate-float-X"]
-    B -->|Chỉ chịu trách nhiệm bồng bềnh vô hạn| C["Lớp 3 (Visual Card): CSS Hover Transition"]
-    C -->|Chỉ chịu trách nhiệm rê chuột co giãn| D["Nội dung thẻ: StatCounter & SoftBlurInText"]
+    A["Lớp 1 (Outer Div): .animate-entrance-X"] -→|Chỉ chịu trách nhiệm bay vào| B["Lớp 2 (Middle Div): .animate-float-X"]
+    B -→|Chỉ chịu trách nhiệm bồng bềnh vô hạn| C["Lớp 3 (Visual Card): CSS Hover Transition"]
+    C -→|Chỉ chịu trách nhiệm rê chuột co giãn| D["Nội dung thẻ: StatCounter & SoftBlurInText"]
 ```
 
 ### Chi tiết triển khai mã nguồn:
@@ -111,7 +111,7 @@ Trong quá trình phát triển và kiểm thử tiếp theo, chúng tôi ghi nh
 ### Giải pháp kỹ thuật nâng cấp (Resolution):
 1. **Loại bỏ bộ lọc mờ ở keyframe entrance**:
    * Chúng tôi đã loại bỏ hoàn toàn các thuộc tính `filter: blur` khỏi `@keyframes premium-card-entrance`.
-   * Hoạt ảnh xuất hiện chuyển sang tập trung hoàn toàn vào sự hòa quyện của **độ mờ tỏ (opacity)**, **nâng nhẹ trục dọc (translateY(16px))** và **thu phóng nhẹ (scale 0.95 -> 1.0)** sử dụng đường cong giảm tốc siêu cao cấp **Out Expo** (`cubic-bezier(0.16, 1, 0.3, 1)`).
+   * Hoạt ảnh xuất hiện chuyển sang tập trung hoàn toàn vào sự hòa quyện của **độ mờ tỏ (opacity)**, **nâng nhẹ trục dọc (translateY(16px))** và **thu phóng nhẹ (scale 0.95 → 1.0)** sử dụng đường cong giảm tốc siêu cao cấp **Out Expo** (`cubic-bezier(0.16, 1, 0.3, 1)`).
    * Điều này khớp chính xác với đặc tả chuyển động của hiệu ứng **`micro-scale-fade`** từ catalog chuẩn của BDC, vừa tối ưu hóa GPU vừa loại bỏ hoàn toàn xung đột hiển thị trên Firefox.
 2. **Đồng bộ hóa Storybook**:
    * Đồng bộ hóa thuộc tính `statsDuration` thành `0.7s` và cập nhật các mô tả replay hoạt ảnh sang *"premium Apple-style scale rise"* bên trong cả `HeroStats.stories.tsx` và `Hero.stories.tsx`.

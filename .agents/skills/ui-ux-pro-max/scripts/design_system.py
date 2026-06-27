@@ -40,7 +40,7 @@ class DesignSystemGenerator:
     def __init__(self):
         self.reasoning_data = self._load_reasoning()
 
-    def _load_reasoning(self) -> list:
+    def _load_reasoning(self) → list:
         """Load reasoning rules from CSV."""
         filepath = DATA_DIR / REASONING_FILE
         if not filepath.exists():
@@ -48,7 +48,7 @@ class DesignSystemGenerator:
         with open(filepath, 'r', encoding='utf-8') as f:
             return list(csv.DictReader(f))
 
-    def _multi_domain_search(self, query: str, style_priority: list = None) -> dict:
+    def _multi_domain_search(self, query: str, style_priority: list = None) → dict:
         """Execute searches across multiple domains."""
         results = {}
         for domain, config in SEARCH_CONFIG.items():
@@ -61,7 +61,7 @@ class DesignSystemGenerator:
                 results[domain] = search(query, domain, config["max_results"])
         return results
 
-    def _find_reasoning_rule(self, category: str) -> dict:
+    def _find_reasoning_rule(self, category: str) → dict:
         """Find matching reasoning rule for a category."""
         category_lower = category.lower()
 
@@ -85,7 +85,7 @@ class DesignSystemGenerator:
 
         return {}
 
-    def _apply_reasoning(self, category: str, search_results: dict) -> dict:
+    def _apply_reasoning(self, category: str, search_results: dict) → dict:
         """Apply reasoning rules to search results."""
         rule = self._find_reasoning_rule(category)
 
@@ -119,7 +119,7 @@ class DesignSystemGenerator:
             "severity": rule.get("Severity", "MEDIUM")
         }
 
-    def _select_best_match(self, results: list, priority_keywords: list) -> dict:
+    def _select_best_match(self, results: list, priority_keywords: list) → dict:
         """Select best matching result based on priority keywords."""
         if not results:
             return {}
@@ -156,11 +156,11 @@ class DesignSystemGenerator:
         scored.sort(key=lambda x: x[0], reverse=True)
         return scored[0][1] if scored and scored[0][0] > 0 else results[0]
 
-    def _extract_results(self, search_result: dict) -> list:
+    def _extract_results(self, search_result: dict) → list:
         """Extract results list from search result dict."""
         return search_result.get("results", [])
 
-    def generate(self, query: str, project_name: str = None) -> dict:
+    def generate(self, query: str, project_name: str = None) → dict:
         """Generate complete design system recommendation."""
         # Step 1: First search product to get category
         product_result = search(query, "product", 1)
@@ -239,7 +239,7 @@ class DesignSystemGenerator:
 # ============ OUTPUT FORMATTERS ============
 BOX_WIDTH = 90  # Wider box for more content
 
-def format_ascii_box(design_system: dict) -> str:
+def format_ascii_box(design_system: dict) → str:
     """Format design system as ASCII box with emojis (MCP-style)."""
     project = design_system.get("project_name", "PROJECT")
     pattern = design_system.get("pattern", {})
@@ -249,7 +249,7 @@ def format_ascii_box(design_system: dict) -> str:
     effects = design_system.get("key_effects", "")
     anti_patterns = design_system.get("anti_patterns", "")
 
-    def wrap_text(text: str, prefix: str, width: int) -> list:
+    def wrap_text(text: str, prefix: str, width: int) → list:
         """Wrap long text into multiple lines."""
         if not text:
             return []
@@ -364,7 +364,7 @@ def format_ascii_box(design_system: dict) -> str:
     return "\n".join(lines)
 
 
-def format_markdown(design_system: dict) -> str:
+def format_markdown(design_system: dict) → str:
     """Format design system as markdown."""
     project = design_system.get("project_name", "PROJECT")
     pattern = design_system.get("pattern", {})
@@ -460,7 +460,7 @@ def format_markdown(design_system: dict) -> str:
 
 # ============ MAIN ENTRY POINT ============
 def generate_design_system(query: str, project_name: str = None, output_format: str = "ascii", 
-                           persist: bool = False, page: str = None, output_dir: str = None) -> str:
+                           persist: bool = False, page: str = None, output_dir: str = None) → str:
     """
     Main entry point for design system generation.
 
@@ -488,7 +488,7 @@ def generate_design_system(query: str, project_name: str = None, output_format: 
 
 
 # ============ PERSISTENCE FUNCTIONS ============
-def persist_design_system(design_system: dict, page: str = None, output_dir: str = None, page_query: str = None) -> dict:
+def persist_design_system(design_system: dict, page: str = None, output_dir: str = None, page_query: str = None) → dict:
     """
     Persist design system to design-system/<project>/ folder using Master + Overrides pattern.
     
@@ -539,7 +539,7 @@ def persist_design_system(design_system: dict, page: str = None, output_dir: str
     }
 
 
-def format_master_md(design_system: dict) -> str:
+def format_master_md(design_system: dict) → str:
     """Format design system as MASTER.md with hierarchical override logic."""
     project = design_system.get("project_name", "PROJECT")
     pattern = design_system.get("pattern", {})
@@ -802,7 +802,7 @@ def format_master_md(design_system: dict) -> str:
     return "\n".join(lines)
 
 
-def format_page_override_md(design_system: dict, page_name: str, page_query: str = None) -> str:
+def format_page_override_md(design_system: dict, page_name: str, page_query: str = None) → str:
     """Format a page-specific override file with intelligent AI-generated content."""
     project = design_system.get("project_name", "PROJECT")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -911,7 +911,7 @@ def format_page_override_md(design_system: dict, page_name: str, page_query: str
     return "\n".join(lines)
 
 
-def _generate_intelligent_overrides(page_name: str, page_query: str, design_system: dict) -> dict:
+def _generate_intelligent_overrides(page_name: str, page_query: str, design_system: dict) → dict:
     """
     Generate intelligent overrides based on page type using layered search.
     
@@ -1017,7 +1017,7 @@ def _generate_intelligent_overrides(page_name: str, page_query: str, design_syst
     }
 
 
-def _detect_page_type(context: str, style_results: list) -> str:
+def _detect_page_type(context: str, style_results: list) → str:
     """Detect page type from context and search results."""
     context_lower = context.lower()
     

@@ -20,7 +20,7 @@ const AIHeatmapSection = dynamic(
  *
  * Two AI features on one page:
  *   1. AIQuizGenPanel  – knowledge node management + quiz generation + draft review
- *   2. AIHeatmapSection – class-level knowledge-gap heatmap (below fold -> lazy)
+ *   2. AIHeatmapSection – class-level knowledge-gap heatmap (below fold → lazy)
  */
 export default function CourseAIPage() {
   const { courseId } = useParams<{ courseId: string }>();

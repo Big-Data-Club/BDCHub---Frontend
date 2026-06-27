@@ -111,7 +111,7 @@ export function FlashcardDeck({ ctx }: FlashcardDeckProps) {
   const handleFlip = useCallback(() => {
     setFlipped((f) => {
       const next = !f;
-      // Only count a flip when going from front -> back; otherwise it's
+      // Only count a flip when going from front → back; otherwise it's
       // a "go back to question" interaction, not real engagement.
       if (next && current) {
         track("flashcard_flip", { flashcard_id: current.id });

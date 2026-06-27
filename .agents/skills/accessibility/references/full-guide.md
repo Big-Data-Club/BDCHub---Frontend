@@ -95,7 +95,7 @@ Projects should target **WCAG 2.1 Level AA** compliance for all public-facing ap
 **Tools**:
 
 - WebAIM Contrast Checker: https://webaim.org/resources/contrastchecker/
-- Chrome DevTools: Inspect -> Accessibility pane
+- Chrome DevTools: Inspect → Accessibility pane
 
 **Examples**:
 
@@ -700,7 +700,7 @@ pnpm add -D eslint-plugin-jsx-a11y
 **Axe DevTools** (Browser Extension):
 
 - Install: Chrome/Firefox "axe DevTools"
-- Run: F12 -> axe DevTools tab -> Scan
+- Run: F12 → axe DevTools tab → Scan
 
 **Vitest a11y Tests**:
 
@@ -751,7 +751,7 @@ Before shipping:
 - [ ] Focus indicators visible and clear
 - [ ] Form labels properly associated
 - [ ] Error messages are clear and helpful
-- [ ] Headings follow proper hierarchy (h1 -> h2 -> h3)
+- [ ] Headings follow proper hierarchy (h1 → h2 → h3)
 - [ ] ARIA used correctly (or not at all)
 - [ ] Modals trap focus and close on Escape
 - [ ] Dynamic content announces to screen readers

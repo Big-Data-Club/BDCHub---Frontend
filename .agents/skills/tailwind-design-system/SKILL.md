@@ -171,13 +171,13 @@ Brand Tokens (abstract)
         └── Component Tokens (specific)
 
 Example:
-    oklch(45% 0.2 260) -> --color-primary -> bg-primary
+    oklch(45% 0.2 260) → --color-primary → bg-primary
 ```
 
 ### 2. Component Architecture
 
 ```
-Base styles -> Variants -> Sizes -> States -> Overrides
+Base styles → Variants → Sizes → States → Overrides
 ```
 
 ## Patterns
@@ -561,5 +561,5 @@ For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complet
 - **Namespace overrides** - clearing default Tailwind color scales with `--color-*: initial`
 - **Semi-transparent variants** - `color-mix()` for alpha scale generation
 - **Container queries** - `--container-*` token definitions
-- **v3->v4 migration checklist** - 10-item checklist covering config, directives, colors, dark mode, animations, React 19 ref changes
+- **v3→v4 migration checklist** - 10-item checklist covering config, directives, colors, dark mode, animations, React 19 ref changes
 - **Best practices** - full Do's and Don'ts list

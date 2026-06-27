@@ -31,7 +31,7 @@ export function Success({ t, name }: SuccessProps) {
         <p className="text-slate-500 dark:text-slate-400 text-xs">{t.followUs}</p>
         <div className="flex flex-row flex-wrap justify-center items-center gap-x-6 gap-y-2 whitespace-nowrap">
           {t.links.map(l => (
-            <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className={`text-sm font-semibold transition-colors ${l.color}`}>{l.label} -></a>
+            <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className={`text-sm font-semibold transition-colors ${l.color}`}>{l.label} →</a>
           ))}
         </div>
       </div>

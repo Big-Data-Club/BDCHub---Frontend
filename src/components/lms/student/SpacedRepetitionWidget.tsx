@@ -246,7 +246,7 @@ export function SpacedRepetitionWidget({ courseId }: Props) {
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
                 Bạn nhớ đến đâu?
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">0 = quên hoàn toàn -> 5 = nhớ hoàn hảo</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">0 = quên hoàn toàn → 5 = nhớ hoàn hảo</p>
             </div>
 
             <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
@@ -270,7 +270,7 @@ export function SpacedRepetitionWidget({ courseId }: Props) {
             </div>
 
             <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
-              Điểm càng cao -> lần ôn tiếp sẽ càng xa
+              Điểm càng cao → lần ôn tiếp sẽ càng xa
             </p>
           </div>
         )}

@@ -268,7 +268,7 @@ export default function HPCSummerSchoolPage() {
       });
       const json = await res.json();
       if (json.success) {
-        // Persist submission flag -> prevents re-submission from this browser
+        // Persist submission flag → prevents re-submission from this browser
         try {
           localStorage.setItem(LS_DONE, JSON.stringify({ name: form.fullName, at: new Date().toISOString() }));
           localStorage.removeItem(LS_DRAFT);

@@ -164,7 +164,7 @@ export default function LMSRoleSelection() {
                 </p>
                 <div className="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-xl transition-all inline-flex items-center gap-2 font-medium text-sm group-hover:shadow-md">
                   <span>Chọn vai trò</span>
-                  <span className="group-hover:translate-x-1 transition-transform">-></span>
+                  <span className="group-hover:translate-x-1 transition-transform">→</span>
                 </div>
               </button>
             );

@@ -24,7 +24,7 @@ These are the most impactful. Do them **before** you export.
 
 ### 1. Use the Performance Panel
 
-Open it via **View -> Performance** in the Spline editor. It shows:
+Open it via **View → Performance** in the Spline editor. It shows:
 - Total polygon count
 - Number of objects, materials, and lights
 - Specific recommendations for your scene
@@ -263,9 +263,9 @@ Testing:
 
 Sometimes 3D isn't the right choice. Consider alternatives when:
 
-- The 3D scene is purely decorative (no interaction) -> **Use a video or animated GIF instead**
-- The page already has heavy assets -> **The Spline scene will push it over the edge**
-- Most of your users are on mobile -> **Consider CSS 3D transforms or Lottie animations**
-- You need the page to score 90+ on Lighthouse -> **3D will make this very difficult**
+- The 3D scene is purely decorative (no interaction) → **Use a video or animated GIF instead**
+- The page already has heavy assets → **The Spline scene will push it over the edge**
+- Most of your users are on mobile → **Consider CSS 3D transforms or Lottie animations**
+- You need the page to score 90+ on Lighthouse → **3D will make this very difficult**
 
 An alternative approach: Export a **video** of your Spline scene and use that. You get the visual impact without the runtime cost.

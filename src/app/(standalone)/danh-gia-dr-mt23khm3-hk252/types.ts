@@ -49,10 +49,10 @@ export const MAX_SCORES = {
 
 export const THRESHOLDS = {
   score1: 18, // 90% of 20
-  score2: 22.5, // 90% of 25 -> we can trigger upload if score >= 23
+  score2: 22.5, // 90% of 25 → we can trigger upload if score >= 23
   score3: 18, // 90% of 20
-  score4: 22.5, // 90% of 25 -> trigger if >= 23
-  score5: 9, // 90% of 10 -> trigger if >= 9
+  score4: 22.5, // 90% of 25 → trigger if >= 23
+  score5: 9, // 90% of 10 → trigger if >= 9
 };
 
 export interface Translation {

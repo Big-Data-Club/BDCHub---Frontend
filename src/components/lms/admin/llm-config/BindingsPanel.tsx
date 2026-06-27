@@ -132,7 +132,7 @@ function BindingRow({ binding, onChanged }: { binding: LlmBinding; onChanged: ()
   const toggleEnabled = (v: boolean) => { setIsEnabled(v); patch({ enabled: v }); };
 
   const remove = async () => {
-    if (!confirm(`Xoá binding ${binding.task_code} -> ${binding.model.model_name}?`)) return;
+    if (!confirm(`Xoá binding ${binding.task_code} → ${binding.model.model_name}?`)) return;
     setBusy(true);
     try { await llmConfigService.deleteBinding(binding.id); onChanged(); }
     finally { setBusy(false); }

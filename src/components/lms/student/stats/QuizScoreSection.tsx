@@ -4,7 +4,7 @@
  * QuizScoreSection.tsx
  *
  * Hiển thị danh sách quiz và kết quả tốt nhất của sinh viên.
- * Click vào quiz -> điều hướng đến trang làm bài.
+ * Click vào quiz → điều hướng đến trang làm bài.
  */
 
 import { useRouter } from "next/navigation";

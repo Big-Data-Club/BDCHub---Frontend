@@ -74,7 +74,7 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
     return found ? found.value : "";
   })();
 
-  // Split data.gpa (e.g. "3.52/4.0" -> numeric: "3.52", scale: "/4.0")
+  // Split data.gpa (e.g. "3.52/4.0" → numeric: "3.52", scale: "/4.0")
   const [gpaNumeric, gpaScale] = (() => {
     const val = data.gpa || "";
     const index = val.indexOf("/");
@@ -103,18 +103,18 @@ export function Step2({ t, data, errors, onChange }: Step2Props) {
     const val = e.target.value.trim().replace(/\/.*/g, "");
     if (!val) return;
 
-    // Convert comma to dot (e.g. "3,5" -> "3.5")
+    // Convert comma to dot (e.g. "3,5" → "3.5")
     let formatted = val.replace(",", ".");
 
-    // If it's a pure integer (e.g. "3" -> "3.0")
+    // If it's a pure integer (e.g. "3" → "3.0")
     if (/^\d+$/.test(formatted)) {
       formatted = `${formatted}.0`;
     } 
-    // If it ends with a dot (e.g. "3." -> "3.0")
+    // If it ends with a dot (e.g. "3." → "3.0")
     else if (/^\d+\.$/.test(formatted)) {
       formatted = `${formatted}0`;
     }
-    // If it starts with a dot (e.g. ".5" -> "0.5")
+    // If it starts with a dot (e.g. ".5" → "0.5")
     else if (/^\.\d+$/.test(formatted)) {
       formatted = `0${formatted}`;
     }

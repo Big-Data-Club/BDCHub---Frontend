@@ -2,8 +2,8 @@ import axios from "axios";
 import { getSession, signOut } from "next-auth/react";
 
 // chatApiClient is an axios instance targeting the chat-service.
-// In dev: Next.js rewrites /chatapiv1/* -> http://localhost:8083/api/v1/*
-// In prod: Traefik routes /chatapiv1/* -> chat-backend:8083/api/v1/*
+// In dev: Next.js rewrites /chatapiv1/* → http://localhost:8083/api/v1/*
+// In prod: Traefik routes /chatapiv1/* → chat-backend:8083/api/v1/*
 
 const chatApiClient = axios.create({
   baseURL: "/chatapiv1",

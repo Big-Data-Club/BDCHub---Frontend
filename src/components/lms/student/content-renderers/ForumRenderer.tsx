@@ -24,7 +24,7 @@ export function ForumRenderer({ content }: ForumRendererProps) {
             onClick={() => router.push(`/lms/forums/${content.id}`)}
             className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm shadow-sm transition-all active:scale-95"
           >
-            Vào diễn đàn ->
+            Vào diễn đàn →
           </button>
         </div>
       </div>

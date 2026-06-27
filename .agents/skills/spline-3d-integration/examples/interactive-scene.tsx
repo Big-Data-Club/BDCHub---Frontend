@@ -99,7 +99,7 @@ export default function InteractiveSplineScene() {
         });
     }, []);
 
-    // ─── Sync React state -> Spline variables ─────────────────────
+    // ─── Sync React state → Spline variables ─────────────────────
     useEffect(() => {
         if (splineRef.current && isLoaded) {
             splineRef.current.setVariable('score', score);

@@ -4,10 +4,10 @@
  * Handles content completion / progress tracking.
  *
  * ─── Backend endpoints needed ──────────────────────────────────────────────
- * POST /content/{contentId}/complete        -> Mark content as viewed/completed
- * DELETE /content/{contentId}/complete      -> Undo completion (optional)
- * GET  /courses/{courseId}/my-progress      -> Get student's progress in a course
- * GET  /courses/{courseId}/progress-detail  -> Detailed list of completed/pending items
+ * POST /content/{contentId}/complete        → Mark content as viewed/completed
+ * DELETE /content/{contentId}/complete      → Undo completion (optional)
+ * GET  /courses/{courseId}/my-progress      → Get student's progress in a course
+ * GET  /courses/{courseId}/progress-detail  → Detailed list of completed/pending items
  * ───────────────────────────────────────────────────────────────────────────
  *
  * Backend schema additions needed:

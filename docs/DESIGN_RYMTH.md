@@ -37,7 +37,7 @@ Giao diện phải **cảm giác như** sản phẩm của một công ty công 
 
 Dark mode là gương mặt đại diện của BDC. Mọi màu phải đủ contrast, không bao giờ thuần đen.
 
-#### Backgrounds - Layered system (tối -> sáng)
+#### Backgrounds - Layered system (tối → sáng)
 
 | Layer | Class / Value | Hex | Dùng cho |
 |---|---|---|---|
@@ -536,7 +536,7 @@ import { AuthShell } from "@/components/login/AuthShell";
 | Between cards | `gap-4` / `gap-6` |
 | Card internal padding | `p-5` (compact) / `p-6` (standard) |
 | Between title & body | `mb-1` / `mb-2` |
-| Section title -> content | `mb-6` / `mb-8` |
+| Section title → content | `mb-6` / `mb-8` |
 | Transitions | `duration-200` (interactions) / `duration-300` (reveals) |
 
 ---
@@ -649,7 +649,7 @@ export function ThemeToggle() {
 | ❌ Đừng làm | ✅ Thay bằng |
 |---|---|
 | `backdrop-blur` trên Sidebar/Navbar | `bg-white dark:bg-[#070E1C]` solid |
-| Gradient nhiều màu rực rỡ | Solid hoặc cùng dải (blue->cyan) |
+| Gradient nhiều màu rực rỡ | Solid hoặc cùng dải (blue→cyan) |
 | Thiếu `dark:` pair trên bất kỳ màu nào | Luôn khai báo cả hai |
 | Chữ `bg-slate-900` thay vì navy | Dùng `bg-[#0F1E35]` cho card dark |
 | Shadow nặng trên dark mode | `dark:shadow-none` hoặc glow subtle |
@@ -667,8 +667,8 @@ export function ThemeToggle() {
 ### Màu sắc
 
 - [ ] Mọi `bg-`, `text-`, `border-` đều có cặp `dark:`
-- [ ] Dark mode dùng blue-navy palette (`#050B18` -> `#132240`)
-- [ ] Light mode dùng slate palette (`slate-50` -> `white`)
+- [ ] Dark mode dùng blue-navy palette (`#050B18` → `#132240`)
+- [ ] Light mode dùng slate palette (`slate-50` → `white`)
 - [ ] Primary action luôn là `blue-600` (cả hai mode)
 - [ ] Semantic colors (danger/success/warning) đủ cặp light/dark
 
@@ -691,7 +691,7 @@ export function ThemeToggle() {
 
 - [ ] Section title có connector line hoặc spacing đủ rộng
 - [ ] Pipeline steps dùng numbered badges
-- [ ] Grid responsive: 1 -> 2 -> 3+ columns
+- [ ] Grid responsive: 1 → 2 → 3+ columns
 
 ### Accessibility
 

@@ -164,7 +164,7 @@ export function InstructorGuideView() {
       desc: "Nạp tài liệu của khóa học vào Vector DB và Graph DB phục vụ học tập cùng AI.",
       details: [
         { title: "Kích hoạt nút Index AI", text: "Đối với tài liệu học tập là PDF bài giảng, nhấp vào nút 'Index AI' (hình robot sấm sét) nằm bên phải tên tài liệu để bắt đầu nạp tri thức." },
-        { title: "Asynchronous Pipeline (Kafka)", text: "Hệ thống sẽ gửi sự kiện qua Kafka và chạy ngầm: Tải tài liệu -> Chia nhỏ văn bản (Chunking) -> Trích xuất Vector lưu vào Qdrant DB -> Đồng bộ thực thể sơ đồ lưu vào Neo4j DB." },
+        { title: "Asynchronous Pipeline (Kafka)", text: "Hệ thống sẽ gửi sự kiện qua Kafka và chạy ngầm: Tải tài liệu → Chia nhỏ văn bản (Chunking) → Trích xuất Vector lưu vào Qdrant DB → Đồng bộ thực thể sơ đồ lưu vào Neo4j DB." },
         { title: "Kiểm tra trạng thái hoàn tất", text: "Theo dõi trạng thái ngay trên tài liệu. Khi hiển thị màu xanh lá 'Hoàn thành', AI Mentor của khóa học đã sẵn sàng trả lời các câu hỏi liên quan đến tài liệu đó." }
       ]
     },
