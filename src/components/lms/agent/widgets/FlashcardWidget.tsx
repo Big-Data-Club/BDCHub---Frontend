@@ -15,14 +15,17 @@ interface FlashcardItem {
 
 interface FlashcardWidgetProps {
   props: {
-    cards: FlashcardItem[];
+    cards?: FlashcardItem[];
+    flashcards?: FlashcardItem[];
     title?: string;
   };
 }
 
 export function FlashcardWidget({ props }: FlashcardWidgetProps) {
-  const { cards, title } = props;
+  const cards = props.cards || props.flashcards;
+  const title = props.title;
   const [currentIndex, setCurrentIndex] = useState(0);
+
   const [isFlipped, setIsFlipped] = useState(false);
 
   if (!cards || cards.length === 0) return null;
