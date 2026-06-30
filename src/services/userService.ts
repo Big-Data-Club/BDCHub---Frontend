@@ -116,6 +116,7 @@ export const userService = {
     code: string;
     team: string;
     type: string;
+    organization: string;
   }) => apiClient.post<{ message: string }>("/api/auth/google/register", data),
 
   // Admin - Pending users

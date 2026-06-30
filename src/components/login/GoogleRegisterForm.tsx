@@ -33,11 +33,13 @@ export function GoogleRegisterForm() {
   const [code, setCode] = useState("");
   const [team, setTeam] = useState("");
   const [type, setType] = useState("");
+  const [organization, setOrganization] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [teamsList, setTeamsList] = useState(DEFAULT_TEAMS);
   const [typesList, setTypesList] = useState(DEFAULT_TYPES);
+  const [orgsList, setOrgsList] = useState<{ value: string; label: string }[]>([]);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("googleProfile");
@@ -66,6 +68,20 @@ export function GoogleRegisterForm() {
         }
       })
       .catch(err => console.error("Failed to load public types dynamically:", err));
+
+    // Fetch dynamic organizations
+    fetch("/apiv1/api/organizations")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const list = data.map((o: any) => ({ value: o.name, label: o.name }));
+          setOrgsList(list);
+          if (list.length > 0) {
+            setOrganization(list[0].value);
+          }
+        }
+      })
+      .catch(err => console.error("Failed to load organizations:", err));
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,6 +91,7 @@ export function GoogleRegisterForm() {
     if (!code.trim()) return setError("Vui lòng nhập MSSV/Mã thành viên.");
     if (!team) return setError("Vui lòng chọn ban.");
     if (!type) return setError("Vui lòng chọn hệ đào tạo.");
+    if (!organization) return setError("Vui lòng chọn tổ chức.");
     if (!profile) return;
 
     setLoading(true);
@@ -88,6 +105,7 @@ export function GoogleRegisterForm() {
           code: code.trim(),
           team,
           type,
+          organization,
         }),
       });
 
@@ -185,6 +203,22 @@ export function GoogleRegisterForm() {
             className={inputClasses}
             required
           />
+        </div>
+
+        {/* Organization */}
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Tổ chức</label>
+          <select
+            value={organization}
+            onChange={(e) => setOrganization(e.target.value)}
+            className={inputClasses}
+            required
+          >
+            <option value="" disabled>Chọn tổ chức</option>
+            {orgsList.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
         </div>
 
         {/* Team */}
