@@ -194,6 +194,7 @@ function ModelDialogContent({
   const [supportsTools,     setSupportsTools]     = useState(model?.supports_tools     ?? false);
   const [supportsStreaming, setSupportsStreaming] = useState(model?.supports_streaming ?? true);
   const [supportsVision,    setSupportsVision]    = useState(model?.supports_vision    ?? false);
+  const [configStr,         setConfigStr]         = useState(model?.config ? JSON.stringify(model.config, null, 2) : "");
   const [enabled,           setEnabled]           = useState(model?.enabled            ?? true);
   const [saving,            setSaving]            = useState(false);
   const [error,             setError]             = useState<string | null>(null);
@@ -201,6 +202,18 @@ function ModelDialogContent({
   const save = async () => {
     setSaving(true);
     setError(null);
+    
+    let parsedConfig: Record<string, unknown> = {};
+    if (configStr.trim()) {
+      try {
+        parsedConfig = JSON.parse(configStr);
+      } catch (e) {
+        setError("Cấu hình JSON không hợp lệ! Vui lòng kiểm tra lại cú pháp.");
+        setSaving(false);
+        return;
+      }
+    }
+
     try {
       if (model) {
         await llmConfigService.updateModel(model.id, {
@@ -209,7 +222,8 @@ function ModelDialogContent({
           default_temperature: Number(temperature), default_max_tokens: Number(maxTokens),
           input_cost_per_1k: Number(inCost), output_cost_per_1k: Number(outCost),
           supports_json: supportsJson, supports_tools: supportsTools,
-          supports_streaming: supportsStreaming, supports_vision: supportsVision, enabled,
+          supports_streaming: supportsStreaming, supports_vision: supportsVision, 
+          enabled, config: parsedConfig,
         });
       } else {
         await llmConfigService.upsertModel({
@@ -219,7 +233,8 @@ function ModelDialogContent({
           default_temperature: Number(temperature), default_max_tokens: Number(maxTokens),
           input_cost_per_1k: Number(inCost), output_cost_per_1k: Number(outCost),
           supports_json: supportsJson, supports_tools: supportsTools,
-          supports_streaming: supportsStreaming, supports_vision: supportsVision, enabled,
+          supports_streaming: supportsStreaming, supports_vision: supportsVision, 
+          enabled, config: parsedConfig,
         });
       }
       onSaved();
@@ -227,6 +242,7 @@ function ModelDialogContent({
       setError(e instanceof Error ? e.message : String(e));
     } finally { setSaving(false); }
   };
+
 
   const inputCls = "rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200";
 
@@ -328,11 +344,30 @@ function ModelDialogContent({
           </div>
         </div>
 
+        {/* Config JSON */}
+        <div className="space-y-1.5">
+          <Label htmlFor="mod-config" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Cấu hình bổ sung (JSON)
+          </Label>
+          <textarea
+            id="mod-config"
+            rows={4}
+            value={configStr}
+            onChange={(e) => setConfigStr(e.target.value)}
+            placeholder={'{\n  "headers": {\n    "CF-Access-Client-Id": "...",\n    "CF-Access-Client-Secret": "..."\n  }\n}'}
+            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 font-mono text-xs p-3 focus:outline-none"
+          />
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Dùng để cấu hình custom headers (như Cloudflare Access) cho mô hình self-hosted.
+          </p>
+        </div>
+
         {/* Enabled */}
         <div className="flex items-center gap-3">
           <Switch id="mod-enabled" checked={enabled} onCheckedChange={setEnabled} />
           <Label htmlFor="mod-enabled" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">Bật model</Label>
         </div>
+
 
         {error && (
           <p className="rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">
