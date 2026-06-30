@@ -115,10 +115,10 @@ export default function AIDiagnosisModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
 
         {/* Header */}
-        <div className="flex items-center gap-3 px-6 py-4 bg-blue-600 text-white border-b border-blue-700 dark:border-blue-900">
+        <div className="flex items-center gap-3 px-6 py-4 bg-blue-600 text-white border-b border-blue-700 dark:border-blue-900 flex-shrink-0">
           <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
             <Sparkles className="w-4 h-4" />
           </div>
@@ -132,7 +132,8 @@ export default function AIDiagnosisModal({
         </div>
 
         {/* Body */}
-        <div className="p-6">
+        <div className="p-6 flex-1 overflow-y-auto">
+
           {loading && (
             <div className="flex flex-col items-center py-10 gap-4">
               <div className="w-12 h-12 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-blue-600 dark:border-t-blue-400 animate-spin" />
@@ -275,7 +276,7 @@ export default function AIDiagnosisModal({
 
         {/* Footer */}
         {result && !loading && (
-          <div className="px-6 pb-5 border-t border-slate-200 dark:border-slate-800">
+          <div className="px-6 pb-5 border-t border-slate-200 dark:border-slate-800 flex-shrink-0">
             <button
               onClick={onClose}
               className="w-full mt-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-all active:scale-95"
@@ -284,6 +285,7 @@ export default function AIDiagnosisModal({
             </button>
           </div>
         )}
+
       </div>
     </div>
   );
