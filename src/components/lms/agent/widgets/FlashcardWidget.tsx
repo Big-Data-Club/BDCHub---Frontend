@@ -22,9 +22,10 @@ interface FlashcardWidgetProps {
 }
 
 export function FlashcardWidget({ props }: FlashcardWidgetProps) {
-  const cards = props.cards || props.flashcards;
+  const cards = props.cards || props.flashcards || [];
   const title = props.title;
   const [currentIndex, setCurrentIndex] = useState(0);
+
 
   const [isFlipped, setIsFlipped] = useState(false);
 
