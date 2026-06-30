@@ -139,6 +139,13 @@ class LMSService {
     return response.data;
   }
 
+  async reorderSections(courseId: number, sectionIds: number[]) {
+    const response = await lmsApiClient.put(`/courses/${courseId}/sections/reorder`, {
+      section_ids: sectionIds,
+    });
+    return response.data;
+  }
+
   // ─── Content ──────────────────────────────────────────────────────────────
 
   async createContent(
@@ -194,6 +201,13 @@ class LMSService {
 
   async deleteContent(contentId: number) {
     const response = await lmsApiClient.delete(`/content/${contentId}`);
+    return response.data;
+  }
+
+  async reorderContents(sectionId: number, contentIds: number[]) {
+    const response = await lmsApiClient.put(`/sections/${sectionId}/content/reorder`, {
+      content_ids: contentIds,
+    });
     return response.data;
   }
 

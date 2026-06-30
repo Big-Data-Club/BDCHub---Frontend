@@ -23,6 +23,7 @@ import {
   Play, FileText, HelpCircle, MessageSquare,
   Megaphone, Image as ImageIcon, File,
   ChevronDown, ChevronRight, Sparkles, History, BookOpen,
+  GripVertical,
 } from "lucide-react";
 import lmsService from "@/services/lmsService";
 import { SectionModal } from "@/components/lms/teacher/SectionModal";
@@ -126,6 +127,93 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
   const [expanded, setExpanded]   = useState<Set<number>>(new Set());
   const [sectionContents, setSectionContents] = useState<Record<number, Content[]>>({});
   const [loadingContent, setLoadingContent]   = useState<Record<number, boolean>>({});
+
+  // Local sections state for drag & drop preview
+  const [localSections, setLocalSections] = useState<Section[]>([]);
+  const [draggedSecIndex, setDraggedSecIndex] = useState<number | null>(null);
+  const [canDragSection, setCanDragSection] = useState(false);
+
+  const [draggedContentInfo, setDraggedContentInfo] = useState<{
+    sectionId: number;
+    index: number;
+  } | null>(null);
+  const [canDragContent, setCanDragContent] = useState<number | null>(null);
+
+  useEffect(() => {
+    setLocalSections(sections);
+  }, [sections]);
+
+  // ── Drag & Drop Handlers for Sections ──────────────────────────────────────
+
+  const handleSectionDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedSecIndex(index);
+  };
+
+  const handleSectionDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedSecIndex === null || draggedSecIndex === index) return;
+
+    const updated = [...localSections];
+    const [draggedItem] = updated.splice(draggedSecIndex, 1);
+    updated.splice(index, 0, draggedItem);
+
+    setDraggedSecIndex(index);
+    setLocalSections(updated);
+  };
+
+  const handleSectionDragEnd = async () => {
+    setDraggedSecIndex(null);
+    setCanDragSection(false);
+
+    try {
+      const ids = localSections.map(s => s.id);
+      await lmsService.reorderSections(courseId, ids);
+      onSectionsChange();
+    } catch (err) {
+      console.error("Reorder sections failed:", err);
+      setLocalSections(sections);
+    }
+  };
+
+  // ── Drag & Drop Handlers for Contents ──────────────────────────────────────
+
+  const handleContentDragStart = (e: React.DragEvent, sectionId: number, index: number) => {
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedContentInfo({ sectionId, index });
+  };
+
+  const handleContentDragOver = (e: React.DragEvent, sectionId: number, index: number) => {
+    e.preventDefault();
+    if (!draggedContentInfo) return;
+    if (draggedContentInfo.sectionId !== sectionId) return;
+    if (draggedContentInfo.index === index) return;
+
+    const sectionItems = [...(sectionContents[sectionId] ?? [])];
+    const [draggedItem] = sectionItems.splice(draggedContentInfo.index, 1);
+    sectionItems.splice(index, 0, draggedItem);
+
+    setSectionContents(prev => ({
+      ...prev,
+      [sectionId]: sectionItems,
+    }));
+    setDraggedContentInfo({ sectionId, index });
+  };
+
+  const handleContentDragEnd = async (sectionId: number) => {
+    setDraggedContentInfo(null);
+    setCanDragContent(null);
+
+    const currentItems = sectionContents[sectionId] ?? [];
+    try {
+      const ids = currentItems.map(c => c.id);
+      await lmsService.reorderContents(sectionId, ids);
+      await reloadSectionContent(sectionId);
+    } catch (err) {
+      console.error("Reorder contents failed:", err);
+      await reloadSectionContent(sectionId);
+    }
+  };
 
   // Modal state
   const [showSectionModal, setShowSectionModal]       = useState(false);
@@ -316,7 +404,7 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
         />
       ) : (
         <div className="space-y-3">
-          {sections.map((sec, i) => {
+          {localSections.map((sec, i) => {
             const isExpanded  = expanded.has(sec.id);
             const contents    = sectionContents[sec.id] ?? [];
             const isLoadingC  = loadingContent[sec.id];
@@ -324,13 +412,30 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
             return (
               <div
                 key={sec.id}
-                className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900"
+                draggable={canDragSection}
+                onDragStart={(e) => handleSectionDragStart(e, i)}
+                onDragOver={(e) => handleSectionDragOver(e, i)}
+                onDragEnd={handleSectionDragEnd}
+                className={`rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 transition-all duration-200 ${
+                  draggedSecIndex === i ? "opacity-45 border-dashed border-blue-400 dark:border-blue-800" : ""
+                }`}
               >
                 {/* ── Section header ── */}
                 <div
                   className="flex items-center gap-3 px-5 py-4 bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   onClick={() => toggle(sec.id)}
                 >
+                  {/* Grip handle */}
+                  <div
+                    className="p-1 cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={() => setCanDragSection(true)}
+                    onMouseUp={() => setCanDragSection(false)}
+                    onMouseLeave={() => setCanDragSection(false)}
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </div>
+
                   {/* Index badge */}
                   <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold flex-shrink-0 border border-blue-200 dark:border-blue-800">
                     {i + 1}
@@ -445,8 +550,26 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
                         {contents.map((c, ci) => (
                           <div
                             key={c.id}
-                            className="flex items-center gap-3 px-5 py-3 group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                            draggable={canDragContent === c.id}
+                            onDragStart={(e) => handleContentDragStart(e, sec.id, ci)}
+                            onDragOver={(e) => handleContentDragOver(e, sec.id, ci)}
+                            onDragEnd={() => handleContentDragEnd(sec.id)}
+                            className={`flex items-center gap-3 px-5 py-3 group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all duration-200 ${
+                              draggedContentInfo?.sectionId === sec.id && draggedContentInfo?.index === ci
+                                ? "opacity-45 bg-blue-50/50 dark:bg-blue-950/20"
+                                : ""
+                            }`}
                           >
+                            {/* Grip handle */}
+                            <div
+                              className="p-1 cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                              onMouseDown={() => setCanDragContent(c.id)}
+                              onMouseUp={() => setCanDragContent(null)}
+                              onMouseLeave={() => setCanDragContent(null)}
+                            >
+                              <GripVertical className="w-3.5 h-3.5" />
+                            </div>
+
                             {/* Index */}
                             <span className="text-slate-400 dark:text-slate-500 flex-shrink-0 w-4 text-xs text-right">
                               {ci + 1}
