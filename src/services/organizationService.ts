@@ -1,4 +1,5 @@
 import { lmsApiClient } from "./lmsApiClient";
+import { apiClient } from "./api";
 import type {
   Organization,
   OrgMember,
@@ -35,30 +36,51 @@ export const organizationService = {
     limit?: number;
     search?: string;
   }): Promise<OrgListResponse> => {
-    const res = await lmsApiClient.get("/admin/organizations", { params });
-    return res.data.data ?? res.data;
+    const list = await apiClient.get<Organization[]>("/api/organizations");
+    
+    // Apply local search filtering
+    let filtered = list;
+    if (params?.search) {
+      const q = params.search.toLowerCase();
+      filtered = list.filter(
+        (o) => o.name.toLowerCase().includes(q) || o.slug.toLowerCase().includes(q)
+      );
+    }
+    
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? 10;
+    const offset = (page - 1) * limit;
+    const paginated = filtered.slice(offset, offset + limit);
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      items: paginated,
+      page,
+      limit,
+      total,
+      total_pages: totalPages,
+    };
   },
 
   create: async (data: CreateOrgPayload): Promise<Organization> => {
-    const res = await lmsApiClient.post("/admin/organizations", data);
-    return res.data.data ?? res.data;
+    return apiClient.post<Organization>("/api/organizations", data);
   },
 
   getById: async (id: number): Promise<Organization> => {
-    const res = await lmsApiClient.get(`/admin/organizations/${id}`);
-    return res.data.data ?? res.data;
+    return apiClient.get<Organization>(`/api/organizations/${id}`);
   },
 
   update: async (id: number, data: UpdateOrgPayload): Promise<Organization> => {
-    const res = await lmsApiClient.put(`/admin/organizations/${id}`, data);
-    return res.data.data ?? res.data;
+    return apiClient.put<Organization>(`/api/organizations/${id}`, data);
   },
 
   deactivate: async (id: number): Promise<void> => {
-    await lmsApiClient.delete(`/admin/organizations/${id}`);
+    await apiClient.delete(`/api/organizations/${id}`);
   },
 
   getStats: async (id: number): Promise<OrgStats> => {
+    // Stats remain in lms-service because lms-service owns courses and enrollments
     const res = await lmsApiClient.get(`/admin/organizations/${id}/stats`);
     return res.data.data ?? res.data;
   },
@@ -69,15 +91,28 @@ export const organizationService = {
     orgId: number,
     params?: { page?: number; limit?: number }
   ): Promise<OrgMemberListResponse> => {
-    const res = await lmsApiClient.get(
-      `/admin/organizations/${orgId}/members`,
-      { params }
+    const list = await apiClient.get<OrgMember[]>(
+      `/api/organizations/${orgId}/members`
     );
-    return res.data.data ?? res.data;
+    
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? 10;
+    const offset = (page - 1) * limit;
+    const paginated = list.slice(offset, offset + limit);
+    const total = list.length;
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      items: paginated,
+      page,
+      limit,
+      total,
+      total_pages: totalPages,
+    };
   },
 
   addMember: async (orgId: number, data: AddMemberPayload): Promise<void> => {
-    await lmsApiClient.post(`/admin/organizations/${orgId}/members`, data);
+    await apiClient.post(`/api/organizations/${orgId}/members`, data);
   },
 
   updateMemberRole: async (
@@ -85,15 +120,15 @@ export const organizationService = {
     userId: number,
     data: UpdateMemberRolePayload
   ): Promise<void> => {
-    await lmsApiClient.put(
-      `/admin/organizations/${orgId}/members/${userId}/role`,
+    await apiClient.put(
+      `/api/organizations/${orgId}/members/${userId}/role`,
       data
     );
   },
 
   removeMember: async (orgId: number, userId: number): Promise<void> => {
-    await lmsApiClient.delete(
-      `/admin/organizations/${orgId}/members/${userId}`
+    await apiClient.delete(
+      `/api/organizations/${orgId}/members/${userId}`
     );
   },
 
@@ -101,17 +136,15 @@ export const organizationService = {
     orgId: number,
     data: BulkAddMembersPayload
   ): Promise<BulkAddMembersResponse> => {
-    const res = await lmsApiClient.post(
-      `/admin/organizations/${orgId}/members/bulk`,
+    return apiClient.post<BulkAddMembersResponse>(
+      `/api/organizations/${orgId}/members/bulk`,
       data
     );
-    return res.data.data ?? res.data;
   },
 
   // ── Current user ──────────────────────────────────────────────────────────
 
   getMyOrgs: async (): Promise<Organization[]> => {
-    const res = await lmsApiClient.get("/my/orgs");
-    return res.data.data ?? res.data;
+    return apiClient.get<Organization[]>("/api/organizations/my");
   },
 };

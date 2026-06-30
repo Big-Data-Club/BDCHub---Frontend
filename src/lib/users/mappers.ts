@@ -24,5 +24,6 @@ export function mapServerUserToClient(s: any): User {
     dateAdded: s.createdAt ?? s.updatedAt ?? new Date().toISOString(),
     status: typeof s.active === "boolean" ? s.active : Boolean(s.status ?? true),
     organization: s.organization ?? "",
+    organizations: s.organizations ?? [],
   };
 }

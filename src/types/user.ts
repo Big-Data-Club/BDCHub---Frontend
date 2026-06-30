@@ -25,4 +25,5 @@ export type User = {
   active?: boolean;
   profilePicture?: string;
   organization?: string;
+  organizations?: string[];
 };

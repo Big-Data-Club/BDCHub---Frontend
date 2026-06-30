@@ -500,7 +500,11 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
                   </div>
                   <div className="min-w-0">
                     <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tổ chức</p>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">{user.organization || "Chưa tham gia"}</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate" title={user.organizations?.join(", ") || user.organization}>
+                      {user.organizations && user.organizations.length > 0
+                        ? user.organizations.join(", ")
+                        : (user.organization || "Chưa tham gia")}
+                    </p>
                   </div>
                 </div>
               </div>

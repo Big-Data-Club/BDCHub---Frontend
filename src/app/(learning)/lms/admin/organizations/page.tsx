@@ -154,6 +154,8 @@ interface OrgDetailPanelProps {
 }
 
 function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
+  const [currentOrg, setCurrentOrg] = useState(org);
+  const [showEdit, setShowEdit] = useState(false);
   const [stats, setStats] = useState<OrgStats | null>(null);
   const [members, setMembers] = useState<OrgMember[]>([]);
   const [totalMembers, setTotalMembers] = useState(0);
@@ -173,21 +175,25 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
   const [parsedEmails, setParsedEmails] = useState<string[]>([]);
   const [bulkResult, setBulkResult] = useState<{ added: string[]; not_found: string[] } | null>(null);
 
+  useEffect(() => {
+    setCurrentOrg(org);
+  }, [org]);
+
   const loadStats = useCallback(async () => {
     setLoadingStats(true);
     try {
-      setStats(await organizationService.getStats(org.id));
+      setStats(await organizationService.getStats(currentOrg.id));
     } catch {
       // stats not critical
     } finally {
       setLoadingStats(false);
     }
-  }, [org.id]);
+  }, [currentOrg.id]);
 
   const loadMembers = useCallback(async () => {
     setLoadingMembers(true);
     try {
-      const res = await organizationService.listMembers(org.id, {
+      const res = await organizationService.listMembers(currentOrg.id, {
         page: memberPage,
         limit: 20,
       });
@@ -198,7 +204,7 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
     } finally {
       setLoadingMembers(false);
     }
-  }, [org.id, memberPage]);
+  }, [currentOrg.id, memberPage]);
 
   useEffect(() => {
     loadStats();
@@ -217,7 +223,7 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
     const isEmail = singleInput.includes("@");
     try {
       if (isEmail) {
-        const res = await organizationService.bulkAddMembers(org.id, {
+        const res = await organizationService.bulkAddMembers(currentOrg.id, {
           emails: [singleInput.trim()],
           org_role: addRole,
         });
@@ -237,7 +243,7 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
           setSaving(false);
           return;
         }
-        await organizationService.addMember(org.id, {
+        await organizationService.addMember(currentOrg.id, {
           user_id: userId,
           org_role: addRole,
         });
@@ -259,7 +265,7 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
     setError("");
     setBulkResult(null);
     try {
-      const res = await organizationService.bulkAddMembers(org.id, {
+      const res = await organizationService.bulkAddMembers(currentOrg.id, {
         emails: parsedEmails,
         org_role: addRole,
       });
@@ -295,7 +301,7 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
   const handleRemoveMember = async (userId: number) => {
     if (!confirm("Remove this member?")) return;
     try {
-      await organizationService.removeMember(org.id, userId);
+      await organizationService.removeMember(currentOrg.id, userId);
       await loadMembers();
       await loadStats();
     } catch (e: any) {
@@ -308,7 +314,7 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
     newRole: "OWNER" | "ADMIN" | "MEMBER"
   ) => {
     try {
-      await organizationService.updateMemberRole(org.id, userId, {
+      await organizationService.updateMemberRole(currentOrg.id, userId, {
         org_role: newRole,
       });
       await loadMembers();
@@ -357,19 +363,27 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
         </button>
         <div>
           <h2 className="font-bold text-slate-900 dark:text-slate-50 text-lg">
-            {org.name}
+            {currentOrg.name}
           </h2>
-          <p className="text-xs text-slate-500 font-mono">/{org.slug}</p>
+          <p className="text-xs text-slate-500 font-mono">/{currentOrg.slug}</p>
         </div>
-        <span
-          className={`ml-auto px-2 py-0.5 rounded-full text-xs font-medium ${
-            org.is_active
-              ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
-              : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"
-          }`}
-        >
-          {org.is_active ? "Active" : "Inactive"}
-        </span>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => setShowEdit(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 border border-slate-200 dark:border-slate-700 shadow-sm"
+          >
+            <Settings className="w-3.5 h-3.5" /> Edit Org
+          </button>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              currentOrg.is_active
+                ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
+                : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400"
+            }`}
+          >
+            {currentOrg.is_active ? "Active" : "Inactive"}
+          </span>
+        </div>
       </div>
 
       {/* Stats */}
@@ -448,103 +462,80 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
                 <button
                   onClick={() => setBulkResult(null)}
                   className="mt-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 underline hover:no-underline"
+                  title="Clear result"
                 >
-                  Dismiss
+                  Clear Result
                 </button>
               </div>
             )}
 
-            {/* Tab navigation */}
-            <div className="flex border-b border-slate-200 dark:border-slate-700 mb-4 gap-4">
-              <button
-                type="button"
-                onClick={() => { setAddMode("single"); setError(""); }}
-                className={`pb-2 text-xs font-bold border-b-2 transition-all duration-200 active:scale-95 ${
-                  addMode === "single"
-                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                    : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                }`}
-              >
-                Single Member
-              </button>
-              <button
-                type="button"
-                onClick={() => { setAddMode("bulk"); setError(""); }}
-                className={`pb-2 text-xs font-bold border-b-2 transition-all duration-200 active:scale-95 ${
-                  addMode === "bulk"
-                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                    : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                }`}
-              >
-                Bulk Import
-              </button>
-            </div>
-
-            {addMode === "single" ? (
-              <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  id="add-member-single-input"
-                  type="text"
-                  placeholder="Email address or User ID"
-                  value={singleInput}
-                  onChange={(e) => setSingleInput(e.target.value)}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
-                />
-                <select
-                  id="add-member-role"
-                  value={addRole}
-                  onChange={(e) => setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
-                >
-                  <option value="MEMBER">Member</option>
-                  <option value="ADMIN">Admin</option>
-                  <option value="OWNER">Owner</option>
-                </select>
+            {/* Input fields */}
+            <div className="space-y-4">
+              <div className="flex border-b border-slate-200 dark:border-slate-700 pb-2">
                 <button
-                  id="confirm-add-member"
-                  onClick={handleExecuteAddMember}
-                  disabled={saving || !singleInput.trim()}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 shadow-sm"
+                  onClick={() => setAddMode("single")}
+                  className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors ${addMode === "single" ? "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-50" : "text-slate-500"}`}
                 >
-                  {saving ? "Adding…" : "Add Member"}
+                  Single User
+                </button>
+                <button
+                  id="tab-bulk-add"
+                  onClick={() => setAddMode("bulk")}
+                  className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors ml-2 ${addMode === "bulk" ? "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-50" : "text-slate-500"}`}
+                >
+                  Bulk Import
                 </button>
               </div>
-            ) : (
-              <div className="space-y-3">
-                <textarea
-                  id="add-member-bulk-input"
-                  rows={4}
-                  placeholder="Paste email list here (supports space, comma, semicolon, newline, or general text with email addresses)..."
-                  value={bulkInput}
-                  onChange={handleBulkInputChange}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200 resize-none"
-                />
-                
-                {parsedEmails.length > 0 && (
-                  <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      Detected Emails ({parsedEmails.length}):
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-                      {parsedEmails.map((email) => (
-                        <span key={email} className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-lg text-[10px] font-medium">
-                          {email}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-                  <div className="text-xs text-slate-500">
-                    {parsedEmails.length === 0 ? "No emails detected yet" : `${parsedEmails.length} unique email(s) detected`}
-                  </div>
-                  <div className="flex items-center gap-3">
+              {addMode === "single" ? (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    id="add-member-input"
+                    type="text"
+                    placeholder="Enter email address or User ID…"
+                    value={singleInput}
+                    onChange={(e) => setSingleInput(e.target.value)}
+                    className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+                  />
+                  <div className="flex gap-2">
                     <select
-                      id="add-member-role-bulk"
                       value={addRole}
-                      onChange={(e) => setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")}
-                      className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+                      onChange={(e) =>
+                        setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")
+                      }
+                      className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
+                    >
+                      <option value="MEMBER">Member</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="OWNER">Owner</option>
+                    </select>
+                    <button
+                      id="confirm-add-member"
+                      onClick={handleExecuteAddMember}
+                      disabled={saving || !singleInput.trim()}
+                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 shadow-sm"
+                    >
+                      {saving ? "Adding…" : "Add"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <textarea
+                    id="add-member-bulk-input"
+                    rows={4}
+                    placeholder="Paste email list separated by commas, spaces, or newlines..."
+                    value={bulkInput}
+                    onChange={handleBulkInputChange}
+                    className="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200 resize-none font-mono"
+                  />
+                  <div className="flex items-center justify-between">
+                    <select
+                      value={addRole}
+                      onChange={(e) =>
+                        setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")
+                      }
+                      className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
                     >
                       <option value="MEMBER">Member</option>
                       <option value="ADMIN">Admin</option>
@@ -560,8 +551,8 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
                     </button>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 
@@ -650,6 +641,16 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
           </div>
         )}
       </div>
+
+      <EditOrgModal
+        open={showEdit}
+        org={currentOrg}
+        onClose={() => setShowEdit(false)}
+        onUpdated={(updated) => {
+          setCurrentOrg(updated);
+          onRefresh();
+        }}
+      />
     </div>
   );
 }
@@ -667,6 +668,8 @@ function CreateOrgModal({ open, onClose, onCreated }: CreateOrgModalProps) {
     name: "",
     slug: "",
     description: "",
+    logoUrl: "",
+    allowCrossOrgCourses: true,
     visibility: "PUBLIC" as "PUBLIC" | "ORG_ONLY",
   });
   const [saving, setSaving] = useState(false);
@@ -682,13 +685,25 @@ function CreateOrgModal({ open, onClose, onCreated }: CreateOrgModalProps) {
         name: form.name,
         slug: form.slug,
         description: form.description || undefined,
-        settings: { default_course_visibility: form.visibility },
+        logo_url: form.logoUrl || undefined,
+        settings: {
+          allow_cross_org_courses: form.allowCrossOrgCourses,
+          default_course_visibility: form.visibility,
+          allow_self_enrollment: true,
+        },
       });
-      setForm({ name: "", slug: "", description: "", visibility: "PUBLIC" });
+      setForm({
+        name: "",
+        slug: "",
+        description: "",
+        logoUrl: "",
+        allowCrossOrgCourses: true,
+        visibility: "PUBLIC",
+      });
       onCreated();
       onClose();
     } catch (e: any) {
-      setError(e?.response?.data?.message ?? "Failed to create organization");
+      setError(e?.response?.data?.message ?? e?.message ?? "Failed to create organization");
     } finally {
       setSaving(false);
     }
@@ -711,7 +726,7 @@ function CreateOrgModal({ open, onClose, onCreated }: CreateOrgModalProps) {
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl">
+      <div className="relative z-10 w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
@@ -760,15 +775,26 @@ function CreateOrgModal({ open, onClose, onCreated }: CreateOrgModalProps) {
                 onChange={(e) =>
                   setForm((f) => ({
                     ...f,
-                    slug: e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9-]/g, ""),
+                    slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
                   }))
                 }
                 placeholder="bdc"
                 className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-mono text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Logo URL
+            </label>
+            <input
+              id="org-logo-url"
+              value={form.logoUrl}
+              onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))}
+              placeholder="https://example.com/logo.png"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+            />
           </div>
 
           <div>
@@ -825,6 +851,30 @@ function CreateOrgModal({ open, onClose, onCreated }: CreateOrgModalProps) {
             </p>
           </div>
 
+          <div className="flex items-center justify-between py-2 border-t border-slate-100 dark:border-slate-800">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Allow Cross-Org Courses
+              </label>
+              <p className="text-[10px] text-slate-400">
+                If off, this organization is Private. Members can only see courses from their own orgs.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, allowCrossOrgCourses: !f.allowCrossOrgCourses }))}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                form.allowCrossOrgCourses ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                  form.allowCrossOrgCourses ? "translate-x-5" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+
           {/* Actions */}
           <div className="flex items-center gap-3 pt-2">
             <button
@@ -841,6 +891,261 @@ function CreateOrgModal({ open, onClose, onCreated }: CreateOrgModalProps) {
               className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95"
             >
               {saving ? "Creating…" : "Create Organization"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Edit Org Modal ──────────────────────────────────────────────────────────
+
+interface EditOrgModalProps {
+  open: boolean;
+  org: Organization;
+  onClose: () => void;
+  onUpdated: (updatedOrg: Organization) => void;
+}
+
+function EditOrgModal({ open, org, onClose, onUpdated }: EditOrgModalProps) {
+  const [form, setForm] = useState({
+    name: "",
+    slug: "",
+    description: "",
+    logoUrl: "",
+    allowCrossOrgCourses: true,
+    defaultCourseVisibility: "PUBLIC" as "PUBLIC" | "ORG_ONLY",
+    allowSelfEnrollment: true,
+  });
+
+  useEffect(() => {
+    if (!org) return;
+    let allowCross = true;
+    let visibility: "PUBLIC" | "ORG_ONLY" = "PUBLIC";
+    let allowSelf = true;
+    if (org.settings) {
+      try {
+        const settings = typeof org.settings === "string" ? JSON.parse(org.settings) : org.settings;
+        if (typeof settings.allow_cross_org_courses === "boolean") {
+          allowCross = settings.allow_cross_org_courses;
+        }
+        if (settings.default_course_visibility) {
+          visibility = settings.default_course_visibility;
+        }
+        if (typeof settings.allow_self_enrollment === "boolean") {
+          allowSelf = settings.allow_self_enrollment;
+        }
+      } catch (e) {
+        console.error("Failed to parse settings", e);
+      }
+    }
+
+    setForm({
+      name: org.name,
+      slug: org.slug,
+      description: org.description || "",
+      logoUrl: org.logo_url || "",
+      allowCrossOrgCourses: allowCross,
+      defaultCourseVisibility: visibility,
+      allowSelfEnrollment: allowSelf,
+    });
+  }, [org, open]);
+
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.slug) return;
+    setSaving(true);
+    setError("");
+    try {
+      const updated = await organizationService.update(org.id, {
+        name: form.name,
+        slug: form.slug,
+        description: form.description || undefined,
+        logo_url: form.logoUrl || undefined,
+        settings: {
+          allow_cross_org_courses: form.allowCrossOrgCourses,
+          default_course_visibility: form.defaultCourseVisibility,
+          allow_self_enrollment: form.allowSelfEnrollment,
+        },
+      });
+      onUpdated(updated);
+      onClose();
+    } catch (e: any) {
+      setError(e?.response?.data?.message ?? e?.message ?? "Failed to update organization");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative z-10 w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-y-auto max-h-[90vh]">
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-600/10 border border-blue-200 dark:border-blue-800 flex items-center justify-center">
+              <Building2 className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h2 className="font-bold text-slate-900 dark:text-slate-50">
+              Edit Organization Settings
+            </h2>
+          </div>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          {error && (
+            <div className="px-4 py-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Organization Name *
+            </label>
+            <input
+              required
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder="e.g. Big Data Club"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Slug * <span className="font-normal text-slate-400">(URL identifier)</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-400">/</span>
+              <input
+                required
+                value={form.slug}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                  }))
+                }
+                placeholder="bdc"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-mono text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Logo URL
+            </label>
+            <input
+              value={form.logoUrl}
+              onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))}
+              placeholder="https://example.com/logo.png"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Description
+            </label>
+            <textarea
+              rows={3}
+              value={form.description}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
+              placeholder="Briefly describe this organization…"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200 resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Default Course Visibility
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((f) => ({ ...f, defaultCourseVisibility: "PUBLIC" }))
+                }
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200 active:scale-95 ${
+                  form.defaultCourseVisibility === "PUBLIC"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400"
+                    : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
+                }`}
+              >
+                <Eye className="w-4 h-4" /> Public
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((f) => ({ ...f, defaultCourseVisibility: "ORG_ONLY" }))
+                }
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200 active:scale-95 ${
+                  form.defaultCourseVisibility === "ORG_ONLY"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400"
+                    : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
+                }`}
+              >
+                <EyeOff className="w-4 h-4" /> Org Only
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between py-2 border-t border-slate-100 dark:border-slate-800">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Allow Cross-Org Courses
+              </label>
+              <p className="text-[10px] text-slate-400">
+                If off, this organization is Private. Members can only see courses from their own orgs.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setForm((f) => ({ ...f, allowCrossOrgCourses: !f.allowCrossOrgCourses }))}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                form.allowCrossOrgCourses ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                  form.allowCrossOrgCourses ? "translate-x-5" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+
+
+
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors active:scale-95"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving || !form.name || !form.slug}
+              className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold shadow-sm transition-all duration-200 active:scale-95"
+            >
+              {saving ? "Saving…" : "Save Changes"}
             </button>
           </div>
         </form>

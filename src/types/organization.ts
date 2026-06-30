@@ -17,6 +17,7 @@ export interface Organization {
 export interface OrgSettings {
   allow_self_enrollment: boolean;
   default_course_visibility: CourseVisibility;
+  allow_cross_org_courses?: boolean;
   max_members?: number;
 }
 
@@ -45,6 +46,7 @@ export interface CreateOrgPayload {
 
 export interface UpdateOrgPayload {
   name?: string;
+  slug?: string;
   description?: string;
   logo_url?: string;
   settings?: Partial<OrgSettings>;
