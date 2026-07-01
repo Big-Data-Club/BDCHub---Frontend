@@ -28,18 +28,30 @@ export default function ChatPanel() {
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
+    const isFirstLoad = prevMessageCount.current === 0;
     const isNewMessage = messages.length > prevMessageCount.current;
     prevMessageCount.current = messages.length;
 
-    if (isNewMessage && scrollContainerRef.current) {
+    if (messages.length > 0 && scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      const isNearBottom =
-        container.scrollHeight - container.scrollTop - container.clientHeight < 200;
-      if (isNearBottom) {
-        container.scrollTo({
-          top: container.scrollHeight,
-          behavior: "smooth",
-        });
+      if (isFirstLoad) {
+        setTimeout(() => {
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+          }
+        }, 50);
+        return;
+      }
+
+      if (isNewMessage) {
+        const isNearBottom =
+          container.scrollHeight - container.scrollTop - container.clientHeight < 250;
+        if (isNearBottom) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: "smooth",
+          });
+        }
       }
     }
   }, [messages]);
@@ -47,6 +59,7 @@ export default function ChatPanel() {
   // Scroll to bottom on channel switch
   useEffect(() => {
     if (activeChannelId) {
+      prevMessageCount.current = 0; // Reset count to force first-load scrolling behavior
       setTimeout(() => {
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
