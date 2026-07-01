@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Bell, X, Brain, AlertCircle, BookOpen, Sparkles, Inbox } from "lucide-react";
+import { Bell, X, Brain, AlertCircle, BookOpen, Sparkles, Inbox, Check } from "lucide-react";
 import { useNotifications, StudyAlert } from "@/store/NotificationContext";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 export function NotificationPopover() {
   const router = useRouter();
-  const { alerts, unreadAlertsCount, fetchAlerts, markAlertAsRead } = useNotifications();
+  const { alerts, readAlertKeys, unreadAlertsCount, fetchAlerts, markAlertAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "study" | "recs">("all");
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -98,9 +98,9 @@ export function NotificationPopover() {
             {unreadAlertsCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1"
               >
-                Đọc tất cả
+                <Check className="w-3 h-3" /> Đọc tất cả
               </button>
             )}
           </div>
@@ -152,6 +152,8 @@ export function NotificationPopover() {
             ) : (
               filteredAlerts.map((alert) => {
                 const key = `${alert.alert_type}:${alert.course_id}:${alert.node_id ?? ""}:${alert.quiz_id ?? ""}`;
+                const isRead = readAlertKeys.has(key);
+                
                 const isStruggle = alert.alert_type === "concept_struggle";
                 const isRec = alert.alert_type === "recommendation";
                 const isDeadline = alert.alert_type === "quiz_deadline";
@@ -187,7 +189,12 @@ export function NotificationPopover() {
                 return (
                   <div
                     key={key}
-                    className="p-3 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/60 rounded-xl relative group flex gap-3 transition hover:bg-slate-50 dark:hover:bg-slate-950/80"
+                    className={cn(
+                      "p-3 border rounded-xl relative group flex gap-3 transition",
+                      isRead
+                        ? "bg-slate-50/20 dark:bg-slate-950/20 border-slate-100/40 dark:border-slate-800/30 opacity-55 hover:opacity-90 grayscale-[10%]"
+                        : "bg-slate-50/50 dark:bg-slate-950/40 border-slate-100 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-950/80"
+                    )}
                   >
                     {/* Icon Column */}
                     <div className="flex-shrink-0 mt-0.5">
@@ -196,9 +203,14 @@ export function NotificationPopover() {
 
                     {/* Content Column */}
                     <div className="flex-1 min-w-0 pr-4">
-                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
-                        {title}
-                      </p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
+                          {title}
+                        </p>
+                        {!isRead && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                        )}
+                      </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                         {alert.alert_message}
                       </p>
@@ -213,14 +225,16 @@ export function NotificationPopover() {
                       </button>
                     </div>
 
-                    {/* Dismiss Button */}
-                    <button
-                      onClick={() => markAlertAsRead(alert)}
-                      className="absolute top-2 right-2 p-1 rounded-md text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800 opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Bỏ qua"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+                    {/* Dismiss/Mark Read Button (only show if not read yet) */}
+                    {!isRead && (
+                      <button
+                        onClick={() => markAlertAsRead(alert)}
+                        className="absolute top-2 right-2 p-1 rounded-md text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Đánh dấu đã đọc"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 );
               })
