@@ -36,8 +36,10 @@ export function NotificationPopover() {
     markAlertAsRead(alert);
     setIsOpen(false);
     
-    // Route to appropriate content based on course_id and node_id
-    if (alert.node_id) {
+    // Route to appropriate content based on type, course_id, node_id, and quiz_id
+    if (alert.alert_type === "quiz_deadline" && alert.quiz_id) {
+      router.push(`/lms/student/courses/${alert.course_id}/quiz/${alert.quiz_id}/take`);
+    } else if (alert.node_id) {
       router.push(`/lms/student/courses/${alert.course_id}?node_id=${alert.node_id}`);
     } else {
       router.push(`/lms/student/courses/${alert.course_id}`);
@@ -51,8 +53,12 @@ export function NotificationPopover() {
   // Filter alerts by tab
   const filteredAlerts = alerts.filter((alert) => {
     if (activeTab === "all") return true;
-    if (activeTab === "study") return alert.alert_type === "concept_struggle";
-    if (activeTab === "recs") return alert.alert_type === "inactivity"; // mapped as inactivity reminders / recommendations
+    if (activeTab === "study") {
+      return alert.alert_type === "concept_struggle" || alert.alert_type === "new_content";
+    }
+    if (activeTab === "recs") {
+      return alert.alert_type === "inactivity" || alert.alert_type === "recommendation" || alert.alert_type === "quiz_deadline";
+    }
     return true;
   });
 
@@ -144,9 +150,39 @@ export function NotificationPopover() {
                 <p className="text-xs">Không có thông báo mới nào</p>
               </div>
             ) : (
-              filteredAlerts.map((alert, idx) => {
-                const key = `${alert.alert_type}:${alert.course_id}:${alert.node_id ?? ""}`;
+              filteredAlerts.map((alert) => {
+                const key = `${alert.alert_type}:${alert.course_id}:${alert.node_id ?? ""}:${alert.quiz_id ?? ""}`;
                 const isStruggle = alert.alert_type === "concept_struggle";
+                const isRec = alert.alert_type === "recommendation";
+                const isDeadline = alert.alert_type === "quiz_deadline";
+                const isNewContent = alert.alert_type === "new_content";
+
+                let icon = <Sparkles className="w-5 h-5 text-amber-500 dark:text-amber-400" />;
+                let title = "Gợi ý";
+                let btnText = "Vào xem";
+
+                if (isStruggle) {
+                  icon = <Brain className="w-5 h-5 text-red-500 dark:text-red-400" />;
+                  title = "Lỗ hổng kiến thức!";
+                  btnText = "Ôn tập ngay";
+                } else if (isDeadline) {
+                  icon = <AlertCircle className="w-5 h-5 text-rose-500 dark:text-rose-400" />;
+                  title = "Sắp hết hạn làm bài!";
+                  btnText = "Làm bài ngay";
+                } else if (isNewContent) {
+                  icon = <BookOpen className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />;
+                  title = "Bài học mới cập nhật!";
+                  btnText = "Học ngay";
+                } else if (isRec) {
+                  icon = <Sparkles className="w-5 h-5 text-amber-500 dark:text-amber-400" />;
+                  title = "Gợi ý khóa học mới!";
+                  btnText = "Khám phá ngay";
+                } else {
+                  // inactivity
+                  icon = <BookOpen className="w-5 h-5 text-blue-500 dark:text-blue-400" />;
+                  title = "Nhắc nhở ôn tập";
+                  btnText = "Vào lớp học";
+                }
                 
                 return (
                   <div
@@ -155,17 +191,13 @@ export function NotificationPopover() {
                   >
                     {/* Icon Column */}
                     <div className="flex-shrink-0 mt-0.5">
-                      {isStruggle ? (
-                        <Brain className="w-5 h-5 text-red-500 dark:text-red-400" />
-                      ) : (
-                        <Sparkles className="w-5 h-5 text-amber-500 dark:text-amber-400" />
-                      )}
+                      {icon}
                     </div>
 
                     {/* Content Column */}
                     <div className="flex-1 min-w-0 pr-4">
-                      <p className="text-xs font-bold text-slate-800 dark:text-slate-205 leading-snug">
-                        {isStruggle ? "Lỗ hổng kiến thức!" : "Nhắc nhở ôn tập"}
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
+                        {title}
                       </p>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                         {alert.alert_message}
@@ -177,7 +209,7 @@ export function NotificationPopover() {
                         className="mt-2.5 flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500"
                       >
                         <BookOpen className="w-3.5 h-3.5" />
-                        {isStruggle ? "Ôn tập ngay" : "Vào lớp học"}
+                        {btnText}
                       </button>
                     </div>
 
