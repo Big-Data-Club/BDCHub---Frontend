@@ -195,6 +195,18 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
+  // Listen to custom window event to sync unread count in real-time
+  useEffect(() => {
+    const syncCount = () => {
+      const stored = localStorage.getItem("unread_chat_messages_count");
+      if (stored) {
+        setUnreadChatCount(Number(stored));
+      }
+    };
+    window.addEventListener("unread-chat-change", syncCount);
+    return () => window.removeEventListener("unread-chat-change", syncCount);
+  }, []);
+
   // Background WebSocket listener for chat notifications
   useEffect(() => {
     if (status !== "authenticated" || !(session as any)?.accessToken) {
@@ -232,6 +244,18 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 setUnreadChatCount((prev) => {
                   const next = prev + 1;
                   localStorage.setItem("unread_chat_messages_count", String(next));
+                  
+                  // Also update per-channel unread counts
+                  const storedCountsStr = localStorage.getItem("chat_unread_counts") || "{}";
+                  try {
+                    const counts = JSON.parse(storedCountsStr);
+                    counts[wsEvent.channel_id] = (counts[wsEvent.channel_id] ?? 0) + 1;
+                    localStorage.setItem("chat_unread_counts", JSON.stringify(counts));
+                  } catch (e) {
+                    // ignore
+                  }
+                  
+                  window.dispatchEvent(new Event("unread-chat-change"));
                   return next;
                 });
               }

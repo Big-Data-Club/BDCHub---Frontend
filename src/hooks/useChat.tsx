@@ -92,8 +92,35 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [cursorByChannel, setCursorByChannel] = useState<Record<number, number>>({});
   const [hasMoreByChannel, setHasMoreByChannel] = useState<Record<number, boolean>>({});
   const [messagesLoading, setMessagesLoading] = useState(false);
-  const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({});
   const [isConnected, setIsConnected] = useState(false);
+
+  const activeChannelIdRef = useRef<number | null>(null);
+  useEffect(() => {
+    activeChannelIdRef.current = activeChannelId;
+  }, [activeChannelId]);
+
+  const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("chat_unread_counts");
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {
+          return {};
+        }
+      }
+    }
+    return {};
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("chat_unread_counts", JSON.stringify(unreadCounts));
+      const total = Object.values(unreadCounts).reduce((s, n) => s + n, 0);
+      localStorage.setItem("unread_chat_messages_count", String(total));
+      window.dispatchEvent(new Event("unread-chat-change"));
+    }
+  }, [unreadCounts]);
 
   // Total unread across all channels (drives tab title)
   const totalUnreadRef = useRef(0);
@@ -262,14 +289,19 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const onVisible = () => {
       if (!document.hidden) {
-        document.title = DEFAULT_TITLE;
-        // Also clear all unread counts when user focuses the page
-        setUnreadCounts((counts) => {
-          const allZero: Record<number, number> = {};
-          Object.keys(counts).forEach((k) => { allZero[Number(k)] = 0; });
-          totalUnreadRef.current = 0;
-          return allZero;
-        });
+        const active = activeChannelIdRef.current;
+        if (active !== null) {
+          setUnreadCounts((counts) => {
+            const next = { ...counts, [active]: 0 };
+            totalUnreadRef.current = Object.values(next).reduce((s, n) => s + n, 0);
+            if (totalUnreadRef.current === 0) {
+              document.title = DEFAULT_TITLE;
+            } else {
+              document.title = `(${totalUnreadRef.current}) ${DEFAULT_TITLE}`;
+            }
+            return next;
+          });
+        }
       }
     };
     document.addEventListener("visibilitychange", onVisible);
