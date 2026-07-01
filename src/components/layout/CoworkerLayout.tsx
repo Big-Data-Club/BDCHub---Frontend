@@ -278,7 +278,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
       {/* Persistent Global Notification Bell (only for authenticated sessions) */}
       {status === "authenticated" && (!isOpen || !isMobile) && (
         <div 
-          className="fixed top-4 transition-all duration-300 z-[40]"
+          className="fixed top-4 transition-all duration-300 z-[60]"
           style={{ right: isOpen ? `${width + 16}px` : "16px" }}
         >
           <NotificationPopover />
