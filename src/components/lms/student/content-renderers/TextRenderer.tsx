@@ -40,21 +40,27 @@ export function TextRenderer({
   }, [markdownBody, patchPageContext]);
 
   const [nodeId, setNodeId] = useState<number | null>(null);
+  const [loadingNode, setLoadingNode] = useState(userRole === "STUDENT" && !!courseId);
 
   // Auto-lookup knowledge nodeId linked to this content.
   // Strategy: 1) source_content_id exact match, 2) metadata.node_id,
   // 3) title match (micro-lesson TEXT has same title as its node).
   useEffect(() => {
-    if (!courseId || userRole !== "STUDENT") return;
+    if (!courseId || userRole !== "STUDENT") {
+      setLoadingNode(false);
+      return;
+    }
 
     // If content metadata already has node_id (set by micro-lesson generator)
     const metaNodeId = content.metadata?.node_id;
     if (metaNodeId) {
       setNodeId(Number(metaNodeId));
+      setLoadingNode(false);
       return;
     }
 
     let cancelled = false;
+    setLoadingNode(true);
     aiService
       .listKnowledgeNodes(courseId)
       .then((nodes) => {
@@ -68,7 +74,10 @@ export function TextRenderer({
         }
         if (match) setNodeId(match.id);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoadingNode(false);
+      });
     return () => {
       cancelled = true;
     };
@@ -77,7 +86,7 @@ export function TextRenderer({
   return (
     <>
       <MarkdownRenderer content={markdownBody} />
-      {showPanel && (
+      {showPanel && !loadingNode && (
         <QuickActionPanel
           ctx={{
             lessonId: null,
