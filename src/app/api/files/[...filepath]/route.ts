@@ -34,6 +34,7 @@ export async function GET(
     const response = await fetch(targetUrl, {
       headers,
       redirect: "manual",
+      cache: "no-store",
     });
 
     if (!response.ok && response.status !== 206) {

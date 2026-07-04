@@ -66,8 +66,8 @@ export default function FileUpload({
     try {
       // Create FormData
       const formData = new FormData();
-      formData.append("file", file);
       formData.append("type", fileType);
+      formData.append("file", file);
 
       // Upload via proxy
       const headers: Record<string, string> = {};

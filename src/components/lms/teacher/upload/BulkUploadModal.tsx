@@ -102,6 +102,9 @@ export default function BulkUploadModal({
     setIsUploading(true);
 
     try {
+      // Pre-fetch access token once to cache it and avoid async delays/timeouts inside the loop
+      await getAccessToken();
+
       // Upload all files sequentially
       for (const fileItem of filesToUpload) {
         if (fileItem.uploadStatus === "pending") {
@@ -166,8 +169,8 @@ export default function BulkUploadModal({
 
   const uploadSingleFile = async (fileItem: FileToUpload): Promise<any> => {
     const formData = new FormData();
-    formData.append("file", fileItem.file);
     formData.append("type", fileItem.type);
+    formData.append("file", fileItem.file);
 
     const headers: Record<string, string> = {};
     const token = await getAccessToken();

@@ -25,7 +25,7 @@ const ReferenceLink = ({ contentId, title, pageNumber }: { contentId: number; ti
       .then((res) => {
         const content = res?.data || res;
         if (content && content.file_path) {
-          let fileUrl = `/lmsapiv1/files/serve/${content.file_path}`;
+          let fileUrl = `/files/${content.file_path}`;
           if (pageNumber) {
             fileUrl += `#page=${pageNumber}`;
           }

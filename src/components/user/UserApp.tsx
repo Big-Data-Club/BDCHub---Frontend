@@ -2,15 +2,42 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { User } from "@/types";
 import { fetchUsers, postBulkRegister, updateUserStatus } from "@/lib/users/api";
-import { parseFile } from "@/lib/users/fileParser";
 import UserRow from "./UserRow";
-import DetailModal from "./DetailModal";
-import CreateUserModal from "./CreateUserModal";
-import BulkUploadPreviewModal from "./BulkUploadPreviewModal";
+import dynamic from "next/dynamic";
 import { mapFrontendRoleToBackend, mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { useAuth } from "@/hooks/useAuth";
-import { PendingUsersSection } from "./PendingUsersSection";
 import { fetchRoles } from "@/lib/admin/rolesApi";
+
+// Lazy-load components to optimize initial bundle size and page load speed
+const DetailModal = dynamic(() => import("./DetailModal"), { ssr: false });
+const CreateUserModal = dynamic(() => import("./CreateUserModal"), { ssr: false });
+const BulkUploadPreviewModal = dynamic(() => import("./BulkUploadPreviewModal"), { ssr: false });
+const PendingUsersSection = dynamic(() => import("./PendingUsersSection").then(m => m.PendingUsersSection), { ssr: false });
+
+function UserRowSkeleton() {
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 animate-pulse min-w-max sm:min-w-full">
+      <div className="grid grid-cols-12 gap-2 sm:gap-4 items-center">
+        <div className="col-span-3 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-850" />
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="h-4 bg-slate-200 dark:bg-slate-850 rounded w-3/4" />
+            <div className="h-3 bg-slate-200 dark:bg-slate-850 rounded w-1/2" />
+          </div>
+        </div>
+        <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-2/3" /></div>
+        <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/2" /></div>
+        <div className="col-span-2"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-3/4" /></div>
+        <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/3" /></div>
+        <div className="col-span-2"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/2" /></div>
+        <div className="col-span-2 flex justify-center gap-3">
+          <div className="h-6 w-11 bg-slate-200 dark:bg-slate-850 rounded-full" />
+          <div className="h-4 bg-slate-200 dark:bg-slate-850 rounded w-12" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function UserApp() {
   const { isAdmin } = useAuth();
@@ -20,9 +47,12 @@ export default function UserApp() {
   const [error, setError] = useState<string | null>(null);
 
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [teamFilter, setTeamFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [detail, setDetail] = useState<User | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -38,6 +68,19 @@ export default function UserApp() {
     else if (sortDir === "desc") { setSortKey(null); setSortDir(null); }
     else setSortDir("asc");
   }
+
+  // Debounce search inputs to avoid keypress rendering lag
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [query]);
+
+  // Reset to page 1 when query/filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedQuery, teamFilter, typeFilter, roleFilter]);
 
   async function load() {
     setLoading(true);
@@ -65,6 +108,7 @@ export default function UserApp() {
   async function handleFilePicked(file?: File) {
     if (!file) return;
     try {
+      const { parseFile } = await import("@/lib/users/fileParser");
       const rows = await parseFile(file);
       if (!rows || rows.length === 0) {
         alert("No valid rows found in file");
@@ -108,7 +152,7 @@ export default function UserApp() {
   }, [users]);
 
   const filteredAndSorted = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = debouncedQuery.trim().toLowerCase();
     let list = users.filter(u => {
       if (teamFilter && u.team !== teamFilter) return false;
       if (typeFilter && u.type !== typeFilter) return false;
@@ -132,7 +176,15 @@ export default function UserApp() {
       });
     }
     return list;
-  }, [users, query, teamFilter, typeFilter, roleFilter, sortKey, sortDir]);
+  }, [users, debouncedQuery, teamFilter, typeFilter, roleFilter, sortKey, sortDir]);
+
+  const ITEMS_PER_PAGE = 15;
+  const totalPages = Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE);
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredAndSorted.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredAndSorted, currentPage]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8">
@@ -242,7 +294,7 @@ export default function UserApp() {
         </div>
 
         {/* Pending Users (admin only) */}
-        <PendingUsersSection isAdmin={isAdmin} onApproved={load} />
+        {isAdmin && <PendingUsersSection isAdmin={isAdmin} onApproved={load} />}
 
         {/* Table Header */}
         <div className="bg-white dark:bg-slate-900 rounded-t-xl border border-b-0 border-slate-200 dark:border-slate-800 overflow-x-auto">
@@ -300,12 +352,15 @@ export default function UserApp() {
         {/* List */}
         <div className="space-y-2 rounded-b-xl bg-white dark:bg-slate-900 border border-t-0 border-slate-200 dark:border-slate-800 p-2">
           {loading && (
-            <div className="py-12 px-4 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-4 text-slate-600 dark:text-slate-400 font-medium">Loading users...</p>
+            <div className="space-y-2">
+              <UserRowSkeleton />
+              <UserRowSkeleton />
+              <UserRowSkeleton />
+              <UserRowSkeleton />
+              <UserRowSkeleton />
             </div>
           )}
-          {!loading && filteredAndSorted.length > 0 && filteredAndSorted.map((u) => (
+          {!loading && paginatedUsers.length > 0 && paginatedUsers.map((u) => (
             <UserRow key={u.id} user={u} onClick={(user) => setDetail(user)} onToggleStatus={toggleStatusLocal} isAdmin={isAdmin} />
           ))}
           {!loading && filteredAndSorted.length === 0 && (
@@ -314,11 +369,73 @@ export default function UserApp() {
             </div>
           )}
         </div>
+
+        {/* Pagination controls */}
+        {!loading && totalPages > 1 && (
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+            <span className="text-sm text-slate-600 dark:text-slate-400">
+              Hiển thị <span className="font-semibold text-slate-900 dark:text-slate-100">{Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredAndSorted.length)}</span> đến{" "}
+              <span className="font-semibold text-slate-900 dark:text-slate-100">{Math.min(currentPage * ITEMS_PER_PAGE, filteredAndSorted.length)}</span> trong{" "}
+              <span className="font-semibold text-slate-900 dark:text-slate-100">{filteredAndSorted.length}</span> người dùng
+            </span>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-2 text-sm font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+              >
+                Trước
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    return page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                  })
+                  .map((page, index, array) => {
+                    const showEllipsisBefore = index > 0 && page - array[index - 1] > 1;
+                    return (
+                      <React.Fragment key={page}>
+                        {showEllipsisBefore && (
+                          <span className="px-2 text-slate-400">...</span>
+                        )}
+                        <button
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-9 h-9 text-sm font-semibold rounded-xl flex items-center justify-center transition-all duration-200 active:scale-95 ${
+                            currentPage === page
+                              ? "bg-blue-600 text-white shadow-sm"
+                              : "border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+              </div>
+              
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 text-sm font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+              >
+                Sau
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      <DetailModal user={detail} onClose={() => setDetail(null)} isAdmin={isAdmin} onUserUpdated={load} />
-      <CreateUserModal open={showCreateModal} onClose={() => setShowCreateModal(false)} onUserCreated={load} />
-      <BulkUploadPreviewModal open={previewUsers !== null} onClose={() => setPreviewUsers(null)} parsedUsers={previewUsers || []} onImportSuccess={load} />
+      {detail && (
+        <DetailModal user={detail} onClose={() => setDetail(null)} isAdmin={isAdmin} onUserUpdated={load} />
+      )}
+      {showCreateModal && (
+        <CreateUserModal open={showCreateModal} onClose={() => setShowCreateModal(false)} onUserCreated={load} />
+      )}
+      {previewUsers !== null && (
+        <BulkUploadPreviewModal open={previewUsers !== null} onClose={() => setPreviewUsers(null)} parsedUsers={previewUsers} onImportSuccess={load} />
+      )}
     </div>
   );
 }

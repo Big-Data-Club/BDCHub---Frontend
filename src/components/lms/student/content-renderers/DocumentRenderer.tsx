@@ -21,6 +21,10 @@ export function DocumentRenderer({ content }: DocumentRendererProps) {
   const fileSize = content.metadata?.file_size ? formatFileSize(content.metadata.file_size) : null;
   const downloadUrl = docUrl.replace("/serve/", "/download/");
 
+  const absoluteDocUrl = typeof window !== "undefined" && !docUrl.startsWith("http")
+    ? `${window.location.origin}${docUrl}`
+    : docUrl;
+
   return (
     <div className="space-y-4">
       {/* File info card */}
@@ -63,7 +67,7 @@ export function DocumentRenderer({ content }: DocumentRendererProps) {
       {isOfficeDoc && !iframeError && (
         <div className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800">
           <iframe
-            src={`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(docUrl)}`}
+            src={`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteDocUrl)}`}
             className="w-full h-[600px]"
             title={fileName}
             frameBorder="0"

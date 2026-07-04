@@ -4,6 +4,27 @@ import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Bypass token check and session lookup for public file paths to optimize performance
+  if (
+    pathname.startsWith("/files/") ||
+    pathname.startsWith("/lmsapiv1/files/serve/") ||
+    pathname.startsWith("/lmsapiv1/files/download/")
+  ) {
+    return NextResponse.next();
+  }
+
+  // If authorization header is already present, just pass the request through.
+  // This avoids Next.js request-cloning bugs for multipart form-data (uploads).
+  if (
+    (pathname.startsWith("/apiv1/") ||
+      pathname.startsWith("/lmsapiv1/") ||
+      pathname.startsWith("/uploads/")) &&
+    req.headers.has("Authorization")
+  ) {
+    return NextResponse.next();
+  }
+
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
@@ -13,20 +34,20 @@ export async function middleware(req: NextRequest) {
   if (
     pathname.startsWith("/apiv1/") ||
     pathname.startsWith("/lmsapiv1/") ||
-    pathname.startsWith("/uploads/") ||
-    pathname.startsWith("/files/")
+    pathname.startsWith("/uploads/")
   ) {
     const requestHeaders = new Headers(req.headers);
 
     if (token?.accessToken) {
       requestHeaders.set("Authorization", `Bearer ${token.accessToken}`);
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
     }
 
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
+    return NextResponse.next();
   }
 
   // Check admin-only paths

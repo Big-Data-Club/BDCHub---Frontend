@@ -14,7 +14,7 @@ export interface ContentItem {
 export function buildFileUrl(filePath?: string | null): string {
   if (!filePath) return "";
   if (filePath.startsWith("http://") || filePath.startsWith("https://")) return filePath;
-  return `/lmsapiv1/files/serve/${filePath}`;
+  return `/files/${filePath}`;
 }
 
 export function formatFileSize(bytes: number): string {
