@@ -4,11 +4,10 @@ import Sidebar from "@/components/layout/Sidebar";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
-import { Nunito_Sans, Geist_Mono } from "next/font/google";
-import localFont from "next/font/local";
+import { Nunito_Sans, Geist_Mono, Comfortaa } from "next/font/google";
 
-const fredoka = localFont({
-  src: "../../../../public/fonts/DVN-Fredoka-Bold.ttf",
+const comfortaa = Comfortaa({
+  subsets: ["vietnamese"],
   variable: "--font-display",
   display: "swap",
 });
@@ -33,7 +32,7 @@ export default async function MainLayout({ children }: MainLayoutProps) {
     redirect("/");
   }
   return (
-    <div className={`flex min-h-screen w-full max-w-full flex-col bg-slate-50 dark:bg-lms-bg ${fredoka.variable} ${nunitoSans.variable} ${geistMono.variable} lms-fonts`}>
+    <div className={`flex min-h-screen w-full max-w-full flex-col bg-slate-50 dark:bg-lms-bg ${comfortaa.variable} ${nunitoSans.variable} ${geistMono.variable} lms-fonts`}>
       <div className="flex flex-1">
         <div className="sticky top-0 h-screen flex-shrink-0 hidden md:block">
           <Sidebar />
