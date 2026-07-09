@@ -3,6 +3,14 @@
 
 
 @variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-lms-bg: #050B18;
+  --color-lms-shell: #070E1C;
+  --color-lms-card: #0F1E35;
+  --color-lms-input: #0D192E;
+  --color-lms-hover: #162644;
+}
 /* Animation Timing Scale & Variables */
 :root {
   --duration-fast: 150ms;
@@ -420,4 +428,24 @@ html:where(.dark) {
 }
 .animate-fadeIn {
   animation: fadeIn 200ms ease-out forwards;
+}
+
+/* LMS Localized Fonts */
+.lms-fonts {
+  font-family: var(--font-body), sans-serif;
+}
+
+.lms-fonts h1,
+.lms-fonts h2,
+.lms-fonts h3,
+.lms-fonts h4,
+.lms-fonts h5,
+.lms-fonts h6 {
+  font-family: var(--font-display), sans-serif;
+}
+
+.lms-fonts code,
+.lms-fonts pre,
+.lms-fonts .font-mono {
+  font-family: var(--font-mono), monospace;
 }
