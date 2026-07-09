@@ -267,7 +267,7 @@ export default function StudentDashboard() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-50 leading-tight">
-            Trang tổng quan học tập
+            Tổng quan học tập
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
             Chào mừng bạn trở lại! Xem phân tích thông minh và tối ưu hóa lộ trình của mình.
@@ -338,11 +338,10 @@ export default function StudentDashboard() {
                     return (
                       <div
                         key={en.id}
-                        className={`relative rounded-2xl transition-all duration-200 ${
-                          isSelected
+                        className={`relative rounded-2xl transition-all duration-200 ${isSelected
                             ? "ring-2 ring-blue-500/70 border-transparent bg-blue-50/30 dark:bg-blue-900/10"
                             : ""
-                        }`}
+                          }`}
                         onClick={() => setSelectedCourseId(en.course_id)}
                       >
                         <EnrolledCourseItem
@@ -395,33 +394,30 @@ export default function StudentDashboard() {
                   <div className="flex items-center gap-1 border-b border-slate-200 dark:border-slate-800 pb-3 mb-6 overflow-x-auto">
                     <button
                       onClick={() => setAnalyticsTab("lessons")}
-                      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all whitespace-nowrap ${
-                        analyticsTab === "lessons"
+                      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all whitespace-nowrap ${analyticsTab === "lessons"
                           ? "bg-blue-600 text-white shadow-sm"
                           : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                      }`}
+                        }`}
                     >
                       <ListTodo className="w-4 h-4" />
                       Tiến độ bài học
                     </button>
                     <button
                       onClick={() => setAnalyticsTab("mastery")}
-                      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all whitespace-nowrap ${
-                        analyticsTab === "mastery"
+                      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all whitespace-nowrap ${analyticsTab === "mastery"
                           ? "bg-blue-600 text-white shadow-sm"
                           : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                      }`}
+                        }`}
                     >
                       <Target className="w-4 h-4" />
                       Năng lực & Quiz
                     </button>
                     <button
                       onClick={() => setAnalyticsTab("flashcards")}
-                      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all whitespace-nowrap ${
-                        analyticsTab === "flashcards"
+                      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all whitespace-nowrap ${analyticsTab === "flashcards"
                           ? "bg-blue-600 text-white shadow-sm"
                           : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                      }`}
+                        }`}
                     >
                       <Brain className="w-4 h-4" />
                       Ghi nhớ (Flashcard)
