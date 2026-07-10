@@ -453,14 +453,14 @@ html:where(.dark) {
 /* Grid Paper Background (Vở ô li) & sliding animation */
 .bg-grid-paper {
   background-image: 
-    linear-gradient(to right, rgba(11, 102, 162, 0.15) 1.5px, transparent 1.5px),
-    linear-gradient(to bottom, rgba(11, 102, 162, 0.15) 1.5px, transparent 1.5px);
+    linear-gradient(to right, rgba(11, 102, 162, 0.22) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(11, 102, 162, 0.22) 2px, transparent 2px);
   background-size: 40px 40px;
 }
 :where(.dark) .bg-grid-paper {
   background-image: 
-    linear-gradient(to right, rgba(169, 210, 240, 0.09) 1.5px, transparent 1.5px),
-    linear-gradient(to bottom, rgba(169, 210, 240, 0.09) 1.5px, transparent 1.5px);
+    linear-gradient(to right, rgba(169, 210, 240, 0.15) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(169, 210, 240, 0.15) 2px, transparent 2px);
 }
 
 @keyframes grid-slide {
