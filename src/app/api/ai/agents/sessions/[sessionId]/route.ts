@@ -35,3 +35,43 @@ export async function DELETE(
     );
   }
 }
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ sessionId: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { sessionId } = await params;
+    const body = await request.json();
+
+    const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://ai-service:8000";
+
+    const res = await fetch(`${AI_SERVICE_URL}/ai/agents/sessions/${sessionId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-AI-Secret": process.env.AI_SERVICE_SECRET || "bdc-ai-secret-2026",
+      },
+      body: JSON.stringify({ title: body.title }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`AI service returned ${res.status}`);
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("AI Session Rename Proxy Error:", error);
+    return NextResponse.json(
+      { error: "Failed to rename session" },
+      { status: 500 }
+    );
+  }
+}
+

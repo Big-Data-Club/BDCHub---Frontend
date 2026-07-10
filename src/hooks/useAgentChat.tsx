@@ -506,6 +506,19 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
     }
   }, [sessionId, onSessionUpdated]);
 
+  const renameSession = useCallback(async (sid: string, title: string) => {
+    try {
+      await agentService.renameSession(sid, title);
+      onSessionUpdated?.({
+        sessionId: sid,
+        title,
+        reason: "title",
+      });
+    } catch (err) {
+      console.error("Failed to rename session:", err);
+    }
+  }, [onSessionUpdated]);
+
   const clearChat = useCallback(() => {
     setMessages([]);
     setSessionId(null);
@@ -523,5 +536,6 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
     switchSession,
     startNewChat,
     deleteSession,
+    renameSession,
   };
 }
