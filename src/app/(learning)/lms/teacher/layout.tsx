@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { getCookie } from "@/utils/cookies";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [userName, setUserName] = useState("");
+  const { data: session } = useSession();
+  const userName = session?.user?.name || "";
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,8 +19,6 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
       return;
     }
 
-    const name = getCookie("userName") || "";
-    setUserName(name);
     setLoading(false);
   }, [router]);
 
