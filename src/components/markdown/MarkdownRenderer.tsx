@@ -224,18 +224,30 @@ export default function MarkdownRenderer({
             </div>
           ),
 
-          // Links
-          a: ({ href, children, ...props }: any) => (
-            <a
-              href={href}
-              className="text-blue-600 dark:text-blue-400 font-medium underline underline-offset-4 decoration-blue-500/30 hover:decoration-blue-500 transition-all"
-              target="_blank"
-              rel="noopener noreferrer"
-              {...props}
-            >
-              {children}
-            </a>
-          ),
+          // Links - with special handling for @mention:// protocol
+          a: ({ href, children, ...props }: any) => {
+            // Render @mentions as styled badges
+            if (href?.startsWith('mention://')) {
+              return (
+                <span
+                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 cursor-default select-none"
+                >
+                  @{children}
+                </span>
+              );
+            }
+            return (
+              <a
+                href={href}
+                className="text-blue-600 dark:text-blue-400 font-medium underline underline-offset-4 decoration-blue-500/30 hover:decoration-blue-500 transition-all"
+                target="_blank"
+                rel="noopener noreferrer"
+                {...props}
+              >
+                {children}
+              </a>
+            );
+          },
 
           // Horizontal Lines
           hr: ({ ...props }) => (
