@@ -50,7 +50,7 @@ const preview: Preview = {
       const bgValue = context.globals.backgrounds?.value;
       return (
         <UserProvider>
-          <SessionProvider session={null}>
+          <SessionProvider session={context.parameters.session !== undefined ? context.parameters.session : { user: { name: "BDC Developer", email: "developer@bdc.org" }, expires: "2026-09-09T00:00:00.000Z" }}>
             <ThemeProvider
               attribute="class"
               defaultTheme="dark"
