@@ -258,6 +258,10 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
 
       {/* Floating Chat Bubble Button */}
       {!isOpen && (
+        pathname.startsWith("/lms/teacher") ||
+        pathname.startsWith("/lms/admin") ||
+        pathname.startsWith("/lms/student")
+      ) && (
         <button
           onClick={handleToggleOpen}
           className={cn(

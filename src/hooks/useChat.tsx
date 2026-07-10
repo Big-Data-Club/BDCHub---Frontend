@@ -10,8 +10,20 @@ import {
 } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ChatChannel, ChatMessage, WSEvent, WSMessagePayload, WSDeletePayload } from "@/types/chat";
-import { listChannels, listMessages, sendMessageRest, getOrCreateDM } from "@/services/chatService";
+import {
+  ChatChannel,
+  ChatMessage,
+  WSEvent,
+  WSMessagePayload,
+  WSDeletePayload,
+  WSEditPayload,
+} from "@/types/chat";
+import {
+  listChannels,
+  listMessages,
+  sendMessageRest,
+  getOrCreateDM,
+} from "@/services/chatService";
 
 // ─── Notification helpers ─────────────────────────────────────────────────────
 
@@ -24,14 +36,12 @@ function playChatSound() {
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.type = "triangle";
-    // Pitch sweep: 880 Hz → 660 Hz over 120 ms
     osc.frequency.setValueAtTime(880, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
     gain.gain.setValueAtTime(0.25, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.18);
-    // Release AudioContext after the chime finishes
     osc.onended = () => ctx.close();
   } catch {
     // AudioContext blocked or unavailable - silently ignore
@@ -54,8 +64,9 @@ interface ChatContextValue {
   hasMoreMessages: boolean;
   loadMoreMessages: () => Promise<void>;
 
-  sendMessage: (body: string) => Promise<void>;
+  sendMessage: (body: string, parentId?: number | null) => Promise<void>;
   deleteMessage: (msgId: number) => void;
+  editMessage: (msgId: number, newBody: string) => Promise<void>;
 
   unreadCounts: Record<number, number>;
   isConnected: boolean;
@@ -77,14 +88,12 @@ const HISTORY_LIMIT = 50;
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const token = (session as any)?.accessToken as string | undefined;
-  // Used to filter out own messages from notifications
-  const currentUserId  = (session as any)?.user?.id  as string | undefined;
-  const currentEmail   = (session as any)?.user?.email as string | undefined;
+  const currentUserId = (session as any)?.user?.id as string | undefined;
+  const currentEmail = (session as any)?.user?.email as string | undefined;
 
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // State
   const [channels, setChannels] = useState<ChatChannel[]>([]);
   const [channelsLoading, setChannelsLoading] = useState(true);
   const [activeChannelId, setActiveChannelIdRaw] = useState<number | null>(null);
@@ -103,11 +112,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("chat_unread_counts");
       if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {
-          return {};
-        }
+        try { return JSON.parse(stored); } catch { return {}; }
       }
     }
     return {};
@@ -122,10 +127,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [unreadCounts]);
 
-  // Total unread across all channels (drives tab title)
   const totalUnreadRef = useRef(0);
 
-  // WebSocket refs
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectDelay = useRef(RECONNECT_INITIAL_DELAY);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -176,12 +179,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       if (!unmounted.current) scheduleReconnect();
     };
 
-    ws.onerror = () => {
-      ws.close();
-    };
+    ws.onerror = () => { ws.close(); };
 
     ws.onmessage = (event) => {
-      // Server may batch multiple newline-separated events in one frame
       const lines = (event.data as string).split("\n").filter(Boolean);
       for (const line of lines) {
         try {
@@ -198,10 +198,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const scheduleReconnect = useCallback(() => {
     if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
     reconnectTimer.current = setTimeout(() => {
-      reconnectDelay.current = Math.min(
-        reconnectDelay.current * 2,
-        RECONNECT_MAX_DELAY
-      );
+      reconnectDelay.current = Math.min(reconnectDelay.current * 2, RECONNECT_MAX_DELAY);
       connect();
     }, reconnectDelay.current);
   }, [connect]);
@@ -232,29 +229,35 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           senderAvatar: p.sender_avatar ?? "",
           body: p.body,
           isDeleted: false,
+          isEdited: p.is_edited ?? false,
+          parentId: p.parent_id ?? null,
+          parentSenderName: p.parent_sender_name ?? "",
+          parentBody: p.parent_body ?? "",
           createdAt: event.ts,
         };
 
-        setMessagesByChannel((prev) => ({
-          ...prev,
-          [channelId]: [...(prev[channelId] ?? []), newMsg],
-        }));
+        setMessagesByChannel((prev) => {
+          const existing = prev[channelId] ?? [];
+          const idx = existing.findIndex((m) => m.id === p.id);
+          if (idx >= 0) {
+            // Update in-place (de-duplicate optimistic inserts)
+            const updated = [...existing];
+            updated[idx] = { ...updated[idx], ...newMsg };
+            return { ...prev, [channelId]: updated };
+          }
+          return { ...prev, [channelId]: [...existing, newMsg] };
+        });
 
-        // Increment unread if not the active channel
         setActiveChannelIdRaw((active) => {
           if (active !== channelId) {
             setUnreadCounts((counts) => {
               const next = { ...counts, [channelId]: (counts[channelId] ?? 0) + 1 };
-              // Recompute total for tab title
               totalUnreadRef.current = Object.values(next).reduce((s, n) => s + n, 0);
               return next;
             });
 
-            // Notify only when:
-            //  1. Tab is not visible (user is away)
-            //  2. Message is NOT from the current user
             const isOwnMsg =
-              currentUserId  ? String(p.sender_id) === currentUserId
+              currentUserId ? String(p.sender_id) === currentUserId
               : currentEmail ? p.sender_name === currentEmail
               : false;
 
@@ -265,6 +268,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           }
           return active;
         });
+        break;
+      }
+
+      case "edit": {
+        const p = event.payload as WSEditPayload;
+        setMessagesByChannel((prev) => ({
+          ...prev,
+          [channelId]: (prev[channelId] ?? []).map((m) =>
+            m.id === p.id ? { ...m, body: p.body, isEdited: true } : m
+          ),
+        }));
         break;
       }
 
@@ -312,7 +326,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const setActiveChannelId = useCallback(
     (id: number) => {
       setActiveChannelIdRaw(id);
-      // Clear unread badge for this channel and update tab title
       setUnreadCounts((u) => {
         const next = { ...u, [id]: 0 };
         totalUnreadRef.current = Object.values(next).reduce((s, n) => s + n, 0);
@@ -324,7 +337,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         return next;
       });
 
-      // Load history if not yet loaded
       if (!messagesByChannel[id]) {
         setMessagesLoading(true);
         listMessages(id, undefined, HISTORY_LIMIT)
@@ -364,37 +376,65 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   // ── Send message ──────────────────────────────────────────────────────────────
   const sendMessage = useCallback(
-    async (body: string) => {
+    async (body: string, parentId?: number | null) => {
       if (!activeChannelId || !body.trim()) return;
 
-      // Prefer WebSocket - fall back to REST if WS not connected
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(
-          JSON.stringify({ type: "message", channel_id: activeChannelId, body: body.trim() })
+          JSON.stringify({
+            type: "message",
+            channel_id: activeChannelId,
+            body: body.trim(),
+            parent_id: parentId ?? null,
+          })
         );
       } else {
-        // REST fallback - message will arrive via WS event from server
-        await sendMessageRest(activeChannelId, body.trim());
+        // REST fallback
+        const msg = await sendMessageRest(activeChannelId, body.trim(), parentId);
+        setMessagesByChannel((prev) => ({
+          ...prev,
+          [activeChannelId]: [...(prev[activeChannelId] ?? []), msg],
+        }));
       }
     },
     [activeChannelId]
   );
 
-  // ── Delete message (WS only) ──────────────────────────────────────────────────
+  // ── Delete message ────────────────────────────────────────────────────────────
   const deleteMessage = useCallback((msgId: number) => {
     if (!activeChannelId) return;
-    // Optimistically update UI - server will broadcast delete event
     setMessagesByChannel((prev) => ({
       ...prev,
       [activeChannelId]: (prev[activeChannelId] ?? []).map((m) =>
         m.id === msgId ? { ...m, isDeleted: true, body: "[deleted]" } : m
       ),
     }));
-    // REST delete (WS doesn't have a delete frame from client)
     import("@/services/chatService").then(({ deleteMessage: del }) =>
       del(activeChannelId, msgId)
     );
   }, [activeChannelId]);
+
+  // ── Edit message ──────────────────────────────────────────────────────────────
+  const editMessage = useCallback(
+    async (msgId: number, newBody: string) => {
+      if (!activeChannelId) return;
+      // Optimistic update
+      setMessagesByChannel((prev) => ({
+        ...prev,
+        [activeChannelId]: (prev[activeChannelId] ?? []).map((m) =>
+          m.id === msgId ? { ...m, body: newBody, isEdited: true } : m
+        ),
+      }));
+      try {
+        await import("@/services/chatService").then(({ editMessage: edit }) =>
+          edit(activeChannelId, msgId, newBody)
+        );
+      } catch (err) {
+        console.error("editMessage failed:", err);
+      }
+    },
+    [activeChannelId]
+  );
 
   // Auto-select DM channel if userId parameter is present
   useEffect(() => {
@@ -405,26 +445,22 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const targetUserId = parseInt(userIdStr, 10);
     if (isNaN(targetUserId)) return;
 
-    // Check if we already have a DM channel with this user
     const existingDm = channels.find(
       (c) => c.isDm && c.dmUser?.id === targetUserId
     );
 
     if (existingDm) {
       setActiveChannelId(existingDm.id);
-      // Clean up the URL query parameter
       const newParams = new URLSearchParams(searchParams.toString());
       newParams.delete("userId");
       const cleanUrl = `/chat${newParams.toString() ? `?${newParams.toString()}` : ""}`;
       router.replace(cleanUrl);
     } else {
-      // Create new DM
       setMessagesLoading(true);
       getOrCreateDM(targetUserId)
         .then((channel) => {
           addChannel(channel);
           setActiveChannelId(channel.id);
-          // Clean up search param
           const newParams = new URLSearchParams(searchParams.toString());
           newParams.delete("userId");
           const cleanUrl = `/chat${newParams.toString() ? `?${newParams.toString()}` : ""}`;
@@ -456,6 +492,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         loadMoreMessages,
         sendMessage,
         deleteMessage,
+        editMessage,
         unreadCounts,
         isConnected,
         refreshChannels,

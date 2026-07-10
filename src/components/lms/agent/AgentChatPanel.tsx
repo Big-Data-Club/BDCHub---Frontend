@@ -99,6 +99,7 @@ export function AgentChatPanel({
     startNewChat,
     switchSession,
     deleteSession,
+    renameSession,
   } = useAgentChat({
     agentType,
     courseId: courseId || (pageContext?.courseId ? Number(pageContext.courseId) : undefined),
@@ -186,6 +187,7 @@ export function AgentChatPanel({
                 }
               }}
               onDeleteSession={deleteSession}
+              onRenameSession={renameSession}
               onCloseMobile={() => setSidebarOpen(false)}
               className={cn(
                 "fixed inset-y-0 left-0 z-50 w-[260px] transition-all duration-300 ease-in-out lg:relative lg:z-0 lg:border-r",

@@ -33,13 +33,29 @@ export async function listMessages(
   };
 }
 
-export async function sendMessageRest(channelId: number, body: string): Promise<ChatMessage> {
-  const res = await chatApiClient.post(`/chat/channels/${channelId}/messages`, { body });
+export async function sendMessageRest(
+  channelId: number,
+  body: string,
+  parentId?: number | null
+): Promise<ChatMessage> {
+  const res = await chatApiClient.post(`/chat/channels/${channelId}/messages`, {
+    body,
+    parent_id: parentId ?? null,
+  });
   return mapMessage(res.data.data);
 }
 
 export async function deleteMessage(channelId: number, msgId: number): Promise<void> {
   await chatApiClient.delete(`/chat/channels/${channelId}/messages/${msgId}`);
+}
+
+export async function editMessage(
+  channelId: number,
+  msgId: number,
+  body: string
+): Promise<ChatMessage> {
+  const res = await chatApiClient.put(`/chat/channels/${channelId}/messages/${msgId}`, { body });
+  return mapMessage(res.data.data);
 }
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
@@ -113,7 +129,6 @@ export async function searchUsers(query: string): Promise<ChatUser[]> {
   return (res.data.data ?? []).map(mapUser);
 }
 
-
 export async function getOrCreateDM(targetUserId: number): Promise<ChatChannel> {
   const res = await chatApiClient.post("/chat/dm", { user_id: targetUserId });
   return mapChannel(res.data.data);
@@ -130,12 +145,14 @@ function mapChannel(raw: any): ChatChannel {
     description: raw.description ?? "",
     isPrivate: raw.is_private ?? false,
     isDm: raw.is_dm ?? false,
-    dmUser: raw.dm_user ? {
-      id: raw.dm_user.id,
-      email: raw.dm_user.email,
-      fullName: raw.dm_user.full_name,
-      profilePicture: raw.dm_user.profile_picture ?? "",
-    } : undefined,
+    dmUser: raw.dm_user
+      ? {
+          id: raw.dm_user.id,
+          email: raw.dm_user.email,
+          fullName: raw.dm_user.full_name,
+          profilePicture: raw.dm_user.profile_picture ?? "",
+        }
+      : undefined,
     createdAt: raw.created_at,
   };
 }
@@ -161,6 +178,10 @@ function mapMessage(raw: any): ChatMessage {
     senderAvatar: raw.sender_avatar ?? "",
     body: raw.body,
     isDeleted: raw.is_deleted ?? false,
+    isEdited: raw.is_edited ?? false,
+    parentId: raw.parent_id ?? null,
+    parentSenderName: raw.parent_sender_name ?? "",
+    parentBody: raw.parent_body ?? "",
     createdAt: raw.created_at,
   };
 }

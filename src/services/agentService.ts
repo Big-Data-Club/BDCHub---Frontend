@@ -78,6 +78,20 @@ export async function deleteAgentSession(
     if (!res.ok) throw new Error("Failed to delete session");
 }
 
+export async function renameAgentSession(
+    sessionId: string,
+    title: string
+): Promise<void> {
+    const res = await fetch(`/api/ai/agents/sessions/${sessionId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title }),
+    });
+    if (!res.ok) throw new Error("Failed to rename session");
+}
+
 export async function listNotebookEntries(courseId?: number): Promise<any[]> {
     const params = new URLSearchParams();
     if (courseId) params.append("course_id", String(courseId));
@@ -100,6 +114,7 @@ export const agentService = {
   createNewSession: createNewAgentSession,
   getSessionMessages: getSessionMessages,
   deleteSession: deleteAgentSession,
+  renameSession: renameAgentSession,
   listNotebook: listNotebookEntries,
   deleteNotebookEntry: deleteNotebookEntry,
 };

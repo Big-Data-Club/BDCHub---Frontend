@@ -26,6 +26,10 @@ export interface ChatMessage {
   senderAvatar: string;
   body: string;
   isDeleted: boolean;
+  isEdited: boolean;
+  parentId?: number | null;
+  parentSenderName?: string;
+  parentBody?: string;
   createdAt: string;
 }
 
@@ -42,9 +46,9 @@ export interface ChannelRoleEntry {
 }
 
 export interface WSEvent {
-  type: "message" | "delete" | "typing" | "join" | "leave" | "ping" | "ack";
+  type: "message" | "delete" | "edit" | "typing" | "join" | "leave" | "ping" | "ack";
   channel_id: number;
-  payload: WSMessagePayload | WSTypingPayload | WSDeletePayload | null;
+  payload: WSMessagePayload | WSTypingPayload | WSDeletePayload | WSEditPayload | null;
   ts: string;
 }
 
@@ -54,6 +58,19 @@ export interface WSMessagePayload {
   sender_name: string;
   sender_avatar?: string;
   body: string;
+  is_edited?: boolean;
+  parent_id?: number | null;
+  parent_sender_name?: string;
+  parent_body?: string;
+}
+
+export interface WSEditPayload {
+  id: number;
+  body: string;
+  is_edited: true;
+  parent_id?: number | null;
+  parent_sender_name?: string;
+  parent_body?: string;
 }
 
 export interface WSDeletePayload {
