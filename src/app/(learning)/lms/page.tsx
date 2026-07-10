@@ -124,6 +124,10 @@ export default function LMSRoleSelection() {
 
   return (
     <div className="relative min-h-screen bg-slate-50 dark:bg-[#050B18] flex items-center justify-center p-4 overflow-hidden transition-colors duration-300">
+      {/* Glow ambient background spots */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
+
       {/* Moving Grid Background */}
       <div className="absolute -inset-32 bg-grid-paper pointer-events-none opacity-80 dark:opacity-60 rotate-[10deg] animate-grid-slide" />
       
@@ -141,11 +145,11 @@ export default function LMSRoleSelection() {
             Hệ thống học tập LMS
           </h1>
           {userName && (
-            <p className="text-slate-600 dark:text-slate-400">
-              Xin chào, <span className="font-semibold text-slate-900 dark:text-white">{userName}</span>!
+            <p className="text-slate-700 dark:text-slate-300 font-medium">
+              Xin chào, <span className="font-bold text-blue-600 dark:text-cyan-400">{userName}</span>!
             </p>
           )}
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto leading-relaxed">
             Tài khoản của bạn có <span className="font-semibold text-blue-600 dark:text-cyan-400">{userRoles.length} vai trò</span> trong hệ thống. Vui lòng chọn vai trò để tiếp tục.
           </p>
         </div>
@@ -165,15 +169,15 @@ export default function LMSRoleSelection() {
                 {/* Main Interactive Card */}
                 <button
                   onClick={() => selectRole(role)}
-                  className="relative w-full h-full flex flex-col items-start bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-8 text-left transition-all duration-300 transform translate-x-0 translate-y-0 group-hover:-translate-x-1 group-hover:-translate-y-1 hover:border-blue-500/30 dark:hover:border-blue-500/30 dark:hover:bg-[#13233c] cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40 z-10"
+                  className="relative w-full h-full flex flex-col items-start bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl p-8 text-left transition-all duration-300 transform translate-x-0 translate-y-0 group-hover:-translate-x-1 group-hover:-translate-y-1 hover:border-blue-500/40 dark:hover:border-cyan-400/30 dark:hover:bg-[#12223a] dark:hover:shadow-[0_0_20px_rgba(6,182,212,0.1)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40 z-10"
                 >
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-cyan-400 mb-6 group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white dark:group-hover:bg-cyan-500 dark:group-hover:text-slate-950 transition-all duration-300">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-cyan-400 mb-6 group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white dark:group-hover:bg-cyan-500 dark:group-hover:text-slate-950 transition-all duration-300 border border-transparent dark:border-cyan-500/10">
                     <Icon className="w-6 h-6" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">
                     {option.label}
                   </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
+                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
                     {option.description}
                   </p>
                   <div className="flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-cyan-400 mt-auto group-hover:gap-2.5 transition-all">
@@ -190,12 +194,12 @@ export default function LMSRoleSelection() {
         <div className="text-center space-y-3">
           <button
             onClick={() => router.push("/")}
-            className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors group"
+            className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors group font-semibold"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span>Quay lại trang chủ</span>
           </button>
-          <div className="text-xs text-slate-400 dark:text-slate-500">
+          <div className="text-xs text-slate-500 dark:text-slate-500">
             Bạn có thể thay đổi vai trò bất cứ lúc nào từ menu trong dashboard
           </div>
         </div>

@@ -39,20 +39,20 @@ export function CourseCard({
   return (
     <div
       className={cn(
-        "bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800",
-        "shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden",
-        onClick && "cursor-pointer hover:border-blue-300 dark:hover:border-blue-700",
+        "bg-white dark:bg-lms-card rounded-2xl border border-slate-200 dark:border-blue-500/15",
+        "shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden",
+        onClick && "cursor-pointer hover:border-blue-400 dark:hover:border-blue-500/30 hover:scale-[1.01] transition-all",
         className
       )}
       onClick={onClick}
     >
       {/* Thumbnail */}
-      <div className="h-36 bg-gradient-to-br from-blue-100 to-slate-100 dark:from-blue-900/30 dark:to-slate-800 overflow-hidden relative">
+      <div className="h-36 bg-gradient-to-br from-blue-50 to-slate-100 dark:from-blue-950/20 dark:to-[#0D192E] overflow-hidden relative">
         {thumbnailUrl ? (
           <Image src={thumbnailUrl} alt={title} fill className="object-cover" />
         ) : (
           <div className="flex items-center justify-center h-full">
-            <BookOpen className="w-12 h-12 text-blue-300 dark:text-blue-700" />
+            <BookOpen className="w-12 h-12 text-blue-300 dark:text-blue-900/40" />
           </div>
         )}
         {status === "DRAFT" && (
@@ -96,7 +96,7 @@ export function CourseCard({
 
         {/* Footer row */}
         {(enrollmentCount !== undefined || actions) && (
-          <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3 mt-1">
+          <div className="flex items-center justify-between border-t border-slate-100 dark:border-blue-500/10 pt-3 mt-1">
             {enrollmentCount !== undefined && (
               <span className="text-xs text-slate-500 dark:text-slate-500 flex items-center gap-1">
                 <Users className="w-3.5 h-3.5" />{enrollmentCount} học viên

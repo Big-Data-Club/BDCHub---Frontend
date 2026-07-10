@@ -9,17 +9,22 @@ export function ProgressBar({
   label?: string; showPercent?: boolean; className?: string;
 }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
-  const TRACK = { blue: "bg-blue-600", green: "bg-green-500", purple: "bg-purple-500", orange: "bg-orange-500" };
+  const TRACK = {
+    blue: "bg-blue-600 dark:bg-cyan-500",
+    green: "bg-green-500 dark:bg-green-400",
+    purple: "bg-purple-500 dark:bg-purple-400",
+    orange: "bg-orange-500 dark:bg-orange-400"
+  };
 
   return (
     <div className={className}>
       {(label || showPercent) && (
         <div className="flex justify-between items-center mb-1.5">
-          {label && <span className="text-sm text-slate-600 dark:text-slate-400">{label}</span>}
-          {showPercent && <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{pct}%</span>}
+          {label && <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">{label}</span>}
+          {showPercent && <span className="text-sm font-bold text-slate-700 dark:text-cyan-400">{pct}%</span>}
         </div>
       )}
-      <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+      <div className="h-2 bg-slate-100 dark:bg-lms-input rounded-full overflow-hidden border dark:border-blue-500/5">
         <div
           className={cn("h-full rounded-full transition-all duration-500", TRACK[color])}
           style={{ width: `${pct}%` }}
