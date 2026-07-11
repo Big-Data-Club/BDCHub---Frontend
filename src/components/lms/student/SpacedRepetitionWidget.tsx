@@ -11,11 +11,12 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  Sparkles, Brain, CheckCircle2, X, Clock,
-  ChevronRight, RotateCcw, AlertCircle, Calendar
+  Sparkles, Brain, CheckCircle2, X,
+  ChevronRight, RotateCcw, AlertCircle
 } from "lucide-react";
 import aiService, { DueReview, ReviewStats } from "@/services/aiService";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
   courseId: number;
@@ -119,52 +120,92 @@ export function SpacedRepetitionWidget({ courseId }: Props) {
     const dueToday = stats?.due_today ?? 0;
 
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-950/30 flex items-center justify-center border border-violet-200 dark:border-violet-800">
-            <Brain className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-          </div>
-          <div>
-            <p className="font-bold text-slate-900 dark:text-slate-50">Ôn tập thông minh</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Spaced Repetition (SM-2)</p>
-          </div>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 flex flex-col gap-3.5 font-[var(--font-body)]">
+        {/* Header Title */}
+        <div className="flex items-center gap-2 text-xs font-extrabold text-violet-600 dark:text-violet-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800/40 pb-2.5">
+          <Brain className="w-3.5 h-3.5 text-violet-500" />
+          <span>Ôn tập thông minh SM-2</span>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800">
-          {[
-            { icon: <Clock className="w-4 h-4 text-red-500" />, label: "Hôm nay", value: stats?.due_today ?? 0, accent: (stats?.due_today ?? 0) > 0 ? "text-red-600 dark:text-red-400" : "" },
-            { icon: <Calendar className="w-4 h-4 text-blue-500" />, label: "Sắp tới", value: stats?.upcoming ?? 0, accent: "" },
-            { icon: <CheckCircle2 className="w-4 h-4 text-emerald-500" />, label: "Đang theo dõi", value: stats?.total_tracked ?? 0, accent: "" },
-          ].map((s) => (
-            <div key={s.label} className="flex flex-col items-center py-4 gap-1">
-              {s.icon}
-              <p className={cn("text-xl font-extrabold text-slate-900 dark:text-slate-50", s.accent)}>{s.value}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{s.label}</p>
-            </div>
-          ))}
-        </div>
+        {/* Content Row */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* Left: Stats */}
+          <TooltipProvider delayDuration={50}>
+            <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto flex-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-col items-center px-3 sm:px-5 flex-1 sm:flex-initial cursor-pointer">
+                    <span className={cn("text-xl font-black font-[var(--font-display)] leading-none text-slate-900 dark:text-slate-50", dueToday > 0 ? "text-red-500 dark:text-red-400" : "")}>
+                      {stats?.due_today ?? 0}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mt-1.5">
+                      Hôm nay
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs max-w-[220px] text-center bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 text-slate-900 dark:text-white rounded-xl shadow-lg px-3 py-1.5 font-semibold">
+                  Số câu hỏi đã đến hạn cần ôn tập ngay hôm nay
+                </TooltipContent>
+              </Tooltip>
 
-        {/* Action */}
-        <div className="px-5 pb-5">
-          {dueToday > 0 ? (
-            <button
-              onClick={startSession}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-all active:scale-95 shadow-sm"
-            >
-              <Sparkles className="w-4 h-4" />
-              Ôn tập ngay ({dueToday} câu)
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          ) : (
-            <div className="flex items-center gap-2 py-3 px-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                Xong rồi! Không có gì cần ôn hôm nay.
-              </p>
+              <div className="w-[1px] h-7 bg-slate-200 dark:bg-slate-800/80 flex-shrink-0" />
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-col items-center px-3 sm:px-5 flex-1 sm:flex-initial cursor-pointer">
+                    <span className="text-xl font-black font-[var(--font-display)] leading-none text-slate-800 dark:text-slate-200">
+                      {stats?.upcoming ?? 0}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mt-1.5">
+                      Sắp tới
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs max-w-[220px] text-center bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 text-slate-900 dark:text-white rounded-xl shadow-lg px-3 py-1.5 font-semibold">
+                  Số câu hỏi đã học và sẽ đến hạn ôn tập trong tương lai gần
+                </TooltipContent>
+              </Tooltip>
+
+              <div className="w-[1px] h-7 bg-slate-200 dark:bg-slate-800/80 flex-shrink-0" />
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-col items-center px-3 sm:px-5 flex-1 sm:flex-initial cursor-pointer">
+                    <span className="text-xl font-black font-[var(--font-display)] leading-none text-slate-800 dark:text-slate-200">
+                      {stats?.total_tracked ?? 0}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mt-1.5">
+                      Theo dõi
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs max-w-[220px] text-center bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 text-slate-900 dark:text-white rounded-xl shadow-lg px-3 py-1.5 font-semibold">
+                  Tổng số câu hỏi đang được thuật toán theo dõi tiến trình nhớ/quên
+                </TooltipContent>
+              </Tooltip>
             </div>
-          )}
+          </TooltipProvider>
+
+          {/* Right: Action */}
+          <div className="w-full sm:w-auto flex-shrink-0">
+            {dueToday > 0 ? (
+              <button
+                onClick={startSession}
+                className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm rounded-xl transition-all active:scale-95 shadow-sm font-[var(--font-display)]"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Ôn ngay ({dueToday})
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <div className="flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800/50 font-[var(--font-display)]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                  Đã hoàn thành
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

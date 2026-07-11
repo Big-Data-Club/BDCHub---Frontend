@@ -34,11 +34,11 @@ const ACCENT_COMIC_ICON = {
 };
 
 const BAR_ACCENT = {
-  blue: "before:bg-blue-600 dark:before:bg-cyan-500",
-  green: "before:bg-green-500 dark:before:bg-green-400",
-  purple: "before:bg-purple-500 dark:before:bg-purple-400",
-  orange: "before:bg-orange-500 dark:before:bg-orange-400",
-  red: "before:bg-red-500 dark:before:bg-red-400",
+  blue: "before:border-blue-600 dark:before:border-cyan-500",
+  green: "before:border-green-500 dark:before:border-green-400",
+  purple: "before:border-purple-500 dark:before:border-purple-400",
+  orange: "before:border-orange-500 dark:before:border-orange-400",
+  red: "before:border-red-500 dark:before:border-red-400",
 };
 
 const MINIMAL_BG = {
@@ -204,7 +204,7 @@ export function StatCard({
       "bg-white dark:bg-[#0F1E35] rounded-2xl border border-slate-200 dark:border-blue-500/15",
       "shadow-sm p-6 flex flex-col relative overflow-hidden",
       "hover:border-blue-300 dark:hover:border-blue-500/25 transition-all duration-200",
-      "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1",
+      "before:absolute before:content-[''] before:-left-px before:-top-px before:-bottom-px before:w-6 before:rounded-l-2xl before:border-l-[10px] before:border-t-px before:border-b-px before:border-r-0 before:transition-all before:duration-200 hover:before:border-l-[13px]",
       BAR_ACCENT[accent]
     );
   }
