@@ -49,8 +49,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         <div className="absolute top-10 left-10 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-        {/* Moving Grid Background */}
-        <div className="absolute -inset-32 bg-grid-paper pointer-events-none opacity-40 dark:opacity-20 rotate-[10deg] animate-grid-slide" />
+
 
         {/* Smooth radial gradient overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#f1f5f9_95%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_60%,#050B18_95%)] pointer-events-none" />
@@ -124,7 +123,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             </div>
           </header>
 
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-grow">
+          <main className="w-full flex-grow flex flex-col">
             {children}
           </main>
         </div>
