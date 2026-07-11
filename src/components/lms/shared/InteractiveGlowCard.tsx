@@ -10,6 +10,7 @@ interface InteractiveGlowCardProps extends React.HTMLAttributes<HTMLDivElement> 
   showGlow?: boolean;
   showOffset?: boolean;
   isSelected?: boolean;
+  innerClassName?: string;
 }
 
 const GLOW_COLOR = {
@@ -47,6 +48,7 @@ export function InteractiveGlowCard({
   showGlow = true,
   showOffset = true,
   isSelected = false,
+  innerClassName,
   ...props
 }: InteractiveGlowCardProps) {
   return (
@@ -84,7 +86,8 @@ export function InteractiveGlowCard({
                 "relative z-10 transform translate-x-0 translate-y-0 group-hover:-translate-x-1 group-hover:-translate-y-1 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40",
                 HOVER_BORDER[accentColor]
               )
-            : ""
+            : "",
+          innerClassName
         )}
       >
         {children}

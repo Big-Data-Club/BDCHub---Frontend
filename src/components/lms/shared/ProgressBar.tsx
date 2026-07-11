@@ -24,7 +24,7 @@ export function ProgressBar({
           {showPercent && <span className="text-sm font-bold text-slate-700 dark:text-cyan-400">{pct}%</span>}
         </div>
       )}
-      <div className="h-2 bg-slate-100 dark:bg-lms-input rounded-full overflow-hidden border dark:border-blue-500/5">
+      <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
         <div
           className={cn("h-full rounded-full transition-all duration-500", TRACK[color])}
           style={{ width: `${pct}%` }}

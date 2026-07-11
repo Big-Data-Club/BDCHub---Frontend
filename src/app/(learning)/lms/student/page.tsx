@@ -44,6 +44,7 @@ export default function StudentDashboard() {
   const [acceptedEnrollments, setAcceptedEnrollments] = useState<Enrollment[]>([]);
   const [loadingEnrolled, setLoadingEnrolled] = useState(true);
   const [error, setError] = useState("");
+  const [courseSearchQuery, setCourseSearchQuery] = useState("");
 
   // Selected Course details for Analytics
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
@@ -202,7 +203,7 @@ export default function StudentDashboard() {
     <div className="flex flex-col min-h-screen w-full">
 
       {/* ── Header with Grid Background (Full-width, tràn viền) ── */}
-      <div className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/20 dark:bg-[#070E1C]/20 backdrop-blur-xs py-8 md:py-10">
+      <div className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/20 dark:bg-[#070E1C]/20 backdrop-blur-xs py-4 md:py-5">
         {/* Tilted Grid background utilizing the exact global css class bg-grid-paper (40px 40px) and slide animation */}
         <div className="absolute -inset-32 bg-grid-paper pointer-events-none opacity-40 dark:opacity-20 rotate-[10deg] animate-grid-slide" />
 
@@ -212,18 +213,18 @@ export default function StudentDashboard() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 w-full">
           <div className="min-w-0 flex-1 lg:max-w-md">
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
               Tổng quan học tập
             </h1>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">
               Theo dõi tiến độ, phân tích và tối ưu hóa lộ trình học tập của bạn.
             </p>
-            <div className="mt-4">
+            <div className="mt-3.5">
               <GhostBtn
                 size="sm"
                 icon={<RefreshCw className="w-3.5 h-3.5" />}
                 onClick={loadAllData}
-                className="active:scale-95 border border-slate-255 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
+                className="active:scale-95 border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
               >
                 Làm mới dữ liệu
               </GhostBtn>
@@ -255,10 +256,10 @@ export default function StudentDashboard() {
         {error && <Alert type="error">{error}</Alert>}
 
         {/* ── Dashboard Layout ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* ── Left Column: Main Area (lg:col-span-2) ── */}
-          <div className="lg:col-span-2 space-y-8 min-w-0">
+          <div className="lg:col-span-8 space-y-8 min-w-0 order-last">
 
             {/* ── Selected Course Analytics ── */}
             {selectedCourseId ? (
@@ -276,21 +277,23 @@ export default function StudentDashboard() {
                     </h3>
                   </div>
 
-                  <Select
-                    value={selectedCourseId ? String(selectedCourseId) : ""}
-                    onValueChange={val => setSelectedCourseId(Number(val))}
-                  >
-                    <SelectTrigger className="w-full sm:w-[240px] h-10 border border-slate-250 dark:border-blue-500/20 rounded-xl text-sm bg-white dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 transition-all flex-shrink-0 font-semibold shadow-sm">
-                      <SelectValue placeholder="Chọn khóa học" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-[#0D192E] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
-                      {acceptedEnrollments.map(e => (
-                        <SelectItem key={e.course_id} value={String(e.course_id)} className="cursor-pointer">
-                          {e.course_title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="lg:hidden w-full sm:w-auto">
+                    <Select
+                      value={selectedCourseId ? String(selectedCourseId) : ""}
+                      onValueChange={val => setSelectedCourseId(Number(val))}
+                    >
+                      <SelectTrigger className="w-full sm:w-[240px] h-10 border border-slate-250 dark:border-blue-500/20 rounded-xl text-sm bg-white dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 transition-all flex-shrink-0 font-semibold shadow-sm">
+                        <SelectValue placeholder="Chọn khóa học" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white dark:bg-[#0D192E] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                        {acceptedEnrollments.map(e => (
+                          <SelectItem key={e.course_id} value={String(e.course_id)} className="cursor-pointer">
+                            {e.course_title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {loadingAnalytics ? (
@@ -342,7 +345,7 @@ export default function StudentDashboard() {
                       <div className="space-y-6" role="tabpanel">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {/* Format completion chart */}
-                          <InteractiveGlowCard interactive={true} accentColor="blue" className="p-0 overflow-hidden">
+                          <InteractiveGlowCard interactive={false} accentColor="blue" className="p-0 overflow-hidden">
                             <div className="p-4 flex flex-col h-[320px]">
                               <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm mb-4 flex items-center gap-2">
                                 <Layers className="w-4 h-4 text-blue-500 dark:text-cyan-400" />
@@ -374,7 +377,7 @@ export default function StudentDashboard() {
                           </InteractiveGlowCard>
 
                           {/* Section completion checklist */}
-                          <InteractiveGlowCard interactive={true} accentColor="green" className="p-0 overflow-hidden">
+                          <InteractiveGlowCard interactive={false} accentColor="green" className="p-0 overflow-hidden">
                             <div className="p-4 flex flex-col h-[320px]">
                               <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm mb-4 flex items-center gap-2">
                                 <ListTodo className="w-4 h-4 text-emerald-500" />
@@ -417,7 +420,7 @@ export default function StudentDashboard() {
                       <div className="space-y-6" role="tabpanel">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {/* Radar Chart */}
-                          <InteractiveGlowCard interactive={true} accentColor="cyan" className="p-0 overflow-hidden">
+                          <InteractiveGlowCard interactive={false} accentColor="cyan" className="p-0 overflow-hidden">
                             <div className="p-4 flex flex-col h-[320px]">
                               <h4 className="font-bold text-slate-850 dark:text-slate-200 text-sm mb-4 flex items-center gap-2">
                                 <Target className="w-4 h-4 text-blue-500 dark:text-cyan-400" />
@@ -452,8 +455,8 @@ export default function StudentDashboard() {
                             </div>
                           </InteractiveGlowCard>
 
-                          {/* Quiz results */}
-                          <InteractiveGlowCard interactive={true} accentColor="orange" className="p-0 overflow-hidden">
+                           {/* Quiz results */}
+                          <InteractiveGlowCard interactive={false} accentColor="orange" className="p-0 overflow-hidden">
                             <div className="p-4 flex flex-col h-[320px] justify-between">
                               <div>
                                 <h4 className="font-bold text-slate-855 dark:text-slate-200 text-sm mb-4 flex items-center gap-2">
@@ -507,7 +510,7 @@ export default function StudentDashboard() {
                         {/* Quick check and Spaced Rep quiz results */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {microInteractions && microInteractions.total_interactions > 0 && (
-                            <InteractiveGlowCard interactive={true} accentColor="green" className="p-0 overflow-hidden">
+                            <InteractiveGlowCard interactive={false} accentColor="green" className="p-0 overflow-hidden">
                               <div className="p-4 flex flex-col">
                                 <h4 className="font-bold text-slate-855 dark:text-slate-200 text-sm mb-4 flex items-center gap-2">
                                   <CheckSquare className="w-4 h-4 text-emerald-500" />
@@ -534,7 +537,7 @@ export default function StudentDashboard() {
                           )}
 
                           {spacedRepQuizzes && spacedRepQuizzes.total_tracked > 0 && (
-                            <InteractiveGlowCard interactive={true} accentColor="purple" className="p-0 overflow-hidden">
+                            <InteractiveGlowCard interactive={false} accentColor="purple" className="p-0 overflow-hidden">
                               <div className="p-4 flex flex-col">
                                 <h4 className="font-bold text-slate-855 dark:text-slate-200 text-sm mb-4 flex items-center gap-2">
                                   <TrendingUp className="w-4 h-4 text-violet-500 dark:text-violet-400" />
@@ -563,7 +566,7 @@ export default function StudentDashboard() {
 
                     {analyticsTab === "flashcards" && (
                       <div className="space-y-6" role="tabpanel">
-                        <InteractiveGlowCard interactive={true} accentColor="purple" className="p-0 overflow-hidden">
+                        <InteractiveGlowCard interactive={false} accentColor="purple" className="p-0 overflow-hidden">
                           <div className="p-6">
                             <h4 className="font-bold text-slate-855 dark:text-slate-200 text-sm mb-4 flex items-center gap-2">
                               <Brain className="w-4 h-4 text-violet-500" />
@@ -660,36 +663,58 @@ export default function StudentDashboard() {
           </div>
 
           {/* ── Right Column: Sidebar (lg:col-span-1) ── */}
-          <div className="lg:col-span-1 space-y-6 min-w-0">
+          <div className="lg:col-span-4 space-y-6 min-w-0 order-first">
 
             {/* ── Courses List ── */}
-            <InteractiveGlowCard interactive={false} className="flex flex-col p-0 overflow-hidden">
-              <div className="px-6 pt-5 pb-4 border-b border-slate-200/60 dark:border-blue-500/10 bg-slate-50/50 dark:bg-[#0A1628]/30">
-                <h2 className="text-base font-bold text-slate-900 dark:text-slate-50">
-                  Học phần của tôi
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Chọn học phần bên dưới để xem phân tích chi tiết.
-                </p>
+            <div className="flex flex-col gap-4">
+              <div className="pb-3 border-b border-slate-200 dark:border-blue-500/10 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-slate-50">
+                    Học phần của tôi
+                  </h2>
+                  <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-blue-50 dark:bg-blue-900/35 text-blue-600 dark:text-cyan-400 font-bold border border-blue-100 dark:border-blue-500/20">
+                    {acceptedEnrollments.length}
+                  </span>
+                </div>
               </div>
 
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                {loadingEnrolled ? (
-                  <PageLoader message="Đang tải danh sách..." />
-                ) : acceptedEnrollments.length === 0 ? (
-                  <EmptyState
-                    icon={<BookOpen className="w-10 h-10 text-slate-400" />}
-                    title="Chưa đăng ký môn nào"
-                    description="Hãy khám phá và đăng ký khóa học phù hợp với bạn để bắt đầu."
-                    action={
-                      <PrimaryBtn icon={<Search className="w-4 h-4" />} onClick={() => router.push("/lms/student/discover")}>
-                        Khám phá khóa học
-                      </PrimaryBtn>
-                    }
+              {acceptedEnrollments.length > 0 && (
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm học phần..."
+                    value={courseSearchQuery}
+                    onChange={(e) => setCourseSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0D192E] border border-slate-200 dark:border-blue-500/15 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#0A1628] focus:outline-none focus:ring-2 focus:ring-blue-500/10 dark:focus:ring-cyan-400/10 focus:border-blue-500 dark:focus:border-cyan-450/40 transition-all duration-200 font-medium shadow-xs"
                   />
-                ) : (
-                  <div className="space-y-4">
-                    {acceptedEnrollments.map(en => {
+                </div>
+              )}
+
+              {loadingEnrolled ? (
+                <PageLoader message="Đang tải danh sách..." />
+              ) : acceptedEnrollments.length === 0 ? (
+                <EmptyState
+                  icon={<BookOpen className="w-10 h-10 text-slate-400" />}
+                  title="Chưa đăng ký môn nào"
+                  description="Hãy khám phá và đăng ký khóa học phù hợp với bạn để bắt đầu."
+                  action={
+                    <PrimaryBtn icon={<Search className="w-4 h-4" />} onClick={() => router.push("/lms/student/discover")}>
+                      Khám phá khóa học
+                    </PrimaryBtn>
+                  }
+                />
+              ) : acceptedEnrollments.filter(en => (en.course_title || "").toLowerCase().includes(courseSearchQuery.toLowerCase())).length === 0 ? (
+                <div className="text-center py-8">
+                  <Search className="w-10 h-10 text-slate-350 dark:text-slate-700 mx-auto mb-2" />
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Không tìm thấy học phần phù hợp.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {acceptedEnrollments
+                    .filter(en => (en.course_title || "").toLowerCase().includes(courseSearchQuery.toLowerCase()))
+                    .map(en => {
                       const isSelected = en.course_id === selectedCourseId;
                       return (
                         <ProgressCard
@@ -699,15 +724,15 @@ export default function StudentDashboard() {
                           teacherName={en.teacher_name}
                           progress={en.progress_percent || 0}
                           isSelected={isSelected}
+                          enrolledAt={en.accepted_at || en.enrolled_at}
                           onClick={() => setSelectedCourseId(en.course_id)}
                           onOpenDetails={() => router.push(`/lms/student/courses/${en.course_id}`)}
                         />
                       );
                     })}
-                  </div>
-                )}
-              </div>
-            </InteractiveGlowCard>
+                </div>
+              )}
+            </div>
 
           </div>
 
