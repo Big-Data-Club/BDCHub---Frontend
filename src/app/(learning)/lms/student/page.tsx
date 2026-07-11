@@ -20,7 +20,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
-import { FocusCard } from "@/components/lms/student/FocusCard";
+import { CourseProgressAndGoalCard } from "@/components/lms/student/CourseProgressAndGoalCard";
 import {
   Tooltip as UITooltip,
   TooltipTrigger,
@@ -210,121 +210,40 @@ export default function StudentDashboard() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-100/40 to-slate-100 dark:via-[#050B18]/40 dark:to-[#050B18] pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_60%,#f1f5f9_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_60%,#050B18_100%)] pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 flex items-start justify-between gap-6 flex-wrap w-full">
-          <div className="min-w-0 flex-1 max-w-xl">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 w-full">
+          <div className="min-w-0 flex-1 lg:max-w-md">
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
               Tổng quan học tập
             </h1>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">
-              Theo dõi tiến độ, phân tích năng lực và tối ưu hóa lộ trình học tập của bạn.
+              Theo dõi tiến độ, phân tích và tối ưu hóa lộ trình học tập của bạn.
             </p>
             <div className="mt-4">
               <GhostBtn
                 size="sm"
                 icon={<RefreshCw className="w-3.5 h-3.5" />}
                 onClick={loadAllData}
-                className="hover:scale-[1.02] active:scale-95 border border-slate-250 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
+                className="active:scale-95 border border-slate-255 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
               >
                 Làm mới dữ liệu
               </GhostBtn>
             </div>
           </div>
 
-          <div className="w-full md:w-[450px] flex-shrink-0">
-            {loadingEnrolled ? (
-              <div className="h-[140px] bg-slate-50/50 dark:bg-[#0D192E]/50 rounded-2xl border border-slate-200/80 dark:border-blue-500/10 animate-pulse" />
-            ) : (
-              <div className="bg-white/80 dark:bg-[#0D192E]/80 backdrop-blur-xs border border-slate-200/85 dark:border-blue-500/15 rounded-2xl p-5 shadow-xs hover:border-blue-300 dark:hover:border-blue-500/25 transition-all duration-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-blue-50/80 text-blue-600 dark:bg-blue-950/60 dark:text-cyan-400 border border-blue-200/50 dark:border-cyan-500/20">
-                    <TrendingUp className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">Tiến độ khóa học</h4>
-                  </div>
-                </div>
-
-                {totalCount === 0 ? (
-                  <div className="text-center py-2 text-xs text-slate-500 dark:text-slate-400">
-                    Chưa đăng ký khóa học nào
-                  </div>
-                ) : (
-                  <>
-                    {/* Segmented Progress Bar */}
-                    <TooltipProvider delayDuration={55}>
-                      <div className="h-3 rounded-full overflow-hidden flex bg-slate-200 dark:bg-[#080F1E] mb-4 border dark:border-blue-500/5">
-                        {completedCount > 0 && (
-                          <UITooltip>
-                            <TooltipTrigger asChild>
-                              <div
-                                style={{ width: `${completedPercent}%` }}
-                                className="bg-emerald-500 dark:bg-emerald-450 transition-all duration-300 hover:brightness-110 hover:scale-y-125 cursor-pointer"
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 text-slate-900 dark:text-white rounded-xl shadow-lg px-3 py-1.5 text-xs font-semibold">
-                              Đã xong: {completedCount} khóa ({Math.round(completedPercent)}%)
-                            </TooltipContent>
-                          </UITooltip>
-                        )}
-                        {inProgressCount > 0 && (
-                          <UITooltip>
-                            <TooltipTrigger asChild>
-                              <div
-                                style={{ width: `${inProgressPercent}%` }}
-                                className="bg-blue-600 dark:bg-cyan-500 transition-all duration-300 hover:brightness-110 hover:scale-y-125 cursor-pointer"
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 text-slate-900 dark:text-white rounded-xl shadow-lg px-3 py-1.5 text-xs font-semibold">
-                              Đang học: {inProgressCount} khóa ({Math.round(inProgressPercent)}%)
-                            </TooltipContent>
-                          </UITooltip>
-                        )}
-                        {notStartedCount > 0 && (
-                          <UITooltip>
-                            <TooltipTrigger asChild>
-                              <div
-                                style={{ width: `${notStartedPercent}%` }}
-                                className="bg-slate-300 dark:bg-slate-700 transition-all duration-300 hover:brightness-110 hover:scale-y-125 cursor-pointer"
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 text-slate-900 dark:text-white rounded-xl shadow-lg px-3 py-1.5 text-xs font-semibold">
-                              Chưa học: {notStartedCount} khóa ({Math.round(notStartedPercent)}%)
-                            </TooltipContent>
-                          </UITooltip>
-                        )}
-                      </div>
-                    </TooltipProvider>
-
-                    {/* Legend Details */}
-                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200/60 dark:border-blue-500/10">
-                      <div className="flex flex-col items-center justify-center text-center">
-                        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-450 flex-shrink-0" />
-                          <span>Đã xong</span>
-                        </div>
-                        <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5 w-full text-center">{completedCount}</p>
-                      </div>
-
-                      <div className="flex flex-col items-center justify-center text-center border-x border-slate-200/60 dark:border-blue-500/10">
-                        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                          <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-cyan-500 flex-shrink-0" />
-                          <span>Đang học</span>
-                        </div>
-                        <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5 w-full text-center">{inProgressCount}</p>
-                      </div>
-
-                      <div className="flex flex-col items-center justify-center text-center">
-                        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                          <span className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-650 flex-shrink-0" />
-                          <span>Chưa học</span>
-                        </div>
-                        <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5 w-full text-center">{notStartedCount}</p>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+          <div className="w-full lg:max-w-2xl xl:max-w-3xl flex-shrink-0">
+            <CourseProgressAndGoalCard
+              focusCourse={focusCourse}
+              totalCount={totalCount}
+              completedCount={completedCount}
+              inProgressCount={inProgressCount}
+              notStartedCount={notStartedCount}
+              completedPercent={completedPercent}
+              inProgressPercent={inProgressPercent}
+              notStartedPercent={notStartedPercent}
+              loading={loadingEnrolled}
+              onNavigateToCourse={(courseId) => router.push(`/lms/student/courses/${courseId}`)}
+              onNavigateToDiscover={() => router.push("/lms/student/discover")}
+            />
           </div>
         </div>
       </div>
@@ -742,28 +661,6 @@ export default function StudentDashboard() {
 
           {/* ── Right Column: Sidebar (lg:col-span-1) ── */}
           <div className="lg:col-span-1 space-y-6 min-w-0">
-
-            {/* ── Overall Stats ── */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Hành trình học tập của tôi
-              </h3>
-
-              {loadingEnrolled ? (
-                <div className="space-y-4">
-                  <div className="h-[180px] bg-white dark:bg-[#0F1E35] rounded-2xl border border-slate-200 dark:border-blue-500/10 animate-pulse" />
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <FocusCard
-                    focusCourse={focusCourse}
-                    totalCount={totalCount}
-                    onNavigateToCourse={(courseId) => router.push(`/lms/student/courses/${courseId}`)}
-                    onNavigateToDiscover={() => router.push("/lms/student/discover")}
-                  />
-                </div>
-              )}
-            </div>
 
             {/* ── Courses List ── */}
             <InteractiveGlowCard interactive={false} className="flex flex-col p-0 overflow-hidden">
