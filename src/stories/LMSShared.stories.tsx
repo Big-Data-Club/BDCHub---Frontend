@@ -100,7 +100,7 @@ function InteractiveLMSDemo() {
                 </div>
                 <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-1">Cyan Highlight Card</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-                  This card utilizes the new `accentColor="cyan"` prop. Notice the vertical strip on the left adding visual anchor.
+                  This card utilizes the new `accentColor=&quot;cyan&quot;` prop. Notice the vertical strip on the left adding visual anchor.
                 </p>
                 <div className="w-full bg-slate-100 dark:bg-lms-input rounded-xl p-3 border dark:border-blue-500/5">
                   <ProgressBar value={72} max={100} color="blue" label="Tiến trình học máy" />
@@ -668,9 +668,9 @@ function AdvancedComicEffectsDemo() {
                   <span>💻</span> Chi tiết kỹ thuật (Tailwind & Param)
                 </h4>
                 <div className="space-y-2 text-[11px] font-mono leading-relaxed bg-slate-900 text-slate-300 p-3.5 rounded-xl overflow-x-auto border border-blue-500/10">
-                  <div className="text-cyan-400 font-bold">// Các class Tailwind cốt lõi:</div>
+                  <div className="text-cyan-400 font-bold">{"// Các class Tailwind cốt lõi:"}</div>
                   <pre className="whitespace-pre-wrap">{LMS_EFFECT_DOCS[selectedDocKey].technical.classes}</pre>
-                  <div className="text-cyan-400 font-bold mt-2">// Thông số tối ưu:</div>
+                  <div className="text-cyan-400 font-bold mt-2">{"// Thông số tối ưu:"}</div>
                   <pre className="whitespace-pre-wrap">{LMS_EFFECT_DOCS[selectedDocKey].technical.parameters}</pre>
                 </div>
               </div>

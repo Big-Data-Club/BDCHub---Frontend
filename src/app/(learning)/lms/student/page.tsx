@@ -20,6 +20,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
+import { FocusCard } from "@/components/lms/student/FocusCard";
 import {
   Tooltip as UITooltip,
   TooltipTrigger,
@@ -214,8 +215,8 @@ export default function StudentDashboard() {
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
               Tổng quan học tập
             </h1>
-            <p className="text-sm text-slate-655 dark:text-slate-350 mt-2 font-medium">
-              Phân tích thông minh lộ trình học, năng lực kiểm tra bài tập và tiến độ hoàn thành các chủ đề kiến thức của bạn.
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">
+              Theo dõi tiến độ, phân tích năng lực và tối ưu hóa lộ trình học tập của bạn.
             </p>
             <div className="mt-4">
               <GhostBtn
@@ -239,8 +240,7 @@ export default function StudentDashboard() {
                     <TrendingUp className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">Tiến độ tổng quát</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Phân bổ trạng thái khóa học</p>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">Tiến độ khóa học</h4>
                   </div>
                 </div>
 
@@ -303,7 +303,6 @@ export default function StudentDashboard() {
                           <span>Đã xong</span>
                         </div>
                         <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5 w-full text-center">{completedCount}</p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold w-full text-center">{Math.round(completedPercent)}%</p>
                       </div>
 
                       <div className="flex flex-col items-center justify-center text-center border-x border-slate-200/60 dark:border-blue-500/10">
@@ -312,7 +311,6 @@ export default function StudentDashboard() {
                           <span>Đang học</span>
                         </div>
                         <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5 w-full text-center">{inProgressCount}</p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold w-full text-center">{Math.round(inProgressPercent)}%</p>
                       </div>
 
                       <div className="flex flex-col items-center justify-center text-center">
@@ -321,7 +319,6 @@ export default function StudentDashboard() {
                           <span>Chưa học</span>
                         </div>
                         <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5 w-full text-center">{notStartedCount}</p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold w-full text-center">{Math.round(notStartedPercent)}%</p>
                       </div>
                     </div>
                   </>
@@ -758,87 +755,12 @@ export default function StudentDashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {/* Focus Card: Actionable Next Step */}
-                  <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl p-5 shadow-sm hover:border-blue-300 dark:hover:border-blue-500/25 transition-all duration-200 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-50/70 text-purple-600 dark:bg-purple-950/20 dark:text-violet-400 border border-purple-200/50 dark:border-purple-500/20">
-                            <Target className="w-4 h-4" />
-                          </div>
-                          <span className="text-xs font-bold text-purple-600 dark:text-violet-400 uppercase tracking-wider">
-                            Mục tiêu học tập
-                          </span>
-                        </div>
-
-                        {focusCourse && focusCourse.progress_percent !== undefined && (
-                          <span className="text-xs font-extrabold text-blue-650 dark:text-cyan-400 bg-blue-50/70 dark:bg-blue-900/30 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-500/20">
-                            {focusCourse.progress_percent}%
-                          </span>
-                        )}
-                      </div>
-
-                      {focusCourse ? (
-                        <div className="space-y-3">
-                          <div>
-                            <h4 className="text-sm font-extrabold text-slate-900 dark:text-white line-clamp-1" title={focusCourse.course_title}>
-                              {focusCourse.course_title}
-                            </h4>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
-                              {focusCourse.progress_percent === 0
-                                ? "Bạn chưa bắt đầu khóa học này. Hãy bắt đầu ngay!"
-                                : `Học tiếp: ${focusCourse.course_title}`
-                              }
-                            </p>
-                          </div>
-
-                          {/* Focus course progress bar */}
-                          {focusCourse.progress_percent !== undefined && focusCourse.progress_percent > 0 && (
-                            <div className="h-1.5 bg-slate-100 dark:bg-[#0D192E] rounded-full overflow-hidden border dark:border-blue-500/5">
-                              <div
-                                className="h-full bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 rounded-full transition-all duration-500"
-                                style={{ width: `${focusCourse.progress_percent}%` }}
-                              />
-                            </div>
-                          )}
-
-                          <PrimaryBtn
-                            onClick={() => router.push(`/lms/student/courses/${focusCourse.course_id}`)}
-                            className="w-full mt-1 bg-purple-600 hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white text-xs font-semibold py-2 rounded-xl transition-all duration-200 active:scale-[0.97] flex items-center justify-center gap-1.5"
-                            icon={<ChevronRight className="w-3.5 h-3.5" />}
-                          >
-                            {focusCourse.progress_percent === 0 ? "Bắt đầu học" : "Học tiếp"}
-                          </PrimaryBtn>
-                        </div>
-                      ) : (
-                        <div className="text-center py-4">
-                          {totalCount > 0 ? (
-                            <div className="space-y-2">
-                              <p className="text-xs text-emerald-500 dark:text-emerald-450 font-bold">🎉 Bạn đã hoàn thành xuất sắc toàn bộ khóa học!</p>
-                              <PrimaryBtn
-                                onClick={() => router.push("/lms/student/discover")}
-                                className="w-full mt-2 text-xs py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl active:scale-[0.97] flex items-center justify-center gap-1.5"
-                                icon={<Search className="w-3.5 h-3.5" />}
-                              >
-                                Tìm khóa học mới
-                              </PrimaryBtn>
-                            </div>
-                          ) : (
-                            <div className="space-y-2">
-                              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Đăng ký khóa học để thiết lập mục tiêu.</p>
-                              <PrimaryBtn
-                                onClick={() => router.push("/lms/student/discover")}
-                                className="w-full mt-2 text-xs py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl active:scale-[0.97] flex items-center justify-center gap-1.5"
-                                icon={<Search className="w-3.5 h-3.5" />}
-                              >
-                                Đăng ký học ngay
-                              </PrimaryBtn>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <FocusCard
+                    focusCourse={focusCourse}
+                    totalCount={totalCount}
+                    onNavigateToCourse={(courseId) => router.push(`/lms/student/courses/${courseId}`)}
+                    onNavigateToDiscover={() => router.push("/lms/student/discover")}
+                  />
                 </div>
               )}
             </div>

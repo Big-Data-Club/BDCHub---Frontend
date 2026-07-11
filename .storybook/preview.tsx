@@ -57,8 +57,35 @@ const preview: Preview = {
               enableSystem={false}
               storageKey="bdc-theme-storybook"
             >
-              <ThemeSync background={bgValue} />
-              <Story />
+              <div className="lms-fonts antialiased min-h-screen w-full">
+                {/* HTML link tags to guarantee Google Fonts are loaded in Storybook */}
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;700&family=Nunito+Sans:ital,wght@0,300;0,400;0,650;0,700;1,400&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet" />
+                
+                {/* Enforce CSS font families for storybook wrappers */}
+                <style>{`
+                  .lms-fonts {
+                    font-family: 'Nunito Sans', sans-serif !important;
+                  }
+                  .lms-fonts h1,
+                  .lms-fonts h2,
+                  .lms-fonts h3,
+                  .lms-fonts h4,
+                  .lms-fonts h5,
+                  .lms-fonts h6 {
+                    font-family: 'Comfortaa', sans-serif !important;
+                  }
+                  .lms-fonts pre,
+                  .lms-fonts code,
+                  .lms-fonts .font-mono {
+                    font-family: 'Geist Mono', monospace !important;
+                  }
+                `}</style>
+
+                <ThemeSync background={bgValue} />
+                <Story />
+              </div>
             </ThemeProvider>
           </SessionProvider>
         </UserProvider>
