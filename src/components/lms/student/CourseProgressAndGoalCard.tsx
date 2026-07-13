@@ -50,12 +50,12 @@ export function CourseProgressAndGoalCard({
   }
 
   return (
-    <div className="bg-white/80 dark:bg-[#0F1E35]/80 backdrop-blur-xs border border-slate-200/85 dark:border-blue-500/15 rounded-2xl p-4 shadow-xs hover:border-blue-300 dark:hover:border-blue-500/25 transition-all duration-200 w-full grid grid-cols-1 md:grid-cols-[1fr_1.25px_1fr] gap-x-6 md:gap-x-6 gap-y-2.5 md:gap-y-1.5 relative">
+    <div className="group/card bg-white/80 dark:bg-[#0F1E35]/80 backdrop-blur-xs border border-slate-200/85 dark:border-blue-500/15 rounded-2xl p-4 shadow-xs hover:border-slate-300 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgba(6,182,212,0.03)] w-full grid grid-cols-1 md:grid-cols-[1fr_1.25px_1fr] gap-x-6 md:gap-x-6 gap-y-2.5 md:gap-y-1.5 relative">
 
       {/* 1. Left column: Title & Info (Col 1, Row 1) */}
       <div className="md:col-start-1 md:row-start-1 flex flex-col justify-start">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-50/80 text-blue-600 dark:bg-blue-950/60 dark:text-cyan-400 border border-blue-200/50 dark:border-cyan-500/20">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-50/80 text-blue-600 dark:bg-blue-950/60 dark:text-cyan-400 border border-blue-200/50 dark:border-cyan-500/20 group-hover/card:scale-105 group-hover/card:bg-blue-100/90 dark:group-hover/card:bg-blue-900/80 transition-all duration-300">
             <TrendingUp className="w-3.5 h-3.5" />
           </div>
           <div>
@@ -162,12 +162,12 @@ export function CourseProgressAndGoalCard({
       </div>
 
       {/* 4. Single unbroken Vertical Divider (Col 2, Row 1-3 Span) */}
-      <div className="hidden md:block md:col-start-2 md:row-start-1 md:row-span-3 w-[1.5px] bg-slate-300/80 dark:bg-blue-500/30 self-stretch my-1 flex-shrink-0" />
+      <div className="hidden md:block md:col-start-2 md:row-start-1 md:row-span-3 w-[1.5px] bg-slate-200 dark:bg-blue-500/15 group-hover/card:bg-blue-300/40 dark:group-hover/card:bg-blue-500/35 self-stretch my-1 transition-all duration-300 flex-shrink-0" />
 
       {/* 5. Right column: Title & Info (Col 3, Row 1) */}
       <div className="md:col-start-3 md:row-start-1 flex flex-col justify-start">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-50/80 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-amber-50/80 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20 group-hover/card:scale-105 group-hover/card:bg-amber-100/90 dark:group-hover/card:bg-amber-900/60 transition-all duration-300">
             <Target className="w-3.5 h-3.5" />
           </div>
           <div>

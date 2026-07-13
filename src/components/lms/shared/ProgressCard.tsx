@@ -53,20 +53,16 @@ export function ProgressCard({
     >
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            {/* Elegant small icon container */}
-            <div
-              className={cn(
-                "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors duration-300",
-                isSelected
-                  ? "bg-blue-600 text-white dark:bg-cyan-500 dark:text-slate-950"
-                  : "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-cyan-400 border border-slate-100 dark:border-cyan-500/10"
-              )}
-            >
-              <BookOpen className="w-4 h-4" />
-            </div>
+          <div className="min-w-0 flex-1">
+              {/* Badge Trạng thái và ID khóa học đưa lên trên tiêu đề */}
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <Badge variant={progress === 100 ? "green" : progress > 0 ? "blue" : "gray"}>
+                  {progress === 100 ? "Đã xong" : progress > 0 ? "Đang học" : "Chưa học"}
+                </Badge>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">#{courseId}</span>
+              </div>
 
-            <div className="min-w-0">
+              {/* Tiêu đề khóa học */}
               <h4
                 className={cn(
                   "font-bold text-sm transition-colors line-clamp-2",
@@ -79,30 +75,24 @@ export function ProgressCard({
                 {title}
               </h4>
               
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
+              {/* Thông tin giảng viên và ngày tham gia trên cùng 1 hàng ngăn cách bởi dấu bullet */}
+              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap text-[11px] text-slate-500 dark:text-slate-400">
                 {teacherName && (
-                  <p className="text-[11px] text-slate-550 dark:text-slate-400 flex items-center gap-1">
-                    <GraduationCap className="w-3.5 h-3.5 text-slate-450" />
+                  <span className="flex items-center gap-1">
+                    <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
                     <span className="truncate">{teacherName}</span>
-                  </p>
+                  </span>
                 )}
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">#{courseId}</span>
-              </div>
-
-              {enrolledAt && (
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  <span>Tham gia: {formatDate(enrolledAt)}</span>
-                </p>
-              )}
+                {teacherName && enrolledAt && (
+                  <span className="text-slate-300 dark:text-slate-650 font-bold select-none">&bull;</span>
+                )}
+                {enrolledAt && (
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3 text-slate-400" />
+                    <span>Tham gia: {formatDate(enrolledAt)}</span>
+                  </span>
+                )}
             </div>
-          </div>
-
-          {/* Badge Trạng thái ở góc trên bên phải */}
-          <div className="flex-shrink-0">
-            <Badge variant={progress === 100 ? "green" : progress > 0 ? "blue" : "gray"}>
-              {progress === 100 ? "Đã xong" : progress > 0 ? "Đang học" : "Mới"}
-            </Badge>
           </div>
         </div>
 

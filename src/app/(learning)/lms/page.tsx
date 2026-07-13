@@ -5,32 +5,40 @@ import { useRouter } from "next/navigation";
 import lmsService from "@/services/lmsService";
 import { useSession } from "next-auth/react";
 import { Shield, BookOpen, GraduationCap, ArrowRight, AlertCircle, ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import bdcLogo from "@/assets/bdclogo.png";
+
+import { RoleSelectionCard } from "@/components/lms/RoleSelectionCard";
 
 interface RoleOption {
   value: string;
   label: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
+  features: string[];
 }
 
 const ROLE_OPTIONS: Record<string, RoleOption> = {
   ADMIN: {
     value: "admin",
     label: "Quản trị viên",
-    description: "Quản lý toàn bộ hệ thống LMS, người dùng và khóa học",
+    description: "Quản lý toàn bộ hệ thống, phân quyền và cấu hình các thông số LMS.",
     icon: Shield,
+    features: ["Quản lý người dùng", "Thiết lập hệ thống", "Xem báo cáo tổng quan"],
   },
   TEACHER: {
     value: "teacher",
     label: "Giảng viên",
-    description: "Tạo và quản lý khóa học, bài giảng, đánh giá học viên",
+    description: "Thiết kế các khóa học, quản lý bài giảng và đánh giá kết quả học tập.",
     icon: BookOpen,
+    features: ["Quản lý bài giảng & khóa học", "Tạo câu hỏi & quiz bằng AI", "Theo dõi & đánh giá kết quả"],
   },
   STUDENT: {
     value: "student",
     label: "Học viên",
-    description: "Học tập, làm bài tập và theo dõi tiến độ học tập",
+    description: "Tham gia các khóa học, hoàn thành bài tập và theo dõi tiến độ học tập.",
     icon: GraduationCap,
+    features: ["Khám phá & tham gia khóa học", "Học tập cùng Trợ lý AI Mentor", "Luyện tập trắc nghiệm & đề thi"],
   },
 };
 
@@ -137,8 +145,8 @@ export default function LMSRoleSelection() {
       <div className="relative max-w-5xl w-full z-10">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/30 rounded-2xl mb-6 shadow-sm">
-            <GraduationCap className="w-7 h-7 text-blue-600 dark:text-cyan-400" />
+          <div className="inline-flex items-center justify-center w-14 h-14 mb-6">
+            <Image src={bdcLogo} alt="BDC Logo" className="object-contain" width={56} height={56} priority />
           </div>
           <h1 className="text-3xl font-medium tracking-tight text-slate-900 dark:text-white mb-2">
             Hệ thống học tập <span className="font-extrabold text-slate-950 dark:text-slate-50">BD<span className="text-blue-600 dark:text-cyan-400">Course</span></span>
@@ -158,33 +166,17 @@ export default function LMSRoleSelection() {
           {userRoles.map((role) => {
             const option = ROLE_OPTIONS[role];
             if (!option) return null;
-            const Icon = option.icon;
 
             return (
-              <div key={role} className="relative group">
-                {/* Underlay / Offset Solid Background */}
-                <div className="absolute inset-0 bg-blue-600 dark:bg-cyan-500 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-0 translate-y-0 group-hover:translate-x-1.5 group-hover:translate-y-1.5" />
-
-                {/* Main Interactive Card */}
-                <button
-                  onClick={() => selectRole(role)}
-                  className="relative w-full h-full flex flex-col items-start bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl p-8 text-left transition-all duration-300 transform translate-x-0 translate-y-0 group-hover:-translate-x-1 group-hover:-translate-y-1 hover:border-blue-600 dark:hover:border-cyan-500 dark:hover:bg-[#12223a] dark:hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40 z-10"
-                >
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-cyan-400 mb-6 group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white dark:group-hover:bg-cyan-500 dark:group-hover:text-slate-950 transition-all duration-300 border border-transparent dark:border-cyan-500/10">
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">
-                    {option.label}
-                  </h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 flex-grow">
-                    {option.description}
-                  </p>
-                  <div className="flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-cyan-400 mt-auto group-hover:gap-2.5 transition-all">
-                    <span>Chọn vai trò này</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </button>
-              </div>
+              <RoleSelectionCard
+                key={role}
+                role={role}
+                label={option.label}
+                description={option.description}
+                icon={option.icon}
+                features={option.features}
+                onSelect={selectRole}
+              />
             );
           })}
         </div>
