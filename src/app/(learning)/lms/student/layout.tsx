@@ -43,7 +43,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
   return (
     <>
-      <div className="relative min-h-screen bg-slate-100/80 dark:bg-[#050B18] overflow-hidden transition-colors duration-300">
+      <div className="relative min-h-screen bg-slate-100/80 dark:bg-[#050B18] overflow-clip transition-colors duration-300">
         
         {/* Glow ambient background spots */}
         <div className="absolute top-10 left-10 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />

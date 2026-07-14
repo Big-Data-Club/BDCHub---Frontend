@@ -181,7 +181,7 @@ export function CourseProgressAndGoalCard({
               {focusCourse.course_title}
             </h3>
             {focusCourse.progress_percent !== undefined && (
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/20 whitespace-nowrap flex-shrink-0">
+              <span className="text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap flex-shrink-0">
                 {focusCourse.progress_percent}%
               </span>
             )}
