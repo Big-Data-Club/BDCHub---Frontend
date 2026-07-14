@@ -173,7 +173,7 @@ export default function LearnPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl space-y-6 mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl space-y-6 mx-auto">
       {/* Header Info Card */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xs">
         <div className="flex flex-wrap items-center gap-2 mb-4">

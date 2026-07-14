@@ -576,6 +576,22 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
           <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center gap-3">
             <BreadcrumbNav items={breadcrumbItems} className="flex-1 min-w-0" />
 
+            {/* Desktop: Sidebar Collapse Toggle */}
+            <button
+              onClick={() => {
+                const newVal = !sidebarCollapsed;
+                setSidebarCollapsed(newVal);
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("course-sidebar-collapsed", String(newVal));
+                }
+              }}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 rounded-xl transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
+              title={sidebarCollapsed ? "Hiện danh sách bài học" : "Ẩn danh sách bài học"}
+            >
+              <BookOpen className={cn("w-3.5 h-3.5", sidebarCollapsed ? "text-blue-600 dark:text-blue-400" : "text-slate-500")} />
+              <span>{sidebarCollapsed ? "Hiện danh sách" : "Ẩn danh sách"}</span>
+            </button>
+
             {isCourseTeacher && (
               <Link
                 href={`/lms/teacher/courses/${id}/overview`}
