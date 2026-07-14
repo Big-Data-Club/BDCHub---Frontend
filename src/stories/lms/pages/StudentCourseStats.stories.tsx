@@ -33,6 +33,9 @@ const mockEmptyContext = {
     created_by: 1,
     teacher_name: "Giảng viên A",
     status: "PUBLISHED" as const,
+    level: "BEGINNER",
+    category: "Web Development",
+    created_at: new Date().toISOString(),
   },
   sections: [],
   courseId: 101,
@@ -69,19 +72,22 @@ const mockPopulatedContext = {
     created_by: 1,
     teacher_name: "TS. Nguyễn Văn A",
     status: "PUBLISHED" as const,
+    level: "INTERMEDIATE",
+    category: "Web Development",
+    created_at: new Date().toISOString(),
   },
   sections: [
-    { id: 1, course_id: 101, title: "Chương 1: Giới thiệu & Cài đặt", order_index: 1, level: 1, chunk_count: 0 },
-    { id: 2, course_id: 101, title: "Chương 2: Hooks chuyên sâu", order_index: 2, level: 1, chunk_count: 0 },
+    { id: 1, course_id: 101, title: "Chương 1: Giới thiệu & Cài đặt", order_index: 1, level: 1, chunk_count: 0, description: "", is_published: true, created_at: new Date().toISOString() },
+    { id: 2, course_id: 101, title: "Chương 2: Hooks chuyên sâu", order_index: 2, level: 1, chunk_count: 0, description: "", is_published: true, created_at: new Date().toISOString() },
   ],
   sectionContents: {
     1: [
-      { id: 10, section_id: 1, title: "Cài đặt môi trường Node.js", type: "VIDEO", is_mandatory: true, order_index: 1 },
-      { id: 11, section_id: 1, title: "Khởi tạo project Next.js", type: "DOCUMENT", is_mandatory: true, order_index: 2 },
+      { id: 10, section_id: 1, title: "Cài đặt môi trường Node.js", type: "VIDEO", is_mandatory: true, order_index: 1, description: "", is_published: true },
+      { id: 11, section_id: 1, title: "Khởi tạo project Next.js", type: "DOCUMENT", is_mandatory: true, order_index: 2, description: "", is_published: true },
     ],
     2: [
-      { id: 20, section_id: 2, title: "Tìm hiểu sâu về useEffect", type: "TEXT", is_mandatory: true, order_index: 1 },
-      { id: 21, section_id: 2, title: "Quiz củng cố Hooks", type: "QUIZ", is_mandatory: true, order_index: 2 },
+      { id: 20, section_id: 2, title: "Tìm hiểu sâu về useEffect", type: "TEXT", is_mandatory: true, order_index: 1, description: "", is_published: true },
+      { id: 21, section_id: 2, title: "Quiz củng cố Hooks", type: "QUIZ", is_mandatory: true, order_index: 2, description: "", is_published: true },
     ]
   },
   completedIds: new Set([10, 11]),
@@ -93,10 +99,10 @@ const mockPopulatedContext = {
     completed_content_ids: [10, 11],
   },
   progressDetail: [
-    { content_id: 10, content_title: "Cài đặt môi trường Node.js", section_title: "Chương 1: Giới thiệu & Cài đặt", is_mandatory: true, is_completed: true },
-    { content_id: 11, content_title: "Khởi tạo project Next.js", section_title: "Chương 1: Giới thiệu & Cài đặt", is_mandatory: true, is_completed: true },
-    { content_id: 20, content_title: "Tìm hiểu sâu về useEffect", section_title: "Chương 2: Hooks chuyên sâu", is_mandatory: true, is_completed: false },
-    { content_id: 21, content_title: "Quiz củng cố Hooks", section_title: "Chương 2: Hooks chuyên sâu", is_mandatory: true, is_completed: false },
+    { content_id: 10, content_title: "Cài đặt môi trường Node.js", section_title: "Chương 1: Giới thiệu & Cài đặt", is_mandatory: true, is_completed: true, content_type: "VIDEO", completed_at: new Date().toISOString() },
+    { content_id: 11, content_title: "Khởi tạo project Next.js", section_title: "Chương 1: Giới thiệu & Cài đặt", is_mandatory: true, is_completed: true, content_type: "DOCUMENT", completed_at: new Date().toISOString() },
+    { content_id: 20, content_title: "Tìm hiểu sâu về useEffect", section_title: "Chương 2: Hooks chuyên sâu", is_mandatory: true, is_completed: false, content_type: "TEXT", completed_at: null },
+    { content_id: 21, content_title: "Quiz củng cố Hooks", section_title: "Chương 2: Hooks chuyên sâu", is_mandatory: true, is_completed: false, content_type: "QUIZ", completed_at: null },
   ],
 };
 

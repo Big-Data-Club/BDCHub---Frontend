@@ -81,8 +81,8 @@ export default function StudentDashboard() {
       const summary = result?.data;
 
       if (summary) {
-        // Format heatmap for radar chart (max 8 nodes for readable chart)
-        const formattedHeatmap = (summary.heatmap || []).slice(0, 8).map((n: any) => ({
+        // Format heatmap for radar chart (limiting to 8 nodes is done inside MasteryTab for weakest/strongest filters)
+        const formattedHeatmap = (summary.heatmap || []).map((n: any) => ({
           subject: n.name_vi || n.node_name,
           "Độ thông thạo (%)": Math.round((n.avg_mastery || n.mastery_level || 0) * 100),
         }));
