@@ -18,7 +18,7 @@ import {
   ChevronDown, ChevronRight, Menu, X,
   Play, FileText, Image as ImageIcon, HelpCircle,
   MessageSquare, Megaphone, File as FileIcon, BookOpen,
-  BarChart3, CheckCircle2,
+  BarChart3, CheckCircle2, ChevronLeft,
 } from "lucide-react";
 
 import lmsService from "@/services/lmsService";
@@ -259,6 +259,16 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
   const [activeContent, setActiveContent] = useState<Content | null>(null);
   const [loadingPage, setLoadingPage] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("course-sidebar-collapsed");
+      if (stored === "true") {
+        setSidebarCollapsed(true);
+      }
+    }
+  }, []);
 
   // ── Progress state ──
   const [progress, setProgress] = useState<CourseProgress | null>(null);
@@ -566,6 +576,22 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
           <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center gap-3">
             <BreadcrumbNav items={breadcrumbItems} className="flex-1 min-w-0" />
 
+            {/* Desktop: Sidebar Collapse Toggle */}
+            <button
+              onClick={() => {
+                const newVal = !sidebarCollapsed;
+                setSidebarCollapsed(newVal);
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("course-sidebar-collapsed", String(newVal));
+                }
+              }}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 rounded-xl transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
+              title={sidebarCollapsed ? "Hiện danh sách bài học" : "Ẩn danh sách bài học"}
+            >
+              <BookOpen className={cn("w-3.5 h-3.5", sidebarCollapsed ? "text-blue-600 dark:text-blue-400" : "text-slate-500")} />
+              <span>{sidebarCollapsed ? "Hiện danh sách" : "Ẩn danh sách"}</span>
+            </button>
+
             {isCourseTeacher && (
               <Link
                 href={`/lms/teacher/courses/${id}/overview`}
@@ -632,12 +658,39 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
         </header>
 
         {/* ── Body ── */}
-        <div className="flex-1 max-w-screen-2xl mx-auto w-full flex overflow-hidden">
+        <div className="flex-1 max-w-screen-2xl mx-auto w-full flex overflow-hidden relative">
 
           {/* Desktop sidebar */}
-          <aside className="hidden lg:flex flex-col w-72 xl:w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0 sticky top-[120px] h-[calc(100vh-120px)] overflow-hidden">
-            {SidebarContent}
+          <aside className={cn(
+            "hidden lg:flex flex-col bg-white dark:bg-slate-900 flex-shrink-0 sticky top-[120px] h-[calc(100vh-120px)] transition-all duration-300 ease-in-out overflow-hidden border-slate-200 dark:border-slate-800",
+            sidebarCollapsed ? "w-0 border-r-0 opacity-0" : "w-72 xl:w-80 border-r opacity-100"
+          )}>
+            <div className="w-72 xl:w-80 h-full flex flex-col">
+              {SidebarContent}
+            </div>
           </aside>
+
+          {/* Collapse/Expand Floating Toggle Tab on Desktop */}
+          <button
+            onClick={() => {
+              const newVal = !sidebarCollapsed;
+              setSidebarCollapsed(newVal);
+              if (typeof window !== "undefined") {
+                localStorage.setItem("course-sidebar-collapsed", String(newVal));
+              }
+            }}
+            className={cn(
+              "hidden lg:flex absolute top-1/2 -translate-y-1/2 z-40 w-4 h-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-r-lg items-center justify-center text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 shadow-md transition-all duration-300 hover:w-5 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer",
+              sidebarCollapsed ? "left-0 border-l" : "left-[288px] xl:left-[320px] border-l-0"
+            )}
+            title={sidebarCollapsed ? "Mở rộng danh sách bài học" : "Thu gọn danh sách bài học"}
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="w-3 h-3" />
+            ) : (
+              <ChevronLeft className="w-3 h-3" />
+            )}
+          </button>
 
           {/* Mobile sidebar drawer */}
           {sidebarOpen && (
