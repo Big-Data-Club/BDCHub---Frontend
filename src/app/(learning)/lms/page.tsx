@@ -9,6 +9,7 @@ import Image from "next/image";
 import bdcLogo from "@/assets/bdclogo.png";
 
 import { RoleSelectionCard } from "@/components/lms/RoleSelectionCard";
+import { GridBackground } from "@/components/lms/shared";
 
 interface RoleOption {
   value: string;
@@ -132,15 +133,10 @@ export default function LMSRoleSelection() {
 
   return (
     <div className="relative min-h-screen bg-slate-50 dark:bg-[#050B18] flex items-center justify-center p-4 overflow-hidden transition-colors duration-300">
-      {/* Glow ambient background spots */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
-
-      {/* Moving Grid Background */}
-      <div className="absolute -inset-32 bg-grid-paper pointer-events-none opacity-80 dark:opacity-60 rotate-[10deg] animate-grid-slide" />
-
-      {/* Smooth radial gradient overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(248,250,252,0.7)_80%,#f8fafc_100%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(5,11,24,0.7)_80%,#050B18_100%)] pointer-events-none" />
+      {/* Reusable Grid Background */}
+      <GridBackground gridOpacity="opacity-80 dark:opacity-60">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(248,250,252,0.7)_80%,#f8fafc_100%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(5,11,24,0.7)_80%,#050B18_100%)] pointer-events-none" />
+      </GridBackground>
 
       <div className="relative max-w-5xl w-full z-10">
         {/* Header */}

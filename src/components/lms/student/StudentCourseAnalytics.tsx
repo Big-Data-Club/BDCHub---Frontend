@@ -124,11 +124,11 @@ export function StudentCourseAnalytics({
                 onClick={() => setAnalyticsTab("flashcards")}
                 className={`flex items-center gap-2 px-5 py-2 text-xs md:text-sm font-bold rounded-xl transition-all whitespace-nowrap active:scale-95 ${analyticsTab === "flashcards"
                   ? "bg-white text-blue-600 shadow-sm border border-slate-200 dark:bg-cyan-500 dark:text-slate-950 dark:border-transparent dark:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "text-slate-550 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-blue-900/20"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-blue-900/20"
                   }`}
               >
                 <Brain className="w-4 h-4" />
-                Ghi nhớ (Flashcard)
+                Flashcard
               </button>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { RefreshCw } from "lucide-react";
-import { GhostBtn } from "@/components/lms/shared";
+import { GhostBtn, GridBackground } from "@/components/lms/shared";
 import { CourseProgressAndGoalCard } from "./CourseProgressAndGoalCard";
 
 interface FocusCourse {
@@ -42,12 +42,7 @@ export function StudentDashboardHeader({
 }: StudentDashboardHeaderProps) {
   return (
     <div className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/20 dark:bg-[#070E1C]/20 backdrop-blur-xs py-4 md:py-5">
-      {/* Tilted Grid background utilizing the exact global css class bg-grid-paper (40px 40px) and slide animation */}
-      <div className="absolute -inset-32 bg-grid-paper pointer-events-none opacity-40 dark:opacity-20 rotate-[10deg] animate-grid-slide" />
-
-      {/* Soft gradient overlays to fade out the grid gracefully */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-100/40 to-slate-100 dark:via-[#050B18]/40 dark:to-[#050B18] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_60%,#f1f5f9_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_60%,#050B18_100%)] pointer-events-none" />
+      <GridBackground />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 w-full">
         <div className="min-w-0 flex-1 lg:max-w-md">
