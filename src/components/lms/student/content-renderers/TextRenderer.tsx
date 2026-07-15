@@ -8,7 +8,7 @@ import { useSetPageContext } from "@/hooks/usePageContext";
 
 const MarkdownRenderer = dynamic(
   () => import("@/components/markdown/MarkdownRenderer"),
-  { ssr: false, loading: () => <div className="h-32 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" /> },
+  { ssr: false, loading: () => <div className="h-32 bg-slate-100 dark:bg-[#0D192E] rounded-xl animate-pulse" /> },
 );
 
 const QuickActionPanel = dynamic(

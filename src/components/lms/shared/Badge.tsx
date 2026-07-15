@@ -15,7 +15,7 @@ export function Badge({ children, variant = "gray" }: { children: ReactNode; var
     purple: "bg-purple-50/60 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20",
   };
   return (
-    <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider", VARIANT_CLS[variant])}>
+    <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider whitespace-nowrap", VARIANT_CLS[variant])}>
       {children}
     </span>
   );

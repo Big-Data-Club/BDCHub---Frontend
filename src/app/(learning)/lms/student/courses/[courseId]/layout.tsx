@@ -5,8 +5,8 @@
  * Route: /lms/student/courses/[courseId]
  *
  * Provides:
- *  - Sticky header with course title + tab switcher (Học tập / Thống kê)
- *  - Desktop sidebar (sections / progress)
+ *  - Premium Header Section (Discovery Page Style, full width)
+ *  - Desktop sidebar (sections / progress via CourseLearningSidebar) - sticky viewport-locked
  *  - Mobile sidebar drawer
  *  - StudentCourseContext for child pages
  */
@@ -15,62 +15,21 @@ import { useEffect, useState, useCallback, useMemo, useRef, Suspense } from "rea
 import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ChevronDown, ChevronRight, Menu, X,
-  Play, FileText, Image as ImageIcon, HelpCircle,
-  MessageSquare, Megaphone, File as FileIcon, BookOpen,
-  BarChart3, CheckCircle2, ChevronLeft,
+  Menu, X, BookOpen, BarChart3, ChevronLeft, ChevronRight
 } from "lucide-react";
 
 import lmsService from "@/services/lmsService";
 import progressService, { CourseProgress, ProgressDetailItem } from "@/services/progressService";
 import { useSession } from "next-auth/react";
 
-import { ProgressBar, PageLoader } from "@/components/lms/shared";
+import { PageLoader, GridBackground } from "@/components/lms/shared";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/BreadcrumbNav";
 import { StudentCourseContext } from "@/components/lms/student/StudentCourseContext";
+import { CourseLearningSidebar } from "@/components/lms/student/CourseLearningSidebar";
+import { CourseDetailProgressCard } from "@/components/lms/student/CourseDetailProgressCard";
 import { Content, Course, Section } from "@/types";
 import { cn } from "@/lib/utils";
 import { useSetPageContext } from "@/hooks/usePageContext";
-
-// ─── Content type icon map & styles ──────────────────────────────────────────
-
-const CONTENT_TYPE_STYLE: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
-  VIDEO: {
-    bg: "bg-blue-50 dark:bg-blue-950/40",
-    text: "text-blue-600 dark:text-blue-400",
-    icon: <Play className="w-3.5 h-3.5 fill-current" />,
-  },
-  DOCUMENT: {
-    bg: "bg-emerald-50 dark:bg-emerald-950/40",
-    text: "text-emerald-600 dark:text-emerald-400",
-    icon: <FileText className="w-3.5 h-3.5" />,
-  },
-  IMAGE: {
-    bg: "bg-teal-50 dark:bg-teal-950/40",
-    text: "text-teal-600 dark:text-teal-400",
-    icon: <ImageIcon className="w-3.5 h-3.5" />,
-  },
-  TEXT: {
-    bg: "bg-amber-50 dark:bg-amber-950/40",
-    text: "text-amber-600 dark:text-amber-400",
-    icon: <FileText className="w-3.5 h-3.5" />,
-  },
-  QUIZ: {
-    bg: "bg-violet-50 dark:bg-violet-950/40",
-    text: "text-violet-600 dark:text-violet-400",
-    icon: <HelpCircle className="w-3.5 h-3.5" />,
-  },
-  FORUM: {
-    bg: "bg-sky-50 dark:bg-sky-950/40",
-    text: "text-sky-600 dark:text-sky-400",
-    icon: <MessageSquare className="w-3.5 h-3.5" />,
-  },
-  ANNOUNCEMENT: {
-    bg: "bg-rose-50 dark:bg-rose-950/40",
-    text: "text-rose-600 dark:text-rose-400",
-    icon: <Megaphone className="w-3.5 h-3.5" />,
-  },
-};
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
@@ -78,142 +37,6 @@ const TABS = [
   { id: "learn", label: "Học tập", path: "/learn", icon: null },
   { id: "stats", label: "Thống kê", path: "/stats", icon: <BarChart3 className="w-3.5 h-3.5" /> },
 ];
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SIDEBAR SECTION
-// ─────────────────────────────────────────────────────────────────────────────
-
-interface SidebarSectionProps {
-  section: Section;
-  index: number;
-  contents: Content[];
-  loading: boolean;
-  isExpanded: boolean;
-  onToggle: () => void;
-  activeContentId: number | null;
-  onSelect: (c: Content) => void;
-  completedIds: Set<number>;
-}
-
-function SidebarSection({
-  section, index, contents, loading,
-  isExpanded, onToggle, activeContentId, onSelect,
-  completedIds,
-}: SidebarSectionProps) {
-  const mandatoryCount = contents.filter(c => c.is_mandatory).length;
-  const completedMandatory = contents.filter(c => c.is_mandatory && completedIds.has(c.id)).length;
-
-  return (
-    <div className="border-b border-slate-100 dark:border-slate-800 last:border-b-0 transition-all duration-300">
-      {/* Section header */}
-      <button
-        className={cn(
-          "w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors duration-200 border-l-2",
-          isExpanded
-            ? "bg-slate-50/50 dark:bg-slate-900/30 border-blue-600"
-            : "hover:bg-slate-50 dark:hover:bg-slate-800/50 border-transparent"
-        )}
-        onClick={onToggle}
-      >
-        <div className={cn(
-          "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0 border transition-all duration-300 shadow-xs",
-          isExpanded
-            ? "bg-blue-600 border-blue-600 text-white"
-            : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
-        )}>
-          {index + 1}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className={cn(
-            "text-sm font-semibold truncate transition-colors duration-200",
-            isExpanded ? "text-blue-600 dark:text-blue-400" : "text-slate-800 dark:text-slate-200"
-          )}>
-            {section.title}
-          </p>
-          {contents.length > 0 && (
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-medium flex items-center gap-1.5">
-              <span className="inline-block w-1 h-1 rounded-full bg-slate-400" />
-              {mandatoryCount > 0
-                ? `${completedMandatory}/${mandatoryCount} bài bắt buộc`
-                : `${contents.length} tài liệu`}
-            </p>
-          )}
-        </div>
-        <ChevronDown className={cn(
-          "w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0 transition-transform duration-300",
-          isExpanded ? "transform rotate-0 text-blue-600 dark:text-blue-400" : "transform -rotate-90"
-        )} />
-      </button>
-
-      {/* Content items */}
-      {isExpanded && (
-        <div className="pb-2 px-2 pt-1 space-y-1">
-          {loading && !contents.length ? (
-            <div className="px-3 py-2 space-y-2">
-              {[0, 1, 2].map(i => (
-                <div key={i} className="h-8 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
-              ))}
-            </div>
-          ) : contents.length === 0 ? (
-            <p className="px-3 py-2 text-xs text-slate-400 dark:text-slate-500">Chưa có nội dung</p>
-          ) : (
-            contents.map((c, i) => {
-              const isActive = c.id === activeContentId;
-              const isDone = completedIds.has(c.id);
-              const style = CONTENT_TYPE_STYLE[c.type] || {
-                bg: "bg-slate-100 dark:bg-slate-800",
-                text: "text-slate-400 dark:text-slate-500",
-                icon: <FileIcon className="w-3.5 h-3.5" />,
-              };
-
-              return (
-                <button
-                  key={c.id}
-                  className={cn(
-                    "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all duration-200 group active:scale-[0.98] border-l-4",
-                    isActive
-                      ? "bg-blue-50/80 dark:bg-blue-900/20 border-blue-600 text-blue-700 dark:text-blue-300 font-semibold shadow-xs"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/40 hover:text-slate-900 dark:hover:text-slate-100 hover:translate-x-1 border-transparent"
-                  )}
-                  onClick={() => onSelect(c)}
-                >
-                  {/* Content type icon container */}
-                  <span className={cn(
-                    "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200",
-                    isActive
-                      ? "bg-blue-600 text-white"
-                      : cn(style.bg, style.text)
-                  )}>
-                    {style.icon}
-                  </span>
-
-                  {/* Title */}
-                  <span className={cn(
-                    "text-[13px] flex-1 truncate font-medium",
-                    isActive
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-slate-700 dark:text-slate-300"
-                  )}>
-                    {i + 1}. {c.title}
-                  </span>
-
-                  {/* Status dot / Checkmark */}
-                  <span className="flex-shrink-0 w-4 flex items-center justify-center">
-                    {isDone ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-500/10" />
-                    ) : c.is_mandatory ? (
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-400" title="Bắt buộc" />
-                    ) : null}
-                  </span>
-                </button>
-              );
-            })
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN LAYOUT
@@ -416,13 +239,6 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
     }
   }, [pathname, basePath, router]);
 
-  // ─── Derived progress numbers ─────────────────────────────────────────────
-
-  const totalMandatory = progress?.total_mandatory
-    ?? Object.values(sectionContents).flat().filter(c => c.is_mandatory).length;
-  const completedCount = progress?.completed_count ?? completedIds.size;
-  const progressPct = totalMandatory > 0 ? Math.round((completedCount / totalMandatory) * 100) : 0;
-
   // ─── Active tab ───────────────────────────────────────────────────────────
   const activeTab = TABS.find(tab => pathname.includes(tab.path)) || TABS[0];
   const activeTabId = activeTab.id;
@@ -487,127 +303,81 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
 
   if (loadingPage) return <PageLoader message="Đang tải khóa học..." />;
 
-  // ─── Sidebar JSX ──────────────────────────────────────────────────────────
-
-  const SidebarContent = (
-    <div className="h-full flex flex-col">
-      {/* Progress header */}
-      <div className="px-5 py-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-        <div className="flex justify-between items-center mb-2">
-          <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Tiến độ học tập
-          </p>
-          <span className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full">
-            {progressPct}%
-          </span>
-        </div>
-        <ProgressBar
-          value={completedCount}
-          max={totalMandatory || 1}
-          color="blue"
-          showPercent={false}
-          className="h-2 rounded-full overflow-hidden mb-2"
-        />
-        <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-          Đã hoàn thành <span className="font-bold text-slate-700 dark:text-slate-200">{completedCount}</span> trên <span className="font-bold text-slate-700 dark:text-slate-200">{totalMandatory}</span> bài bắt buộc
-        </p>
-
-        {/* Giảng viên & Trợ giảng */}
-        <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-1.5">
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Giảng viên phụ trách
-          </p>
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              <span className="text-xs font-bold text-slate-750 dark:text-slate-350">
-                {course?.teacher_name || "Giáo viên"}
-              </span>
-            </div>
-            {coTeachers.map((ct: any) => (
-              <div key={ct.id} className="flex items-center gap-1.5 pl-3 group relative cursor-help" title={ct.email}>
-                <span className="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-650" />
-                <span className="text-[11px] font-medium text-slate-600 dark:text-slate-455 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
-                  {ct.full_name}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Section list */}
-      <div className="flex-1 overflow-y-auto">
-        {sections.length === 0 ? (
-          <div className="px-4 py-8 text-center">
-            <BookOpen className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
-            <p className="text-sm text-slate-400">Khóa học chưa có nội dung</p>
-          </div>
-        ) : (
-          sections.map((sec, i) => (
-            <SidebarSection
-              key={sec.id}
-              section={sec}
-              index={i}
-              contents={sectionContents[sec.id] ?? []}
-              loading={!!loadingSection[sec.id]}
-              isExpanded={expanded.has(sec.id)}
-              onToggle={() => toggleSection(sec.id)}
-              activeContentId={activeContent?.id ?? null}
-              onSelect={handleSelectContent}
-              completedIds={completedIds}
-            />
-          ))
-        )}
-      </div>
-    </div>
-  );
-
   // ─────────────────────────────────────────────────────────────────────────
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
     <StudentCourseContext.Provider value={contextValue}>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] flex flex-col transition-colors duration-300">
 
-        {/* ── Header ── */}
-        <header className="sticky top-16 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
-          <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center gap-3">
-            <BreadcrumbNav items={breadcrumbItems} className="flex-1 min-w-0" />
+        {/* ── Premium Header Section (Synced with StudentDashboardHeader height, padding, and alignment) ── */}
+        <header className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/20 dark:bg-[#070E1C]/20 backdrop-blur-xs py-4 md:py-5 z-30 flex-shrink-0">
+          <GridBackground />
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 w-full flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+            <div className="min-w-0 flex-1">
+              <BreadcrumbNav items={breadcrumbItems} />
+              
+              <div className="mt-4">
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                  {course?.title ?? "Khóa học"}
+                </h1>
+                {course?.description && (
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium max-w-xl line-clamp-2">
+                    {course.description}
+                  </p>
+                )}
+              </div>
 
-            {/* Desktop: Sidebar Collapse Toggle */}
-            <button
-              onClick={() => {
-                const newVal = !sidebarCollapsed;
-                setSidebarCollapsed(newVal);
-                if (typeof window !== "undefined") {
-                  localStorage.setItem("course-sidebar-collapsed", String(newVal));
-                }
-              }}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 rounded-xl transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
-              title={sidebarCollapsed ? "Hiện danh sách bài học" : "Ẩn danh sách bài học"}
-            >
-              <BookOpen className={cn("w-3.5 h-3.5", sidebarCollapsed ? "text-blue-600 dark:text-blue-400" : "text-slate-500")} />
-              <span>{sidebarCollapsed ? "Hiện danh sách" : "Ẩn danh sách"}</span>
-            </button>
+              <div className="flex items-center gap-3 mt-4.5 flex-wrap">
+                {/* Tab switcher pill */}
+                <div className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-[#0D192E] border border-slate-200/60 dark:border-blue-500/15 rounded-xl p-1 flex-shrink-0 shadow-inner h-10">
+                  {TABS.map(tab => {
+                    const isActive = activeTabId === tab.id;
+                    return (
+                      <Link
+                        key={tab.id}
+                        href={`${basePath}${tab.path}`}
+                        className={cn(
+                          "flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 h-full cursor-pointer",
+                          isActive
+                            ? "bg-white dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 shadow-xs border border-slate-200/40 dark:border-blue-500/15"
+                            : "text-slate-500 dark:text-slate-450 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50/50 dark:hover:bg-[#162644]/30"
+                        )}
+                      >
+                        {tab.icon}
+                        {tab.label}
+                      </Link>
+                    );
+                  })}
+                </div>
 
-            {isCourseTeacher && (
-              <Link
-                href={`/lms/teacher/courses/${id}/overview`}
-                className="
-                  flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold
-                  bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700
-                  text-white rounded-xl shadow-xs hover:shadow-md
-                  active:scale-95 transition-all duration-200
-                "
-              >
-                ⚙️ Quản lý
-              </Link>
-            )}
+                {/* Mobile: sidebar toggle */}
+                <button
+                  className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#0F1E35] text-slate-600 dark:text-slate-400"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
 
-            {/* Tab switcher pill */}
-            <div className="hidden sm:flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-xl p-1 flex-shrink-0 shadow-inner">
+            <div className="w-full lg:max-w-xl xl:max-w-2xl flex-shrink-0">
+              <CourseDetailProgressCard
+                course={course}
+                progress={progress}
+                completedIds={completedIds}
+                sections={sections}
+                sectionContents={sectionContents}
+                onSelectContent={handleSelectContent}
+                loading={loadingPage}
+              />
+            </div>
+          </div>
+          
+          {/* Mobile tab bar */}
+          <div className="sm:hidden relative max-w-7xl mx-auto px-4 z-10 w-full mt-4">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0D192E] border border-slate-200/60 dark:border-blue-500/15 rounded-xl p-1 shadow-inner h-10 w-full">
               {TABS.map(tab => {
                 const isActive = activeTabId === tab.id;
                 return (
@@ -615,10 +385,10 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
                     key={tab.id}
                     href={`${basePath}${tab.path}`}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95",
+                      "flex items-center justify-center gap-2 px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 h-full flex-1 cursor-pointer",
                       isActive
-                        ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/20"
-                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                        ? "bg-white dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 shadow-xs border border-slate-200/40 dark:border-blue-500/15"
+                        : "text-slate-500 dark:text-slate-450 hover:text-slate-800 dark:hover:text-slate-200"
                     )}
                   >
                     {tab.icon}
@@ -627,46 +397,19 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
                 );
               })}
             </div>
-
-            {/* Mobile: sidebar toggle */}
-            <button
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Mobile tab bar */}
-          <div className="sm:hidden flex items-center gap-1 px-4 pb-2">
-            {TABS.map(tab => (
-              <Link
-                key={tab.id}
-                href={`${basePath}${tab.path}`}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors",
-                  activeTabId === tab.id
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400"
-                    : "text-slate-600 dark:text-slate-400"
-                )}
-              >
-                {tab.icon}
-                {tab.label}
-              </Link>
-            ))}
           </div>
         </header>
 
         {/* ── Body ── */}
-        <div className="flex-1 max-w-screen-2xl mx-auto w-full flex overflow-hidden relative">
+        <div className="flex-1 w-full flex relative">
 
-          {/* Desktop sidebar */}
+          {/* Desktop sidebar - sticky viewport-locked height, starts below global nav (top-16) */}
           <aside className={cn(
-            "hidden lg:flex flex-col bg-white dark:bg-slate-900 flex-shrink-0 sticky top-[120px] h-[calc(100vh-120px)] transition-all duration-300 ease-in-out overflow-hidden border-slate-200 dark:border-slate-800",
+            "hidden lg:flex flex-col bg-white dark:bg-[#070E1C] flex-shrink-0 sticky top-16 h-[calc(100vh-64px)] transition-all duration-300 ease-in-out overflow-hidden border-r border-slate-200/80 dark:border-blue-500/10",
             sidebarCollapsed ? "w-0 border-r-0 opacity-0" : "w-72 xl:w-80 border-r opacity-100"
           )}>
             <div className="w-72 xl:w-80 h-full flex flex-col">
-              {SidebarContent}
+              <CourseLearningSidebar />
             </div>
           </aside>
 
@@ -680,7 +423,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
               }
             }}
             className={cn(
-              "hidden lg:flex absolute top-1/2 -translate-y-1/2 z-40 w-4 h-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-r-lg items-center justify-center text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 shadow-md transition-all duration-300 hover:w-5 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer",
+              "hidden lg:flex absolute top-1/2 -translate-y-1/2 z-40 w-4 h-16 bg-white dark:bg-[#070E1C] border border-slate-200 dark:border-blue-500/10 rounded-r-lg items-center justify-center text-slate-400 hover:text-slate-655 dark:hover:text-slate-200 shadow-md transition-all duration-300 hover:w-5 hover:bg-slate-50 dark:hover:bg-[#0D192E] cursor-pointer",
               sidebarCollapsed ? "left-0 border-l" : "left-[288px] xl:left-[320px] border-l-0"
             )}
             title={sidebarCollapsed ? "Mở rộng danh sách bài học" : "Thu gọn danh sách bài học"}
@@ -696,29 +439,29 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
           {sidebarOpen && (
             <div className="lg:hidden fixed inset-0 z-40 flex">
               <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-              <aside className="relative w-80 max-w-[85vw] bg-white dark:bg-slate-900 h-full overflow-hidden flex flex-col">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+              <aside className="relative w-80 max-w-[85vw] bg-white dark:bg-[#070E1C] h-full overflow-hidden flex flex-col">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/50 dark:border-blue-500/10">
                   <span className="font-bold text-slate-900 dark:text-slate-50">Nội dung khóa học</span>
-                  <button onClick={() => setSidebarOpen(false)} className="p-1 rounded text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <button onClick={() => setSidebarOpen(false)} className="p-1 rounded text-slate-500 hover:bg-slate-100 dark:hover:bg-[#0F1E35]">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                {SidebarContent}
+                <CourseLearningSidebar />
               </aside>
             </div>
           )}
 
           {/* ── Main content (child pages) ── */}
-          <main className="flex-1 overflow-y-auto min-w-0">
-            {children}
+          <main className="flex-1 min-w-0 flex flex-col">
+            <div className="flex-1 w-full">
+              {children}
+            </div>
           </main>
         </div>
       </div>
     </StudentCourseContext.Provider>
   );
 }
-
-// ── Wrap in Suspense for useSearchParams ──────────────────────────────────────
 
 export default function StudentCourseDetailLayout({ children }: { children: React.ReactNode }) {
   return (

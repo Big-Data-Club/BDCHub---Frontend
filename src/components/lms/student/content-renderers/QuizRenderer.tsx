@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ContentItem, StatPill, ActionButton } from "./utils";
 import quizService from "@/services/quizService";
 import { cn } from "@/lib/utils";
+import { HelpCircle, History, Play } from "lucide-react";
 
 interface QuizData {
   id: number;
@@ -96,8 +97,8 @@ export function QuizRenderer({
   // ── Loading ──
   if (loading) {
     return (
-      <div className="flex items-center gap-3 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-        <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+      <div className="flex items-center gap-3 p-6 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl animate-pulse">
+        <div className="w-5 h-5 border-2 border-blue-600 dark:border-cyan-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
         <span className="text-slate-600 dark:text-slate-400 text-sm">Đang tải thông tin quiz...</span>
       </div>
     );
@@ -106,10 +107,10 @@ export function QuizRenderer({
   return (
     <div className="space-y-4">
       {/* Quiz info card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-5 shadow-sm">
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800/50 rounded-xl flex items-center justify-center flex-shrink-0 text-lg">
-            📝
+          <div className="w-10 h-10 bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0 text-violet-600 dark:text-violet-400">
+            <HelpCircle className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-slate-900 dark:text-slate-50 mb-1">{content.title}</p>
@@ -202,29 +203,38 @@ export function QuizRenderer({
             onClick={handleStart}
             disabled={!availability?.ok}
             className={cn(
-              "flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-95 shadow-sm",
+              "flex-grow py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-95 shadow-sm flex items-center justify-center gap-2",
               !availability?.ok
-                ? "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed"
+                ? "bg-slate-200 dark:bg-[#0D192E] text-slate-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 text-white"
             )}
           >
-            {!availability?.ok
-              ? "Không khả dụng"
-              : hasInProgress
-                ? "⏩ Tiếp tục làm bài"
-                : "🚀 Bắt đầu làm bài"}
+            {!availability?.ok ? (
+              "Không khả dụng"
+            ) : hasInProgress ? (
+              <>
+                <Play className="w-4 h-4" />
+                <span>Tiếp tục làm bài</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4" />
+                <span>Bắt đầu làm bài</span>
+              </>
+            )}
           </button>
           <button
             onClick={() => router.push(`/lms/student/courses/${courseId}/quiz/${quiz.id}/history`)}
-            className="px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-medium text-sm transition-all active:scale-95"
+            className="px-4 py-3.5 bg-white dark:bg-[#0D192E] border border-slate-300 dark:border-blue-500/25 text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-[#0F1E35] rounded-xl font-medium text-sm transition-all active:scale-95 flex items-center gap-1.5"
           >
-            📜 Lịch sử
+            <History className="w-4 h-4" />
+            <span>Lịch sử</span>
           </button>
         </div>
       )}
 
       {isStudent && !quiz?.id && !error && (
-        <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 rounded-xl text-sm text-amber-700 dark:text-amber-400 text-center">
+        <div className="p-4 bg-amber-50 dark:bg-amber-950/10 border border-amber-200 dark:border-blue-500/10 rounded-xl text-sm text-amber-700 dark:text-amber-400 text-center">
           Quiz chưa được cấu hình. Vui lòng liên hệ giảng viên.
         </div>
       )}

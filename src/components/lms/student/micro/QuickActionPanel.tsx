@@ -123,9 +123,9 @@ export function QuickActionPanel({
   return (
     <section
       aria-label={labels.header}
-      className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl mt-6 overflow-hidden shadow-sm"
+      className="border border-slate-200 dark:border-blue-500/10 bg-white dark:bg-[#0F1E35] rounded-2xl mt-6 overflow-hidden shadow-sm"
     >
-      <header className="px-6 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+      <header className="px-6 py-3 border-b border-slate-200 dark:border-blue-500/10 flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
           {labels.header}
         </h3>
@@ -140,7 +140,7 @@ export function QuickActionPanel({
         )}
       </header>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 dark:divide-slate-800">
+      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 dark:divide-blue-500/10">
         <ActionButton
           active={tab === "flashcards"}
           label={labels.flashcards}
@@ -162,12 +162,12 @@ export function QuickActionPanel({
       </div>
 
       {tab === "flashcards" && (
-        <div className="border-t border-slate-200 dark:border-slate-800">
+        <div className="border-t border-slate-200 dark:border-blue-500/10">
           <FlashcardDeck ctx={ctx} />
         </div>
       )}
       {tab === "quick_check" && (
-        <div className="border-t border-slate-200 dark:border-slate-800">
+        <div className="border-t border-slate-200 dark:border-blue-500/10">
           <QuickCheck ctx={ctx} />
         </div>
       )}
@@ -194,8 +194,8 @@ function ActionButton({ active, label, desc, onClick }: ActionButtonProps) {
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`text-left px-6 py-4 transition-colors focus:outline-none focus:bg-slate-50 dark:focus:bg-slate-800 ${
-        active ? "bg-slate-100 dark:bg-slate-800" : "bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+      className={`text-left px-6 py-4 transition-colors focus:outline-none focus:bg-slate-50 dark:focus:bg-[#0D192E] ${
+        active ? "bg-slate-100 dark:bg-[#0D192E]" : "bg-white dark:bg-[#0F1E35] hover:bg-slate-50 dark:hover:bg-[#0D192E]/50"
       }`}
     >
       <span className="block text-sm font-semibold text-slate-900 dark:text-slate-50">
