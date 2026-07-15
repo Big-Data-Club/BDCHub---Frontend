@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Download } from "lucide-react";
 
 export interface ContentItem {
   id: number;
@@ -82,7 +83,8 @@ export function DownloadLink({
         className
       )}
     >
-      📥 {label}
+      <Download className="w-4 h-4" />
+      {label}
     </a>
   );
 }

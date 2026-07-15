@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   TrendingDown,
   AlertCircle,
@@ -19,10 +19,10 @@ interface Props {
 }
 
 const LEVEL_COLORS = {
-  "Rất tốt": "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
-  "TB": "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-  "Yếu": "bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400 border-orange-200 dark:border-orange-800",
-  "Cần cải thiện": "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400 border-red-200 dark:border-red-800",
+  "Rất tốt": "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20",
+  "TB": "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20",
+  "Yếu": "bg-orange-50 dark:bg-orange-950/30 text-orange-650 dark:text-orange-400 border-orange-200 dark:border-orange-500/20",
+  "Cần cải thiện": "bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20",
 };
 
 const formatPercent = (val: number | null | undefined) => {
@@ -38,6 +38,15 @@ export function WeaknessTracker({ courseId }: Props) {
 
   const [reviewNodeId, setReviewNodeId] = useState<number | null>(null);
   const [reviewNodeName, setReviewNodeName] = useState("");
+  const [visibleCount, setVisibleCount] = useState(5);
+
+  const sortedNodes = useMemo(() => {
+    if (!data?.weak_nodes) return [];
+    return [...data.weak_nodes].sort((a, b) => {
+      const getRate = (n: WeakNode) => n.total_attempt === 0 ? -1 : (n.wrong_count / n.total_attempt) * 100;
+      return getRate(b) - getRate(a);
+    });
+  }, [data?.weak_nodes]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,11 +123,11 @@ export function WeaknessTracker({ courseId }: Props) {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 animate-pulse">
-        <div className="h-6 w-1/3 bg-slate-200 dark:bg-slate-800 rounded mb-4"></div>
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-6 animate-pulse">
+        <div className="h-6 w-1/3 bg-slate-200 dark:bg-[#0D192E] rounded mb-4"></div>
         <div className="space-y-3">
-          <div className="h-16 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
-          <div className="h-16 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+          <div className="h-16 bg-slate-100 dark:bg-[#0D192E]/60 rounded-xl"></div>
+          <div className="h-16 bg-slate-100 dark:bg-[#0D192E]/60 rounded-xl"></div>
         </div>
       </div>
     );
@@ -130,12 +139,12 @@ export function WeaknessTracker({ courseId }: Props) {
 
   if (!data.weak_nodes || data.weak_nodes.length === 0) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 text-center shadow-sm">
-        <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/20 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-8 text-center shadow-sm">
+        <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3">
           <TrendingDown className="w-6 h-6" />
         </div>
-        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">Không có điểm yếu!</h3>
-        <p className="text-sm text-slate-500 mt-1">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 leading-tight">Không có điểm yếu!</h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Tuyệt vời! Bạn đang làm chủ kiến thức rất tốt.
         </p>
       </div>
@@ -143,52 +152,47 @@ export function WeaknessTracker({ courseId }: Props) {
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl shadow-sm dark:shadow-none overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between">
+      <div className="px-5 py-5 border-b border-slate-100 dark:border-slate-400/8 flex items-start justify-between">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2 leading-tight">
             <AlertCircle className="w-5 h-5 text-orange-500" />
             Điểm yếu của tôi
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
             AI phân tích lỗi sai của bạn theo từng chủ đề
           </p>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-black text-slate-900 dark:text-slate-50">
+          <div className="text-2xl font-black text-slate-900 dark:text-slate-50 leading-none">
             {formatPercent(data.total_wrong_percent)}%
           </div>
-          <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">
             Sai sót chung
           </div>
         </div>
       </div>
 
       {/* Nodes list */}
-      <div className="divide-y divide-slate-100 dark:divide-slate-800">
-        {[...data.weak_nodes]
-          .sort((a, b) => {
-            const getRate = (n: WeakNode) => n.total_attempt === 0 ? -1 : (n.wrong_count / n.total_attempt) * 100;
-            return getRate(b) - getRate(a);
-          })
-          .map((node) => {
+      <div className="divide-y divide-slate-100 dark:divide-slate-450/10">
+        {sortedNodes.slice(0, visibleCount).map((node) => {
           const colorClass = LEVEL_COLORS[node.mastery_level] || LEVEL_COLORS["TB"];
           const errorRate = node.total_attempt === 0 ? NaN : (node.wrong_count / node.total_attempt) * 100;
 
 
           return (
-            <div key={node.node_id} className="p-5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+            <div key={node.node_id} className="p-5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-slate-50 dark:hover:bg-[#162644] transition-colors">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
                   <h4 className="font-semibold text-slate-900 dark:text-slate-50 text-base">
                     {node.node_name}
                   </h4>
-                  <span className={cn("text-xs px-2.5 py-0.5 rounded-full font-semibold border", colorClass)}>
+                  <span className={cn("text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider border", colorClass)}>
                     {node.status_level}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
                   <span className="flex items-center gap-1">
                     <AlertCircle className="w-3.5 h-3.5 text-slate-400" />
                     <strong>{node.wrong_count}</strong> {node.total_attempt === 0 ? "lỗi (Chưa kiểm tra)" : "lỗi sai"}
@@ -199,7 +203,7 @@ export function WeaknessTracker({ courseId }: Props) {
                   </span>
                   <span className="flex items-center gap-1 flex-shrink-0 ml-2">
                     <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                    <strong className="text-violet-600 dark:text-violet-400">{node.flashcard_count || 0}</strong> flashcard
+                    <strong className="text-violet-655 dark:text-violet-400">{node.flashcard_count || 0}</strong> flashcard
                   </span>
                 </div>
               </div>
@@ -209,7 +213,7 @@ export function WeaknessTracker({ courseId }: Props) {
                 <button
                   onClick={() => openReviewModal(node)}
                   title="Mở modal xem tất cả flashcard của chủ đề này"
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-95 shadow-sm transition-all"
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border bg-white dark:bg-[#0F1E35] border-slate-200 dark:border-blue-500/20 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#162644] active:scale-95 duration-200 shadow-xs transition-all cursor-pointer"
                 >
                   <BookOpen className="w-4 h-4" />
                   <span className="hidden sm:inline">Xem lại Flashcard</span>
@@ -219,10 +223,10 @@ export function WeaknessTracker({ courseId }: Props) {
                   onClick={() => handleGenerateFlashcards(node)}
                   disabled={generatingFor === node.node_id}
                   className={cn(
-                    "flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all",
+                    "flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all cursor-pointer",
                     generatingFor === node.node_id
-                      ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
-                      : "bg-white dark:bg-slate-800 border-violet-200 dark:border-violet-800 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 active:scale-95 shadow-sm"
+                      ? "bg-slate-100 dark:bg-[#0D192E] border-slate-200 dark:border-blue-500/10 text-slate-400 dark:text-slate-500 cursor-not-allowed"
+                      : "bg-white dark:bg-[#0F1E35] border-violet-200 dark:border-violet-850/50 text-violet-600 dark:text-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-950/20 active:scale-95 duration-200 shadow-xs"
                   )}
                 >
                   {generatingFor === node.node_id ? (
@@ -242,6 +246,16 @@ export function WeaknessTracker({ courseId }: Props) {
           );
         })}
       </div>
+
+      {/* Load more button */}
+      {sortedNodes.length > visibleCount && (
+        <button
+          onClick={() => setVisibleCount((prev) => prev + 5)}
+          className="w-full py-3.5 text-sm font-bold text-blue-600 dark:text-cyan-400 bg-slate-50/30 dark:bg-[#0F1E35]/30 hover:bg-slate-100/50 dark:hover:bg-[#162644]/50 border-t border-slate-100/80 dark:border-slate-450/10 flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-[0.99] cursor-pointer"
+        >
+          Xem thêm ({sortedNodes.length - visibleCount} chủ đề)
+        </button>
+      )}
 
       {/* Review Modal */}
       {reviewNodeId !== null && (

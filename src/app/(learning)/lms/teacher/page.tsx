@@ -15,7 +15,7 @@ import {
   EmptyState, PageLoader, Alert, ProgressBar
 } from "@/components/lms/shared";
 import { Course } from "@/types";
-import { getCookie } from "@/utils/cookies";
+import { useSession } from "next-auth/react";
 import {
   ResponsiveContainer, LineChart, Line,
   BarChart, Bar, XAxis, YAxis, Tooltip,
@@ -55,8 +55,9 @@ function ActionCard({
 
 export default function TeacherDashboard() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const userName = session?.user?.name || "giảng viên";
   const [mounted, setMounted] = useState(false);
-  const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -102,7 +103,6 @@ export default function TeacherDashboard() {
   useEffect(() => {
     const role = sessionStorage.getItem("lms_selected_role");
     if (role !== "TEACHER" && role !== "ADMIN") { router.push("/lms"); return; }
-    setUserName(getCookie("userName") || "giảng viên");
     loadDashboard();
   }, [router, loadDashboard]);
 
