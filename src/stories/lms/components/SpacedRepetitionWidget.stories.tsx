@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { SpacedRepetitionWidget } from '@/components/lms/student/SpacedRepetitionWidget';
 import aiService from '@/services/aiService';
@@ -82,7 +83,7 @@ export const ReviewsDueToday: StoryObj<typeof SpacedRepetitionWidget> = {
       }
     ];
 
-    aiService.recordReview = async (courseId, questionId, quality, nodeId) => {
+    aiService.recordReview = async (courseId, questionId, quality, _nodeId) => {
       console.log(`Recorded review: questionId=${questionId}, quality=${quality}`);
       return Promise.resolve();
     };

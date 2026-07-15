@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { SessionProvider } from 'next-auth/react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import StudentCourseDetailLayout from '@/app/(learning)/lms/student/courses/[courseId]/layout';
 import LearnPage from '@/app/(learning)/lms/student/courses/[courseId]/learn/page';
 import StatsPage from '@/app/(learning)/lms/student/courses/[courseId]/stats/page';
@@ -254,15 +255,15 @@ const MOCK_QUIZ_QUESTIONS_501 = [
 const setupGlobalMocks = () => {
   // 1. LMS Service Mocks
   lmsService.getMyRoles = async () => ["STUDENT"];
-  lmsService.getCourse = async (id: number) => ({ data: MOCK_COURSE });
-  lmsService.listSections = async (courseId: number) => ({ data: MOCK_SECTIONS });
-  lmsService.getCoTeachers = async (courseId: number) => [];
+  lmsService.getCourse = async (_id: number) => ({ data: MOCK_COURSE });
+  lmsService.listSections = async (_courseId: number) => ({ data: MOCK_SECTIONS });
+  lmsService.getCoTeachers = async (_courseId: number) => [];
   lmsService.listContent = async (sectionId: number) => {
     return { data: MOCK_CONTENTS[sectionId] || [] };
   };
 
   // 2. Progress Service Mocks
-  progressService.getMyCourseProgress = async (courseId: number) => ({
+  progressService.getMyCourseProgress = async (_courseId: number) => ({
     course_id: MOCK_COURSE_ID,
     completed_count: 2,
     total_mandatory: 5,
@@ -270,7 +271,7 @@ const setupGlobalMocks = () => {
     completed_content_ids: [101, 102]
   });
 
-  progressService.getMyCourseProgressDetail = async (courseId: number) => [
+  progressService.getMyCourseProgressDetail = async (_courseId: number) => [
     { content_id: 101, content_title: "Bài 1: Giới thiệu kiến trúc App Router & SSR thế hệ mới", content_type: "VIDEO", section_title: "Chương 1: Bắt đầu với Next.js 14 & App Router", is_mandatory: true, is_completed: true, completed_at: "2026-07-10T12:00:00Z" },
     { content_id: 102, content_title: "Bài 2: Hướng dẫn cài đặt môi trường & Khởi tạo dự án", content_type: "DOCUMENT", section_title: "Chương 1: Bắt đầu với Next.js 14 & App Router", is_mandatory: true, is_completed: true, completed_at: "2026-07-11T14:30:00Z" },
     { content_id: 201, content_title: "Bài 3: Tìm hiểu 4 lớp Caching của Next.js", content_type: "TEXT", section_title: "Chương 2: Data Fetching, Caching & Revalidation", is_mandatory: true, is_completed: false, completed_at: null },
@@ -279,7 +280,7 @@ const setupGlobalMocks = () => {
     { content_id: 302, content_title: "Bài 6: Thực hành bảo mật Server Actions", content_type: "QUIZ", section_title: "Chương 3: Đột phá với Server Actions & Security", is_mandatory: true, is_completed: false, completed_at: null }
   ];
 
-  progressService.markContentComplete = async (contentId: number) => ({ success: true });
+  progressService.markContentComplete = async (_contentId: number) => ({ success: true });
 
   // 3. Analytics Service Mocks
   analyticsService.getMyQuizScores = async () => ({
@@ -339,8 +340,8 @@ const setupGlobalMocks = () => {
   });
 
   // 4. Quiz Service Mocks
-  quizService.getQuiz = async (quizId: number) => ({ data: MOCK_QUIZ_501 });
-  quizService.getMyQuizAttempts = async (quizId: number) => ({ data: [] });
+  quizService.getQuiz = async (_quizId: number) => ({ data: MOCK_QUIZ_501 });
+  quizService.getMyQuizAttempts = async (_quizId: number) => ({ data: [] });
   quizService.startQuizAttempt = async (quizId: number) => ({
     data: {
       id: 8801,
@@ -362,7 +363,7 @@ const setupGlobalMocks = () => {
   });
 
   // 5. AI Service Mock
-  aiService.listKnowledgeNodes = async (courseId: number) => [
+  aiService.listKnowledgeNodes = async (_courseId: number) => [
     { id: 10, name: "Giới thiệu kiến trúc App Router & SSR thế hệ mới", source_content_id: 101, course_id: MOCK_COURSE_ID, level: 1, order_index: 1, chunk_count: 1 },
     { id: 11, name: "Hướng dẫn cài đặt môi trường & Khởi tạo dự án", source_content_id: 102, course_id: MOCK_COURSE_ID, level: 1, order_index: 2, chunk_count: 1 },
     { id: 12, name: "Tìm hiểu 4 lớp Caching của Next.js", source_content_id: 201, course_id: MOCK_COURSE_ID, level: 1, order_index: 3, chunk_count: 1 },
@@ -418,8 +419,8 @@ export default meta;
 // Mock wrapper component to inject path properties correctly
 function CourseLayoutMockWrapper({
   children,
-  pathname,
-  searchParams = {}
+  pathname: _pathname,
+  searchParams: _searchParams = {}
 }: {
   children: React.ReactNode;
   pathname: string;

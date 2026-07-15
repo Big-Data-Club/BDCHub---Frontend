@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-page-custom-font */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Card } from '@/components/lms/shared/Card';
 import { PrimaryBtn, SecondaryBtn, GhostBtn } from '@/components/lms/shared/Button';

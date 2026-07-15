@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-page-custom-font */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { StatCard } from '@/components/lms/shared/StatCard';
 import { Shield, BookOpen, Zap, Search, Sun, Moon } from 'lucide-react';

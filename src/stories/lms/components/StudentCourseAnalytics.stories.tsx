@@ -136,7 +136,7 @@ export const AllScenarios: StoryObj<typeof StudentCourseAnalytics> = {
         {/* Scenario 3: Populated state - Lessons tab */}
         <section className="space-y-4">
           <h2 className="text-lg font-bold border-b pb-2 text-slate-700 dark:text-slate-350">
-            3. Kịch bản: Tab "Tiến độ bài học"
+            {'3. Kịch bản: Tab "Tiến độ bài học"'}
           </h2>
           <StudentCourseAnalytics
             {...baseProps}
@@ -148,7 +148,7 @@ export const AllScenarios: StoryObj<typeof StudentCourseAnalytics> = {
         {/* Scenario 4: Populated state - Mastery tab */}
         <section className="space-y-4">
           <h2 className="text-lg font-bold border-b pb-2 text-slate-700 dark:text-slate-350">
-            4. Kịch bản: Tab "Năng lực & Quiz"
+            {'4. Kịch bản: Tab "Năng lực & Quiz"'}
           </h2>
           <StudentCourseAnalytics
             {...baseProps}
@@ -160,7 +160,7 @@ export const AllScenarios: StoryObj<typeof StudentCourseAnalytics> = {
         {/* Scenario 5: Populated state - Flashcard tab */}
         <section className="space-y-4">
           <h2 className="text-lg font-bold border-b pb-2 text-slate-700 dark:text-slate-350">
-            5. Kịch bản: Tab "Ghi nhớ (Flashcard)"
+            {'5. Kịch bản: Tab "Ghi nhớ (Flashcard)"'}
           </h2>
           <StudentCourseAnalytics
             {...baseProps}
