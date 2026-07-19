@@ -23,6 +23,9 @@ const WIDGET_MAP: Record<string, React.ComponentType<any>> = {
   PerformanceChart: dynamic(() =>
     import("./widgets/PerformanceChart").then((m) => m.PerformanceChart),
   ),
+  QuizImportPreview: dynamic(() =>
+    import("./widgets/QuizImportPreview").then((m) => m.QuizImportPreview),
+  ),
   KnowledgeGapMap: dynamic(() =>
     import("./widgets/KnowledgeGapMap").then((m) => m.KnowledgeGapMap),
   ),

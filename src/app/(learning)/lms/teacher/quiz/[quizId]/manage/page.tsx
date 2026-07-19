@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import quizService from "@/services/quizService";
 import { BreadcrumbNav } from "@/components/lms/BreadcrumbNav";
 import { QuizSettingsModal } from "@/components/lms/teacher/QuizSettingsModal";
+import { QuizSmartImportModal } from "@/components/lms/teacher/QuizSmartImportModal";
 import QuestionImageUploader from "@/components/lms/teacher/QuestionImageUploader";
 import FillBlankTextEditor from "@/components/lms/teacher/FillBlankTextEditor";
 import FillBlankDropdownEditor from "@/components/lms/teacher/FillBlankDropdownEditor";
@@ -103,6 +104,7 @@ export default function TeacherQuizManagePage() {
   const [editingQuestion,   setEditingQuestion]   = useState<Question | null>(null);
   const [showQuizSettings,  setShowQuizSettings]  = useState(false);
   const [questionImages,    setQuestionImages]    = useState<QuestionImage[]>([]);
+  const [showSmartImport,   setShowSmartImport]   = useState(false);
 
   // Fill Blank
   const [fillBlankSettings, setFillBlankSettings] = useState<FillBlankTextSettings | FillBlankDropdownSettings | null>(null);
@@ -403,6 +405,16 @@ export default function TeacherQuizManagePage() {
           )}
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => setShowSmartImport(true)}
+            className="
+              flex items-center gap-1.5 px-4 py-2 text-sm font-semibold
+              bg-purple-600 hover:bg-purple-700 text-white
+              rounded-xl active:scale-95 transition-all shadow-sm
+            "
+          >
+            📋 Nhập nhanh AI
+          </button>
           <button
             onClick={() => setShowQuizSettings(true)}
             className="
@@ -782,6 +794,19 @@ export default function TeacherQuizManagePage() {
           onChange={setQuiz}
           onSave={handleSaveQuizSettings}
           onClose={() => setShowQuizSettings(false)}
+        />
+      )}
+
+      {/* ── Smart Import Modal ── */}
+      {showSmartImport && (
+        <QuizSmartImportModal
+          quizId={quizId}
+          currentQuestionCount={questions.length}
+          onClose={() => setShowSmartImport(false)}
+          onImported={async () => {
+            setShowSmartImport(false);
+            await loadQuizData();
+          }}
         />
       )}
     </div>
