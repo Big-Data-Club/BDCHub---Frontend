@@ -94,7 +94,8 @@ export function QuizSmartImportModal({
       setSelected(new Set(withIds.map((_, i) => i)));
       setStep("preview");
     } catch (err: any) {
-      setParseError(err?.response?.data?.error || err.message || "Lỗi khi phân tích văn bản.");
+      const errMsg = err?.response?.data?.message || err?.response?.data?.error || err.message || "Lỗi khi phân tích văn bản.";
+      setParseError(errMsg);
     } finally {
       setIsParsing(false);
     }
@@ -124,7 +125,8 @@ export function QuizSmartImportModal({
       await quizService.createQuestionsBatch(quizId, questionsData);
       onImported();
     } catch (err: any) {
-      setSaveError(err?.response?.data?.error || err.message || "Lỗi khi lưu câu hỏi.");
+      const errMsg = err?.response?.data?.message || err?.response?.data?.error || err.message || "Lỗi khi lưu câu hỏi.";
+      setSaveError(errMsg);
     } finally {
       setIsSaving(false);
     }

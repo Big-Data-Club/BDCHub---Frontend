@@ -40,6 +40,7 @@ const QUESTION_TYPE_LABELS: Record<string, { label: string; icon: string }> = {
 export function QuizImportPreview({ props }: QuizImportPreviewProps) {
   const { questions, quiz_id } = props;
 
+  const [targetQuizId, setTargetQuizId] = useState(quiz_id);
   const [statuses, setStatuses] = useState<Record<number, "approved" | "rejected">>({});
   const [expanded, setExpanded] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -63,7 +64,7 @@ export function QuizImportPreview({ props }: QuizImportPreviewProps) {
     setSaveError(null);
     try {
       // Fetch current question count first to set order_index
-      const currentData = await quizService.listQuestions(quiz_id);
+      const currentData = await quizService.listQuestions(targetQuizId);
       const currentCount = (currentData.data || []).length;
 
       const questionsData = approvedQuestions.map((q, i) => ({
@@ -78,11 +79,12 @@ export function QuizImportPreview({ props }: QuizImportPreviewProps) {
         settings:        q.settings,
       }));
 
-      await quizService.createQuestionsBatch(quiz_id, questionsData);
+      await quizService.createQuestionsBatch(targetQuizId, questionsData);
       setSavedCount(approvedQuestions.length);
       setSuccess(true);
     } catch (err: any) {
-      setSaveError(err?.response?.data?.error || err.message || "Lỗi khi lưu câu hỏi.");
+      const errMsg = err?.response?.data?.message || err?.response?.data?.error || err.message || "Lỗi khi lưu câu hỏi.";
+      setSaveError(errMsg);
     } finally {
       setIsSaving(false);
     }
@@ -97,16 +99,16 @@ export function QuizImportPreview({ props }: QuizImportPreviewProps) {
           <Check className="w-7 h-7 text-green-600 dark:text-green-400" />
         </div>
         <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
-          Đã thêm {savedCount} câu hỏi vào Quiz #{quiz_id}!
+          Đã thêm {savedCount} câu hỏi vào Quiz #{targetQuizId}!
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400">
           Vào trang quản lý quiz để xem và chỉnh sửa câu hỏi vừa nhập.
         </p>
         <a
-          href={`/lms/teacher/quiz/${quiz_id}/manage`}
+          href={`/lms/teacher/quiz/${targetQuizId}/manage`}
           className="mt-4 inline-flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold transition-colors"
         >
-          Xem quiz #{quiz_id} →
+          Xem quiz #{targetQuizId} →
         </a>
       </div>
     );
@@ -246,14 +248,27 @@ export function QuizImportPreview({ props }: QuizImportPreviewProps) {
         </div>
       )}
 
+      {/* Target Quiz Configuration */}
+      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-800/60 text-xs">
+        <span className="font-semibold text-slate-600 dark:text-slate-400">Quiz ID mục tiêu:</span>
+        <div className="flex items-center gap-1.5">
+          <input
+            type="number"
+            value={targetQuizId}
+            onChange={(e) => setTargetQuizId(Number(e.target.value))}
+            className="w-20 px-2.5 py-1 text-center font-bold border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
       {/* Save button */}
-      <div className="pt-2">
+      <div className="pt-1">
         <button
           onClick={handleSave}
-          disabled={approvedCount === 0 || isSaving}
+          disabled={approvedCount === 0 || isSaving || !targetQuizId}
           className={cn(
             "w-full h-12 rounded-2xl font-bold text-white flex items-center justify-center gap-2.5 transition-all active:scale-[0.98]",
-            approvedCount === 0 || isSaving
+            approvedCount === 0 || isSaving || !targetQuizId
               ? "bg-slate-300 dark:bg-slate-700 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-200 dark:shadow-none",
           )}
@@ -266,7 +281,7 @@ export function QuizImportPreview({ props }: QuizImportPreviewProps) {
           ) : (
             <>
               <PlusCircle className="w-5 h-5" />
-              <span>✅ Thêm {approvedCount} câu hỏi vào Quiz #{quiz_id}</span>
+              <span>✅ Thêm {approvedCount} câu hỏi vào Quiz #{targetQuizId}</span>
             </>
           )}
         </button>

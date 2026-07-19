@@ -14,6 +14,7 @@ import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { useQuizCourse } from "@/hooks/useQuizCourse";
 import { useMarkdownImage } from "@/hooks/useMarkdownImage";
+import { useSetPageContext } from "@/hooks/usePageContext";
 import type {
   FillBlankTextSettings,
   FillBlankTextCorrectAnswer,
@@ -96,6 +97,23 @@ export default function TeacherQuizManagePage() {
   const quizId = parseInt(params.quizId as string);
 
   const { courseId, courseTitle, loading: breadcrumbLoading } = useQuizCourse(quizId);
+
+  const { setPageContext, clearPageContext } = useSetPageContext();
+
+  useEffect(() => {
+    if (breadcrumbLoading) return;
+    setPageContext({
+      pageType: "quiz",
+      courseId: courseId || undefined,
+      courseName: courseTitle || undefined,
+      contentTitle: quiz?.title || undefined,
+      extra: {
+        quizId: quizId,
+        quiz_id: quizId,
+      },
+    });
+    return () => clearPageContext();
+  }, [courseId, courseTitle, quiz, quizId, breadcrumbLoading, setPageContext, clearPageContext]);
 
   const [quiz,              setQuiz]              = useState<Quiz | null>(null);
   const [questions,         setQuestions]         = useState<Question[]>([]);
