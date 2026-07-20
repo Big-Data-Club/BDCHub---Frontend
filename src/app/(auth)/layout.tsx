@@ -3,6 +3,13 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { AuthShell } from "@/components/login/AuthShell";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Đăng nhập",
+  robots: "noindex, nofollow",
+};
+
 
 type DashboardLayoutProps = {
   children: React.ReactNode;

@@ -100,6 +100,15 @@ export default function TeacherQuizManagePage() {
 
   const { setPageContext, clearPageContext } = useSetPageContext();
 
+  const [quiz,              setQuiz]              = useState<Quiz | null>(null);
+  const [questions,         setQuestions]         = useState<Question[]>([]);
+  const [loading,           setLoading]           = useState(true);
+  const [showQuestionForm,  setShowQuestionForm]  = useState(false);
+  const [editingQuestion,   setEditingQuestion]   = useState<Question | null>(null);
+  const [showQuizSettings,  setShowQuizSettings]  = useState(false);
+  const [questionImages,    setQuestionImages]    = useState<QuestionImage[]>([]);
+  const [showSmartImport,   setShowSmartImport]   = useState(false);
+
   useEffect(() => {
     if (breadcrumbLoading) return;
     setPageContext({
@@ -115,14 +124,6 @@ export default function TeacherQuizManagePage() {
     return () => clearPageContext();
   }, [courseId, courseTitle, quiz, quizId, breadcrumbLoading, setPageContext, clearPageContext]);
 
-  const [quiz,              setQuiz]              = useState<Quiz | null>(null);
-  const [questions,         setQuestions]         = useState<Question[]>([]);
-  const [loading,           setLoading]           = useState(true);
-  const [showQuestionForm,  setShowQuestionForm]  = useState(false);
-  const [editingQuestion,   setEditingQuestion]   = useState<Question | null>(null);
-  const [showQuizSettings,  setShowQuizSettings]  = useState(false);
-  const [questionImages,    setQuestionImages]    = useState<QuestionImage[]>([]);
-  const [showSmartImport,   setShowSmartImport]   = useState(false);
 
   // Fill Blank
   const [fillBlankSettings, setFillBlankSettings] = useState<FillBlankTextSettings | FillBlankDropdownSettings | null>(null);
