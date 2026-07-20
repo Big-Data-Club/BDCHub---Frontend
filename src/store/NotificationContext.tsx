@@ -251,7 +251,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                     const counts = JSON.parse(storedCountsStr);
                     counts[wsEvent.channel_id] = (counts[wsEvent.channel_id] ?? 0) + 1;
                     localStorage.setItem("chat_unread_counts", JSON.stringify(counts));
-                  } catch (e) {
+                  } catch {
                     // ignore
                   }
                   

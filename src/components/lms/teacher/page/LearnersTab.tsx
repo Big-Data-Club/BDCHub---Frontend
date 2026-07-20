@@ -46,7 +46,7 @@ export function LearnersTab({ courseId }: LearnersTabProps) {
     }
   }, [courseId, filter]);
 
-  useEffect(() => { load(); }, [filter]);
+  useEffect(() => { load(); }, [load]);
 
   const counts = {
     accepted: learners.filter(l => l.status === "ACCEPTED").length,

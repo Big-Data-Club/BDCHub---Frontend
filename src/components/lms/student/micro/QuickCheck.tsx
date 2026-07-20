@@ -82,7 +82,7 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
       const qs = res.questions ?? [];
       setQuestions(qs);
       setState(qs.map(() => ({ selectedIdx: null, submitted: false })));
-    } catch (e) {
+    } catch {
       setError(
         lang === "vi"
           ? "Không tạo được câu hỏi. Thử lại sau."
@@ -160,12 +160,12 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
         flashcards,
       });
       setSaved(true);
-    } catch (e) {
+    } catch {
       alert(labels.saveError);
     } finally {
       setSaving(false);
     }
-  }, [ctx.courseId, ctx.lessonId, ctx.nodeId, questions, saved, saving, labels]);
+  }, [ctx.courseId, ctx.lessonId, ctx.nodeId, ctx.contentId, questions, saved, saving, labels]);
 
   if (loading) {
     return (

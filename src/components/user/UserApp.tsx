@@ -1,12 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { User } from "@/types";
-import { fetchUsers, postBulkRegister, updateUserStatus } from "@/lib/users/api";
+import { fetchUsers, updateUserStatus } from "@/lib/users/api";
 import UserRow from "./UserRow";
 import dynamic from "next/dynamic";
-import { mapFrontendRoleToBackend, mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchRoles } from "@/lib/admin/rolesApi";
+
 
 // Lazy-load components to optimize initial bundle size and page load speed
 const DetailModal = dynamic(() => import("./DetailModal"), { ssr: false });
@@ -42,7 +41,6 @@ function UserRowSkeleton() {
 export default function UserApp() {
   const { isAdmin } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
-  const [availableRoles, setAvailableRoles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,12 +86,6 @@ export default function UserApp() {
     try {
       const list = await fetchUsers();
       setUsers(list);
-      try {
-        const rolesList = await fetchRoles();
-        setAvailableRoles(rolesList);
-      } catch (err) {
-        console.warn("Failed to fetch roles:", err);
-      }
     } catch (err: any) {
       console.error(err);
       setError(err?.message ?? String(err));

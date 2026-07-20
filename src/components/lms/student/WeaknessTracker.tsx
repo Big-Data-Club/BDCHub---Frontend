@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   TrendingDown,
   AlertCircle,
@@ -40,6 +40,8 @@ export function WeaknessTracker({ courseId }: Props) {
   const [reviewNodeName, setReviewNodeName] = useState("");
   const [visibleCount, setVisibleCount] = useState(5);
 
+  const isMounted = useRef(true);
+
   const sortedNodes = useMemo(() => {
     if (!data?.weak_nodes) return [];
     return [...data.weak_nodes].sort((a, b) => {
@@ -52,17 +54,27 @@ export function WeaknessTracker({ courseId }: Props) {
     setLoading(true);
     try {
       const res = await analyticsService.getMyWeaknesses(courseId);
-      setData(res.data);
-      setError("");
+      if (isMounted.current) {
+        setData(res.data);
+        setError("");
+      }
     } catch (e: any) {
-      setError(e?.response?.data?.message || "Không thể tải dữ liệu điểm yếu.");
+      if (isMounted.current) {
+        setError(e?.response?.data?.message || "Không thể tải dữ liệu điểm yếu.");
+      }
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
   }, [courseId]);
 
   useEffect(() => {
+    isMounted.current = true;
     load();
+    return () => {
+      isMounted.current = false;
+    };
   }, [load]);
 
   const handleGenerateFlashcards = async (node: WeakNode) => {
@@ -79,11 +91,12 @@ export function WeaknessTracker({ courseId }: Props) {
       let isDone = false;
       const { aiService } = await import("@/services/aiService");
       
-      while (!isDone) {
+      while (!isDone && isMounted.current) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
+        if (!isMounted.current) break;
         
         const statusCheck = await aiService.getJobStatus(response.job_id);
-        if (statusCheck.status === "completed") {
+        if (statusCheck.status === "completed" && isMounted.current) {
           isDone = true;
           toast.success(`Đã tạo flashcard ôn tập cho "${node.node_name}"!`);
           
@@ -105,9 +118,13 @@ export function WeaknessTracker({ courseId }: Props) {
         }
       }
     } catch (e: any) {
-      toast.error(e?.message || e?.response?.data?.message || "Tạo flashcard thất bại.");
+      if (isMounted.current) {
+        toast.error(e?.message || e?.response?.data?.message || "Tạo flashcard thất bại.");
+      }
     } finally {
-      setGeneratingFor(null);
+      if (isMounted.current) {
+        setGeneratingFor(null);
+      }
     }
   };
 

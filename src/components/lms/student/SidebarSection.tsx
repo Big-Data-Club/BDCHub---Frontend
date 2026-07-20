@@ -57,7 +57,7 @@ export interface SidebarSectionProps {
   completedIds: Set<number>;
 }
 
-export function SidebarSection({
+export const SidebarSection = React.memo(function SidebarSection({
   section, index, contents, loading,
   isExpanded, onToggle, activeContentId, onSelect,
   completedIds,
@@ -180,4 +180,4 @@ export function SidebarSection({
       )}
     </div>
   );
-}
+});

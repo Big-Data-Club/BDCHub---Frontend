@@ -9,12 +9,11 @@
  * - Điểm quiz
  */
 
-import { useEffect, useState } from "react";
 import {
   X, TrendingUp, Award, Clock,
   CheckCircle2, AlertCircle
 } from "lucide-react";
-import { CourseStudentProgress, StudentAttemptOverview } from "@/services/analyticsService";
+import { CourseStudentProgress } from "@/services/analyticsService";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -73,51 +72,7 @@ function StatRow({ icon, label, value, sub, accent }: {
   );
 }
 
-interface QuizAttemptSummary {
-  quizId:    number;
-  quizTitle: string;
-  best:      number | null;
-  attempts:  number;
-  isPassed:  boolean | null;
-}
-
-function buildQuizSummary(attempts: StudentAttemptOverview[]): QuizAttemptSummary[] {
-  const map = new Map<number, QuizAttemptSummary>();
-  for (const a of attempts) {
-    const ex = map.get(a.quiz_id);
-    if (!ex) {
-      map.set(a.quiz_id, {
-        quizId: a.quiz_id,
-        quizTitle: a.quiz_title,
-        best: a.percentage ?? null,
-        attempts: 1,
-        isPassed: a.is_passed ?? null,
-      });
-    } else {
-      ex.attempts++;
-      if ((a.percentage ?? 0) > (ex.best ?? 0)) ex.best = a.percentage ?? null;
-      if (a.is_passed) ex.isPassed = true;
-      map.set(a.quiz_id, ex);
-    }
-  }
-  return Array.from(map.values());
-}
-
-export function StudentDetailPanel({ student, courseId, onClose }: Props) {
-  const [quizSummary, setQuizSummary] = useState<QuizAttemptSummary[]>([]);
-  const [loadingQuiz, setLoadingQuiz] = useState(false);
-
-  useEffect(() => {
-    setLoadingQuiz(true);
-    // Get quiz-analytics for the course (teacher view) - filtered by student
-    // We use getQuizAllAttempts per quiz is expensive; use course quiz-analytics instead
-    // For now we fetch course quiz analytics and filter by available data
-    // A better endpoint would be GET /courses/{courseId}/student/{studentId}/quiz-scores
-    // Using what's available: getCourseQuizAnalytics gives course-level, not per-student
-    // So we'll display what we can from the student object
-    setLoadingQuiz(false);
-  }, [student.student_id, courseId]);
-
+export function StudentDetailPanel({ student, onClose }: Props) {
   const formatDate = (d: string | null) =>
     d ? new Date(d).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "-";
 

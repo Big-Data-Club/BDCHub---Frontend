@@ -84,6 +84,7 @@ export function PendingUsersSection({ isAdmin, onApproved }: PendingUsersSection
               >
                 <div className="flex items-center gap-3 min-w-0">
                   {user.profilePicture ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={user.profilePicture}
                       alt={user.name}

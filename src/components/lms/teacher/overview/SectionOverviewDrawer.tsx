@@ -44,7 +44,6 @@ const POLL_INTERVAL_MS = 3000;
 export function SectionOverviewDrawer({
   jobId,
   sectionTitle,
-  sections,
   onClose,
   onLessonPublished,
   onQuizPublished,

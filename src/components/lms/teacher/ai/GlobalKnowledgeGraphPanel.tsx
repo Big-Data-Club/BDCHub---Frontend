@@ -5,12 +5,11 @@ import React, {
 } from "react";
 import dynamic from "next/dynamic";
 import {
-  AlertCircle, BrainCircuit, ChevronDown,
+  BrainCircuit,
   Filter, Maximize2, Minimize2, RefreshCw,
-  Search, Sliders, X, Link2, BookOpen, ExternalLink
+  Search, X, Link2, BookOpen, ExternalLink
 } from "lucide-react";
 import aiService, {
-  KnowledgeGraphNode,
   KnowledgeGraphResponse,
 } from "@/services/aiService";
 import { cn } from "@/lib/utils";
@@ -65,9 +64,8 @@ export default function GlobalKnowledgeGraphPanel({
   // ── State ──────────────────────────────────────────────────────────────────
   const [raw, setRaw] = useState<KnowledgeGraphResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [selectedCourses, setSelectedCourses] = useState<Set<number>>(new Set());
+  const selectedCourses = useMemo(() => new Set<number>(), []);
   const [minStrength, setMinStrength] = useState(0.3);
   const [showCrossOnly, setShowCrossOnly] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -75,7 +73,7 @@ export default function GlobalKnowledgeGraphPanel({
 
   const [selectedNode, setSelectedNode] = useState<any | null>(null);
   const [hoveredNode, setHoveredNode] = useState<any | null>(null);
-  const [hoveredLink, setHoveredLink] = useState<any | null>(null);
+  const [, setHoveredLink] = useState<any | null>(null);
   const [nodeChunks, setNodeChunks] = useState<any[]>([]);
   const [loadingChunks, setLoadingChunks] = useState(false);
 
@@ -120,14 +118,13 @@ export default function GlobalKnowledgeGraphPanel({
   // ── Effects & Handlers ─────────────────────────────────────────────────────
   const fetchGraph = useCallback(async () => {
     setLoading(true);
-    setError("");
     try {
       const data = isGlobal
         ? await aiService.getGlobalKnowledgeGraph({ min_strength: 0.1, limit: 1000 })
         : await aiService.getKnowledgeGraph(courseId!);
       setRaw(data);
     } catch (e: any) {
-      setError(e?.message ?? "Không thể tải dữ liệu");
+      // ignore
     } finally {
       setLoading(false);
     }

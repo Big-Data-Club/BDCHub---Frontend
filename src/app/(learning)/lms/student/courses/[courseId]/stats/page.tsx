@@ -16,12 +16,17 @@ import { useRouter, useParams } from "next/navigation";
 import {
   HelpCircle, CheckCircle2, AlertCircle, Lock,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 
 import analyticsService, { StudentQuizScore } from "@/services/analyticsService";
 
 import { useStudentCourse } from "@/components/lms/student/StudentCourseContext";
-import { WeaknessTracker } from "@/components/lms/student/WeaknessTracker";
 import { cn } from "@/lib/utils";
+
+const WeaknessTracker = dynamic(
+  () => import("@/components/lms/student/WeaknessTracker").then(m => m.WeaknessTracker),
+  { ssr: false, loading: () => <div className="h-48 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-6 animate-pulse" /> }
+);
 
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
 

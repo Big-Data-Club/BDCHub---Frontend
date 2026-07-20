@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { BookOpen, ChevronDown } from "lucide-react";
 import { useStudentCourse } from "./StudentCourseContext";
 import { SidebarSection } from "./SidebarSection";
@@ -25,8 +25,10 @@ export function CourseLearningSidebar() {
   const [isTeachersExpanded, setIsTeachersExpanded] = useState(false);
 
   // Compute progress numbers
-  const totalMandatory = progress?.total_mandatory
-    ?? Object.values(sectionContents).flat().filter(c => c.is_mandatory).length;
+  const memoizedMandatoryCount = useMemo(() => {
+    return Object.values(sectionContents).flat().filter(c => c.is_mandatory).length;
+  }, [sectionContents]);
+  const totalMandatory = progress?.total_mandatory ?? memoizedMandatoryCount;
   const completedCount = progress?.completed_count ?? completedIds.size;
   const progressPct = totalMandatory > 0 ? Math.round((completedCount / totalMandatory) * 100) : 0;
 
