@@ -36,7 +36,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const wsRef = useRef<WebSocket | null>(null);
 
   // Load initial states from localStorage
   useEffect(() => {
@@ -195,99 +194,17 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  // Listen to custom window event to sync unread count in real-time
+  // useChat.tsx dispatches 'unread-chat-change' on every unreadCounts change.
+  // We listen here to keep the notification badge in sync without opening a
+  // second WebSocket connection (ChatProvider already handles its own WS).
   useEffect(() => {
     const syncCount = () => {
       const stored = localStorage.getItem("unread_chat_messages_count");
-      if (stored) {
-        setUnreadChatCount(Number(stored));
-      }
+      if (stored) setUnreadChatCount(Number(stored));
     };
     window.addEventListener("unread-chat-change", syncCount);
     return () => window.removeEventListener("unread-chat-change", syncCount);
   }, []);
-
-  // Background WebSocket listener for chat notifications
-  useEffect(() => {
-    if (status !== "authenticated" || !(session as any)?.accessToken) {
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-      return;
-    }
-
-    const token = (session as any).accessToken;
-    const WS_BASE_URL = process.env.NEXT_PUBLIC_CHAT_WS_URL || "ws://localhost:8083/api/v1";
-    const url = `${WS_BASE_URL}/chat/ws?token=${encodeURIComponent(token)}`;
-
-    let ws: WebSocket | null = null;
-    let reconnectTimeout: NodeJS.Timeout | null = null;
-    let isUnmounted = false;
-
-    const connectBgWs = () => {
-      if (isUnmounted) return;
-      ws = new WebSocket(url);
-      wsRef.current = ws;
-
-      ws.onmessage = (event) => {
-        if (pathname === "/chat") return; // active in chat page, let useChat handle it
-
-        const lines = (event.data as string).split("\n").filter(Boolean);
-        for (const line of lines) {
-          try {
-            const wsEvent = JSON.parse(line);
-            if (wsEvent.type === "message") {
-              const p = wsEvent.payload;
-              const currentUserId = session.user && (session.user as any).id;
-              if (p && currentUserId && String(p.sender_id) !== String(currentUserId)) {
-                setUnreadChatCount((prev) => {
-                  const next = prev + 1;
-                  localStorage.setItem("unread_chat_messages_count", String(next));
-                  
-                  // Also update per-channel unread counts
-                  const storedCountsStr = localStorage.getItem("chat_unread_counts") || "{}";
-                  try {
-                    const counts = JSON.parse(storedCountsStr);
-                    counts[wsEvent.channel_id] = (counts[wsEvent.channel_id] ?? 0) + 1;
-                    localStorage.setItem("chat_unread_counts", JSON.stringify(counts));
-                  } catch (e) {
-                    // ignore
-                  }
-                  
-                  window.dispatchEvent(new Event("unread-chat-change"));
-                  return next;
-                });
-              }
-            }
-          } catch {
-            // ignore malformed
-          }
-        }
-      };
-
-      ws.onclose = () => {
-        if (!isUnmounted) {
-          reconnectTimeout = setTimeout(connectBgWs, 5000);
-        }
-      };
-      
-      ws.onerror = () => {
-        ws?.close();
-      };
-    };
-
-    connectBgWs();
-
-    return () => {
-      isUnmounted = true;
-      if (reconnectTimeout) clearTimeout(reconnectTimeout);
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-    };
-  }, [status, session, pathname]);
 
   return (
     <NotificationContext.Provider

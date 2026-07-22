@@ -76,11 +76,26 @@ const Background: React.FC = () => {
     const worker = workerRef.current;
 
     // 3. Event Handlers
+    // pointermove: rAF-gated to send at most 1 message per frame (~30fps)
+    // instead of firing on every raw pointer event (can be 100s/sec).
+    const pendingMouse = { x: 0, y: 0, dirty: false };
+    let mouseRafId = 0;
     const onPointerMove = (e: PointerEvent) => {
-      worker?.postMessage({
-        type: 'mouse',
-        data: { x: e.clientX, y: e.clientY }
-      });
+      pendingMouse.x = e.clientX;
+      pendingMouse.y = e.clientY;
+      pendingMouse.dirty = true;
+      if (!mouseRafId) {
+        mouseRafId = requestAnimationFrame(() => {
+          if (pendingMouse.dirty) {
+            worker?.postMessage({
+              type: 'mouse',
+              data: { x: pendingMouse.x, y: pendingMouse.y },
+            });
+            pendingMouse.dirty = false;
+          }
+          mouseRafId = 0;
+        });
+      }
     };
 
     const onPointerLeave = () => {
@@ -101,9 +116,12 @@ const Background: React.FC = () => {
       });
     };
 
-    // 4. Visibility change handler - restart animation loop when tab becomes visible
+    // 4. Visibility change: pause animation when hidden, resume when visible.
+    // Pause brings CPU to ~0% when the user is in another tab.
     const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'hidden') {
+        worker?.postMessage({ type: 'pause' });
+      } else {
         worker?.postMessage({ type: 'resume' });
       }
     };
@@ -118,6 +136,7 @@ const Background: React.FC = () => {
       window.removeEventListener('pointerleave', onPointerLeave);
       window.removeEventListener('resize', onResize);
       document.removeEventListener('visibilitychange', onVisibilityChange);
+      if (mouseRafId) cancelAnimationFrame(mouseRafId);
       // DO NOT terminate the worker here. We keep it alive in the global variable so that
       // when the layout mounts again, the canvas is immediately active and rendering.
     };
