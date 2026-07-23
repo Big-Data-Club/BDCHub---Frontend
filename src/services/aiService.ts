@@ -421,13 +421,13 @@ export interface ConceptCheckResponse {
 
 /** A single question parsed from raw text by the AI. */
 export interface ParsedQuestion {
-  question_type: "SINGLE_CHOICE" | "MULTIPLE_CHOICE" | "FILL_BLANK_TEXT" | "SHORT_ANSWER" | "ESSAY" | "FILE_UPLOAD";
+  question_type: "SINGLE_CHOICE" | "MULTIPLE_CHOICE" | "FILL_BLANK_TEXT" | "FILL_BLANK_DROPDOWN" | "SHORT_ANSWER" | "ESSAY" | "FILE_UPLOAD";
   question_text: string;
   points: number;
   order_index: number;
   explanation: string;
   is_required: boolean;
-  answer_options: { option_text: string; is_correct: boolean; order_index: number }[];
+  answer_options: { option_text: string; is_correct: boolean; order_index: number; blank_id?: number | null }[];
   correct_answers: { answer_text: string; blank_id?: number; case_sensitive: boolean; exact_match: boolean }[];
   settings: { blank_count: number; blanks: { blank_id: number; placeholder?: string }[] } | null;
   /** Client-only: for preview tracking */
