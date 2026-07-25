@@ -7,11 +7,17 @@ export const lmsApiClient = axios.create({
   withCredentials: true,
 });
 
-// ── Inject Bearer token from NextAuth session ───────────────────────────
 lmsApiClient.interceptors.request.use(async (config) => {
   const token = await getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  
+  // Prevent GET requests from being cached by intermediate proxies or the browser
+  if (config.method?.toLowerCase() === "get") {
+    config.headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    config.headers["Pragma"] = "no-cache";
+    config.headers["Expires"] = "0";
   }
   return config;
 });

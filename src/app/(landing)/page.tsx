@@ -22,8 +22,27 @@ export const metadata: Metadata = {
 };
 
 export default function LandingPage() {
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "Big Data Club - HCMUT",
+    "alternateName": "BDC",
+    "url": "https://bdc.hpcc.vn",
+    "logo": "https://bdc.hpcc.vn/og-image.png",
+    "description": "Câu lạc bộ học thuật chuyên sâu về Big Data, AI, Cloud Computing tại Trường Đại học Bách Khoa - ĐHQG TP.HCM.",
+    "parentOrganization": {
+      "@type": "CollegeOrUniversity",
+      "name": "Trường Đại học Bách Khoa - ĐHQG TP.HCM",
+      "url": "https://hcmut.edu.vn"
+    }
+  };
+
   return (
     <div className="w-full pb-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       <ScrollReset />
       {/* <HpcNotice /> */}
       <Hero />

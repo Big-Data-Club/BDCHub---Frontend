@@ -43,12 +43,6 @@ export default function EditContentModal({
   const [removeFileConfirm, setRemoveFileConfirm] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (content.type === "QUIZ") {
-      loadQuizSettings();
-    }
-  }, [content.id, content.type, loadQuizSettings]);
-
   const loadQuizSettings = useCallback(async () => {
     try {
       setLoadingQuiz(true);
@@ -109,6 +103,12 @@ export default function EditContentModal({
       setLoadingQuiz(false);
     }
   }, [content.id, content.title, content.description]);
+
+  useEffect(() => {
+    if (content.type === "QUIZ") {
+      loadQuizSettings();
+    }
+  }, [content.id, content.type, loadQuizSettings]);
 
   const getContentTypeLabel = (type: string) => {
     const labels: Record<string, string> = {

@@ -8,7 +8,11 @@ import ForgotPasswordModal from "./ForgotPasswordModal";
 import Mascot from "./Mascot";
 import { GoogleLoginButton } from "./GoogleLoginButton";
 
-export default function LoginForm() {
+interface LoginFormProps {
+  googleClientId?: string;
+}
+
+export default function LoginForm({ googleClientId }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -158,7 +162,7 @@ export default function LoginForm() {
         </div>
 
         {/* Google Login */}
-        <GoogleLoginButton onError={setError} />
+        <GoogleLoginButton googleClientId={googleClientId} onError={setError} />
       </div>
     </>
   );

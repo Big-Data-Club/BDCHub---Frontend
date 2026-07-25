@@ -2,7 +2,10 @@ import React from "react";
 import LoginForm from "@/components/login/LoginForm";
 import { Logo } from "@/components/layout/Logo";
 
+export const dynamic = "force-dynamic";
+
 export default function LoginPage() {
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
   return (
     <div className="min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8 flex flex-row items-center justify-center gap-4">
@@ -17,7 +20,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <LoginForm />
+      <LoginForm googleClientId={googleClientId} />
     </div>
   );
 }

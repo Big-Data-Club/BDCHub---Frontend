@@ -118,12 +118,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     return {};
   });
 
+  // Debounced localStorage sync: batches rapid successive updates (e.g. burst
+  // of incoming messages) into a single write + event dispatch after 200ms.
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("chat_unread_counts", JSON.stringify(unreadCounts));
-      const total = Object.values(unreadCounts).reduce((s, n) => s + n, 0);
-      localStorage.setItem("unread_chat_messages_count", String(total));
-      window.dispatchEvent(new Event("unread-chat-change"));
+      if (persistTimer.current) clearTimeout(persistTimer.current);
+      persistTimer.current = setTimeout(() => {
+        localStorage.setItem("chat_unread_counts", JSON.stringify(unreadCounts));
+        const total = Object.values(unreadCounts).reduce((s, n) => s + n, 0);
+        localStorage.setItem("unread_chat_messages_count", String(total));
+        window.dispatchEvent(new Event("unread-chat-change"));
+      }, 200);
     }
   }, [unreadCounts]);
 
@@ -133,6 +138,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const reconnectDelay = useRef(RECONNECT_INITIAL_DELAY);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const unmounted = useRef(false);
+  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Load channels ────────────────────────────────────────────────────────────
   useEffect(() => {

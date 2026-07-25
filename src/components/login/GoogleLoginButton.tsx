@@ -9,12 +9,14 @@ import { Spinner } from "@/components/icons/Icons";
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
 interface GoogleLoginButtonProps {
+  googleClientId?: string;
   onError: (msg: string) => void;
 }
 
-export function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
+export function GoogleLoginButton({ googleClientId, onError }: GoogleLoginButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const activeClientId = googleClientId || GOOGLE_CLIENT_ID;
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     const idToken = credentialResponse.credential;
@@ -87,12 +89,12 @@ export function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
     }
   };
 
-  if (!GOOGLE_CLIENT_ID) {
+  if (!activeClientId) {
     return null;
   }
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={activeClientId}>
       <div className="flex flex-col items-center">
         {loading ? (
           <div className="flex items-center justify-center py-3">

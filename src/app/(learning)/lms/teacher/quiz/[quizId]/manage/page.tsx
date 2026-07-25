@@ -100,6 +100,15 @@ export default function TeacherQuizManagePage() {
 
   const { setPageContext, clearPageContext } = useSetPageContext();
 
+  const [quiz,              setQuiz]              = useState<Quiz | null>(null);
+  const [questions,         setQuestions]         = useState<Question[]>([]);
+  const [loading,           setLoading]           = useState(true);
+  const [showQuestionForm,  setShowQuestionForm]  = useState(false);
+  const [editingQuestion,   setEditingQuestion]   = useState<Question | null>(null);
+  const [showQuizSettings,  setShowQuizSettings]  = useState(false);
+  const [questionImages,    setQuestionImages]    = useState<QuestionImage[]>([]);
+  const [showSmartImport,   setShowSmartImport]   = useState(false);
+
   useEffect(() => {
     if (breadcrumbLoading) return;
     setPageContext({
@@ -115,14 +124,6 @@ export default function TeacherQuizManagePage() {
     return () => clearPageContext();
   }, [courseId, courseTitle, quiz, quizId, breadcrumbLoading, setPageContext, clearPageContext]);
 
-  const [quiz,              setQuiz]              = useState<Quiz | null>(null);
-  const [questions,         setQuestions]         = useState<Question[]>([]);
-  const [loading,           setLoading]           = useState(true);
-  const [showQuestionForm,  setShowQuestionForm]  = useState(false);
-  const [editingQuestion,   setEditingQuestion]   = useState<Question | null>(null);
-  const [showQuizSettings,  setShowQuizSettings]  = useState(false);
-  const [questionImages,    setQuestionImages]    = useState<QuestionImage[]>([]);
-  const [showSmartImport,   setShowSmartImport]   = useState(false);
 
   // Fill Blank
   const [fillBlankSettings, setFillBlankSettings] = useState<FillBlankTextSettings | FillBlankDropdownSettings | null>(null);
@@ -192,7 +193,7 @@ export default function TeacherQuizManagePage() {
         question_type: questionForm.question_type,
         question_text: questionForm.question_text.trim(),
         points: parseFloat(String(questionForm.points)),
-        order_index: questions.length + 1,
+        order_index: questions.reduce((max, q) => Math.max(max, q.order_index || 0), 0) + 1,
         is_required: questionForm.is_required === true,
       };
 
@@ -819,7 +820,7 @@ export default function TeacherQuizManagePage() {
       {showSmartImport && (
         <QuizSmartImportModal
           quizId={quizId}
-          currentQuestionCount={questions.length}
+          currentQuestionCount={questions.reduce((max, q) => Math.max(max, q.order_index || 0), 0)}
           onClose={() => setShowSmartImport(false)}
           onImported={async () => {
             setShowSmartImport(false);

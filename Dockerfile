@@ -6,15 +6,19 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+RUN corepack enable
 
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --prefer-offline --no-audit --legacy-peer-deps
+COPY package.json pnpm-lock.yaml* ./
+
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 LABEL stage=builder
 WORKDIR /app
+
+RUN corepack enable
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -48,7 +52,7 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 
 # Build Next.js application with cache mount
 RUN --mount=type=cache,target=/app/.next/cache \
-    npm run build
+    pnpm run build
 
 # Stage 3: Runner (Production)
 FROM node:20-alpine AS runner
