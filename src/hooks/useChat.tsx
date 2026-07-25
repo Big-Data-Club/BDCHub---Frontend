@@ -299,10 +299,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         break;
       }
 
-      default:
-        break;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUserId, currentEmail]);
 
   // ── Page-visibility listener: reset title when user returns to tab ───────────

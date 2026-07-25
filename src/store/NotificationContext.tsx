@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
@@ -66,7 +66,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [pathname]);
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     if (status !== "authenticated" || document.visibilityState === "hidden") return;
     setIsLoading(true);
     try {
@@ -148,7 +148,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [status, readAlertKeys]);
 
   const markAlertAsRead = (alert: StudyAlert) => {
     const key = `${alert.alert_type}:${alert.course_id}:${alert.node_id ?? ""}:${alert.quiz_id ?? ""}`;
@@ -187,12 +187,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       intervalRef.current = setInterval(fetchAlerts, 180000);
 
       return () => {
-        clearInterval(intervalRef.current);
+        if (intervalRef.current) clearInterval(intervalRef.current);
         document.removeEventListener("visibilitychange", handleVisibilityChange);
       };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, fetchAlerts]);
 
   // useChat.tsx dispatches 'unread-chat-change' on every unreadCounts change.
   // We listen here to keep the notification badge in sync without opening a

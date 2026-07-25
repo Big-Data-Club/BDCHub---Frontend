@@ -146,6 +146,7 @@ export function GoogleRegisterForm() {
       {/* Google profile header */}
       <div className="text-center mb-6">
         {profile.picture && (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={profile.picture}
             alt={profile.name}

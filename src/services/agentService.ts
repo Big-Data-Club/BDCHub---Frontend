@@ -6,7 +6,7 @@
  * ReadableStream for SSE parsing.
  */
 import type { AgentChatRequest, AgentSession } from "@/types";
-import { lmsApiClient } from "./lmsApiClient";
+
 
 /**
  * Send a chat message and get an SSE stream response.

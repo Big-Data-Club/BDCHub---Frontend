@@ -53,7 +53,7 @@ export function FlashcardDeck({ ctx }: FlashcardDeckProps) {
         if (cancelled) return;
         setCards(res.data ?? []);
         setError("");
-      } catch (e) {
+      } catch {
         if (cancelled) return;
         setError(
           lang === "vi"
@@ -82,7 +82,7 @@ export function FlashcardDeck({ ctx }: FlashcardDeckProps) {
       });
       // Reload the card list after generation
       setReloadKey((k) => k + 1);
-    } catch (e) {
+    } catch {
       setError(
         lang === "vi"
           ? "Không thể tạo flashcard. Vui lòng thử lại."

@@ -136,7 +136,6 @@ export async function getOrCreateDM(targetUserId: number): Promise<ChatChannel> 
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapChannel(raw: any): ChatChannel {
   return {
     id: raw.id,
@@ -157,7 +156,6 @@ function mapChannel(raw: any): ChatChannel {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapUser(raw: any): ChatUser {
   return {
     id: raw.id,
@@ -167,7 +165,6 @@ function mapUser(raw: any): ChatUser {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapMessage(raw: any): ChatMessage {
   return {
     id: raw.id,

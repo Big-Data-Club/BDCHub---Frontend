@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import useSWR from "swr";
 import { ContentItem, CompletionBadge, EmptyState } from "./content-renderers/utils";
 import { TextRenderer } from "./content-renderers/TextRenderer";
 import { VideoRenderer } from "./content-renderers/VideoRenderer";
@@ -30,47 +31,35 @@ export default function ContentViewer({
   onComplete,
 }: ContentViewerProps) {
   const isStudent = userRole === "STUDENT";
-
-  const [nodeId, setNodeId] = useState<number | null>(null);
-  const [loadingNode, setLoadingNode] = useState(isStudent && !!courseId && content.type !== "TEXT");
   const hasTrackedView = useRef<string | null>(null);
 
-  // 1. Resolve nodeId for standard content types
-  useEffect(() => {
-    if (!courseId || !isStudent || content.type === "TEXT") {
-      setLoadingNode(false);
-      return;
-    }
+  const shouldFetchNodes = isStudent && !!courseId && content.type !== "TEXT";
 
+  // Use SWR to cache the knowledge nodes for the entire course
+  const { data: nodes, error: nodesError } = useSWR(
+    shouldFetchNodes ? `/lmsapiv1/courses/${courseId}/ai/nodes` : null,
+    () => aiService.listKnowledgeNodes(Number(courseId))
+  );
+
+  const nodeId = useMemo(() => {
+    if (!shouldFetchNodes) return null;
+    
     const metaNodeId = content.metadata?.node_id;
     if (metaNodeId) {
-      setNodeId(Number(metaNodeId));
-      setLoadingNode(false);
-      return;
+      return Number(metaNodeId);
     }
 
-    let cancelled = false;
-    setLoadingNode(true);
-    aiService
-      .listKnowledgeNodes(Number(courseId))
-      .then((nodes) => {
-        if (cancelled) return;
-        let match = nodes.find((n) => n.source_content_id === content.id);
-        if (!match) {
-          const titleLower = content.title.trim().toLowerCase();
-          match = nodes.find((n) => n.name.trim().toLowerCase() === titleLower);
-        }
-        if (match) setNodeId(match.id);
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setLoadingNode(false);
-      });
+    if (!nodes) return null;
 
-    return () => {
-      cancelled = true;
-    };
-  }, [content.id, content.metadata, content.title, courseId, isStudent]);
+    let match = nodes.find((n) => n.source_content_id === content.id);
+    if (!match) {
+      const titleLower = content.title.trim().toLowerCase();
+      match = nodes.find((n) => n.name.trim().toLowerCase() === titleLower);
+    }
+    return match ? match.id : null;
+  }, [shouldFetchNodes, content.metadata, content.id, content.title, nodes]);
+
+  const loadingNode = shouldFetchNodes && !nodes && !nodesError;
 
   // 2. Track view and auto-complete (15s threshold)
   useEffect(() => {

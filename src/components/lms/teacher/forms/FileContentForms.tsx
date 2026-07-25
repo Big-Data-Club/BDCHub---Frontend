@@ -31,7 +31,7 @@ function UploadSuccess({ fileName, fileSize }: { fileName: string; fileSize?: nu
  *
  * Renders a file upload control for DOCUMENT type content (PDF, Word, Excel…).
  */
-export function DocumentContentForm({ formData, onChange, onFileUploaded, disabled }: ContentFormProps) {
+export function DocumentContentForm({ formData, onChange, onFileUploaded }: ContentFormProps) {
   const uploaded = !!formData.metadata?.file_path;
 
   const handleFileUploaded = (fileInfo: FileInfo) => {

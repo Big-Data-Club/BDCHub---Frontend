@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Target, ChevronRight, BookOpen } from "lucide-react";
 import { PrimaryBtn } from "../shared/Button";
 import {
@@ -31,24 +31,37 @@ export function CourseDetailProgressCard({
   onSelectContent,
   loading = false,
 }: CourseDetailProgressCardProps) {
+  const flatContents = useMemo(() => {
+    return sections.flatMap(s => sectionContents[s.id] ?? []);
+  }, [sections, sectionContents]);
+
+  const mandatoryContents = useMemo(() => {
+    return flatContents.filter(c => c.is_mandatory);
+  }, [flatContents]);
+
+  const memoizedCompletedCount = useMemo(() => {
+    return flatContents.filter(c => completedIds.has(c.id) && c.is_mandatory).length;
+  }, [flatContents, completedIds]);
+
+  const completedCount = progress?.completed_count ?? memoizedCompletedCount;
+
+  const totalMandatory = progress?.total_mandatory ?? mandatoryContents.length;
+  const progressPct = totalMandatory > 0 ? Math.round((completedCount / totalMandatory) * 100) : 0;
+
+  // Find next uncompleted content (prefer mandatory first, then any)
+  const nextLesson = useMemo(() => {
+    return flatContents.find(c => c.is_mandatory && !completedIds.has(c.id))
+      || flatContents.find(c => !completedIds.has(c.id));
+  }, [flatContents, completedIds]);
+
+  const completedPercent = progressPct;
+  const remainingPercent = 100 - completedPercent;
+
   if (loading) {
     return (
       <div className="h-[140px] w-full bg-white dark:bg-[#0F1E35] rounded-2xl border border-slate-200 dark:border-blue-500/10 animate-pulse" />
     );
   }
-
-  const flatContents = sections.flatMap(s => sectionContents[s.id] ?? []);
-  const mandatoryContents = flatContents.filter(c => c.is_mandatory);
-  const completedCount = progress?.completed_count ?? flatContents.filter(c => completedIds.has(c.id) && c.is_mandatory).length;
-  const totalMandatory = progress?.total_mandatory ?? mandatoryContents.length;
-  const progressPct = totalMandatory > 0 ? Math.round((completedCount / totalMandatory) * 100) : 0;
-
-  // Find next uncompleted content (prefer mandatory first, then any)
-  const nextLesson = flatContents.find(c => c.is_mandatory && !completedIds.has(c.id))
-    || flatContents.find(c => !completedIds.has(c.id));
-
-  const completedPercent = progressPct;
-  const remainingPercent = 100 - completedPercent;
 
   return (
     <div className="group/card bg-white/80 dark:bg-[#0F1E35]/80 backdrop-blur-xs border border-slate-200/85 dark:border-blue-500/15 rounded-2xl p-4 shadow-xs hover:border-slate-350 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgba(6,182,212,0.03)] w-full grid grid-cols-1 md:grid-cols-[1fr_1.25px_1fr] gap-x-6 gap-y-2.5 md:gap-y-1.5 relative">

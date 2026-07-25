@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Target, HelpCircle, Award, CheckSquare, TrendingUp } from "lucide-react";
-import { Badge } from "@/components/lms/shared";
+
 import {
   ResponsiveContainer,
   RadarChart,

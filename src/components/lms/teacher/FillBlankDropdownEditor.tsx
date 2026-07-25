@@ -9,7 +9,7 @@ import type {
   FillBlankDropdownEditorProps,
 } from '@/types';
 import { useMarkdownImage } from '@/hooks/useMarkdownImage';
-import { Image } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 
 /**
  * Component để teacher tạo câu hỏi FILL_BLANK_DROPDOWN
@@ -84,6 +84,7 @@ export default function FillBlankDropdownEditor({
       setSettings({ blank_count: 0, blanks: [] });
       onChange(localText, { blank_count: 0, blanks: [] }, localOptions);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localText]);
 
   // Update blank label
@@ -172,6 +173,9 @@ export default function FillBlankDropdownEditor({
     }
 
     const emptyOptions = options.filter(o => !o.option_text.trim());
+    if (emptyOptions.length > 0) {
+      errors.push('Không được để trống đáp án');
+    }
     return errors;
   };
     
@@ -233,7 +237,7 @@ export default function FillBlankDropdownEditor({
             className="absolute bottom-3 right-3 text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
             title="Chèn ảnh"
           >
-            <Image className="w-4 h-4 mr-2" />
+            <ImageIcon className="w-4 h-4 mr-2" />
             {uploading ? 'Đang tải...' : 'Chèn ảnh'}
           </Button>
         </div>

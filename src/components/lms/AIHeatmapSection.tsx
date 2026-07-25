@@ -10,7 +10,7 @@
  *   <AIHeatmapSection courseId={123} role="teacher" />
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { RefreshCw, Sparkles, AlertCircle, Users, TrendingDown } from "lucide-react";
 import aiService, { HeatmapNode } from "@/services/aiService";
 import { cn } from "@/lib/utils";
@@ -116,7 +116,18 @@ export function AIHeatmapSection({ courseId, role }: Props) {
 
   useEffect(() => { fetch(); }, [courseId, role]);
 
-  const weakest = [...nodes].sort((a, b) => b.wrong_rate - a.wrong_rate).slice(0, 3);
+  const weakest = useMemo(() => {
+    return [...nodes].sort((a, b) => b.wrong_rate - a.wrong_rate).slice(0, 3);
+  }, [nodes]);
+
+  const sortedNodes = useMemo(() => {
+    return [...nodes].sort((a, b) => {
+      if (a.total_attempts === 0 && b.total_attempts === 0) return 0;
+      if (a.total_attempts === 0) return 1;
+      if (b.total_attempts === 0) return -1;
+      return b.wrong_rate - a.wrong_rate;
+    });
+  }, [nodes]);
 
   return (
     <section className="space-y-4">
@@ -176,12 +187,7 @@ export function AIHeatmapSection({ courseId, role }: Props) {
         <>
           {/* Heatmap grid */}
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-            {[...nodes].sort((a, b) => {
-              if (a.total_attempts === 0 && b.total_attempts === 0) return 0;
-              if (a.total_attempts === 0) return 1;
-              if (b.total_attempts === 0) return -1;
-              return b.wrong_rate - a.wrong_rate;
-            }).map((n) => <HeatCell key={n.node_id} node={n} />)}
+            {sortedNodes.map((n) => <HeatCell key={n.node_id} node={n} />)}
           </div>
 
           {/* Legend */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
@@ -43,14 +43,7 @@ export default function EditContentModal({
   const [removeFileConfirm, setRemoveFileConfirm] = useState(false);
   const router = useRouter();
 
-  // Load quiz settings if content type is QUIZ
-  useEffect(() => {
-    if (content.type === "QUIZ") {
-      loadQuizSettings();
-    }
-  }, [content.id, content.type]);
-
-  const loadQuizSettings = async () => {
+  const loadQuizSettings = useCallback(async () => {
     try {
       setLoadingQuiz(true);
       const response = await quizService.getQuizByContentId(content.id);
@@ -109,7 +102,13 @@ export default function EditContentModal({
     } finally {
       setLoadingQuiz(false);
     }
-  };
+  }, [content.id, content.title, content.description]);
+
+  useEffect(() => {
+    if (content.type === "QUIZ") {
+      loadQuizSettings();
+    }
+  }, [content.id, content.type, loadQuizSettings]);
 
   const getContentTypeLabel = (type: string) => {
     const labels: Record<string, string> = {

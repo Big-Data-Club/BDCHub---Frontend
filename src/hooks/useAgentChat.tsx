@@ -48,13 +48,9 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
   const [isThinking, setIsThinking] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const processEventRef = useRef<any>(null);
 
-  // Load history when session changes externally
-  useEffect(() => {
-    if (initialSessionId && initialSessionId !== sessionId) {
-      switchSession(initialSessionId);
-    }
-  }, [initialSessionId]);
+
 
   const loadHistory = async (sid: string) => {
     setIsLoadingHistory(true);
@@ -101,6 +97,13 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
     await loadHistory(newSessionId);
   }, [stopStreaming]);
 
+  // Load history when session changes externally
+  useEffect(() => {
+    if (initialSessionId && initialSessionId !== sessionId) {
+      switchSession(initialSessionId);
+    }
+  }, [initialSessionId, sessionId, switchSession]);
+
   const startNewChat = useCallback(async () => {
     stopStreaming();
     if (sessionId === null && messages.length === 0) {
@@ -129,7 +132,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
       setSessionId(null);
       setMessages([]);
     }
-  }, [agentType, courseId, userId, sessionId, messages.length, onSessionUpdated]);
+  }, [agentType, courseId, userId, sessionId, messages.length, onSessionUpdated, stopStreaming]);
 
   /**
    * Send a message and process the SSE stream.
@@ -211,7 +214,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
               continue;
             }
 
-            processEvent(event, assistantId);
+            processEventRef.current?.(event, assistantId);
           }
         }
 
@@ -220,7 +223,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
           const raw = buffer.slice(6).trim();
           if (raw) {
             try {
-              processEvent(JSON.parse(raw), assistantId);
+              processEventRef.current?.(JSON.parse(raw), assistantId);
             } catch {
               /* ignore */
             }
@@ -480,6 +483,10 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
         break;
     }
   }
+
+  useEffect(() => {
+    processEventRef.current = processEvent;
+  });
 
   function updateAssistant(
     id: string,

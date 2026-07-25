@@ -9,7 +9,7 @@ import type { ContentFormProps } from "@/types";
  * Renders a MarkdownEditor for content of type TEXT.
  * Stores the markdown string in metadata.content.
  */
-export function TextContentForm({ formData, onChange, disabled }: ContentFormProps) {
+export function TextContentForm({ formData, onChange }: ContentFormProps) {
   const content = (formData.metadata?.content as string) ?? "";
 
   const handleChange = (value: string) => {

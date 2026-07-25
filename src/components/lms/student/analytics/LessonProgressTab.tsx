@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { Layers, BookOpen, ListTodo } from "lucide-react";
-import { ProgressBar, InteractiveGlowCard, Badge } from "@/components/lms/shared";
+import { ProgressBar, Badge } from "@/components/lms/shared";
 import {
   ResponsiveContainer,
   BarChart,

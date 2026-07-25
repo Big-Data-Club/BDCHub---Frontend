@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { X, Plus, AlertCircle, Loader } from "lucide-react";
 import lmsService from "@/services/lmsService";
 import { lmsApiClient } from "@/services/lmsApiClient";
@@ -31,26 +31,20 @@ export function QuizSelectorModal({
   onSelect,
   onCreateNew,
 }: QuizSelectorModalProps) {
-  const [sections, setSections] = useState<any[]>([]);
+
   const [quizzes, setQuizzes] = useState<QuizFromContent[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadQuizzes();
-    }
-  }, [isOpen, courseId]);
 
-  const loadQuizzes = async () => {
+  const loadQuizzes = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
       // Get all sections of the course
       const res = await lmsService.listSections(courseId);
       const sectionsData = res.data;
-      setSections(sectionsData);
 
       // Extract all quizzes from all sections
       const allQuizzes: QuizFromContent[] = [];
@@ -62,9 +56,6 @@ export function QuizSelectorModal({
           
           for (const quizContent of quizContents) {
             try {
-              // Get quiz details via the content ID
-              const quizDetail = await lmsService.getContent(quizContent.id);
-              
               // Make a direct request to get the actual quiz object
               // Assuming quiz_id is available in the response or we need to call getQuizByContentID
               const response = await lmsApiClient.get(
@@ -104,7 +95,13 @@ export function QuizSelectorModal({
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadQuizzes();
+    }
+  }, [isOpen, courseId, loadQuizzes]);
 
   const handleSelect = () => {
     if (selectedQuizId) {

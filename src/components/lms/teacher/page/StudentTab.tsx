@@ -145,7 +145,7 @@ import {
 } from "lucide-react";
 
 function InlineStudentDetail({
-  student, courseId, onClose,
+  student, onClose,
 }: {
   student: CourseStudentProgress;
   courseId: number;

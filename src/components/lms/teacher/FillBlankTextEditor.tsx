@@ -9,7 +9,7 @@ import type {
   FillBlankTextEditorProps,
 } from '@/types';
 import { useMarkdownImage } from '@/hooks/useMarkdownImage';
-import { Image } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 
 /**
  * Component để teacher tạo câu hỏi FILL_BLANK_TEXT
@@ -63,6 +63,7 @@ export default function FillBlankTextEditor({
       setSettings({ blank_count: 0, blanks: [] });
       onChange(localText, { blank_count: 0, blanks: [] }, localAnswers);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localText]);
 
   // Update blank config
@@ -177,7 +178,7 @@ export default function FillBlankTextEditor({
             className="absolute bottom-3 right-3 text-slate-500 hover:text-blue-600 dark:text-slate-450 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             title="Chèn ảnh"
           >
-            <Image className="w-4 h-4 mr-2" />
+            <ImageIcon className="w-4 h-4 mr-2" />
             {uploading ? 'Đang tải...' : 'Chèn ảnh'}
           </Button>
         </div>
