@@ -137,7 +137,7 @@ export function StudentCourseSidebar({
           <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Không tìm thấy học phần phù hợp.</p>
         </div>
       ) : (
-        <div className="max-h-[480px] lg:max-h-[560px] overflow-y-auto overflow-x-hidden overscroll-contain pl-3 pr-3.5 py-3 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-blue-900/50 space-y-3">
+        <div className="max-h-[480px] lg:max-h-[calc(100vh-250px)] min-h-[200px] overflow-y-auto overflow-x-hidden overscroll-contain pl-3 pr-3.5 py-3 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-blue-900/50 space-y-3">
           {filteredAndSortedEnrollments.map((en) => {
             const isSelected = en.course_id === selectedCourseId;
             return (
