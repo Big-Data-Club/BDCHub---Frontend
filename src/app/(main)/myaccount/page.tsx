@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Lock, Loader2 } from "lucide-react";
+import { User, Lock, Loader2, Globe } from "lucide-react";
 
 import { userService, UserResponse, UpdateProfileRequest } from "@/services/userService";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -10,6 +10,7 @@ import { useUser } from "@/store/UserContext";
 import MessageAlert from "@/components/user/manage/MessageAlert";
 import ProfileTab from "@/components/user/manage/ProfileTab";
 import PasswordTab from "@/components/user/manage/PasswordTab";
+import BdcHubConfigTab from "@/components/user/manage/BdcHubConfigTab";
 import AccountStats from "@/components/user/manage/AccountStats";
 import { ActiveTab, MessageState, PasswordForm, ShowPasswords } from '@/types'
 import { validateOnlyPassword } from '@/utils/utils'
@@ -186,6 +187,7 @@ const MyAccountPage: React.FC = () => {
 
   const tabs: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
     { id: "profile", label: "Profile", icon: <User className="w-4 h-4" /> },
+    { id: "bdc-hub", label: "BDC Hub Public Portfolio", icon: <Globe className="w-4 h-4" /> },
     { id: "password", label: "Password", icon: <Lock className="w-4 h-4" /> },
   ];
 
@@ -199,7 +201,7 @@ const MyAccountPage: React.FC = () => {
             My Account
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1 text-base">
-            Manage your profile and account settings
+            Manage your profile, public portfolio, and account settings
           </p>
         </div>
 
@@ -241,6 +243,10 @@ const MyAccountPage: React.FC = () => {
             onFileChange={handleProfilePictureChange}
             onSubmit={handleUpdateProfile}
           />
+        )}
+
+        {activeTab === "bdc-hub" && (
+          <BdcHubConfigTab />
         )}
 
         {activeTab === "password" && (
