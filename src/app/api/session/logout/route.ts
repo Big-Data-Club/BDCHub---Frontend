@@ -13,6 +13,8 @@ export async function POST() {
     "__Secure-next-auth.session-token",
     "next-auth.csrf-token",
     "__Host-next-auth.csrf-token",
+    "bdc.session-token.v2",
+    "__Secure-bdc.session-token.v2",
   ]) {
     response.cookies.set({ name, value: "", path: "/", maxAge: 0 });
   }

@@ -1,6 +1,10 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+const sessionCookieName = process.env.NODE_ENV === "production"
+  ? "__Secure-bdc.session-token.v2"
+  : "bdc.session-token.v2";
+
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
@@ -144,6 +148,20 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 7 * 24 * 60 * 60, // 7 days (NextAuth session can live longer because we refresh the underlying JWT)
+  },
+  // Rotate the cookie name after the legacy session/logout bug.  Old browser
+  // cookies are intentionally ignored instead of being able to resurrect a
+  // session after logout.
+  cookies: {
+    sessionToken: {
+      name: sessionCookieName,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   callbacks: {
     async jwt({ token, user, account }) {

@@ -28,6 +28,9 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
+    cookieName: process.env.NODE_ENV === "production"
+      ? "__Secure-bdc.session-token.v2"
+      : "bdc.session-token.v2",
   });
 
   // We only care about proxy paths
