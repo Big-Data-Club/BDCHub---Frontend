@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import { Spinner } from "@/components/icons/Icons";
+import { clearAccessTokenCache } from "@/services/authToken";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
@@ -27,6 +28,14 @@ export function GoogleLoginButton({ googleClientId, onError }: GoogleLoginButton
 
     setLoading(true);
     try {
+      // A normal browser may still hold a NextAuth cookie created with an old
+      // token/secret.  Starting from a clean NextAuth session prevents that
+      // stale state from winning over the freshly verified Google session.
+      clearAccessTokenCache();
+      sessionStorage.removeItem("lms_selected_role");
+      sessionStorage.removeItem("lms_role_selected_at");
+      await signOut({ redirect: false });
+
       const res = await fetch("/apiv1/api/auth/google/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,7 +80,7 @@ export function GoogleLoginButton({ googleClientId, onError }: GoogleLoginButton
         email: data.email,
         role: data.role,
         token: authTokenMatch?.[1] || data.token,
-        refreshToken: refreshTokenMatch?.[1] || "",
+        refreshToken: refreshTokenMatch?.[1] || data.refreshToken || "",
         expiresIn: String(data.expiresIn),
       });
 
