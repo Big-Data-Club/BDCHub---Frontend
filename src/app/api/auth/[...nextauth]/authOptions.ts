@@ -48,14 +48,22 @@ async function refreshAccessToken(token: any) {
 
     return {
       ...token,
-      accessToken: authToken || token.accessToken,
+      // Prefer the JSON body.  It is available consistently in Node's fetch;
+      // Set-Cookie is not exposed uniformly by every runtime/proxy.
+      accessToken: data.token || authToken || token.accessToken,
       accessTokenExpires: Date.now() + data.expiresIn,
-      refreshToken: refreshToken || token.refreshToken,
+      refreshToken: data.refreshToken || refreshToken || token.refreshToken,
     };
   } catch (error) {
     console.error("RefreshAccessTokenError", error);
+    // Do not retain an expired Bearer token in a session that failed to
+    // refresh.  Retaining it makes protected pages look authenticated and
+    // causes the login <-> LMS redirect loop for old browser sessions.
     return {
       ...token,
+      accessToken: undefined,
+      refreshToken: undefined,
+      accessTokenExpires: 0,
       error: "RefreshAccessTokenError",
     };
   }
@@ -157,7 +165,8 @@ export const authOptions: NextAuthOptions = {
 
       // Return previous token if the access token has not expired yet
       // We refresh 5 minutes before actual expiry to be safe
-      if (Date.now() < (token as any).accessTokenExpires - 300000) {
+      const accessTokenExpires = Number((token as any).accessTokenExpires);
+      if (Number.isFinite(accessTokenExpires) && Date.now() < accessTokenExpires - 300000) {
         return token;
       }
 

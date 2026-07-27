@@ -28,8 +28,8 @@ type MainLayoutProps = {
 
 export default async function MainLayout({ children }: MainLayoutProps) {
   const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect("/");
+  if (!session || (session as any).error === "RefreshAccessTokenError") {
+    redirect("/login");
   }
   return (
     <div className={`flex min-h-screen w-full max-w-full flex-col bg-slate-50 dark:bg-lms-bg ${comfortaa.variable} ${nunitoSans.variable} ${geistMono.variable} lms-fonts`}>
