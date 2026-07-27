@@ -90,16 +90,16 @@ export const authOptions: NextAuthOptions = {
           
           const data = await res.json();
           const setCookie = res.headers.get("set-cookie");
-          const authToken = setCookie?.match(/authToken=([^;]+)/)?.[1];
-          const refreshToken = setCookie?.match(/refreshToken=([^;]+)/)?.[1];
+          const authToken = setCookie?.match(/authToken=([^;]+)/)?.[1] || data.token;
+          const refreshToken = setCookie?.match(/refreshToken=([^;]+)/)?.[1] || data.refreshToken;
 
           return {
             id: String(data.userId),
             name: data.name,
             email: data.email,
             role: data.role,
-            token: authToken,
-            refreshToken: refreshToken,
+            token: authToken || data.token,
+            refreshToken: refreshToken || data.refreshToken,
             expiresIn: data.expiresIn,
           };
         } catch {
