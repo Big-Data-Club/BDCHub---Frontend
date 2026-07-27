@@ -304,7 +304,7 @@ export default function BdcHubConfigTab() {
             className="w-4 h-4 rounded bg-slate-950 border-slate-800 text-indigo-600 focus:ring-indigo-500"
           />
           <label htmlFor="allowDirectChat" className="text-sm font-medium text-slate-300 cursor-pointer">
-            Cho phép nút "Gửi tin nhắn trực tiếp" trên trang BDC Hub cá nhân
+            Cho phép nút &quot;Gửi tin nhắn trực tiếp&quot; trên trang BDC Hub cá nhân
           </label>
         </div>
       </div>
