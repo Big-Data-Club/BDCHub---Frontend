@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { logout } from "@/services/logout";
 import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/login" });
+    await logout();
   };
 
   const navItems = [

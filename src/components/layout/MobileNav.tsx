@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
 import { Menu, LogOut, Sun, Moon, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import SafeImage from "../common/SafeImage";
 import lmsService from "@/services/lmsService";
+import { logout } from "@/services/logout";
 
 const MobileNav = () => {
   const pathname = usePathname();
@@ -36,7 +36,7 @@ const MobileNav = () => {
 
   const handleLogout = async () => {
     setUser(null);
-    await signOut({ callbackUrl: "/login" });
+    await logout();
     setIsOpen(false);
   };
 
