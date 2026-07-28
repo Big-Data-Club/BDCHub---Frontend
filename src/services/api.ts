@@ -25,8 +25,8 @@ export class ApiClient {
     if (response.status === 401) {
       clearAccessTokenCache();
       if (typeof window !== "undefined") {
-        const { signOut } = await import("next-auth/react");
-        signOut({ callbackUrl: "/login" });
+        const { logout } = await import("./logout");
+        await logout();
       }
       throw new Error("Unauthorized (401)");
     }
@@ -86,8 +86,10 @@ export class ApiClient {
     });
     if (response.status === 401) {
        clearAccessTokenCache();
-       const { signOut } = await import("next-auth/react");
-       signOut({ callbackUrl: "/login" });
+       if (typeof window !== "undefined") {
+         const { logout } = await import("./logout");
+         await logout();
+       }
        return;
     }
     if (!response.ok) {

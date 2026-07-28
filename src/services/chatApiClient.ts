@@ -21,12 +21,15 @@ chatApiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-// On 401, clear session and redirect to login
+// On 401, clear session and safely logout
 chatApiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      await signOut({ callbackUrl: "/login" });
+      if (typeof window !== "undefined") {
+        const { logout } = await import("./logout");
+        await logout();
+      }
     }
     return Promise.reject(error);
   }

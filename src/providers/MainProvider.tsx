@@ -1,6 +1,6 @@
 "use client";
 
-import { SessionProvider, useSession, signOut } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import { useEffect, ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
@@ -8,6 +8,7 @@ import { UserProvider, useUser } from "@/store/UserContext";
 import { NotificationProvider } from "@/store/NotificationContext";
 import { PageContextProvider } from "@/hooks/usePageContext";
 import { CoworkerLayout } from "@/components/layout/CoworkerLayout";
+import { logout } from "@/services/logout";
 
 function SessionMonitor() {
   const { data: session, status } = useSession();
@@ -15,7 +16,7 @@ function SessionMonitor() {
 
   useEffect(() => {
     if ((session as any)?.error === "RefreshAccessTokenError") {
-      signOut({ callbackUrl: "/login" });
+      logout();
       return;
     }
     

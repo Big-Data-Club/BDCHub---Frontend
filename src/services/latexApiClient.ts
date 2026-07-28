@@ -22,9 +22,9 @@ latexApiClient.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       clearAccessTokenCache();
-      const { signOut } = await import("next-auth/react");
       if (typeof window !== "undefined") {
-        signOut({ callbackUrl: "/login" });
+        const { logout } = await import("./logout");
+        await logout();
       }
     }
     return Promise.reject(error);
