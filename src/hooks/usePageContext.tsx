@@ -40,6 +40,9 @@ export interface PageContext {
 
   /** Free-form bag for page-specific extras (e.g. quiz id, forum post). */
   extra?: Record<string, any>;
+
+  /** Current route, added by the provider; useful for explainability only. */
+  route?: string;
 }
 
 // ── Context internals ───────────────────────────────────────────────────────
@@ -59,11 +62,18 @@ export function PageContextProvider({ children }: { children: ReactNode }) {
   const [pageContext, _setPageContext] = useState<PageContext | null>(null);
 
   const setPageContext = useCallback((ctx: PageContext) => {
-    _setPageContext(ctx);
+    _setPageContext({
+      ...ctx,
+      route: typeof window === "undefined" ? ctx.route : window.location.pathname,
+    });
   }, []);
 
   const patchPageContext = useCallback((patch: Partial<PageContext>) => {
-    _setPageContext((prev) => (prev ? { ...prev, ...patch } : (patch as PageContext)));
+    _setPageContext((prev) => ({
+      ...(prev || {}),
+      ...patch,
+      route: typeof window === "undefined" ? patch.route || prev?.route : window.location.pathname,
+    } as PageContext));
   }, []);
 
   const clearPageContext = useCallback(() => {

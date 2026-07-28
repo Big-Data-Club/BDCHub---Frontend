@@ -204,6 +204,12 @@ class LMSService {
     return response.data;
   }
 
+  /** Queue a document for AI indexing after its owner has explicitly approved it. */
+  async triggerContentIndex(contentId: number) {
+    const response = await lmsApiClient.post(`/content/${contentId}/ai-index`);
+    return response.data;
+  }
+
   async reorderContents(sectionId: number, contentIds: number[]) {
     const response = await lmsApiClient.put(`/sections/${sectionId}/content/reorder`, {
       content_ids: contentIds,

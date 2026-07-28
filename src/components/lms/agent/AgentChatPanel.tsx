@@ -20,6 +20,7 @@ import {
   type ConversationSidebarHandle,
 } from "./ConversationSidebar";
 import { AgentConsoleSidebar } from "./AgentConsoleSidebar";
+import type { HITLRequestData } from "@/types";
 
 interface AgentChatPanelProps {
   agentType: "teacher" | "mentor";
@@ -148,6 +149,15 @@ export function AgentChatPanel({
   }, [messages]);
 
   const isEmpty = messages.length === 0;
+
+  const handleActionApprove = useCallback((request: HITLRequestData) => {
+    // Navigation is the only generic action today. Keep it local and allow
+    // only application-relative paths; write actions use editable widgets.
+    if (request.data?.action === "navigate") {
+      const href = String(request.data?.href || "");
+      if (href.startsWith("/") && !href.startsWith("//")) router.push(href);
+    }
+  }, [router]);
 
   return (
     <div
@@ -295,6 +305,7 @@ export function AgentChatPanel({
                   key={msg.id}
                   message={msg}
                   onClarificationSelect={(option) => sendMessage(option)}
+                  onActionApprove={handleActionApprove}
                   isSelectedForLogs={activeLogMessage?.id === msg.id}
                   onSelectForLogs={() => {
                     setSelectedMessageId(msg.id);

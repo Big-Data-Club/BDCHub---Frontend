@@ -11,6 +11,8 @@
 export type AgentEventType =
   | "text_delta"
   | "thinking"
+  | "context"
+  | "scope"
   | "tool_start"
   | "tool_result"
   | "ui_component"
@@ -80,6 +82,22 @@ export interface HITLRequestData {
   ui_instruction?: UIComponentData;
 }
 
+/** Verified (not merely browser-supplied) context used for this turn. */
+export interface AgentContextData {
+  status: "current_page" | "single_course" | "named_course" | "global" | "needs_course_choice" | "needs_course_navigation";
+  course_id?: number | null;
+  confidence: number;
+  reason: string;
+  snapshot: {
+    page_type: string;
+    route?: string | null;
+    role?: string | null;
+    course_name?: string | null;
+    section_name?: string | null;
+    content_title?: string | null;
+  };
+}
+
 export interface ToolActivity {
   tool: string;
   status: "running" | "done" | "error";
@@ -118,6 +136,9 @@ export interface AgentMessage {
 
   /** HITL approval request (teacher agent only). */
   hitlRequest?: HITLRequestData;
+
+  /** Context resolved and access-checked by the server for this turn. */
+  context?: AgentContextData;
 
   /** Cumulative real-time thinking process text (Chain of Thought). */
   thinking?: string;
@@ -181,6 +202,7 @@ export interface AgentHistoryMessage {
     toolActivities?: ToolActivity[];
     uiComponent?: UIComponentData;
     hitlRequest?: HITLRequestData;
+    context?: AgentContextData;
     thinking?: string;
     references?: AIReference[];
   };

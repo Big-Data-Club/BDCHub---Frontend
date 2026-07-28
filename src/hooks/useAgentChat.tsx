@@ -21,6 +21,33 @@ function nextId(): string {
   return `msg-${Date.now()}-${++_msgIdCounter}`;
 }
 
+// Context travels with every streamed turn. Keep it bounded so a long lesson
+// cannot turn a simple follow-up into a slow, oversized request.
+function compactPageContext(context?: Record<string, any> | null): Record<string, any> | undefined {
+  if (!context) return undefined;
+  const body = String(context.contentBody ?? context.content_body ?? "");
+  const extra = context.extra && typeof context.extra === "object"
+    ? Object.fromEntries(
+        Object.entries(context.extra)
+          .filter(([, value]) => ["string", "number", "boolean"].includes(typeof value))
+          .map(([key, value]) => [key, typeof value === "string" ? value.slice(0, 300) : value]),
+      )
+    : undefined;
+
+  return {
+    pageType: context.pageType,
+    route: context.route,
+    courseId: context.courseId,
+    courseName: context.courseName,
+    sectionId: context.sectionId,
+    sectionName: context.sectionName,
+    contentId: context.contentId,
+    contentTitle: context.contentTitle,
+    ...(body ? { contentBody: body.slice(0, 12_000) } : {}),
+    ...(extra && Object.keys(extra).length ? { extra } : {}),
+  };
+}
+
 interface UseAgentChatOptions {
   agentType: "teacher" | "mentor";
   courseId?: number;
@@ -64,6 +91,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
         toolActivities: m.metadata?.toolActivities || [],
         uiComponent: m.metadata?.uiComponent,
         hitlRequest: m.metadata?.hitlRequest,
+        context: m.metadata?.context,
         thinking: m.metadata?.thinking || "",
         references: m.metadata?.references || [],
         multiAgentLogs: (m.metadata as any)?.multiAgentLogs || [],
@@ -170,6 +198,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
 
       try {
         abortRef.current = new AbortController();
+        const requestPageContext = compactPageContext(pageContext);
 
         const response = await fetch("/api/ai/agents/chat", {
           method: "POST",
@@ -179,7 +208,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
             agent_type: agentType,
             course_id: courseId,
             session_id: sessionId,
-            ...(pageContext ? { page_context: pageContext } : {}),
+            ...(requestPageContext ? { page_context: requestPageContext } : {}),
             ...(systemContext ? { system_context: systemContext } : {}),
           }),
           signal: abortRef.current.signal,
@@ -303,6 +332,13 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
             ],
           };
         });
+        break;
+
+      case "context":
+        updateAssistant(assistantId, (msg) => ({
+          ...msg,
+          context: event.data as any,
+        }));
         break;
 
       case "subagent_spawn":

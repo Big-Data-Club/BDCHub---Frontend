@@ -45,6 +45,9 @@ const WIDGET_MAP: Record<string, React.ComponentType<any>> = {
   FlashcardDeck: dynamic(() =>
     import("./widgets/FlashcardWidget").then((m) => m.FlashcardWidget),
   ),
+  MaterialPreparationWorkspace: dynamic(() =>
+    import("./widgets/MaterialPreparationWorkspace").then((m) => m.MaterialPreparationWorkspace),
+  ),
 };
 
 

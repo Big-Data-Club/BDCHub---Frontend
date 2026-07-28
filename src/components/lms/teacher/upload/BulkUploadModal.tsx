@@ -105,7 +105,10 @@ export default function BulkUploadModal({
       // Pre-fetch access token once to cache it and avoid async delays/timeouts inside the loop
       await getAccessToken();
 
-      // Upload all files sequentially
+      let successCount = 0;
+
+      // Upload all files sequentially. The first item legitimately has
+      // order_index = 0, which the API accepts.
       for (const fileItem of filesToUpload) {
         if (fileItem.uploadStatus === "pending") {
           updateFile(fileItem.id, { uploadStatus: "uploading" });
@@ -131,6 +134,7 @@ export default function BulkUploadModal({
                 file_name: uploadedFile.file_name,
                 file_size: uploadedFile.file_size,
                 file_id: uploadedFile.file_id,
+                file_type: fileItem.file.type || undefined,
               },
             });
 
@@ -138,6 +142,7 @@ export default function BulkUploadModal({
               uploadStatus: "success",
               uploadedFile,
             });
+            successCount += 1;
           } catch (error: any) {
             console.error(`Error uploading ${fileItem.file.name}:`, error);
             updateFile(fileItem.id, {
@@ -152,10 +157,6 @@ export default function BulkUploadModal({
       }
 
       setIsUploading(false);
-      const successCount = filesToUpload.filter(
-        (f) => f.uploadStatus === "success"
-      ).length;
-
       if (successCount > 0) {
         alert(`Đã tải lên thành công ${successCount}/${filesToUpload.length} file`);
         onSuccess();

@@ -18,12 +18,14 @@ import {
   Clock,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAgentChat } from "@/hooks/useAgentChat";
 import { usePageContext } from "@/hooks/usePageContext";
 import { AgentMessageBubble } from "./AgentMessageBubble";
 import { AgentInputBar } from "./AgentInputBar";
 import { ConversationSidebar } from "./ConversationSidebar";
+import type { HITLRequestData } from "@/types";
 
 interface ChatSidebarProps {
   isOpen: boolean;
@@ -51,6 +53,7 @@ const SIDEBAR_HINTS: Record<string, string[]> = {
 };
 
 export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
+  const router = useRouter();
   const { data: session } = useSession();
   const userId = session?.user
     ? Number((session.user as any).id || (session.user as any).userId)
@@ -132,6 +135,15 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     : null;
 
   const hints = SIDEBAR_HINTS[agentType];
+
+  const handleActionApprove = useCallback((request: HITLRequestData) => {
+    if (request.data?.action !== "navigate") return;
+    const href = String(request.data?.href || "");
+    if (href.startsWith("/") && !href.startsWith("//")) {
+      router.push(href);
+      onClose();
+    }
+  }, [router, onClose]);
 
   return (
     <>
@@ -312,6 +324,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
                     key={msg.id}
                     message={msg}
                     onClarificationSelect={(option) => sendMessage(option)}
+                    onActionApprove={handleActionApprove}
                   />
                 ))
               )}
@@ -343,4 +356,3 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     </>
   );
 }
-

@@ -2,19 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles } from "lucide-react";
-import type { AgentMessage } from "@/types";
+import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles, MapPin } from "lucide-react";
+import type { AgentMessage, HITLRequestData } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
 import { WidgetRenderer } from "./WidgetRenderer";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import lmsService from "@/services/lmsService";
+import { ActionApprovalCard } from "./ActionApprovalCard";
 
 interface AgentMessageBubbleProps {
   message: AgentMessage;
   onClarificationSelect?: (option: string) => void;
   isSelectedForLogs?: boolean;
   onSelectForLogs?: () => void;
+  onActionApprove?: (request: HITLRequestData) => void;
+  onActionReject?: (request: HITLRequestData) => void;
 }
 
 const ReferenceLink = ({ contentId, title, pageNumber }: { contentId: number; title: string; pageNumber?: number }) => {
@@ -56,6 +59,8 @@ export function AgentMessageBubble({
   onClarificationSelect,
   isSelectedForLogs = false,
   onSelectForLogs,
+  onActionApprove,
+  onActionReject,
 }: AgentMessageBubbleProps) {
   const isUser = message.role === "user";
   const [showThinking, setShowThinking] = useState(false);
@@ -200,6 +205,17 @@ export function AgentMessageBubble({
                 variant="chat"
               />
             )}
+          </div>
+        )}
+
+        {/* Compact, server-verified context trace. Do not expose page body. */}
+        {!isUser && message.context && message.context.status !== "global" && (
+          <div className="flex w-fit max-w-full items-center gap-1.5 rounded-lg border border-blue-100 bg-blue-50/70 px-2.5 py-1.5 text-[11px] text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/25 dark:text-blue-300">
+            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+            <span className="truncate">
+              {message.context.snapshot.course_name || "Ngữ cảnh khóa học đã xác thực"}
+              {message.context.snapshot.content_title ? ` › ${message.context.snapshot.content_title}` : ""}
+            </span>
           </div>
         )}
 
@@ -485,11 +501,21 @@ export function AgentMessageBubble({
           )}
 
         {/* Dynamic UI widget */}
-        {message.uiComponent && <WidgetRenderer data={message.uiComponent} />}
+        {message.uiComponent && !message.hitlRequest?.ui_instruction && <WidgetRenderer data={message.uiComponent} />}
 
         {/* HITL widget (reuses WidgetRenderer if ui_instruction present) */}
         {message.hitlRequest?.ui_instruction && (
           <WidgetRenderer data={message.hitlRequest.ui_instruction} />
+        )}
+
+        {/* Generic approval is used for navigation/future actions. Draft widgets
+            retain their own edit-and-save flow to prevent accidental writes. */}
+        {message.hitlRequest && !message.hitlRequest.ui_instruction && (
+          <ActionApprovalCard
+            request={message.hitlRequest}
+            onApprove={onActionApprove}
+            onReject={onActionReject}
+          />
         )}
       </div>
 
@@ -508,4 +534,3 @@ export function AgentMessageBubble({
     </div>
   );
 }
-
