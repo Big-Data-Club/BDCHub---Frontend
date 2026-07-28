@@ -39,6 +39,9 @@ const WIDGET_MAP: Record<string, React.ComponentType<any>> = {
   StudyPlanWidget: dynamic(() =>
     import("./widgets/StudyPlanWidget").then((m) => m.StudyPlanWidget),
   ),
+  RecommendationWidget: dynamic(() =>
+    import("./widgets/RecommendationWidget").then((m) => m.RecommendationWidget),
+  ),
   FlashcardPreview: dynamic(() =>
     import("./widgets/FlashcardWidget").then((m) => m.FlashcardWidget),
   ),
