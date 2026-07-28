@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion, Variants } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import SafeImage from "../../common/SafeImage";
 import { LogoIcon } from "@/constants";
 import { HeroStatsCards } from "./HeroStatsCards";
@@ -14,8 +14,6 @@ export function HeroVisualCore({
   statsDuration,
   statsYOffset,
 }: HeroVisualCoreProps) {
-  const shouldReduceMotion = useReducedMotion();
-
   const outerOrbitVariants: Variants = {
     hidden: { opacity: 0, scale: 0.9 },
     visible: {
@@ -61,8 +59,8 @@ export function HeroVisualCore({
       animate="visible"
       className="lg:col-span-5 relative w-full h-[620px] hidden lg:flex items-center justify-center select-none"
     >
-      {/* Ambient Glowing Cores */}
-      <div className="absolute w-[420px] h-[420px] rounded-full bg-gradient-to-tr from-blue-500/10 to-cyan-500/10 dark:from-blue-500/5 dark:to-cyan-500/5 blur-3xl animate-pulse pointer-events-none" />
+      {/* Static ambient glow keeps the visual hierarchy without repainting continuously. */}
+      <div className="absolute w-[420px] h-[420px] rounded-full bg-gradient-to-tr from-blue-500/10 to-cyan-500/10 dark:from-blue-500/5 dark:to-cyan-500/5 blur-3xl pointer-events-none" />
       
       {/* Dedicated Card Glow Backdrops (Subtle ambient light directly behind each card's coordinates to enhance backdrop-blur) */}
       <div className="absolute top-[12%] left-[4%] w-52 h-52 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
@@ -70,12 +68,12 @@ export function HeroVisualCore({
       <div className="absolute bottom-[26%] left-[4%] w-52 h-52 rounded-full bg-cyan-500/12 dark:bg-cyan-500/6 blur-3xl pointer-events-none" />
       <div className="absolute bottom-[12%] right-[0%] w-52 h-52 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
       
-      {/* Outer Orbit (Dashed) with Blue Glowing Satellite & Continuous SVG Trail */}
+      {/* Outer orbit is static after its entry transition to avoid a permanent compositor layer. */}
       <motion.div
         variants={outerOrbitVariants}
         className="absolute w-80 h-80 flex items-center justify-center pointer-events-none"
       >
-        <div className="absolute w-full h-full rounded-full border border-dashed border-blue-500/35 dark:border-blue-500/20 animate-[spin_28s_linear_infinite] will-change-transform flex items-center justify-center">
+        <div className="absolute w-full h-full rounded-full border border-dashed border-blue-500/35 dark:border-blue-500/20 flex items-center justify-center">
           {/* Lead Satellite Node */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.8)] dark:shadow-[0_0_12px_rgba(96,165,250,0.9)] z-10" />
 
@@ -98,12 +96,12 @@ export function HeroVisualCore({
         </div>
       </motion.div>
 
-      {/* Inner Orbit (Dotted) with Cyan Glowing Satellite & Continuous SVG Trail */}
+      {/* Inner orbit remains static after the entry transition. */}
       <motion.div
         variants={innerOrbitVariants}
         className="absolute w-60 h-60 flex items-center justify-center pointer-events-none"
       >
-        <div className="absolute w-full h-full rounded-full border-2 border-dotted border-cyan-500/35 dark:border-cyan-500/20 animate-[spin_12s_linear_infinite_reverse] will-change-transform flex items-center justify-center">
+        <div className="absolute w-full h-full rounded-full border-2 border-dotted border-cyan-500/35 dark:border-cyan-500/20 flex items-center justify-center">
           {/* Lead Satellite Node at 6 o'clock (bottom) */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 rounded-full bg-cyan-500 dark:bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.8)] dark:shadow-[0_0_12px_rgba(34,211,238,0.9)] z-10" />
 

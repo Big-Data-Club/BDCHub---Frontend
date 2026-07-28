@@ -63,11 +63,7 @@ export function ScrollIndicator({
       >
         <span className="text-[10px] font-semibold uppercase tracking-[0.25em] opacity-60 group-hover:opacity-100 transition-opacity">Tiếp tục</span>
         <div className="w-6 h-10 rounded-full border-2 border-slate-300 dark:border-slate-700 flex items-start justify-center p-1.5 group-hover:border-blue-500 dark:group-hover:border-cyan-400 transition-colors">
-          <motion.div 
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-            className="w-1 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 group-hover:bg-blue-600 dark:group-hover:bg-cyan-400 transition-colors"
-          />
+          <span className="w-1 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 group-hover:bg-blue-600 dark:group-hover:bg-cyan-400 transition-colors" />
         </div>
       </a>
     </motion.div>

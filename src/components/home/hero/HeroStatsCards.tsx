@@ -100,8 +100,8 @@ export function HeroStatsCards({
             key={i}
             className={`absolute ${stat.floatClasses} w-[170px] z-20 animate-entrance-${i}`}
           >
-            {/* 2. Middle Floating Wrapper - Handles the continuous y-bobbing in pure CSS */}
-            <div className={`animate-float-${i} relative group`}>
+            {/* Keep cards still once their entrance completes to avoid continuous compositing. */}
+            <div className="relative group">
               {/* Dynamic Hover Glow Shadow (Sibling absolute backdrop that scales and fades on hover) */}
               <div
                 className="absolute inset-0 rounded-2xl pointer-events-none -z-10
