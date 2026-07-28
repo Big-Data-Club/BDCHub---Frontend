@@ -1,4 +1,4 @@
-export type ActiveTab = "profile" | "password";
+export type ActiveTab = "profile" | "password" | "bdc-hub";
 
 export type MessageState = { type: "success" | "error"; text: string } | null;
 

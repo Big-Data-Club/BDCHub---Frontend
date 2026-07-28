@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
 import React, { useEffect, useRef, useState } from "react";
 import { sidebarSections, LogoIcon } from "@/constants";
 import { cn } from "@/lib/utils";
@@ -20,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import SafeImage from "../common/SafeImage";
 import lmsService from "@/services/lmsService";
+import { logout } from "@/services/logout";
 
 const MIN_WIDTH = 64;
 const MAX_WIDTH = 280;
@@ -95,7 +95,7 @@ const Sidebar: React.FC = () => {
 
   const handleLogout = async () => {
     setUser(null);
-    await signOut({ callbackUrl: "/login" });
+    await logout();
   };
 
   return (
