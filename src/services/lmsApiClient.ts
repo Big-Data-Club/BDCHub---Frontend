@@ -22,7 +22,7 @@ lmsApiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-// ── Handle 401 → clear cache & sign out ─────────────────────────────────
+// ── Handle 401 → clear cache & safe logout ───────────────────────────────
 lmsApiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -34,9 +34,9 @@ lmsApiClient.interceptors.response.use(
       } catch (e) {
         console.error("Failed to clear roles cache:", e);
       }
-      const { signOut } = await import("next-auth/react");
       if (typeof window !== "undefined") {
-        signOut({ callbackUrl: "/login" });
+        const { logout } = await import("./logout");
+        await logout();
       }
     }
     return Promise.reject(error);
