@@ -5,6 +5,7 @@ import {
   MessageListResponse,
   ChannelRoleEntry,
   ChatUser,
+  ChatAttachment,
 } from "@/types/chat";
 
 // ─── Channels ─────────────────────────────────────────────────────────────────
@@ -43,6 +44,31 @@ export async function sendMessageRest(
     parent_id: parentId ?? null,
   });
   return mapMessage(res.data.data);
+}
+
+export async function sendAttachment(
+  channelId: number,
+  file: File,
+  body = "",
+  parentId?: number | null
+): Promise<ChatMessage> {
+  const form = new FormData();
+  form.append("file", file);
+  if (body.trim()) form.append("body", body.trim());
+  if (parentId) form.append("parent_id", String(parentId));
+  const res = await chatApiClient.post(`/chat/channels/${channelId}/attachments`, form, {
+    headers: { "Content-Type": "multipart/form-data" },
+    timeout: 120000,
+  });
+  return mapMessage(res.data.data);
+}
+
+export async function getAttachmentBlob(attachmentId: string): Promise<Blob> {
+  const res = await chatApiClient.get(`/chat/attachments/${attachmentId}`, {
+    responseType: "blob",
+    timeout: 120000,
+  });
+  return res.data as Blob;
 }
 
 export async function deleteMessage(channelId: number, msgId: number): Promise<void> {
@@ -179,6 +205,17 @@ function mapMessage(raw: any): ChatMessage {
     parentId: raw.parent_id ?? null,
     parentSenderName: raw.parent_sender_name ?? "",
     parentBody: raw.parent_body ?? "",
+    attachments: (raw.attachments ?? []).map(mapAttachment),
+    createdAt: raw.created_at,
+  };
+}
+
+function mapAttachment(raw: any): ChatAttachment {
+  return {
+    id: raw.id,
+    fileName: raw.file_name,
+    mimeType: raw.mime_type,
+    sizeBytes: raw.size_bytes,
     createdAt: raw.created_at,
   };
 }

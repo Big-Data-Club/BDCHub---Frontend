@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import ChatAvatar from "./ChatAvatar";
+import ChatAttachment from "./ChatAttachment";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -14,11 +16,6 @@ interface ChatMessageProps {
   onDelete?: (msgId: number) => void;
   onReply?: (message: ChatMessageType) => void;
   onEdit?: (message: ChatMessageType) => void;
-}
-
-function getAvatar(name: string, avatarUrl?: string): string {
-  if (avatarUrl) return avatarUrl;
-  return `https://api.dicebear.com/9.x/adventurer/png?seed=${encodeURIComponent(name)}`;
 }
 
 function formatTimestamp(iso: string): string {
@@ -93,14 +90,7 @@ export default function ChatMessage({
         {/* Avatar column */}
         <div className="w-9 flex-shrink-0 mt-0.5">
           {showAvatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={getAvatar(message.senderName, message.senderAvatar)}
-              alt={message.senderName}
-              width={36}
-              height={36}
-              className="rounded-full w-9 h-9 object-cover ring-2 ring-white dark:ring-slate-900"
-            />
+            <ChatAvatar name={message.senderName} src={message.senderAvatar} size="md" />
           ) : null}
         </div>
 
@@ -153,7 +143,12 @@ export default function ChatMessage({
                   [Tin nhắn đã bị xóa]
                 </p>
               ) : (
-                <MarkdownRenderer content={message.body} variant="chat" />
+                <>
+                  {message.body && <MarkdownRenderer content={message.body} variant="chat" />}
+                  {message.attachments?.map((attachment) => (
+                    <ChatAttachment key={attachment.id} attachment={attachment} />
+                  ))}
+                </>
               )}
               {/* Show isEdited on grouped (no-header) messages */}
               {!showAvatar && message.isEdited && !message.isDeleted && (

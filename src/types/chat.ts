@@ -30,6 +30,15 @@ export interface ChatMessage {
   parentId?: number | null;
   parentSenderName?: string;
   parentBody?: string;
+  attachments?: ChatAttachment[];
+  createdAt: string;
+}
+
+export interface ChatAttachment {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
   createdAt: string;
 }
 
@@ -62,6 +71,15 @@ export interface WSMessagePayload {
   parent_id?: number | null;
   parent_sender_name?: string;
   parent_body?: string;
+  attachments?: WSAttachmentPayload[];
+}
+
+export interface WSAttachmentPayload {
+  id: string;
+  file_name: string;
+  mime_type: string;
+  size_bytes: number;
+  created_at: string;
 }
 
 export interface WSEditPayload {

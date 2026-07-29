@@ -6,8 +6,8 @@ import { useChat } from "@/hooks/useChat";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { ChatMessage as ChatMessageType } from "@/types/chat";
+import ChatAvatar from "./ChatAvatar";
 
 export default function ChatPanel() {
   const {
@@ -18,6 +18,7 @@ export default function ChatPanel() {
     hasMoreMessages,
     loadMoreMessages,
     sendMessage,
+    sendAttachment,
     deleteMessage,
     editMessage,
     isConnected,
@@ -96,6 +97,14 @@ export default function ChatPanel() {
     [editMessage]
   );
 
+  const handleSendAttachment = useCallback(
+    async (file: File, body: string, parentId?: number | null) => {
+      await sendAttachment(file, body, parentId);
+      setReplyingTo(null);
+    },
+    [sendAttachment]
+  );
+
   // ── Empty state ───────────────────────────────────────────────────────────────
   if (!activeChannelId || !activeChannel) {
     return (
@@ -131,18 +140,7 @@ export default function ChatPanel() {
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
           {isDm ? (
-            <div className="relative h-7 w-7 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700 flex-shrink-0 border border-slate-300/30 dark:border-slate-600/30">
-              <Image
-                src={
-                  activeChannel.dmUser?.profilePicture ||
-                  `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}`
-                }
-                alt={displayName}
-                fill
-                sizes="28px"
-                className="object-cover"
-              />
-            </div>
+            <ChatAvatar name={displayName} src={activeChannel.dmUser?.profilePicture} size="sm" />
           ) : activeChannel.isPrivate ? (
             <Lock className="h-5 w-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
           ) : (
@@ -211,18 +209,7 @@ export default function ChatPanel() {
           <div className="flex flex-col items-center justify-center h-40 gap-3">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
               {isDm ? (
-                <div className="relative h-7 w-7 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700">
-                  <Image
-                    src={
-                      activeChannel.dmUser?.profilePicture ||
-                      `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}`
-                    }
-                    alt={displayName}
-                    fill
-                    sizes="28px"
-                    className="object-cover"
-                  />
-                </div>
+                <ChatAvatar name={displayName} src={activeChannel.dmUser?.profilePicture} size="sm" />
               ) : (
                 <Hash className="h-6 w-6 text-blue-400" />
               )}
@@ -260,6 +247,7 @@ export default function ChatPanel() {
       <ChatInput
         channelName={isDm ? displayName : activeChannel.slug}
         onSend={handleSend}
+        onSendAttachment={handleSendAttachment}
         onSaveEdit={handleSaveEdit}
         disabled={!isConnected && messages.length === 0}
         replyingTo={replyingTo}

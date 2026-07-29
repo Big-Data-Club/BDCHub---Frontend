@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { Search, X, Loader2, MessageSquare } from "lucide-react";
 import { searchUsers, getOrCreateDM } from "@/services/chatService";
 import { ChatUser } from "@/types/chat";
-import Image from "next/image";
+import ChatAvatar from "./ChatAvatar";
 
 interface UserSearchModalProps {
   isOpen: boolean;
@@ -119,8 +119,6 @@ export default function UserSearchModal({
             <ul className="space-y-1">
               {users.map((u) => {
                 const isSubmitting = submittingUserId === u.id;
-                const avatarUrl = u.profilePicture || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName)}`;
-
                 return (
                   <li key={u.id}>
                     <button
@@ -129,15 +127,7 @@ export default function UserSearchModal({
                       className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left
                                  hover:bg-blue-50 dark:hover:bg-blue-950/35 group transition-colors"
                     >
-                      <div className="relative h-10 w-10 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0 border border-slate-200/50 dark:border-slate-700/50">
-                        <Image
-                          src={avatarUrl}
-                          alt={u.fullName}
-                          fill
-                          sizes="40px"
-                          className="object-cover"
-                        />
-                      </div>
+                      <ChatAvatar name={u.fullName} src={u.profilePicture} size="lg" />
                       
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">

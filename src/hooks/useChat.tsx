@@ -65,6 +65,7 @@ interface ChatContextValue {
   loadMoreMessages: () => Promise<void>;
 
   sendMessage: (body: string, parentId?: number | null) => Promise<void>;
+  sendAttachment: (file: File, body: string, parentId?: number | null) => Promise<void>;
   deleteMessage: (msgId: number) => void;
   editMessage: (msgId: number, newBody: string) => Promise<void>;
 
@@ -239,6 +240,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           parentId: p.parent_id ?? null,
           parentSenderName: p.parent_sender_name ?? "",
           parentBody: p.parent_body ?? "",
+          attachments: (p.attachments ?? []).map((attachment) => ({
+            id: attachment.id,
+            fileName: attachment.file_name,
+            mimeType: attachment.mime_type,
+            sizeBytes: attachment.size_bytes,
+            createdAt: attachment.created_at,
+          })),
           createdAt: event.ts,
         };
 
@@ -403,6 +411,23 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     [activeChannelId]
   );
 
+  const sendAttachment = useCallback(
+    async (file: File, body: string, parentId?: number | null) => {
+      if (!activeChannelId) return;
+      const { sendAttachment: upload } = await import("@/services/chatService");
+      const message = await upload(activeChannelId, file, body, parentId);
+      // The WebSocket broadcast normally arrives immediately. Insert the REST
+      // result as well so a sender never waits on a reconnect; event handling
+      // de-duplicates by server message id.
+      setMessagesByChannel((prev) => {
+        const existing = prev[activeChannelId] ?? [];
+        if (existing.some((m) => m.id === message.id)) return prev;
+        return { ...prev, [activeChannelId]: [...existing, message] };
+      });
+    },
+    [activeChannelId]
+  );
+
   // ── Delete message ────────────────────────────────────────────────────────────
   const deleteMessage = useCallback((msgId: number) => {
     if (!activeChannelId) return;
@@ -494,6 +519,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         hasMoreMessages,
         loadMoreMessages,
         sendMessage,
+        sendAttachment,
         deleteMessage,
         editMessage,
         unreadCounts,

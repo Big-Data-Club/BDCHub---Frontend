@@ -6,8 +6,8 @@ import { useChat } from "@/hooks/useChat";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import UserSearchModal from "./UserSearchModal";
+import ChatAvatar from "./ChatAvatar";
 
 export default function ChatSidebar() {
   const {
@@ -165,10 +165,6 @@ export default function ChatSidebar() {
                     const isActive = ch.id === activeChannelId;
                     const unread = unreadCounts[ch.id] ?? 0;
                     const displayName = ch.dmUser?.fullName || ch.name;
-                    const avatarUrl =
-                      ch.dmUser?.profilePicture ||
-                      `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(displayName)}`;
-
                     return (
                       <li key={ch.id}>
                         <button
@@ -180,16 +176,7 @@ export default function ChatSidebar() {
                               : "text-slate-400 hover:text-slate-100 hover:bg-slate-700/50"
                           )}
                         >
-                          <div className="relative h-6 w-6 rounded-full overflow-hidden flex-shrink-0 bg-slate-700 border border-slate-600/50 ring-1 ring-slate-600/30">
-                            <Image
-                              src={avatarUrl}
-                              alt={displayName}
-                              fill
-                              sizes="24px"
-                              className="object-cover"
-                            />
-                            <span className="absolute bottom-0 right-0 h-2 w-2 bg-emerald-400 rounded-full ring-1 ring-slate-900" />
-                          </div>
+                          <ChatAvatar name={displayName} src={ch.dmUser?.profilePicture} size="xs" showPresence />
 
                           <span className="flex-1 truncate">{displayName}</span>
 
