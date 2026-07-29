@@ -14,6 +14,7 @@ import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import ChatAvatar from "./ChatAvatar";
 
 interface ChatInputProps {
+  channelId: number;
   channelName: string;
   onSend: (body: string, parentId?: number | null) => Promise<void>;
   onSendAttachments: (files: File[], body: string, parentId?: number | null) => Promise<void>;
@@ -26,6 +27,7 @@ interface ChatInputProps {
 }
 
 export default function ChatInput({
+  channelId,
   channelName,
   onSend,
   onSendAttachments,
@@ -90,8 +92,8 @@ export default function ChatInput({
           if (mentionDebounceRef.current) clearTimeout(mentionDebounceRef.current);
           mentionDebounceRef.current = setTimeout(async () => {
             try {
-              const { searchUsers } = await import("@/services/chatService");
-              const users = await searchUsers(word);
+              const { searchChannelMembers } = await import("@/services/chatService");
+              const users = await searchChannelMembers(channelId, word);
               setMentionQuery(word);
               setMentionUsers(users.slice(0, 8));
             } catch {
@@ -105,7 +107,7 @@ export default function ChatInput({
       setMentionQuery(null);
       setMentionUsers([]);
     },
-    []
+    [channelId]
   );
 
   const insertMention = useCallback(

@@ -8,6 +8,7 @@ import ChatInput from "./ChatInput";
 import { cn } from "@/lib/utils";
 import { ChatMessage as ChatMessageType } from "@/types/chat";
 import ChatAvatar from "./ChatAvatar";
+import { getChannelPresence } from "@/services/chatService";
 
 export default function ChatPanel() {
   const {
@@ -29,8 +30,29 @@ export default function ChatPanel() {
 
   const [replyingTo, setReplyingTo] = useState<ChatMessageType | null>(null);
   const [editingMessage, setEditingMessage] = useState<ChatMessageType | null>(null);
+  const [dmOnline, setDmOnline] = useState(false);
 
   const activeChannel = channels.find((ch) => ch.id === activeChannelId);
+
+  useEffect(() => {
+    const dmUser = activeChannel?.isDm ? activeChannel.dmUser : undefined;
+    if (!activeChannelId || !dmUser) {
+      setDmOnline(false);
+      return;
+    }
+    let cancelled = false;
+    const refresh = async () => {
+      try {
+        const users = await getChannelPresence(activeChannelId);
+        if (!cancelled) setDmOnline(users.some((user) => user.userId === dmUser.id && user.online));
+      } catch {
+        if (!cancelled) setDmOnline(false);
+      }
+    };
+    void refresh();
+    const timer = window.setInterval(() => void refresh(), 30_000);
+    return () => { cancelled = true; window.clearInterval(timer); };
+  }, [activeChannelId, activeChannel?.isDm, activeChannel?.dmUser?.id]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -140,7 +162,7 @@ export default function ChatPanel() {
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
           {isDm ? (
-            <ChatAvatar name={displayName} src={activeChannel.dmUser?.profilePicture} size="sm" />
+            <ChatAvatar name={displayName} src={activeChannel.dmUser?.profilePicture} size="sm" showPresence={dmOnline} />
           ) : activeChannel.isPrivate ? (
             <Lock className="h-5 w-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
           ) : (
@@ -245,6 +267,7 @@ export default function ChatPanel() {
 
       {/* ── Input ── */}
       <ChatInput
+        channelId={activeChannel.id}
         channelName={isDm ? displayName : activeChannel.slug}
         onSend={handleSend}
         onSendAttachments={handleSendAttachments}

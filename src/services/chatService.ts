@@ -155,6 +155,24 @@ export async function searchUsers(query: string): Promise<ChatUser[]> {
   return (res.data.data ?? []).map(mapUser);
 }
 
+export async function searchChannelMembers(channelId: number, query: string): Promise<ChatUser[]> {
+  const res = await chatApiClient.get(`/chat/channels/${channelId}/members/search`, { params: { q: query } });
+  return (res.data.data ?? []).map(mapUser);
+}
+
+export interface ChannelPresenceUser {
+  userId: number;
+  online: boolean;
+}
+
+export async function getChannelPresence(channelId: number): Promise<ChannelPresenceUser[]> {
+  const res = await chatApiClient.get(`/chat/channels/${channelId}/presence`);
+  return (res.data.data?.users ?? []).map((user: { user_id: number; online: boolean }) => ({
+    userId: user.user_id,
+    online: user.online,
+  }));
+}
+
 export async function getOrCreateDM(targetUserId: number): Promise<ChatChannel> {
   const res = await chatApiClient.post("/chat/dm", { user_id: targetUserId });
   return mapChannel(res.data.data);

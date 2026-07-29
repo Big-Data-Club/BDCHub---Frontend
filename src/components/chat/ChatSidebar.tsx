@@ -176,7 +176,7 @@ export default function ChatSidebar() {
                               : "text-slate-400 hover:text-slate-100 hover:bg-slate-700/50"
                           )}
                         >
-                          <ChatAvatar name={displayName} src={ch.dmUser?.profilePicture} size="xs" showPresence />
+                          <ChatAvatar name={displayName} src={ch.dmUser?.profilePicture} size="xs" />
 
                           <span className="flex-1 truncate">{displayName}</span>
 
