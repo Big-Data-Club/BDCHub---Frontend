@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import {
   ArrowLeft,
@@ -347,15 +347,6 @@ const visualIcons: Record<StepVisual, LucideIcon> = {
   analytics: Gauge,
 };
 
-const cursorPositions: Record<StepVisual, string> = {
-  dashboard: "left-[62%] top-[37%]",
-  course: "left-[42%] top-[65%]",
-  ai: "left-[69%] top-[57%]",
-  review: "left-[58%] top-[67%]",
-  settings: "left-[34%] top-[45%]",
-  analytics: "left-[76%] top-[40%]",
-};
-
 interface InstructionGuideProps {
   role: InstructionRole;
 }
@@ -363,11 +354,13 @@ interface InstructionGuideProps {
 export function InstructionGuide({ role }: InstructionGuideProps) {
   const guide = roleGuides[role];
   const [activeStep, setActiveStep] = useState(0);
+  const [isDemoClicked, setIsDemoClicked] = useState(false);
   const step = guide.steps[activeStep];
   const RoleIcon = guide.icon;
   const VisualIcon = visualIcons[step.visual];
 
   const handleStepChange = (nextStep: number) => {
+    setIsDemoClicked(false);
     setActiveStep(Math.max(0, Math.min(nextStep, guide.steps.length - 1)));
   };
 
@@ -449,8 +442,7 @@ export function InstructionGuide({ role }: InstructionGuideProps) {
           </aside>
 
           <div className="min-w-0">
-            <AnimatePresence mode="wait">
-              <motion.article key={step.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-blue-500/10 dark:bg-[#0F1E35] dark:shadow-none">
+            <motion.article key={step.title} initial={false} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18 }} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-blue-500/10 dark:bg-[#0F1E35] dark:shadow-none">
                 <div className="grid lg:grid-cols-[1.05fr_.95fr]">
                   <div className="border-b border-slate-200 p-6 sm:p-8 lg:border-b-0 lg:border-r dark:border-blue-500/10">
                     <div className="flex items-start gap-4">
@@ -470,16 +462,14 @@ export function InstructionGuide({ role }: InstructionGuideProps) {
                       <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-blue-500/10"><div className="h-2.5 w-2.5 rounded-full bg-rose-400" /><div className="h-2.5 w-2.5 rounded-full bg-amber-400" /><div className="h-2.5 w-2.5 rounded-full bg-emerald-400" /><span className="ml-2 text-xs font-semibold text-slate-500 dark:text-slate-400">BDC Hub LMS</span></div>
                       <div className="grid grid-cols-[80px_1fr] gap-3">
                         <div className="space-y-2 rounded-xl bg-slate-50 p-2 dark:bg-[#0D192E]"><div className="h-6 rounded-md bg-blue-600" /><div className="h-6 rounded-md bg-slate-200 dark:bg-[#162644]" /><div className="h-6 rounded-md bg-slate-200 dark:bg-[#162644]" /><div className="h-6 rounded-md bg-slate-200 dark:bg-[#162644]" /></div>
-                        <div className="min-w-0"><div className="flex items-center justify-between"><div><p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{guide.label}</p><p className="mt-1 font-bold text-slate-900 dark:text-white">{step.shortTitle}</p></div><VisualIcon className="h-5 w-5 text-blue-600 dark:text-cyan-400" /></div><div className="mt-4 rounded-xl border border-slate-200 p-3 dark:border-blue-500/15"><p className="text-xs text-slate-500 dark:text-slate-400">Vị trí cần bấm</p><button type="button" onClick={() => handleStepChange((activeStep + 1) % guide.steps.length)} className="mt-2 w-full rounded-lg bg-blue-600 px-3 py-2 text-left text-xs font-bold text-white transition-all duration-200 hover:bg-blue-700 active:scale-95">{step.target}</button></div><div className="mt-3 grid grid-cols-2 gap-3"><div className="h-16 rounded-xl bg-slate-100 dark:bg-[#0D192E]" /><div className="h-16 rounded-xl bg-blue-50 dark:bg-cyan-400/10" /></div></div>
+                        <div className="min-w-0"><div className="flex items-center justify-between"><div><p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{guide.label}</p><p className="mt-1 font-bold text-slate-900 dark:text-white">{step.shortTitle}</p></div><VisualIcon className="h-5 w-5 text-blue-600 dark:text-cyan-400" /></div><div className="mt-4 rounded-xl border border-slate-200 p-3 dark:border-blue-500/15"><p className="text-xs text-slate-500 dark:text-slate-400">Vị trí cần bấm</p><button type="button" onClick={() => setIsDemoClicked(true)} className={`relative mt-2 w-full rounded-lg bg-blue-600 px-3 py-2 text-left text-xs font-bold text-white transition-all duration-200 hover:bg-blue-700 active:scale-95 ${isDemoClicked ? "ring-4 ring-blue-500/20 dark:ring-cyan-400/20" : ""}`}><span>{step.target}</span><motion.span key={`${step.title}-cursor`} initial={{ opacity: 0, x: 10, y: -8 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ delay: 0.15, type: "spring", stiffness: 280, damping: 18 }} className="pointer-events-none absolute -right-2 top-1/2 -translate-y-1/2" aria-hidden="true"><MousePointer2 className="h-8 w-8 fill-white text-slate-900 drop-shadow-lg dark:fill-[#0F1E35] dark:text-white" /></motion.span></button>{isDemoClicked && <p className="mt-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300" aria-live="polite">Đã mô phỏng click. Nội dung hướng dẫn vẫn được giữ nguyên.</p>}</div><div className="mt-3 grid grid-cols-2 gap-3"><div className="h-16 rounded-xl bg-slate-100 dark:bg-[#0D192E]" /><div className="h-16 rounded-xl bg-blue-50 dark:bg-cyan-400/10" /></div></div>
                       </div>
-                      <motion.div key={`${step.title}-cursor`} initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15, type: "spring", stiffness: 280, damping: 18 }} className={`absolute z-10 ${cursorPositions[step.visual]}`} aria-hidden="true"><MousePointer2 className="h-8 w-8 fill-white text-slate-900 drop-shadow-lg dark:fill-[#0F1E35] dark:text-white" /><span className="absolute left-4 top-5 h-7 w-7 animate-ping rounded-full border-2 border-blue-500/50" /></motion.div>
                     </div>
-                    <p className="mt-4 text-sm leading-6 text-slate-500 dark:text-slate-400">Con trỏ chỉ vị trí mô phỏng. Bạn có thể bấm nút trong mô phỏng để chuyển sang bước kế tiếp.</p>
+                    <p className="mt-4 text-sm leading-6 text-slate-500 dark:text-slate-400">Con trỏ được gắn trực tiếp vào nút cần thao tác. Bấm thử chỉ tạo phản hồi mô phỏng, không làm mất phần chi tiết.</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between border-t border-slate-200 px-6 py-4 dark:border-blue-500/10"><button type="button" onClick={() => handleStepChange(activeStep - 1)} disabled={activeStep === 0} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 active:scale-95 dark:text-slate-300 dark:hover:bg-[#162644]"><ArrowLeft className="h-4 w-4" />Bước trước</button><span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{activeStep + 1} / {guide.steps.length}</span><button type="button" onClick={() => handleStepChange(activeStep + 1)} disabled={activeStep === guide.steps.length - 1} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-bold text-white transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40 active:scale-95">Bước tiếp<ArrowRight className="h-4 w-4" /></button></div>
               </motion.article>
-            </AnimatePresence>
           </div>
         </div>
       </section>
