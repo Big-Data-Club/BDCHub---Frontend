@@ -65,7 +65,7 @@ interface ChatContextValue {
   loadMoreMessages: () => Promise<void>;
 
   sendMessage: (body: string, parentId?: number | null) => Promise<void>;
-  sendAttachment: (file: File, body: string, parentId?: number | null) => Promise<void>;
+  sendAttachments: (files: File[], body: string, parentId?: number | null) => Promise<void>;
   deleteMessage: (msgId: number) => void;
   editMessage: (msgId: number, newBody: string) => Promise<void>;
 
@@ -411,11 +411,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     [activeChannelId]
   );
 
-  const sendAttachment = useCallback(
-    async (file: File, body: string, parentId?: number | null) => {
+  const sendAttachments = useCallback(
+    async (files: File[], body: string, parentId?: number | null) => {
       if (!activeChannelId) return;
-      const { sendAttachment: upload } = await import("@/services/chatService");
-      const message = await upload(activeChannelId, file, body, parentId);
+      const { sendAttachments: upload } = await import("@/services/chatService");
+      const message = await upload(activeChannelId, files, body, parentId);
       // The WebSocket broadcast normally arrives immediately. Insert the REST
       // result as well so a sender never waits on a reconnect; event handling
       // de-duplicates by server message id.
@@ -519,7 +519,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         hasMoreMessages,
         loadMoreMessages,
         sendMessage,
-        sendAttachment,
+        sendAttachments,
         deleteMessage,
         editMessage,
         unreadCounts,

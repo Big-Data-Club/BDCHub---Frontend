@@ -16,7 +16,7 @@ import ChatAvatar from "./ChatAvatar";
 interface ChatInputProps {
   channelName: string;
   onSend: (body: string, parentId?: number | null) => Promise<void>;
-  onSendAttachment: (file: File, body: string, parentId?: number | null) => Promise<void>;
+  onSendAttachments: (files: File[], body: string, parentId?: number | null) => Promise<void>;
   disabled?: boolean;
   replyingTo?: ChatMessage | null;
   onCancelReply?: () => void;
@@ -28,7 +28,7 @@ interface ChatInputProps {
 export default function ChatInput({
   channelName,
   onSend,
-  onSendAttachment,
+  onSendAttachments,
   disabled,
   replyingTo,
   onCancelReply,
@@ -39,7 +39,7 @@ export default function ChatInput({
   const [value, setValue] = useState("");
   const [sending, setSending] = useState(false);
   const [preview, setPreview] = useState(false);
-  const [attachment, setAttachment] = useState<File | null>(null);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -129,18 +129,18 @@ export default function ChatInput({
 
   const handleSend = async () => {
     const body = value.trim();
-    if ((!body && !attachment) || sending || disabled) return;
+    if ((!body && attachments.length === 0) || sending || disabled) return;
     setSending(true);
     try {
       if (editingMessage && onSaveEdit) {
         await onSaveEdit(editingMessage.id, body);
-      } else if (attachment) {
-        await onSendAttachment(attachment, body, replyingTo?.id ?? null);
+      } else if (attachments.length > 0) {
+        await onSendAttachments(attachments, body, replyingTo?.id ?? null);
       } else {
         await onSend(body, replyingTo?.id ?? null);
       }
       setValue("");
-      setAttachment(null);
+      setAttachments([]);
       setPreview(false);
       textareaRef.current?.focus();
     } finally {
@@ -179,13 +179,18 @@ export default function ChatInput({
   };
 
   const isEditMode = !!editingMessage;
-  const selectAttachment = (file?: File) => {
-    if (!file) return;
-    if (file.size > 20 * 1024 * 1024) {
-      window.alert("File tối đa 20MB.");
-      return;
-    }
-    setAttachment(file);
+  const selectAttachments = (files: FileList | null) => {
+    if (!files) return;
+    const incoming = Array.from(files);
+    const tooLarge = incoming.find((file) => file.size > 20 * 1024 * 1024);
+    if (tooLarge) { window.alert(`“${tooLarge.name}” vượt quá 20MB.`); return; }
+    setAttachments((current) => {
+      const next = [...current, ...incoming].slice(0, 10);
+      if (current.length + incoming.length > 10) window.alert("Mỗi tin nhắn tối đa 10 file.");
+      const total = next.reduce((sum, file) => sum + file.size, 0);
+      if (total > 100 * 1024 * 1024) { window.alert("Tổng dung lượng tối đa 100MB."); return current; }
+      return next;
+    });
     setPreview(false);
   };
 
@@ -313,7 +318,7 @@ export default function ChatInput({
           <div className="flex-1" />
           {!isEditMode && (
             <>
-              <input ref={fileInputRef} type="file" className="hidden" onChange={(event) => { selectAttachment(event.target.files?.[0]); event.currentTarget.value = ""; }} />
+              <input ref={fileInputRef} type="file" multiple className="hidden" onChange={(event) => { selectAttachments(event.target.files); event.currentTarget.value = ""; }} />
               <button type="button" onClick={() => fileInputRef.current?.click()} disabled={disabled || sending} className="mr-1 flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium text-slate-400 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-700 dark:hover:text-blue-400 disabled:cursor-not-allowed" title="Đính kèm file (tối đa 20MB)">
                 <Paperclip className="h-3.5 w-3.5" /> Đính kèm
               </button>
@@ -332,12 +337,16 @@ export default function ChatInput({
         </div>
 
         {/* Write / Preview area */}
-        {attachment && !isEditMode && (
-          <div className="mx-3 mt-2 flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-2 dark:border-blue-900/50 dark:bg-blue-950/20">
-            <FileText className="h-4 w-4 shrink-0 text-blue-500" />
-            <span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-700 dark:text-slate-200">{attachment.name}</span>
-            <span className="text-[11px] text-slate-400">{(attachment.size / 1024 / 1024).toFixed(1)} MB</span>
-            <button type="button" onClick={() => setAttachment(null)} className="rounded p-0.5 text-slate-400 hover:bg-white hover:text-red-500 dark:hover:bg-slate-800" title="Bỏ file"><X className="h-3.5 w-3.5" /></button>
+        {attachments.length > 0 && !isEditMode && (
+          <div className="mx-3 mt-2 space-y-1.5 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-2 dark:border-blue-900/50 dark:bg-blue-950/20">
+            {attachments.map((attachment, index) => (
+              <div key={`${attachment.name}-${index}`} className="flex items-center gap-2">
+                <FileText className="h-4 w-4 shrink-0 text-blue-500" />
+                <span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-700 dark:text-slate-200">{attachment.name}</span>
+                <span className="text-[11px] text-slate-400">{(attachment.size / 1024 / 1024).toFixed(1)} MB</span>
+                <button type="button" onClick={() => setAttachments((items) => items.filter((_, itemIndex) => itemIndex !== index))} className="rounded p-0.5 text-slate-400 hover:bg-white hover:text-red-500 dark:hover:bg-slate-800" title="Bỏ file"><X className="h-3.5 w-3.5" /></button>
+              </div>
+            ))}
           </div>
         )}
         {preview ? (
@@ -378,11 +387,11 @@ export default function ChatInput({
           <div className="flex-1" />
           <button
             onClick={handleSend}
-            disabled={(!value.trim() && !attachment) || sending || disabled}
+            disabled={(!value.trim() && attachments.length === 0) || sending || disabled}
             className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium",
               "transition-all duration-150 active:scale-95",
-              (value.trim() || attachment) && !sending && !disabled
+              (value.trim() || attachments.length > 0) && !sending && !disabled
                 ? isEditMode
                   ? "bg-amber-500 text-white hover:bg-amber-600 shadow-sm shadow-amber-500/25"
                   : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-600/25"
@@ -394,7 +403,7 @@ export default function ChatInput({
             ) : (
               <Send className="h-4 w-4" />
             )}
-            {isEditMode ? "Lưu" : attachment ? "Gửi file" : "Gửi"}
+            {isEditMode ? "Lưu" : attachments.length > 0 ? `Gửi ${attachments.length} file` : "Gửi"}
           </button>
         </div>
       </div>

@@ -18,7 +18,7 @@ export default function ChatPanel() {
     hasMoreMessages,
     loadMoreMessages,
     sendMessage,
-    sendAttachment,
+    sendAttachments,
     deleteMessage,
     editMessage,
     isConnected,
@@ -97,12 +97,12 @@ export default function ChatPanel() {
     [editMessage]
   );
 
-  const handleSendAttachment = useCallback(
-    async (file: File, body: string, parentId?: number | null) => {
-      await sendAttachment(file, body, parentId);
+  const handleSendAttachments = useCallback(
+    async (files: File[], body: string, parentId?: number | null) => {
+      await sendAttachments(files, body, parentId);
       setReplyingTo(null);
     },
-    [sendAttachment]
+    [sendAttachments]
   );
 
   // ── Empty state ───────────────────────────────────────────────────────────────
@@ -247,7 +247,7 @@ export default function ChatPanel() {
       <ChatInput
         channelName={isDm ? displayName : activeChannel.slug}
         onSend={handleSend}
-        onSendAttachment={handleSendAttachment}
+        onSendAttachments={handleSendAttachments}
         onSaveEdit={handleSaveEdit}
         disabled={!isConnected && messages.length === 0}
         replyingTo={replyingTo}

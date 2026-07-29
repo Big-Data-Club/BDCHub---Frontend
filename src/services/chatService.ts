@@ -46,14 +46,14 @@ export async function sendMessageRest(
   return mapMessage(res.data.data);
 }
 
-export async function sendAttachment(
+export async function sendAttachments(
   channelId: number,
-  file: File,
+  files: File[],
   body = "",
   parentId?: number | null
 ): Promise<ChatMessage> {
   const form = new FormData();
-  form.append("file", file);
+  files.forEach((file) => form.append("file", file));
   if (body.trim()) form.append("body", body.trim());
   if (parentId) form.append("parent_id", String(parentId));
   const res = await chatApiClient.post(`/chat/channels/${channelId}/attachments`, form, {
