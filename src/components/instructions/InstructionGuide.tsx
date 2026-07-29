@@ -372,7 +372,7 @@ export function InstructionGuide({ role }: InstructionGuideProps) {
   };
 
   return (
-    <div className="bg-slate-50 text-slate-800 dark:bg-[#050B18] dark:text-slate-200">
+    <div className="relative z-10 bg-slate-50 text-slate-800 dark:bg-[#050B18] dark:text-slate-200">
       <section className="border-b border-slate-200 bg-white dark:border-blue-500/10 dark:bg-[#070E1C]">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-20">
           <div className="flex flex-col justify-center">
@@ -456,13 +456,13 @@ export function InstructionGuide({ role }: InstructionGuideProps) {
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-extrabold text-white">{activeStep + 1}</span>
                       <div><p className="text-sm font-bold text-blue-600 dark:text-cyan-400">Thao tác cần thực hiện</p><h3 className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-white">{step.title}</h3></div>
                     </div>
-                    <p className="mt-6 text-base leading-7 text-slate-600 dark:text-slate-300">{step.description}</p>
+                    <p className="mt-6 text-base leading-7 text-slate-800 dark:text-slate-100">{step.description}</p>
                     <div className="mt-5 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-cyan-400/20 dark:bg-cyan-400/10">
                       <MousePointer2 className="h-5 w-5 shrink-0 text-blue-700 dark:text-cyan-300" />
                       <div><p className="text-xs font-bold uppercase tracking-wide text-blue-700 dark:text-cyan-300">Trên giao diện, chọn</p><p className="mt-1 text-sm font-extrabold text-slate-900 dark:text-white">{step.target}</p></div>
                     </div>
                     <ol className="mt-6 space-y-3">
-                      {step.action.map((action, index) => <li key={action} className="flex gap-3 text-sm leading-6 text-slate-700 dark:text-slate-200"><span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[11px] font-extrabold text-blue-700 dark:bg-cyan-400/10 dark:text-cyan-300">{index + 1}</span>{action}</li>)}
+                      {step.action.map((action, index) => <li key={action} className="flex gap-3 text-sm font-medium leading-6 text-slate-800 dark:text-slate-100"><span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[11px] font-extrabold text-blue-700 dark:bg-cyan-400/10 dark:text-cyan-300">{index + 1}</span>{action}</li>)}
                     </ol>
                     <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-950/30"><div className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" /><p className="text-sm leading-6 text-emerald-900 dark:text-emerald-100"><strong>Kết quả:</strong> {step.outcome}</p></div></div>
                     {step.caution && <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/20 dark:bg-amber-950/30"><div className="flex gap-2"><CircleHelp className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-400" /><p className="text-sm leading-6 text-amber-900 dark:text-amber-100"><strong>Lưu ý:</strong> {step.caution}</p></div></div>}
