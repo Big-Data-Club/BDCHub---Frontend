@@ -347,6 +347,12 @@ const visualIcons: Record<StepVisual, LucideIcon> = {
   analytics: Gauge,
 };
 
+const previewNavigation: Record<InstructionRole, string[]> = {
+  student: ["Khóa học", "Khám phá", "Thống kê", "AI Mentor"],
+  teacher: ["Khóa học", "Nội dung", "Người học", "Công cụ AI"],
+  admin: ["Dashboard", "Người dùng", "Organizations", "Cấu hình LLM"],
+};
+
 interface InstructionGuideProps {
   role: InstructionRole;
 }
@@ -358,6 +364,7 @@ export function InstructionGuide({ role }: InstructionGuideProps) {
   const step = guide.steps[activeStep];
   const RoleIcon = guide.icon;
   const VisualIcon = visualIcons[step.visual];
+  const previewItems = previewNavigation[role];
 
   const handleStepChange = (nextStep: number) => {
     setIsDemoClicked(false);
@@ -450,6 +457,10 @@ export function InstructionGuide({ role }: InstructionGuideProps) {
                       <div><p className="text-sm font-bold text-blue-600 dark:text-cyan-400">Thao tác cần thực hiện</p><h3 className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-white">{step.title}</h3></div>
                     </div>
                     <p className="mt-6 text-base leading-7 text-slate-600 dark:text-slate-300">{step.description}</p>
+                    <div className="mt-5 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-cyan-400/20 dark:bg-cyan-400/10">
+                      <MousePointer2 className="h-5 w-5 shrink-0 text-blue-700 dark:text-cyan-300" />
+                      <div><p className="text-xs font-bold uppercase tracking-wide text-blue-700 dark:text-cyan-300">Trên giao diện, chọn</p><p className="mt-1 text-sm font-extrabold text-slate-900 dark:text-white">{step.target}</p></div>
+                    </div>
                     <ol className="mt-6 space-y-3">
                       {step.action.map((action, index) => <li key={action} className="flex gap-3 text-sm leading-6 text-slate-700 dark:text-slate-200"><span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-[11px] font-extrabold text-blue-700 dark:bg-cyan-400/10 dark:text-cyan-300">{index + 1}</span>{action}</li>)}
                     </ol>
@@ -458,11 +469,13 @@ export function InstructionGuide({ role }: InstructionGuideProps) {
                   </div>
                   <div className="bg-slate-50 p-5 sm:p-8 dark:bg-[#0A1628]">
                     <p className="mb-4 text-xs font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Mô phỏng thao tác</p>
-                    <div className="relative min-h-[360px] overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 dark:border-blue-500/15 dark:bg-[#070E1C]">
+                    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 dark:border-blue-500/15 dark:bg-[#070E1C]">
                       <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-blue-500/10"><div className="h-2.5 w-2.5 rounded-full bg-rose-400" /><div className="h-2.5 w-2.5 rounded-full bg-amber-400" /><div className="h-2.5 w-2.5 rounded-full bg-emerald-400" /><span className="ml-2 text-xs font-semibold text-slate-500 dark:text-slate-400">BDC Hub LMS</span></div>
-                      <div className="grid grid-cols-[80px_1fr] gap-3">
-                        <div className="space-y-2 rounded-xl bg-slate-50 p-2 dark:bg-[#0D192E]"><div className="h-6 rounded-md bg-blue-600" /><div className="h-6 rounded-md bg-slate-200 dark:bg-[#162644]" /><div className="h-6 rounded-md bg-slate-200 dark:bg-[#162644]" /><div className="h-6 rounded-md bg-slate-200 dark:bg-[#162644]" /></div>
-                        <div className="min-w-0"><div className="flex items-center justify-between"><div><p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{guide.label}</p><p className="mt-1 font-bold text-slate-900 dark:text-white">{step.shortTitle}</p></div><VisualIcon className="h-5 w-5 text-blue-600 dark:text-cyan-400" /></div><div className="mt-4 rounded-xl border border-slate-200 p-3 dark:border-blue-500/15"><p className="text-xs text-slate-500 dark:text-slate-400">Vị trí cần bấm</p><button type="button" onClick={() => setIsDemoClicked(true)} className={`relative mt-2 w-full rounded-lg bg-blue-600 px-3 py-2 text-left text-xs font-bold text-white transition-all duration-200 hover:bg-blue-700 active:scale-95 ${isDemoClicked ? "ring-4 ring-blue-500/20 dark:ring-cyan-400/20" : ""}`}><span>{step.target}</span><motion.span key={`${step.title}-cursor`} initial={{ opacity: 0, x: 10, y: -8 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ delay: 0.15, type: "spring", stiffness: 280, damping: 18 }} className="pointer-events-none absolute -right-2 top-1/2 -translate-y-1/2" aria-hidden="true"><MousePointer2 className="h-8 w-8 fill-white text-slate-900 drop-shadow-lg dark:fill-[#0F1E35] dark:text-white" /></motion.span></button>{isDemoClicked && <p className="mt-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300" aria-live="polite">Đã mô phỏng click. Nội dung hướng dẫn vẫn được giữ nguyên.</p>}</div><div className="mt-3 grid grid-cols-2 gap-3"><div className="h-16 rounded-xl bg-slate-100 dark:bg-[#0D192E]" /><div className="h-16 rounded-xl bg-blue-50 dark:bg-cyan-400/10" /></div></div>
+                      <div className="grid grid-cols-[112px_minmax(0,1fr)] gap-3">
+                        <nav aria-label="Mô phỏng thanh điều hướng" className="space-y-2 rounded-xl bg-slate-50 p-2 dark:bg-[#0D192E]">
+                          {previewItems.map((item, index) => <div key={item} className={`rounded-lg px-2 py-2 text-[10px] font-bold leading-4 ${index === 0 ? "bg-blue-600 text-white" : "text-slate-600 dark:text-slate-300"}`}>{item}</div>)}
+                        </nav>
+                        <div className="min-w-0"><div className="flex items-center justify-between"><div><p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Không gian {guide.singular}</p><p className="mt-1 font-bold text-slate-900 dark:text-white">{step.shortTitle}</p></div><VisualIcon className="h-5 w-5 shrink-0 text-blue-600 dark:text-cyan-400" /></div><div className="mt-4 rounded-xl border-2 border-blue-300 bg-blue-50 p-3 dark:border-cyan-400/35 dark:bg-cyan-400/10"><p className="text-xs font-bold text-blue-800 dark:text-cyan-200">VỊ TRÍ CẦN BẤM</p><button type="button" onClick={() => setIsDemoClicked(true)} className={`relative mt-2 w-full rounded-lg bg-blue-600 px-3 py-2 pr-11 text-left text-xs font-bold text-white transition-all duration-200 hover:bg-blue-700 active:scale-95 ${isDemoClicked ? "ring-4 ring-blue-500/20 dark:ring-cyan-400/20" : ""}`}><span className="block">{step.target}</span><motion.span key={`${step.title}-cursor`} initial={{ opacity: 0, x: 12, y: -10 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ delay: 0.15, type: "spring", stiffness: 280, damping: 18 }} className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2" aria-hidden="true"><MousePointer2 className="h-7 w-7 fill-white text-slate-900 drop-shadow-lg dark:fill-[#0F1E35] dark:text-white" /></motion.span></button>{isDemoClicked && <p className="mt-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300" aria-live="polite">Đã mô phỏng click. Nội dung vẫn được giữ nguyên.</p>}</div><div className="mt-3 grid grid-cols-2 gap-2"><div className="rounded-lg bg-slate-100 p-2 text-[10px] font-semibold text-slate-500 dark:bg-[#0D192E] dark:text-slate-400">Thông tin khóa học</div><div className="rounded-lg bg-slate-100 p-2 text-[10px] font-semibold text-slate-500 dark:bg-[#0D192E] dark:text-slate-400">Tác vụ cần xử lý</div></div></div>
                       </div>
                     </div>
                     <p className="mt-4 text-sm leading-6 text-slate-500 dark:text-slate-400">Con trỏ được gắn trực tiếp vào nút cần thao tác. Bấm thử chỉ tạo phản hồi mô phỏng, không làm mất phần chi tiết.</p>
