@@ -11,6 +11,7 @@ interface ContentDraftPreviewProps {
     content_type: string;
     topic: string;
     draft: string;
+    source_was_reduced?: boolean;
     course_id?: number | null;
     suggested_section_id?: number | null;
   };
@@ -18,8 +19,17 @@ interface ContentDraftPreviewProps {
 
 const NEW_SECTION_VALUE = -99;
 
+const contentTypeLabels: Record<string, string> = {
+  student_lesson: "Bài học cho học viên",
+  lesson_plan: "Kế hoạch giảng dạy",
+  slide_structure: "Cấu trúc slide",
+  outline: "Dàn ý",
+  summary: "Tóm tắt",
+  explanation: "Giải thích",
+};
+
 export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
-  const { content_type, topic, draft: initialDraft, course_id, suggested_section_id } = props;
+  const { content_type, topic, draft: initialDraft, course_id, suggested_section_id, source_was_reduced } = props;
   const [draft, setDraft] = useState(initialDraft);
   const [isEditing, setIsEditing] = useState(false);
   const [courses, setCourses] = useState<any[]>([]);
@@ -113,8 +123,8 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
       // 3. Create content
       await lmsService.createContent(finalSectionId, {
         type: "TEXT",
-        title: `${content_type.charAt(0).toUpperCase() + content_type.slice(1)}: ${topic}`,
-        description: `AI-generated ${content_type} about ${topic}`,
+        title: `${contentTypeLabels[content_type] || content_type}: ${topic}`,
+        description: `Nội dung AI tạo có thể chỉnh sửa về ${topic}`,
         order_index: orderIndex,
         metadata: {
           content: draft,
@@ -142,11 +152,16 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white capitalize">
-              {content_type.replace("_", " ")}
+              {contentTypeLabels[content_type] || content_type.replace("_", " ")}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">
               {topic}
             </p>
+            {source_was_reduced && (
+              <p className="mt-0.5 text-[10px] text-blue-600 dark:text-blue-400">
+                Đã tổng hợp toàn bộ tài liệu nguồn theo từng phần
+              </p>
+            )}
           </div>
         </div>
 
