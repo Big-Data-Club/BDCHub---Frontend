@@ -25,6 +25,32 @@ function PanelLoading({ label }: { label: string }) {
   return <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">{label}</div>;
 }
 
+class CoworkerPanelBoundary extends React.Component<{ children: React.ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error: Error) {
+    // Keep the failure isolated to the optional panel; the workspace must
+    // remain usable even if a persisted legacy widget is malformed.
+    console.error("[coworker-panel] render failed", error);
+  }
+
+  render() {
+    if (this.state.failed) {
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center text-sm text-slate-500 dark:text-slate-400">
+          <p>Không thể hiển thị phiên AI này.</p>
+          <button type="button" onClick={() => this.setState({ failed: false })} className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700">Thử lại</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 let coworkerPreloaded = false;
 function preloadCoworker() {
   if (coworkerPreloaded) return;
@@ -266,19 +292,21 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
 
           {/* Active Panel (Chat or Notebook) */}
           <div className="flex-1 min-h-0 overflow-hidden">
-            {activeTab === "chat" ? (
-              <AgentChatPanel
-                key={agentType} // Re-mounts the panel when switching agent types to reset internal state correctly
-                agentType={agentType}
-                className="h-full border-none rounded-none"
-                defaultSidebarOpen={false}
-              />
-            ) : (
-              <AgentNotebookPanel
-                courseId={pageContext?.courseId ? Number(pageContext.courseId) : undefined}
-                className="h-full"
-              />
-            )}
+            <CoworkerPanelBoundary key={`${agentType}-${activeTab}`}>
+              {activeTab === "chat" ? (
+                <AgentChatPanel
+                  key={agentType} // Re-mounts the panel when switching agent types to reset internal state correctly
+                  agentType={agentType}
+                  className="h-full border-none rounded-none"
+                  defaultSidebarOpen={false}
+                />
+              ) : (
+                <AgentNotebookPanel
+                  courseId={pageContext?.courseId ? Number(pageContext.courseId) : undefined}
+                  className="h-full"
+                />
+              )}
+            </CoworkerPanelBoundary>
           </div>
         </div>
       )}

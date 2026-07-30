@@ -83,7 +83,11 @@ export function AgentMessageBubble({
   const didSpawn = score >= 0.5;
 
   const hasRunningLogs = logs.some((l) => l.status === "running");
-  const uiComponents = message.uiComponents || (message.uiComponent ? [message.uiComponent] : []);
+  const uiComponents = Array.isArray(message.uiComponents)
+    ? message.uiComponents.filter((component) => component && typeof component.component === "string")
+    : message.uiComponent && typeof message.uiComponent.component === "string"
+      ? [message.uiComponent]
+      : [];
 
   const saveResponseToNotebook = async () => {
     if (!message.content || savingNote || noteSaved) return;

@@ -14,11 +14,20 @@ import type {
   AgentEvent,
   ToolActivity,
   AgentHistoryMessage,
+  UIComponentData,
 } from "@/types";
 
 let _msgIdCounter = 0;
 function nextId(): string {
   return `msg-${Date.now()}-${++_msgIdCounter}`;
+}
+
+function normalizeUIComponents(value: unknown, legacy?: unknown): UIComponentData[] {
+  const isComponent = (item: unknown): item is UIComponentData =>
+    !!item && typeof item === "object" && typeof (item as UIComponentData).component === "string";
+  if (Array.isArray(value)) return value.filter(isComponent);
+  if (isComponent(value)) return [value];
+  return isComponent(legacy) ? [legacy] : [];
 }
 
 // Context travels with every streamed turn. Keep it bounded so a long lesson
@@ -89,7 +98,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
         content: m.content || "",
         timestamp: new Date(m.created_at).getTime(),
         toolActivities: m.metadata?.toolActivities || [],
-        uiComponents: m.metadata?.uiComponents || (m.metadata?.uiComponent ? [m.metadata.uiComponent] : []),
+        uiComponents: normalizeUIComponents(m.metadata?.uiComponents, m.metadata?.uiComponent),
         hitlRequest: m.metadata?.hitlRequest,
         context: m.metadata?.context,
         thinking: m.metadata?.thinking || "",
@@ -472,7 +481,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
       case "ui_component":
         updateAssistant(assistantId, (msg) => ({
           ...msg,
-          uiComponents: [...(msg.uiComponents || []), event.data as any],
+          uiComponents: [...normalizeUIComponents(msg.uiComponents, msg.uiComponent), ...normalizeUIComponents(event.data)],
         }));
         break;
 
