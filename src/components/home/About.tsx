@@ -30,7 +30,9 @@ export default function About() {
 
         <motion.div 
           variants={containerVariants}
-          initial="hidden"
+          // Content must remain usable if the viewport observer is delayed or unavailable.
+          // Animations are progressive enhancement, never the condition for showing cards.
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           className="grid md:grid-cols-2 gap-12 items-start"

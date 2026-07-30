@@ -29,7 +29,8 @@ export default function Projects() {
     <section id="projects" className="py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16">
         <motion.div
-          initial="hidden"
+          // Do not gate page content on an IntersectionObserver-driven animation.
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={containerVariants}
@@ -63,7 +64,8 @@ export default function Projects() {
         </motion.div>
 
         <motion.div
-          initial="hidden"
+          // Do not gate page content on an IntersectionObserver-driven animation.
+          initial={false}
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={containerVariants}
