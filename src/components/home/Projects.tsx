@@ -18,12 +18,12 @@ export default function Projects() {
                   href={project.projectShowcaseUrl}
                   className="p-5 rounded-2xl cursor-pointer group block
                              bg-white dark:bg-[#0F1E35]
-                             border border-slate-200 dark:border-blue-500/10
-                             shadow-sm dark:shadow-none
+                             border border-slate-200 dark:border-blue-500/20
+                             shadow-md dark:shadow-[0_4px_20px_rgba(7,14,28,0.4)]
                              hover:-translate-y-1
-                             hover:shadow-lg hover:shadow-blue-500/5
-                             dark:hover:shadow-[0_8px_30px_rgba(37,99,235,0.06)]
-                             hover:border-blue-300/60 dark:hover:border-blue-500/25
+                             hover:shadow-xl hover:shadow-blue-500/10
+                             dark:hover:shadow-[0_8px_30px_rgba(34,211,238,0.12)]
+                             hover:border-blue-400/60 dark:hover:border-cyan-400/40
                              transition-all duration-300"
                 >
                   <h3 className="font-bold text-slate-900 dark:text-white flex items-center justify-between group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
