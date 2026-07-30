@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Trash2, BookOpen, Search, Calendar, Loader2, Plus, Save } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { agentService } from "@/services/agentService";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -205,9 +205,7 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
               </DialogHeader>
               
               <ScrollArea className="max-h-[60vh] pr-2">
-                <div className="prose prose-slate dark:prose-invert prose-xs leading-relaxed max-w-none text-slate-600 dark:text-slate-350 pr-4">
-                  <ReactMarkdown>{selectedNote.content}</ReactMarkdown>
-                </div>
+                <MarkdownRenderer content={selectedNote.content} className="pr-4" />
               </ScrollArea>
               
               <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">

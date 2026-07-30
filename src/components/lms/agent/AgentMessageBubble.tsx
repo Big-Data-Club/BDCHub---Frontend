@@ -224,7 +224,7 @@ export function AgentMessageBubble({
             )}
           >
             {isUser ? (
-              message.content
+              <MarkdownRenderer content={message.content} variant="chat-user" />
             ) : (
               <MarkdownRenderer
                 content={message.content + (message.isStreaming ? ' ▊' : '')}

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -9,13 +9,89 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
+import { Check, Copy } from 'lucide-react';
 
 import { cn } from "@/lib/utils";
 
 interface MarkdownRendererProps {
   content: string;
   className?: string;
-  variant?: 'default' | 'chat';
+  variant?: 'default' | 'chat' | 'chat-user';
+}
+
+/**
+ * Accept both Markdown math ($...$, $$...$$) and the standard LaTeX
+ * delimiters produced by many AI tools (\\(...\\), \\[...\\]).  Code fences are
+ * deliberately left untouched so that examples containing LaTeX stay literal.
+ */
+function normalizeMathDelimiters(markdown: string) {
+  return markdown
+    .split(/(```[\s\S]*?```)/g)
+    .map((part, index) => {
+      if (index % 2 === 1) return part;
+      return part
+        .replace(/\\\[\s*([\s\S]*?)\s*\\\]/g, (_, math) => `\n\n$$\n${math}\n$$\n\n`)
+        .replace(/\\\(([\s\S]*?)\\\)/g, (_, math) => `$${math}$`);
+    })
+    .join('');
+}
+
+function copyText(text: string) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  textarea.remove();
+  return Promise.resolve();
+}
+
+function CodeBlock({ code, language, compact }: { code: string; language: string; compact: boolean }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await copyText(code);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      // Clipboard permission may be disabled by an embedded browser. The code
+      // remains selectable, which is the safe fallback.
+    }
+  };
+
+  return (
+    <div className={cn("relative group", compact ? "my-3" : "my-6")}>
+      <div className="absolute inset-x-0 top-0 z-10 flex h-9 items-center justify-between rounded-t-xl bg-slate-950/75 px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400 opacity-100 backdrop-blur-sm sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
+        <span>{language || 'text'}</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-slate-200 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+          aria-label="Sao chép mã nguồn"
+        >
+          {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? 'Đã chép' : 'Sao chép'}
+        </button>
+      </div>
+      <SyntaxHighlighter
+        style={vscDarkPlus}
+        language={language || 'text'}
+        PreTag="div"
+        customStyle={{ color: '#e2e8f0', backgroundColor: '#030712' }}
+        className={cn(
+          "rounded-xl overflow-x-auto w-full max-w-full !m-0 shadow-lg font-mono text-slate-200 scrollbar-thin",
+          compact ? "!p-3 pt-11 text-[11px] leading-normal" : "!p-4 pt-12 text-sm"
+        )}
+      >
+        {code}
+      </SyntaxHighlighter>
+    </div>
+  );
 }
 
 export default function MarkdownRenderer({
@@ -23,14 +99,17 @@ export default function MarkdownRenderer({
   className = '',
   variant = 'default',
 }: MarkdownRendererProps) {
-  const isChat = variant === 'chat';
+  const isChat = variant === 'chat' || variant === 'chat-user';
+  const isUserChat = variant === 'chat-user';
+  const normalizedContent = normalizeMathDelimiters(content || '');
 
   return (
     <div
       className={cn(
         isChat
-          ? "w-full text-slate-700 dark:text-slate-300 text-sm leading-relaxed"
+          ? cn("w-full text-sm leading-relaxed", isUserChat ? "text-white" : "text-slate-700 dark:text-slate-300")
           : "prose prose-sm dark:prose-invert max-w-none",
+        "[&_.katex-display]:my-4 [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden [&_.katex-display]:py-2",
         className
       )}
     >
@@ -42,7 +121,7 @@ export default function MarkdownRenderer({
           h1: ({ ...props }) => (
             <h1
               className={cn(
-                "font-bold text-slate-900 dark:text-slate-50",
+                isUserChat ? "font-bold text-white" : "font-bold text-slate-900 dark:text-slate-50",
                 isChat
                   ? "text-base mt-3 mb-1.5 first:mt-0"
                   : "text-3xl mt-8 mb-4 first:mt-0"
@@ -53,7 +132,7 @@ export default function MarkdownRenderer({
           h2: ({ ...props }) => (
             <h2
               className={cn(
-                "font-bold text-slate-850 dark:text-slate-100",
+                isUserChat ? "font-bold text-white" : "font-bold text-slate-850 dark:text-slate-100",
                 isChat
                   ? "text-sm mt-2.5 mb-1 pb-0.5 border-b border-slate-100 dark:border-slate-800/50"
                   : "text-2xl mt-6 mb-3 border-b border-gray-100 dark:border-gray-800 pb-2"
@@ -64,7 +143,7 @@ export default function MarkdownRenderer({
           h3: ({ ...props }) => (
             <h3
               className={cn(
-                "font-bold text-slate-800 dark:text-slate-100",
+                isUserChat ? "font-bold text-white" : "font-bold text-slate-800 dark:text-slate-100",
                 isChat
                   ? "text-sm mt-2 mb-1"
                   : "text-xl mt-5 mb-2"
@@ -79,7 +158,7 @@ export default function MarkdownRenderer({
               className={cn(
                 "leading-relaxed",
                 isChat
-                  ? "mb-2 last:mb-0 text-slate-700 dark:text-slate-300"
+                  ? cn("mb-2 last:mb-0", isUserChat ? "text-white" : "text-slate-700 dark:text-slate-300")
                   : "mb-4 text-gray-600 dark:text-gray-300"
               )}
               {...props}
@@ -92,7 +171,7 @@ export default function MarkdownRenderer({
               className={cn(
                 "list-disc list-outside",
                 isChat
-                  ? "mb-2 pl-4 space-y-1 text-slate-700 dark:text-slate-300"
+                  ? cn("mb-2 pl-4 space-y-1", isUserChat ? "text-white" : "text-slate-700 dark:text-slate-300")
                   : "mb-4 pl-5 space-y-1.5 text-gray-600 dark:text-gray-300"
               )}
               {...props}
@@ -103,7 +182,7 @@ export default function MarkdownRenderer({
               className={cn(
                 "list-decimal list-outside",
                 isChat
-                  ? "mb-2 pl-4 space-y-1 text-slate-700 dark:text-slate-300"
+                  ? cn("mb-2 pl-4 space-y-1", isUserChat ? "text-white" : "text-slate-700 dark:text-slate-300")
                   : "mb-4 pl-5 space-y-1.5 text-gray-600 dark:text-gray-300"
               )}
               {...props}
@@ -113,12 +192,7 @@ export default function MarkdownRenderer({
             <li className={isChat ? "pl-0.5" : "pl-1"} {...props} />
           ),
 
-          // Code Blocks - handled at the `pre` level (react-markdown v10 removed
-          // the `inline` prop from `code`; `pre` only wraps fenced blocks, never
-          // inline code, so this is the correct v10 detection pattern).
           pre: ({ children }: any) => {
-            // Extract the inner <code> element rendered by react-markdown.
-            // Check for explicit 'code' types, class patterns, or fallback to the first child.
             const childrenArray = React.Children.toArray(children);
             const codeEl = childrenArray.find(
               (child: any) => 
@@ -132,40 +206,17 @@ export default function MarkdownRenderer({
             || (childrenArray[0] as React.ReactElement<any> | undefined);
 
             const className = codeEl?.props?.className ?? '';
-            const match = /language-(\w+)/.exec(className);
+            const match = /language-([\w+-]+)/.exec(className);
             const lang = match ? match[1] : '';
             const raw = String(codeEl?.props?.children ?? '').replace(/\n$/, '');
 
-            return (
-              <div className={cn("relative group", isChat ? "my-3" : "my-6")}>
-                {lang && (
-                  <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] uppercase font-bold text-gray-500 bg-gray-800/10 dark:bg-gray-200/10 rounded-bl-lg z-10">
-                    {lang}
-                  </div>
-                )}
-                <SyntaxHighlighter
-                  style={vscDarkPlus}
-                  language={lang || 'text'}
-                  PreTag="div"
-                  customStyle={{
-                    color: '#e2e8f0', // Tailwind text-slate-200
-                    backgroundColor: '#030712' // Tailwind bg-gray-950
-                  }}
-                  className={cn(
-                    "rounded-xl overflow-x-auto w-full max-w-full !m-0 shadow-lg font-mono text-slate-200 scrollbar-thin",
-                    isChat ? "!p-3 text-[11px] leading-normal" : "!p-4 text-sm"
-                  )}
-                >
-                  {raw}
-                </SyntaxHighlighter>
-              </div>
-            );
+            return <CodeBlock code={raw} language={lang} compact={isChat} />;
           },
 
           // Inline Code - `code` is now exclusively for inline spans in v10
           code: ({ children, ...props }: any) => (
             <code
-              className="bg-gray-100 dark:bg-gray-800/50 px-1.5 py-0.5 rounded text-sm font-mono text-red-500 dark:text-red-400 font-medium"
+              className={cn("rounded px-1.5 py-0.5 text-sm font-mono font-medium", isUserChat ? "bg-white/15 text-white" : "bg-gray-100 text-red-500 dark:bg-gray-800/50 dark:text-red-400")}
               {...props}
             >
               {children}
@@ -239,7 +290,7 @@ export default function MarkdownRenderer({
             return (
               <a
                 href={href}
-                className="text-blue-600 dark:text-blue-400 font-medium underline underline-offset-4 decoration-blue-500/30 hover:decoration-blue-500 transition-all"
+                className={cn("font-medium underline underline-offset-4 transition-all", isUserChat ? "text-white decoration-white/50 hover:decoration-white" : "text-blue-600 decoration-blue-500/30 hover:decoration-blue-500 dark:text-blue-400")}
                 target="_blank"
                 rel="noopener noreferrer"
                 {...props}
@@ -255,7 +306,7 @@ export default function MarkdownRenderer({
           ),
         }}
       >
-        {content || '*Không có nội dung*'}
+        {normalizedContent || '*Không có nội dung*'}
       </ReactMarkdown>
     </div>
   );
