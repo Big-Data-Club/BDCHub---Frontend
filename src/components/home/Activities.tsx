@@ -23,7 +23,7 @@ export default function Activities() {
                          hover:shadow-xl hover:shadow-blue-500/10
                          dark:hover:shadow-[0_12px_40px_rgba(34,211,238,0.12)]
                          hover:border-blue-400/60 dark:hover:border-cyan-400/40
-                         transition-all duration-300 group"
+                         transition-transform transition-shadow transition-colors duration-300 group"
             >
               <div className="h-48 bg-slate-200 dark:bg-[#0A1628] relative overflow-hidden">
                 <SafeImage src={activity.imageUrl} alt={activity.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />

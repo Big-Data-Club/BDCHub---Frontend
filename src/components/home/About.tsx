@@ -25,7 +25,7 @@ export default function About() {
                           hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10
                           dark:hover:shadow-[0_8px_30px_rgba(37,99,235,0.12)]
                           dark:hover:border-blue-500/40
-                          transition-all duration-300 flex flex-col justify-center"
+                          transition-transform transition-shadow transition-colors duration-300 flex flex-col justify-center"
           >
             <p><strong className="text-slate-900 dark:text-white font-bold">Big Data Club</strong> là câu lạc bộ học thuật tại ĐH Bách Khoa TP.HCM, được thành lập năm 2021 dưới sự hướng dẫn của PGS.TS Thoại Nam và HPC Lab.</p>
             <p>Với tinh thần <strong className="text-blue-600 dark:text-cyan-400 font-semibold">Think Big - Speak Data</strong> và phương châm <strong className="text-blue-600 dark:text-cyan-400 font-semibold">Learning by Doing</strong>, chúng tôi xây dựng một môi trường cởi mở để sinh viên rèn luyện thực chiến.</p>
@@ -43,7 +43,7 @@ export default function About() {
                            hover:shadow-xl hover:shadow-blue-500/10
                            dark:hover:shadow-[0_8px_30px_rgba(34,211,238,0.12)]
                            hover:border-blue-400/60 dark:hover:border-cyan-400/40
-                           transition-all duration-300 flex flex-col justify-center"
+                           transition-transform transition-shadow transition-colors duration-300 flex flex-col justify-center"
               >
                 <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-2 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
                   {val.title}

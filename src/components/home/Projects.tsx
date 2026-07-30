@@ -24,7 +24,7 @@ export default function Projects() {
                              hover:shadow-xl hover:shadow-blue-500/10
                              dark:hover:shadow-[0_8px_30px_rgba(34,211,238,0.12)]
                              hover:border-blue-400/60 dark:hover:border-cyan-400/40
-                             transition-all duration-300"
+                             transition-transform transition-shadow transition-colors duration-300"
                 >
                   <h3 className="font-bold text-slate-900 dark:text-white flex items-center justify-between group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
                     {project.projectName}
