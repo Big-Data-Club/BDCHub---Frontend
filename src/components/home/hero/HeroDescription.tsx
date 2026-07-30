@@ -22,17 +22,12 @@ export function HeroDescription({
   ];
 
   return (
-    <div className="w-full text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl lg:max-w-xl leading-relaxed text-center lg:text-left transition-all duration-200">
+    <p className="w-full text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl lg:max-w-xl leading-relaxed text-center lg:text-left">
       {descriptionLines.map((line, idx) => (
-        <span 
-          key={idx} 
-          className="block overflow-hidden relative py-0.5"
-        >
-          <span className="inline-block">
-            {line}
-          </span>
+        <span key={idx} className="block">
+          {line}
         </span>
       ))}
-    </div>
+    </p>
   );
 }
