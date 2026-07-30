@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import lmsService from "@/services/lmsService";
+import Image from "next/image";
 import { analyticsService } from "@/services/analyticsService";
 import {
   BookOpen, Users, CheckCircle2,
@@ -12,10 +12,24 @@ import {
 } from "lucide-react";
 import {
   StatCard, Card, SectionHeader,
-  Badge, PrimaryBtn, SecondaryBtn, GhostBtn,
+  PrimaryBtn, SecondaryBtn, GhostBtn,
   EmptyState, PageLoader, Alert, ProgressBar
 } from "@/components/lms/shared";
 import { useSession } from "next-auth/react";
+import type { TeacherDashboardSummaryResponse } from "@/services/analyticsService";
+
+const DASHBOARD_CACHE_TTL_MS = 5 * 60 * 1000;
+
+function readDashboardCache(key: string): TeacherDashboardSummaryResponse | null {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const cached = JSON.parse(raw) as { savedAt: number; data: TeacherDashboardSummaryResponse };
+    return cached?.data && Date.now() - cached.savedAt < DASHBOARD_CACHE_TTL_MS ? cached.data : null;
+  } catch {
+    return null;
+  }
+}
 
 const TeacherDashboardCharts = dynamic(
   () => import("@/components/lms/teacher/page/TeacherDashboardCharts").then((module) => module.TeacherDashboardCharts),
@@ -55,7 +69,7 @@ function ActionCard({
 
 export default function TeacherDashboard() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const userName = session?.user?.name || "giảng viên";
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -71,35 +85,53 @@ export default function TeacherDashboard() {
   // Timeline & comparison charts data
   const [registrationTimeline, setRegistrationTimeline] = useState<any[]>([]);
 
-  const loadDashboard = useCallback(async () => {
-    setLoading(true);
+  const dashboardCacheKey = session?.user?.id ? `lms:teacher-dashboard:v2:${session.user.id}` : null;
+
+  const applySummary = useCallback((summary: TeacherDashboardSummaryResponse) => {
+    setTotalCoursesCount(summary.totalCoursesCount);
+    setPublishedCoursesCount(summary.publishedCoursesCount);
+    setDraftCoursesCount(summary.draftCoursesCount);
+    setTotalUniqueStudents(summary.totalUniqueStudents);
+    setRegistrationTimeline(summary.registrationTimeline || []);
+    setCourseStats(summary.courseStats || []);
+  }, []);
+
+  const loadDashboard = useCallback(async ({ background = false } = {}) => {
+    if (!background) setLoading(true);
     setError("");
     try {
       const summaryRes = await analyticsService.getTeacherDashboardSummary();
       const summary = summaryRes?.data;
 
       if (summary) {
-        setTotalCoursesCount(summary.totalCoursesCount);
-        setPublishedCoursesCount(summary.publishedCoursesCount);
-        setDraftCoursesCount(summary.draftCoursesCount);
-        setTotalUniqueStudents(summary.totalUniqueStudents);
-        setRegistrationTimeline(summary.registrationTimeline || []);
-        setCourseStats(summary.courseStats || []);
+        applySummary(summary);
+        if (dashboardCacheKey) {
+          sessionStorage.setItem(dashboardCacheKey, JSON.stringify({ savedAt: Date.now(), data: summary }));
+        }
       }
     } catch (e) {
       console.error(e);
       setError("Không thể tải thông tin thống kê. Vui lòng thử lại.");
     } finally {
-      setLoading(false);
+      if (!background) setLoading(false);
     }
-  }, []);
+  }, [applySummary, dashboardCacheKey]);
 
 
   useEffect(() => {
     const role = sessionStorage.getItem("lms_selected_role");
     if (role !== "TEACHER" && role !== "ADMIN") { router.push("/lms"); return; }
-    loadDashboard();
-  }, [router, loadDashboard]);
+    if (sessionStatus === "loading") return;
+
+    const cached = dashboardCacheKey ? readDashboardCache(dashboardCacheKey) : null;
+    if (cached) {
+      applySummary(cached);
+      setLoading(false);
+      void loadDashboard({ background: true });
+      return;
+    }
+    void loadDashboard();
+  }, [router, sessionStatus, dashboardCacheKey, applySummary, loadDashboard]);
 
   if (loading) return <PageLoader message="Đang tải dashboard giảng viên..." />;
 
@@ -119,7 +151,7 @@ export default function TeacherDashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <SecondaryBtn size="sm" icon={<RefreshCw className="w-4 h-4" />} onClick={loadDashboard}>Làm mới</SecondaryBtn>
+            <SecondaryBtn size="sm" icon={<RefreshCw className="w-4 h-4" />} onClick={() => loadDashboard()}>Làm mới</SecondaryBtn>
             <GhostBtn size="sm" icon={<Home className="w-4 h-4" />} onClick={() => router.push("/")}>Trang chủ</GhostBtn>
             <GhostBtn size="sm" icon={<LogOut className="w-4 h-4" />}
               onClick={() => { sessionStorage.removeItem("lms_selected_role"); router.push("/lms"); }}>
@@ -221,7 +253,7 @@ export default function TeacherDashboard() {
                           {/* Thumbnail */}
                           <div className="w-14 h-9 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 flex-shrink-0 relative">
                             {stat.thumbnail_url ? (
-                              <img src={stat.thumbnail_url} alt={stat.title} className="object-cover w-full h-full" />
+                              <Image src={stat.thumbnail_url} alt="" fill sizes="56px" className="object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800">
                                 <BookOpen className="w-4 h-4 text-slate-400" />
