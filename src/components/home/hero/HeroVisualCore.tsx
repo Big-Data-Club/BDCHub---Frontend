@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, Variants } from "framer-motion";
 import SafeImage from "../../common/SafeImage";
 import { LogoIcon } from "@/constants";
 import { HeroStatsCards } from "./HeroStatsCards";
@@ -14,49 +13,8 @@ export function HeroVisualCore({
   statsDuration,
   statsYOffset,
 }: HeroVisualCoreProps) {
-  const outerOrbitVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: statsDuration + 0.1, // Snappier 0.7s reveal
-        ease: [0.16, 1, 0.3, 1],
-        delay: 0.5, // Start immediately as title completes its peak
-      },
-    },
-  };
-
-  const innerOrbitVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: statsDuration + 0.1, // Snappier 0.7s reveal
-        ease: [0.16, 1, 0.3, 1],
-        delay: 0.55, // Snappy offset cascade
-      },
-    },
-  };
-
-  const logoVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: statsDuration, // Snappy 0.6s reveal
-        ease: [0.16, 1, 0.3, 1],
-        delay: 0.6, // Synchronized with logo & card 0
-      },
-    },
-  };
-
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
+    <div
       className="lg:col-span-5 relative w-full h-[620px] hidden lg:flex items-center justify-center select-none"
     >
       {/* Static ambient glow keeps the visual hierarchy without repainting continuously. */}
@@ -69,8 +27,7 @@ export function HeroVisualCore({
       <div className="absolute bottom-[12%] right-[0%] w-52 h-52 rounded-full bg-blue-500/12 dark:bg-blue-500/6 blur-3xl pointer-events-none" />
       
       {/* Outer orbit is static after its entry transition to avoid a permanent compositor layer. */}
-      <motion.div
-        variants={outerOrbitVariants}
+      <div
         className="absolute w-80 h-80 flex items-center justify-center pointer-events-none"
       >
         <div className="absolute w-full h-full rounded-full border border-dashed border-blue-500/35 dark:border-blue-500/20 flex items-center justify-center">
@@ -94,11 +51,10 @@ export function HeroVisualCore({
             />
           </svg>
         </div>
-      </motion.div>
+      </div>
 
       {/* Inner orbit remains static after the entry transition. */}
-      <motion.div
-        variants={innerOrbitVariants}
+      <div
         className="absolute w-60 h-60 flex items-center justify-center pointer-events-none"
       >
         <div className="absolute w-full h-full rounded-full border-2 border-dotted border-cyan-500/35 dark:border-cyan-500/20 flex items-center justify-center">
@@ -122,11 +78,10 @@ export function HeroVisualCore({
             />
           </svg>
         </div>
-      </motion.div>
+      </div>
       
       {/* Central BDC Logo with entry reveal scale & fade animation */}
-      <motion.div
-        variants={logoVariants}
+      <div
         className="absolute flex flex-col items-center justify-center text-center p-2 bg-white/40 dark:bg-[#0F1E35]/40 backdrop-blur-md border border-slate-200/50 dark:border-blue-500/10 rounded-full w-40 h-40 shadow-inner overflow-hidden group hover:border-blue-300/60 dark:hover:border-blue-500/30 transition-all duration-300"
       >
         <SafeImage
@@ -137,7 +92,7 @@ export function HeroVisualCore({
           priority
           className="w-24 h-24 object-contain group-hover:scale-110 transition-transform duration-500"
         />
-      </motion.div>
+      </div>
 
       {/* Floating Glassmorphic Stats Cards */}
       <HeroStatsCards
@@ -145,6 +100,6 @@ export function HeroVisualCore({
         statsYOffset={statsYOffset}
       />
 
-    </motion.div>
+    </div>
   );
 }

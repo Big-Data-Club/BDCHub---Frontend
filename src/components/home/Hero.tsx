@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, Variants } from "framer-motion";
 import { HeroTitle } from "./hero/HeroTitle";
 import { HeroDescription } from "./hero/HeroDescription";
 import { HeroActions } from "./hero/HeroActions";
@@ -53,24 +52,9 @@ export default function Hero({
   customTime,
   titleText = "Big Data Club",
 }: HeroProps = {}) {
-  // Animation variants with staggered choreography
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
   return (
-    <motion.section 
-      id="hero" 
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+    <section
+      id="hero"
       className="relative min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-28 pb-20 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
@@ -138,6 +122,6 @@ export default function Hero({
           actionsYOffset={actionsYOffset}
         />
       )}
-    </motion.section>
+    </section>
   );
 }

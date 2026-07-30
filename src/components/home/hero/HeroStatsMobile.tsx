@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useReducedMotion, Variants } from "framer-motion";
 import { statsData } from "./HeroStatsCards";
 
 export interface HeroStatsMobileProps {
@@ -12,31 +11,10 @@ export function HeroStatsMobile({
   statsDuration,
   statsYOffset,
 }: HeroStatsMobileProps) {
-  const shouldReduceMotion = useReducedMotion();
-
-  const statsVariants: Variants = {
-    hidden: { 
-      opacity: 0, 
-      y: shouldReduceMotion ? 0 : statsYOffset,
-      filter: shouldReduceMotion ? "none" : "blur(4px)"
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: "blur(0px)",
-      transition: {
-        duration: statsDuration,
-        ease: [0.16, 1, 0.3, 1], // Premium out-expo easing
-        delay: 1.1, // Cascaded sequentially after CTA actions
-      },
-    },
-  };
-
+  void statsDuration;
+  void statsYOffset;
   return (
-    <motion.div 
-      variants={statsVariants}
-      initial="hidden"
-      animate="visible"
+    <div
       className="w-full lg:hidden grid grid-cols-2 gap-3 pt-8 border-t border-slate-200/50 dark:border-blue-500/5 mt-8"
     >
       {statsData.map((stat, i) => (
@@ -57,6 +35,6 @@ export function HeroStatsMobile({
           </div>
         </div>
       ))}
-    </motion.div>
+    </div>
   );
 }

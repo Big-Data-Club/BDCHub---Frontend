@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ArrowRight } from "lucide-react";
-import { motion, useReducedMotion, Variants } from "framer-motion";
 
 export interface HeroActionsProps {
   actionsDuration: number;
@@ -14,10 +13,11 @@ export function HeroActions({
   actionsDuration,
   actionsYOffset,
 }: HeroActionsProps) {
+  void actionsDuration;
+  void actionsYOffset;
   const router = useRouter();
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
-  const shouldReduceMotion = useReducedMotion();
 
   const handleScrollToElement = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -36,29 +36,8 @@ export function HeroActions({
     }
   };
 
-  const actionsVariants: Variants = {
-    hidden: { 
-      opacity: 0, 
-      y: shouldReduceMotion ? 0 : actionsYOffset,
-      filter: shouldReduceMotion ? "none" : "blur(4px)"
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: "none",
-      transition: {
-        duration: actionsDuration,
-        ease: [0.16, 1, 0.3, 1], // Premium out-expo easing
-        delay: 0.95, // Staggered to cascade gracefully after description reveal
-      },
-    },
-  };
-
   return (
-    <motion.div 
-      variants={actionsVariants}
-      initial="hidden"
-      animate="visible"
+    <div
       className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center pt-2 w-full sm:w-auto transition-all duration-200"
     >
       {isAuthenticated ? (
@@ -114,6 +93,6 @@ export function HeroActions({
           </a>
         </>
       )}
-    </motion.div>
+    </div>
   );
 }

@@ -3,47 +3,17 @@ import { Activity } from "lucide-react";
 import clubData from "@/data/clubData.json";
 import SectionHeader from "../common/SectionHeader";
 import SafeImage from "../common/SafeImage";
-import { motion } from "framer-motion";
 
 export default function Activities() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { 
-        duration: 0.6
-      },
-    },
-  };
-
   return (
     <section id="activities" className="py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <SectionHeader icon={Activity} title="Hoạt Động Cốt Lõi" />
 
-        <motion.div 
-          variants={containerVariants}
-          // Keep the server-rendered cards visible before Framer Motion observes this section.
-          initial={false}
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {clubData.activities.map((activity) => (
-            <motion.div 
+            <div
               key={activity.id} 
-              variants={itemVariants}
               className="bg-white dark:bg-[#0F1E35]
                                                rounded-2xl
                                                border border-slate-200 dark:border-blue-500/10
@@ -70,9 +40,9 @@ export default function Activities() {
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-300">{activity.title}</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3">{activity.description}</p>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

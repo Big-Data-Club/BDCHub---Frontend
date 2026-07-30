@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useReducedMotion, Variants } from "framer-motion";
 
 export interface ScrollIndicatorProps {
   actionsDuration: number;
@@ -11,7 +10,8 @@ export function ScrollIndicator({
   actionsDuration,
   actionsYOffset,
 }: ScrollIndicatorProps) {
-  const shouldReduceMotion = useReducedMotion();
+  void actionsDuration;
+  void actionsYOffset;
 
   const handleScrollToElement = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -30,29 +30,8 @@ export function ScrollIndicator({
     }
   };
 
-  const actionsVariants: Variants = {
-    hidden: { 
-      opacity: 0, 
-      y: shouldReduceMotion ? 0 : actionsYOffset,
-      filter: shouldReduceMotion ? "none" : "blur(4px)"
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: "none",
-      transition: {
-        duration: actionsDuration,
-        ease: [0.16, 1, 0.3, 1], // Premium out-expo easing
-        delay: 1.65, // Staggered to cascade gracefully after description reveal
-      },
-    },
-  };
-
   return (
-    <motion.div 
-      variants={actionsVariants}
-      initial="hidden"
-      animate="visible"
+    <div
       className="hidden lg:flex absolute bottom-6 left-0 right-0 mx-auto justify-center transition-all duration-200 w-fit z-20"
     >
       <a 
@@ -66,6 +45,6 @@ export function ScrollIndicator({
           <span className="w-1 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 group-hover:bg-blue-600 dark:group-hover:bg-cyan-400 transition-colors" />
         </div>
       </a>
-    </motion.div>
+    </div>
   );
 }

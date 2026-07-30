@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion, useReducedMotion, animate } from "framer-motion";
 
 export interface StatItem {
   label: string;
@@ -17,130 +15,33 @@ export const statsData: StatItem[] = [
   { label: "Giải thưởng", value: "5+", floatClasses: "bottom-[12%] right-[0%]", duration: 4.5 }
 ];
 
-// High-performance direct-DOM Animated Counter for the stats values
-function StatCounter({ value, delay = 0 }: { value: string; delay?: number }) {
-  const numericPart = parseInt(value.replace(/[^0-9]/g, "")) || 0;
-  const suffix = value.replace(/[0-9]/g, "");
-  
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const controls = animate(0, numericPart, {
-      duration: 1.8,
-      ease: [0.16, 1, 0.3, 1], // Elegant out-exponential easing
-      delay: delay + 0.25,     // Offset to start during card spring bounce
-      onUpdate: (latest) => {
-        if (ref.current) {
-          ref.current.textContent = String(Math.round(latest));
-        }
-      }
-    });
-    return controls.stop;
-  }, [numericPart, delay]);
-
-  return (
-    <div className="text-3xl font-extrabold text-blue-600 dark:text-cyan-400 group-hover:text-blue-500 dark:group-hover:text-cyan-300 transition-colors duration-300">
-      <span ref={ref}>0</span>
-      <span>{suffix}</span>
-    </div>
-  );
-}
-
-// Apple Signature Soft Blur In Text Effect for stats labels
-function SoftBlurInText({ text, delay = 0 }: { text: string; delay?: number }) {
-  const shouldReduceMotion = useReducedMotion();
-  const characters = Array.from(text);
-
-  if (shouldReduceMotion) {
-    return (
-      <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1.5 text-center">
-        {text}
-      </div>
-    );
-  }
-
-  return (
-    <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1.5 text-center flex justify-center flex-wrap gap-x-[1px]">
-      {characters.map((char, index) => (
-        <motion.span
-          key={index}
-          initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{
-            duration: 0.5,
-            ease: [0.22, 1, 0.36, 1],       // Apple Signature easing
-            delay: delay + index * 0.035,   // Tight staggered entry
-          }}
-        >
-          {char === " " ? "\u00A0" : char}
-        </motion.span>
-      ))}
-    </div>
-  );
-}
-
 export interface HeroStatsCardsProps {
   statsDuration: number;
   statsYOffset: number;
 }
 
 export function HeroStatsCards({
-  statsDuration,
-  statsYOffset,
+  statsDuration: _statsDuration,
+  statsYOffset: _statsYOffset,
 }: HeroStatsCardsProps) {
-  const shouldReduceMotion = useReducedMotion();
-
+  void _statsDuration;
+  void _statsYOffset;
   return (
     <>
       {statsData.map((stat, i) => {
-        const cardDelay = 0.5 + i * 0.22;
         return (
-          /* 1. Outer Wrapper - Handles the spring-bounce entry transition in pure CSS */
           <div
             key={i}
-            className={`absolute ${stat.floatClasses} w-[170px] z-20 animate-entrance-${i}`}
+            className={`absolute ${stat.floatClasses} w-[170px] z-20`}
           >
-            {/* Keep cards still once their entrance completes to avoid continuous compositing. */}
             <div className="relative group">
-              {/* Dynamic Hover Glow Shadow (Sibling absolute backdrop that scales and fades on hover) */}
               <div
-                className="absolute inset-0 rounded-2xl pointer-events-none -z-10
-                           bg-gradient-to-tr from-blue-500/15 to-cyan-500/15
-                           dark:from-blue-500/10 dark:to-cyan-500/10
-                           opacity-0 group-hover:opacity-100
-                           blur-xl scale-95 group-hover:scale-[1.04]
-                           transition-all duration-500 ease-out"
-              />
-              {/* 3. Innermost Visual Wrapper - Handles glass design & hover zoom/spring-lift */}
-              <div
-                className="relative flex flex-col items-center justify-center p-5 rounded-2xl cursor-default
-                           bg-white/70 dark:bg-[#0F1E35]/40 backdrop-blur-lg overflow-hidden
+                className="relative flex flex-col items-center justify-center p-5 rounded-2xl cursor-default bg-white dark:bg-[#0F1E35] overflow-hidden
                            border border-white/60 dark:border-blue-500/10
-                           shadow-[0_8px_30px_rgba(37,99,235,0.04)] dark:shadow-none
-                           hover:border-blue-400/40 dark:hover:border-blue-500/25
-                           hover:scale-[1.02] hover:-translate-y-0.5
-                           hover:shadow-[0_12px_30px_rgba(37,99,235,0.06)]
-                           dark:hover:shadow-[0_12px_30px_rgba(37,99,235,0.08)]
-                           transition-all duration-500 ease-out"
+                           shadow-sm dark:shadow-none"
               >
-                {/* Diagonal Glass Shimmer Sweep (Pure CSS animation on mount) */}
-                {!shouldReduceMotion && (
-                  <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none z-10">
-                    <div
-                      style={{
-                        animation: "shimmer-sweep 1.4s cubic-bezier(0.16, 1, 0.3, 1) both",
-                        animationDelay: `${cardDelay + 0.6}s`,
-                      }}
-                      className="w-1/2 h-full bg-gradient-to-r from-transparent via-white/25 dark:via-blue-400/15 to-transparent skew-x-12"
-                    />
-                  </div>
-                )}
-
-                {/* 1. Numerical Count-Up Animation (JS/Framer dynamic counter) */}
-                <StatCounter value={stat.value} delay={cardDelay} />
-
-                {/* 2. Apple Signature Soft Blur Staggered Text Animation (JS/Framer staggered entry) */}
-                <SoftBlurInText text={stat.label} delay={cardDelay + 0.1} />
+                <div className="text-3xl font-extrabold text-blue-600 dark:text-cyan-400">{stat.value}</div>
+                <div className="mt-1.5 text-center text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{stat.label}</div>
               </div>
             </div>
           </div>
