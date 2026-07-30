@@ -6,11 +6,25 @@ import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import lmsService from "@/services/lmsService";
 import { toast } from "react-hot-toast";
 
+interface LearningDesign {
+  objectives?: string[];
+  prerequisites?: string[];
+  chosen_approach?: string;
+  practice_type?: string;
+  extension_prompt?: string;
+  research_directions?: string[];
+  evidence_limits?: string[];
+}
+
 interface ContentDraftPreviewProps {
   props: {
     content_type: string;
     topic: string;
+    title?: string;
+    description?: string;
     draft: string;
+    learning_design?: LearningDesign;
+    teacher_requirements?: string;
     source_was_reduced?: boolean;
     course_id?: number | null;
     suggested_section_id?: number | null;
@@ -29,8 +43,12 @@ const contentTypeLabels: Record<string, string> = {
 };
 
 export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
-  const { content_type, topic, draft: initialDraft, course_id, suggested_section_id, source_was_reduced } = props;
+  const { content_type, topic, draft: initialDraft, course_id, suggested_section_id, source_was_reduced, learning_design } = props;
   const [draft, setDraft] = useState(initialDraft);
+  const [title, setTitle] = useState(props.title || topic);
+  const [description, setDescription] = useState(
+    props.description || `Nội dung AI tạo có thể chỉnh sửa về ${topic}`,
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<number | "">(course_id || "");
@@ -84,6 +102,10 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
   }, [selectedCourseId, course_id, suggested_section_id]);
 
   const handleSaveToLms = async () => {
+    if (!title.trim()) {
+      toast.error("Vui lòng đặt tiêu đề trước khi lưu.");
+      return;
+    }
     if (!selectedCourseId) {
       toast.error("Vui lòng chọn một khóa học.");
       return;
@@ -123,13 +145,14 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
       // 3. Create content
       await lmsService.createContent(finalSectionId, {
         type: "TEXT",
-        title: `${contentTypeLabels[content_type] || content_type}: ${topic}`,
-        description: `Nội dung AI tạo có thể chỉnh sửa về ${topic}`,
+        title: title.trim(),
+        description: description.trim(),
         order_index: orderIndex,
         metadata: {
           content: draft,
           is_ai_generated: true,
-          generated_topic: topic
+          generated_topic: topic,
+          learning_design: learning_design || {},
         }
       });
 
@@ -178,16 +201,51 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
         </button>
       </div>
 
+      {/* Learning contract: exposes the model's pedagogical choices so a
+          teacher can review the why, not just the generated prose. */}
+      {content_type === "student_lesson" && learning_design && (
+        <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-blue-50/50 dark:bg-blue-950/10 text-xs">
+          <div className="flex flex-wrap gap-2 text-slate-600 dark:text-slate-300">
+            {learning_design.chosen_approach && <span className="rounded-full bg-white dark:bg-slate-900 px-2 py-1">Cách học: {learning_design.chosen_approach}</span>}
+            {learning_design.practice_type && <span className="rounded-full bg-white dark:bg-slate-900 px-2 py-1">Thực hành: {learning_design.practice_type}</span>}
+          </div>
+          {(learning_design.objectives?.length || learning_design.prerequisites?.length) ? (
+            <div className="mt-2 space-y-1 text-slate-600 dark:text-slate-300">
+              {learning_design.objectives?.length ? <p><span className="font-semibold">Mục tiêu:</span> {learning_design.objectives.join(" · ")}</p> : null}
+              {learning_design.prerequisites?.length ? <p><span className="font-semibold">Nền tảng:</span> {learning_design.prerequisites.join(" · ")}</p> : null}
+            </div>
+          ) : null}
+        </div>
+      )}
+
       {/* Content Area */}
       <div className="p-5 max-h-[400px] overflow-y-auto custom-scrollbar">
         {isEditing ? (
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            className="w-full h-[300px] p-4 text-sm font-mono bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-all"
-          />
+          <div className="space-y-3">
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              aria-label="Tiêu đề bài học"
+              className="w-full px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              aria-label="Mô tả bài học"
+              className="w-full h-16 p-3 text-sm bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-y"
+            />
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              className="w-full h-[300px] p-4 text-sm font-mono bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-all"
+            />
+          </div>
         ) : (
-          <MarkdownRenderer content={draft} />
+          <>
+            <h4 className="mb-1 text-base font-semibold text-slate-900 dark:text-white">{title}</h4>
+            {description && <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">{description}</p>}
+            <MarkdownRenderer content={draft} />
+          </>
         )}
       </div>
 
