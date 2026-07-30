@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles, MapPin } from "lucide-react";
+import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles, MapPin, BookmarkPlus, Loader2 } from "lucide-react";
 import type { AgentMessage, HITLRequestData } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
@@ -10,6 +10,7 @@ import { WidgetRenderer } from "./WidgetRenderer";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import lmsService from "@/services/lmsService";
 import { ActionApprovalCard } from "./ActionApprovalCard";
+import { saveNotebookEntry } from "@/services/agentService";
 
 interface AgentMessageBubbleProps {
   message: AgentMessage;
@@ -67,6 +68,8 @@ export function AgentMessageBubble({
   const [showReferences, setShowReferences] = useState(false);
   const [showTrace, setShowTrace] = useState(false);
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
+  const [savingNote, setSavingNote] = useState(false);
+  const [noteSaved, setNoteSaved] = useState(false);
 
   const toggleLog = (id: string) => {
     setExpandedLogs((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -80,6 +83,25 @@ export function AgentMessageBubble({
   const didSpawn = score >= 0.5;
 
   const hasRunningLogs = logs.some((l) => l.status === "running");
+  const uiComponents = message.uiComponents || (message.uiComponent ? [message.uiComponent] : []);
+
+  const saveResponseToNotebook = async () => {
+    if (!message.content || savingNote || noteSaved) return;
+    setSavingNote(true);
+    try {
+      const plainTitle = message.content.replace(/[#*_`]/g, "").split("\n").find(Boolean)?.trim() || "Ghi chú từ AI";
+      await saveNotebookEntry({
+        title: plainTitle.slice(0, 100),
+        content: message.content,
+        courseId: message.context?.course_id ?? undefined,
+      });
+      setNoteSaved(true);
+    } catch (error) {
+      console.error("Failed to save AI response to notebook", error);
+    } finally {
+      setSavingNote(false);
+    }
+  };
 
   // Auto-expand thinking box when streaming thinking delta
   useEffect(() => {
@@ -206,6 +228,18 @@ export function AgentMessageBubble({
               />
             )}
           </div>
+        )}
+
+        {!isUser && message.content && !message.isStreaming && (
+          <button
+            type="button"
+            onClick={saveResponseToNotebook}
+            disabled={savingNote || noteSaved}
+            className="ml-1 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-blue-600 disabled:cursor-default disabled:text-emerald-600 dark:hover:bg-slate-800 dark:disabled:text-emerald-400"
+          >
+            {savingNote ? <Loader2 className="h-3 w-3 animate-spin" /> : <BookmarkPlus className="h-3 w-3" />}
+            {noteSaved ? "Đã lưu vào Notebook" : "Lưu ghi chú"}
+          </button>
         )}
 
         {/* Compact, server-verified context trace. Do not expose page body. */}
@@ -501,7 +535,9 @@ export function AgentMessageBubble({
           )}
 
         {/* Dynamic UI widget */}
-        {message.uiComponent && !message.hitlRequest?.ui_instruction && <WidgetRenderer data={message.uiComponent} />}
+        {uiComponents.map((component, index) => (
+          <WidgetRenderer key={`${component.component}-${index}`} data={component} />
+        ))}
 
         {/* HITL widget (reuses WidgetRenderer if ui_instruction present) */}
         {message.hitlRequest?.ui_instruction && (

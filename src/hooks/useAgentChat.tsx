@@ -89,7 +89,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
         content: m.content || "",
         timestamp: new Date(m.created_at).getTime(),
         toolActivities: m.metadata?.toolActivities || [],
-        uiComponent: m.metadata?.uiComponent,
+        uiComponents: m.metadata?.uiComponents || (m.metadata?.uiComponent ? [m.metadata.uiComponent] : []),
         hitlRequest: m.metadata?.hitlRequest,
         context: m.metadata?.context,
         thinking: m.metadata?.thinking || "",
@@ -472,7 +472,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
       case "ui_component":
         updateAssistant(assistantId, (msg) => ({
           ...msg,
-          uiComponent: event.data as any,
+          uiComponents: [...(msg.uiComponents || []), event.data as any],
         }));
         break;
 

@@ -78,3 +78,32 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "AI service unavailable" }, { status: 502 });
   }
 }
+
+export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  let body: { title?: string; content?: string; course_id?: number; node_id?: number };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  const title = String(body.title || "").trim();
+  const content = String(body.content || "").trim();
+  if (!title || !content) return NextResponse.json({ error: "title and content are required" }, { status: 400 });
+
+  const userId = (session.user as any).id ?? (session.user as any).userId ?? 0;
+  try {
+    const response = await fetch(`${AI_SERVICE_URL}/ai/agents/notebook?user_id=${userId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-AI-Secret": AI_SECRET },
+      body: JSON.stringify({ title, content, course_id: body.course_id, node_id: body.node_id }),
+    });
+    const data = await response.json().catch(() => ({ error: "AI service unavailable" }));
+    return NextResponse.json(data, { status: response.status });
+  } catch (err: any) {
+    console.error("[notebook-proxy] POST failed:", err.message);
+    return NextResponse.json({ error: "AI service unavailable" }, { status: 502 });
+  }
+}

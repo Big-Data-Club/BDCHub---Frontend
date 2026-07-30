@@ -128,7 +128,10 @@ export interface AgentMessage {
   /** Tool calls made during this turn. */
   toolActivities?: ToolActivity[];
 
-  /** Dynamic widget injected by tool result. */
+  /** Dynamic widgets injected by tool results (one turn may produce many). */
+  uiComponents?: UIComponentData[];
+
+  /** Legacy single-widget field, retained to render existing chat history. */
   uiComponent?: UIComponentData;
 
   /** Clarification question from the agent. */
@@ -201,6 +204,7 @@ export interface AgentHistoryMessage {
   metadata?: {
     toolActivities?: ToolActivity[];
     uiComponent?: UIComponentData;
+    uiComponents?: UIComponentData[];
     hitlRequest?: HITLRequestData;
     context?: AgentContextData;
     thinking?: string;

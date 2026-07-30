@@ -108,6 +108,26 @@ export async function deleteNotebookEntry(id: string): Promise<void> {
     if (!res.ok) throw new Error("Failed to delete notebook entry");
 }
 
+export async function saveNotebookEntry(entry: {
+  title: string;
+  content: string;
+  courseId?: number;
+  nodeId?: number;
+}): Promise<any> {
+  const res = await fetch("/api/ai/agents/notebook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: entry.title,
+      content: entry.content,
+      course_id: entry.courseId,
+      node_id: entry.nodeId,
+    }),
+  });
+  if (!res.ok) throw new Error("Failed to save notebook entry");
+  return res.json();
+}
+
 export const agentService = {
   sendMessage: sendAgentMessage,
   listSessions: listAgentSessions,
@@ -117,4 +137,5 @@ export const agentService = {
   renameSession: renameAgentSession,
   listNotebook: listNotebookEntries,
   deleteNotebookEntry: deleteNotebookEntry,
+  saveNotebookEntry,
 };

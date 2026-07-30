@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Trash2, BookOpen, Search, Calendar, Loader2 } from "lucide-react";
+import { Trash2, BookOpen, Search, Calendar, Loader2, Plus, Save } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { agentService } from "@/services/agentService";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,10 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
   const [loading, setLoading] = useState(true);
   const [selectedNote, setSelectedNote] = useState<NotebookNote | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftContent, setDraftContent] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
@@ -66,6 +70,25 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
     }
   };
 
+  const createNote = async () => {
+    const title = draftTitle.trim();
+    const content = draftContent.trim();
+    if (!title || !content || saving) return;
+    setSaving(true);
+    try {
+      const created = await agentService.saveNotebookEntry({ title, content, courseId });
+      setNotes((current) => [created, ...current]);
+      setDraftTitle("");
+      setDraftContent("");
+      setCreateOpen(false);
+      setSelectedNote(created);
+    } catch (err) {
+      console.error("Failed to save notebook entry", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const filteredNotes = notes.filter(
     (note) =>
       note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -87,7 +110,16 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
   return (
     <div className={className}>
       {/* Search Header */}
-      <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Notebook</h3>
+            <p className="text-[11px] text-slate-400">Lưu ý tưởng, câu trả lời AI và nội dung ôn tập</p>
+          </div>
+          <Button onClick={() => setCreateOpen(true)} size="sm" className="h-8 rounded-lg bg-blue-600 px-3 text-xs hover:bg-blue-700">
+            <Plus className="mr-1 h-3.5 w-3.5" />Ghi chú
+          </Button>
+        </div>
         <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <Input
@@ -188,6 +220,23 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-w-xl rounded-2xl bg-white p-6 dark:bg-slate-900">
+          <DialogHeader>
+            <DialogTitle>Tạo ghi chú</DialogTitle>
+            <DialogDescription>Ghi nhanh điều bạn muốn nhớ. Có thể dùng Markdown đơn giản.</DialogDescription>
+          </DialogHeader>
+          <Input value={draftTitle} onChange={(event) => setDraftTitle(event.target.value)} placeholder="Tiêu đề ghi chú" maxLength={180} />
+          <textarea value={draftContent} onChange={(event) => setDraftContent(event.target.value)} placeholder="Nội dung cần lưu…" className="min-h-52 w-full resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950" maxLength={100000} />
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setCreateOpen(false)}>Hủy</Button>
+            <Button onClick={createNote} disabled={!draftTitle.trim() || !draftContent.trim() || saving} className="bg-blue-600 hover:bg-blue-700">
+              {saving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Save className="mr-1.5 h-4 w-4" />}Lưu ghi chú
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
