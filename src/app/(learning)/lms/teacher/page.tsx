@@ -1,26 +1,26 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import lmsService from "@/services/lmsService";
 import { analyticsService } from "@/services/analyticsService";
 import {
   BookOpen, Users, CheckCircle2,
   Plus, ChevronRight, TrendingUp,
-  RefreshCw, LogOut, Home, Award
+  RefreshCw, LogOut, Home
 } from "lucide-react";
 import {
   StatCard, Card, SectionHeader,
   Badge, PrimaryBtn, SecondaryBtn, GhostBtn,
   EmptyState, PageLoader, Alert, ProgressBar
 } from "@/components/lms/shared";
-import { Course } from "@/types";
 import { useSession } from "next-auth/react";
-import {
-  ResponsiveContainer, LineChart, Line,
-  BarChart, Bar, XAxis, YAxis, Tooltip,
-  Legend, CartesianGrid
-} from "recharts";
+
+const TeacherDashboardCharts = dynamic(
+  () => import("@/components/lms/teacher/page/TeacherDashboardCharts").then((module) => module.TeacherDashboardCharts),
+  { ssr: false, loading: () => <div className="grid grid-cols-1 gap-6 lg:grid-cols-2"><div className="h-[350px] animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" /><div className="h-[350px] animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" /></div> },
+);
 
 // ─── Quick action card ────────────────────────────────────────────────────────
 
@@ -57,7 +57,6 @@ export default function TeacherDashboard() {
   const router = useRouter();
   const { data: session } = useSession();
   const userName = session?.user?.name || "giảng viên";
-  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -71,10 +70,6 @@ export default function TeacherDashboard() {
 
   // Timeline & comparison charts data
   const [registrationTimeline, setRegistrationTimeline] = useState<any[]>([]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -166,73 +161,7 @@ export default function TeacherDashboard() {
           />
         </div>
 
-        {/* ── Charts Row (Recharts) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-          {/* Chart 1: Registration Timeline */}
-          <Card className="p-5 flex flex-col h-[350px] min-w-0">
-            <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm mb-4 flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-blue-500" />
-              Lượt đăng ký mới của học viên (10 ngày gần đây)
-            </h3>
-            {registrationTimeline.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center text-slate-400 text-xs">
-                Chưa ghi nhận lượt đăng ký mới nào trong những ngày gần đây.
-              </div>
-            ) : (
-              <div className="flex-1 min-h-0 w-full relative">
-                {mounted && (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={registrationTimeline} margin={{ left: -10, right: 10, top: 10, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#64748b" }} />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: "#64748b" }} />
-                      <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
-                      <Line type="monotone" dataKey="Học viên mới" stroke="#3b82f6" strokeWidth={2.5} activeDot={{ r: 6 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-            )}
-          </Card>
-
-          {/* Chart 2: Course Engagement comparison */}
-          <Card className="p-5 flex flex-col h-[350px] min-w-0">
-            <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm mb-4 flex items-center gap-1.5">
-              <Award className="w-4 h-4 text-purple-500" />
-              So sánh Độ hoàn thành & Điểm Quiz theo khóa học
-            </h3>
-            {courseStats.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center text-slate-400 text-xs">
-                Chưa có dữ liệu khóa học đã xuất bản nào để so sánh.
-              </div>
-            ) : (
-              <div className="flex-1 min-h-0 w-full relative">
-                {mounted && (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={courseStats.map(s => ({
-                        name: s.title,
-                        "Hoàn thành (%)": Math.round(s.avgProgress),
-                        "Điểm Quiz (%)": s.avgQuiz ? Math.round(s.avgQuiz) : 0
-                      }))}
-                      margin={{ left: -10, right: 10, top: 10, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="name" tick={{ fontSize: 9, fill: "#64748b" }} />
-                      <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#64748b" }} />
-                      <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
-                      <Legend wrapperStyle={{ fontSize: "11px" }} />
-                      <Bar dataKey="Hoàn thành (%)" fill="#10b981" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="Điểm Quiz (%)" fill="#a78bfa" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-            )}
-          </Card>
-
-        </div>
+        <TeacherDashboardCharts registrationTimeline={registrationTimeline} courseStats={courseStats} />
 
         {/* ── Quick actions ── */}
         <Card className="p-6">
