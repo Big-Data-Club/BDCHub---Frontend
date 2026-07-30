@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { EyeIcon, EyeOffIcon, Spinner } from "@/components/icons/Icons";
 import { validatePassword } from "@/utils/utils";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import Mascot from "./Mascot";
 import { GoogleLoginButton } from "./GoogleLoginButton";
+import { safeLmsReturnPath } from "@/lib/lms-navigation";
 
 interface LoginFormProps {
   googleClientId?: string;
@@ -14,6 +15,8 @@ interface LoginFormProps {
 
 export default function LoginForm({ googleClientId }: LoginFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = safeLmsReturnPath(searchParams.get("callbackUrl"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -41,7 +44,7 @@ export default function LoginForm({ googleClientId }: LoginFormProps) {
         throw new Error("Email hoặc mật khẩu không chính xác.");
       }
 
-      router.push("/lms");
+      router.replace(callbackUrl);
       router.refresh();
     } catch (err: any) {
       setError(err.message || "Đăng nhập thất bại. Vui lòng thử lại.");
@@ -162,7 +165,7 @@ export default function LoginForm({ googleClientId }: LoginFormProps) {
         </div>
 
         {/* Google Login */}
-        <GoogleLoginButton googleClientId={googleClientId} onError={setError} />
+        <GoogleLoginButton googleClientId={googleClientId} onError={setError} callbackUrl={callbackUrl} />
       </div>
     </>
   );

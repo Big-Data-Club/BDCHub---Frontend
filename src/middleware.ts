@@ -33,6 +33,17 @@ export async function middleware(req: NextRequest) {
       : "bdc.session-token.v2",
   });
 
+  // Preserve a deep LMS link across login. The client route guard will then
+  // verify the user's actual LMS role before rendering the destination.
+  if (pathname === "/lms" || pathname.startsWith("/lms/")) {
+    if (!token) {
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("callbackUrl", `${pathname}${req.nextUrl.search}`);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
   // We only care about proxy paths
   if (
     pathname.startsWith("/apiv1/") ||
@@ -86,6 +97,7 @@ export const config = {
     "/lmsapiv1/:path*",
     "/uploads/:path*",
     "/files/:path*",
+    "/lms/:path*",
     "/dashboard/:path*",
     "/users/:path*",
     "/events/:path*",

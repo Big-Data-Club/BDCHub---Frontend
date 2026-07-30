@@ -5,6 +5,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import lmsService from "@/services/lmsService";
+import { activateLmsRole, hasLmsRole } from "@/lib/lms-navigation";
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -14,13 +16,28 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const selectedRole = sessionStorage.getItem("lms_selected_role");
-    if (selectedRole !== "TEACHER" && selectedRole !== "ADMIN") {
-      router.push("/lms");
-      return;
-    }
-
-    setLoading(false);
+    let cancelled = false;
+    const openTeacherRoute = async () => {
+      const selectedRole = sessionStorage.getItem("lms_selected_role");
+      if (selectedRole === "TEACHER" || selectedRole === "ADMIN") {
+        if (!cancelled) setLoading(false);
+        return;
+      }
+      try {
+        const roles = await lmsService.getMyRoles();
+        const role = hasLmsRole(roles, "TEACHER") ? "TEACHER" : hasLmsRole(roles, "ADMIN") ? "ADMIN" : null;
+        if (role) {
+          activateLmsRole(role);
+          if (!cancelled) setLoading(false);
+          return;
+        }
+      } catch {
+        // Fall through to the role-selection/access-error view.
+      }
+      if (!cancelled) router.replace("/lms");
+    };
+    void openTeacherRoute();
+    return () => { cancelled = true; };
   }, [router]);
 
   const handleChangeRole = () => {

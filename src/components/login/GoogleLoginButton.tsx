@@ -12,9 +12,10 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 interface GoogleLoginButtonProps {
   googleClientId?: string;
   onError: (msg: string) => void;
+  callbackUrl?: string;
 }
 
-export function GoogleLoginButton({ googleClientId, onError }: GoogleLoginButtonProps) {
+export function GoogleLoginButton({ googleClientId, onError, callbackUrl = "/lms" }: GoogleLoginButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const activeClientId = googleClientId || GOOGLE_CLIENT_ID;
@@ -89,7 +90,7 @@ export function GoogleLoginButton({ googleClientId, onError }: GoogleLoginButton
         return;
       }
 
-      router.push("/lms");
+      router.replace(callbackUrl);
       router.refresh();
     } catch (err: any) {
       onError(err.message || "Đăng nhập Google thất bại.");

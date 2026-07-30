@@ -5,6 +5,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import lmsService from "@/services/lmsService";
+import { activateLmsRole, hasLmsRole } from "@/lib/lms-navigation";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -14,13 +16,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const selectedRole = sessionStorage.getItem("lms_selected_role");
-    if (selectedRole !== "ADMIN") {
-      router.push("/lms");
-      return;
-    }
-
-    setLoading(false);
+    let cancelled = false;
+    const openAdminRoute = async () => {
+      if (sessionStorage.getItem("lms_selected_role") === "ADMIN") {
+        if (!cancelled) setLoading(false);
+        return;
+      }
+      try {
+        const roles = await lmsService.getMyRoles();
+        if (hasLmsRole(roles, "ADMIN")) {
+          activateLmsRole("ADMIN");
+          if (!cancelled) setLoading(false);
+          return;
+        }
+      } catch {
+        // Fall through to the role-selection/access-error view.
+      }
+      if (!cancelled) router.replace("/lms");
+    };
+    void openAdminRoute();
+    return () => { cancelled = true; };
   }, [router]);
 
   const handleChangeRole = () => {
