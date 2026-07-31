@@ -173,7 +173,7 @@ export function StudentGuideView() {
       icon: Search,
       desc: "Tìm kiếm và tham gia vào các khóa học chất lượng cao.",
       details: [
-        { title: "Mở trang Khám phá", text: "Truy cập đường dẫn Khám phá Khóa học (/lms/student/discover) từ thanh menu trái 'Shared Knowledge' để xem tất cả các khóa học hiện có." },
+        { title: "Mở trang Khám phá", text: "Truy cập đường dẫn Khám phá Khóa học (/lms/student/discover) từ thanh menu trái 'BDCourse' để xem tất cả các khóa học hiện có." },
         { title: "Bộ lọc & Tìm kiếm", text: "Nhập từ khóa tìm kiếm khóa học mong muốn, hoặc lọc khóa học theo danh mục lĩnh vực quan tâm để chọn khóa học chuẩn xác." },
         { title: "Ghi danh học tập", text: "Bấm nút 'Đăng ký học'. Khi hiển thị 'Đã đăng ký thành công', khóa học sẽ tự động được thêm vào Dashboard của bạn." }
       ]

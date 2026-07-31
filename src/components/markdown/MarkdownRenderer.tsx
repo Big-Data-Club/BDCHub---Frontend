@@ -266,7 +266,7 @@ export default function MarkdownRenderer({
                 src={src}
                 alt={alt}
                 className={cn(
-                  "max-w-full h-auto rounded-xl shadow-md transition-shadow duration-300 ring-1 ring-black/[0.05]",
+                  "max-w-full h-auto rounded-xl shadow-md transition-shadow duration-300 ring-1 ring-black/[0.05] bg-white text-slate-900 dark:text-slate-900",
                   isChat ? "hover:shadow-lg" : "hover:shadow-2xl rounded-2xl"
                 )}
                 loading="lazy"

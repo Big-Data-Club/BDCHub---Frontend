@@ -19,7 +19,7 @@ export function ImageRenderer({ content }: ImageRendererProps) {
 
   return (
     <div className="space-y-3">
-      <div className="relative bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm min-h-[200px]">
+      <div className="relative bg-white rounded-2xl overflow-hidden shadow-sm min-h-[200px]">
         {!loaded && !error && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />

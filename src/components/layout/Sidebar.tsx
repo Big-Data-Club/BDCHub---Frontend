@@ -164,7 +164,7 @@ const Sidebar: React.FC = () => {
                   return isTeacher;
                 }
                 return (
-                  link.label === "Shared Knowledge" ||
+                  link.label === "BDCourse" ||
                   link.label === "Virtual Lab" ||
                   link.label === "Chat" ||
                   link.label === "Data Hackathon" ||

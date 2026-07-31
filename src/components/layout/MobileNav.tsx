@@ -101,7 +101,7 @@ const MobileNav = () => {
                     return isTeacher;
                   }
                   return (
-                    link.label === "Shared Knowledge" ||
+                    link.label === "BDCourse" ||
                     link.label === "Virtual Lab" ||
                     link.label === "Data Hackathon" ||
                     link.label === "HCMUT HPC School"

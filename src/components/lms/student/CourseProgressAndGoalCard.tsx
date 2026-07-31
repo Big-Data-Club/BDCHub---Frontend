@@ -182,7 +182,7 @@ export function CourseProgressAndGoalCard({
             </h3>
             {focusCourse.progress_percent !== undefined && (
               <span className="text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap flex-shrink-0">
-                {focusCourse.progress_percent}%
+                {Number(focusCourse.progress_percent).toFixed(2)}%
               </span>
             )}
           </div>
@@ -211,7 +211,7 @@ export function CourseProgressAndGoalCard({
                 </div>
               </TooltipTrigger>
               <TooltipContent className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 text-slate-900 dark:text-white rounded-xl shadow-lg px-3 py-1.5 text-xs font-semibold">
-                Tiến độ: {Math.round(focusCourse.progress_percent)}%
+                Tiến độ: {Number(focusCourse.progress_percent).toFixed(2)}%
               </TooltipContent>
             </UITooltip>
           </TooltipProvider>
