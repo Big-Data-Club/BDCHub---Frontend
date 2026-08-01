@@ -136,7 +136,13 @@ const MobileNav = () => {
                           )}
                         >
                           <Icon className="h-4 w-4 flex-shrink-0" />
-                          {link.label}
+                          {link.label === "BDCourse" ? (
+                            <span>
+                              BD<span className={cn(isActive ? "text-white" : "text-blue-600 dark:text-cyan-400")}>Course</span>
+                            </span>
+                          ) : (
+                            link.label
+                          )}
                         </Link>
                       </li>
                     );
