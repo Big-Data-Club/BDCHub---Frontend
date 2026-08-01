@@ -54,6 +54,9 @@ const WIDGET_MAP: Record<string, React.ComponentType<any>> = {
   MaterialPreparationWorkspace: dynamic(() =>
     import("./widgets/MaterialPreparationWorkspace").then((m) => m.MaterialPreparationWorkspace),
   ),
+  CourseBlueprintWorkspace: dynamic(() =>
+    import("./widgets/CourseBlueprintLaunchCard").then((m) => m.CourseBlueprintLaunchCard),
+  ),
   NotebookSaveSuccess: ({ props }: { props: { title?: string } }) => (
     <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/25 dark:text-emerald-300">
       Đã lưu “{props.title || "ghi chú"}” vào Notebook.
