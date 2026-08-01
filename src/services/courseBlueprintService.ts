@@ -17,5 +17,6 @@ export const courseBlueprintService = {
   create: async (body: { owner_id: number; origin: "course_create" | "chatbot"; documents: CourseBlueprintFile[]; allowed_organization_ids: number[]; governance: CourseBlueprint["plan"]["governance"] }) => unwrap(await lmsApiClient.post("/course-blueprints", body)),
   update: async (id: string, body: { owner_id: number; version: number; plan: CourseBlueprint["plan"] }) => unwrap(await lmsApiClient.put(`/course-blueprints/${id}`, body)),
   approve: async (id: string, owner_id: number) => unwrap(await lmsApiClient.post(`/course-blueprints/${id}/approve`, { owner_id })),
-  cancel: async (id: string, owner_id: number) => unwrap(await lmsApiClient.post(`/course-blueprints/${id}/cancel`, { owner_id })),
+  apply: async (id: string) => (await lmsApiClient.post(`/course-blueprints/${id}/apply`)).data?.data as { course_id: number },
+  cancel: async (id: string) => lmsApiClient.post(`/course-blueprints/${id}/cancel`),
 };

@@ -105,22 +105,7 @@ export default function CreateCoursePage() {
   if (aiWorkflow) {
     return <div className="max-w-5xl mx-auto">
       <button onClick={() => router.back()} className="mb-5 text-sm font-semibold text-slate-500 hover:text-blue-600">← Quay lại khóa học của tôi</button>
-      {orgLoading ? <div className="flex h-64 items-center justify-center text-sm text-slate-500">Đang chuẩn bị không gian tạo khóa học…</div> : <CourseBlueprintWorkspace userId={userId} organizations={orgs} onCancel={() => router.push("/lms/teacher/courses")} onComplete={async (blueprint) => {
-        const { plan } = blueprint;
-        const created = await lmsService.createCourse({ title: plan.title, description: plan.description, category: plan.category, level: plan.level, thumbnail_url: plan.governance.thumbnail_url, org_id: plan.governance.organization_id, visibility: plan.governance.visibility });
-        const courseId = created?.data?.id ?? created?.id;
-        if (!courseId) throw new Error("Không nhận được mã khóa học sau khi tạo");
-        const documents = new Map(blueprint.documents.map((file) => [file.id, file]));
-        for (const [chapterIndex, chapter] of plan.chapters.entries()) {
-          const section = await lmsService.createSection(courseId, { title: chapter.title, description: chapter.description, order_index: chapterIndex });
-          const sectionId = section?.data?.id ?? section?.id;
-          for (const [contentIndex, materialId] of chapter.material_ids.entries()) {
-            const file = documents.get(materialId); if (!file || !sectionId) continue;
-            await lmsService.createContent(sectionId, { type: "DOCUMENT", title: file.filename, order_index: contentIndex, metadata: { file_path: file.file_path, file_name: file.filename, file_type: file.content_type, blueprint_id: blueprint.id } });
-          }
-        }
-        router.push(`/lms/teacher/courses/${courseId}`);
-      }} />}
+      {orgLoading ? <div className="flex h-64 items-center justify-center text-sm text-slate-500">Đang chuẩn bị không gian tạo khóa học…</div> : <CourseBlueprintWorkspace userId={userId} organizations={orgs} onCancel={() => router.push("/lms/teacher/courses")} onComplete={async (courseId) => { router.push(`/lms/teacher/courses/${courseId}`); }} />}
       <button onClick={() => setAiWorkflow(false)} className="mt-5 text-sm text-slate-500 underline underline-offset-4 hover:text-blue-600">Tạo thủ công thay vì dùng AI</button>
     </div>;
   }
