@@ -23,9 +23,14 @@ export function CourseBlueprintWorkspace({ userId, organizations, onComplete, on
       const uploaded: Uploaded[] = [];
       for (const file of Array.from(selected)) {
         const form = new FormData(); form.append("type", "document"); form.append("file", file);
-        const res = await fetch("/lmsapiv1/files/upload", { method: "POST", body: form, credentials: "include", headers: token ? { Authorization: `Bearer ${token}` } : {} });
-        const json = await res.json();
-        if (!res.ok || !json.data?.file_path) throw new Error(json.error || `Không tải được ${file.name}`);
+        const res = await fetch("/lmsapiv1/files/upload", { method: "POST", body: form, credentials: "include", headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
+        const raw = await res.text();
+        let json: { data?: { file_path?: string; file_name?: string }; error?: string; message?: string } | null = null;
+        try { json = raw ? JSON.parse(raw) : null; } catch { /* Gateway/auth errors may be HTML. */ }
+        if (!res.ok || !json?.data?.file_path) {
+          const reason = json?.error || json?.message || (res.status === 401 ? "Phiên đăng nhập đã hết hạn" : res.status === 413 ? "File vượt quá giới hạn upload" : `Máy chủ trả về lỗi ${res.status}`);
+          throw new Error(`${file.name}: ${reason}`);
+        }
         uploaded.push({ id: crypto.randomUUID(), filename: file.name, file_path: json.data.file_path, content_type: file.type || "application/octet-stream", size: file.size });
       }
       setFiles((current) => [...current, ...uploaded]);

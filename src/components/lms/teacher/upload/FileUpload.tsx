@@ -77,13 +77,10 @@ export default function FileUpload({
         headers,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Lỗi HTTP ${response.status}`);
-      }
-
-      const result = await response.json();
-      if (result.data) {
+      const raw = await response.text();
+      let result: { data?: FileInfo; error?: string; message?: string } | null = null;
+      try { result = raw ? JSON.parse(raw) : null; } catch { /* handled below */ }
+      if (response.ok && result?.data) {
         onFileUploaded(result.data);
         setProgress(100);
         
@@ -92,7 +89,8 @@ export default function FileUpload({
           fileInputRef.current.value = "";
         }
       } else {
-        throw new Error("Phản hồi không đúng định dạng");
+        const reason = result?.error || result?.message || (response.status === 401 ? "Phiên đăng nhập đã hết hạn" : response.status === 413 ? "File vượt quá giới hạn upload" : `Máy chủ trả về lỗi ${response.status}`);
+        throw new Error(reason);
       }
     } catch (err: any) {
       console.error("Upload error:", err);
