@@ -79,12 +79,16 @@ interface UseAgentChatOptions {
  
 export function useAgentChat({ agentType, courseId, initialSessionId, userId, pageContext, systemContext, onSessionUpdated }: UseAgentChatOptions) {
   const [messages, setMessages] = useState<AgentMessage[]>([]);
-  const [sessionId, setSessionId] = useState<string | null>(initialSessionId || null);
+  // Do not initialise from the URL directly.  The effect below owns the first
+  // load and records the URL it consumed; otherwise clicking B while the URL
+  // still says A briefly makes the hook switch straight back to A.
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const processEventRef = useRef<any>(null);
+  const consumedUrlSessionRef = useRef<string | undefined>(undefined);
 
 
 
@@ -134,9 +138,13 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
     await loadHistory(newSessionId);
   }, [stopStreaming]);
 
-  // Load history when session changes externally
+  // Load history only when the URL itself changes.  A local sidebar click
+  // changes state before AgentChatPanel has time to replace the query string;
+  // treating that stale URL as authoritative caused A -> B -> A redirect loops.
   useEffect(() => {
-    if (initialSessionId && initialSessionId !== sessionId) {
+    if (initialSessionId && initialSessionId !== consumedUrlSessionRef.current) {
+      consumedUrlSessionRef.current = initialSessionId;
+      if (initialSessionId === sessionId) return;
       switchSession(initialSessionId);
     }
   }, [initialSessionId, sessionId, switchSession]);

@@ -105,7 +105,7 @@ export default function CreateCoursePage() {
   if (aiWorkflow) {
     return <div className="max-w-5xl mx-auto">
       <button onClick={() => router.back()} className="mb-5 text-sm font-semibold text-slate-500 hover:text-blue-600">← Quay lại khóa học của tôi</button>
-      {orgLoading ? <div className="flex h-64 items-center justify-center text-sm text-slate-500">Đang chuẩn bị không gian tạo khóa học…</div> : <CourseBlueprintWorkspace userId={userId} organizations={orgs} onCancel={() => router.push("/lms/teacher/courses")} onComplete={async (courseId) => { router.push(`/lms/teacher/courses/${courseId}`); }} />}
+      {orgLoading ? <div className="flex h-64 items-center justify-center text-sm text-slate-500">Đang chuẩn bị không gian tạo khóa học…</div> : <CourseBlueprintWorkspace userId={Number(userId)} organizations={orgs} onCancel={() => router.push("/lms/teacher/courses")} onComplete={async (courseId) => { router.push(`/lms/teacher/courses/${courseId}`); }} />}
       <button onClick={() => setAiWorkflow(false)} className="mt-5 text-sm text-slate-500 underline underline-offset-4 hover:text-blue-600">Tạo thủ công thay vì dùng AI</button>
     </div>;
   }
