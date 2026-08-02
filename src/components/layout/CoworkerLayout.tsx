@@ -8,7 +8,7 @@ import { Sparkles, X, Book } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { usePageContext } from "@/hooks/usePageContext";
-import { NotificationPopover } from "@/components/lms/notifications/NotificationPopover";
+
 
 // The coworker is available on every authenticated page. Keep its sizeable
 // chat/notebook code out of the shared navigation bundle until it is opened.
@@ -201,28 +201,34 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
     );
   };
 
-  if (!isMounted || !shouldShowCoworker()) {
+  if (!isMounted) {
     return <>{children}</>;
   }
+
+  const showCoworker = shouldShowCoworker();
+
+  const isFullHeightPage = pathname?.includes("/ai-mentor") || pathname?.includes("/ai-assistant");
 
   return (
     <div className="flex h-screen w-screen overflow-hidden relative bg-slate-50 dark:bg-slate-950">
       {/* Workspace Area (Left Pane) */}
-      <div className="flex-1 h-full overflow-y-auto w-full">
+      <div className={cn("flex-1 h-full w-full", isFullHeightPage ? "overflow-hidden" : "overflow-y-auto")}>
         {children}
       </div>
 
       {/* Backdrop overlay */}
-      <div
-        className={cn(
-          "fixed inset-0 bg-slate-950/40 backdrop-blur-[2px] transition-opacity duration-300 ease-in-out z-[60]",
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        )}
-        onClick={handleClose}
-      />
+      {showCoworker && (
+        <div
+          className={cn(
+            "fixed inset-0 bg-slate-950/40 backdrop-blur-[2px] transition-opacity duration-300 ease-in-out z-[60]",
+            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          )}
+          onClick={handleClose}
+        />
+      )}
 
       {/* Coworker Panel (Right Pane) */}
-      {hasOpened && (
+      {showCoworker && hasOpened && (
         <div
           className={cn(
             "fixed inset-y-0 right-0 z-[70] flex flex-col h-full bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 shadow-2xl transition-transform duration-300 ease-in-out",
@@ -293,7 +299,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Floating Chat Bubble Button */}
-      {!isOpen && (
+      {showCoworker && !isOpen && (
         pathname.startsWith("/lms/teacher") ||
         pathname.startsWith("/lms/admin") ||
         pathname.startsWith("/lms/student")
@@ -317,12 +323,6 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
         </button>
       )}
 
-      {/* Persistent Global Notification Bell (only for authenticated sessions) */}
-      {status === "authenticated" && (
-        <div className="fixed top-4 right-4 z-[50]">
-          <NotificationPopover />
-        </div>
-      )}
     </div>
   );
 }

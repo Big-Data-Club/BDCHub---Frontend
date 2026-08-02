@@ -93,7 +93,7 @@ export function AgentConsoleSidebar({
             </span>
             <span
               className={cn(
-                "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider",
+                "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap shrink-0",
                 didSpawn 
                   ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400" 
                   : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
@@ -148,7 +148,7 @@ export function AgentConsoleSidebar({
 
         {/* SECTION 2: Context Consolidation */}
         {consolidation && (
-          <div className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-[#0F1E35] p-4 rounded-xl border border-slate-200/80 dark:border-blue-500/10 shadow-xs dark:shadow-none space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-orange-500" /> Context Consolidation
             </span>
@@ -162,7 +162,7 @@ export function AgentConsoleSidebar({
                 <span>Consolidated Context:</span>
                 <span className="font-semibold text-blue-600 dark:text-blue-400">{consolidation.consolidated_tokens} tokens</span>
               </div>
-              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 dark:border-slate-800/60">
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 dark:border-slate-850">
                 <span className="text-slate-500">Compression Savings:</span>
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-400">
                   {consolidation.compression_ratio}% Savings
@@ -174,7 +174,7 @@ export function AgentConsoleSidebar({
 
         {/* SECTION 3: Critique / Critic Report Card */}
         {critique && (
-          <div className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-[#0F1E35] p-4 rounded-xl border border-slate-200/80 dark:border-blue-500/10 shadow-xs dark:shadow-none space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-purple-500" /> Critique Report Card
@@ -194,7 +194,7 @@ export function AgentConsoleSidebar({
             <div className="space-y-3">
               {/* Scores Grid */}
               <div className="grid grid-cols-3 gap-2">
-                <div className="flex flex-col items-center bg-slate-50 dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col items-center bg-slate-50/60 dark:bg-[#0D192E] p-2 rounded-lg border border-slate-200/60 dark:border-blue-500/10">
                   <span className="text-[10px] text-slate-500 dark:text-slate-400">Factuality</span>
                   <span className={cn(
                     "text-sm font-bold mt-0.5",
@@ -203,7 +203,7 @@ export function AgentConsoleSidebar({
                     {(critique.factuality_score * 100).toFixed(0)}%
                   </span>
                 </div>
-                <div className="flex flex-col items-center bg-slate-50 dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col items-center bg-slate-50/60 dark:bg-[#0D192E] p-2 rounded-lg border border-slate-200/60 dark:border-blue-500/10">
                   <span className="text-[10px] text-slate-500 dark:text-slate-400">Pedagogy</span>
                   <span className={cn(
                     "text-sm font-bold mt-0.5",
@@ -212,7 +212,7 @@ export function AgentConsoleSidebar({
                     {(critique.pedagogy_score * 100).toFixed(0)}%
                   </span>
                 </div>
-                <div className="flex flex-col items-center bg-slate-50 dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col items-center bg-slate-50/60 dark:bg-[#0D192E] p-2 rounded-lg border border-slate-200/60 dark:border-blue-500/10">
                   <span className="text-[10px] text-slate-500 dark:text-slate-400">Format</span>
                   <span className={cn(
                     "text-sm font-bold mt-0.5",
@@ -225,7 +225,7 @@ export function AgentConsoleSidebar({
 
               {/* Feedback text */}
               {critique.critique_report && (
-                <div className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800/80 leading-relaxed max-h-36 overflow-y-auto">
+                <div className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50/60 dark:bg-[#0D192E] p-2.5 rounded-xl border border-slate-200/60 dark:border-blue-500/10 leading-relaxed max-h-36 overflow-y-auto">
                   <span className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Critic Feedback:</span>
                   {critique.critique_report}
                 </div>
@@ -241,7 +241,7 @@ export function AgentConsoleSidebar({
           </span>
 
           {logs.length === 0 ? (
-            <div className="text-center py-8 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+            <div className="text-center py-8 bg-white dark:bg-[#0F1E35] rounded-xl border border-slate-200/80 dark:border-blue-500/10 text-xs text-slate-500 dark:text-slate-400 shadow-xs dark:shadow-none">
               No active sub-agents spawned for this turn.
             </div>
           ) : (
@@ -256,28 +256,28 @@ export function AgentConsoleSidebar({
                 return (
                   <div
                     key={log.subagentId}
-                    className="bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-all duration-200"
+                    className="bg-white dark:bg-[#0F1E35] rounded-xl border border-slate-200/80 dark:border-blue-500/10 overflow-hidden shadow-xs dark:shadow-none transition-all duration-200"
                   >
                     {/* Header */}
                     <div 
                       onClick={() => toggleLog(log.subagentId)}
-                      className="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors select-none"
+                      className="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-[#162644]/40 transition-colors select-none gap-3"
                     >
-                      <div className="flex items-center gap-2">
-                        {log.role.includes("Retrieval") ? <Search className="w-4 h-4 text-orange-500" /> : 
-                         log.role.includes("Drafting") ? <FileCode className="w-4 h-4 text-blue-500" /> : 
-                         <CheckCircle className="w-4 h-4 text-purple-500" />}
-                        <div>
-                          <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        {log.role.includes("Retrieval") ? <Search className="w-4 h-4 text-orange-500 shrink-0" /> : 
+                         log.role.includes("Drafting") ? <FileCode className="w-4 h-4 text-blue-500 shrink-0" /> : 
+                         <CheckCircle className="w-4 h-4 text-purple-500 shrink-0" />}
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                             {log.role}
                           </h4>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-500 max-w-[200px] truncate">
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5" title={log.task}>
                             {log.task}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <span className={cn("text-[9px] px-1.5 py-0.5 rounded font-bold uppercase", statusColor)}>
                           {log.status}
                         </span>
@@ -286,26 +286,35 @@ export function AgentConsoleSidebar({
                     </div>
 
                     {/* Collapsible log output */}
-                    {isExpanded && (
-                      <div className="border-t border-slate-100 dark:border-slate-800/80 bg-slate-950 p-3 text-[11px] font-mono text-emerald-400 dark:text-emerald-500 space-y-2">
-                        <div className="max-h-56 overflow-y-auto leading-relaxed whitespace-pre-wrap">
-                          {log.thinking || "Waiting for output..."}
-                          {log.status === "running" && (
-                            <span className="inline-block w-1 h-3 bg-emerald-400 ml-1 animate-pulse" />
+                    <div
+                      className={cn(
+                        "grid transition-all duration-300 ease-in-out bg-slate-950 dark:bg-[#0A1424]",
+                        isExpanded 
+                          ? "grid-rows-[1fr] opacity-100 border-t border-slate-100 dark:border-slate-800/80" 
+                          : "grid-rows-[0fr] opacity-0 border-t-0 border-transparent"
+                      )}
+                    >
+                      <div className="overflow-hidden max-w-full">
+                        <div className="p-3 text-[11px] font-mono text-emerald-400 dark:text-emerald-500 space-y-2">
+                          <div className="max-h-56 overflow-y-auto leading-relaxed whitespace-pre-wrap break-words">
+                            {log.thinking || "Waiting for output..."}
+                            {log.status === "running" && (
+                              <span className="inline-block w-1 h-3 bg-emerald-400 ml-1 animate-pulse" />
+                            )}
+                          </div>
+                          {log.summary && (
+                            <div className="text-[10px] text-slate-400 border-t border-slate-800 pt-2 font-sans italic leading-relaxed">
+                              Result: {log.summary}
+                            </div>
+                          )}
+                          {log.error && (
+                            <div className="text-[10px] text-rose-400 border-t border-slate-800 pt-2 font-sans italic leading-relaxed">
+                              Error: {log.error}
+                            </div>
                           )}
                         </div>
-                        {log.summary && (
-                          <div className="text-[10px] text-slate-400 border-t border-slate-800 pt-2 font-sans italic leading-relaxed">
-                            Result: {log.summary}
-                          </div>
-                        )}
-                        {log.error && (
-                          <div className="text-[10px] text-rose-400 border-t border-slate-800 pt-2 font-sans italic leading-relaxed">
-                            Error: {log.error}
-                          </div>
-                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}

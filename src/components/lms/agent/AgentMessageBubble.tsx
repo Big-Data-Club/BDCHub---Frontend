@@ -145,18 +145,7 @@ export function AgentMessageBubble({
         isUser ? "justify-end" : "justify-start",
       )}
     >
-      {/* Avatar */}
-      {!isUser && (
-        <div
-          className={cn(
-            "flex-shrink-0 w-8 h-8 rounded-full",
-            "flex items-center justify-center shadow-md shadow-blue-500/10",
-            "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
-          )}
-        >
-          <Bot className="w-4.5 h-4.5" />
-        </div>
-      )}
+
 
       <div
         className={cn(
@@ -566,18 +555,7 @@ export function AgentMessageBubble({
         )}
       </div>
 
-      {/* User avatar */}
-      {isUser && (
-        <div
-          className={cn(
-            "flex-shrink-0 w-8 h-8 rounded-full",
-            "flex items-center justify-center shadow-sm",
-            "bg-gradient-to-br from-slate-400 to-slate-500 dark:from-slate-600 dark:to-slate-700 text-white",
-          )}
-        >
-          <User className="w-4 h-4" />
-        </div>
-      )}
+
     </div>
   );
 }
