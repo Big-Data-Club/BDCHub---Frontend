@@ -41,7 +41,7 @@ export function AgentInputBar({
     <form
       onSubmit={handleSubmit}
       className={cn(
-        "flex items-end gap-3 p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900",
+        "flex items-end gap-3 p-4 border-t border-slate-200 dark:border-slate-400/8 bg-white dark:bg-[#070E1C]",
         className
       )}
     >
@@ -54,12 +54,12 @@ export function AgentInputBar({
         disabled={disabled || isStreaming}
         className={cn(
           "flex-1 resize-none rounded-xl p-3.5",
-          "border border-slate-300 dark:border-slate-700",
-          "bg-slate-50 dark:bg-slate-800",
+          "border border-slate-300 dark:border-blue-500/20",
+          "bg-slate-50 dark:bg-[#0D192E]",
           "text-slate-900 dark:text-slate-100",
-          "placeholder:text-slate-400 dark:placeholder:text-slate-600",
-          "focus:bg-white dark:focus:bg-slate-900",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500",
+          "placeholder:text-slate-400 dark:placeholder:text-slate-505",
+          "focus:bg-white dark:focus:bg-[#0A1628]",
+          "focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50",
           "transition-all duration-200",
           "max-h-32 min-h-[48px]",
           "disabled:opacity-50",

@@ -43,9 +43,9 @@ export function KnowledgeGapMap({ props }: KnowledgeGapMapProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-        Knowledge Gap Analysis
+    <div className="space-y-3 mt-2">
+      <div className="text-xs font-bold text-blue-600 dark:text-cyan-400 uppercase tracking-wider">
+        Phân tích Lỗ hổng Kiến thức
       </div>
 
       {/* Mastery bars */}
@@ -53,20 +53,20 @@ export function KnowledgeGapMap({ props }: KnowledgeGapMapProps) {
         {gaps.map((g, i) => (
           <div
             key={i}
-            className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+            className="p-3 rounded-xl bg-white dark:bg-[#0F1E35] border border-slate-200/80 dark:border-blue-500/15 shadow-xs dark:shadow-none"
           >
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                 {g.name}
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-500 flex-shrink-0 ml-2">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 flex-shrink-0 ml-2">
                 {Math.round(g.mastery * 100)}%
                 {g.wrong_count !== undefined && (
-                  <span className="text-red-400 ml-1">({g.wrong_count} sai)</span>
+                  <span className="text-rose-500 dark:text-rose-400 ml-1">({g.wrong_count} sai)</span>
                 )}
               </span>
             </div>
-            <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-slate-100 dark:bg-[#070E1C] rounded-full overflow-hidden">
               <div
                 className={cn("h-full rounded-full transition-all duration-500", masteryColor(g.mastery))}
                 style={{ width: `${Math.max(g.mastery * 100, 2)}%` }}
@@ -78,18 +78,18 @@ export function KnowledgeGapMap({ props }: KnowledgeGapMapProps) {
 
       {/* Prerequisite chains */}
       {prerequisites && prerequisites.length > 0 && (
-        <div className="space-y-2">
-          <div className="text-xs font-medium text-slate-500 dark:text-slate-500">
-            Chuỗi tiên quyết cần ôn:
+        <div className="space-y-2 pt-1">
+          <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            Chuỗi tiên quyết cần ôn lại:
           </div>
           {prerequisites.map((p, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400"
+              className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-350"
             >
-              <span className="font-medium text-red-500 dark:text-red-400">{p.weak_node}</span>
-              <span className="text-slate-300 dark:text-slate-700">←</span>
-              <span>{p.related_concepts.join(", ")}</span>
+              <span className="font-semibold text-rose-500 dark:text-rose-400">{p.weak_node}</span>
+              <span className="text-slate-300 dark:text-slate-600">←</span>
+              <span className="font-medium">{p.related_concepts.join(", ")}</span>
             </div>
           ))}
         </div>

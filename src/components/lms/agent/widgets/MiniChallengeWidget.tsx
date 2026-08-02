@@ -38,13 +38,13 @@ export function MiniChallengeWidget({ props }: MiniChallengeWidgetProps) {
   const isCorrect = selected !== null && options[selected]?.is_correct;
 
   return (
-    <div className="space-y-3">
-      <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+    <div className="space-y-3 mt-2">
+      <div className="text-xs font-bold text-blue-600 dark:text-cyan-400 uppercase tracking-wider">
         Mini Challenge {concept && `- ${concept}`}
       </div>
 
-      <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 mb-3">
+      <div className="p-4 rounded-xl bg-white dark:bg-[#0F1E35] border border-slate-200/80 dark:border-blue-500/20 shadow-xs dark:shadow-none">
+        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3">
           {question}
         </p>
 
@@ -60,15 +60,15 @@ export function MiniChallengeWidget({ props }: MiniChallengeWidgetProps) {
                 onClick={() => handleSelect(i)}
                 disabled={revealed}
                 className={cn(
-                  "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm",
+                  "w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium",
                   "border transition-all duration-200",
                   !revealed
-                    ? "border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-slate-800 active:scale-[0.98]"
+                    ? "border-slate-200 dark:border-blue-500/20 hover:border-blue-400 dark:hover:border-cyan-400 hover:bg-blue-50/50 dark:hover:bg-[#162644] active:scale-[0.98]"
                     : showCorrect
-                      ? "border-green-300 dark:border-green-800 bg-green-50 dark:bg-green-950/20"
+                      ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-300"
                       : showWrong
-                        ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20"
-                        : "border-slate-200 dark:border-slate-800 opacity-50",
+                        ? "border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/20 text-rose-900 dark:text-rose-300"
+                        : "border-slate-200 dark:border-blue-500/10 opacity-50",
                   "disabled:cursor-default",
                 )}
               >
@@ -76,16 +76,16 @@ export function MiniChallengeWidget({ props }: MiniChallengeWidgetProps) {
                   className={cn(
                     "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0",
                     showCorrect
-                      ? "bg-green-500 text-white"
+                      ? "bg-emerald-500 text-white"
                       : showWrong
-                        ? "bg-red-500 text-white"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-500",
+                        ? "bg-rose-500 text-white"
+                        : "bg-slate-100 dark:bg-[#070E1C] text-slate-500 dark:text-slate-400",
                   )}
                 >
                   {showCorrect ? (
-                    <Check className="w-3 h-3" />
+                    <Check className="w-3.5 h-3.5" />
                   ) : showWrong ? (
-                    <X className="w-3 h-3" />
+                    <X className="w-3.5 h-3.5" />
                   ) : (
                     String.fromCharCode(65 + i)
                   )}
@@ -93,10 +93,10 @@ export function MiniChallengeWidget({ props }: MiniChallengeWidgetProps) {
                 <span
                   className={cn(
                     showCorrect
-                      ? "text-green-800 dark:text-green-300"
+                      ? "text-emerald-800 dark:text-emerald-300 font-semibold"
                       : showWrong
-                        ? "text-red-800 dark:text-red-300"
-                        : "text-slate-700 dark:text-slate-300",
+                        ? "text-rose-800 dark:text-rose-300 font-semibold"
+                        : "text-slate-700 dark:text-slate-200",
                   )}
                 >
                   {opt.text}
@@ -110,15 +110,15 @@ export function MiniChallengeWidget({ props }: MiniChallengeWidgetProps) {
         {revealed && (
           <div
             className={cn(
-              "mt-3 p-3 rounded-lg text-sm",
+              "mt-3 p-3 rounded-xl text-xs font-semibold leading-relaxed",
               isCorrect
-                ? "bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400"
-                : "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400",
+                ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50"
+                : "bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50",
             )}
           >
-            {isCorrect ? "Chính xác! 🎉" : "Chưa đúng."}
+            {isCorrect ? "Chính xác! 🎉" : "Chưa chính xác."}
             {selected !== null && options[selected]?.explanation && (
-              <p className="mt-1 text-slate-600 dark:text-slate-400 text-xs">
+              <p className="mt-1 text-slate-600 dark:text-slate-350 text-xs font-normal">
                 {options[selected].explanation}
               </p>
             )}

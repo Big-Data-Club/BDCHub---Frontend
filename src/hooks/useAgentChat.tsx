@@ -61,6 +61,7 @@ interface UseAgentChatOptions {
   agentType: "teacher" | "mentor";
   courseId?: number;
   initialSessionId?: string;
+  initialMessages?: AgentMessage[];
   userId?: number;
   /** Structured in-page context fed by the ChatSidebar. */
   pageContext?: Record<string, any> | null;
@@ -76,9 +77,9 @@ interface UseAgentChatOptions {
     reason: "title" | "new" | "reused" | "activity";
   }) => void;
 }
- 
-export function useAgentChat({ agentType, courseId, initialSessionId, userId, pageContext, systemContext, onSessionUpdated }: UseAgentChatOptions) {
-  const [messages, setMessages] = useState<AgentMessage[]>([]);
+
+export function useAgentChat({ agentType, courseId, initialSessionId, initialMessages, userId, pageContext, systemContext, onSessionUpdated }: UseAgentChatOptions) {
+  const [messages, setMessages] = useState<AgentMessage[]>(initialMessages || []);
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId || null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -88,34 +89,43 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
 
 
 
-  const loadHistory = async (sid: string) => {
+  const loadHistory = useCallback(async (sid: string) => {
     setIsLoadingHistory(true);
     try {
       const history: AgentHistoryMessage[] = await agentService.getSessionMessages(sid);
-      const mappedMessages: AgentMessage[] = history.map((m) => ({
-        id: m.id,
-        role: m.role as any,
-        content: m.content || "",
-        timestamp: new Date(m.created_at).getTime(),
-        toolActivities: m.metadata?.toolActivities || [],
-        uiComponents: normalizeUIComponents(m.metadata?.uiComponents, m.metadata?.uiComponent),
-        hitlRequest: m.metadata?.hitlRequest,
-        context: m.metadata?.context,
-        thinking: m.metadata?.thinking || "",
-        references: m.metadata?.references || [],
-        multiAgentLogs: (m.metadata as any)?.multiAgentLogs || [],
-        critiqueReport: (m.metadata as any)?.critiqueReport,
-        consolidation: (m.metadata as any)?.consolidation,
-        spawningScore: (m.metadata as any)?.spawningScore,
-        spawningBreakdown: (m.metadata as any)?.spawningBreakdown,
-      }));
-      setMessages(mappedMessages);
+      if (history && history.length > 0) {
+        const mappedMessages: AgentMessage[] = history.map((m) => ({
+          id: m.id,
+          role: m.role as any,
+          content: m.content || "",
+          timestamp: new Date(m.created_at).getTime(),
+          toolActivities: m.metadata?.toolActivities || [],
+          uiComponents: normalizeUIComponents(m.metadata?.uiComponents, m.metadata?.uiComponent),
+          hitlRequest: m.metadata?.hitlRequest,
+          context: m.metadata?.context,
+          thinking: m.metadata?.thinking || "",
+          references: m.metadata?.references || [],
+          multiAgentLogs: (m.metadata as any)?.multiAgentLogs || [],
+          critiqueReport: (m.metadata as any)?.critiqueReport,
+          consolidation: (m.metadata as any)?.consolidation,
+          spawningScore: (m.metadata as any)?.spawningScore,
+          spawningBreakdown: (m.metadata as any)?.spawningBreakdown,
+        }));
+        setMessages(mappedMessages);
+        return;
+      }
     } catch (err) {
       console.error("Failed to load session history:", err);
     } finally {
       setIsLoadingHistory(false);
     }
-  };
+
+    if (initialMessages && initialMessages.length > 0) {
+      setMessages(initialMessages);
+    } else {
+      setMessages([]);
+    }
+  }, [initialMessages]);
 
   /**
    * Abort the current SSE stream.
@@ -130,9 +140,8 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
   const switchSession = useCallback(async (newSessionId: string) => {
     stopStreaming();
     setSessionId(newSessionId);
-    setMessages([]);
     await loadHistory(newSessionId);
-  }, [stopStreaming]);
+  }, [stopStreaming, loadHistory]);
 
   // Load history when session changes externally
   useEffect(() => {
