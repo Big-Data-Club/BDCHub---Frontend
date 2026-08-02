@@ -2,7 +2,7 @@ import type { Meta } from '@storybook/nextjs-vite';
 import React from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import StudentLayout from '@/app/(learning)/lms/student/layout';
-import { AgentChatPanel } from '@/components/lms/agent/AgentChatPanel';
+import AIMentorPage from '@/app/(learning)/lms/student/ai-mentor/page';
 import type { AgentMessage } from '@/types';
 import {
   MOCK_TOOL_ACTIVITIES,
@@ -129,6 +129,10 @@ const meta: Meta = {
     nextjs: {
       navigation: {
         pathname: '/lms/student/ai-mentor',
+        query: {
+          sessionId: 'sess-1',
+          courseId: '101',
+        },
       },
     },
   },
@@ -148,16 +152,10 @@ export const FullStudentAIMentorPage = {
         {/* Right Content Column wrapping StudentLayout & AIMentor Page */}
         <div className="flex flex-1 flex-col min-w-0">
           <StudentLayout>
-            <div className="h-[calc(100vh-4rem)] w-full flex-1 overflow-hidden">
-              <AgentChatPanel
-                agentType="mentor"
-                courseId={101}
-                sessionId="sess-1"
-                initialMessages={MOCK_MESSAGES}
-                initialSessions={MOCK_SESSIONS}
-                className="h-full"
-              />
-            </div>
+            <AIMentorPage
+              initialMessages={MOCK_MESSAGES}
+              initialSessions={MOCK_SESSIONS}
+            />
           </StudentLayout>
         </div>
       </div>
@@ -166,6 +164,14 @@ export const FullStudentAIMentorPage = {
 };
 
 export const EmptyChatState = {
+  parameters: {
+    nextjs: {
+      navigation: {
+        pathname: '/lms/student/ai-mentor',
+        query: {},
+      },
+    },
+  },
   render: () => {
     return (
       <div className="flex min-h-screen w-full bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-white transition-colors duration-300">
@@ -174,13 +180,7 @@ export const EmptyChatState = {
         </div>
         <div className="flex flex-1 flex-col min-w-0">
           <StudentLayout>
-            <div className="h-[calc(100vh-4rem)] w-full flex-1 overflow-hidden">
-              <AgentChatPanel
-                agentType="mentor"
-                courseId={101}
-                className="h-full"
-              />
-            </div>
+            <AIMentorPage />
           </StudentLayout>
         </div>
       </div>
@@ -189,6 +189,17 @@ export const EmptyChatState = {
 };
 
 export const InteractiveQuizState = {
+  parameters: {
+    nextjs: {
+      navigation: {
+        pathname: '/lms/student/ai-mentor',
+        query: {
+          sessionId: 'sess-1',
+          courseId: '101',
+        },
+      },
+    },
+  },
   render: () => {
     const quizOnlyMessages: AgentMessage[] = [
       MOCK_MESSAGES[0],
@@ -202,20 +213,15 @@ export const InteractiveQuizState = {
         </div>
         <div className="flex flex-1 flex-col min-w-0">
           <StudentLayout>
-            <div className="h-[calc(100vh-4rem)] w-full flex-1 overflow-hidden">
-              <AgentChatPanel
-                agentType="mentor"
-                courseId={101}
-                sessionId="sess-1"
-                initialMessages={quizOnlyMessages}
-                initialSessions={MOCK_SESSIONS}
-                className="h-full"
-              />
-            </div>
+            <AIMentorPage
+              initialMessages={quizOnlyMessages}
+              initialSessions={MOCK_SESSIONS}
+            />
           </StudentLayout>
         </div>
       </div>
     );
   },
 };
+
 
