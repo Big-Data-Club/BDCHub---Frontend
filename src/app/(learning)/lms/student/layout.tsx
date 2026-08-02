@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import lmsService from "@/services/lmsService";
 import { activateLmsRole, hasLmsRole } from "@/lib/lms-navigation";
+import { cn } from "@/lib/utils";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -57,9 +58,11 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     );
   }
 
+  const isFullHeightPage = pathname.includes("/ai-mentor");
+
   return (
     <>
-      <div className="relative min-h-screen bg-slate-100/80 dark:bg-[#050B18] overflow-clip transition-colors duration-300">
+      <div className={cn("relative bg-slate-100/80 dark:bg-[#050B18] transition-colors duration-300", isFullHeightPage ? "h-screen overflow-hidden" : "min-h-screen overflow-clip")}>
         
         {/* Glow ambient background spots */}
         <div className="absolute top-10 left-10 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
@@ -68,8 +71,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         {/* Smooth radial gradient overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#f1f5f9_95%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_60%,#050B18_95%)] pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col min-h-screen">
-          <header className="bg-white dark:bg-[#070E1C] border-b border-slate-200/80 dark:border-blue-500/10 shadow-sm sticky top-0 z-50">
+        <div className={cn("relative z-10 flex flex-col", isFullHeightPage ? "h-screen overflow-hidden" : "min-h-screen")}>
+          <header className="bg-white dark:bg-[#070E1C] border-b border-slate-200/80 dark:border-blue-500/10 shadow-sm sticky top-0 z-50 flex-shrink-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center h-16">
                 <div className="flex items-center gap-3">
@@ -143,7 +146,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             </div>
           </header>
 
-          <main className="w-full flex-grow flex flex-col">
+          <main className={cn("w-full flex-col", isFullHeightPage ? "flex-1 min-h-0 overflow-hidden flex" : "flex-grow flex")}>
             {children}
           </main>
         </div>

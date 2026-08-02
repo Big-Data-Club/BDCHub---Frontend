@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import lmsService from "@/services/lmsService";
 import { activateLmsRole, hasLmsRole } from "@/lib/lms-navigation";
+import { cn } from "@/lib/utils";
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -59,10 +60,12 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
     );
   }
 
+  const isFullHeightPage = pathname.includes("/ai-assistant");
+
   return (
     <>
-      <div className="min-h-screen bg-slate-100/80 dark:bg-[#050B18] transition-colors duration-300">
-        <header className="bg-white dark:bg-[#070E1C] border-b border-slate-200/80 dark:border-blue-500/10 shadow-sm sticky top-0 z-50">
+      <div className={cn("min-h-screen bg-slate-100/80 dark:bg-[#050B18] transition-colors duration-300 flex flex-col", isFullHeightPage && "h-screen overflow-hidden")}>
+        <header className="bg-white dark:bg-[#070E1C] border-b border-slate-200/80 dark:border-blue-500/10 shadow-sm sticky top-0 z-50 flex-shrink-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-3">
@@ -136,7 +139,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className={cn("w-full flex-col", isFullHeightPage ? "flex-1 min-h-0 overflow-hidden flex p-0 max-w-none" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")}>
           {children}
         </main>
       </div>

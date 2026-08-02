@@ -15,12 +15,12 @@ export default function AIAssistantPage() {
   const sessionId = searchParams.get("sessionId") || undefined;
 
   return (
-    <div className="h-[calc(100vh-10rem)]">
+    <div className="w-full h-full flex-1 flex flex-col min-h-0 overflow-hidden">
       <AgentChatPanel
         agentType="teacher"
         courseId={courseId}
         sessionId={sessionId}
-        className="h-full"
+        className="h-full w-full"
       />
     </div>
   );

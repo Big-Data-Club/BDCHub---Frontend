@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles, MapPin, BookmarkPlus, Loader2 } from "lucide-react";
+import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles, MapPin, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
 import type { AgentMessage, HITLRequestData } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
@@ -70,6 +70,23 @@ export function AgentMessageBubble({
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
   const [savingNote, setSavingNote] = useState(false);
   const [noteSaved, setNoteSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [feedback, setFeedback] = useState<"like" | "dislike" | null>(null);
+
+  const handleCopyContent = async () => {
+    if (!message.content) return;
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy message", err);
+    }
+  };
+
+  const toggleFeedback = (type: "like" | "dislike") => {
+    setFeedback((prev) => (prev === type ? null : type));
+  };
 
   const toggleLog = (id: string) => {
     setExpandedLogs((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -233,15 +250,56 @@ export function AgentMessageBubble({
         )}
 
         {!isUser && message.content && !message.isStreaming && (
-          <button
-            type="button"
-            onClick={saveResponseToNotebook}
-            disabled={savingNote || noteSaved}
-            className="ml-1 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-blue-600 disabled:cursor-default disabled:text-emerald-600 dark:hover:bg-[#162644] dark:disabled:text-emerald-400"
-          >
-            {savingNote ? <Loader2 className="h-3 w-3 animate-spin" /> : <BookmarkPlus className="h-3 w-3" />}
-            {noteSaved ? "Đã lưu vào Notebook" : "Lưu ghi chú"}
-          </button>
+          <div className="flex items-center gap-1.5 ml-1 pt-1">
+            {/* Copy button */}
+            <button
+              type="button"
+              onClick={handleCopyContent}
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#162644] dark:hover:text-cyan-400 transition-colors cursor-pointer"
+              title="Sao chép câu trả lời"
+            >
+              {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+              <span>{copied ? "Đã sao chép" : "Sao chép"}</span>
+            </button>
+
+            {/* Save to Notebook button */}
+            <button
+              type="button"
+              onClick={saveResponseToNotebook}
+              disabled={savingNote || noteSaved}
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 disabled:cursor-default disabled:text-emerald-600 dark:hover:bg-[#162644] dark:disabled:text-emerald-400 transition-colors cursor-pointer"
+              title="Lưu vào Notebook học tập"
+            >
+              {savingNote ? <Loader2 className="h-3 w-3 animate-spin" /> : <BookmarkPlus className="h-3 w-3" />}
+              <span>{noteSaved ? "Đã lưu Notebook" : "Lưu ghi chú"}</span>
+            </button>
+
+            {/* Thumbs up / down feedback buttons */}
+            <div className="flex items-center gap-0.5 ml-1 border-l border-slate-200 dark:border-blue-500/10 pl-1.5">
+              <button
+                type="button"
+                onClick={() => toggleFeedback("like")}
+                className={cn(
+                  "p-1 rounded-md text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer",
+                  feedback === "like" && "text-blue-600 dark:text-cyan-400 bg-blue-50 dark:bg-blue-900/30"
+                )}
+                title="Hữu ích"
+              >
+                <ThumbsUp className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => toggleFeedback("dislike")}
+                className={cn(
+                  "p-1 rounded-md text-slate-400 hover:text-red-500 transition-colors cursor-pointer",
+                  feedback === "dislike" && "text-red-500 bg-red-50 dark:bg-red-950/40"
+                )}
+                title="Chưa hữu ích"
+              >
+                <ThumbsDown className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Compact, server-verified context trace. Do not expose page body. */}

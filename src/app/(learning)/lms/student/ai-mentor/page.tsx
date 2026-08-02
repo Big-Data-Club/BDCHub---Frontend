@@ -24,14 +24,14 @@ export default function AIMentorPage({
   const sessionId = searchParams.get("sessionId") || undefined;
 
   return (
-    <div className="h-[calc(100vh-4rem)] w-full flex-1 overflow-hidden">
+    <div className="w-full h-full flex-1 flex flex-col min-h-0 overflow-hidden">
       <AgentChatPanel
         agentType="mentor"
         courseId={courseId}
         sessionId={sessionId}
         initialMessages={initialMessages}
         initialSessions={initialSessions}
-        className="h-full"
+        className="h-full w-full"
       />
     </div>
   );

@@ -8,7 +8,7 @@
  */
 import { useRef, useEffect, useCallback, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { MessageSquare, Sparkles, Loader2, PanelLeftClose, PanelLeftOpen, Cpu } from "lucide-react";
+import { MessageSquare, Sparkles, PanelLeftClose, PanelLeftOpen, Cpu, ArrowDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useAgentChat } from "@/hooks/useAgentChat";
@@ -146,15 +146,41 @@ export function AgentChatPanel({
   }, [sessionId, router, pathname, searchParams]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const userScrolledUpRef = useRef(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const welcome = WELCOME[agentType];
 
-  // Auto-scroll to bottom on new messages
-  useEffect(() => {
+  const scrollToBottom = useCallback((smooth = true) => {
     const el = scrollRef.current;
     if (el) {
-      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: smooth ? "smooth" : "auto",
+      });
+      userScrolledUpRef.current = false;
+      setShowScrollButton(false);
     }
-  }, [messages]);
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (distanceToBottom > 40) {
+      setShowScrollButton(true);
+      userScrolledUpRef.current = true;
+    } else {
+      setShowScrollButton(false);
+      userScrolledUpRef.current = false;
+    }
+  }, []);
+
+  // Auto-scroll to bottom on new messages if user has not scrolled up
+  useEffect(() => {
+    if (!userScrolledUpRef.current) {
+      scrollToBottom(true);
+    }
+  }, [messages, scrollToBottom]);
 
   const isEmpty = messages.length === 0;
 
@@ -207,21 +233,21 @@ export function AgentChatPanel({
         onRenameSession={renameSession}
         onCloseMobile={() => setSidebarOpen(false)}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-[260px] transition-all duration-300 ease-in-out lg:relative lg:z-0 lg:border-r border-slate-200 dark:border-blue-500/10",
+          "fixed inset-y-0 left-0 z-50 w-[280px] transition-all duration-300 ease-in-out lg:relative lg:z-0 lg:flex-shrink-0 lg:border-r border-slate-200/80 dark:border-blue-500/10",
           sidebarOpen 
-            ? "translate-x-0 lg:w-1/5 lg:min-w-[220px] lg:max-w-[260px] lg:opacity-100" 
+            ? "translate-x-0 lg:w-72 xl:w-80 lg:opacity-100" 
             : "-translate-x-full lg:w-0 lg:opacity-0 lg:pointer-events-none lg:border-none",
         )}
       />
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-[#050B18] overflow-hidden">
+      <div className="flex-1 min-w-0 flex flex-col h-full bg-slate-50/50 dark:bg-[#050B18] overflow-hidden min-h-0">
         {/* Header */}
       <div
         className={cn(
-          "flex items-center gap-3 px-5 py-3.5",
+          "flex items-center gap-3 px-5 py-3.5 flex-shrink-0",
           "border-b border-slate-200 dark:border-blue-500/10",
-          "bg-white/80 dark:bg-[#070E1C]/90 backdrop-blur-md sticky top-0 z-10",
+          "bg-white/80 dark:bg-[#070E1C]/90 backdrop-blur-md z-10",
         )}
       >
         <button
@@ -269,7 +295,8 @@ export function AgentChatPanel({
       {/* Messages area */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 relative"
       >
         <div className="max-w-4xl mx-auto w-full px-2 sm:px-4 space-y-6">
           {isEmpty ? (
@@ -328,22 +355,59 @@ export function AgentChatPanel({
           )}
           
           {isLoadingHistory && (
-            <div className="flex justify-center items-center py-6">
-              <Loader2 className="w-6 h-6 animate-spin text-blue-500 dark:text-cyan-400" />
-              <span className="ml-2.5 text-sm text-slate-500 dark:text-slate-400">Đang tải lịch sử...</span>
+            <div className="space-y-4 py-4">
+              {[0, 1].map((i) => (
+                <div key={i} className="flex items-start gap-3 animate-pulse">
+                  <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-[#0F1E35]" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-slate-200 dark:bg-[#0F1E35] rounded-md w-3/4" />
+                    <div className="h-4 bg-slate-200 dark:bg-[#0F1E35] rounded-md w-1/2" />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
 
-      {/* Input bar wrapper */}
-      <div className="border-t border-slate-200 dark:border-blue-500/10 bg-white dark:bg-[#070E1C] px-4 py-3">
+      {/* Permanent 128px Gradient Fade Overlay Layer behind Floating Input Bar */}
+      <div
+        className={cn(
+          "absolute bottom-0 inset-x-0 h-32 pointer-events-none z-10",
+          "bg-gradient-to-t from-slate-50 via-slate-50/80 via-50% to-transparent dark:from-[#050B18] dark:via-[#050B18]/80 dark:via-50% dark:to-transparent"
+        )}
+      />
+
+      {/* Floating Scroll to Latest Button */}
+      {showScrollButton && (
+        <div className="relative z-30">
+          <button
+            onClick={() => scrollToBottom(true)}
+            className={cn(
+              "absolute right-6 -top-12 p-2.5 rounded-full",
+              "bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20",
+              "text-slate-700 dark:text-cyan-400 shadow-md hover:shadow-lg",
+              "hover:bg-blue-50 dark:hover:bg-[#162644]",
+              "transition-all duration-200 active:scale-90 flex items-center gap-1.5 text-xs font-semibold cursor-pointer",
+              "animate-in fade-in slide-in-from-bottom-2 duration-200",
+            )}
+            title="Cuộn xuống tin nhắn mới nhất"
+          >
+            <ArrowDown className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
+            {isStreaming && (
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Floating Prompt Input bar wrapper */}
+      <div className="relative z-20 flex-shrink-0 px-4 pb-4 pt-2">
         <div className="max-w-4xl mx-auto w-full">
           <AgentInputBar
             onSend={sendMessage}
             isStreaming={isStreaming || isLoadingHistory}
             onStop={stopStreaming}
-            className="border-t-0 p-0"
             placeholder={
               agentType === "mentor"
                 ? "Hỏi Mentor về bài học..."
