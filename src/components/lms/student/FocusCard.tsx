@@ -46,7 +46,7 @@ export function FocusCard({
 
           {focusCourse && focusCourse.progress_percent !== undefined && (
             <span className="text-xs font-extrabold text-blue-650 dark:text-cyan-400 bg-blue-50/70 dark:bg-blue-900/30 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-500/20">
-              {focusCourse.progress_percent}%
+              {Number(focusCourse.progress_percent).toFixed(2)}%
             </span>
           )}
         </div>

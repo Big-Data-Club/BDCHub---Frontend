@@ -164,7 +164,7 @@ const Sidebar: React.FC = () => {
                   return isTeacher;
                 }
                 return (
-                  link.label === "Shared Knowledge" ||
+                  link.label === "BDCourse" ||
                   link.label === "Virtual Lab" ||
                   link.label === "Chat" ||
                   link.label === "Data Hackathon" ||
@@ -210,7 +210,13 @@ const Sidebar: React.FC = () => {
                       </div>
                       {!isCollapsed && (
                         <>
-                          <span>{link.label}</span>
+                          {link.label === "BDCourse" ? (
+                            <span>
+                              BD<span className={cn(isActive ? "text-white" : "text-blue-600 dark:text-cyan-400")}>Course</span>
+                            </span>
+                          ) : (
+                            <span>{link.label}</span>
+                          )}
                           {hasBadge && (
                             <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white leading-none">
                               {unreadAlertsCount > 9 ? "9+" : unreadAlertsCount}
