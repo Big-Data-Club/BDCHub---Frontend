@@ -153,34 +153,12 @@ export const ConversationSidebar = forwardRef<
         className,
       )}
     >
-      {/* Header section with category title & New chat button */}
-      <div className="p-4 border-b border-slate-200/80 dark:border-blue-500/10 bg-slate-50/40 dark:bg-[#070E1C]/60 space-y-3 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-              Lịch sử trò chuyện
-            </span>
-            {sessions.length > 0 && (
-              <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-200/60 dark:bg-blue-900/30 text-slate-700 dark:text-cyan-400 border border-slate-300/40 dark:border-blue-500/15">
-                {sessions.length}
-              </span>
-            )}
-          </div>
-          {onCloseMobile && (
-            <button
-              onClick={onCloseMobile}
-              className="lg:hidden p-1.5 rounded-lg border border-slate-200 dark:border-blue-500/10 hover:bg-slate-100 dark:hover:bg-[#162644] text-slate-500 dark:text-slate-400 transition-all duration-200 active:scale-95 flex-shrink-0"
-              title="Đóng thanh bên"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
+      {/* Header section with New chat button */}
+      <div className="p-4 border-b border-slate-200/80 dark:border-blue-500/10 bg-slate-50/40 dark:bg-[#070E1C]/60 flex items-center gap-2 flex-shrink-0">
         <button
           onClick={onNewSession}
           className={cn(
-            "w-full flex items-center justify-center gap-2.5",
+            "flex-1 flex items-center justify-center gap-2.5",
             "bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs",
             "px-4 py-2.5 rounded-xl transition-all duration-200 shadow-sm dark:shadow-none cursor-pointer",
           )}
@@ -188,6 +166,16 @@ export const ConversationSidebar = forwardRef<
           <Plus className="w-4 h-4" />
           <span>Đoạn chat mới</span>
         </button>
+
+        {onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            className="lg:hidden p-2.5 rounded-xl border border-slate-200 dark:border-blue-500/10 hover:bg-slate-100 dark:hover:bg-[#162644] text-slate-500 dark:text-slate-400 transition-all duration-200 active:scale-95 flex-shrink-0 cursor-pointer"
+            title="Đóng thanh bên"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Session Tab List - Autofill height with min-h-0 and flex-1 */}
@@ -286,7 +274,7 @@ export const ConversationSidebar = forwardRef<
                       </span>
                       <span className="text-slate-300 dark:text-slate-700">•</span>
                       <span className="truncate font-medium text-[10.5px]">
-                        {session.turn_count || 0} lượt gửi
+                        {session.turn_count || 0} câu hỏi
                       </span>
                     </div>
                   </div>

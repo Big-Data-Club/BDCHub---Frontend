@@ -120,6 +120,8 @@ const MOCK_SESSIONS = [
   { session_id: 'sess-1', title: 'Thuật toán QuickSort & Luyện tập', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
   { session_id: 'sess-2', title: 'Ôn tập Cấu trúc dữ liệu Cây AVL', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
   { session_id: 'sess-3', title: 'Thực hành Đồ thị Dijkstra', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
+  { session_id: 'sess-4', title: 'Học máy nâng cao: Tìm hiểu chi tiết về thuật toán lan truyền ngược (Backpropagation) trong mạng Nơ-ron nhân tạo', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
+  { session_id: 'sess-5', title: 'Thiết kế hệ thống phân tán siêu lớn có khả năng chịu lỗi cao và mở rộng tự động trên nền tảng Cloud Kubernetes', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
 ];
 
 const meta: Meta = {
@@ -155,6 +157,28 @@ export const FullStudentAIMentorPage = {
             <AIMentorPage
               initialMessages={MOCK_MESSAGES}
               initialSessions={MOCK_SESSIONS}
+            />
+          </StudentLayout>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const ConsoleDebuggerOpen = {
+  render: () => {
+    return (
+      <div className="flex min-h-screen w-full bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-white transition-colors duration-300">
+        <div className="sticky top-0 h-screen flex-shrink-0 hidden md:block z-30">
+          <Sidebar />
+        </div>
+        <div className="flex flex-1 flex-col min-w-0">
+          <StudentLayout>
+            <AIMentorPage
+              initialMessages={MOCK_MESSAGES}
+              initialSessions={MOCK_SESSIONS}
+              defaultConsoleOpen={true}
+              initialSelectedMessageId="2"
             />
           </StudentLayout>
         </div>

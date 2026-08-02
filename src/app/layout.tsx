@@ -1,16 +1,22 @@
 import 'devextreme/dist/css/dx.light.css';
 import type { Metadata } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
+import { Nunito_Sans, Roboto_Mono, Comfortaa } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/MainProvider";
 
-const geistSans = Inter({
-  variable: "--font-geist-sans",
+const comfortaa = Comfortaa({
+  subsets: ["vietnamese"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const nunitoSans = Nunito_Sans({
+  variable: "--font-body",
   subsets: ["latin"],
 });
 
 const geistMono = Roboto_Mono({
-  variable: "--font-geist-mono",
+  variable: "--font-mono",
   subsets: ["latin"],
 });
 
@@ -68,7 +74,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden no-scrollbar`}>
+      <body className={`${comfortaa.variable} ${nunitoSans.variable} ${geistMono.variable} antialiased overflow-x-hidden no-scrollbar lms-fonts`}>
         <Providers>
           {children}
         </Providers>
