@@ -7,6 +7,8 @@ import { organizationService } from "@/services/organizationService";
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import { FileInfo, Organization } from "@/types";
+import { CourseBlueprintWorkspace } from "@/components/lms/teacher/CourseBlueprintWorkspace";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const COURSE_LEVELS = [
   { value: "BEGINNER", label: "Cơ bản" },
@@ -21,6 +23,8 @@ export default function CreateCoursePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [orgLoading, setOrgLoading] = useState(true);
+  const [aiWorkflow, setAiWorkflow] = useState(true);
+  const { userId } = useCurrentUser();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -97,6 +101,14 @@ export default function CreateCoursePage() {
       setLoading(false);
     }
   };
+
+  if (aiWorkflow) {
+    return <div className="max-w-5xl mx-auto">
+      <button onClick={() => router.back()} className="mb-5 text-sm font-semibold text-slate-500 hover:text-blue-600">← Quay lại khóa học của tôi</button>
+      {orgLoading ? <div className="flex h-64 items-center justify-center text-sm text-slate-500">Đang chuẩn bị không gian tạo khóa học…</div> : <CourseBlueprintWorkspace userId={Number(userId)} organizations={orgs} onCancel={() => router.push("/lms/teacher/courses")} onComplete={async (courseId) => { router.push(`/lms/teacher/courses/${courseId}`); }} />}
+      <button onClick={() => setAiWorkflow(false)} className="mt-5 text-sm text-slate-500 underline underline-offset-4 hover:text-blue-600">Tạo thủ công thay vì dùng AI</button>
+    </div>;
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
