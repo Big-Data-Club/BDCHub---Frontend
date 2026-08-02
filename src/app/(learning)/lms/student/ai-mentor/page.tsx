@@ -11,11 +11,15 @@ import type { AgentMessage } from "@/types";
 interface AIMentorPageProps {
   initialMessages?: AgentMessage[];
   initialSessions?: any[];
+  defaultConsoleOpen?: boolean;
+  initialSelectedMessageId?: string;
 }
 
 export default function AIMentorPage({
   initialMessages,
   initialSessions,
+  defaultConsoleOpen = false,
+  initialSelectedMessageId,
 }: AIMentorPageProps = {}) {
   const searchParams = useSearchParams();
   const courseId = searchParams.get("courseId")
@@ -31,6 +35,8 @@ export default function AIMentorPage({
         sessionId={sessionId}
         initialMessages={initialMessages}
         initialSessions={initialSessions}
+        defaultConsoleOpen={defaultConsoleOpen}
+        initialSelectedMessageId={initialSelectedMessageId}
         className="h-full w-full"
       />
     </div>

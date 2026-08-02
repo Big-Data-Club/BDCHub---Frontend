@@ -286,7 +286,7 @@ export const ConversationSidebar = forwardRef<
                       </span>
                       <span className="text-slate-300 dark:text-slate-700">•</span>
                       <span className="truncate font-medium text-[10.5px]">
-                        {session.turn_count || 0} lượt gửi
+                        {session.turn_count || 0} câu hỏi
                       </span>
                     </div>
                   </div>

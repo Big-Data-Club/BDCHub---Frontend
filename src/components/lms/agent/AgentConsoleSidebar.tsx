@@ -31,7 +31,7 @@ export function AgentConsoleSidebar({
     }
   }, [activeMessage?.multiAgentLogs]);
 
-  if (!isOpen) return null;
+
 
   const toggleLog = (id: string) => {
     setExpandedLogs(prev => ({ ...prev, [id]: !prev[id] }));
@@ -47,12 +47,24 @@ export function AgentConsoleSidebar({
   const didSpawn = score >= 0.5;
 
   return (
-    <div
-      className={cn(
-        "flex flex-col h-full w-[360px] border-l bg-slate-50 dark:bg-[#070E1C] border-slate-200 dark:border-blue-500/10 transition-all duration-300 ease-in-out shrink-0 overflow-hidden relative",
-        className
-      )}
-    >
+    <>
+      {/* Backdrop overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 bg-slate-950/40 backdrop-blur-[2px] transition-opacity duration-300 ease-in-out z-[60]",
+          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+        onClick={onClose}
+      />
+
+      {/* Slide-over Console Drawer */}
+      <div
+        className={cn(
+          "fixed inset-y-0 right-0 z-[70] flex flex-col h-full w-[360px] max-w-[90vw] border-l bg-slate-50 dark:bg-[#070E1C] border-slate-200 dark:border-blue-500/10 transition-transform duration-300 ease-in-out overflow-hidden shadow-2xl",
+          isOpen ? "translate-x-0" : "translate-x-full",
+          className
+        )}
+      >
       {/* Console Header */}
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-blue-500/10 bg-white dark:bg-[#070E1C]">
         <div className="flex items-center gap-2">
@@ -305,5 +317,6 @@ export function AgentConsoleSidebar({
         <div ref={consoleEndRef} />
       </div>
     </div>
+    </>
   );
 }

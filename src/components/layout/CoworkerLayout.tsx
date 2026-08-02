@@ -208,47 +208,27 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen w-screen overflow-hidden relative bg-slate-50 dark:bg-slate-950">
       {/* Workspace Area (Left Pane) */}
-      <div 
-        className="flex-1 h-full overflow-y-auto"
-        style={{
-          width: isOpen && !isMobile ? `calc(100% - ${width}px)` : "100%",
-          transition: isDragging ? "none" : "width 0.3s ease-in-out",
-        }}
-      >
+      <div className="flex-1 h-full overflow-y-auto w-full">
         {children}
       </div>
 
-      {/* Resize Handle (Divider) - Desktop Only */}
-      {isOpen && !isMobile && (
-        <div
-          onMouseDown={startResize}
-          className={cn(
-            "w-1.5 cursor-col-resize select-none h-full transition-colors duration-200 z-50 flex items-center justify-center relative border-l border-r border-slate-200 dark:border-slate-800",
-            isDragging 
-              ? "bg-blue-600 dark:bg-blue-500 border-blue-600 dark:border-blue-500" 
-              : "bg-slate-100 dark:bg-slate-900 hover:bg-blue-400 dark:hover:bg-blue-600"
-          )}
-        >
-          {/* visual grip dots */}
-          <div className="flex flex-col gap-1.5 opacity-60">
-            <div className="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-600" />
-            <div className="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-600" />
-            <div className="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-600" />
-          </div>
-        </div>
-      )}
+      {/* Backdrop overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 bg-slate-950/40 backdrop-blur-[2px] transition-opacity duration-300 ease-in-out z-[60]",
+          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+        onClick={handleClose}
+      />
 
       {/* Coworker Panel (Right Pane) */}
-      {isOpen && hasOpened && (
+      {hasOpened && (
         <div
           className={cn(
-            "h-full bg-white dark:bg-slate-950 flex flex-col z-40 border-l border-slate-200 dark:border-slate-800 shadow-2xl relative",
-            isMobile ? "fixed inset-y-0 right-0 w-full sm:w-[450px]" : ""
+            "fixed inset-y-0 right-0 z-[70] flex flex-col h-full bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 shadow-2xl transition-transform duration-300 ease-in-out",
+            isOpen ? "translate-x-0" : "translate-x-full",
+            isMobile ? "w-full sm:w-[450px]" : "w-[450px] max-w-[90vw]"
           )}
-          style={{
-            width: isMobile ? undefined : `${width}px`,
-            transition: isDragging ? "none" : "width 0.3s ease-in-out, transform 0.3s ease-in-out",
-          }}
         >
           {/* Header Segment selector */}
           <div className="p-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between gap-3">
@@ -299,6 +279,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
                   agentType={agentType}
                   className="h-full border-none rounded-none"
                   defaultSidebarOpen={false}
+                  isOverlaySidebar={true}
                 />
               ) : (
                 <AgentNotebookPanel
@@ -322,7 +303,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
           onMouseEnter={preloadCoworker}
           onFocus={preloadCoworker}
           className={cn(
-            "fixed bottom-6 right-6 z-[99] flex items-center justify-center w-14 h-14 rounded-full",
+            "fixed bottom-6 right-6 z-[55] flex items-center justify-center w-14 h-14 rounded-full",
             "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700",
             "shadow-xl shadow-indigo-500/20 text-white transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer group"
           )}
@@ -337,11 +318,8 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Persistent Global Notification Bell (only for authenticated sessions) */}
-      {status === "authenticated" && (!isOpen || !isMobile) && (
-        <div 
-          className="fixed top-4 transition-all duration-300 z-[60]"
-          style={{ right: isOpen ? `${width + 16}px` : "16px" }}
-        >
+      {status === "authenticated" && (
+        <div className="fixed top-4 right-4 z-[50]">
           <NotificationPopover />
         </div>
       )}

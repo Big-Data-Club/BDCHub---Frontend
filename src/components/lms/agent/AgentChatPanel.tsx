@@ -29,6 +29,9 @@ interface AgentChatPanelProps {
   userId?: number;
   className?: string;
   defaultSidebarOpen?: boolean;
+  defaultConsoleOpen?: boolean;
+  isOverlaySidebar?: boolean;
+  initialSelectedMessageId?: string;
   initialMessages?: AgentMessage[];
   initialSessions?: any[];
 }
@@ -63,6 +66,9 @@ export function AgentChatPanel({
   userId: propUserId,
   className,
   defaultSidebarOpen = true,
+  defaultConsoleOpen = false,
+  isOverlaySidebar = false,
+  initialSelectedMessageId,
   initialMessages,
   initialSessions,
 }: AgentChatPanelProps) {
@@ -77,8 +83,8 @@ export function AgentChatPanel({
   const sidebarRef = useRef<ConversationSidebarHandle>(null);
  
   const [sidebarOpen, setSidebarOpen] = useState(defaultSidebarOpen);
-  const [consoleOpen, setConsoleOpen] = useState(false);
-  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+  const [consoleOpen, setConsoleOpen] = useState(defaultConsoleOpen);
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(initialSelectedMessageId || null);
 
   const handleSessionUpdated = useCallback(
     (update: { sessionId: string; title?: string; reason: string }) => {
@@ -121,7 +127,12 @@ export function AgentChatPanel({
   const lastAssistantMsg = [...messages].reverse().find((m) => m.role === "assistant") || null;
 
   // Reset selected message log when session ID changes
+  const isFirstRender = useRef(true);
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     setSelectedMessageId(null);
   }, [sessionId]);
 
@@ -203,10 +214,13 @@ export function AgentChatPanel({
       )}
     >
       {/* Mobile Sidebar Backdrop */}
-      {sidebarOpen && (
+      {sidebarOpen && (isOverlaySidebar || (typeof window !== "undefined" && window.innerWidth < 1024)) && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-200"
+          className={cn(
+            "bg-black/40 backdrop-blur-xs animate-in fade-in duration-200",
+            isOverlaySidebar ? "absolute inset-0 z-25" : "fixed inset-0 z-40 lg:hidden"
+          )}
         />
       )}
 
@@ -219,13 +233,13 @@ export function AgentChatPanel({
         initialSessions={initialSessions}
         onSelectSession={(sid) => {
           switchSession(sid);
-          if (typeof window !== "undefined" && window.innerWidth < 1024) {
+          if (isOverlaySidebar || (typeof window !== "undefined" && window.innerWidth < 1024)) {
             setSidebarOpen(false);
           }
         }}
         onNewSession={() => {
           startNewChat();
-          if (typeof window !== "undefined" && window.innerWidth < 1024) {
+          if (isOverlaySidebar || (typeof window !== "undefined" && window.innerWidth < 1024)) {
             setSidebarOpen(false);
           }
         }}
@@ -233,10 +247,12 @@ export function AgentChatPanel({
         onRenameSession={renameSession}
         onCloseMobile={() => setSidebarOpen(false)}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-[280px] transition-all duration-300 ease-in-out lg:relative lg:z-0 lg:flex-shrink-0 lg:border-r border-slate-200/80 dark:border-blue-500/10",
-          sidebarOpen 
-            ? "translate-x-0 lg:w-72 xl:w-80 lg:opacity-100" 
-            : "-translate-x-full lg:w-0 lg:opacity-0 lg:pointer-events-none lg:border-none",
+          isOverlaySidebar
+            ? "absolute inset-y-0 left-0 z-30 w-[280px] max-w-[85vw] border-r bg-white dark:bg-[#070E1C] transition-transform duration-300 ease-in-out"
+            : "fixed inset-y-0 left-0 z-50 w-[280px] transition-all duration-300 ease-in-out lg:relative lg:z-0 lg:flex-shrink-0 lg:border-r border-slate-200/80 dark:border-blue-500/10",
+          isOverlaySidebar
+            ? (sidebarOpen ? "translate-x-0" : "-translate-x-full")
+            : (sidebarOpen ? "translate-x-0 lg:w-72 xl:w-80 lg:opacity-100" : "-translate-x-full lg:w-0 lg:opacity-0 lg:pointer-events-none lg:border-none"),
         )}
       />
 

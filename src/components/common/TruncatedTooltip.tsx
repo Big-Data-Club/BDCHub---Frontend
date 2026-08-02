@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 interface TruncatedTooltipProps {
   text: string;
@@ -12,7 +13,7 @@ interface TruncatedTooltipProps {
 export function TruncatedTooltip({ text, className, children }: TruncatedTooltipProps) {
   const textRef = useRef<HTMLParagraphElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const checkTruncation = () => {
     const el = textRef.current;
@@ -27,34 +28,34 @@ export function TruncatedTooltip({ text, className, children }: TruncatedTooltip
     return () => window.removeEventListener("resize", checkTruncation);
   }, [text]);
 
-  return (
-    <div
-      className="relative flex-1 min-w-0"
-      onMouseEnter={() => {
-        checkTruncation();
-        if (isTruncated) setShowTooltip(true);
-      }}
-      onMouseLeave={() => setShowTooltip(false)}
-    >
-      <p
-        ref={textRef}
-        className={cn("truncate", className)}
-      >
-        {children || text}
-      </p>
+  const handlePointerEnter = () => {
+    checkTruncation();
+  };
 
-      {showTooltip && isTruncated && (
-        <div
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip open={open && isTruncated} onOpenChange={setOpen}>
+        <TooltipTrigger asChild>
+          <p
+            ref={textRef}
+            className={cn("truncate", className)}
+            onPointerEnter={handlePointerEnter}
+          >
+            {children || text}
+          </p>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          align="start"
           className={cn(
-            "absolute left-0 bottom-full mb-1.5 z-50 px-2.5 py-1.5 rounded-lg text-xs font-medium max-w-xs",
+            "z-50 px-3 py-1.5 rounded-lg text-xs font-medium max-w-[340px] w-max whitespace-normal break-words",
             "bg-slate-900 text-white dark:bg-[#0D192E] dark:text-slate-100",
-            "border border-slate-700 dark:border-blue-500/20 shadow-lg",
-            "pointer-events-none whitespace-normal break-words animate-in fade-in zoom-in-95 duration-150",
+            "border border-slate-700 dark:border-blue-500/20 shadow-lg"
           )}
         >
           {text}
-        </div>
-      )}
-    </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
