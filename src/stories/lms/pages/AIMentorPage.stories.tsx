@@ -152,6 +152,7 @@ export const FullStudentAIMentorPage = {
               <AgentChatPanel
                 agentType="mentor"
                 courseId={101}
+                sessionId="sess-1"
                 initialMessages={MOCK_MESSAGES}
                 initialSessions={MOCK_SESSIONS}
                 className="h-full"
@@ -163,3 +164,58 @@ export const FullStudentAIMentorPage = {
     );
   },
 };
+
+export const EmptyChatState = {
+  render: () => {
+    return (
+      <div className="flex min-h-screen w-full bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-white transition-colors duration-300">
+        <div className="sticky top-0 h-screen flex-shrink-0 hidden md:block z-30">
+          <Sidebar />
+        </div>
+        <div className="flex flex-1 flex-col min-w-0">
+          <StudentLayout>
+            <div className="h-[calc(100vh-4rem)] w-full flex-1 overflow-hidden">
+              <AgentChatPanel
+                agentType="mentor"
+                courseId={101}
+                className="h-full"
+              />
+            </div>
+          </StudentLayout>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const InteractiveQuizState = {
+  render: () => {
+    const quizOnlyMessages: AgentMessage[] = [
+      MOCK_MESSAGES[0],
+      MOCK_MESSAGES[4],
+      MOCK_MESSAGES[5],
+    ];
+    return (
+      <div className="flex min-h-screen w-full bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-white transition-colors duration-300">
+        <div className="sticky top-0 h-screen flex-shrink-0 hidden md:block z-30">
+          <Sidebar />
+        </div>
+        <div className="flex flex-1 flex-col min-w-0">
+          <StudentLayout>
+            <div className="h-[calc(100vh-4rem)] w-full flex-1 overflow-hidden">
+              <AgentChatPanel
+                agentType="mentor"
+                courseId={101}
+                sessionId="sess-1"
+                initialMessages={quizOnlyMessages}
+                initialSessions={MOCK_SESSIONS}
+                className="h-full"
+              />
+            </div>
+          </StudentLayout>
+        </div>
+      </div>
+    );
+  },
+};
+

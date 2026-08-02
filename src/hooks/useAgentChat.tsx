@@ -61,6 +61,7 @@ interface UseAgentChatOptions {
   agentType: "teacher" | "mentor";
   courseId?: number;
   initialSessionId?: string;
+  initialMessages?: AgentMessage[];
   userId?: number;
   /** Structured in-page context fed by the ChatSidebar. */
   pageContext?: Record<string, any> | null;
@@ -76,21 +77,19 @@ interface UseAgentChatOptions {
     reason: "title" | "new" | "reused" | "activity";
   }) => void;
 }
- 
-export function useAgentChat({ agentType, courseId, initialSessionId, userId, pageContext, systemContext, onSessionUpdated }: UseAgentChatOptions) {
-  const [messages, setMessages] = useState<AgentMessage[]>([]);
+
+export function useAgentChat({ agentType, courseId, initialSessionId, initialMessages, userId, pageContext, systemContext, onSessionUpdated }: UseAgentChatOptions) {
+  const [messages, setMessages] = useState<AgentMessage[]>(initialMessages || []);
   // Do not initialise from the URL directly.  The effect below owns the first
   // load and records the URL it consumed; otherwise clicking B while the URL
   // still says A briefly makes the hook switch straight back to A.
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(initialSessionId || null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const processEventRef = useRef<any>(null);
   const consumedUrlSessionRef = useRef<string | undefined>(undefined);
-
-
 
   const loadHistory = async (sid: string) => {
     setIsLoadingHistory(true);
@@ -116,6 +115,9 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
       setMessages(mappedMessages);
     } catch (err) {
       console.error("Failed to load session history:", err);
+      if (initialMessages && initialMessages.length > 0 && sid === initialSessionId) {
+        setMessages(initialMessages);
+      }
     } finally {
       setIsLoadingHistory(false);
     }
@@ -134,9 +136,11 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
   const switchSession = useCallback(async (newSessionId: string) => {
     stopStreaming();
     setSessionId(newSessionId);
-    setMessages([]);
+    if (!initialMessages || newSessionId !== initialSessionId) {
+      setMessages([]);
+    }
     await loadHistory(newSessionId);
-  }, [stopStreaming]);
+  }, [stopStreaming, initialMessages, initialSessionId]);
 
   // Load history only when the URL itself changes.  A local sidebar click
   // changes state before AgentChatPanel has time to replace the query string;
@@ -144,10 +148,10 @@ export function useAgentChat({ agentType, courseId, initialSessionId, userId, pa
   useEffect(() => {
     if (initialSessionId && initialSessionId !== consumedUrlSessionRef.current) {
       consumedUrlSessionRef.current = initialSessionId;
-      if (initialSessionId === sessionId) return;
+      if (initialSessionId === sessionId && messages.length > 0) return;
       switchSession(initialSessionId);
     }
-  }, [initialSessionId, sessionId, switchSession]);
+  }, [initialSessionId, sessionId, switchSession, messages.length]);
 
   const startNewChat = useCallback(async () => {
     stopStreaming();
