@@ -148,6 +148,11 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
     setIsDragging(true);
   }, []);
 
+  const resetWidth = useCallback(() => {
+    setWidth(450);
+    localStorage.removeItem("bdc_coworker_width");
+  }, []);
+
   useEffect(() => {
     if (!isDragging) return;
 
@@ -233,9 +238,28 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
           className={cn(
             "fixed inset-y-0 right-0 z-[70] flex flex-col h-full bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 shadow-2xl transition-transform duration-300 ease-in-out",
             isOpen ? "translate-x-0" : "translate-x-full",
-            isMobile ? "w-full sm:w-[450px]" : "w-[450px] max-w-[90vw]"
+            isMobile ? "w-full sm:w-[450px]" : "max-w-[90vw]"
           )}
+          style={!isMobile && isOpen ? { width: `${width}px` } : undefined}
         >
+          {/* Resize Handle */}
+          {!isMobile && isOpen && (
+            <div
+              onMouseDown={startResize}
+              onDoubleClick={resetWidth}
+              title="Nhấp đúp chuột để reset về chiều rộng mặc định"
+              className={cn(
+                "absolute top-0 left-0 -translate-x-1/2 bottom-0 w-2 cursor-ew-resize z-[80] group/resize",
+                isDragging ? "bg-blue-500/20" : "hover:bg-blue-500/10"
+              )}
+            >
+              {/* Visual indicator line */}
+              <div className={cn(
+                "w-0.5 h-full mx-auto transition-colors duration-200",
+                isDragging ? "bg-blue-500" : "bg-transparent group-hover/resize:bg-blue-500/30"
+              )} />
+            </div>
+          )}
           {/* Header Segment selector */}
           <div className="p-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between gap-3">
             <div className="flex-1">
