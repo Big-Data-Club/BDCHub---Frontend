@@ -58,7 +58,7 @@ export function CourseBlueprintWorkspace({ userId, organizations, onComplete, on
   };
 
   const save = async () => { if (!blueprint) return; setBusy("save"); try { setBlueprint(await courseBlueprintService.update(blueprint.id, { owner_id: userId, version: blueprint.version, plan: blueprint.plan })); } catch (cause) { setError(cause instanceof Error ? cause.message : "Không thể lưu chỉnh sửa"); } finally { setBusy(null); } };
-  const approve = async () => { if (!blueprint) return; setBusy("approve"); try { await courseBlueprintService.approve(blueprint.id, userId); const applied = await courseBlueprintService.apply(blueprint.id); await onComplete(applied.course_id); } catch (cause) { setError(cause instanceof Error ? cause.message : "Bạn cần hoàn tất các trường bắt buộc"); } finally { setBusy(null); } };
+  const approve = async () => { if (!blueprint) return; setBusy("approve"); try { const applied = await courseBlueprintService.apply(blueprint.id); await onComplete(applied.course_id); } catch (cause) { setError(cause instanceof Error ? cause.message : "Bạn cần hoàn tất các trường bắt buộc"); } finally { setBusy(null); } };
   const cancel = async () => { try { if (blueprint) await courseBlueprintService.cancel(blueprint.id); onCancel(); } catch (cause) { setError(cause instanceof Error ? cause.message : "Không thể hủy đề xuất"); } };
   const patch = (fn: (plan: CourseBlueprint["plan"]) => CourseBlueprint["plan"]) => setBlueprint((current) => current ? { ...current, plan: fn(current.plan) } : current);
 
