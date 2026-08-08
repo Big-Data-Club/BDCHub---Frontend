@@ -43,7 +43,16 @@ export function CourseBlueprintWorkspace({ userId, organizations, onComplete, on
     setBusy("analyse"); setError("");
     try {
       const org = organizations[0];
-      setBlueprint(await courseBlueprintService.create({ owner_id: userId, origin: "course_create", documents: files, allowed_organization_ids: organizations.map((item) => item.id), governance: { organization_id: org.id, visibility: "ORG_ONLY", co_teacher_ids: [] } }));
+      let next = await courseBlueprintService.create({ owner_id: userId, origin: "course_create", documents: files, allowed_organization_ids: organizations.map((item) => item.id), governance: { organization_id: org.id, visibility: "ORG_ONLY", co_teacher_ids: [] } });
+      setBlueprint(next);
+      const deadline = Date.now() + 20 * 60 * 1000;
+      while (next.status === "PROCESSING" && Date.now() < deadline) {
+        await new Promise((resolve) => window.setTimeout(resolve, 2000));
+        next = await courseBlueprintService.get(next.id, userId);
+        setBlueprint(next);
+      }
+      if (next.status === "FAILED") throw new Error(next.error_message || "AI không thể tạo đề xuất. Bạn có thể thử lại.");
+      if (next.status === "PROCESSING") throw new Error("Việc phân tích vẫn đang chạy. Hãy giữ trang này mở hoặc thử lại sau ít phút.");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "AI chưa thể tạo đề xuất"); }
     finally { setBusy(null); }
   };
@@ -52,6 +61,10 @@ export function CourseBlueprintWorkspace({ userId, organizations, onComplete, on
   const approve = async () => { if (!blueprint) return; setBusy("approve"); try { await courseBlueprintService.approve(blueprint.id, userId); const applied = await courseBlueprintService.apply(blueprint.id); await onComplete(applied.course_id); } catch (cause) { setError(cause instanceof Error ? cause.message : "Bạn cần hoàn tất các trường bắt buộc"); } finally { setBusy(null); } };
   const cancel = async () => { try { if (blueprint) await courseBlueprintService.cancel(blueprint.id); onCancel(); } catch (cause) { setError(cause instanceof Error ? cause.message : "Không thể hủy đề xuất"); } };
   const patch = (fn: (plan: CourseBlueprint["plan"]) => CourseBlueprint["plan"]) => setBlueprint((current) => current ? { ...current, plan: fn(current.plan) } : current);
+
+  if (blueprint?.status === "PROCESSING") return <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"><div className="flex items-start gap-3"><div className="rounded-xl bg-violet-100 p-2.5 text-violet-700"><Loader2 className="h-6 w-6 animate-spin" /></div><div><h1 className="text-xl font-bold">Đang xây roadmap từ tài liệu</h1><p className="mt-1 text-sm text-slate-500">Bạn có thể giữ trang này mở. Hệ thống đang đọc tài liệu theo từng phần; việc này không còn bị giới hạn bởi timeout trình duyệt.</p></div></div><button onClick={cancel} className="rounded-lg border px-4 py-2 text-sm">Hủy phân tích</button></section>;
+
+  if (blueprint?.status === "FAILED") return <section className="space-y-4 rounded-2xl border border-red-200 bg-white p-6 shadow-sm"><h1 className="text-xl font-bold">Chưa thể tạo đề xuất</h1><p className="text-sm text-red-700">{blueprint.error_message || "AI không thể hoàn tất phân tích tài liệu."}</p><div className="flex gap-3"><button onClick={() => setBlueprint(null)} className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white">Thử lại</button><button onClick={onCancel} className="rounded-lg border px-4 py-2 text-sm">Hủy</button></div></section>;
 
   if (blueprint) return <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <header className="flex items-start gap-3"><div className="rounded-xl bg-violet-100 p-2.5 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300"><Sparkles /></div><div><h1 className="text-xl font-bold">Đề xuất roadmap từ giáo trình</h1><p className="text-sm text-slate-500">Bạn kiểm soát mọi thông tin trước khi tạo khóa học.</p></div></header>
