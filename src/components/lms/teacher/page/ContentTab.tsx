@@ -55,6 +55,7 @@ const BulkUploadModal = dynamic(
   () => import("@/components/lms/teacher/upload/BulkUploadModal").then(m => ({ default: m.default })),
   { ssr: false },
 );
+const CourseMaterialRoutingModal = dynamic(() => import("@/components/lms/teacher/upload/CourseMaterialRoutingModal"), { ssr: false });
 
 const GenerateMicroLessonsModal = dynamic(
   () => import("@/components/lms/teacher/micro/GenerateMicroLessonsModal").then(m => ({ default: m.GenerateMicroLessonsModal })),
@@ -220,6 +221,7 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
   const [editingSection, setEditingSection]           = useState<Section | null>(null);
   const [showContentModal, setShowContentModal]       = useState(false);
   const [showBulkModal, setShowBulkModal]             = useState(false);
+  const [showCourseRoutingModal, setShowCourseRoutingModal] = useState(false);
   const [showEditContentModal, setShowEditContentModal] = useState(false);
   const [showContentViewer, setShowContentViewer]     = useState(false);
   const [selectedSectionId, setSelectedSectionId]     = useState<number | null>(null);
@@ -336,6 +338,7 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
           {sections.length} chương
         </p>
         <div className="flex items-center gap-2">
+          <button onClick={() => setShowCourseRoutingModal(true)} disabled={!sections.length} className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"><Upload className="h-4 w-4"/>Upload chung + AI phân chương</button>
           <button
             onClick={() => setShowMicroHistoryModal(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
@@ -663,6 +666,7 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
       )}
 
       {/* ── Modals ────────────────────────────────────────────────────────── */}
+      {showCourseRoutingModal && <CourseMaterialRoutingModal courseId={courseId} sections={sections} onClose={() => setShowCourseRoutingModal(false)} onSuccess={() => { setShowCourseRoutingModal(false); onSectionsChange(); Object.keys(sectionContents).forEach(id => reloadSectionContent(Number(id))); }} />}
 
       {showSectionModal && (
         <SectionModal
