@@ -108,7 +108,7 @@ export default function DiscoverPage() {
       const tags = Array.from(
         new Set(
           allCoursesList
-            .flatMap(c => c.category ? c.category.split(",").map(t => t.trim()) : [])
+            .flatMap(c => (c.category as string | null | undefined)?.split(",").map(t => t.trim()) ?? [])
             .filter(Boolean)
         )
       );

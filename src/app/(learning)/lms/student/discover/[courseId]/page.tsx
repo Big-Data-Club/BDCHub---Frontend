@@ -284,17 +284,24 @@ export default function CourseOverviewPage() {
         lmsService.getMyEnrollments("ACCEPTED"),
       ]);
 
+      // getCourse → returns response.data (full body { data: {...course} })
+      // So we need .data to get the actual course object
       const courseData: Course = courseRes?.data ?? courseRes;
       setCourse(courseData);
 
-      const sectionsData: Section[] = sectionsRes?.data ?? sectionsRes ?? [];
+      // listSections → returns response.data (full body { data: [...sections] })
+      // So we need .data to get the array; guard with Array.isArray
+      const rawSections = sectionsRes?.data;
+      const sectionsArray: Section[] = Array.isArray(rawSections) ? rawSections : [];
       // Only show published sections on overview
-      setSections(sectionsData.filter((s: Section) => s.is_published));
+      setSections(sectionsArray.filter((s: Section) => s.is_published));
 
-      const enrolledIds = new Set((enrollmentsRes ?? []).map((e: any) => e.course_id));
+      // getMyEnrollments already returns data?.data = the array directly
+      const enrollmentsArray = Array.isArray(enrollmentsRes) ? enrollmentsRes : [];
+      const enrolledIds = new Set(enrollmentsArray.map((e: any) => e.course_id));
       setIsEnrolled(enrolledIds.has(id));
 
-      // Co-teachers: optional, fail gracefully
+      // Co-teachers: getCoTeachers returns data?.data = array directly; optional, fail gracefully
       try {
         const teachers = await lmsService.getCoTeachers(id);
         setCoTeachers(teachers ?? []);
@@ -359,9 +366,10 @@ export default function CourseOverviewPage() {
     );
   }
 
-  const categories = course.category
-    ? course.category.split(",").map((c) => c.trim()).filter(Boolean)
-    : [];
+  const categories = (course.category as string | null | undefined)
+    ?.split(",")
+    .map((c) => c.trim())
+    .filter(Boolean) ?? [];
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "Học tập", href: "/lms/student" },
