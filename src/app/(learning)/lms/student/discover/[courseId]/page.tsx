@@ -58,8 +58,9 @@ function StatPill({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
-function InstructorChip({ name, email, isPrimary }: { name: string; email?: string; isPrimary?: boolean }) {
-  const initials = name
+function InstructorChip({ name, email, isPrimary }: { name?: string; email?: string; isPrimary?: boolean }) {
+  const safeName = String(name || "Giáo viên");
+  const initials = safeName
     .split(" ")
     .slice(-2)
     .map((w) => w[0]?.toUpperCase() ?? "")
@@ -381,7 +382,12 @@ export default function CourseOverviewPage() {
     ...(course.teacher_name
       ? [{ id: -1, name: course.teacher_name, email: course.teacher_email ?? "", isPrimary: true }]
       : []),
-    ...coTeachers.map((t) => ({ ...t, isPrimary: false })),
+    ...coTeachers.map((t: any) => ({
+      id: t.id ?? t.user_id ?? Math.random(),
+      name: t.name ?? t.full_name ?? t.user_name ?? t.email ?? "Giáo viên",
+      email: t.email ?? "",
+      isPrimary: false,
+    })),
   ];
 
   return (

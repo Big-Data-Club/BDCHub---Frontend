@@ -58,7 +58,7 @@ export function LmsHeader({
           </nav>
 
           <div className="flex items-center gap-3">
-            {userName && (
+            {typeof userName === "string" && userName.trim().length > 0 && (
               <span className="hidden md:inline-block text-xs text-slate-500 dark:text-slate-400 max-w-[120px] truncate" title={`Xin chào, ${userName}`}>
                 Xin chào, <strong className="font-semibold text-slate-700 dark:text-slate-200">{userName.split(" ").pop()}</strong>
               </span>
