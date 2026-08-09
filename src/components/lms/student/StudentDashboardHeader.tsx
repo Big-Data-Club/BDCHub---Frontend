@@ -4,6 +4,7 @@ import React from "react";
 import { RefreshCw } from "lucide-react";
 import { GhostBtn, GridBackground } from "@/components/lms/shared";
 import { CourseProgressAndGoalCard } from "./CourseProgressAndGoalCard";
+import type { RecommendationItem } from "@/services/recommendationService";
 
 interface FocusCourse {
   course_id: number;
@@ -13,6 +14,7 @@ interface FocusCourse {
 
 interface StudentDashboardHeaderProps {
   focusCourse: FocusCourse | null;
+  focusRecommendation: RecommendationItem | null;
   totalCount: number;
   completedCount: number;
   inProgressCount: number;
@@ -28,6 +30,7 @@ interface StudentDashboardHeaderProps {
 
 export function StudentDashboardHeader({
   focusCourse,
+  focusRecommendation,
   totalCount,
   completedCount,
   inProgressCount,
@@ -67,6 +70,7 @@ export function StudentDashboardHeader({
         <div className="w-full lg:max-w-2xl xl:max-w-3xl flex-shrink-0">
           <CourseProgressAndGoalCard
             focusCourse={focusCourse}
+            focusRecommendation={focusRecommendation}
             totalCount={totalCount}
             completedCount={completedCount}
             inProgressCount={inProgressCount}

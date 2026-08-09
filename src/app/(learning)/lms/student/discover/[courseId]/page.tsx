@@ -11,6 +11,10 @@ import {
 } from "lucide-react";
 
 import { lmsService } from "@/services/lmsService";
+import {
+  consumeRecommendationAttribution,
+  trackRecommendationEvent,
+} from "@/services/recommendationService";
 import { Course, Section } from "@/types";
 import {
   Badge, PrimaryBtn, GridBackground,
@@ -315,6 +319,15 @@ export default function CourseOverviewPage() {
     setError("");
     try {
       await lmsService.enrollCourse(id);
+      const attribution = consumeRecommendationAttribution(id);
+      if (attribution) {
+        trackRecommendationEvent(
+          attribution.item,
+          attribution.recommendationSetId,
+          "accept",
+          attribution.surface,
+        );
+      }
       // After enrollment, navigate to course learning page
       router.push(`/lms/student/courses/${id}/learn`);
     } catch (e: any) {

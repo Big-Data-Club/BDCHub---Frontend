@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { lmsService } from "@/services/lmsService";
 import {
-  BookOpen, Search, RefreshCw, Eye,
+  BookOpen, Search, RefreshCw, Eye, Sparkles, SlidersHorizontal, Save,
 } from "lucide-react";
 import {
   Card, CourseCard, Badge,
@@ -23,6 +23,15 @@ import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/BreadcrumbN
 import { Course, Enrollment } from "@/types";
 
 import { cn } from "@/lib/utils";
+import {
+  getRecommendations,
+  getLearningPreferenceProfile,
+  saveLearningPreferenceProfile,
+  rememberRecommendationAttribution,
+  trackRecommendationEvent,
+  type LearningPreferenceProfile,
+  type RecommendationItem,
+} from "@/services/recommendationService";
 
 // ── Skeleton Loader ─────────────────────────────────────────────────────────
 
@@ -55,6 +64,16 @@ export default function DiscoverPage() {
   const [publishedCourses, setPublishedCourses] = useState<Course[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [allTags, setAllTags] = useState<string[]>([]);
+  const [recommendedCourses, setRecommendedCourses] = useState<Array<{
+    course: Course;
+    item: RecommendationItem;
+    recommendationSetId: string;
+  }>>([]);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [savingPreferences, setSavingPreferences] = useState(false);
+  const [preferenceCategories, setPreferenceCategories] = useState("");
+  const [preferenceGoal, setPreferenceGoal] = useState("");
+  const [preferenceLevel, setPreferenceLevel] = useState<"" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED">("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
@@ -71,13 +90,21 @@ export default function DiscoverPage() {
 
   const loadInitialData = useCallback(async () => {
     try {
-      const [allCourses, accepted] = await Promise.all([
+      const [allCourses, accepted, profile] = await Promise.all([
         lmsService.listPublishedCourses({ page_size: 200 }),
         lmsService.getMyEnrollments("ACCEPTED"),
+        getLearningPreferenceProfile().catch((): LearningPreferenceProfile => ({
+          interested_categories: [],
+          profile_available: false,
+        })),
       ]);
       setEnrollments(accepted || []);
+      setPreferenceCategories(profile.interested_categories.join(", "));
+      setPreferenceGoal(profile.target_career || "");
+      setPreferenceLevel(profile.experience_level || "");
 
       const allCoursesList = (allCourses || []) as Course[];
+      const enrolledIds = new Set((accepted || []).map((enrollment: Enrollment) => enrollment.course_id));
       const tags = Array.from(
         new Set(
           allCoursesList
@@ -86,6 +113,42 @@ export default function DiscoverPage() {
         )
       );
       setAllTags(tags);
+
+      try {
+        const recommendationSet = await getRecommendations({
+          surface: "course_discovery",
+          limit: 6,
+          goal: profile.target_career || undefined,
+          interestedCategories: profile.interested_categories,
+          experienceLevel: profile.experience_level || undefined,
+          profileResolved: true,
+          candidates: allCoursesList.map((course) => ({
+            entity_id: course.id,
+            title: course.title,
+            description: course.description,
+            category: course.category,
+            level: course.level,
+            enrollment_count: course.enrollment_count ?? 0,
+            published_at: course.published_at,
+            updated_at: course.updated_at,
+            enrolled: enrolledIds.has(course.id),
+            href: `/lms/student/discover/${course.id}`,
+          })),
+        });
+        const coursesById = new Map(allCoursesList.map((course) => [course.id, course]));
+        const recommendations = recommendationSet.items.flatMap((item) => {
+          const course = item.entity.course_id ? coursesById.get(item.entity.course_id) : undefined;
+          return course ? [{ course, item, recommendationSetId: recommendationSet.recommendation_set_id }] : [];
+        });
+        setRecommendedCourses(recommendations);
+        recommendations.slice(0, 3).forEach(({ item, recommendationSetId }) => {
+          trackRecommendationEvent(item, recommendationSetId, "impression", "course_discovery");
+        });
+      } catch (recommendationError) {
+        // Discovery remains usable with the normal published-course list.
+        console.warn("Discovery recommendations unavailable", recommendationError);
+        setRecommendedCourses([]);
+      }
     } catch {
       setError("Không thể tải thông tin khởi tạo.");
     }
@@ -152,6 +215,27 @@ export default function DiscoverPage() {
     fetchCourses(1, true);
   }, [loadInitialData, fetchCourses]);
 
+  const handleSavePreferences = useCallback(async () => {
+    setSavingPreferences(true);
+    setError("");
+    try {
+      await saveLearningPreferenceProfile({
+        interested_categories: preferenceCategories
+          .split(",")
+          .map(value => value.trim())
+          .filter(Boolean),
+        target_career: preferenceGoal.trim() || null,
+        experience_level: preferenceLevel || null,
+      });
+      setShowPreferences(false);
+      await loadInitialData();
+    } catch {
+      setError("Không thể lưu hồ sơ cá nhân hóa. Vui lòng thử lại.");
+    } finally {
+      setSavingPreferences(false);
+    }
+  }, [loadInitialData, preferenceCategories, preferenceGoal, preferenceLevel]);
+
   // ── Actions ────────────────────────────────────────────────────────────────
 
   const enrolledIds = new Set(enrollments.map(e => e.course_id));
@@ -188,14 +272,24 @@ export default function DiscoverPage() {
                 Tìm kiếm và đăng ký các khóa học phù hợp với bạn.
               </p>
             </div>
-            <GhostBtn
-              size="sm"
-              icon={<RefreshCw className="w-3.5 h-3.5" />}
-              onClick={handleRefresh}
-              className="active:scale-95 border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
-            >
-              Làm mới
-            </GhostBtn>
+            <div className="flex items-center gap-2">
+              <GhostBtn
+                size="sm"
+                icon={<SlidersHorizontal className="w-3.5 h-3.5" />}
+                onClick={() => setShowPreferences(value => !value)}
+                className="active:scale-95 border border-violet-200 dark:border-violet-500/20 bg-violet-50/80 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 font-semibold"
+              >
+                Cá nhân hóa gợi ý
+              </GhostBtn>
+              <GhostBtn
+                size="sm"
+                icon={<RefreshCw className="w-3.5 h-3.5" />}
+                onClick={handleRefresh}
+                className="active:scale-95 border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
+              >
+                Làm mới
+              </GhostBtn>
+            </div>
           </div>
         </div>
       </div>
@@ -203,6 +297,116 @@ export default function DiscoverPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
         {/* ── Error alert ── */}
         {error && <Alert type="error">{error}</Alert>}
+
+        {showPreferences && (
+          <section className="rounded-2xl border border-violet-200/80 dark:border-violet-500/20 bg-violet-50/60 dark:bg-violet-950/20 p-5 shadow-sm">
+            <div className="mb-4">
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-white">Bạn đang muốn học gì?</h2>
+              <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                Các lựa chọn này giúp giải quyết cold start và luôn được ưu tiên hơn xu hướng chung.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <label className="space-y-1.5">
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Mục tiêu</span>
+                <Input
+                  value={preferenceGoal}
+                  onChange={event => setPreferenceGoal(event.target.value)}
+                  placeholder="VD: Data Engineer, nghiên cứu AI"
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Chủ đề quan tâm</span>
+                <Input
+                  value={preferenceCategories}
+                  onChange={event => setPreferenceCategories(event.target.value)}
+                  placeholder="Python, AI, Big Data"
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Trình độ hiện tại</span>
+                <Select value={preferenceLevel || "UNSPECIFIED"} onValueChange={value => setPreferenceLevel(value === "UNSPECIFIED" ? "" : value as typeof preferenceLevel)}>
+                  <SelectTrigger className="w-full h-11 bg-white dark:bg-[#0D192E] border border-slate-300 dark:border-violet-500/20 text-sm rounded-xl">
+                    <SelectValue placeholder="Chọn trình độ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="UNSPECIFIED">Chưa xác định</SelectItem>
+                    <SelectItem value="BEGINNER">Mới bắt đầu</SelectItem>
+                    <SelectItem value="INTERMEDIATE">Trung cấp</SelectItem>
+                    <SelectItem value="ADVANCED">Nâng cao</SelectItem>
+                  </SelectContent>
+                </Select>
+              </label>
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <GhostBtn onClick={() => setShowPreferences(false)}>Hủy</GhostBtn>
+              <PrimaryBtn
+                icon={<Save className="w-3.5 h-3.5" />}
+                onClick={handleSavePreferences}
+                disabled={savingPreferences}
+              >
+                {savingPreferences ? "Đang lưu..." : "Lưu và cập nhật gợi ý"}
+              </PrimaryBtn>
+            </div>
+          </section>
+        )}
+
+        {recommendedCourses.length > 0 && (
+          <section aria-labelledby="recommended-courses-title" className="space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 rounded-xl bg-violet-100 dark:bg-violet-950/50 p-2 text-violet-600 dark:text-violet-300 border border-violet-200/70 dark:border-violet-500/20">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div>
+                <h2 id="recommended-courses-title" className="text-lg font-extrabold text-slate-900 dark:text-white">
+                  Khóa học có thể phù hợp với bạn
+                </h2>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                  Được xếp hạng theo độ phù hợp, cấp độ, mức độ quan tâm và độ mới.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {recommendedCourses.slice(0, 3).map(({ course, item, recommendationSetId }) => (
+                <CourseCard
+                  key={`recommended-${course.id}`}
+                  id={course.id}
+                  title={course.title}
+                  description={course.description}
+                  category={course.category}
+                  level={course.level}
+                  teacherName={course.teacher_name}
+                  thumbnailUrl={course.thumbnail_url}
+                  enrollmentCount={course.enrollment_count}
+                  createdAt={course.created_at}
+                  onClick={() => {
+                    trackRecommendationEvent(item, recommendationSetId, "click", "course_discovery");
+                    rememberRecommendationAttribution(item, recommendationSetId, "course_discovery");
+                    handleCardClick(course);
+                  }}
+                  actions={
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="blue">{item.badges[0]?.text ?? "Gợi ý cho bạn"}</Badge>
+                      <SecondaryBtn
+                        size="sm"
+                        onClick={event => {
+                          event.stopPropagation();
+                          trackRecommendationEvent(item, recommendationSetId, "click", "course_discovery");
+                          rememberRecommendationAttribution(item, recommendationSetId, "course_discovery");
+                          router.push(`/lms/student/discover/${course.id}`);
+                        }}
+                        className="active:scale-95 shadow-sm transition-all rounded-xl"
+                        icon={<Eye className="w-3.5 h-3.5" />}
+                      >
+                        Xem chi tiết
+                      </SecondaryBtn>
+                    </div>
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ── Search & Filter Control Panel ── */}
         <div className="bg-white/80 dark:bg-[#0F1E35]/80 border border-slate-200 dark:border-blue-500/10 rounded-2xl p-5 shadow-sm backdrop-blur-xs space-y-4">

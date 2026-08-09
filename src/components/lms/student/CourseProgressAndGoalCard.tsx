@@ -9,6 +9,7 @@ import {
   TooltipContent,
   TooltipProvider
 } from "@/components/ui/tooltip";
+import type { RecommendationItem } from "@/services/recommendationService";
 
 interface FocusCourse {
   course_id: number;
@@ -18,6 +19,7 @@ interface FocusCourse {
 
 interface CourseProgressAndGoalCardProps {
   focusCourse: FocusCourse | null;
+  focusRecommendation?: RecommendationItem | null;
   onNavigateToCourse?: (courseId: number) => void;
   onNavigateToDiscover?: () => void;
   totalCount: number;
@@ -32,6 +34,7 @@ interface CourseProgressAndGoalCardProps {
 
 export function CourseProgressAndGoalCard({
   focusCourse,
+  focusRecommendation,
   onNavigateToCourse,
   onNavigateToDiscover,
   totalCount,
@@ -176,10 +179,17 @@ export function CourseProgressAndGoalCard({
         </div>
 
         {focusCourse ? (
-          <div className="flex items-center justify-between gap-3 mt-1.5 w-full">
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white line-clamp-1 min-w-0" title={focusCourse.course_title}>
-              {focusCourse.course_title}
-            </h3>
+          <div className="flex items-center justify-between gap-3 mt-1.5 w-full min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white line-clamp-1 min-w-0" title={focusCourse.course_title}>
+                {focusCourse.course_title}
+              </h3>
+              {focusRecommendation?.badges[0] && (
+                <span className="hidden sm:inline-flex flex-shrink-0 rounded-full bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-500/20">
+                  {focusRecommendation.badges[0].text}
+                </span>
+              )}
+            </div>
             {focusCourse.progress_percent !== undefined && (
               <span className="text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap flex-shrink-0">
                 {Number(focusCourse.progress_percent).toFixed(2)}%
