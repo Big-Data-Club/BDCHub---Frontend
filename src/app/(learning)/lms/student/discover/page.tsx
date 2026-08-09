@@ -4,11 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { lmsService } from "@/services/lmsService";
 import {
-  BookOpen, Search, RefreshCw,
+  BookOpen, Search, RefreshCw, Eye,
 } from "lucide-react";
 import {
   Card, CourseCard, Badge,
-  PrimaryBtn, GhostBtn,
+  PrimaryBtn, GhostBtn, SecondaryBtn,
   EmptyState, PageLoader, Alert,
   InfiniteScrollTrigger, Input, GridBackground
 } from "@/components/lms/shared";
@@ -57,7 +57,6 @@ export default function DiscoverPage() {
   const [allTags, setAllTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [enrolling, setEnrolling] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
@@ -155,20 +154,15 @@ export default function DiscoverPage() {
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  const handleEnroll = async (courseId: number) => {
-    setEnrolling(courseId);
-    try {
-      await lmsService.enrollCourse(courseId);
-      const accepted = await lmsService.getMyEnrollments("ACCEPTED");
-      setEnrollments(accepted || []);
-    } catch (e: any) {
-      setError(e?.response?.data?.message || "Đăng ký thất bại.");
-    } finally {
-      setEnrolling(null);
+  const enrolledIds = new Set(enrollments.map(e => e.course_id));
+
+  const handleCardClick = (course: Course) => {
+    if (enrolledIds.has(course.id)) {
+      router.push(`/lms/student/courses/${course.id}/learn`);
+    } else {
+      router.push(`/lms/student/discover/${course.id}`);
     }
   };
-
-  const enrolledIds = new Set(enrollments.map(e => e.course_id));
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -332,7 +326,7 @@ export default function DiscoverPage() {
                     thumbnailUrl={course.thumbnail_url}
                     enrollmentCount={course.enrollment_count}
                     createdAt={course.created_at}
-                    onClick={enrolled ? () => router.push(`/lms/student/courses/${course.id}`) : undefined}
+                    onClick={() => handleCardClick(course)}
                     actions={
                       <div className="flex items-center gap-2 flex-wrap">
                         {course.visibility === "ORG_ONLY" && (
@@ -341,14 +335,14 @@ export default function DiscoverPage() {
                         {enrolled ? (
                           <Badge variant="green">Đã đăng ký</Badge>
                         ) : (
-                          <PrimaryBtn
+                          <SecondaryBtn
                             size="sm"
-                            loading={enrolling === course.id}
-                            onClick={e => { e.stopPropagation(); handleEnroll(course.id); }}
+                            onClick={e => { e.stopPropagation(); router.push(`/lms/student/discover/${course.id}`); }}
                             className="active:scale-95 shadow-sm transition-all rounded-xl"
+                            icon={<Eye className="w-3.5 h-3.5" />}
                           >
-                            Đăng ký
-                          </PrimaryBtn>
+                            Xem chi tiết
+                          </SecondaryBtn>
                         )}
                       </div>
                     }
