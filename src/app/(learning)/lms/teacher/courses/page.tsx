@@ -55,7 +55,7 @@ function CourseRow({
           <Badge variant={course.status === "PUBLISHED" ? "green" : "yellow"}>
             {course.status === "PUBLISHED" ? "Đã xuất bản" : "Nháp"}
           </Badge>
-          {course.category && course.category.split(",").map((cat, i) => {
+          {course.category && (course.category as string).split(",").map((cat, i) => {
             const trimmed = cat.trim();
             return trimmed ? <Badge key={i} variant="gray">{trimmed}</Badge> : null;
           })}
@@ -150,7 +150,9 @@ export default function CoursesListPage() {
     try {
       const params = status && status !== "all" ? { status: status.toUpperCase() } : {};
       const res = await lmsService.listMyCourses({ ...params, page_size: 200 });
-      setCourses(res?.data ?? []);
+      // listMyCourses returns response.data (full body { data: [...] })
+      const rawData = res?.data;
+      setCourses(Array.isArray(rawData) ? rawData : []);
       setLimit(15); // Reset limit on new data
     } catch {
       setError("Không thể tải danh sách khóa học.");
@@ -185,7 +187,7 @@ export default function CoursesListPage() {
   const allTags = Array.from(
     new Set(
       courses
-        .flatMap(c => c.category ? c.category.split(",").map(t => t.trim()) : [])
+        .flatMap(c => (c.category as string | null | undefined)?.split(",").map(t => t.trim()) ?? [])
         .filter(Boolean)
     )
   );
@@ -195,7 +197,7 @@ export default function CoursesListPage() {
       (c.description ?? "").toLowerCase().includes(search.toLowerCase()) ||
       (c.category ?? "").toLowerCase().includes(search.toLowerCase());
     const matchesTag = selectedTag === "all" ? true :
-      (c.category ?? "").split(",").map(t => t.trim().toLowerCase()).includes(selectedTag.toLowerCase());
+      (c.category as string | null | undefined)?.split(",").map(t => t.trim().toLowerCase()).includes(selectedTag.toLowerCase()) ?? false;
     const matchesLevel = selectedLevel === "all" ? true : c.level === selectedLevel;
     return matchesSearch && matchesTag && matchesLevel;
   });
