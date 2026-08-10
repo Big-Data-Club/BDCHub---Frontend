@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { CheckCircle, ArrowRight, RefreshCw } from "lucide-react";
 import { T, Lang } from "../types";
 
@@ -39,14 +40,15 @@ export const AlreadySubmittedScreen: React.FC<AlreadySubmittedScreenProps> = ({ 
           <span>Điền lại đơn mới</span>
         </button>
 
-        <a
+        <Link
           href="/"
           className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition-all shadow-md"
         >
           <span>Về trang chủ</span>
           <ArrowRight className="w-3.5 h-3.5" />
-        </a>
+        </Link>
       </div>
     </div>
   );
+};
 };

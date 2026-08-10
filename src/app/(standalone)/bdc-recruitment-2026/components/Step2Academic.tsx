@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BookOpen, Award, FileText, Sparkles, FileCheck, Layers } from "lucide-react";
+import { BookOpen, Award, Sparkles, FileCheck } from "lucide-react";
 import { FormData, Errors, T, Lang } from "../types";
 import { FileUploadCloudinary } from "./FileUploadCloudinary";
 

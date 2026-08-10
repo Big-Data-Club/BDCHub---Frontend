@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, Mail, Calendar, ArrowRight, ShieldCheck, FileText } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, Mail, Calendar, ArrowRight, ShieldCheck } from "lucide-react";
 import { T, Lang } from "../types";
 
 interface SuccessScreenProps {
@@ -60,14 +61,15 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({ fullName, email, l
 
       {/* Buttons */}
       <div className="pt-2 flex justify-center">
-        <a
+        <Link
           href="/"
           className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg hover:shadow-blue-500/25"
         >
           <span>{t.btnReturnHome}</span>
           <ArrowRight className="w-4 h-4" />
-        </a>
+        </Link>
       </div>
     </div>
   );
+};
 };
