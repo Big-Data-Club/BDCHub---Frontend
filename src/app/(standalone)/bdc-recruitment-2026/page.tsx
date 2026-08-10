@@ -10,7 +10,7 @@ import hcmutLogo from "@/assets/hcmut.png";
 import hpccLogo from "@/assets/hpcc-logo.png";
 import cseLogo from "@/assets/CSE_logo.png";
 
-import { FormData, Errors, Lang, T } from "./types";
+import { FormData, Errors, Lang, T, ACADEMIC_STATUS_OPTIONS, DEPARTMENT_OPTIONS } from "./types";
 import { Step1Personal } from "./components/Step1Personal";
 import { Step2Academic } from "./components/Step2Academic";
 import { Step3Department } from "./components/Step3Department";
@@ -164,38 +164,66 @@ export default function BDCRecruitment2026Page() {
     if (!validateStep(4)) { showToast(t.agreePrivacyErr); return; }
     setSubmitting(true);
     try {
+      // answers: snake_case id → value (used for mapping)
       const answersRecord: Record<string, string> = {
-        full_name: form.fullName,
-        email_confirmation: form.emailConfirmation,
-        phone: form.phone,
-        email_personal: form.emailPersonal,
-        email_school: form.emailSchool,
-        facebook_link: form.facebookLink,
-        university: form.university,
-        faculty: form.faculty,
-        student_id: form.studentId || "N/A",
-        academic_status: form.academicStatus,
-        academic_status_other: form.academicStatusOther || "",
-        thpt_dgnl_scores: form.thptDgnlScores || "N/A",
-        gpa_cumulative: form.gpaCumulative || "N/A",
-        gpa_latest: form.gpaLatest || "N/A",
+        full_name:                    form.fullName,
+        email_confirmation:           form.emailConfirmation,
+        phone:                        form.phone,
+        email_personal:               form.emailPersonal,
+        email_school:                 form.emailSchool,
+        facebook_link:                form.facebookLink,
+        university:                   form.university,
+        faculty:                      form.faculty,
+        student_id:                   form.studentId || "N/A",
+        academic_status:              ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.labelVi
+                                    ?? (form.academicStatusOther || form.academicStatus),
+        thpt_dgnl_scores:             form.thptDgnlScores  || "N/A",
+        gpa_cumulative:               form.gpaCumulative   || "N/A",
+        gpa_latest:                   form.gpaLatest       || "N/A",
         achievements_extracurricular: form.achievementsExtracurricular || "Chưa có",
-        english_cert: form.englishCert || "Chưa có",
-        cv_url: form.cvFile?.url || "",
-        cv_filename: form.cvFile?.filename || "",
-        evidence_files: form.evidenceFiles.map((f) => `${f.filename}: ${f.url}`).join("\n"),
-        department: form.department,
-        motivation: form.motivation,
-        send_copy: form.sendCopy ? "Yes" : "No",
-        form_language: lang,
+        english_cert:                 form.englishCert     || "Chưa có",
+        cv_url:                       form.cvFile?.url     || "",
+        cv_filename:                  form.cvFile?.filename || "",
+        evidence_files:               form.evidenceFiles.map((f) => `${f.filename}: ${f.url}`).join(" | "),
+        department:                   DEPARTMENT_OPTIONS.find((d) => d.id === form.department)?.nameVi ?? form.department,
+        motivation:                   form.motivation,
+        send_copy:                    form.sendCopy ? "Có" : "Không",
+        form_language:                lang === "vi" ? "Tiếng Việt" : "English",
       };
+
+      // questions: id maps to answers key, question = Vietnamese column header in Sheet
+      const QUESTIONS: { id: string; question: string }[] = [
+        { id: "full_name",                    question: "Họ và tên" },
+        { id: "email_confirmation",           question: "Email (Google Account)" },
+        { id: "phone",                        question: "Số điện thoại" },
+        { id: "email_personal",               question: "Email cá nhân" },
+        { id: "email_school",                 question: "Email trường" },
+        { id: "facebook_link",                question: "Facebook" },
+        { id: "university",                   question: "Trường đại học" },
+        { id: "faculty",                      question: "Khoa / Ngành" },
+        { id: "student_id",                   question: "Mã số sinh viên" },
+        { id: "academic_status",              question: "Tình trạng học tập" },
+        { id: "thpt_dgnl_scores",             question: "Điểm THPT / ĐGNL" },
+        { id: "gpa_cumulative",               question: "GPA tích lũy" },
+        { id: "gpa_latest",                   question: "GPA học kỳ gần nhất" },
+        { id: "achievements_extracurricular", question: "Thành tích & Hoạt động ngoại khóa" },
+        { id: "english_cert",                 question: "Chứng chỉ tiếng Anh" },
+        { id: "cv_url",                       question: "Link CV (Cloudinary)" },
+        { id: "cv_filename",                  question: "Tên file CV" },
+        { id: "evidence_files",               question: "File minh chứng" },
+        { id: "department",                   question: "Ban đăng ký" },
+        { id: "motivation",                   question: "Lý do & Động lực" },
+        { id: "send_copy",                    question: "Gửi bản sao qua email" },
+        { id: "form_language",                question: "Ngôn ngữ form" },
+      ];
+
       const payload = {
-        formId: "bdc-recruitment-2026-participant",
+        formId:    "bdc-recruitment-2026-participant",
         formTitle: "Application Form - BIG DATA CLUB RECRUITMENT 2026",
         sheetName: "BDC_Recruitment_2026",
-        formType: "registration",
-        questions: Object.keys(answersRecord).map((k) => ({ id: k, question: k })),
-        answers: answersRecord,
+        formType:  "registration",
+        questions: QUESTIONS,
+        answers:   answersRecord,
         submittedAt: new Date().toISOString(),
         userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "Unknown",
       };
