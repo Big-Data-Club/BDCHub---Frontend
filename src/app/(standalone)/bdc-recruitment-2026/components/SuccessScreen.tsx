@@ -9,9 +9,10 @@ interface SuccessScreenProps {
   fullName: string;
   email: string;
   lang: Lang;
+  confirmationEmailQueued: boolean;
 }
 
-export const SuccessScreen: React.FC<SuccessScreenProps> = ({ fullName, email, lang }) => {
+export const SuccessScreen: React.FC<SuccessScreenProps> = ({ fullName, email, lang, confirmationEmailQueued }) => {
   const t = T[lang];
 
   return (
@@ -36,10 +37,12 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({ fullName, email, l
             </span>
           </div>
           <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{t.successMsg}</p>
-          <div className="flex items-center space-x-2 text-xs text-blue-500 dark:text-blue-400 pt-1 font-mono">
-            <Mail className="w-4 h-4 shrink-0" />
-            <span className="truncate">{email}</span>
-          </div>
+          {confirmationEmailQueued && (
+            <div className="flex items-center space-x-2 text-xs text-blue-500 dark:text-blue-400 pt-1 font-mono">
+              <Mail className="w-4 h-4 shrink-0" />
+              <span className="truncate">{t.successEmailNote} {email}</span>
+            </div>
+          )}
         </div>
 
         {/* Next Steps List */}

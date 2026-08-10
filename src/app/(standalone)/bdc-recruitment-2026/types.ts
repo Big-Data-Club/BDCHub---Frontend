@@ -170,7 +170,7 @@ export const T = {
     motivationLabel: "Bạn kỳ vọng gì khi tham gia Big Data Club? *",
     motivationHint: "Chia sẻ lý do bạn ứng tuyển, mong muốn học hỏi, môi trường làm việc hoặc mục tiêu cá nhân...",
     motivationPh: "Ví dụ: Em muốn rèn luyện kỹ năng làm việc nhóm, thực chiến dự án Big Data/AI thực tế, kết nối với các anh chị đi trước và học hỏi tư duy kỹ thuật...",
-    sendCopyLabel: "Gửi một bản sao câu trả lời của tôi qua email đăng ký",
+    sendCopyLabel: "Gửi email xác nhận hồ sơ đến địa chỉ email đăng ký",
 
     // Step 4
     step4Header: "Rà soát thông tin & Xác nhận",
@@ -193,7 +193,7 @@ export const T = {
     successTitle: "Nộp Đơn Ứng Tuyển Thành Công!",
     successSubtitle: "Cảm ơn bạn đã quan tâm và nộp đơn gia nhập Big Data Club Recruitment 2026.",
     successMsg: "Thông tin và file đính kèm của bạn đã được ghi nhận trên hệ thống BDC & Cloudinary.",
-    successEmailNote: "Email xác nhận kèm bản sao câu trả lời đã được gửi tới địa chỉ:",
+    successEmailNote: "Email xác nhận đang được gửi tới:",
     successNextStepsTitle: "Các bước tiếp theo:",
     successNextSteps: [
       "Ban Nhân sự BDC sẽ tiến hành chấm hồ sơ của bạn trong vòng 3-5 ngày làm việc.",
@@ -281,7 +281,7 @@ export const T = {
     motivationLabel: "What do you expect when joining Big Data Club? *",
     motivationHint: "Share your reasons for applying, learning goals, and expectations...",
     motivationPh: "Share your goals, motivation, and what skills you wish to learn...",
-    sendCopyLabel: "Send a copy of my responses to my confirmation email",
+    sendCopyLabel: "Send an application confirmation email to my registered email",
 
     // Step 4
     step4Header: "Review & Confirmation",
@@ -304,7 +304,7 @@ export const T = {
     successTitle: "Application Submitted Successfully!",
     successSubtitle: "Thank you for applying to Big Data Club Recruitment 2026.",
     successMsg: "Your application and uploaded documents have been securely processed on BDC & Cloudinary.",
-    successEmailNote: "A confirmation email with your response copy has been sent to:",
+    successEmailNote: "A confirmation email is being sent to:",
     successNextStepsTitle: "Next Steps:",
     successNextSteps: [
       "The BDC HR team will review your application within 3-5 business days.",

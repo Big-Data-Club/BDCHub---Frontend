@@ -55,6 +55,7 @@ export default function BDCRecruitment2026Page() {
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [confirmationEmailQueued, setConfirmationEmailQueued] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [savedName, setSavedName] = useState("");
   const [toastMsg, setToastMsg] = useState<string | null>(null);
@@ -234,6 +235,7 @@ export default function BDCRecruitment2026Page() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Gửi đơn không thành công.");
+      setConfirmationEmailQueued(data.confirmationEmailQueued === true);
       localStorage.setItem(LS_DONE, JSON.stringify({ name: form.fullName, submittedAt: new Date().toISOString() }));
       localStorage.removeItem(LS_DRAFT);
       setSubmitted(true);
@@ -251,11 +253,12 @@ export default function BDCRecruitment2026Page() {
     setForm(INITIAL_FORM);
     setAlreadySubmitted(false);
     setSubmitted(false);
+    setConfirmationEmailQueued(false);
     setStep(1);
   };
 
   if (alreadySubmitted) return <AlreadySubmittedScreen savedName={savedName} lang={lang} onReset={handleResetForm} />;
-  if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} />;
+  if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} confirmationEmailQueued={confirmationEmailQueued} />;
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white font-sans pb-20 transition-colors duration-300">
