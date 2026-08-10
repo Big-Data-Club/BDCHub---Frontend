@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { User, Mail, Phone, Globe, GraduationCap, Building, IdentificationCard, Sparkles } from "lucide-react";
+import { User, Mail, Phone, Globe, GraduationCap, Building, IdCard, Sparkles } from "lucide-react";
 import { FormData, Errors, T, Lang, ACADEMIC_STATUS_OPTIONS, AcademicStatus } from "../types";
 
 interface Step1PersonalProps {
@@ -208,7 +208,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
 
         <div className="md:col-span-1">
           <label className="block text-sm font-semibold text-slate-200 mb-1.5 flex items-center gap-2">
-            <IdentificationCard className="w-4 h-4 text-blue-400" />
+            <IdCard className="w-4 h-4 text-blue-400" />
             {t.studentId}
           </label>
           <input
