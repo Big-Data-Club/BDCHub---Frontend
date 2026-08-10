@@ -33,7 +33,6 @@ const INITIAL_FORM: FormData = {
   studentId: "",
   academicStatus: "freshman",
   academicStatusOther: "",
-
   gpaCumulative: "",
   gpaLatest: "",
   thptDgnlScores: "",
@@ -41,11 +40,9 @@ const INITIAL_FORM: FormData = {
   englishCert: "",
   cvFile: null,
   evidenceFiles: [],
-
   department: "",
   motivation: "",
   sendCopy: true,
-
   agreePrivacy: false,
 };
 
@@ -61,8 +58,14 @@ export default function BDCRecruitment2026Page() {
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [savedName, setSavedName] = useState("");
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Check draft or previous submission on mount
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useEffect(() => {
     try {
       const done = localStorage.getItem(LS_DONE);
@@ -72,36 +75,25 @@ export default function BDCRecruitment2026Page() {
         setAlreadySubmitted(true);
         return;
       }
-
       const raw = localStorage.getItem(LS_DRAFT);
       if (raw) {
         const draft = JSON.parse(raw);
         setForm((prev) => ({ ...prev, ...draft }));
-        if (draft._step && draft._step > 0 && draft._step <= 4) {
-          setStep(draft._step);
-        }
+        if (draft._step && draft._step > 0 && draft._step <= 4) setStep(draft._step);
       }
-    } catch {
-      /* ignore storage errors */
-    }
+    } catch { /* ignore */ }
   }, []);
 
-  // Debounced auto-save draft
   useEffect(() => {
     if (submitted || alreadySubmitted) return;
     const timer = setTimeout(() => {
-      try {
-        localStorage.setItem(LS_DRAFT, JSON.stringify({ ...form, _step: step }));
-      } catch {
-        /* ignore */
-      }
+      try { localStorage.setItem(LS_DRAFT, JSON.stringify({ ...form, _step: step })); } catch { /* ignore */ }
     }, 600);
     return () => clearTimeout(timer);
   }, [form, step, submitted, alreadySubmitted]);
 
   const updateForm = (fields: Partial<FormData>) => {
     setForm((prev) => ({ ...prev, ...fields }));
-    // Clear errors for modified fields
     const updatedKeys = Object.keys(fields);
     if (updatedKeys.some((k) => errors[k])) {
       setErrors((prev) => {
@@ -117,32 +109,22 @@ export default function BDCRecruitment2026Page() {
     setTimeout(() => setToastMsg(null), 4000);
   };
 
-  // Step Validation Logic
   const validateStep = (stepToValidate: number): boolean => {
     const errs: Errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[0-9+()\s-]{8,15}$/;
 
     if (stepToValidate === 1) {
-      if (!form.emailConfirmation.trim() || !emailRegex.test(form.emailConfirmation)) {
-        errs.emailConfirmation = t.errEmail;
-      }
+      if (!form.emailConfirmation.trim() || !emailRegex.test(form.emailConfirmation)) errs.emailConfirmation = t.errEmail;
       if (!form.fullName.trim()) errs.fullName = t.errRequired;
       if (!form.phone.trim() || !phoneRegex.test(form.phone)) errs.phone = t.errPhone;
-      if (!form.emailPersonal.trim() || !emailRegex.test(form.emailPersonal)) {
-        errs.emailPersonal = t.errEmail;
-      }
-      if (!form.emailSchool.trim() || !emailRegex.test(form.emailSchool)) {
-        errs.emailSchool = t.errEmail;
-      }
-      if (!form.facebookLink.trim() || !form.facebookLink.includes("facebook.com")) {
-        errs.facebookLink = t.errFacebook;
-      }
+      if (!form.emailPersonal.trim() || !emailRegex.test(form.emailPersonal)) errs.emailPersonal = t.errEmail;
+      if (!form.emailSchool.trim() || !emailRegex.test(form.emailSchool)) errs.emailSchool = t.errEmail;
+      if (!form.facebookLink.trim() || !form.facebookLink.includes("facebook.com")) errs.facebookLink = t.errFacebook;
       if (!form.university.trim()) errs.university = t.errRequired;
       if (!form.faculty.trim()) errs.faculty = t.errRequired;
       if (!form.academicStatus) errs.academicStatus = t.errRequired;
     }
-
     if (stepToValidate === 2) {
       if (form.academicStatus === "freshman") {
         if (!form.thptDgnlScores.trim()) errs.thptDgnlScores = t.errRequired;
@@ -151,22 +133,15 @@ export default function BDCRecruitment2026Page() {
         if (!form.gpaCumulative.trim()) errs.gpaCumulative = t.errRequired;
         if (!form.gpaLatest.trim()) errs.gpaLatest = t.errRequired;
       }
-      if (!form.cvFile) {
-        errs.cvFile = t.errCvRequired;
-      }
+      if (!form.cvFile) errs.cvFile = t.errCvRequired;
     }
-
     if (stepToValidate === 3) {
       if (!form.department) errs.department = t.errDeptRequired;
       if (!form.motivation.trim()) errs.motivation = t.errRequired;
     }
-
     if (stepToValidate === 4) {
-      if (!form.agreePrivacy) {
-        errs.agreePrivacy = t.agreePrivacyErr;
-      }
+      if (!form.agreePrivacy) errs.agreePrivacy = t.agreePrivacyErr;
     }
-
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -186,11 +161,7 @@ export default function BDCRecruitment2026Page() {
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(4)) {
-      showToast(t.agreePrivacyErr);
-      return;
-    }
-
+    if (!validateStep(4)) { showToast(t.agreePrivacyErr); return; }
     setSubmitting(true);
     try {
       const answersRecord: Record<string, string> = {
@@ -218,7 +189,6 @@ export default function BDCRecruitment2026Page() {
         send_copy: form.sendCopy ? "Yes" : "No",
         form_language: lang,
       };
-
       const payload = {
         formId: "bdc-recruitment-2026-participant",
         formTitle: "Application Form - BIG DATA CLUB RECRUITMENT 2026",
@@ -229,19 +199,13 @@ export default function BDCRecruitment2026Page() {
         submittedAt: new Date().toISOString(),
         userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "Unknown",
       };
-
       const res = await fetch("/api/submit-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || "Gửi đơn không thành công.");
-      }
-
-      // Save submitted flag
+      if (!res.ok || !data.success) throw new Error(data.message || "Gửi đơn không thành công.");
       localStorage.setItem(LS_DONE, JSON.stringify({ name: form.fullName, submittedAt: new Date().toISOString() }));
       localStorage.removeItem(LS_DRAFT);
       setSubmitted(true);
@@ -262,17 +226,12 @@ export default function BDCRecruitment2026Page() {
     setStep(1);
   };
 
-  if (alreadySubmitted) {
-    return <AlreadySubmittedScreen savedName={savedName} lang={lang} onReset={handleResetForm} />;
-  }
-
-  if (submitted) {
-    return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} />;
-  }
+  if (alreadySubmitted) return <AlreadySubmittedScreen savedName={savedName} lang={lang} onReset={handleResetForm} />;
+  if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} />;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-blue-500 selection:text-white font-sans pb-16">
-      {/* Toast alert */}
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white font-sans pb-20 transition-colors duration-300">
+      {/* Toast */}
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 bg-rose-600 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 animate-in slide-in-from-bottom-4 duration-300">
           <ShieldAlert className="w-4 h-4" />
@@ -280,149 +239,132 @@ export default function BDCRecruitment2026Page() {
         </div>
       )}
 
-      {/* Top Bar Header */}
-      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80">
-        <div className="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Image src={bdcLogo} alt="BDC Logo" className="w-9 h-9 object-contain drop-shadow" />
-            <div>
-              <h1 className="text-sm font-extrabold tracking-tight text-white flex items-center gap-1.5">
-                BIG DATA CLUB <span className="text-blue-400 text-xs font-normal">2026</span>
+      {/* ── Sticky Header ── */}
+      <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        scrolled
+          ? "bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/50 shadow-sm py-3"
+          : "bg-white/60 dark:bg-transparent backdrop-blur-sm py-3.5"
+      }`}>
+        <div className="max-w-4xl mx-auto px-4 flex items-center justify-between gap-4">
+          {/* Left: logo + title */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative w-9 h-9 flex-shrink-0 bg-white/60 dark:bg-white/10 p-1 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+              <Image src={bdcLogo} alt="BDC" fill className="object-contain" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
+                BIG DATA CLUB <span className="text-blue-500 dark:text-blue-400 text-xs font-normal">2026</span>
               </h1>
-              <p className="text-[11px] text-slate-400 font-medium">Chào Đón Thế Hệ Mới</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Chào Đón Thế Hệ Mới</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            {/* Associated Partners */}
-            <div className="hidden sm:flex items-center space-x-2 mr-3 pr-3 border-r border-slate-800">
-              <Image src={hcmutLogo} alt="HCMUT" className="w-5 h-5 object-contain opacity-80" />
-              <Image src={hpccLogo} alt="HPCC" className="w-10 h-5 object-contain opacity-80" />
-              <Image src={cseLogo} alt="CSE" className="w-5 h-5 object-contain opacity-80" />
+          {/* Right: org logos + lang + theme */}
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 mr-2 pr-2 border-r border-slate-200 dark:border-slate-800">
+              {[
+                { src: hcmutLogo, alt: "HCMUT", cls: "w-5 h-5" },
+                { src: hpccLogo, alt: "HPCC", cls: "w-10 h-5" },
+                { src: cseLogo, alt: "CSE", cls: "w-5 h-5" },
+              ].map((logo) => (
+                <div key={logo.alt} className={`relative flex-shrink-0 ${logo.cls}`}>
+                  <Image src={logo.src} alt={logo.alt} fill className="object-contain opacity-70 dark:opacity-80 dark:brightness-125" />
+                </div>
+              ))}
             </div>
 
-            {/* Language Switch */}
             <button
               onClick={() => setLang((l) => (l === "vi" ? "en" : "vi"))}
-              className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors font-medium"
+              className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors font-medium shadow-sm"
             >
               {t.langToggle}
             </button>
-
             <ThemeToggle />
           </div>
         </div>
       </header>
 
-      {/* Hero Banner Header */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-blue-950/40 via-slate-950 to-slate-950 border-b border-slate-800/50 py-10 px-4">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/10 via-transparent to-transparent pointer-events-none" />
-
+      {/* ── Hero Banner ── */}
+      <div className="relative overflow-hidden pt-20 pb-10 px-4 bg-gradient-to-b from-blue-50 via-white to-white dark:from-blue-950/40 dark:via-slate-950 dark:to-slate-950 border-b border-slate-100 dark:border-slate-800/50">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-200/40 via-transparent to-transparent dark:from-blue-600/10 pointer-events-none" />
         <div className="max-w-3xl mx-auto text-center space-y-3 relative z-10">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest shadow-sm">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-widest shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{t.heroBadge}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-blue-200">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-blue-700 to-blue-500 dark:from-white dark:via-slate-100 dark:to-blue-200">
             {t.heroTitle}
           </h1>
 
-          <p className="text-sm font-semibold text-blue-400">{t.heroSubtitle}</p>
-          <p className="text-xs text-slate-400 max-w-xl mx-auto leading-relaxed">{t.heroDesc}</p>
+          <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">{t.heroSubtitle}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">{t.heroDesc}</p>
         </div>
       </div>
 
-      {/* Main Wizard Form Container */}
+      {/* ── Main Wizard ── */}
       <main className="max-w-3xl mx-auto px-4 mt-8">
         {/* Step Progress Bar */}
-        <div className="mb-8 p-4 bg-slate-900/60 border border-slate-800/80 rounded-2xl backdrop-blur-md shadow-xl">
+        <div className="mb-8 p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl backdrop-blur-md">
           <div className="grid grid-cols-4 gap-2">
             {t.steps.map((st) => {
               const isCompleted = step > st.step;
               const isCurrent = step === st.step;
-
               return (
                 <button
                   key={st.step}
                   onClick={() => {
-                    // Only allow jumping back or to completed steps
-                    if (st.step < step || validateStep(step)) {
-                      setStep(st.step);
-                    }
+                    if (st.step < step || validateStep(step)) setStep(st.step);
                   }}
                   className={`text-left transition-all p-2 rounded-xl border ${
                     isCurrent
-                      ? "bg-blue-500/15 border-blue-500/60 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.2)]"
+                      ? "bg-blue-50 dark:bg-blue-500/15 border-blue-300 dark:border-blue-500/60 text-blue-700 dark:text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.15)] dark:shadow-[0_0_15px_rgba(59,130,246,0.2)]"
                       : isCompleted
-                      ? "bg-slate-800/40 border-slate-700/60 text-slate-300 hover:bg-slate-800"
-                      : "bg-transparent border-transparent text-slate-500"
+                      ? "bg-slate-100 dark:bg-slate-800/40 border-slate-300 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
+                      : "bg-transparent border-transparent text-slate-400 dark:text-slate-500"
                   }`}
                 >
                   <div className="flex items-center space-x-2 mb-1">
-                    <div
-                      className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center border transition-all ${
-                        isCompleted
-                          ? "bg-emerald-500 text-white border-emerald-400"
-                          : isCurrent
-                          ? "bg-blue-500 text-white border-blue-400"
-                          : "bg-slate-800 text-slate-500 border-slate-700"
-                      }`}
-                    >
+                    <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center border transition-all ${
+                      isCompleted
+                        ? "bg-emerald-500 text-white border-emerald-400"
+                        : isCurrent
+                        ? "bg-blue-500 text-white border-blue-400"
+                        : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-300 dark:border-slate-700"
+                    }`}>
                       {isCompleted ? <CheckCircle2 className="w-4 h-4 stroke-[3]" /> : st.step}
                     </div>
-                    <span className="text-xs font-bold hidden sm:inline truncate">
-                      Bước {st.step}
-                    </span>
+                    <span className="text-xs font-bold hidden sm:inline truncate">Bước {st.step}</span>
                   </div>
-                  <p className="text-[11px] font-semibold truncate leading-tight hidden sm:block">
-                    {st.title}
-                  </p>
+                  <p className="text-[11px] font-semibold truncate leading-tight hidden sm:block">{st.title}</p>
                 </button>
               );
             })}
           </div>
 
-          {/* Progress Bar indicator */}
-          <div className="mt-3 w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          {/* Progress indicator */}
+          <div className="mt-3 w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
             <div
-              className="bg-gradient-to-r from-blue-500 to-cyan-400 h-full transition-all duration-300 ease-out"
+              className="bg-gradient-to-r from-blue-500 to-cyan-400 h-full transition-all duration-500 ease-out"
               style={{ width: `${(step / 4) * 100}%` }}
             />
           </div>
         </div>
 
-        {/* Step Content Cards */}
-        <div className="p-6 sm:p-8 bg-slate-900/90 border border-slate-800/90 rounded-3xl backdrop-blur-xl shadow-2xl">
-          {step === 1 && (
-            <Step1Personal form={form} onChange={updateForm} errors={errors} lang={lang} />
-          )}
+        {/* Step Content */}
+        <div className="p-6 sm:p-8 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 rounded-3xl shadow-xl dark:shadow-2xl dark:backdrop-blur-xl">
+          {step === 1 && <Step1Personal form={form} onChange={updateForm} errors={errors} lang={lang} />}
+          {step === 2 && <Step2Academic form={form} onChange={updateForm} errors={errors} lang={lang} />}
+          {step === 3 && <Step3Department form={form} onChange={updateForm} errors={errors} lang={lang} />}
+          {step === 4 && <Step4Review form={form} onChange={updateForm} errors={errors} lang={lang} onEditStep={(st) => setStep(st)} />}
 
-          {step === 2 && (
-            <Step2Academic form={form} onChange={updateForm} errors={errors} lang={lang} />
-          )}
-
-          {step === 3 && (
-            <Step3Department form={form} onChange={updateForm} errors={errors} lang={lang} />
-          )}
-
-          {step === 4 && (
-            <Step4Review
-              form={form}
-              onChange={updateForm}
-              errors={errors}
-              lang={lang}
-              onEditStep={(st) => setStep(st)}
-            />
-          )}
-
-          {/* Navigation Controls */}
-          <div className="mt-8 pt-6 border-t border-slate-800 flex items-center justify-between">
+          {/* Navigation */}
+          <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={handlePrev}
-                className="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold transition-all border border-slate-700"
+                className="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all border border-slate-200 dark:border-slate-700"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>{t.btnPrev}</span>
@@ -445,7 +387,7 @@ export default function BDCRecruitment2026Page() {
                 type="button"
                 disabled={submitting}
                 onClick={handleSubmit}
-                className="inline-flex items-center space-x-2 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold transition-all shadow-xl hover:shadow-emerald-500/25 ml-auto cursor-pointer"
+                className="inline-flex items-center space-x-2 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold transition-all shadow-xl hover:shadow-emerald-500/30 ml-auto cursor-pointer"
               >
                 {submitting ? (
                   <>
