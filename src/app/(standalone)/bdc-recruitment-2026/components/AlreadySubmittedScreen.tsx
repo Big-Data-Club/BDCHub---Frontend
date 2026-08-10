@@ -51,4 +51,4 @@ export const AlreadySubmittedScreen: React.FC<AlreadySubmittedScreenProps> = ({ 
     </div>
   );
 };
-};
+

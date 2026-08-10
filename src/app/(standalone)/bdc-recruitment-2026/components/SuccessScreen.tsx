@@ -72,4 +72,4 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({ fullName, email, l
     </div>
   );
 };
-};
+
