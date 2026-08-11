@@ -7,24 +7,19 @@
  * Displays the content viewer with prev/next navigation.
  * Consumes StudentCourseContext from the parent layout.
  *
- * ContentViewer (~30KB) is lazy-loaded since it's only rendered
- * when a content item is selected.
+ * This route always renders learning content. Keep ContentViewer in the route
+ * bundle so the browser can mount a PDF as soon as content data arrives,
+ * without waiting for a second client-side JS chunk.
  */
 
 import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import lmsService from "@/services/lmsService";
-import dynamic from "next/dynamic";
+import ContentViewer from "@/components/lms/student/ContentViewer";
 import {
   ArrowLeft, ChevronRight, BookOpen, BarChart3,
 } from "lucide-react";
-
-// Lazy-load the heavy content viewer
-const ContentViewer = dynamic(
-  () => import("@/components/lms/student/ContentViewer"),
-  { ssr: false, loading: () => <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" /> },
-);
 
 import { Badge, ContentTypeBadge } from "@/components/lms/shared";
 import { useStudentCourse } from "@/components/lms/student/StudentCourseContext";

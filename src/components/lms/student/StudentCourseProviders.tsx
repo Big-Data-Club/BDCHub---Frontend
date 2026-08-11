@@ -23,8 +23,6 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
   const searchParams = useSearchParams();
   const id = Number(courseId);
 
-  // Track whether we've already restored from URL param
-  const restoredFromUrl = useRef(false);
   const initialContentId = useRef<number | null>(
     searchParams.get("contentId") ? Number(searchParams.get("contentId")) : null
   );
@@ -159,10 +157,14 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
   useEffect(() => {
     (async () => {
       try {
-        const [courseRes, sectionsRes, coTeachersRes] = await Promise.all([
+        const targetContentId = initialContentId.current;
+        const [courseRes, sectionsRes, coTeachersRes, targetContentRes] = await Promise.all([
           lmsService.getCourse(id),
           lmsService.listSections(id),
           lmsService.getCoTeachers(id).catch(() => []),
+          targetContentId
+            ? lmsService.getContent(targetContentId).catch(() => null)
+            : Promise.resolve(null),
         ]);
         setCourse(courseRes?.data ?? null);
         setCoTeachers(coTeachersRes ?? []);
@@ -170,10 +172,18 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
         setSections(secs);
 
         if (secs.length > 0) {
-          const allIds = secs.map(s => s.id);
-          if (initialContentId.current) {
-            setExpanded(new Set(allIds));
-            allIds.forEach(sid => loadSectionContentsInner(sid));
+          const targetContent: Content | null = targetContentRes?.data ?? null;
+          const targetSectionExists = targetContent && secs.some(
+            section => section.id === targetContent.section_id
+          );
+
+          if (targetContent && targetSectionExists) {
+            // A deep link used to fetch every section just to locate one item.
+            // Fetch the item directly, then load only its section for sidebar
+            // navigation. This keeps course size out of PDF startup latency.
+            setActiveContent(targetContent);
+            setExpanded(new Set([targetContent.section_id]));
+            loadSectionContentsInner(targetContent.section_id);
           } else {
             setExpanded(new Set([secs[0].id]));
             loadSectionContentsInner(secs[0].id, true);
@@ -187,20 +197,6 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
     })();
     loadProgress();
   }, [id]); // eslint-disable-line
-
-  // ─── Restore content from URL param ────────────────────────────────────────
-  useEffect(() => {
-    if (restoredFromUrl.current || !initialContentId.current) return;
-    const targetId = initialContentId.current;
-    for (const items of Object.values(sectionContents)) {
-      const found = items.find(c => c.id === targetId);
-      if (found) {
-        setActiveContent(found);
-        restoredFromUrl.current = true;
-        return;
-      }
-    }
-  }, [sectionContents]); // eslint-disable-line
 
   // ── Push page context for AI sidebar ───────────────────────────────────────
 
