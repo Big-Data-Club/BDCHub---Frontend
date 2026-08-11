@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { User } from "@/types";
 import { fetchUsers, updateUserStatus } from "@/lib/users/api";
 import UserRow from "./UserRow";
@@ -51,6 +51,8 @@ export default function UserApp() {
   const [roleFilter, setRoleFilter] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const [detail, setDetail] = useState<User | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -78,24 +80,44 @@ export default function UserApp() {
   // Reset to page 1 when query/filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedQuery, teamFilter, typeFilter, roleFilter]);
+  }, [debouncedQuery, teamFilter, typeFilter, roleFilter, sortKey, sortDir]);
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const list = await fetchUsers();
-      setUsers(list);
+      const sortField = sortKey === "score"
+        ? "totalScore"
+        : sortKey === "status"
+          ? "active"
+          : sortKey === "dateAdded" || !sortKey
+            ? "id"
+            : sortKey;
+      const result = await fetchUsers({
+        page: currentPage - 1,
+        pageSize: 15,
+        query: debouncedQuery,
+        team: teamFilter,
+        type: typeFilter,
+        role: roleFilter,
+        sortBy: sortField,
+        sortDir: sortDir || "desc",
+      });
+      setUsers(result.items);
+      setTotalUsers(result.total);
+      setTotalPages(result.totalPages);
     } catch (err: any) {
       console.error(err);
       setError(err?.message ?? String(err));
       setUsers([]);
+      setTotalUsers(0);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
-  }
+  }, [currentPage, debouncedQuery, teamFilter, typeFilter, roleFilter, sortKey, sortDir]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   async function handleFilePicked(file?: File) {
     if (!file) return;
@@ -143,40 +165,8 @@ export default function UserApp() {
     return Array.from(new Set(users.map(u => u.role).filter(Boolean))).sort() as string[];
   }, [users]);
 
-  const filteredAndSorted = useMemo(() => {
-    const q = debouncedQuery.trim().toLowerCase();
-    let list = users.filter(u => {
-      if (teamFilter && u.team !== teamFilter) return false;
-      if (typeFilter && u.type !== typeFilter) return false;
-      if (roleFilter && u.role !== roleFilter) return false;
-      if (!q) return true;
-      return u.name.toLowerCase().includes(q) || u.code.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
-    });
-    if (sortKey && sortDir) {
-      const dir = sortDir === "asc" ? 1 : -1;
-      list = [...list].sort((a,b) => {
-        switch (sortKey) {
-          case "name": return a.name.localeCompare(b.name) * dir;
-          case "role": return (a.role || "").localeCompare(b.role || "") * dir;
-          case "team": return (a.team || "").localeCompare(b.team || "") * dir;
-          case "score": return (Number(a.score) - Number(b.score)) * dir;
-          case "dateAdded": return a.dateAdded && b.dateAdded ? (new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()) * dir : 0;
-          case "status": return ((a.status?1:0) - (b.status?1:0)) * dir;
-          case "organization": return (a.organization || "").localeCompare(b.organization || "") * dir;
-          default: return 0;
-        }
-      });
-    }
-    return list;
-  }, [users, debouncedQuery, teamFilter, typeFilter, roleFilter, sortKey, sortDir]);
-
   const ITEMS_PER_PAGE = 15;
-  const totalPages = Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE);
-
-  const paginatedUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredAndSorted.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredAndSorted, currentPage]);
+  const paginatedUsers = users;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8">
@@ -188,7 +178,7 @@ export default function UserApp() {
               Users
             </h1>
             <p className="text-slate-600 dark:text-slate-400">
-              {users.length} total users
+              {totalUsers} total users
             </p>
             {error && (
               <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl">
@@ -355,7 +345,7 @@ export default function UserApp() {
           {!loading && paginatedUsers.length > 0 && paginatedUsers.map((u) => (
             <UserRow key={u.id} user={u} onClick={(user) => setDetail(user)} onToggleStatus={toggleStatusLocal} isAdmin={isAdmin} />
           ))}
-          {!loading && filteredAndSorted.length === 0 && (
+          {!loading && users.length === 0 && (
             <div className="py-12 px-4 text-center">
               <p className="text-slate-500 dark:text-slate-400 font-medium">No users found</p>
             </div>
@@ -366,9 +356,9 @@ export default function UserApp() {
         {!loading && totalPages > 1 && (
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
             <span className="text-sm text-slate-600 dark:text-slate-400">
-              Hiển thị <span className="font-semibold text-slate-900 dark:text-slate-100">{Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredAndSorted.length)}</span> đến{" "}
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{Math.min(currentPage * ITEMS_PER_PAGE, filteredAndSorted.length)}</span> trong{" "}
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{filteredAndSorted.length}</span> người dùng
+              Hiển thị <span className="font-semibold text-slate-900 dark:text-slate-100">{totalUsers === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1}</span> đến{" "}
+              <span className="font-semibold text-slate-900 dark:text-slate-100">{Math.min(currentPage * ITEMS_PER_PAGE, totalUsers)}</span> trong{" "}
+              <span className="font-semibold text-slate-900 dark:text-slate-100">{totalUsers}</span> người dùng
             </span>
             
             <div className="flex items-center gap-2">

@@ -16,7 +16,7 @@ export function useAdminStats() {
     try {
       const coursesRes = await lmsService.listPublishedCourses();
 
-      setCourses(coursesRes || []);
+      setCourses((coursesRes?.items || []) as Course[]);
     } catch (err: any) {
       console.error("Failed to fetch admin stats:", err);
       setError(err.message || "Không thể tải dữ liệu quản trị");

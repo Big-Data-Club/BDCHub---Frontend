@@ -62,7 +62,7 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
     const fetchCourses = async () => {
       try {
         const resp = await lmsService.listMyCourses();
-        const courseList = resp.data || [];
+        const courseList = resp?.items || [];
         setCourses(Array.isArray(courseList) ? courseList : []);
         
         if (!selectedCourseId && Array.isArray(courseList) && courseList.length > 0) {

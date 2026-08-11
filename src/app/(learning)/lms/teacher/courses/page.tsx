@@ -142,26 +142,38 @@ export default function CoursesListPage() {
   const [publishing, setPublishing] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
 
-  const [limit, setLimit] = useState(15);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
 
-  const load = useCallback(async (status?: StatusFilter) => {
-    setLoading(true);
+  const load = useCallback(async (status?: StatusFilter, pageNum = 1, append = false) => {
+    if (!append) setLoading(true);
     setError("");
     try {
-      const params = status && status !== "all" ? { status: status.toUpperCase() } : {};
-      const res = await lmsService.listMyCourses({ ...params, page_size: 200 });
-      // listMyCourses returns response.data (full body { data: [...] })
-      const rawData = res?.data;
-      setCourses(Array.isArray(rawData) ? rawData : []);
-      setLimit(15); // Reset limit on new data
+      const params: {
+        status?: string;
+        category?: string;
+        level?: string;
+        search?: string;
+        page: number;
+        page_size: number;
+      } = { page: pageNum, page_size: 15 };
+      if (status && status !== "all") params.status = status.toUpperCase();
+      if (search.trim()) params.search = search.trim();
+      if (selectedTag !== "all") params.category = selectedTag;
+      if (selectedLevel !== "all") params.level = selectedLevel;
+      const res = await lmsService.listMyCourses(params);
+      const items = (res?.items || []) as Course[];
+      setCourses(previous => append ? [...previous, ...items] : items);
+      setPage(pageNum);
+      setHasMore((res?.pagination?.page || pageNum) < (res?.pagination?.total_pages || 0));
     } catch {
       setError("Không thể tải danh sách khóa học.");
     } finally {
-      setLoading(false);
+      if (!append) setLoading(false);
     }
-  }, []);
+  }, [search, selectedTag, selectedLevel]);
 
-  useEffect(() => { load(filter); }, [filter]);
+  useEffect(() => { load(filter); }, [filter, load]);
 
   const handlePublish = async (course: Course) => {
     if (course.status !== "DRAFT") return;
@@ -192,17 +204,7 @@ export default function CoursesListPage() {
     )
   );
 
-  const filtered = courses.filter(c => {
-    const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase()) ||
-      (c.description ?? "").toLowerCase().includes(search.toLowerCase()) ||
-      (c.category ?? "").toLowerCase().includes(search.toLowerCase());
-    const matchesTag = selectedTag === "all" ? true :
-      (c.category as string | null | undefined)?.split(",").map(t => t.trim().toLowerCase()).includes(selectedTag.toLowerCase()) ?? false;
-    const matchesLevel = selectedLevel === "all" ? true : c.level === selectedLevel;
-    return matchesSearch && matchesTag && matchesLevel;
-  });
-
-  const displayedCourses = filtered.slice(0, limit);
+  const displayedCourses = courses;
 
   const published = courses.filter(c => c.status === "PUBLISHED").length;
   const draft = courses.filter(c => c.status === "DRAFT").length;
@@ -245,7 +247,7 @@ export default function CoursesListPage() {
               {/* Category selector */}
               <select
                 value={selectedTag}
-                onChange={e => { setSelectedTag(e.target.value); setLimit(15); }}
+                onChange={e => setSelectedTag(e.target.value)}
                 className="py-2.5 px-3 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               >
                 <option value="all">Tất cả danh mục (tag)</option>
@@ -257,7 +259,7 @@ export default function CoursesListPage() {
               {/* Level selector */}
               <select
                 value={selectedLevel}
-                onChange={e => { setSelectedLevel(e.target.value); setLimit(15); }}
+                onChange={e => setSelectedLevel(e.target.value)}
                 className="py-2.5 px-3 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               >
                 <option value="all">Tất cả cấp độ</option>
@@ -272,7 +274,7 @@ export default function CoursesListPage() {
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   value={search}
-                  onChange={e => { setSearch(e.target.value); setLimit(15); }}
+                  onChange={e => setSearch(e.target.value)}
                   placeholder="Tìm kiếm khóa học..."
                   className="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm
                              bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
@@ -287,13 +289,13 @@ export default function CoursesListPage() {
         <Card className="overflow-hidden">
           {loading ? (
             <PageLoader />
-          ) : filtered.length === 0 ? (
+          ) : courses.length === 0 ? (
             search ? (
               <EmptyState
                 icon={<Search className="w-12 h-12" />}
                 title="Không tìm thấy"
                 description={`Không có khóa học nào khớp với "${search}".`}
-                action={<GhostBtn onClick={() => { setSearch(""); setLimit(15); }}>Xóa bộ lọc</GhostBtn>}
+                action={<GhostBtn onClick={() => setSearch("")}>Xóa bộ lọc</GhostBtn>}
               />
             ) : (
               <EmptyState
@@ -324,9 +326,9 @@ export default function CoursesListPage() {
                 />
               ))}
               <InfiniteScrollTrigger
-                key={limit}
-                hasMore={limit < filtered.length}
-                onLoadMore={() => setLimit(l => l + 15)}
+                key={page}
+                hasMore={hasMore}
+                onLoadMore={() => load(filter, page + 1, true)}
               />
             </div>
           )}

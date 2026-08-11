@@ -11,8 +11,37 @@ async function authHeaders(extra?: Record<string, string>): Promise<HeadersInit>
   return headers;
 }
 
-export async function fetchUsers(): Promise<User[]> {
-  const res = await fetch(`/apiv1/api/users`, {
+export interface UserPage {
+  items: User[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+}
+
+export async function fetchUsers(params: {
+  page?: number;
+  pageSize?: number;
+  query?: string;
+  team?: string;
+  type?: string;
+  role?: string;
+  sortBy?: string;
+  sortDir?: "asc" | "desc";
+} = {}): Promise<UserPage> {
+  const searchParams = new URLSearchParams({
+    page: String(params.page ?? 0),
+    page_size: String(params.pageSize ?? 15),
+  });
+  if (params.query) searchParams.set("query", params.query);
+  if (params.team) searchParams.set("team", params.team);
+  if (params.type) searchParams.set("type", params.type);
+  if (params.role) searchParams.set("role", params.role);
+  if (params.sortBy) searchParams.set("sort_by", params.sortBy);
+  if (params.sortDir) searchParams.set("sort_dir", params.sortDir);
+
+  const res = await fetch(`/apiv1/api/users?${searchParams.toString()}`, {
     method: "GET",
     credentials: "include",
     headers: await authHeaders(),
@@ -26,8 +55,15 @@ export async function fetchUsers(): Promise<User[]> {
   }
 
   const data = await res.json();
-  if (!Array.isArray(data)) return [];
-  return data.map(mapServerUserToClient);
+  const items = Array.isArray(data?.items) ? data.items.map(mapServerUserToClient) : [];
+  return {
+    items,
+    page: Number(data?.page ?? params.page ?? 0),
+    pageSize: Number(data?.pageSize ?? params.pageSize ?? 15),
+    total: Number(data?.total ?? items.length),
+    totalPages: Number(data?.totalPages ?? (items.length ? 1 : 0)),
+    hasNext: Boolean(data?.hasNext),
+  };
 }
 
 export async function postBulkRegister(

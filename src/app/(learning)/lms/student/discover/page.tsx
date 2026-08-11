@@ -91,7 +91,7 @@ export default function DiscoverPage() {
   const loadInitialData = useCallback(async () => {
     try {
       const [allCourses, accepted, profile] = await Promise.all([
-        lmsService.listPublishedCourses({ page_size: 200 }),
+        lmsService.listPublishedCourses({ page_size: 100 }),
         lmsService.getMyEnrollments("ACCEPTED"),
         getLearningPreferenceProfile().catch((): LearningPreferenceProfile => ({
           interested_categories: [],
@@ -103,7 +103,7 @@ export default function DiscoverPage() {
       setPreferenceGoal(profile.target_career || "");
       setPreferenceLevel(profile.experience_level || "");
 
-      const allCoursesList = (allCourses || []) as Course[];
+      const allCoursesList = (allCourses?.items || []) as Course[];
       const enrolledIds = new Set((accepted || []).map((enrollment: Enrollment) => enrollment.course_id));
       const tags = Array.from(
         new Set(
@@ -177,8 +177,8 @@ export default function DiscoverPage() {
       if (selectedTag !== "all") params.category = selectedTag;
       if (selectedLevel !== "all") params.level = selectedLevel;
 
-      const courses = await lmsService.listPublishedCourses(params);
-      const newCourses = courses || [];
+      const coursesPage = await lmsService.listPublishedCourses(params);
+      const newCourses = (coursesPage?.items || []) as Course[];
 
       if (isNewFilter) {
         setPublishedCourses(newCourses);
@@ -186,7 +186,7 @@ export default function DiscoverPage() {
         setPublishedCourses(prev => [...prev, ...newCourses]);
       }
 
-      setHasMore(newCourses.length === PAGE_SIZE);
+      setHasMore((coursesPage?.pagination?.page || pageNum) < (coursesPage?.pagination?.total_pages || 0));
     } catch {
       setError("Không thể tải danh sách khóa học.");
     } finally {
