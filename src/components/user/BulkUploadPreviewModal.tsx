@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { X, Trash2, Plus, Loader2, Check, AlertCircle, Building2 } from "lucide-react";
 import { postBulkRegister } from "@/lib/users/api";
-import { mapFrontendRoleToBackend, mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
+import { mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { fetchRoles, Role } from "@/lib/admin/rolesApi";
 import { organizationService } from "@/services/organizationService";
 
@@ -11,10 +11,10 @@ interface BulkUser {
   name: string;
   email: string;
   code: string;
-  role: string;
+  roles: string;
   team: string;
   type: string;
-  organization: string;
+  organizations: string;
 }
 
 interface BulkUploadPreviewModalProps {
@@ -41,10 +41,10 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
         name: u.name || "",
         email: u.email || "",
         code: u.code || "",
-        role: u.role || "ROLE_USER",
+        roles: u.roles || u.role || "ROLE_USER",
         team: u.team || "RESEARCH",
         type: u.type || "CLC",
-        organization: u.organization || "",
+        organizations: u.organizations || u.organization || "",
       }));
       setUsers(mapped);
       setError(null);
@@ -60,8 +60,6 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
         .catch(err => console.error("Failed to load organizations:", err));
     }
   }, [open, parsedUsers]);
-
-  if (!open) return null;
 
   const handleUpdateField = (id: string, field: keyof BulkUser, value: string) => {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, [field]: value } : u));
@@ -79,13 +77,54 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
         name: "",
         email: "",
         code: "",
-        role: "ROLE_USER",
+        roles: "ROLE_USER",
         team: "RESEARCH",
         type: "CLC",
-        organization: "",
+        organizations: "",
       }
     ]);
   };
+
+  const validationErrors = useMemo(() => {
+    const result: Record<string, string[]> = {};
+    const seenEmails = new Set<string>();
+    const seenCodes = new Set<string>();
+    const validRoles = new Set(roles.map(role => role.name.toUpperCase()));
+    const validOrganizations = new Set(organizations.flatMap(org => [org.slug.toLowerCase(), org.name.toLowerCase()]));
+    const validOrgRoles = new Set(["MEMBER", "ADMIN", "OWNER"]);
+
+    users.forEach(user => {
+      const errors: string[] = [];
+      const email = user.email.trim().toLowerCase();
+      const code = user.code.trim();
+      if (!user.name.trim()) errors.push("Thiếu họ tên");
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errors.push("Email không hợp lệ");
+      if (!code) errors.push("Thiếu mã số");
+      if (seenEmails.has(email)) errors.push("Trùng email trong file");
+      if (seenCodes.has(code)) errors.push("Trùng mã số trong file");
+      seenEmails.add(email);
+      seenCodes.add(code);
+
+      const rowRoles = user.roles.split(";").map(value => value.trim().toUpperCase()).filter(Boolean);
+      if (!rowRoles.length) errors.push("Thiếu role");
+      rowRoles.forEach(role => {
+        const normalized = role.startsWith("ROLE_") ? role : `ROLE_${role}`;
+        if (validRoles.size && !validRoles.has(normalized)) errors.push(`Role không tồn tại: ${role}`);
+      });
+
+      user.organizations.split(";").map(value => value.trim()).filter(Boolean).forEach(token => {
+        const [identifier, rawOrgRole = "MEMBER"] = token.split(":", 2);
+        if (validOrganizations.size && !validOrganizations.has(identifier.trim().toLowerCase())) {
+          errors.push(`Tổ chức không tồn tại: ${identifier}`);
+        }
+        if (!validOrgRoles.has(rawOrgRole.trim().toUpperCase())) errors.push(`Org-role không hợp lệ: ${rawOrgRole}`);
+      });
+      if (errors.length) result[user.id] = errors;
+    });
+    return result;
+  }, [organizations, roles, users]);
+
+  if (!open) return null;
 
   const handleConfirmImport = async () => {
     if (users.length === 0) {
@@ -94,9 +133,8 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
     }
 
     // Basic validation
-    const invalid = users.some(u => !u.name.trim() || !u.email.trim() || !u.code.trim());
-    if (invalid) {
-      setError("Vui lòng điền đầy đủ Tên, Email, Mã số cho tất cả các dòng.");
+    if (Object.keys(validationErrors).length > 0) {
+      setError(`Còn ${Object.keys(validationErrors).length} dòng chưa hợp lệ. Di chuột vào cảnh báo ở từng dòng để xem chi tiết.`);
       return;
     }
 
@@ -108,11 +146,19 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
       const payload = users.map(u => ({
         name: u.name.trim(),
         email: u.email.trim().toLowerCase(),
-        role: mapFrontendRoleToBackend(u.role, roles),
+        role: u.roles.split(";").map(value => value.trim()).filter(Boolean)[0],
+        roles: u.roles.split(";").map(value => {
+          const normalized = value.trim().toUpperCase();
+          return normalized.startsWith("ROLE_") ? normalized : `ROLE_${normalized}`;
+        }).filter(Boolean),
         team: mapFrontendTeamToBackend(u.team),
         code: u.code.trim(),
         type: mapFrontendTypeToBackend(u.type),
-        organization: u.organization.trim(),
+        organization: u.organizations.trim(),
+        organizations: u.organizations.split(";").map(value => value.trim()).filter(Boolean).map(token => {
+          const [identifier, orgRole = "MEMBER"] = token.split(":", 2);
+          return { identifier: identifier.trim(), orgRole: orgRole.trim().toUpperCase() as "MEMBER" | "ADMIN" | "OWNER" };
+        }),
       }));
 
       const res = await postBulkRegister(payload);
@@ -245,42 +291,36 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
                       </select>
                     </td>
                     <td className="px-3 py-2">
-                      <select
-                        value={u.role}
-                        onChange={(e) => handleUpdateField(u.id, "role", e.target.value)}
-                        className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-sm dark:text-slate-100 dark:bg-slate-900"
-                      >
-                        {roles.map((r) => (
-                          <option key={r.id} value={r.name}>{r.displayName}</option>
-                        ))}
-                      </select>
+                      <input
+                        value={u.roles}
+                        onChange={(e) => handleUpdateField(u.id, "roles", e.target.value)}
+                        placeholder="ROLE_MANAGER;ROLE_USER"
+                        title={`Phân cách nhiều role bằng dấu ;. Hợp lệ: ${roles.map(role => role.name).join(", ")}`}
+                        className="min-w-[210px] w-full px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-xs dark:text-slate-100"
+                      />
                     </td>
                     <td className="px-3 py-2">
-                      <div className="flex gap-1.5 min-w-[150px]">
-                        <select
-                          value={u.organization}
-                          onChange={(e) => handleUpdateField(u.id, "organization", e.target.value)}
-                          className="w-1/2 px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-xs dark:text-slate-100 dark:bg-slate-900"
-                        >
-                          <option value="">-- Chọn --</option>
-                          {organizations.map((org) => (
-                            <option key={org.id} value={org.name}>{org.name}</option>
-                          ))}
-                        </select>
-                        <input
-                          type="text"
-                          placeholder="Tổ chức..."
-                          value={u.organization}
-                          onChange={(e) => handleUpdateField(u.id, "organization", e.target.value)}
-                          className="w-1/2 px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-xs dark:text-slate-100"
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        placeholder="bdc:MEMBER;hpc:ADMIN"
+                        value={u.organizations}
+                        onChange={(e) => handleUpdateField(u.id, "organizations", e.target.value)}
+                        title="Dùng slug:MEMBER|ADMIN|OWNER; phân cách nhiều tổ chức bằng dấu ;"
+                        className="min-w-[220px] w-full px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-xs dark:text-slate-100"
+                      />
                     </td>
                     <td className="px-3 py-2 text-center">
+                      {validationErrors[u.id] && (
+                        <AlertCircle
+                          size={16}
+                          className="mx-auto mb-1 text-amber-500"
+                          aria-label={validationErrors[u.id].join("; ")}
+                        />
+                      )}
                       <button
                         onClick={() => handleRemoveUser(u.id)}
                         className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors active:scale-95"
-                        title="Xóa dòng"
+                        title={validationErrors[u.id]?.join("; ") || "Xóa dòng"}
                       >
                         <Trash2 size={15} />
                       </button>

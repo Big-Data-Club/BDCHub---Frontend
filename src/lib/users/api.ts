@@ -70,11 +70,13 @@ export async function postBulkRegister(
   payload: Array<{
     name: string;
     email: string;
-    role: string;
+    role?: string;
+    roles?: string[];
     team: string;
     code?: string;
     type: string;
     organization?: string;
+    organizations?: Array<{ identifier: string; orgRole: "MEMBER" | "ADMIN" | "OWNER" }>;
   }>
 ) {
   const res = await fetch(`/apiv1/api/auth/register/bulk`, {

@@ -139,6 +139,23 @@ export default function UserApp() {
     }
   }
 
+  async function handleDownloadTemplate() {
+    try {
+      const [{ downloadUserImportTemplate }, { fetchRoles }, { organizationService }] = await Promise.all([
+        import("@/lib/users/fileParser"),
+        import("@/lib/admin/rolesApi"),
+        import("@/services/organizationService"),
+      ]);
+      const [roles, organizationPage] = await Promise.all([
+        fetchRoles(),
+        organizationService.list({ limit: 10000 }),
+      ]);
+      downloadUserImportTemplate(roles, organizationPage.items);
+    } catch (err: any) {
+      alert(`Không thể tạo file mẫu: ${err?.message || err}`);
+    }
+  }
+
   async function toggleStatusLocal(id: string | number) {
     if (!isAdmin) {
       alert("Chỉ có Quản trị viên mới có thể thực hiện hành động này.");
@@ -262,6 +279,12 @@ export default function UserApp() {
                 className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-all duration-200 active:scale-95"
               >
                 Bulk upload
+              </button>
+              <button
+                onClick={handleDownloadTemplate}
+                className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 font-medium transition-all duration-200 active:scale-95"
+              >
+                Tải file Excel mẫu
               </button>
  
               {/* Refresh */}

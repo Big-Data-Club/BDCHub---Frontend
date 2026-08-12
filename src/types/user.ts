@@ -8,6 +8,7 @@ export type UserLogin = {
   name: string;
   email: string;
   role: Role | string;
+  roles?: string[];
 };
 
 export type User = {
