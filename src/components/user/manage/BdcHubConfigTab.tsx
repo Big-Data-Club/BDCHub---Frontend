@@ -68,7 +68,7 @@ export default function BdcHubConfigTab() {
       setCheckingAlias(true);
       const res = await userProfileHubService.checkAlias(aliasInput.trim());
       setAliasStatus({ available: res.available, message: res.reason });
-    } catch (err: any) {
+    } catch {
       setAliasStatus({ available: false, message: "Lỗi kiểm tra alias" });
     } finally {
       setCheckingAlias(false);

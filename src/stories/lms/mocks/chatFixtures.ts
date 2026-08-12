@@ -1,4 +1,4 @@
-import type { AgentMessage, HITLRequestData } from "@/types";
+import type { HITLRequestData } from "@/types";
 
 export const MOCK_USER_PROFILE = {
   name: "Nguyễn Văn Học",

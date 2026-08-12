@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getSession, signOut } from "next-auth/react";
+import { getSession } from "next-auth/react";
 
 // chatApiClient is an axios instance targeting the chat-service.
 // In dev: Next.js rewrites /chatapiv1/* → http://localhost:8083/api/v1/*

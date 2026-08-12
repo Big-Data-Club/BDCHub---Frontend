@@ -19,6 +19,7 @@ export type User = {
   team: Team | string;
   type: TypeTag | string;
   role: Role | string;
+  roles?: string[];
   score?: number;
   totalScore?: number;
   dateAdded?: string;
