@@ -78,8 +78,10 @@ class LMSService {
     return response.data;
   }
 
-  async deleteCourse(courseId: number) {
-    const response = await lmsApiClient.delete(`/courses/${courseId}`);
+  async deleteCourse(courseId: number, reason?: string) {
+    const response = await lmsApiClient.delete(`/courses/${courseId}`, {
+      data: reason ? { reason } : undefined,
+    });
     return response.data;
   }
 

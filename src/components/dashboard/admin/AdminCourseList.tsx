@@ -5,20 +5,40 @@ import { Search, Edit2, Trash2, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Course } from "@/types/course";
+import lmsService from "@/services/lmsService";
 
 interface AdminCourseListProps {
   courses: Course[];
-  onDelete: (id: number) => void;
+  onDelete: (course: Course) => void;
 }
 
 export function AdminCourseList({ courses, onDelete }: AdminCourseListProps) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [teacherTeams, setTeacherTeams] = useState<Record<number, any[] | null>>({});
+  const [expandedTeam, setExpandedTeam] = useState<number | null>(null);
+
+  const toggleTeacherTeam = async (courseId: number) => {
+    if (expandedTeam === courseId) {
+      setExpandedTeam(null);
+      return;
+    }
+    setExpandedTeam(courseId);
+    if (courseId in teacherTeams) return;
+    setTeacherTeams((current) => ({ ...current, [courseId]: null }));
+    try {
+      const teachers = await lmsService.getCoTeachers(courseId);
+      setTeacherTeams((current) => ({ ...current, [courseId]: teachers ?? [] }));
+    } catch {
+      setTeacherTeams((current) => ({ ...current, [courseId]: [] }));
+    }
+  };
 
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          course.teacher_name?.toLowerCase().includes(searchTerm.toLowerCase());
+                          course.creator_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          course.creator_email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || course.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -87,6 +107,7 @@ export function AdminCourseList({ courses, onDelete }: AdminCourseListProps) {
                           src={course.thumbnail_url} 
                           alt={course.title} 
                           fill 
+                          unoptimized
                           className="object-cover" 
                           sizes="64px"
                         />
@@ -100,8 +121,31 @@ export function AdminCourseList({ courses, onDelete }: AdminCourseListProps) {
                     </div>
                   </div>
                 </td>
-                <td className="py-4 align-middle px-4 text-sm font-medium text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
-                  {course.teacher_name || "Hệ thống"}
+                <td className="py-4 align-middle px-4 whitespace-nowrap">
+                  <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                    {course.creator_name || "Không rõ người tạo"}
+                  </p>
+                  <p className="text-xs text-zinc-400">{course.creator_email || `User ID: ${course.created_by ?? "—"}`}</p>
+                  <button
+                    type="button"
+                    onClick={() => toggleTeacherTeam(course.id)}
+                    className="mt-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    {expandedTeam === course.id ? "Ẩn đội ngũ" : "Xem đồng giáo viên"}
+                  </button>
+                  {expandedTeam === course.id && (
+                    <div className="mt-2 space-y-1 border-l-2 border-blue-200 pl-2 dark:border-blue-900">
+                      {teacherTeams[course.id] === null ? (
+                        <p className="text-xs text-zinc-400">Đang tải đội ngũ…</p>
+                      ) : (teacherTeams[course.id] ?? []).length > 0 ? teacherTeams[course.id]!.map((teacher: any) => (
+                        <p key={teacher.id ?? teacher.user_id} className="text-xs text-zinc-500 dark:text-zinc-400">
+                          {teacher.full_name || "Đồng giáo viên"} · {teacher.email}
+                        </p>
+                      )) : (
+                        <p className="text-xs text-zinc-400">Không có đồng giáo viên</p>
+                      )}
+                    </div>
+                  )}
                 </td>
                 <td className="py-4 align-middle px-4">
                   <span className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-full text-xs font-semibold whitespace-nowrap">
@@ -131,7 +175,7 @@ export function AdminCourseList({ courses, onDelete }: AdminCourseListProps) {
                       <Edit2 className="h-4 w-4" />
                     </button>
                     <button 
-                      onClick={() => onDelete(course.id)}
+                      onClick={() => onDelete(course)}
                       className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl transition-all"
                       title="Xóa"
                     >

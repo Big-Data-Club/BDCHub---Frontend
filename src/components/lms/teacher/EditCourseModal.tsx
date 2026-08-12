@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import lmsService from "@/services/lmsService";
 import { organizationService } from "@/services/organizationService";
-import { Course, Organization } from "@/types";
+import { Course, FileInfo, Organization } from "@/types";
 
 export function EditCourseModal({ course, onClose, onSuccess }: {
   course: Course;
@@ -147,13 +148,27 @@ export function EditCourseModal({ course, onClose, onSuccess }: {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">URL ảnh đại diện</label>
-              <input
-                type="text"
-                value={formData.thumbnail_url}
-                onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 placeholder-slate-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Ảnh đại diện</label>
+              <FileUpload
+                fileType="image"
+                maxSize={10}
+                disabled={loading}
+                onFileUploaded={(fileInfo: FileInfo) => {
+                  setFormData((current) => ({ ...current, thumbnail_url: fileInfo.file_url }));
+                }}
               />
+              {formData.thumbnail_url && (
+                <div className="mt-3 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-950/20 dark:text-green-400">
+                  <span className="min-w-0 flex-1 truncate">✓ Đã có ảnh đại diện</span>
+                  <button
+                    type="button"
+                    onClick={() => setFormData((current) => ({ ...current, thumbnail_url: "" }))}
+                    className="font-medium hover:text-green-900 dark:hover:text-green-200"
+                  >
+                    Xóa ảnh
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex gap-3 mt-6">

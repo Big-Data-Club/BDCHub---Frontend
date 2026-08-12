@@ -375,7 +375,7 @@ export default function DiscoverPage() {
                   description={course.description}
                   category={course.category}
                   level={course.level}
-                  teacherName={course.teacher_name}
+                  teacherName={course.creator_name}
                   thumbnailUrl={course.thumbnail_url}
                   enrollmentCount={course.enrollment_count}
                   createdAt={course.created_at}
@@ -526,7 +526,7 @@ export default function DiscoverPage() {
                     description={course.description}
                     category={course.category}
                     level={course.level}
-                    teacherName={course.teacher_name}
+                    teacherName={course.creator_name}
                     thumbnailUrl={course.thumbnail_url}
                     enrollmentCount={course.enrollment_count}
                     createdAt={course.created_at}
