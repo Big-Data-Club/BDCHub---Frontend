@@ -1,5 +1,15 @@
 import { lmsApiClient } from "./lmsApiClient";
 
+export interface PaginatedList<T = any> {
+  items: T[];
+  pagination: {
+    page: number;
+    page_size: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
 class LMSService {
   private rolesPromise: Promise<string[] | null> | null = null;
   private cachedRoles: string[] | null = null;
@@ -80,11 +90,14 @@ class LMSService {
 
   async listMyCourses(params?: {
     status?: string;
+    category?: string;
+    level?: string;
+    search?: string;
     page?: number;
     page_size?: number;
   }) {
     const response = await lmsApiClient.get("/courses/my", { params });
-    return response.data;
+    return response.data?.data as PaginatedList;
   }
 
   async listPublishedCourses(params?: {
@@ -95,7 +108,7 @@ class LMSService {
     page_size?: number;
   }) {
     const response = await lmsApiClient.get("/courses", { params });
-    return response.data?.data;
+    return response.data?.data as PaginatedList;
   }
 
   // ─── Section ──────────────────────────────────────────────────────────────

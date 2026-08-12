@@ -8,6 +8,7 @@ import { StudentCourseAnalytics } from "@/components/lms/student/StudentCourseAn
 import { StudentDashboardHeader } from "@/components/lms/student/StudentDashboardHeader";
 import { useScrollSnap } from "@/hooks/useScrollSnap";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
+import { trackRecommendationEvent } from "@/services/recommendationService";
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -50,6 +51,9 @@ export default function StudentDashboard() {
     inProgressPercent,
     notStartedPercent,
     focusCourse,
+    focusRecommendation,
+    courseRecommendationSetId,
+    courseRecommendations,
     currentCourse,
   } = useStudentDashboard();
 
@@ -59,6 +63,7 @@ export default function StudentDashboard() {
       <div ref={headerRef}>
         <StudentDashboardHeader
           focusCourse={focusCourse}
+          focusRecommendation={focusRecommendation}
           totalCount={totalCount}
           completedCount={completedCount}
           inProgressCount={inProgressCount}
@@ -68,7 +73,13 @@ export default function StudentDashboard() {
           notStartedPercent={notStartedPercent}
           loadingEnrolled={loadingEnrolled}
           loadAllData={loadAllData}
-          onNavigateToCourse={(courseId) => router.push(`/lms/student/courses/${courseId}`)}
+          onNavigateToCourse={(courseId) => {
+            if (focusRecommendation?.entity.course_id === courseId && courseRecommendationSetId) {
+              trackRecommendationEvent(focusRecommendation, courseRecommendationSetId, "click", "dashboard");
+              trackRecommendationEvent(focusRecommendation, courseRecommendationSetId, "started", "dashboard");
+            }
+            router.push(`/lms/student/courses/${courseId}`);
+          }}
           onNavigateToDiscover={() => router.push("/lms/student/discover")}
         />
       </div>
@@ -105,6 +116,7 @@ export default function StudentDashboard() {
             <StudentCourseSidebar
               acceptedEnrollments={acceptedEnrollments}
               filteredAndSortedEnrollments={filteredAndSortedEnrollments}
+              courseRecommendations={courseRecommendations}
               loadingEnrolled={loadingEnrolled}
               selectedCourseId={selectedCourseId}
               setSelectedCourseId={setSelectedCourseId}

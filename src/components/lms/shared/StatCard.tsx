@@ -97,7 +97,7 @@ export function StatCard({
             : "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800/30"
         )}>
           <span>{trend.up ? "↑" : "↓"}</span>
-          <span>{trend.value.split(" ")[0]}</span>
+          <span>{trend.value ? String(trend.value).split(" ")[0] : ""}</span>
         </span>
       );
     }

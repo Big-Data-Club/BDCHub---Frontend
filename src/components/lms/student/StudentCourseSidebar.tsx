@@ -16,10 +16,12 @@ import {
   ProgressCard,
 } from "@/components/lms/shared";
 import { Enrollment } from "@/types";
+import type { RecommendationItem } from "@/services/recommendationService";
 
 interface StudentCourseSidebarProps {
   acceptedEnrollments: Enrollment[];
   filteredAndSortedEnrollments: Enrollment[];
+  courseRecommendations: RecommendationItem[];
   loadingEnrolled: boolean;
   selectedCourseId: number | null;
   setSelectedCourseId: (id: number) => void;
@@ -27,8 +29,8 @@ interface StudentCourseSidebarProps {
   setCourseSearchQuery: (query: string) => void;
   courseStatusFilter: "ALL" | "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
   setCourseStatusFilter: (filter: "ALL" | "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED") => void;
-  courseSortOrder: "desc" | "asc";
-  setCourseSortOrder: (order: "desc" | "asc") => void;
+  courseSortOrder: "recommended" | "desc" | "asc";
+  setCourseSortOrder: (order: "recommended" | "desc" | "asc") => void;
   onNavigateToDiscover: () => void;
   onNavigateToCourse: (courseId: number) => void;
 }
@@ -36,6 +38,7 @@ interface StudentCourseSidebarProps {
 export function StudentCourseSidebar({
   acceptedEnrollments,
   filteredAndSortedEnrollments,
+  courseRecommendations,
   loadingEnrolled,
   selectedCourseId,
   setSelectedCourseId,
@@ -100,7 +103,7 @@ export function StudentCourseSidebar({
 
             {/* Date Sort Filter */}
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-0.5">Ngày đăng ký</span>
+              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-0.5">Sắp xếp</span>
               <Select
                 value={courseSortOrder}
                 onValueChange={(val: any) => setCourseSortOrder(val)}
@@ -109,6 +112,7 @@ export function StudentCourseSidebar({
                   <SelectValue placeholder="Sắp xếp" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#0D192E] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs">
+                  <SelectItem value="recommended" className="text-xs cursor-pointer">Phù hợp nhất</SelectItem>
                   <SelectItem value="desc" className="text-xs cursor-pointer">Mới nhất</SelectItem>
                   <SelectItem value="asc" className="text-xs cursor-pointer">Cũ nhất</SelectItem>
                 </SelectContent>
@@ -140,6 +144,7 @@ export function StudentCourseSidebar({
         <div className="max-h-[480px] lg:max-h-[calc(100vh-250px)] min-h-[200px] overflow-y-auto overflow-x-hidden overscroll-contain pl-3 pr-3.5 py-3 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-blue-900/50 space-y-3">
           {filteredAndSortedEnrollments.map((en) => {
             const isSelected = en.course_id === selectedCourseId;
+            const recommendation = courseRecommendations.find(item => item.entity.course_id === en.course_id);
             return (
               <ProgressCard
                 key={en.id}
@@ -149,6 +154,7 @@ export function StudentCourseSidebar({
                 progress={en.progress_percent || 0}
                 isSelected={isSelected}
                 enrolledAt={en.accepted_at || en.enrolled_at}
+                recommendationBadge={recommendation?.badges[0]?.text}
                 onClick={() => setSelectedCourseId(en.course_id)}
                 onOpenDetails={() => onNavigateToCourse(en.course_id)}
               />

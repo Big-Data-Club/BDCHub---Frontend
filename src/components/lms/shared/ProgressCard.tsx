@@ -20,6 +20,7 @@ interface ProgressCardProps {
   progress: number;
   isSelected?: boolean;
   enrolledAt?: string;
+  recommendationBadge?: string;
   onClick?: () => void;
   onOpenDetails?: (e: React.MouseEvent) => void;
 }
@@ -45,6 +46,7 @@ export function ProgressCard({
   progress,
   isSelected = false,
   enrolledAt,
+  recommendationBadge,
   onClick,
   onOpenDetails,
 }: ProgressCardProps) {
@@ -65,6 +67,7 @@ export function ProgressCard({
               <Badge variant={progress === 100 ? "green" : progress > 0 ? "blue" : "gray"}>
                 {progress === 100 ? "Đã xong" : progress > 0 ? "Đang học" : "Chưa học"}
               </Badge>
+              {recommendationBadge && <Badge variant="purple">{recommendationBadge}</Badge>}
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">#{courseId}</span>
             </div>
 

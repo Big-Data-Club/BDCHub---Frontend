@@ -12,6 +12,7 @@ export interface Course {
   category: string;
   thumbnail_url?: string;
   created_at: string;
+  updated_at?: string;
   published_at?: string;
   teacher_name?: string;
   teacher_email?: string;
@@ -87,6 +88,13 @@ export interface Enrollment {
   accepted_at?: string;
   rejected_at?: string;
   course_title?: string;
+  course_description?: string;
+  course_category?: string;
+  course_level?: string;
+  course_updated_at?: string;
+  course_published_at?: string;
+  last_activity_at?: string;
+  new_content_count?: number;
   teacher_name?: string;
   teacher_email?: string;
   progress_percent?: number;

@@ -102,8 +102,10 @@ const LeaderboardPage = () => {
     (async () => {
       try {
         setLoading(true);
-        const data = await userService.getAll();
-        setUsers(data);
+        const data = await userService.getPage(
+          "page=0&page_size=100&sort_by=totalScore&sort_dir=desc"
+        );
+        setUsers(data.items);
       } catch (error) {
         console.error("Failed to fetch users:", error);
       } finally {

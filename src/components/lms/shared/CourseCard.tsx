@@ -78,7 +78,7 @@ export function CourseCard({
 
         {/* Level & Category Overlays on Image */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-          {category && category.split(",").slice(0, 2).map((cat, i) => {
+          {typeof category === "string" && category.split(",").slice(0, 2).map((cat, i) => {
             const trimmed = cat.trim();
             return trimmed ? (
               <span key={i} className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-white/95 text-slate-800 border border-slate-200 shadow-sm dark:bg-blue-950/90 dark:text-cyan-400 dark:border-blue-500/20">

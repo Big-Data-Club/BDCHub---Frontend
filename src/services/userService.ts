@@ -13,6 +13,15 @@ export interface UserResponse {
   totalScore: number;
 }
 
+interface UserPageResponse {
+  items: UserResponse[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+}
+
 export interface UpdateProfileRequest {
   name: string;
   email: string;
@@ -60,7 +69,12 @@ export interface LoginResponse {
 }
 
 export const userService = {
-  getAll: () => apiClient.get<UserResponse[]>("/api/users"),
+  getPage: (query = "page=0&page_size=50") =>
+    apiClient.get<UserPageResponse>(`/api/users?${query}`),
+
+  getAll: () => apiClient
+    .get<UserPageResponse>("/api/users?page=0&page_size=100")
+    .then(page => page.items),
 
   login: (email: string, password: string) =>
     apiClient.post<LoginResponse>("/api/auth/login", { email, password }),

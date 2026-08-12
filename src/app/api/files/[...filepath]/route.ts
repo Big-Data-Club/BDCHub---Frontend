@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
  * This is needed because Vercel's next.config rewrites don't reliably proxy
  * to external HTTP backends in production (standalone output).
  */
-export async function GET(
+async function proxyFile(
   request: NextRequest,
   { params }: { params: Promise<{ filepath: string[] }> }
 ) {
@@ -17,27 +17,29 @@ export async function GET(
   const targetUrl = `${lmsUrl}/api/v1/files/serve/${filePath}`;
 
   try {
-    const headers: HeadersInit = {};
+    const headers = new Headers();
 
     // Forward authorization if present
     const authHeader = request.headers.get("authorization");
     if (authHeader) {
-      headers["Authorization"] = authHeader;
+      headers.set("authorization", authHeader);
     }
 
-    // Forward range header for video streaming
-    const rangeHeader = request.headers.get("range");
-    if (rangeHeader) {
-      headers["Range"] = rangeHeader;
+    // PDF viewers use byte ranges and validators to fetch only the pages they
+    // need. Preserve those headers through the development/serverless proxy.
+    for (const header of ["range", "if-range", "if-none-match", "if-modified-since"]) {
+      const value = request.headers.get(header);
+      if (value) headers.set(header, value);
     }
 
     const response = await fetch(targetUrl, {
+      method: request.method,
       headers,
       redirect: "manual",
       cache: "no-store",
     });
 
-    if (!response.ok && response.status !== 206) {
+    if (!response.ok && response.status !== 206 && response.status !== 304) {
       return NextResponse.json(
         { error: "File not found" },
         { status: response.status }
@@ -71,7 +73,11 @@ export async function GET(
     );
     responseHeaders.set("Access-Control-Allow-Origin", "*");
 
-    return new NextResponse(response.body, {
+    const responseBody = request.method === "HEAD" || response.status === 304
+      ? null
+      : response.body;
+
+    return new NextResponse(responseBody, {
       status: response.status,
       headers: responseHeaders,
     });
@@ -83,3 +89,6 @@ export async function GET(
     );
   }
 }
+
+export const GET = proxyFile;
+export const HEAD = proxyFile;
