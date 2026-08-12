@@ -16,8 +16,8 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({ fullName, email, l
   const t = T[lang];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center px-4 py-16 transition-colors duration-300">
-      <div className="max-w-xl w-full p-8 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl dark:shadow-2xl dark:backdrop-blur-xl text-center space-y-6 animate-in zoom-in-95 duration-400">
+    <div className="relative z-10 min-h-screen bg-slate-50 dark:bg-[#050B18] flex items-center justify-center px-4 py-16 transition-colors duration-300">
+      <div className="max-w-xl w-full p-8 sm:p-10 bg-white dark:bg-[#0F1E35] border border-slate-200/90 dark:border-blue-500/15 rounded-3xl shadow-xl text-center space-y-6 animate-in zoom-in-95 duration-400">
         {/* Animated Success Badge */}
         <div className="mx-auto w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/40 text-emerald-500 dark:text-emerald-400 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.2)] dark:shadow-[0_0_30px_rgba(16,185,129,0.3)]">
           <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />

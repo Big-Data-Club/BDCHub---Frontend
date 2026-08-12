@@ -11,24 +11,38 @@ interface Step3DepartmentProps {
   lang: Lang;
 }
 
+const renderLabel = (labelStr: string) => {
+  if (labelStr.endsWith("*")) {
+    const mainText = labelStr.slice(0, -1).trim();
+    return (
+      <>
+        {mainText}
+        <span className="text-rose-500 ml-1 font-bold">*</span>
+      </>
+    );
+  }
+  return labelStr;
+};
+
 export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange, errors, lang }) => {
   const t = T[lang];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <Users className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+      <div className="border-b border-slate-200/80 dark:border-blue-500/15 pb-4">
+        <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-blue-50 dark:bg-cyan-500/10 text-blue-600 dark:text-cyan-400 border border-blue-100 dark:border-cyan-500/20">
+            <Users className="w-5 h-5" />
+          </div>
           {t.step3Header}
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t.step3Desc}</p>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">{t.step3Desc}</p>
       </div>
 
       {/* Department Selection Cards */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-          {t.deptSelectLabel}
+        <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
+          {renderLabel(t.deptSelectLabel)}
         </label>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">{t.deptSelectHint}</p>
 
@@ -44,13 +58,13 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                 onClick={() => onChange({ department: dept.id as DepartmentId })}
                 className={`group relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col justify-between ${
                   isSelected
-                    ? "bg-blue-50 dark:bg-slate-900/90 border-blue-400 dark:border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.15)] dark:shadow-[0_0_30px_rgba(59,130,246,0.3)] ring-1 ring-blue-300 dark:ring-blue-500/50"
-                    : "bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/40 shadow-sm dark:shadow-none"
+                    ? "bg-blue-50/80 dark:bg-[#0F1E35] border-blue-500 dark:border-cyan-400 shadow-[0_0_25px_rgba(59,130,246,0.2)] dark:shadow-[0_0_25px_rgba(34,211,238,0.25)] ring-2 ring-blue-500/30 dark:ring-cyan-400/40"
+                    : "bg-white dark:bg-[#0D192E] border-slate-200 dark:border-blue-500/15 hover:border-blue-300 dark:hover:border-blue-500/30 hover:bg-slate-50 dark:hover:bg-[#0F1E35] shadow-sm dark:shadow-none"
                 }`}
               >
                 {/* Selected Checkmark */}
                 {isSelected && (
-                  <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-md animate-in zoom-in-50 duration-200">
+                  <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-blue-600 dark:bg-cyan-400 text-white dark:text-slate-950 flex items-center justify-center shadow-md animate-in zoom-in-50 duration-200">
                     <Check className="w-4 h-4 stroke-[3]" />
                   </div>
                 )}
@@ -113,9 +127,8 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
 
       {/* Motivation Statement */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-2">
-          <MessageSquare className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-          {t.motivationLabel}
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">
+          {renderLabel(t.motivationLabel)}
         </label>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">{t.motivationHint}</p>
         <textarea
@@ -141,8 +154,7 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
           onChange={(e) => onChange({ sendCopy: e.target.checked })}
           className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-500 focus:ring-blue-500/30"
         />
-        <label htmlFor="sendCopy" className="text-xs text-slate-600 dark:text-slate-300 font-medium cursor-pointer flex items-center gap-2">
-          <Send className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+        <label htmlFor="sendCopy" className="text-xs text-slate-600 dark:text-slate-300 font-medium cursor-pointer">
           {t.sendCopyLabel} ({form.emailConfirmation || "email cá nhân"})
         </label>
       </div>

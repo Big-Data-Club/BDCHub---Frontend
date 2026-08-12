@@ -28,7 +28,7 @@ import universitiesData from "./universities.json";
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 const LS_DRAFT = "hpc_ss_2026_draft";
 const LS_DONE  = "hpc_ss_2026_submitted";
-const IS_CLOSED = true;
+const IS_CLOSED = false;
 
 const EMPTY: FormData = {
   agreePrivacy: false, fullName: "", dob: "", studentId: "", emailUni: "",
