@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-13T20:56:50Z",
-  "title": "Design System: BDCourse Design System",
+  "generatedAt": "2026-08-13T22:32:00Z",
+  "title": "Design System: BDCHub Design System",
   "extensions": {
     "colorMeta": {
       "primary-light": {
@@ -21,6 +21,18 @@
         "displayName": "Cosmic Dark Navy",
         "canonical": "#050b18",
         "tonalRamp": ["#020617", "#050b18", "#0b1528", "#0f1e35", "#1e293b", "#334155", "#475569", "#64748b"]
+      },
+      "glass-bg-light": {
+        "role": "neutral",
+        "displayName": "Glass Light",
+        "canonical": "rgba(255, 255, 255, 0.8)",
+        "tonalRamp": []
+      },
+      "glass-bg-dark": {
+        "role": "neutral",
+        "displayName": "Glass Dark",
+        "canonical": "rgba(15, 30, 53, 0.8)",
+        "tonalRamp": []
       }
     },
     "typographyMeta": {
@@ -55,6 +67,10 @@
       {
         "name": "md",
         "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
       }
     ]
   },
@@ -68,6 +84,30 @@
       "css": ".ds-btn-primary { background: #2563eb; color: #ffffff; padding: 12px 28px; border-radius: 12px; font-weight: bold; border: none; transition: background 0.3s, transform 0.2s; cursor: pointer; } .ds-btn-primary:hover { background: #1d4ed8; } .ds-btn-primary:active { transform: scale(0.95); }"
     },
     {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Small action/edit buttons with flat background.",
+      "html": "<button class=\"ds-btn-secondary\">Edit Course</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; font-weight: bold; color: #334155; background: #f1f5f9; border: 1px solid transparent; border-radius: 12px; transition: all 0.2s; cursor: pointer; text-decoration: none; } .ds-btn-secondary:hover { background: #e2e8f0; border-color: #cbd5e1; } .ds-btn-secondary:active { transform: scale(0.95); }"
+    },
+    {
+      "name": "Tab Switcher Pills",
+      "kind": "nav",
+      "refersTo": "tab-pills-container",
+      "description": "Used for switching view tabs in the courses dashboard.",
+      "html": "<div class=\"ds-tab-pills\"><button class=\"ds-tab-pill ds-active\">Overview</button><button class=\"ds-tab-pill\">Content</button></div>",
+      "css": ".ds-tab-pills { display: inline-flex; align-items: center; gap: 4px; background: #f1f5f9; border: 1px solid rgba(226,232,240,0.6); border-radius: 12px; padding: 4px; } .ds-tab-pill { display: flex; align-items: center; gap: 8px; padding: 6px 16px; font-size: 12px; font-weight: bold; border-radius: 8px; border: none; background: transparent; color: #64748b; transition: all 0.2s; cursor: pointer; } .ds-tab-pill:hover { color: #0f172a; background: rgba(255,255,255,0.5); } .ds-tab-pill.ds-active { background: #ffffff; color: #2563eb; border: 1px solid rgba(226,232,240,0.4); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }"
+    },
+    {
+      "name": "Details Card",
+      "kind": "card",
+      "refersTo": "card-details",
+      "description": "Translucent backdrop container card for widgets.",
+      "html": "<div class=\"ds-details-card\"><h4 class=\"ds-details-title\">Configuration Status</h4><span class=\"ds-badge\">Published</span></div>",
+      "css": ".ds-details-card { background: rgba(255,255,255,0.8); border: 1px solid rgba(226,232,240,0.85); border-radius: 16px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.3s; } .ds-details-card:hover { border-color: #cbd5e1; box-shadow: 0 8px 30px rgba(0,0,0,0.03); } .ds-details-title { margin: 0 0 8px 0; font-size: 12px; font-weight: bold; color: #64748b; text-transform: uppercase; } .ds-badge { display: inline-block; padding: 2px 8px; font-size: 12px; font-weight: bold; color: #16a34a; background: #dcfce7; border-radius: 9999px; }"
+    },
+    {
       "name": "Text Input",
       "kind": "input",
       "refersTo": "input-text",
@@ -78,11 +118,12 @@
   ],
   "narrative": {
     "northStar": "The Tech-Academic Terminal",
-    "overview": "This system represents a clean, high-tech engineering aesthetic that blends computer science vibes with institutional structure. It is designed to be highly functional, structured, and formal, reflecting the engineering nature of the Big Data Club at HCMUT.",
+    "overview": "This system represents a clean, high-tech engineering aesthetic that blends computer science vibes with institutional structure. It is designed to be highly functional, structured, and formal, reflecting the engineering nature of the Big Data Club at HCMUT.\n\nThe visual system prioritizes clarity and efficiency, utilizing a strict grid layout, well-proportioned typography, and high-contrast form elements. The light mode uses clean slate tones, while the dark mode adopts a deep cosmic navy atmosphere with subtle vibrant blue/cyan glow highlights.",
     "keyCharacteristics": [
-      "Atmospheric Context: Standardized moving grids, radial vignettes, and glow spots to make the tech environment feel alive and immersive.",
-      "Tactile Feedback: Every click and hover uses physical-feeling offsets (e.g. hard shadow shift, spring curves) so actions feel rewarding and mechanical.",
-      "Consistency of Flow: Role-based structures share styling tokens, page layouts, and UX feedback patterns so transition between learning and teaching feels cohesive."
+      "Technocentric Accent: High-contrast blue and cyan gradients that highlight active elements and progress metrics.",
+      "Structural Integrity: Reliance on solid borders and clear segmentations rather than heavy drop shadows, especially in dark mode.",
+      "User-Centric Progress: Seamless, auto-persisted multi-step form navigation with visible stepper indicators.",
+      "Visual Structure & Spacing: Centered main templates utilizing a standard max-w-7xl layout with unified responsive bounds (px-4 to px-8) and custom background blur panels."
     ],
     "rules": [
       {
@@ -98,7 +139,8 @@
     ],
     "dos": [
       "Do preserve the multi-step progress when a user returns by reading from local storage.",
-      "Do use uppercase cyber badges for section tags and status updates."
+      "Do use uppercase cyber badges for section tags and status updates.",
+      "Do use unified max-w-7xl layouts for dashboard and course layout screens."
     ],
     "donts": [
       "Don't use generic black borders or flat gray highlights. Use themed slate-300 or dark blue/cyan borders instead.",

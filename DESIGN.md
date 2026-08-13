@@ -10,6 +10,8 @@ colors:
   surface-dark: "#0f1e35"
   border-light: "rgba(226, 232, 240, 0.9)"
   border-dark: "rgba(59, 130, 246, 0.15)"
+  glass-bg-light: "rgba(255, 255, 255, 0.8)"
+  glass-bg-dark: "rgba(15, 30, 53, 0.8)"
 typography:
   display:
     fontFamily: "var(--font-sans), system-ui, sans-serif"
@@ -22,7 +24,9 @@ typography:
     fontWeight: 500
     lineHeight: 1.5
 rounded:
+  lg: "8px"
   xl: "12px"
+  "2xl": "16px"
   "3xl": "24px"
   full: "9999px"
 spacing:
@@ -36,6 +40,11 @@ components:
     padding: "12px 28px"
   button-primary-hover:
     backgroundColor: "#1d4ed8"
+  button-secondary:
+    backgroundColor: "#f1f5f9"
+    textColor: "#334155"
+    rounded: "{rounded.xl}"
+    padding: "6px 12px"
   input-text:
     backgroundColor: "#f8fafc"
     textColor: "#0f172a"
@@ -57,6 +66,7 @@ The visual system prioritizes clarity and efficiency, utilizing a strict grid la
 - **Technocentric Accent:** High-contrast blue and cyan gradients that highlight active elements and progress metrics.
 - **Structural Integrity:** Reliance on solid borders and clear segmentations rather than heavy drop shadows, especially in dark mode.
 - **User-Centric Progress:** Seamless, auto-persisted multi-step form navigation with visible stepper indicators.
+- **Visual Structure & Spacing:** Centered main templates utilizing a standard `max-w-7xl` layout with unified responsive bounds (px-4 to px-8) and custom background blur panels.
 
 ## Colors
 
@@ -71,6 +81,7 @@ The primary palette features deep cosmic navy tones paired with vibrant cybernet
 - **LMS Card Dark** (#0f1e35): Container background in dark mode, offering a layered contrast.
 - **Slate Light** (#f8fafc): Background background for light mode layouts.
 - **Pure White** (#ffffff): Card container background for light mode.
+- **Glassmorphic Surface** (rgba(255, 255, 255, 0.8) / rgba(15, 30, 53, 0.8)): High-end layered backdrop styling for summary card blocks and navigation elements.
 
 **The Accent Rarity Rule.** Vibrant primary tech blue is reserved strictly for interactive indicators, primary call-to-actions, and active state indicators, ensuring they stand out immediately.
 
@@ -87,7 +98,7 @@ The primary palette features deep cosmic navy tones paired with vibrant cybernet
 
 ## Layout
 
-The wizard layout is centered, constrained to a maximum width of 3xl (768px). The responsive spatial grammar adapts margins and paddings dynamically (p-6 on mobile to p-10 on desktop). Spacing uses a standard 4px baseline, with most layouts utilizing 16px (gap-4) and 24px (gap-6) spacing steps.
+The wizard layout is centered, constrained to a maximum width of 3xl (768px). The responsive spatial grammar adapts margins and paddings dynamically (p-6 on mobile to p-10 on desktop). Standard pages and dashboards use a centered layout width of `max-w-7xl` with `mx-auto px-4 sm:px-6 lg:px-8`. Spacing uses a standard 4px baseline, with most layouts utilizing 16px (gap-4) and 24px (gap-6) spacing steps.
 
 ## Elevation & Depth
 
@@ -101,6 +112,8 @@ This system operates on a hybrid elevation model:
 
 - **Inputs & Controls:** Rounded-xl (12px) corners for modern, accessible tactile affordance.
 - **Cards & Outer Containers:** Rounded-3xl (24px) corners providing a distinct framing wrapper.
+- **Secondary Cards & Widgets:** Rounded-2xl (16px) corners for configuration blocks and settings sidebars.
+- **Pills & Active Tabs:** Rounded-lg (8px) corners for interior navigators and tab elements.
 - **Action Pills:** Rounded-full (9999px) for pill buttons (e.g., language selection).
 
 ## Components
@@ -108,21 +121,28 @@ This system operates on a hybrid elevation model:
 ### Buttons
 - **Shape:** rounded-xl (12px)
 - **Primary:** Tech Blue background (#2563eb), white text, padding px-7 py-3.
-- **Secondary:** Slate background (#f1f5f9) in light mode, Dark input bg (#0d192e) in dark mode, borders enabled.
+- **Secondary / Edit Button:** Slate-100 / dark slate-800 background, padding px-3 py-1.5, active scale transform (95%), with optional thin border highlights.
+
+### Tab Switcher Pills
+- **Shape:** rounded-xl (12px) outer container, rounded-lg (8px) inner tab elements.
+- **Structure:** Horizontal layout flex container with light/dark backdrop colors, inner spacing padding 4px.
+- **Active state:** Active tab utilizes a distinct white (light) or #0f1e35 (dark) background and subtle border frame.
 
 ### Inputs / Fields
 - **Style:** Background slate-50 (light) or #0d192e (dark) with thin borders.
 - **Focus:** Highlighted with a blue focus border and a subtle glow ring.
 
 ### Cards / Containers
-- **Corner Style:** rounded-3xl (24px)
+- **Corner Style:** rounded-3xl (24px) or rounded-2xl (16px)
 - **Background:** White (light) or #0f1e35 (dark).
+- **Glassmorphic variant:** Semi-transparent backing (`bg-white/80` or `bg-[#0f1e35]/80` with backdrop-blur) and custom hover scale transitions.
 
 ## Do's and Don'ts
 
 ### Do:
 - **Do** preserve the multi-step progress when a user returns by reading from local storage.
 - **Do** use uppercase cyber badges for section tags and status updates.
+- **Do** use unified `max-w-7xl` layouts for dashboard and course layout screens.
 
 ### Don't:
 - **Don't** use generic black borders or flat gray highlights. Use themed slate-300 or dark blue/cyan borders instead.
