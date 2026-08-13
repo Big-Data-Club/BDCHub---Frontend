@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Edit2, Trash2, ArrowRight } from "lucide-react";
+import { Search, Edit2, Trash2, ArrowRight, Archive, ArchiveRestore } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Course } from "@/types/course";
@@ -10,9 +10,10 @@ import lmsService from "@/services/lmsService";
 interface AdminCourseListProps {
   courses: Course[];
   onDelete: (course: Course) => void;
+  onArchive: (course: Course) => void;
 }
 
-export function AdminCourseList({ courses, onDelete }: AdminCourseListProps) {
+export function AdminCourseList({ courses, onDelete, onArchive }: AdminCourseListProps) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -154,17 +155,18 @@ export function AdminCourseList({ courses, onDelete }: AdminCourseListProps) {
                 </td>
                 <td className="py-4 align-middle px-4 text-center">
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold
-                    ${course.status === "PUBLISHED" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"}`}>
-                    <span className={`h-1.5 w-1.5 rounded-full ${course.status === "PUBLISHED" ? "bg-green-500" : "bg-yellow-500"}`} />
-                    {course.status === "PUBLISHED" ? "Đã XB" : "Bản thảo"}
+                    ${course.status === "PUBLISHED" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : course.status === "ARCHIVED" ? "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300" : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"}`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${course.status === "PUBLISHED" ? "bg-green-500" : course.status === "ARCHIVED" ? "bg-zinc-500" : "bg-yellow-500"}`} />
+                    {course.status === "PUBLISHED" ? "Đã XB" : course.status === "ARCHIVED" ? "Đã lưu trữ" : "Bản thảo"}
                   </span>
                 </td>
                 <td className="py-4 align-middle text-right pl-4">
                   <div className="flex items-center justify-end gap-2 p-0.5">
                     <button 
                       onClick={() => router.push(`/lms/teacher/courses/${course.id}`)}
+                      disabled={course.status === "ARCHIVED"}
                       className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl transition-all tooltip"
-                      title="Vào học/Quản lý"
+                      title={course.status === "ARCHIVED" ? "Khôi phục khóa học trước khi truy cập" : "Vào học/Quản lý"}
                     >
                       <ArrowRight className="h-4 w-4" />
                     </button>
@@ -173,6 +175,13 @@ export function AdminCourseList({ courses, onDelete }: AdminCourseListProps) {
                       title="Chỉnh sửa"
                     >
                       <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => onArchive(course)}
+                      className="p-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl transition-all"
+                      title={course.status === "ARCHIVED" ? "Khôi phục khóa học" : "Lưu trữ khóa học"}
+                    >
+                      {course.status === "ARCHIVED" ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
                     </button>
                     <button 
                       onClick={() => onDelete(course)}

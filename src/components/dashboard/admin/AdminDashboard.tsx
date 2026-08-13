@@ -33,6 +33,24 @@ export function AdminDashboard() {
     }
   };
 
+  const handleArchiveCourse = async (course: Course) => {
+    const restoring = course.status === "ARCHIVED";
+    const action = restoring ? "khôi phục" : "lưu trữ";
+    if (!window.confirm(`${restoring ? "Khôi phục" : "Lưu trữ"} khóa học \"${course.title}\"?`)) return;
+
+    try {
+      if (restoring) {
+        await lmsService.unarchiveCourse(course.id);
+      } else {
+        await lmsService.archiveCourse(course.id);
+      }
+      toast.success(`Đã ${action} khóa học`);
+      refresh();
+    } catch (err: any) {
+      toast.error(`Không thể ${action} khóa học: ${err.message}`);
+    }
+  };
+
   if (loading) return <LoadingState />;
 
   if (error) {
@@ -69,6 +87,7 @@ export function AdminDashboard() {
       <AdminCourseList 
         courses={courses} 
         onDelete={handleDeleteCourse} 
+        onArchive={handleArchiveCourse}
       />
     </div>
   );
