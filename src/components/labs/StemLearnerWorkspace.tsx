@@ -315,6 +315,27 @@ export default function StemLearnerWorkspace({ lab }: Props) {
     }
   };
 
+  const resetForNewAttempt = () => {
+    if (!version) return;
+    localStorage.removeItem(`stem-run-id-${version.id}`);
+    localStorage.removeItem(`stem-run-key-${version.id}`);
+    setRun(null);
+    setEvents([]);
+    setPrediction("");
+    setAnalysis("");
+    setClaim("");
+    setCerEvidence("");
+    setReasoning("");
+    setIterationReason("");
+    setReflection("");
+    const defaults: Record<string, number> = {};
+    version.definition.variables.forEach(variable => {
+      defaults[variable.key] = Number(variable.defaultValue ?? variable.minValue ?? 0);
+    });
+    setConfig(defaults);
+    setActiveNodeKey(orderedNodes[0]?.key || "");
+  };
+
   if (loading) {
     return <div className="flex h-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-emerald-400" /></div>;
   }
@@ -406,7 +427,7 @@ export default function StemLearnerWorkspace({ lab }: Props) {
       <main className="min-w-0 flex-1 overflow-y-auto p-5">
         <div className="mx-auto max-w-3xl space-y-5">
           <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold text-emerald-400">{activeNode?.type}</p><h3 className="mt-1 text-xl font-bold">{activeNode?.title}</h3></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${run.status === "COMPLETED" ? "bg-emerald-950 text-emerald-300" : "bg-blue-950 text-blue-300"}`}>{run.status}</span></div>
-          {run.status === "COMPLETED" ? <div className="rounded-2xl border border-emerald-800 bg-emerald-950/30 p-8 text-center"><CheckCircle2 className="mx-auto h-12 w-12 text-emerald-400" /><h3 className="mt-3 text-xl font-bold">Đã hoàn thành</h3><p className="mt-2 text-sm text-slate-400">Giáo viên có thể xem toàn bộ {events.length} bằng chứng và {trialResults.length} lần thử của bạn.</p></div> : content()}
+          {run.status === "COMPLETED" ? <div className="rounded-2xl border border-emerald-800 bg-emerald-950/30 p-8 text-center"><CheckCircle2 className="mx-auto h-12 w-12 text-emerald-400" /><h3 className="mt-3 text-xl font-bold">Đã hoàn thành</h3><p className="mt-2 text-sm text-slate-400">Giáo viên có thể xem toàn bộ {events.length} bằng chứng và {trialResults.length} lần thử của bạn.</p><button type="button" onClick={resetForNewAttempt} className="mt-5 inline-flex items-center gap-2 rounded-xl border border-emerald-700 bg-emerald-950/60 px-4 py-2.5 text-sm font-bold text-emerald-200 hover:bg-emerald-900"><RefreshCw className="h-4 w-4" /> Làm lại bằng lượt mới</button></div> : content()}
           <div className="rounded-xl border border-amber-900/60 bg-amber-950/20 p-3 text-xs leading-5 text-amber-200/80"><strong>Mô hình khái niệm:</strong> kết quả giúp học phương pháp thí nghiệm và có thể tái tạo bằng seed; không dùng để dự báo canh tác hoặc thiết kế robot ngoài đời.</div>
         </div>
       </main>
