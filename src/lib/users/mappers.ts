@@ -21,6 +21,7 @@ export function mapServerUserToClient(s: any): User {
     type: (s.type ?? "CLC") as string,
     role: s.role || "ROLE_USER",
     roles: Array.isArray(s.roles) ? s.roles : (s.role ? [s.role] : ["ROLE_USER"]),
+    lmsRoles: Array.isArray(s.lmsRoles) ? s.lmsRoles : [],
     score: Number(s.totalScore ?? s.score ?? 0),
     dateAdded: s.createdAt ?? s.updatedAt ?? new Date().toISOString(),
     status: typeof s.active === "boolean" ? s.active : Boolean(s.status ?? true),

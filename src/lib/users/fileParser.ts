@@ -1,7 +1,7 @@
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 
-export type ParsedRow = { name: string; email: string; roles?: string; team?: string; code?: string; type?: string; organizations?: string };
+export type ParsedRow = { name: string; email: string; roles?: string; lmsRoles?: string; team?: string; code?: string; type?: string; organizations?: string };
 
 const cell = (value: unknown) => String(value ?? "").trim();
 
@@ -10,6 +10,7 @@ function mapRow(r: Record<string, unknown>): ParsedRow {
     name: cell(r.name || r.fullname || r.Name),
     email: cell(r.email || r.Email).toLowerCase(),
     roles: cell(r.roles || r.Roles || r.role || r.Role || "ROLE_USER"),
+    lmsRoles: cell(r.lms_roles || r.lmsRoles || r["LMS roles"] || r["LMS Roles"]),
     team: cell(r.team || r.Team || "RESEARCH"),
     code: cell(r.code || r.Code),
     type: cell(r.type || r.Type || "CLC"),
@@ -64,13 +65,14 @@ export function downloadUserImportTemplate(
       code: "USER001",
       team: "RESEARCH",
       type: "CLC",
-      roles: "ROLE_MANAGER;ROLE_USER",
+      roles: "ROLE_USER",
+      lms_roles: "LMS:TEACHER,STUDENT",
       organizations: "bdc:MEMBER",
     },
   ]);
   users["!cols"] = [
     { wch: 24 }, { wch: 32 }, { wch: 16 }, { wch: 14 },
-    { wch: 10 }, { wch: 34 }, { wch: 42 },
+    { wch: 10 }, { wch: 24 }, { wch: 28 }, { wch: 42 },
   ];
   XLSX.utils.book_append_sheet(workbook, users, "Users");
 
@@ -81,7 +83,8 @@ export function downloadUserImportTemplate(
     ["code", "Có", "Mã người dùng duy nhất; giữ định dạng Text nếu có số 0 đầu"],
     ["team", "Có", "RESEARCH, ENGINEER, EVENT hoặc MEDIA"],
     ["type", "Có", "CLC, DT hoặc TN"],
-    ["roles", "Có", "Một hoặc nhiều auth role, phân cách bằng dấu ;. Ví dụ ROLE_MANAGER;ROLE_USER"],
+    ["roles", "Có", "Quyền hệ thống. Người dùng thông thường điền ROLE_USER"],
+    ["lms_roles", "Không", "Quyền LMS độc lập. Ví dụ LMS:TEACHER,STUDENT (chấp nhận dấu , hoặc ;). Hợp lệ: ADMIN, TEACHER, STUDENT"],
     ["organizations", "Không", "slug:org-role, nhiều tổ chức phân cách bằng ;. Org-role: MEMBER, ADMIN, OWNER"],
     [],
     ["Lưu ý", "Import là atomic: chỉ cần một dòng sai thì không user nào được tạo. Hãy sửa toàn bộ lỗi trong preview trước khi xác nhận."],

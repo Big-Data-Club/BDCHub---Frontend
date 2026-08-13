@@ -12,6 +12,7 @@ interface BulkUser {
   email: string;
   code: string;
   roles: string;
+  lmsRoles: string;
   team: string;
   type: string;
   organizations: string;
@@ -42,6 +43,7 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
         email: u.email || "",
         code: u.code || "",
         roles: u.roles || u.role || "ROLE_USER",
+        lmsRoles: u.lmsRoles || u.lms_roles || "",
         team: u.team || "RESEARCH",
         type: u.type || "CLC",
         organizations: u.organizations || u.organization || "",
@@ -78,6 +80,7 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
         email: "",
         code: "",
         roles: "ROLE_USER",
+        lmsRoles: "",
         team: "RESEARCH",
         type: "CLC",
         organizations: "",
@@ -111,6 +114,12 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
         const normalized = role.startsWith("ROLE_") ? role : `ROLE_${role}`;
         if (validRoles.size && !validRoles.has(normalized)) errors.push(`Role không tồn tại: ${role}`);
       });
+
+      const validLmsRoles = new Set(["ADMIN", "TEACHER", "STUDENT"]);
+      user.lmsRoles.split(/[;,]/).map(value => value.trim().toUpperCase().replace(/^LMS:/, "")).filter(Boolean)
+        .forEach(role => {
+          if (!validLmsRoles.has(role)) errors.push(`LMS role không tồn tại: ${role}`);
+        });
 
       user.organizations.split(";").map(value => value.trim()).filter(Boolean).forEach(token => {
         const [identifier, rawOrgRole = "MEMBER"] = token.split(":", 2);
@@ -151,6 +160,7 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
           const normalized = value.trim().toUpperCase();
           return normalized.startsWith("ROLE_") ? normalized : `ROLE_${normalized}`;
         }).filter(Boolean),
+        lmsRoles: u.lmsRoles.split(/[;,]/).map(value => value.trim().toUpperCase().replace(/^LMS:/, "")).filter(Boolean),
         team: mapFrontendTeamToBackend(u.team),
         code: u.code.trim(),
         type: mapFrontendTypeToBackend(u.type),
@@ -233,6 +243,7 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
                   <th className="px-4 py-3">Team</th>
                   <th className="px-4 py-3">Loại</th>
                   <th className="px-4 py-3">Vai trò</th>
+                  <th className="px-4 py-3">LMS roles</th>
                   <th className="px-4 py-3">Tổ chức</th>
                   <th className="px-4 py-3 text-center w-12"></th>
                 </tr>
@@ -297,6 +308,15 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
                         placeholder="ROLE_MANAGER;ROLE_USER"
                         title={`Phân cách nhiều role bằng dấu ;. Hợp lệ: ${roles.map(role => role.name).join(", ")}`}
                         className="min-w-[210px] w-full px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-xs dark:text-slate-100"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input
+                        value={u.lmsRoles}
+                        onChange={(e) => handleUpdateField(u.id, "lmsRoles", e.target.value)}
+                        placeholder="LMS:TEACHER,STUDENT"
+                        title="Quyền riêng trong LMS: ADMIN, TEACHER, STUDENT; phân cách bằng dấu , hoặc ;"
+                        className="min-w-[180px] w-full px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-xs dark:text-slate-100"
                       />
                     </td>
                     <td className="px-3 py-2">

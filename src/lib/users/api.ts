@@ -72,6 +72,7 @@ export async function postBulkRegister(
     email: string;
     role?: string;
     roles?: string[];
+    lmsRoles?: string[];
     team: string;
     code?: string;
     type: string;
