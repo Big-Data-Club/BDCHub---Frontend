@@ -141,16 +141,19 @@ export default function UserApp() {
 
   async function handleDownloadTemplate() {
     try {
-      const [{ downloadUserImportTemplate }, { fetchRoles }, { organizationService }] = await Promise.all([
+      const [{ downloadUserImportTemplate }, { fetchRoles }, { fetchPublicTeams, fetchPublicTypes }, { organizationService }] = await Promise.all([
         import("@/lib/users/fileParser"),
         import("@/lib/admin/rolesApi"),
+        import("@/lib/admin/teamsTypesApi"),
         import("@/services/organizationService"),
       ]);
-      const [roles, organizationPage] = await Promise.all([
+      const [roles, teams, types, organizationPage] = await Promise.all([
         fetchRoles(),
+        fetchPublicTeams(),
+        fetchPublicTypes(),
         organizationService.list({ limit: 10000 }),
       ]);
-      downloadUserImportTemplate(roles, organizationPage.items);
+      downloadUserImportTemplate(roles, teams, types, organizationPage.items);
     } catch (err: any) {
       alert(`Không thể tạo file mẫu: ${err?.message || err}`);
     }

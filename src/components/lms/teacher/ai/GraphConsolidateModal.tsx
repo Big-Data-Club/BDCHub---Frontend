@@ -6,7 +6,6 @@ import {
   ArrowRight,
   Loader2,
   AlertCircle,
-  CheckCircle2,
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -20,10 +19,9 @@ interface Props {
   courseId: number;
   open: boolean;
   onClose: () => void;
-  onCompleted: () => void;
 }
 
-type Phase = "loading" | "preview" | "executing" | "done" | "error";
+type Phase = "loading" | "preview" | "executing" | "error";
 
 const KIND_BADGE: Record<string, { label: string; cls: string }> = {
   hard:  { label: "Trùng lặp",  cls: "bg-rose-50 text-rose-700 border-rose-200" },
@@ -31,7 +29,7 @@ const KIND_BADGE: Record<string, { label: string; cls: string }> = {
   micro: { label: "Mảnh nhỏ",   cls: "bg-sky-50 text-sky-700 border-sky-200" },
 };
 
-export default function GraphConsolidateModal({ courseId, open, onClose, onCompleted }: Props) {
+export default function GraphConsolidateModal({ courseId, open, onClose }: Props) {
   const [phase, setPhase]       = useState<Phase>("loading");
   const [preview, setPreview]   = useState<ConsolidationPreview | null>(null);
   const [error, setError]       = useState<string>("");
@@ -60,7 +58,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
   }, [open, courseId]);
 
   const stats = useMemo(() => {
-    if (!preview) return { selectedGroups: 0, willAbsorb: 0 };
+    if (!preview) return { selectedGroups: 0, willAbsorb: 0, willDeleteOrphans: 0 };
     let willAbsorb = 0;
     let selectedGroups = 0;
     for (const g of preview.groups) {
@@ -69,7 +67,11 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
         willAbsorb += g.absorbed_ids.length;
       }
     }
-    return { selectedGroups, willAbsorb };
+    return {
+      selectedGroups,
+      willAbsorb,
+      willDeleteOrphans: preview.orphaned_ids?.length ?? 0,
+    };
   }, [preview, enabled]);
 
   const handleToggle = (survivorId: number) => {
@@ -77,41 +79,23 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
   };
 
   const handleConfirm = async () => {
-    if (!preview || stats.selectedGroups === 0) return;
+    if (!preview || (stats.selectedGroups === 0 && stats.willDeleteOrphans === 0)) return;
 
     setPhase("executing");
     setStatusMsg("Đang gửi yêu cầu…");
     try {
-      const job = await aiService.triggerGraphConsolidation(courseId);
-      setStatusMsg("Đang xử lý ở backend…");
-
-      // Poll the existing AI job-status endpoint.
-      const start = Date.now();
-      const TIMEOUT_MS = 5 * 60 * 1000;
-      while (Date.now() - start < TIMEOUT_MS) {
-        await new Promise((r) => setTimeout(r, 2500));
-        try {
-          const s = await aiService.getJobStatus(job.job_id);
-          if (s.status === "completed") {
-            setPhase("done");
-            toast.success("Đã làm gọn graph");
-            onCompleted();
-            return;
-          }
-          if (s.status === "failed") {
-            setError(s.error || "Backend báo lỗi khi hợp nhất");
-            setPhase("error");
-            return;
-          }
-        } catch {
-          // Status not seeded yet; keep polling.
-        }
-      }
-
-      // Soft timeout - the job may still finish later, but stop blocking the UI.
-      setPhase("done");
-      toast("Hợp nhất đang chạy nền - graph sẽ tự cập nhật.", { icon: "ℹ️" });
-      onCompleted();
+      const selectedSurvivorIds = preview.groups
+        .filter((group) => enabled[group.survivor_id])
+        .map((group) => group.survivor_id);
+      await aiService.triggerGraphConsolidation(
+        courseId,
+        selectedSurvivorIds,
+      );
+      toast("Hệ thống đang làm gọn graph trong nền. Bạn có thể tiếp tục làm việc.", {
+        icon: "ℹ️",
+        duration: 5000,
+      });
+      onClose();
     } catch (e: any) {
       setError(e?.response?.data?.error ?? e?.message ?? "Không thể chạy hợp nhất");
       setPhase("error");
@@ -157,18 +141,6 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
             </div>
           )}
 
-          {phase === "done" && (
-            <div className="flex flex-col items-center justify-center py-12 text-slate-700 dark:text-slate-200">
-              <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-3" />
-              <p className="text-sm font-medium">Đã hoàn tất hợp nhất</p>
-              {preview && (
-                <p className="text-xs text-slate-500 mt-1">
-                  Graph từ {preview.total_nodes_before} → {preview.total_nodes_after} nodes
-                </p>
-              )}
-            </div>
-          )}
-
           {phase === "executing" && (
             <div className="flex flex-col items-center justify-center py-12 text-slate-500">
               <Loader2 className="w-8 h-8 animate-spin mb-3 text-violet-500" />
@@ -180,27 +152,51 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
             <>
               {/* Summary */}
               <div className="mb-4 p-3 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800 text-sm text-violet-700 dark:text-violet-300">
-                {preview.groups.length === 0 ? (
+                {preview.groups.length === 0 && stats.willDeleteOrphans === 0 ? (
                   <span>
-                    Graph đã sạch - không có nhóm nào cần hợp nhất.
+                    Graph đã sạch - không có node nào cần hợp nhất hoặc dọn bỏ.
                   </span>
                 ) : (
                   <span>
-                    Sẽ hợp nhất{" "}
-                    <strong>{stats.willAbsorb + stats.selectedGroups}</strong> nodes
-                    thành <strong>{stats.selectedGroups}</strong> nhóm - graph còn{" "}
-                    <strong>{preview.total_nodes_before - stats.willAbsorb}</strong>/{
+                    Sẽ gộp <strong>{stats.willAbsorb}</strong> node trùng lặp
+                    {stats.willDeleteOrphans > 0 && (
+                      <> và xóa <strong>{stats.willDeleteOrphans}</strong> node tự sinh không có tài liệu</>
+                    )}. Graph còn{" "}
+                    <strong>{preview.total_nodes_before - stats.willAbsorb - stats.willDeleteOrphans}</strong>/{
                       preview.total_nodes_before
                     }{" "}
                     nodes (giảm{" "}
                     {Math.round(
-                      (100 * stats.willAbsorb) /
+                      (100 * (stats.willAbsorb + stats.willDeleteOrphans)) /
                         Math.max(1, preview.total_nodes_before)
                     )}
                     %).
                   </span>
                 )}
               </div>
+
+              {stats.willDeleteOrphans > 0 && (
+                <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+                  <div className="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-200">
+                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">
+                        {stats.willDeleteOrphans} node tự sinh không có tài liệu sẽ được xóa
+                      </p>
+                      <p className="mt-1 text-xs opacity-80">
+                        Node tạo thủ công được giữ nguyên. Backend sẽ kiểm tra lại chunk ngay trước khi xóa.
+                      </p>
+                      <div className="mt-2 flex max-h-24 flex-wrap gap-1.5 overflow-y-auto">
+                        {(preview.orphaned_ids ?? []).map((id) => (
+                          <span key={id} className="rounded bg-white/80 px-2 py-0.5 text-xs dark:bg-slate-900/50">
+                            {preview.orphaned_names?.[String(id)] ?? `#${id}`}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Group list */}
               <div className="space-y-3">
@@ -214,7 +210,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
                 ))}
               </div>
 
-              {preview.groups.length === 0 && (
+              {preview.groups.length === 0 && stats.willDeleteOrphans === 0 && (
                 <p className="text-sm text-slate-500 text-center py-8">
                   Không phát hiện node nào trùng lặp ở thời điểm này.
                 </p>
@@ -230,12 +226,12 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
             disabled={phase === "executing"}
             className="px-4 py-2 text-sm border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-50"
           >
-            {phase === "done" ? "Đóng" : "Hủy"}
+            Hủy
           </button>
-          {phase === "preview" && preview && preview.groups.length > 0 && (
+          {phase === "preview" && preview && (preview.groups.length > 0 || stats.willDeleteOrphans > 0) && (
             <button
               onClick={handleConfirm}
-              disabled={stats.selectedGroups === 0}
+              disabled={stats.selectedGroups === 0 && stats.willDeleteOrphans === 0}
               className="px-4 py-2 text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
               <Sparkles className="w-3.5 h-3.5" />

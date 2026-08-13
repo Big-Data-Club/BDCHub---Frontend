@@ -175,6 +175,9 @@ export interface ConsolidationPreview {
   total_nodes_before: number;
   total_nodes_after: number;
   reduction_percent: number;
+  orphaned_ids: number[];
+  orphaned_names: Record<string, string>;
+  orphaned_count: number;
   groups: ConsolidationGroup[];
 }
 
@@ -358,6 +361,9 @@ class AIService {
         total_nodes_before: 0,
         total_nodes_after: 0,
         reduction_percent: 0,
+        orphaned_ids: [],
+        orphaned_names: {},
+        orphaned_count: 0,
         groups: [],
       }
     );
@@ -368,9 +374,12 @@ class AIService {
    * via getJobStatus().
    */
   async triggerGraphConsolidation(
-    courseId: number
+    courseId: number,
+    selectedSurvivorIds?: number[]
   ): Promise<{ job_id: string; status: string; message?: string }> {
-    const res = await lmsApiClient.post(`/courses/${courseId}/ai/consolidate-graph`);
+    const res = await lmsApiClient.post(`/courses/${courseId}/ai/consolidate-graph`, {
+      selected_survivor_ids: selectedSurvivorIds,
+    });
     return res.data?.data ?? res.data;
   }
 
