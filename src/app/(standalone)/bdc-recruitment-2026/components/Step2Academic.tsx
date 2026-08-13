@@ -14,9 +14,9 @@ interface Step2AcademicProps {
 }
 
 const inputBase =
-  "w-full bg-slate-50 dark:bg-[#0D192E] border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200";
+  "w-full bg-white dark:bg-[#091124] border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200";
 const inputNormal =
-  "border-slate-300 dark:border-blue-500/20 focus:bg-white dark:focus:bg-[#0A1628] focus:border-blue-500 dark:focus:border-cyan-400/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20";
+  "border-slate-300 dark:border-slate-800 focus:bg-white dark:focus:bg-[#0A1628] focus:border-blue-500 dark:focus:border-cyan-400/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20";
 const inputError =
   "border-rose-400 dark:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/30";
 
@@ -214,19 +214,21 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
       </div>
 
       {/* Status Notice Banner */}
-      <div className="p-4.5 rounded-2xl border bg-blue-50/70 dark:bg-[#0F1E35] border-blue-200 dark:border-blue-500/20 flex items-start space-x-3.5 shadow-sm">
-        <div className="p-2 bg-blue-100 dark:bg-cyan-500/10 rounded-xl text-blue-600 dark:text-cyan-400 shrink-0 border border-blue-200 dark:border-cyan-500/20">
-          <Sparkles className="w-5 h-5" />
+      {!isFreshman && (
+        <div className="p-4.5 rounded-2xl border bg-blue-50/70 dark:bg-[#0F1E35] border-blue-200 dark:border-blue-500/20 flex items-start space-x-3.5 shadow-sm">
+          <div className="p-2 bg-blue-100 dark:bg-cyan-500/10 rounded-xl text-blue-600 dark:text-cyan-400 shrink-0 border border-blue-200 dark:border-cyan-500/20">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+              {t.seniorNoticeTitle}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+              {t.seniorNoticeDesc}
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-            {isFreshman ? t.freshmanNoticeTitle : t.seniorNoticeTitle}
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-            {isFreshman ? t.freshmanNoticeDesc : t.seniorNoticeDesc}
-          </p>
-        </div>
-      </div>
+      )}
 
       {/* Dynamic Academic Inputs */}
       {isFreshman ? (
@@ -253,76 +255,65 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
-                {renderLabel(t.hasDgnl)}
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { value: "yes", label: isVi ? "Có" : "Yes" },
-                  { value: "no", label: isVi ? "Không" : "No" }
-                ].map((opt) => {
-                  const isSelected = form.hasDgnl === opt.value;
-                  return (
-                    <label
-                      key={opt.value}
-                      onClick={() => {
-                        const scoreVal = opt.value === "yes" ? (form.dgnlScore || "") : "";
-                        onChange({
-                          hasDgnl: opt.value,
-                          dgnlScore: scoreVal,
-                          thptDgnlScores: `THPT: ${form.thptScore || "N/A"}${opt.value === "yes" && scoreVal.trim() ? ` | ĐGNL: ${scoreVal}` : " | ĐGNL: Không"}`
-                        });
-                      }}
-                      className={`relative flex items-center p-3 px-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                        isSelected
-                          ? "bg-blue-50 dark:bg-blue-500/15 border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-200 shadow-sm dark:shadow-[0_0_15px_rgba(59,130,246,0.2)]"
-                          : "bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800/50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="hasDgnl"
-                        checked={isSelected}
-                        onChange={() => {}}
-                        className="sr-only"
-                      />
-                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 flex-shrink-0 ${
-                        isSelected ? "border-blue-500 bg-blue-500" : "border-slate-300 dark:border-slate-600 bg-transparent"
-                      }`}>
-                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                      </div>
-                      <span className="text-sm font-medium">
-                        {opt.label}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-              {errors.hasDgnl && <p className="text-xs text-rose-500 mt-1">{errors.hasDgnl}</p>}
-            </div>
-          </div>
-
-          {form.hasDgnl === "yes" && (
-            <div className="animate-in slide-in-from-left duration-250">
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 {renderLabel(t.dgnlScore)}
               </label>
-              <input
-                type="text"
-                value={form.dgnlScore || ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  onChange({
-                    dgnlScore: val,
-                    thptDgnlScores: `THPT: ${form.thptScore || "N/A"}${val.trim() ? ` | ĐGNL: ${val}` : ""}`
-                  });
-                }}
-                placeholder={t.dgnlScorePh}
-                className={`${inputBase} ${errors.dgnlScore ? inputError : inputNormal}`}
-              />
-              {errors.dgnlScore && <p className="text-xs text-rose-500 mt-1">{errors.dgnlScore}</p>}
+              <div className="flex items-center gap-3">
+                {/* Segemented control style radio buttons */}
+                <div className="flex bg-slate-100 dark:bg-slate-900/60 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
+                  {[
+                    { value: "yes", label: isVi ? "Có" : "Yes" },
+                    { value: "no", label: isVi ? "Không" : "No" }
+                  ].map((opt) => {
+                    const isSelected = form.hasDgnl === opt.value;
+                    return (
+                      <button
+                        type="button"
+                        key={opt.value}
+                        onClick={() => {
+                          const scoreVal = opt.value === "yes" ? (form.dgnlScore || "") : "";
+                          onChange({
+                            hasDgnl: opt.value,
+                            dgnlScore: scoreVal,
+                            thptDgnlScores: `THPT: ${form.thptScore || "N/A"}${opt.value === "yes" && scoreVal.trim() ? ` | ĐGNL: ${scoreVal}` : " | ĐGNL: Không"}`
+                          });
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                          isSelected
+                            ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-cyan-400 shadow-sm border border-slate-200/80 dark:border-slate-700"
+                            : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 border border-transparent"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    disabled={form.hasDgnl === "no"}
+                    value={form.hasDgnl === "yes" ? (form.dgnlScore || "") : ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      onChange({
+                        dgnlScore: val,
+                        thptDgnlScores: `THPT: ${form.thptScore || "N/A"}${val.trim() ? ` | ĐGNL: ${val}` : ""}`
+                      });
+                    }}
+                    placeholder={form.hasDgnl === "yes" ? t.dgnlScorePh : (isVi ? "Không thi" : "N/A")}
+                    className={`${inputBase} ${
+                      form.hasDgnl === "no"
+                        ? "bg-slate-100/80 dark:bg-slate-950/40 text-slate-400/80 dark:text-slate-650 border-slate-200/50 dark:border-slate-800/30 cursor-not-allowed opacity-50"
+                        : errors.dgnlScore ? inputError : inputNormal
+                    }`}
+                  />
+                </div>
+              </div>
+              {form.hasDgnl === "yes" && errors.dgnlScore && <p className="text-xs text-rose-500 mt-1">{errors.dgnlScore}</p>}
             </div>
-          )}
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -353,27 +344,32 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
               />
             </div>
 
-            {form.englishCertType && form.englishCertType !== "none" && (
-              <div className="animate-in slide-in-from-left duration-250">
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                  {renderLabel(t.englishCertScore)}
-                </label>
-                <input
-                  type="text"
-                  value={form.englishCertScore || ""}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    onChange({
-                      englishCertScore: val,
-                      englishCert: `${(form.englishCertType || "other").toUpperCase()}: ${val}`
-                    });
-                  }}
-                  placeholder={t.englishCertScorePh}
-                  className={`${inputBase} ${errors.englishCertScore ? inputError : inputNormal}`}
-                />
-                {errors.englishCertScore && <p className="text-xs text-rose-500 mt-1">{errors.englishCertScore}</p>}
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                {renderLabel(t.englishCertScore)}
+              </label>
+              <input
+                type="text"
+                disabled={form.englishCertType === "none" || !form.englishCertType}
+                value={form.englishCertType !== "none" ? (form.englishCertScore || "") : ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  onChange({
+                    englishCertScore: val,
+                    englishCert: `${(form.englishCertType || "other").toUpperCase()}: ${val}`
+                  });
+                }}
+                placeholder={form.englishCertType !== "none" && form.englishCertType ? t.englishCertScorePh : (isVi ? "Không có" : "N/A")}
+                className={`${inputBase} ${
+                  form.englishCertType === "none" || !form.englishCertType
+                    ? "bg-slate-100/80 dark:bg-slate-950/40 text-slate-400/80 dark:text-slate-650 border-slate-200/50 dark:border-slate-800/30 cursor-not-allowed opacity-50"
+                    : errors.englishCertScore ? inputError : inputNormal
+                }`}
+              />
+              {form.englishCertType !== "none" && errors.englishCertScore && (
+                <p className="text-xs text-rose-500 mt-1">{errors.englishCertScore}</p>
+              )}
+            </div>
           </div>
 
           <div>
