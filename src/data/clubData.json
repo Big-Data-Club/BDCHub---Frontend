@@ -36,35 +36,35 @@
         "name": "Nguyễn Hữu Thanh",
         "desc": "Gen 3",
         "team": "Council",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_HUU_THANH"
+        "imageUrl": ""
       },
       {
         "id": "g3-99",
         "name": "Đặng Kim Nghĩa",
         "desc": "Gen 3",
         "team": "Council",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_HUU_THANH"
+        "imageUrl": ""
       },
       {
         "id": "g3-98",
         "name": "Nguyễn Ngọc Song Thương",
         "desc": "Gen 3",
         "team": "Council",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_HUU_THANH"
+        "imageUrl": ""
       },
       {
         "id": "g3-97",
         "name": "Nguyễn Thành Minh",
         "desc": "Gen 3",
         "team": "Council",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_HUU_THANH"
+        "imageUrl": ""
       },
       {
         "id": "g3-96",
         "name": "Nguyễn Lê Vân Tú",
         "desc": "Gen 3",
         "team": "Council",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_HUU_THANH"
+        "imageUrl": ""
       }
     ],
     "media": [
@@ -80,14 +80,14 @@
         "name": "Khưu Gia Bảo",
         "desc": "Gen 4",
         "team": "Media",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=KHUU_GIA_BAO"
+        "imageUrl": ""
       },
       {
         "id": "g4-14",
         "name": "Nguyễn Thị Thuỳ Trang",
         "desc": "Gen 4",
         "team": "Media",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_THI_THUY_TRANG"
+        "imageUrl": ""
       }
     ],
     "event": [
@@ -96,63 +96,63 @@
         "name": "Nguyễn Văn Công Thành",
         "desc": "Gen 3",
         "team": "Event",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_VAN_CONG_THANH"
+        "imageUrl": ""
       },
       {
         "id": "g3-4",
         "name": "Huỳnh Lan Phương",
         "desc": "Gen 3",
         "team": "Event",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=HUYNH_LAN_PHUONG"
+        "imageUrl": ""
       },
       {
         "id": "g3-9",
         "name": "Kiều Tấn Anh Minh",
         "desc": "Gen 3",
         "team": "Event",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=KIEU_TAN_ANH_MINH"
+        "imageUrl": ""
       },
       {
         "id": "g3-16",
         "name": "Nguyễn Trần Phương Mai",
         "desc": "Gen 3",
         "team": "Event",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_TRAN_PHUONG_MAI"
+        "imageUrl": ""
       },
       {
         "id": "g3-17",
         "name": "Nguyễn Tiến Khoa",
         "desc": "Gen 3",
         "team": "Event",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_TIEN_KHOA"
+        "imageUrl": ""
       },
       {
         "id": "g4-9",
         "name": "Võ Nguyên Tuấn Kiệt",
         "desc": "Gen 4",
         "team": "Event",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=VO_NGUYEN_TUAN_KIET"
+        "imageUrl": ""
       },
       {
         "id": "g4-10",
         "name": "Nguyễn Minh Hoàng",
         "desc": "Gen 4",
         "team": "Event",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_MINH_HOANG"
+        "imageUrl": ""
       },
       {
         "id": "g4-11",
         "name": "Trần Hà Uyên Nhi",
         "desc": "Gen 4",
         "team": "Event",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=TRAN_HA_UYEN_NHI"
+        "imageUrl": ""
       },
       {
         "id": "g4-12",
         "name": "Trần Minh Huy",
         "desc": "Gen 4",
         "team": "Event",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=TRAN_MINH_HUY"
+        "imageUrl": ""
       }
     ],
     "engineer": [
@@ -161,56 +161,56 @@
         "name": "Phạm Thái An",
         "desc": "Gen 3",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=PHAM_THAI_AN"
+        "imageUrl": ""
       },
       {
         "id": "g3-6",
         "name": "Lê Đình Đức",
         "desc": "Gen 3",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=LE_DINH_DUC"
+        "imageUrl": ""
       },
       {
         "id": "g3-14",
         "name": "Trần Tuấn Kiệt",
         "desc": "Gen 3",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=TRAN_TUAN_KIET"
+        "imageUrl": ""
       },
       {
         "id": "g3-12",
         "name": "Phạm Duy Tường Phước",
         "desc": "Gen 3",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=PHAM_DUY_TUONG_PHUOC"
+        "imageUrl": ""
       },
       {
         "id": "g3-8",
         "name": "Nguyễn Quang Linh",
         "desc": "Gen 3",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_QUANG_LINH"
+        "imageUrl": ""
       },
       {
         "id": "g4-1",
         "name": "Hoàng Văn Mệnh",
         "desc": "Gen 4",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=HOANG_VAN_MENH"
+        "imageUrl": ""
       },
       {
         "id": "g4-2",
         "name": "Nguyễn Trung Nhân",
         "desc": "Gen 4",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_TRUNG_NHAN"
+        "imageUrl": ""
       },
       {
         "id": "g4-3",
         "name": "Nguyễn Hoài Phong",
         "desc": "Gen 4",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_HOAI_PHONG"
+        "imageUrl": ""
       },
       {
         "id": "g4-4",
@@ -224,28 +224,28 @@
         "name": "Đặng Quốc Cường",
         "desc": "Gen 4",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=DANG_QUOC_CUONG"
+        "imageUrl": ""
       },
       {
         "id": "g4-6",
         "name": "Trần Hải Đăng",
         "desc": "Gen 4",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=TRAN_HAI_DANG"
+        "imageUrl": ""
       },
       {
         "id": "g4-7",
         "name": "Hồ Minh Nhiên",
         "desc": "Gen 4",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=HO_MINH_NHIEN"
+        "imageUrl": ""
       },
       {
         "id": "g4-8",
         "name": "Hà Duy Lộc",
         "desc": "Gen 4",
         "team": "Engineer",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=HA_DUY_LOC"
+        "imageUrl": ""
       }
     ],
     "research": [
@@ -254,49 +254,49 @@
         "name": "Nguyễn Tuấn Huy",
         "desc": "Gen 3",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=HOANG_MINH_HAI"
+        "imageUrl": ""
       },
       {
         "id": "g3-28",
         "name": "Trần Đăng Bảo",
         "desc": "Gen 3",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=PHAN_HAO_LUONG"
+        "imageUrl": ""
       },
       {
         "id": "g3-15",
         "name": "Nguyễn Đoàn Bảo Kha",
         "desc": "Gen 3",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_DOAN_BAO_KHA"
+        "imageUrl": ""
       },
       {
         "id": "g3-1",
         "name": "Võ Văn Hiếu",
         "desc": "Gen 3",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=VO_VAN_HIEU"
+        "imageUrl": ""
       },
       {
         "id": "g3-7",
         "name": "Võ Gia Minh",
         "desc": "Gen 3",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=VO_GIA_MINH"
+        "imageUrl": ""
       },
       {
         "id": "g3-10",
         "name": "Hoàng Khang Huy",
         "desc": "Gen 3",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=HOANG_KHANG_HUY"
+        "imageUrl": ""
       },
       {
         "id": "g4-15",
         "name": "Nguyễn Tiến Nam",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_TIEN_NAM"
+        "imageUrl": ""
       },
       {
         "id": "g4-16",
@@ -310,84 +310,84 @@
         "name": "Lê Nguyễn Kim Khôi",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=LE_NGUYEN_KIM_KHOI"
+        "imageUrl": ""
       },
       {
         "id": "g4-18",
         "name": "Nguyễn Anh Quân",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_ANH_QUAN"
+        "imageUrl": ""
       },
       {
         "id": "g4-19",
         "name": "Nguyễn Quốc Hiệu",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=NGUYEN_QUOC_HIEU"
+        "imageUrl": ""
       },
       {
         "id": "g4-20",
         "name": "Phan Nguyễn Duy",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=PHAN_NGUYEN_DUY"
+        "imageUrl": ""
       },
       {
         "id": "g4-21",
         "name": "Võ Nguyễn Bảo Ngọc",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=VO_NGUYEN_BAO_NGOC"
+        "imageUrl": ""
       },
       {
         "id": "g4-22",
         "name": "Trần Thiện Nhân",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=TRAN_THIEN_NHAN"
+        "imageUrl": ""
       },
       {
         "id": "g4-23",
         "name": "Hoàng Hữu Khang",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=HOANG_HUU_KHANG"
+        "imageUrl": ""
       },
       {
         "id": "g4-24",
         "name": "Trần Đình Nguyên",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=TRAN_DINH_NGUYEN"
+        "imageUrl": ""
       },
       {
         "id": "g4-25",
         "name": "Thoại Hào",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=THOAI_HAO"
+        "imageUrl": ""
       },
       {
         "id": "g4-26",
         "name": "Dương Nghiệp Phát",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=DUONG_NGHIEP_PHAT"
+        "imageUrl": ""
       },
       {
         "id": "g4-27",
         "name": "Hoàng Minh Hải",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=HOANG_MINH_HAI"
+        "imageUrl": ""
       },
       {
         "id": "g4-28",
         "name": "Phan Hạo Lương",
         "desc": "Gen 4",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=PHAN_HAO_LUONG"
+        "imageUrl": ""
       }
     ],
     "alumni": [
@@ -396,7 +396,7 @@
         "name": "Nguyễn Tuấn Huy",
         "desc": "Gen 3",
         "team": "Research",
-        "imageUrl": "https://api.dicebear.com/9.x/adventurer/png?seed=HOANG_MINH_HAI"
+        "imageUrl": ""
       }
     ]
   },

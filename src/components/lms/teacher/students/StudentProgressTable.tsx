@@ -16,6 +16,7 @@ import {
   User, TrendingUp, Award, Clock, AlertTriangle
 } from "lucide-react";
 import { CourseStudentProgress } from "@/services/analyticsService";
+import { UserAvatar } from "@/components/user/UserAvatar";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -171,7 +172,7 @@ export function StudentProgressTable({
                   {/* Student */}
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <Avatar name={student.student_name} />
+                      <UserAvatar name={student.student_name} src={student.student_avatar_url} className="h-9 w-9" fallbackClassName="text-xs" />
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
                           {student.student_name}

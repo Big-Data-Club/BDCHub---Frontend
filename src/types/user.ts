@@ -10,6 +10,7 @@ export type UserLogin = {
   role: Role | string;
   roles?: string[];
   lmsRoles?: string[];
+  profilePicture?: string;
 };
 
 export type User = {

@@ -14,7 +14,7 @@ import {
 import { Task, User as UserType, EventItem, PRIORITY_COLORS } from "@/types";
 import { formatDate } from "@/utils/utils";
 import { useAuth } from "@/hooks/useAuth";
-import SafeImage from "@/components/common/SafeImage";
+import { UserAvatar } from "@/components/user/UserAvatar";
 
 interface TaskCardProps {
   task: Task;
@@ -126,22 +126,14 @@ const TaskCard: React.FC<TaskCardProps> = ({
           <User size={12} className="text-slate-400 dark:text-slate-600" />
           <div className="flex -space-x-1.5">
             {assignedUsers.map((user) => (
-              <div
+              <UserAvatar
                 key={user.id}
-                className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 border-2 border-white dark:border-slate-900 overflow-hidden"
+                name={user.name}
+                src={user.profilePicture}
+                className="h-6 w-6 border-2 border-white dark:border-slate-900"
+                fallbackClassName="text-[9px]"
                 title={`${user.name} (${user.team})`}
-              >
-                <SafeImage
-                  src={
-                    user.profilePicture ||
-                    `https://api.dicebear.com/9.x/adventurer/png?seed=${user.name}`
-                  }
-                  alt={user.name}
-                  width={24}
-                  height={24}
-                  className="object-cover"
-                />
-              </div>
+              />
             ))}
           </div>
         </div>

@@ -15,32 +15,12 @@ import {
 } from "lucide-react";
 import { CourseStudentProgress } from "@/services/analyticsService";
 import { cn } from "@/lib/utils";
+import { UserAvatar } from "@/components/user/UserAvatar";
 
 interface Props {
   student:  CourseStudentProgress;
   courseId: number;
   onClose:  () => void;
-}
-
-function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md" | "lg" }) {
-  const initials = name.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase();
-  const colors = [
-    "from-blue-400 to-blue-600",
-    "from-violet-400 to-violet-600",
-    "from-emerald-400 to-emerald-600",
-    "from-amber-400 to-amber-600",
-    "from-pink-400 to-pink-600",
-  ];
-  const color = colors[name.charCodeAt(0) % colors.length];
-  const sizeClass = size === "lg" ? "w-14 h-14 text-lg" : size === "sm" ? "w-7 h-7 text-xs" : "w-10 h-10 text-sm";
-  return (
-    <div className={cn(
-      "rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-br flex-shrink-0",
-      color, sizeClass
-    )}>
-      {initials}
-    </div>
-  );
 }
 
 function MiniProgressBar({ pct }: { pct: number }) {
@@ -94,7 +74,7 @@ export function StudentDetailPanel({ student, onClose }: Props) {
 
         {/* Student info card */}
         <div className="bg-gradient-to-br from-blue-50 to-slate-50 dark:from-blue-950/30 dark:to-slate-800/50 rounded-2xl border border-blue-100 dark:border-blue-900/50 p-4 flex items-center gap-4">
-          <Avatar name={student.student_name} size="lg" />
+          <UserAvatar name={student.student_name} src={student.student_avatar_url} className="h-14 w-14" fallbackClassName="text-lg" />
           <div className="min-w-0">
             <p className="font-bold text-slate-900 dark:text-slate-50 truncate">{student.student_name}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{student.student_email}</p>

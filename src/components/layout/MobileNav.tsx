@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, LogOut, Sun, Moon, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/user/UserAvatar";
 import { sidebarSections, LogoIcon } from "@/constants";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -71,12 +71,7 @@ const MobileNav = () => {
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src={`https://api.dicebear.com/9.x/adventurer/png?seed=${encodeURIComponent(user?.name || "User")}`} alt={user?.name || "User"} />
-                <AvatarFallback className="text-xs bg-blue-50 dark:bg-slate-800 text-blue-600 font-semibold">
-                  {user?.name?.charAt(0) || "U"}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar name={user?.name} src={user?.profilePicture} className="h-8 w-8" fallbackClassName="text-xs" />
               <div>
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{user?.name || "Guest"}</p>
                 <p className="text-xs text-slate-500">{user?.role?.replace("ROLE_", "") || "Member"}</p>

@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 import clubData from "@/data/clubData.json";
 import SectionHeader from "../common/SectionHeader";
 import SafeImage from "../common/SafeImage";
+import { UserAvatar } from "@/components/user/UserAvatar";
 import { motion } from "framer-motion";
 
 export default function Members() {
@@ -56,13 +57,17 @@ export default function Members() {
                                       border-2 border-transparent
                                       group-hover:border-blue-500 dark:group-hover:border-cyan-400
                                       transition-all duration-300">
-                        <SafeImage 
-                          src={member.imageUrl} 
-                          alt={member.name} 
-                          fill 
-                          className="object-cover" 
-                          sizes="(max-width: 768px) 100px, 150px"
-                        />
+                        {member.imageUrl ? (
+                          <SafeImage
+                            src={member.imageUrl}
+                            alt={member.name}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100px, 150px"
+                          />
+                        ) : (
+                          <UserAvatar name={member.name} className="h-full w-full" fallbackClassName="text-2xl" />
+                        )}
                       </div>
                       <h4 className="font-semibold text-slate-900 dark:text-white text-sm truncate px-2">{member.name}</h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{member.desc}</p>

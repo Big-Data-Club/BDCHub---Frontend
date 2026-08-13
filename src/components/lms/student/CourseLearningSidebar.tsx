@@ -6,6 +6,7 @@ import { useStudentCourse } from "./StudentCourseContext";
 import { SidebarSection } from "./SidebarSection";
 import { ProgressBar } from "@/components/lms/shared/ProgressBar";
 import { cn } from "@/lib/utils";
+import { UserAvatar } from "@/components/user/UserAvatar";
 
 export function CourseLearningSidebar() {
   const {
@@ -51,9 +52,7 @@ export function CourseLearningSidebar() {
                 {/* Người tạo khóa học */}
                 {course?.creator_name && (
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-blue-600 dark:bg-cyan-500 text-white dark:text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-xs shrink-0">
-                      {course.creator_name.substring(0, 2).toUpperCase()}
-                    </div>
+                    <UserAvatar name={course.creator_name} src={course.creator_avatar_url} className="h-7 w-7 shadow-xs" fallbackClassName="text-[10px]" />
                     <div className="min-w-0 flex-1">
                       <span className="block text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                         {course.creator_name}
@@ -69,9 +68,7 @@ export function CourseLearningSidebar() {
                 {/* Trợ giảng */}
                 {coTeachers?.map((ct: any) => (
                   <div key={ct.id} className="flex items-center gap-2.5 group relative cursor-help shrink-0" title={ct.email}>
-                    <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-blue-950 text-slate-700 dark:text-slate-350 border border-slate-300/30 dark:border-blue-500/10 flex items-center justify-center text-[10px] font-bold group-hover:border-blue-500/30 dark:group-hover:border-cyan-500/30 transition-all shrink-0">
-                      {(ct.full_name || "TA").substring(0, 2).toUpperCase()}
-                    </div>
+                    <UserAvatar name={ct.full_name} src={ct.avatar_url} className="h-7 w-7 border border-slate-300/30 dark:border-blue-500/10" fallbackClassName="text-[10px]" />
                     <div className="min-w-0 flex-1">
                       <span className="block text-xs font-semibold text-slate-600 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors truncate">
                         {ct.full_name}

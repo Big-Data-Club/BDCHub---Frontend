@@ -31,6 +31,7 @@ export interface StudentAttemptOverview {
   student_id: number;
   student_name: string;
   student_email: string;
+  student_avatar_url?: string;
   quiz_id: number;
   quiz_title: string;
   attempt_number: number;
@@ -46,6 +47,7 @@ export interface CourseStudentProgress {
   student_id: number;
   student_name: string;
   student_email: string;
+  student_avatar_url?: string;
   completed_content: number;
   total_mandatory: number;
   progress_percent: number;

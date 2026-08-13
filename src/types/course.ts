@@ -16,9 +16,11 @@ export interface Course {
   published_at?: string;
   creator_name?: string;
   creator_email?: string;
+  creator_avatar_url?: string;
   /** @deprecated Enrollment responses still use these compatibility fields. */
   teacher_name?: string;
   teacher_email?: string;
+  teacher_avatar_url?: string;
   enrollment_count?: number;
   org_id?: number;
   visibility?: "PUBLIC" | "ORG_ONLY";
@@ -99,6 +101,7 @@ export interface Enrollment {
   last_activity_at?: string;
   new_content_count?: number;
   teacher_name?: string;
+  teacher_avatar_url?: string;
   teacher_email?: string;
   progress_percent?: number;
 }

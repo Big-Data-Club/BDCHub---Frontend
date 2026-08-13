@@ -251,7 +251,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
           {/* Profile */}
           <div className="flex items-center gap-4">
             <div className="relative">
-              <Avatar code={user.code} size={56} />
+              <Avatar name={user.name} src={user.profilePicture} size={56} />
               {/* Status dot */}
               <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-slate-900 ${
                 user.status ? "bg-green-500" : "bg-slate-400"

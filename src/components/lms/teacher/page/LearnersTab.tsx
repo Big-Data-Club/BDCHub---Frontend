@@ -12,6 +12,7 @@ import { Users, CheckCircle2, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import lmsService from "@/services/lmsService";
 import { Badge, EmptyState, PageLoader, StatCard, TabBar } from "@/components/lms/shared";
+import { UserAvatar } from "@/components/user/UserAvatar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -20,6 +21,7 @@ interface Learner {
   student_id: number;
   student_name: string;
   student_email: string;
+  avatar_url?: string;
   status: "ACCEPTED" | "REJECTED";
   enrolled_at: string;
 }
@@ -100,9 +102,7 @@ export function LearnersTab({ courseId }: LearnersTabProps) {
               className="flex items-center gap-4 px-5 py-4 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
             >
               {/* Avatar */}
-              <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-sm text-slate-600 dark:text-slate-400 flex-shrink-0">
-                {l.student_name.charAt(0).toUpperCase()}
-              </div>
+              <UserAvatar name={l.student_name} src={l.avatar_url} className="h-9 w-9" fallbackClassName="text-sm" />
 
               {/* Name + email */}
               <div className="flex-1 min-w-0">

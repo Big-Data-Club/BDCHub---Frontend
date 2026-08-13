@@ -151,6 +151,7 @@ export function StudentCourseSidebar({
                 courseId={en.course_id}
                 title={en.course_title ?? `Khóa học #${en.course_id}`}
                 teacherName={en.teacher_name}
+                teacherAvatarUrl={en.teacher_avatar_url}
                 progress={en.progress_percent || 0}
                 isSelected={isSelected}
                 enrolledAt={en.accepted_at || en.enrolled_at}

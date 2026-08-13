@@ -1,12 +1,13 @@
 import { ReactNode, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
-  BookOpen, Users, User, Calendar, GraduationCap
+  BookOpen, Users, User, Calendar
 } from "lucide-react";
 import { Badge, BadgeVariant } from "./Badge";
 import { ProgressBar } from "./ProgressBar";
 import { InteractiveGlowCard } from "./InteractiveGlowCard";
 import Image from "next/image";
+import { UserAvatar } from "@/components/user/UserAvatar";
 
 interface CourseCardProps {
   id: number;
@@ -16,6 +17,7 @@ interface CourseCardProps {
   level?: string;
   status?: string;
   teacherName?: string;
+  teacherAvatarUrl?: string;
   thumbnailUrl?: string;
   enrollmentCount?: number;
   progress?: number;
@@ -47,7 +49,7 @@ const formatDate = (dateStr?: string) => {
 };
 
 export function CourseCard({
-  title, description, category, level, status, teacherName,
+  title, description, category, level, status, teacherName, teacherAvatarUrl,
   thumbnailUrl, enrollmentCount, progress, createdAt, onClick, actions, className
 }: CourseCardProps) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
@@ -122,7 +124,7 @@ export function CourseCard({
           <div className="flex items-center gap-1.5 pt-0.5 flex-wrap text-xs text-slate-500 dark:text-slate-400 w-full font-semibold">
             {teacherName && (
               <span className="flex items-center gap-1 min-w-0">
-                <GraduationCap className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <UserAvatar name={teacherName} src={teacherAvatarUrl} className="h-4 w-4" fallbackClassName="text-[7px]" />
                 <span className="truncate">Tạo bởi {teacherName}</span>
               </span>
             )}

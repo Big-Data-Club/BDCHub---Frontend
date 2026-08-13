@@ -17,7 +17,7 @@ import {
   searchUsers,
 } from "@/services/chatService";
 import { ChatChannel, ChannelRoleEntry, ChatUser } from "@/types/chat";
-import Image from "next/image";
+import { UserAvatar } from "@/components/user/UserAvatar";
 
 // All available roles in the system
 const AVAILABLE_ROLES = ["ADMIN", "TEACHER", "STUDENT"];
@@ -198,9 +198,6 @@ function ChannelRow({ channel, onDeleted, onUpdated }: ChannelRowProps) {
       setDeleting(false);
     }
   };
-
-  const avatarFor = (u: ChatUser) =>
-    u.profilePicture || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.fullName)}`;
 
   return (
     <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
@@ -406,9 +403,7 @@ function ChannelRow({ channel, onDeleted, onUpdated }: ChannelRowProps) {
                           className="w-full flex items-center gap-3 px-3 py-2 text-left
                                      hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors group"
                         >
-                          <div className="relative h-7 w-7 rounded-full overflow-hidden bg-slate-100 flex-shrink-0">
-                            <Image src={avatarFor(u)} alt={u.fullName} fill sizes="28px" className="object-cover" />
-                          </div>
+                          <UserAvatar name={u.fullName} src={u.profilePicture} className="h-7 w-7" fallbackClassName="text-[10px]" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400">
                               {u.fullName}
@@ -444,9 +439,7 @@ function ChannelRow({ channel, onDeleted, onUpdated }: ChannelRowProps) {
                         className="flex items-center gap-2 px-2.5 py-1.5 bg-white dark:bg-slate-800
                                    border border-slate-200 dark:border-slate-700 rounded-full text-sm"
                       >
-                        <div className="relative h-5 w-5 rounded-full overflow-hidden bg-slate-100 flex-shrink-0">
-                          <Image src={avatarFor(u)} alt={u.fullName} fill sizes="20px" className="object-cover" />
-                        </div>
+                        <UserAvatar name={u.fullName} src={u.profilePicture} className="h-5 w-5" fallbackClassName="text-[8px]" />
                         <span className="text-slate-700 dark:text-slate-300 max-w-[120px] truncate">{u.fullName}</span>
                         <button
                           onClick={() => handleRemoveUser(u.id)}

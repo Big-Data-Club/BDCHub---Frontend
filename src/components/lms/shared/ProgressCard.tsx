@@ -1,9 +1,10 @@
 "use client";
 
-import { BookOpen, ChevronRight, GraduationCap, Calendar } from "lucide-react";
+import { BookOpen, ChevronRight, Calendar } from "lucide-react";
 import { InteractiveGlowCard } from "./InteractiveGlowCard";
 import { ProgressBar } from "./ProgressBar";
 import { cn } from "@/lib/utils";
+import { UserAvatar } from "@/components/user/UserAvatar";
 
 import { Badge } from "./Badge";
 import {
@@ -17,6 +18,7 @@ interface ProgressCardProps {
   courseId: number;
   title: string;
   teacherName?: string;
+  teacherAvatarUrl?: string;
   progress: number;
   isSelected?: boolean;
   enrolledAt?: string;
@@ -43,6 +45,7 @@ export function ProgressCard({
   courseId,
   title,
   teacherName,
+  teacherAvatarUrl,
   progress,
   isSelected = false,
   enrolledAt,
@@ -91,7 +94,7 @@ export function ProgressCard({
                   <UITooltip>
                     <TooltipTrigger asChild>
                       <span className="flex items-center gap-1 min-w-0 cursor-pointer">
-                        <GraduationCap className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                        <UserAvatar name={teacherName} src={teacherAvatarUrl} className="h-3.5 w-3.5" fallbackClassName="text-[6px]" />
                         <span className="truncate">{teacherName}</span>
                       </span>
                     </TooltipTrigger>

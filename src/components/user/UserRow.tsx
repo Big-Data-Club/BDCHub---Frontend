@@ -12,7 +12,7 @@ export default function UserRow({ user, onClick, onToggleStatus, isAdmin }: { us
       <div className="grid grid-cols-12 gap-2 sm:gap-4 items-center px-3 sm:px-6 py-3 sm:py-4">
         {/* Name & Email */}
         <div className="col-span-3 flex items-center gap-3">
-          <Avatar code={user.code} size={32} />
+          <Avatar name={user.name} src={user.profilePicture} size={32} />
           <div className="min-w-0">
             <div className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-50 truncate">
               {user.name}

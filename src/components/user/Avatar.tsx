@@ -1,17 +1,14 @@
 "use client";
 import React from "react";
-import SafeImage from "../common/SafeImage";
+import { UserAvatar } from "./UserAvatar";
 
-export default function Avatar({ code, size = 44 }: { code: string; size?: number }) {
-  const src = `https://api.dicebear.com/9.x/adventurer/png?seed=${encodeURIComponent(code)}`;
+export default function Avatar({ code, name, src, size = 44 }: { code?: string; name?: string; src?: string | null; size?: number }) {
   return (
-    <SafeImage
+    <UserAvatar
+      name={name || code}
       src={src}
-      alt={code}
-      width={size}
-      height={size}
-      unoptimized
-      className="rounded-full"
+      className="inline-flex"
+      fallbackClassName="text-xs"
       style={{ width: size, height: size }}
     />
   );

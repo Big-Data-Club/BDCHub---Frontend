@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { sidebarSections, LogoIcon } from "@/constants";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/user/UserAvatar";
 import {
   Tooltip,
   TooltipContent,
@@ -127,17 +127,12 @@ const Sidebar: React.FC = () => {
               isCollapsed && "justify-center"
             )}
           >
-            <Avatar className="h-8 w-8 flex-shrink-0">
-              {mounted && (
-                <AvatarImage
-                  src={`https://api.dicebear.com/9.x/adventurer/png?seed=${encodeURIComponent(user?.name || "User")}`}
-                  alt={user?.name || "User"}
-                />
-              )}
-              <AvatarFallback className="text-xs bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold">
-                {user?.name?.charAt(0) || "U"}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              name={user?.name}
+              src={mounted ? user?.profilePicture : undefined}
+              className="h-8 w-8"
+              fallbackClassName="text-xs"
+            />
             {!isCollapsed && (
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{user?.name || "Guest"}</p>
