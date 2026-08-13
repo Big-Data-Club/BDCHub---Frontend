@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, Gauge, Pause, Play, RotateCcw, Seedling } from "lucide-react";
+import { Eye, EyeOff, Gauge, Pause, Play, RotateCcw, Sprout } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import type { ExperimentDefinition, StemTrialResult } from "@/types";
 
@@ -220,7 +220,7 @@ function PlantScene({ definition, result, currentValue, comparisonValue, progres
 
       <g transform="translate(52 300)">
         <rect width="170" height="68" rx="14" fill="#020617" opacity=".74" stroke="#334155" />
-        <Seedling x="14" y="16" width="28" height="28" color="#4ade80" />
+        <Sprout x="14" y="16" width="28" height="28" color="#4ade80" />
         <text x="52" y="25" fill="#94a3b8" fontSize="11">Độ ẩm mô hình</text>
         <text x="52" y="47" fill="#e2e8f0" fontSize="17" fontWeight="700">{Math.round(moisture * 100)}%</text>
         <rect x="14" y="54" width="142" height="5" rx="3" fill="#1e293b" /><rect x="14" y="54" width={142 * moisture} height="5" rx="3" fill="#38bdf8" />

@@ -3,6 +3,7 @@ import type {
   ExperimentDefinition,
   EvidenceEvent,
   ExperimentRun,
+  ExperimentRunSummary,
   ExperimentTrial,
   Lab,
   LabEnrollment,
@@ -195,6 +196,13 @@ const mapExperimentRun = (raw: any): ExperimentRun => ({
   startedAt: raw.started_at,
   endedAt: raw.ended_at,
   updatedAt: raw.updated_at,
+});
+
+const mapRunSummary = (raw: any): ExperimentRunSummary => ({
+  ...mapExperimentRun(raw),
+  learnerName: raw.learner_name,
+  learnerEmail: raw.learner_email,
+  trialCount: raw.trial_count || 0,
 });
 
 const mapTrial = (raw: any): ExperimentTrial => ({
@@ -510,6 +518,18 @@ export const labService = {
   completeExperimentRun: async (runId: number): Promise<SuccessResponse<ExperimentRun>> => {
     const res = await labApiClient.post<SuccessResponse<any>>(`/runs/${runId}/complete`, {});
     return { ...res, data: mapExperimentRun(res.data) };
+  },
+
+  listExperimentRuns: async (
+    labId: number,
+    status = "",
+    page = 1,
+    pageSize = 50
+  ): Promise<ListResponse<ExperimentRunSummary>> => {
+    const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+    if (status) query.set("status", status);
+    const res = await labApiClient.get<ListResponse<any>>(`/labs/${labId}/runs?${query.toString()}`);
+    return { ...res, items: (res.items || []).map(mapRunSummary) };
   },
 
   createSection: async (

@@ -164,6 +164,12 @@ export interface ExperimentRun {
   updatedAt: string;
 }
 
+export interface ExperimentRunSummary extends ExperimentRun {
+  learnerName: string;
+  learnerEmail: string;
+  trialCount: number;
+}
+
 export interface ExperimentTrial {
   id: number;
   runId: number;

@@ -17,7 +17,8 @@ import {
   HelpCircle,
   FileText,
   Edit2,
-  Cpu
+  Cpu,
+  Activity
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { labService } from "@/services/labService";
@@ -27,6 +28,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import StemExperimentSetup from "@/components/labs/StemExperimentSetup";
+import StemLearnerProgress from "@/components/labs/StemLearnerProgress";
 
 
 export default function LabEditPage() {
@@ -37,7 +39,7 @@ export default function LabEditPage() {
   
   const isAuthorized = isAdmin || isManager || user?.role === "ROLE_TEACHER";
 
-  const [activeTab, setActiveTab] = useState<"general" | "stem" | "sections" | "testcases" | "sandbox">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "stem" | "progress" | "sections" | "testcases" | "sandbox">("general");
   const [lab, setLab] = useState<Lab | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingGeneral, setSavingGeneral] = useState(false);
@@ -515,17 +517,30 @@ export default function LabEditPage() {
           </button>
 
           {(lab.labType === "PLANT" || lab.labType === "ROBOT") && (
-            <button
-              onClick={() => setActiveTab("stem")}
-              className={`pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
-                activeTab === "stem"
-                  ? "border-emerald-600 text-emerald-600 font-bold"
-                  : "border-transparent text-slate-500 hover:text-slate-850 hover:border-slate-300 dark:hover:text-slate-300"
-              }`}
-            >
-              <FlaskConical size={16} />
-              STEM Setup
-            </button>
+            <>
+              <button
+                onClick={() => setActiveTab("stem")}
+                className={`pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+                  activeTab === "stem"
+                    ? "border-emerald-600 text-emerald-600 font-bold"
+                    : "border-transparent text-slate-500 hover:text-slate-850 hover:border-slate-300 dark:hover:text-slate-300"
+                }`}
+              >
+                <FlaskConical size={16} />
+                STEM Setup
+              </button>
+              <button
+                onClick={() => setActiveTab("progress")}
+                className={`pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+                  activeTab === "progress"
+                    ? "border-violet-600 text-violet-600 font-bold"
+                    : "border-transparent text-slate-500 hover:text-slate-850 hover:border-slate-300 dark:hover:text-slate-300"
+                }`}
+              >
+                <Activity size={16} />
+                Learner Progress
+              </button>
+            </>
           )}
           
           <button
@@ -571,6 +586,10 @@ export default function LabEditPage() {
 
         {activeTab === "stem" && (lab.labType === "PLANT" || lab.labType === "ROBOT") && (
           <StemExperimentSetup lab={lab} onPublished={fetchLabDetails} />
+        )}
+
+        {activeTab === "progress" && (lab.labType === "PLANT" || lab.labType === "ROBOT") && (
+          <StemLearnerProgress lab={lab} />
         )}
 
         {/* Tab 1: General Details */}
