@@ -1,6 +1,9 @@
 import { labApiClient } from "./labApiClient";
 import type {
   ExperimentDefinition,
+  EvidenceEvent,
+  ExperimentRun,
+  ExperimentTrial,
   Lab,
   LabEnrollment,
   LabVersion,
@@ -178,6 +181,44 @@ const mapLabVersion = (raw: any): LabVersion => ({
   publishedAt: raw.published_at,
   createdAt: raw.created_at,
   updatedAt: raw.updated_at,
+});
+
+const mapExperimentRun = (raw: any): ExperimentRun => ({
+  id: raw.id,
+  labId: raw.lab_id,
+  labVersionId: raw.lab_version_id,
+  labVersionNumber: raw.lab_version_number,
+  userId: raw.user_id,
+  status: raw.status,
+  currentNodeKey: raw.current_node_key,
+  lastEventSeq: raw.last_event_seq,
+  startedAt: raw.started_at,
+  endedAt: raw.ended_at,
+  updatedAt: raw.updated_at,
+});
+
+const mapTrial = (raw: any): ExperimentTrial => ({
+  id: raw.id,
+  runId: raw.run_id,
+  trialNumber: raw.trial_number,
+  seed: raw.seed,
+  modelVersion: raw.model_version,
+  configSnapshot: raw.config_snapshot || {},
+  status: raw.status,
+  createdAt: raw.created_at,
+});
+
+const mapEvidence = (raw: any): EvidenceEvent => ({
+  eventId: raw.event_id,
+  clientEventId: raw.client_event_id,
+  runId: raw.run_id,
+  trialId: raw.trial_id,
+  seqNo: raw.seq_no,
+  verb: raw.verb,
+  object: raw.object,
+  result: raw.result || {},
+  context: raw.context || {},
+  occurredAt: raw.occurred_at,
 });
 
 const definitionPayload = (definition: ExperimentDefinition) => ({
@@ -406,6 +447,69 @@ export const labService = {
 
   publishLabVersion: async (versionId: number): Promise<SuccessResponse<any>> => {
     return labApiClient.post<SuccessResponse<any>>(`/lab-versions/${versionId}/publish`, {});
+  },
+
+  getPublishedLabVersion: async (labId: number): Promise<SuccessResponse<LabVersion>> => {
+    const res = await labApiClient.get<SuccessResponse<any>>(`/labs/${labId}/published-version`);
+    return { ...res, data: mapLabVersion(res.data) };
+  },
+
+  createExperimentRun: async (versionId: number, idempotencyKey: string): Promise<SuccessResponse<ExperimentRun>> => {
+    const res = await labApiClient.post<SuccessResponse<any>>(`/lab-versions/${versionId}/runs`, {
+      idempotency_key: idempotencyKey,
+    });
+    return { ...res, data: mapExperimentRun(res.data) };
+  },
+
+  getExperimentRun: async (runId: number): Promise<SuccessResponse<ExperimentRun>> => {
+    const res = await labApiClient.get<SuccessResponse<any>>(`/runs/${runId}`);
+    return { ...res, data: mapExperimentRun(res.data) };
+  },
+
+  createExperimentTrial: async (
+    runId: number,
+    configSnapshot: Record<string, any>
+  ): Promise<SuccessResponse<ExperimentTrial>> => {
+    const res = await labApiClient.post<SuccessResponse<any>>(`/runs/${runId}/trials`, {
+      config_snapshot: configSnapshot,
+    });
+    return { ...res, data: mapTrial(res.data) };
+  },
+
+  appendExperimentEvidence: async (
+    runId: number,
+    event: {
+      clientEventId: string;
+      trialId?: number;
+      workflowNodeKey: string;
+      verb: string;
+      object: { type: string; id: string };
+      result: Record<string, any>;
+      context?: Record<string, any>;
+      simTimeMs?: number;
+    }
+  ): Promise<SuccessResponse<EvidenceEvent>> => {
+    const res = await labApiClient.post<SuccessResponse<any>>(`/runs/${runId}/evidence`, {
+      client_event_id: event.clientEventId,
+      trial_id: event.trialId,
+      workflow_node_key: event.workflowNodeKey,
+      verb: event.verb,
+      object: event.object,
+      result: event.result,
+      context: event.context || {},
+      sim_time_ms: event.simTimeMs,
+    });
+    return { ...res, data: mapEvidence(res.data) };
+  },
+
+  getExperimentEvidence: async (runId: number): Promise<SuccessResponse<EvidenceEvent[]>> => {
+    const res = await labApiClient.get<SuccessResponse<any[]>>(`/runs/${runId}/events?after_seq=0&limit=500`);
+    return { ...res, data: (res.data || []).map(mapEvidence) };
+  },
+
+  completeExperimentRun: async (runId: number): Promise<SuccessResponse<ExperimentRun>> => {
+    const res = await labApiClient.post<SuccessResponse<any>>(`/runs/${runId}/complete`, {});
+    return { ...res, data: mapExperimentRun(res.data) };
   },
 
   createSection: async (

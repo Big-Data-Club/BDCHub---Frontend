@@ -149,3 +149,41 @@ export interface LabVersionValidation {
   valid: boolean;
   issues: LabValidationIssue[];
 }
+
+export interface ExperimentRun {
+  id: number;
+  labId: number;
+  labVersionId: number;
+  labVersionNumber: number;
+  userId: number;
+  status: 'ACTIVE' | 'COMPLETED' | 'ABANDONED';
+  currentNodeKey?: string;
+  lastEventSeq: number;
+  startedAt: string;
+  endedAt?: string;
+  updatedAt: string;
+}
+
+export interface ExperimentTrial {
+  id: number;
+  runId: number;
+  trialNumber: number;
+  seed: number;
+  modelVersion: string;
+  configSnapshot: Record<string, any>;
+  status: string;
+  createdAt: string;
+}
+
+export interface EvidenceEvent {
+  eventId: string;
+  clientEventId: string;
+  runId: number;
+  trialId?: number;
+  seqNo: number;
+  verb: string;
+  object: { type: string; id: string };
+  result: Record<string, any>;
+  context: Record<string, any>;
+  occurredAt: string;
+}

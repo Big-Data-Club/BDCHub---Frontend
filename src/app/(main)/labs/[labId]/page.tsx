@@ -16,9 +16,7 @@ import {
   History,
   Activity,
   Cpu,
-  Database as DbIcon,
-  Sprout,
-  Bot
+  Database as DbIcon
 } from "lucide-react";
 import { labService } from "@/services/labService";
 import { getAccessToken } from "@/services/authToken";
@@ -28,6 +26,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { XTerminal, type XTerminalHandle } from "@/components/terminal/XTerminal";
+import StemLearnerWorkspace from "@/components/labs/StemLearnerWorkspace";
 
 export default function LabDetailPage() {
   const params = useParams();
@@ -416,7 +415,9 @@ export default function LabDetailPage() {
                     ))
                   ) : (
                     <p className="text-slate-450 dark:text-slate-500 text-sm text-center py-20">
-                      Select a section step tab above to read instructions.
+                      {sections.length === 0
+                        ? "Giáo viên chưa thêm tài liệu hướng dẫn cho bài này. Bạn vẫn có thể thực hiện quy trình STEM ở khung bên phải."
+                        : "Chọn một mục hướng dẫn phía trên để đọc nội dung."}
                     </p>
                   )}
                 </div>
@@ -467,25 +468,7 @@ export default function LabDetailPage() {
           <div className="lg:col-span-7 bg-slate-900 text-slate-100 border border-slate-800 rounded-2xl flex flex-col min-h-0 overflow-hidden">
             
             {isSTEMExperiment ? (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-5">
-                <div className={`p-4 rounded-2xl border ${lab.labType === "PLANT" ? "bg-lime-950/30 border-lime-800/60" : "bg-cyan-950/30 border-cyan-800/60"}`}>
-                  {lab.labType === "PLANT" ? (
-                    <Sprout className="w-12 h-12 text-lime-400" />
-                  ) : (
-                    <Bot className="w-12 h-12 text-cyan-400" />
-                  )}
-                </div>
-                <div className="max-w-lg space-y-2">
-                  <h3 className="text-lg font-bold text-slate-100">STEM experiment workspace</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed">
-                    The versioned workflow, deterministic trials, and evidence timeline are ready.
-                    The interactive {lab.labType === "PLANT" ? "plant simulation" : "robot simulation"} engine will be connected in the next implementation slice.
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-xs text-slate-400">
-                  This lab will not launch a generic terminal because scientific experiment state must remain reproducible and reviewable.
-                </div>
-              </div>
+              <StemLearnerWorkspace lab={lab} />
             ) : isCodingOrDb ? (
               // ── Option A: Solution Editor (For CODING and DATABASE labs) ──
               <>
