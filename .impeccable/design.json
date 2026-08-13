@@ -1,22 +1,22 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-13T14:40:00Z",
-  "title": "Design System: BDCHub Design System",
+  "generatedAt": "2026-08-13T20:56:50Z",
+  "title": "Design System: BDCourse Design System",
   "extensions": {
     "colorMeta": {
-      "primary": {
+      "primary-light": {
         "role": "primary",
         "displayName": "Tech Blue",
         "canonical": "#2563eb",
         "tonalRamp": ["#1d4ed8", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#c084fc", "#e0e7ff", "#f5f3ff"]
       },
-      "accent": {
-        "role": "accent",
+      "primary-dark": {
+        "role": "primary",
         "displayName": "Cyber Cyan",
         "canonical": "#06b6d4",
         "tonalRamp": ["#0891b2", "#06b6d4", "#22d3ee", "#67e8f9", "#a5f3fc", "#cffafe", "#ecfeff", "#f0fdfa"]
       },
-      "neutral-bg-dark": {
+      "page-bg-dark": {
         "role": "neutral",
         "displayName": "Cosmic Dark Navy",
         "canonical": "#050b18",
@@ -26,11 +26,11 @@
     "typographyMeta": {
       "display": {
         "displayName": "Display Hero",
-        "purpose": "Recruitment Form titles and hero headers."
+        "purpose": "Học tập titles and hero headers."
       },
       "body": {
         "displayName": "Body Standard",
-        "purpose": "Standard input values, descriptions, and labels."
+        "purpose": "Standard values, descriptions, and labels."
       }
     },
     "shadows": [
@@ -80,9 +80,9 @@
     "northStar": "The Tech-Academic Terminal",
     "overview": "This system represents a clean, high-tech engineering aesthetic that blends computer science vibes with institutional structure. It is designed to be highly functional, structured, and formal, reflecting the engineering nature of the Big Data Club at HCMUT.",
     "keyCharacteristics": [
-      "Technocentric Accent: High-contrast blue and cyan gradients that highlight active elements and progress metrics.",
-      "Structural Integrity: Reliance on solid borders and clear segmentations rather than heavy drop shadows, especially in dark mode.",
-      "User-Centric Progress: Seamless, auto-persisted multi-step form navigation with visible stepper indicators."
+      "Atmospheric Context: Standardized moving grids, radial vignettes, and glow spots to make the tech environment feel alive and immersive.",
+      "Tactile Feedback: Every click and hover uses physical-feeling offsets (e.g. hard shadow shift, spring curves) so actions feel rewarding and mechanical.",
+      "Consistency of Flow: Role-based structures share styling tokens, page layouts, and UX feedback patterns so transition between learning and teaching feels cohesive."
     ],
     "rules": [
       {

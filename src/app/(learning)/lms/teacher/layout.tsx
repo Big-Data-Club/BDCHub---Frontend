@@ -63,18 +63,28 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
 
   return (
     <>
-      <div className={cn("min-h-screen bg-slate-100/80 dark:bg-[#050B18] transition-colors duration-300 flex flex-col", isFullHeightPage && "h-screen overflow-hidden")}>
-        <LmsHeader
-          roleTitle="Giảng viên LMS"
-          navItems={navItems}
-          userName={userName}
-          handleChangeRole={handleChangeRole}
-          basePath="/lms/teacher"
-        />
+      <div className={cn("relative bg-slate-100/80 dark:bg-[#050B18] transition-colors duration-300", isFullHeightPage ? "h-screen overflow-hidden" : "min-h-screen overflow-clip")}>
+        
+        {/* Glow ambient background spots */}
+        <div className="absolute top-10 left-10 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-        <main className={cn("w-full flex-col", isFullHeightPage ? "flex-1 min-h-0 overflow-hidden flex p-0 max-w-none" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6")}>
-          {children}
-        </main>
+        {/* Smooth radial gradient overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#f1f5f9_95%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_60%,#050B18_95%)] pointer-events-none" />
+
+        <div className={cn("relative z-10 flex flex-col", isFullHeightPage ? "h-screen overflow-hidden" : "min-h-screen")}>
+          <LmsHeader
+            roleTitle="Giảng viên LMS"
+            navItems={navItems}
+            userName={userName}
+            handleChangeRole={handleChangeRole}
+            basePath="/lms/teacher"
+          />
+
+          <main className={cn("w-full flex-col", isFullHeightPage ? "flex-1 min-h-0 overflow-hidden flex" : "flex-grow flex")}>
+            {children}
+          </main>
+        </div>
       </div>
     </>
   );

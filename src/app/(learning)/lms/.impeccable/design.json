@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-13T14:23:20Z",
+  "title": "Design System: BDCourse Design System",
+  "extensions": {
+    "colorMeta": {
+      "primary-light": { "role": "primary", "displayName": "Tech Blue", "canonical": "#2563eb", "tonalRamp": ["#1d3b7a", "#224794", "#2563eb", "#4382f6", "#73a5fa", "#a3c8fc", "#d3e6fe", "#f0f7ff"] },
+      "primary-dark": { "role": "secondary", "displayName": "Cyber Cyan", "canonical": "#06b6d4", "tonalRamp": ["#08515e", "#077488", "#06b6d4", "#22d3ee", "#67e8f9", "#a5f3fc", "#cffafe", "#ecfeff"] },
+      "page-bg-dark": { "role": "neutral", "displayName": "Cosmic Dark Navy", "canonical": "#050b18", "tonalRamp": ["#010307", "#030610", "#050b18", "#0a1329", "#112042", "#1d3261", "#2e4a85", "#4769ad"] },
+      "card-bg-dark": { "role": "neutral", "displayName": "LMS Card Dark", "canonical": "#0f1e35", "tonalRamp": ["#050b13", "#081321", "#0f1e35", "#182c4a", "#223d64", "#30517f", "#44699c", "#5c84ba"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display Title", "purpose": "Used for main page titles and key sections." },
+      "body": { "displayName": "Body Text", "purpose": "Standard reading copy, inputs, and paragraphs." }
+    },
+    "shadows": [
+      { "name": "ambient-light", "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)", "purpose": "Soft elevations for cards off slate backgrounds in light mode." }
+    ],
+    "motion": [
+      { "name": "hover-shift", "value": "transition-all duration-300 active:scale-97", "purpose": "Tactile micro-interaction spring transitions." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Standard action element with tactile borders and snappy active state scaling.",
+      "html": "<button class=\"ds-btn-primary\">SAVE CHANGES</button>",
+      "css": ".ds-btn-primary { background: #2563eb; color: #fff; padding: 12px 28px; border-radius: 12px; font-weight: bold; border: none; transition: all 0.2s; cursor: pointer; } .ds-btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); } .ds-btn-primary:active { transform: scale(0.97); }"
+    },
+    {
+      "name": "AI Assistant Card",
+      "kind": "card",
+      "refersTo": "card-bg-dark",
+      "description": "Subtle border guide card in dark mode containing rotating AI elements.",
+      "html": "<div class=\"ds-card-ai\"><h3>Trợ lý AI Giảng dạy</h3></div>",
+      "css": ".ds-card-ai { background: rgba(15, 30, 53, 0.8); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 24px; padding: 24px; color: #fff; transition: border-color 0.3s; } .ds-card-ai:hover { border-color: rgba(6, 182, 212, 0.2); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Tech-Academic Terminal",
+    "overview": "This system represents a clean, high-tech engineering aesthetic that blends computer science vibes with institutional structure. It is designed to be highly functional, structured, and formal.",
+    "keyCharacteristics": [
+      "Standardized moving grids, radial vignettes, and glow spots.",
+      "Tactile physical-feeling hover offsets and spring curves.",
+      "Consistency of Flow across learning and teaching dashboards."
+    ],
+    "rules": [
+      { "name": "The Accent Rarity Rule", "body": "Vibrant primary tech blue is reserved strictly for interactive indicators, primary call-to-actions, and active state indicators, ensuring they stand out immediately.", "section": "colors" },
+      { "name": "The No-Literal-Scale Rule", "body": "Text size styles must avoid raw arbitrary heights to prevent system drift. All sub-label metadata elements default to standard scale values.", "section": "typography" },
+      { "name": "The Split Dashboard Rule", "body": "Role-based dashboards implement a responsive two-column template layout: main visual/analytics grid on the left and sticky sidebar on the right.", "section": "layout" }
+    ],
+    "dos": [
+      "Do preserve the multi-step progress when a user returns by reading from local storage.",
+      "Do use uppercase cyber badges for section tags and status updates.",
+      "Do align dashboard cards using full-width headers containing GridBackground elements."
+    ],
+    "donts": [
+      "Don't use generic black borders or flat gray highlights.",
+      "Don't use standard heavy drop shadows on dark mode cards.",
+      "Don't introduce distracting elastic animation styles like animate-bounce on AI guide panels."
+    ]
+  }
+}
