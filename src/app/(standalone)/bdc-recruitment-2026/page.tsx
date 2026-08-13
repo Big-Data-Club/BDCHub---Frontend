@@ -317,7 +317,7 @@ export default function BDCRecruitment2026Page() {
               <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
                 BIG DATA CLUB <span className="text-blue-600 dark:text-cyan-400 text-xs font-bold ml-1">2026</span>
               </h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">HCMUT · Empowering Tomorrow's Tech Leaders</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">HCMUT · Empowering Tomorrow&apos;s Tech Leaders</p>
             </div>
           </div>
 
