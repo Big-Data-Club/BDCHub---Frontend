@@ -85,6 +85,16 @@ class LMSService {
     return response.data;
   }
 
+  async archiveCourse(courseId: number) {
+    const response = await lmsApiClient.post(`/courses/${courseId}/archive`);
+    return response.data;
+  }
+
+  async unarchiveCourse(courseId: number) {
+    const response = await lmsApiClient.post(`/courses/${courseId}/unarchive`);
+    return response.data;
+  }
+
   async publishCourse(courseId: number) {
     const response = await lmsApiClient.post(`/courses/${courseId}/publish`);
     return response.data;

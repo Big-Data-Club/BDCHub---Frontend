@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import lmsService from "@/services/lmsService";
 import {
-  Plus, Search, BookOpen, Settings, Trash2,
+  Plus, Search, BookOpen, Settings, Trash2, Archive, ArchiveRestore,
   Eye, EyeOff, ChevronRight, Users
 } from "lucide-react";
 import {
@@ -15,27 +15,30 @@ import {
 import { Course } from "@/types";
 import { cn } from "@/lib/utils";
 
-type StatusFilter = "all" | "draft" | "published";
+type StatusFilter = "all" | "draft" | "published" | "archived";
 
 // ─── Course row (list item) ───────────────────────────────────────────────────
 
 function CourseRow({
-  course, onOpen, onPublish, onDelete, publishing, deleting
+  course, onOpen, onPublish, onArchive, onDelete, publishing, archiving, deleting
 }: {
   course: Course;
   onOpen: () => void;
   onPublish: () => void;
+  onArchive: () => void;
   onDelete: () => void;
   publishing: boolean;
+  archiving: boolean;
   deleting: boolean;
 }) {
   return (
     <div
       className={cn(
         "flex items-center gap-4 px-5 py-4 cursor-pointer group",
-        "hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+        "hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors",
+        course.status === "ARCHIVED" && "cursor-default opacity-75"
       )}
-      onClick={onOpen}
+      onClick={course.status === "ARCHIVED" ? undefined : onOpen}
     >
       {/* Thumbnail */}
       <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 relative border border-slate-200 dark:border-slate-800">
@@ -52,8 +55,8 @@ function CourseRow({
           <p className="font-semibold text-slate-900 dark:text-slate-50 truncate max-w-xs">
             {course.title}
           </p>
-          <Badge variant={course.status === "PUBLISHED" ? "green" : "yellow"}>
-            {course.status === "PUBLISHED" ? "Đã xuất bản" : "Nháp"}
+          <Badge variant={course.status === "PUBLISHED" ? "green" : course.status === "ARCHIVED" ? "gray" : "yellow"}>
+            {course.status === "PUBLISHED" ? "Đã xuất bản" : course.status === "ARCHIVED" ? "Đã lưu trữ" : "Nháp"}
           </Badge>
           {course.category && (course.category as string).split(",").map((cat, i) => {
             const trimmed = cat.trim();
@@ -85,7 +88,7 @@ function CourseRow({
         className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
         onClick={e => e.stopPropagation()}
       >
-        <button
+        {course.status !== "ARCHIVED" && <button
           onClick={onPublish}
           disabled={publishing}
           className={cn(
@@ -103,6 +106,15 @@ function CourseRow({
           ) : (
             <EyeOff className="w-4 h-4" />
           )}
+        </button>}
+
+        <button
+          onClick={onArchive}
+          disabled={archiving}
+          className="p-2 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 text-amber-600 transition-colors"
+          title={course.status === "ARCHIVED" ? "Khôi phục khóa học" : "Lưu trữ khóa học"}
+        >
+          {archiving ? <Spinner className="w-4 h-4 border-2" /> : course.status === "ARCHIVED" ? <ArchiveRestore className="w-4 h-4" /> : <Archive className="w-4 h-4" />}
         </button>
 
         <button
@@ -141,6 +153,7 @@ export default function CoursesListPage() {
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const [publishing, setPublishing] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [archiving, setArchiving] = useState<number | null>(null);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -196,6 +209,24 @@ export default function CoursesListPage() {
     finally { setDeleting(null); }
   };
 
+  const handleArchive = async (course: Course) => {
+    const restoring = course.status === "ARCHIVED";
+    const action = restoring ? "khôi phục" : "lưu trữ";
+    if (!confirm(`${restoring ? "Khôi phục" : "Lưu trữ"} khóa học "${course.title}"?${restoring ? " Người học có thể truy cập lại theo trạng thái trước đó." : " Tất cả người dùng sẽ không thể truy cập cho đến khi bạn khôi phục."}`)) return;
+    setArchiving(course.id);
+    try {
+      await (restoring ? lmsService.unarchiveCourse(course.id) : lmsService.archiveCourse(course.id));
+      setCourses(prev => prev.map(item => item.id === course.id ? { ...item, status: restoring ? "DRAFT" : "ARCHIVED" } : item));
+      // A restored published course preserves its previous status on the server;
+      // refresh the list so the UI reflects that authoritative state.
+      if (restoring) await load(filter);
+    } catch {
+      setError(`Không thể ${action} khóa học.`);
+    } finally {
+      setArchiving(null);
+    }
+  };
+
   const allTags = Array.from(
     new Set(
       courses
@@ -208,6 +239,7 @@ export default function CoursesListPage() {
 
   const published = courses.filter(c => c.status === "PUBLISHED").length;
   const draft = courses.filter(c => c.status === "DRAFT").length;
+  const archived = courses.filter(c => c.status === "ARCHIVED").length;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -218,7 +250,7 @@ export default function CoursesListPage() {
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-50">Khóa học của tôi</h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
-              {courses.length} khóa học · {published} đã xuất bản · {draft} nháp
+              {courses.length} khóa học · {published} đã xuất bản · {draft} nháp · {archived} lưu trữ
             </p>
           </div>
           <PrimaryBtn
@@ -239,6 +271,7 @@ export default function CoursesListPage() {
                 { id: "all" as StatusFilter,       label: "Tất cả",    badge: courses.length },
                 { id: "published" as StatusFilter,  label: "Xuất bản",  badge: published },
                 { id: "draft" as StatusFilter,      label: "Nháp",      badge: draft },
+                { id: "archived" as StatusFilter,   label: "Lưu trữ",   badge: archived },
               ]}
               active={filter}
               onChange={setFilter}
@@ -320,8 +353,10 @@ export default function CoursesListPage() {
                   course={course}
                   onOpen={() => router.push(`/lms/teacher/courses/${course.id}`)}
                   onPublish={() => handlePublish(course)}
+                  onArchive={() => handleArchive(course)}
                   onDelete={() => handleDelete(course)}
                   publishing={publishing === course.id}
+                  archiving={archiving === course.id}
                   deleting={deleting === course.id}
                 />
               ))}
