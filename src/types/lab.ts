@@ -78,3 +78,74 @@ export interface LabSubmission {
   submittedAt: string;
   gradedAt?: string;
 }
+
+export type InquiryLevel = 'STRUCTURED' | 'GUIDED' | 'OPEN_INQUIRY';
+export type LabVersionStatus = 'DRAFT' | 'VALIDATED' | 'PUBLISHED' | 'SUPERSEDED';
+export type ExperimentVariableRole = 'INDEPENDENT' | 'DEPENDENT' | 'CONTROLLED';
+export type ExperimentDataType = 'NUMBER' | 'INTEGER' | 'BOOLEAN' | 'STRING';
+
+export interface WorkflowNode {
+  key: string;
+  type: string;
+  title: string;
+  config: Record<string, any>;
+  requiredEvidence: string[];
+  orderHint: number;
+}
+
+export interface WorkflowEdge {
+  from: string;
+  to: string;
+  conditionExpression: string;
+  priority: number;
+}
+
+export interface ExperimentVariable {
+  key: string;
+  displayName: string;
+  role: ExperimentVariableRole;
+  dataType: ExperimentDataType;
+  unit: string;
+  minValue?: number;
+  maxValue?: number;
+  defaultValue: any;
+  sourceId: string;
+}
+
+export interface ExperimentDefinition {
+  domain: 'PLANT' | 'ROBOT';
+  inquiryLevel: InquiryLevel;
+  workflowSchemaVersion: number;
+  modelVersion: string;
+  learningObjectives: string[];
+  config: Record<string, any>;
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+  variables: ExperimentVariable[];
+}
+
+export interface LabVersion {
+  id: number;
+  labId: number;
+  versionNumber: number;
+  status: LabVersionStatus;
+  definitionHash: string;
+  definition: ExperimentDefinition;
+  createdBy: number;
+  validatedAt?: string;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LabValidationIssue {
+  severity: 'ERROR' | 'WARNING';
+  code: string;
+  path: string;
+  message: string;
+}
+
+export interface LabVersionValidation {
+  valid: boolean;
+  issues: LabValidationIssue[];
+}

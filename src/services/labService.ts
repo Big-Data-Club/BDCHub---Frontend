@@ -1,5 +1,11 @@
 import { labApiClient } from "./labApiClient";
-import type { Lab, LabEnrollment } from "@/types";
+import type {
+  ExperimentDefinition,
+  Lab,
+  LabEnrollment,
+  LabVersion,
+  LabVersionValidation,
+} from "@/types";
 
 export interface SuccessResponse<T> {
   success: boolean;
@@ -125,6 +131,88 @@ const mapRunResult = (raw: any): any => {
     })),
   };
 };
+
+const mapDefinition = (raw: any): ExperimentDefinition => ({
+  domain: raw.domain,
+  inquiryLevel: raw.inquiry_level,
+  workflowSchemaVersion: raw.workflow_schema_version,
+  modelVersion: raw.model_version,
+  learningObjectives: raw.learning_objectives || [],
+  config: raw.config || {},
+  nodes: (raw.nodes || []).map((node: any) => ({
+    key: node.key,
+    type: node.type,
+    title: node.title,
+    config: node.config || {},
+    requiredEvidence: node.required_evidence || [],
+    orderHint: node.order_hint,
+  })),
+  edges: (raw.edges || []).map((edge: any) => ({
+    from: edge.from,
+    to: edge.to,
+    conditionExpression: edge.condition_expression,
+    priority: edge.priority,
+  })),
+  variables: (raw.variables || []).map((variable: any) => ({
+    key: variable.key,
+    displayName: variable.display_name,
+    role: variable.role,
+    dataType: variable.data_type,
+    unit: variable.unit,
+    minValue: variable.min_value,
+    maxValue: variable.max_value,
+    defaultValue: variable.default_value,
+    sourceId: variable.source_id,
+  })),
+});
+
+const mapLabVersion = (raw: any): LabVersion => ({
+  id: raw.id,
+  labId: raw.lab_id,
+  versionNumber: raw.version_number,
+  status: raw.status,
+  definitionHash: raw.definition_hash,
+  definition: mapDefinition(raw.definition || {}),
+  createdBy: raw.created_by,
+  validatedAt: raw.validated_at,
+  publishedAt: raw.published_at,
+  createdAt: raw.created_at,
+  updatedAt: raw.updated_at,
+});
+
+const definitionPayload = (definition: ExperimentDefinition) => ({
+  domain: definition.domain,
+  inquiry_level: definition.inquiryLevel,
+  workflow_schema_version: definition.workflowSchemaVersion,
+  model_version: definition.modelVersion,
+  learning_objectives: definition.learningObjectives,
+  config: definition.config,
+  nodes: definition.nodes.map(node => ({
+    key: node.key,
+    type: node.type,
+    title: node.title,
+    config: node.config,
+    required_evidence: node.requiredEvidence,
+    order_hint: node.orderHint,
+  })),
+  edges: definition.edges.map(edge => ({
+    from: edge.from,
+    to: edge.to,
+    condition_expression: edge.conditionExpression,
+    priority: edge.priority,
+  })),
+  variables: definition.variables.map(variable => ({
+    key: variable.key,
+    display_name: variable.displayName,
+    role: variable.role,
+    data_type: variable.dataType,
+    unit: variable.unit,
+    min_value: variable.minValue,
+    max_value: variable.maxValue,
+    default_value: variable.defaultValue,
+    source_id: variable.sourceId,
+  })),
+});
 
 export const labService = {
   getPublishedLabs: async (params?: {
@@ -294,6 +382,32 @@ export const labService = {
     return labApiClient.post<SuccessResponse<any>>(`/labs/${id}/publish`, {});
   },
 
+  listLabVersions: async (labId: number): Promise<SuccessResponse<LabVersion[]>> => {
+    const res = await labApiClient.get<SuccessResponse<any[]>>(`/labs/${labId}/versions`);
+    return { ...res, data: (res.data || []).map(mapLabVersion) };
+  },
+
+  createLabVersion: async (
+    labId: number,
+    definition: ExperimentDefinition
+  ): Promise<SuccessResponse<LabVersion>> => {
+    const res = await labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/versions`, {
+      definition: definitionPayload(definition),
+    });
+    return { ...res, data: mapLabVersion(res.data) };
+  },
+
+  validateLabVersion: async (versionId: number): Promise<SuccessResponse<LabVersionValidation>> => {
+    return labApiClient.post<SuccessResponse<LabVersionValidation>>(
+      `/lab-versions/${versionId}/validate`,
+      {}
+    );
+  },
+
+  publishLabVersion: async (versionId: number): Promise<SuccessResponse<any>> => {
+    return labApiClient.post<SuccessResponse<any>>(`/lab-versions/${versionId}/publish`, {});
+  },
+
   createSection: async (
     labId: number,
     data: { title: string; description?: string; orderIndex?: number }
@@ -407,4 +521,3 @@ export const labService = {
     return labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/session/stop`, {});
   },
 };
-

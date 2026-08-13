@@ -26,6 +26,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import StemExperimentSetup from "@/components/labs/StemExperimentSetup";
 
 
 export default function LabEditPage() {
@@ -36,7 +37,7 @@ export default function LabEditPage() {
   
   const isAuthorized = isAdmin || isManager || user?.role === "ROLE_TEACHER";
 
-  const [activeTab, setActiveTab] = useState<"general" | "sections" | "testcases" | "sandbox">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "stem" | "sections" | "testcases" | "sandbox">("general");
   const [lab, setLab] = useState<Lab | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingGeneral, setSavingGeneral] = useState(false);
@@ -103,6 +104,9 @@ export default function LabEditPage() {
       setLoading(true);
       const res = await labService.getLabById(labId);
       if (res.data) {
+        if (!lab && (res.data.labType === "PLANT" || res.data.labType === "ROBOT")) {
+          setActiveTab("stem");
+        }
         setLab(res.data);
         setGeneralForm({
           title: res.data.title,
@@ -497,7 +501,7 @@ export default function LabEditPage() {
         </div>
 
         {/* Tab Selection */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 gap-6">
+        <div className="flex flex-wrap border-b border-slate-200 dark:border-slate-800 gap-6">
           <button
             onClick={() => setActiveTab("general")}
             className={`pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
@@ -509,6 +513,20 @@ export default function LabEditPage() {
             <Settings size={16} />
             General Config
           </button>
+
+          {(lab.labType === "PLANT" || lab.labType === "ROBOT") && (
+            <button
+              onClick={() => setActiveTab("stem")}
+              className={`pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+                activeTab === "stem"
+                  ? "border-emerald-600 text-emerald-600 font-bold"
+                  : "border-transparent text-slate-500 hover:text-slate-850 hover:border-slate-300 dark:hover:text-slate-300"
+              }`}
+            >
+              <FlaskConical size={16} />
+              STEM Setup
+            </button>
+          )}
           
           <button
             onClick={() => setActiveTab("sections")}
@@ -536,18 +554,24 @@ export default function LabEditPage() {
             </button>
           )}
 
-          <button
-            onClick={() => setActiveTab("sandbox")}
-            className={`pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
-              activeTab === "sandbox"
-                ? "border-blue-600 text-blue-600 font-bold"
-                : "border-transparent text-slate-500 hover:text-slate-850 hover:border-slate-300 dark:hover:text-slate-300"
-            }`}
-          >
-            <Cpu size={16} />
-            Sandbox & Runtime
-          </button>
+          {lab.labType !== "PLANT" && lab.labType !== "ROBOT" && (
+            <button
+              onClick={() => setActiveTab("sandbox")}
+              className={`pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+                activeTab === "sandbox"
+                  ? "border-blue-600 text-blue-600 font-bold"
+                  : "border-transparent text-slate-500 hover:text-slate-850 hover:border-slate-300 dark:hover:text-slate-300"
+              }`}
+            >
+              <Cpu size={16} />
+              Sandbox & Runtime
+            </button>
+          )}
         </div>
+
+        {activeTab === "stem" && (lab.labType === "PLANT" || lab.labType === "ROBOT") && (
+          <StemExperimentSetup lab={lab} onPublished={fetchLabDetails} />
+        )}
 
         {/* Tab 1: General Details */}
         {activeTab === "general" && (
