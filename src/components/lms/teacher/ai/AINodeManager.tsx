@@ -276,10 +276,6 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
         courseId={courseId}
         open={consolidateOpen}
         onClose={() => setConsolidateOpen(false)}
-        onCompleted={() => {
-          setConsolidateOpen(false);
-          onNodesChange();
-        }}
       />
 
       {/* Create form */}

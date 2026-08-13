@@ -6,7 +6,6 @@ import {
   ArrowRight,
   Loader2,
   AlertCircle,
-  CheckCircle2,
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -20,10 +19,9 @@ interface Props {
   courseId: number;
   open: boolean;
   onClose: () => void;
-  onCompleted: () => void;
 }
 
-type Phase = "loading" | "preview" | "executing" | "done" | "error";
+type Phase = "loading" | "preview" | "executing" | "error";
 
 const KIND_BADGE: Record<string, { label: string; cls: string }> = {
   hard:  { label: "Trùng lặp",  cls: "bg-rose-50 text-rose-700 border-rose-200" },
@@ -31,7 +29,7 @@ const KIND_BADGE: Record<string, { label: string; cls: string }> = {
   micro: { label: "Mảnh nhỏ",   cls: "bg-sky-50 text-sky-700 border-sky-200" },
 };
 
-export default function GraphConsolidateModal({ courseId, open, onClose, onCompleted }: Props) {
+export default function GraphConsolidateModal({ courseId, open, onClose }: Props) {
   const [phase, setPhase]       = useState<Phase>("loading");
   const [preview, setPreview]   = useState<ConsolidationPreview | null>(null);
   const [error, setError]       = useState<string>("");
@@ -89,39 +87,15 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
       const selectedSurvivorIds = preview.groups
         .filter((group) => enabled[group.survivor_id])
         .map((group) => group.survivor_id);
-      const job = await aiService.triggerGraphConsolidation(
+      await aiService.triggerGraphConsolidation(
         courseId,
         selectedSurvivorIds,
       );
-      setStatusMsg("Đang xử lý ở backend…");
-
-      // Poll the existing AI job-status endpoint.
-      const start = Date.now();
-      const TIMEOUT_MS = 5 * 60 * 1000;
-      while (Date.now() - start < TIMEOUT_MS) {
-        await new Promise((r) => setTimeout(r, 2500));
-        try {
-          const s = await aiService.getJobStatus(job.job_id);
-          if (s.status === "completed") {
-            setPhase("done");
-            toast.success("Đã làm gọn graph");
-            onCompleted();
-            return;
-          }
-          if (s.status === "failed") {
-            setError(s.error || "Backend báo lỗi khi hợp nhất");
-            setPhase("error");
-            return;
-          }
-        } catch {
-          // Status not seeded yet; keep polling.
-        }
-      }
-
-      // Soft timeout - the job may still finish later, but stop blocking the UI.
-      setPhase("done");
-      toast("Hợp nhất đang chạy nền - graph sẽ tự cập nhật.", { icon: "ℹ️" });
-      onCompleted();
+      toast("Hệ thống đang làm gọn graph trong nền. Bạn có thể tiếp tục làm việc.", {
+        icon: "ℹ️",
+        duration: 5000,
+      });
+      onClose();
     } catch (e: any) {
       setError(e?.response?.data?.error ?? e?.message ?? "Không thể chạy hợp nhất");
       setPhase("error");
@@ -164,18 +138,6 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
               <div className="text-sm text-red-700 dark:text-red-300">
                 {error || "Đã xảy ra lỗi không xác định"}
               </div>
-            </div>
-          )}
-
-          {phase === "done" && (
-            <div className="flex flex-col items-center justify-center py-12 text-slate-700 dark:text-slate-200">
-              <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-3" />
-              <p className="text-sm font-medium">Đã hoàn tất hợp nhất</p>
-              {preview && (
-                <p className="text-xs text-slate-500 mt-1">
-                  Graph từ {preview.total_nodes_before} → {preview.total_nodes_after} nodes
-                </p>
-              )}
             </div>
           )}
 
@@ -264,7 +226,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
             disabled={phase === "executing"}
             className="px-4 py-2 text-sm border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-50"
           >
-            {phase === "done" ? "Đóng" : "Hủy"}
+            Hủy
           </button>
           {phase === "preview" && preview && (preview.groups.length > 0 || stats.willDeleteOrphans > 0) && (
             <button
