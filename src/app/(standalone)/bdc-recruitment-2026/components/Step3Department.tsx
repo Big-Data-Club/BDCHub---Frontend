@@ -104,14 +104,14 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
 
                 {/* Skill Pills */}
                 <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/80">
-                  <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
                     {lang === "vi" ? "Kỹ năng & Lĩnh vực:" : "Skills & Focus:"}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {(lang === "vi" ? dept.skillsVi : dept.skillsEn).map((skill, idx) => (
                       <span
                         key={idx}
-                        className="text-[11px] bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700/60"
+                        className="text-xs bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700/60"
                       >
                         {skill}
                       </span>

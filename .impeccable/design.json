@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-13T14:40:00Z",
+  "title": "Design System: BDCHub Design System",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Tech Blue",
+        "canonical": "#2563eb",
+        "tonalRamp": ["#1d4ed8", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#c084fc", "#e0e7ff", "#f5f3ff"]
+      },
+      "accent": {
+        "role": "accent",
+        "displayName": "Cyber Cyan",
+        "canonical": "#06b6d4",
+        "tonalRamp": ["#0891b2", "#06b6d4", "#22d3ee", "#67e8f9", "#a5f3fc", "#cffafe", "#ecfeff", "#f0fdfa"]
+      },
+      "neutral-bg-dark": {
+        "role": "neutral",
+        "displayName": "Cosmic Dark Navy",
+        "canonical": "#050b18",
+        "tonalRamp": ["#020617", "#050b18", "#0b1528", "#0f1e35", "#1e293b", "#334155", "#475569", "#64748b"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display Hero",
+        "purpose": "Recruitment Form titles and hero headers."
+      },
+      "body": {
+        "displayName": "Body Standard",
+        "purpose": "Standard input values, descriptions, and labels."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-elevation",
+        "value": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        "purpose": "Ambient light-mode floating card container shadow."
+      }
+    ],
+    "motion": [
+      {
+        "name": "standard-duration",
+        "value": "300ms",
+        "purpose": "Dynamic transitions for button hover states."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Used for moving to the next steps and major submit actions.",
+      "html": "<button class=\"ds-btn-primary\">Next Step</button>",
+      "css": ".ds-btn-primary { background: #2563eb; color: #ffffff; padding: 12px 28px; border-radius: 12px; font-weight: bold; border: none; transition: background 0.3s, transform 0.2s; cursor: pointer; } .ds-btn-primary:hover { background: #1d4ed8; } .ds-btn-primary:active { transform: scale(0.95); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-text",
+      "description": "Standard user entry text fields.",
+      "html": "<input type=\"text\" class=\"ds-input-text\" placeholder=\"Enter your name\" />",
+      "css": ".ds-input-text { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 16px; color: #0f172a; font-size: 14px; width: 100%; box-sizing: border-box; outline: none; transition: border-color 0.2s, box-shadow 0.2s; } .ds-input-text:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); background: #ffffff; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Tech-Academic Terminal",
+    "overview": "This system represents a clean, high-tech engineering aesthetic that blends computer science vibes with institutional structure. It is designed to be highly functional, structured, and formal, reflecting the engineering nature of the Big Data Club at HCMUT.",
+    "keyCharacteristics": [
+      "Technocentric Accent: High-contrast blue and cyan gradients that highlight active elements and progress metrics.",
+      "Structural Integrity: Reliance on solid borders and clear segmentations rather than heavy drop shadows, especially in dark mode.",
+      "User-Centric Progress: Seamless, auto-persisted multi-step form navigation with visible stepper indicators."
+    ],
+    "rules": [
+      {
+        "name": "The Accent Rarity Rule",
+        "body": "Vibrant primary tech blue is reserved strictly for interactive indicators, primary call-to-actions, and active state indicators, ensuring they stand out immediately.",
+        "section": "colors"
+      },
+      {
+        "name": "The Flat Dark Rule",
+        "body": "Dark mode surfaces must never use drop shadows. Elevation is represented solely by border color intensity and container background light levels.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the multi-step progress when a user returns by reading from local storage.",
+      "Do use uppercase cyber badges for section tags and status updates."
+    ],
+    "donts": [
+      "Don't use generic black borders or flat gray highlights. Use themed slate-300 or dark blue/cyan borders instead.",
+      "Don't use standard heavy drop shadows on dark mode cards."
+    ]
+  }
+}

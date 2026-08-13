@@ -54,7 +54,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({ fullName, email, l
           <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
             {t.successNextSteps.map((step, i) => (
               <li key={i} className="flex items-start space-x-2">
-                <span className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                <span className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                   {i + 1}
                 </span>
                 <span className="leading-relaxed">{step}</span>
