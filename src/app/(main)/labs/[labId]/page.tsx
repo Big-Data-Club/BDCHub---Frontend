@@ -16,14 +16,16 @@ import {
   History,
   Activity,
   Cpu,
-  Database as DbIcon
+  Database as DbIcon,
+  Sprout,
+  Bot
 } from "lucide-react";
 import { labService } from "@/services/labService";
 import { getAccessToken } from "@/services/authToken";
 import type { Lab, LabSubmission } from "@/types";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { XTerminal, type XTerminalHandle } from "@/components/terminal/XTerminal";
 
@@ -306,6 +308,7 @@ export default function LabDetailPage() {
 
   const supportedLanguages = lab.runtimeConfig?.supported_languages || ["python"];
   const isCodingOrDb = lab.labType === "CODING" || lab.labType === "DATABASE";
+  const isSTEMExperiment = lab.labType === "PLANT" || lab.labType === "ROBOT";
 
   return (
     <div className="min-h-screen bg-transparent p-4 lg:p-6" id="lab-workspace">
@@ -331,7 +334,7 @@ export default function LabDetailPage() {
           </div>
           
           {/* Active Worksite Switchers */}
-          <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+          {!isSTEMExperiment && <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
             <button
               onClick={() => setActiveTab("instructions")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
@@ -354,7 +357,7 @@ export default function LabDetailPage() {
               <History size={13} />
               Submissions ({submissions.length})
             </button>
-          </div>
+          </div>}
         </div>
 
         {/* Dynamic Split Layout */}
@@ -463,7 +466,27 @@ export default function LabDetailPage() {
           {/* RIGHT SIDE PANEL (Code Playground / Compiler / Terminal Sandbox) */}
           <div className="lg:col-span-7 bg-slate-900 text-slate-100 border border-slate-800 rounded-2xl flex flex-col min-h-0 overflow-hidden">
             
-            {isCodingOrDb ? (
+            {isSTEMExperiment ? (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-5">
+                <div className={`p-4 rounded-2xl border ${lab.labType === "PLANT" ? "bg-lime-950/30 border-lime-800/60" : "bg-cyan-950/30 border-cyan-800/60"}`}>
+                  {lab.labType === "PLANT" ? (
+                    <Sprout className="w-12 h-12 text-lime-400" />
+                  ) : (
+                    <Bot className="w-12 h-12 text-cyan-400" />
+                  )}
+                </div>
+                <div className="max-w-lg space-y-2">
+                  <h3 className="text-lg font-bold text-slate-100">STEM experiment workspace</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    The versioned workflow, deterministic trials, and evidence timeline are ready.
+                    The interactive {lab.labType === "PLANT" ? "plant simulation" : "robot simulation"} engine will be connected in the next implementation slice.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-xs text-slate-400">
+                  This lab will not launch a generic terminal because scientific experiment state must remain reproducible and reviewable.
+                </div>
+              </div>
+            ) : isCodingOrDb ? (
               // ── Option A: Solution Editor (For CODING and DATABASE labs) ──
               <>
                 {/* Header Toolbars */}

@@ -1,4 +1,4 @@
-export type LabType = 'CODING' | 'HPC' | 'JUPYTER' | 'WORKSPACE' | 'DATABASE' | 'CUSTOM';
+export type LabType = 'CODING' | 'HPC' | 'JUPYTER' | 'WORKSPACE' | 'DATABASE' | 'CUSTOM' | 'PLANT' | 'ROBOT';
 export type LabLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'ALL_LEVELS';
 export type LabStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 

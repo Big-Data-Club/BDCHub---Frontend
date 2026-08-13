@@ -251,6 +251,8 @@ export default function LabCreatePage() {
                   <option value="DATABASE">SQL Database Sandbox (SQLite)</option>
                   <option value="WORKSPACE">Linux Workspace Console (ttyd terminal)</option>
                   <option value="HPC">HPC Job Submission (SLURM cluster)</option>
+                  <option value="PLANT">Plant Science Experiment</option>
+                  <option value="ROBOT">Robot Engineering Experiment</option>
                 </select>
                 <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-normal flex items-start gap-1 mt-1">
                   <HelpCircle size={12} className="inline mt-0.5 flex-shrink-0" />

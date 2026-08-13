@@ -12,7 +12,9 @@ import {
   Loader2, 
   RefreshCw,
   CheckCircle2,
-  Lock
+  Lock,
+  Sprout,
+  Bot
 } from "lucide-react";
 import { useLabs } from "@/hooks/useLabs";
 import { useAuth } from "@/hooks/useAuth";
@@ -70,6 +72,10 @@ export default function LabsPage() {
         return { icon: Cpu, label: "HPC Cluster", color: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900/60" };
       case "WORKSPACE":
         return { icon: FlaskConical, label: "Workspace IDE", color: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/60" };
+      case "PLANT":
+        return { icon: Sprout, label: "Plant Lab", color: "bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-400 border-lime-200 dark:border-lime-900/60" };
+      case "ROBOT":
+        return { icon: Bot, label: "Robot Lab", color: "bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-900/60" };
       default:
         return { icon: BookOpen, label: type, color: "bg-slate-50 dark:bg-slate-950/40 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800" };
     }
@@ -104,7 +110,7 @@ export default function LabsPage() {
                 Virtual Lab
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
-                Explore hands-on programming, database sandboxes, and HPC jobs.
+                Experiment with plants, robots, programming, databases, and HPC jobs.
               </p>
             </div>
           </div>
@@ -164,7 +170,7 @@ export default function LabsPage() {
               >
                 All Types
               </button>
-              {(["CODING", "DATABASE", "WORKSPACE", "HPC"] as LabType[]).map((type) => (
+              {(["PLANT", "ROBOT", "CODING", "DATABASE", "WORKSPACE", "HPC"] as LabType[]).map((type) => (
                 <button
                   key={type}
                   onClick={() => handleTypeChange(type)}
