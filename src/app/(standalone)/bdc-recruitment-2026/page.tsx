@@ -286,7 +286,7 @@ export default function BDCRecruitment2026Page() {
     <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white font-sans pb-16 pt-16 sm:pt-20 transition-colors duration-300">
       {/* Toast */}
       {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 bg-rose-600 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 animate-in slide-in-from-bottom-4 duration-300">
+        <div role="alert" aria-live="assertive" className="fixed bottom-6 right-6 z-50 bg-rose-600 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 animate-in slide-in-from-bottom-4 duration-300">
           <ShieldAlert className="w-4 h-4 shrink-0" />
           <span>{toastMsg}</span>
         </div>
@@ -315,9 +315,9 @@ export default function BDCRecruitment2026Page() {
             </div>
             <div className="min-w-0">
               <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
-                BIG DATA CLUB <span className="bg-gradient-to-r from-blue-600 to-cyan-400 bg-clip-text text-transparent text-xs font-bold ml-1">2026</span>
+                BIG DATA CLUB <span className="text-blue-600 dark:text-cyan-400 text-xs font-bold ml-1">2026</span>
               </h1>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold truncate">HCMUT · Empowering Tomorrow's Tech Leaders</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">HCMUT · Empowering Tomorrow's Tech Leaders</p>
             </div>
           </div>
 
@@ -354,7 +354,7 @@ export default function BDCRecruitment2026Page() {
             <Sparkles className="w-3.5 h-3.5" />
             <span>{t.heroBadge}</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-blue-700 to-blue-500 dark:from-white dark:via-slate-100 dark:to-cyan-300">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
             {t.heroTitle}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed font-medium">
@@ -420,7 +420,7 @@ export default function BDCRecruitment2026Page() {
                   {/* Text Label */}
                   <span
                     onClick={handleStepClick}
-                    className={`absolute top-11 left-1/2 -translate-x-1/2 text-[11px] font-bold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-blue-600 dark:hover:text-cyan-400
+                    className={`absolute top-11 left-1/2 -translate-x-1/2 text-xs font-bold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-blue-600 dark:hover:text-cyan-400
                       ${
                         isCurrent
                           ? "text-blue-600 dark:text-cyan-400"
