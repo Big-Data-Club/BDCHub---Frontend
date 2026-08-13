@@ -77,9 +77,9 @@ export default function LabCreatePage() {
       } else {
         router.push("/labs/manage");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to create virtual lab.");
+      toast.error(err instanceof Error ? err.message : "Failed to create virtual lab.");
     } finally {
       setSubmitting(false);
     }
