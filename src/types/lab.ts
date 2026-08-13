@@ -187,3 +187,16 @@ export interface EvidenceEvent {
   context: Record<string, any>;
   occurredAt: string;
 }
+
+export interface StemTrialResult {
+  trialId: number;
+  trialNumber: number;
+  seed: number;
+  engineVersion: string;
+  domain: 'PLANT' | 'ROBOT';
+  xLabel: string;
+  yLabel: string;
+  points: Array<{ x: number; y: number }>;
+  summary: string;
+  config: Record<string, number>;
+}

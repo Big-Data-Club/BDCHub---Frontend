@@ -24,23 +24,12 @@ import type {
   ExperimentTrial,
   Lab,
   LabVersion,
+  StemTrialResult,
   WorkflowNode,
 } from "@/types";
+import StemSimulationStage from "@/components/labs/StemSimulationStage";
 
 type Props = { lab: Lab };
-type TrialResult = {
-  trialId: number;
-  trialNumber: number;
-  seed: number;
-  engineVersion: string;
-  domain: "PLANT" | "ROBOT";
-  xLabel: string;
-  yLabel: string;
-  points: Array<{ x: number; y: number }>;
-  summary: string;
-  config: Record<string, number>;
-};
-
 const ENGINE_VERSION = "stem-concept-web-0.1.0";
 const errorMessage = (error: unknown) => error instanceof Error ? error.message : "Có lỗi không xác định";
 const eventID = () => crypto.randomUUID();
@@ -58,7 +47,7 @@ const seededRandom = (seed: number) => {
 const simulate = (
   definition: ExperimentDefinition,
   trial: ExperimentTrial,
-): TrialResult => {
+): StemTrialResult => {
   const random = seededRandom(trial.seed);
   const independent = definition.variables.find(variable => variable.role === "INDEPENDENT")!;
   const dependent = definition.variables.find(variable => variable.role === "DEPENDENT")!;
@@ -153,7 +142,7 @@ export default function StemLearnerWorkspace({ lab }: Props) {
   const trialResults = useMemo(
     () => events
       .filter(event => event.object.type === "simulation_run")
-      .map(event => event.result as TrialResult)
+      .map(event => event.result as StemTrialResult)
       .filter(result => Array.isArray(result.points)),
     [events],
   );
@@ -354,6 +343,11 @@ export default function StemLearnerWorkspace({ lab }: Props) {
     const maxY = Math.max(...latestResult.points.map(point => point.y), 1);
     return (
       <div className="space-y-4">
+        <StemSimulationStage
+          definition={version.definition}
+          result={latestResult}
+          comparison={trialResults.length > 1 ? trialResults[trialResults.length - 2] : undefined}
+        />
         <div className="rounded-xl border border-emerald-900 bg-emerald-950/20 p-4">
           <p className="font-bold text-emerald-300">Lần thử {latestResult.trialNumber}: {latestResult.summary}</p>
           <p className="mt-1 font-mono text-[11px] text-slate-500">seed={latestResult.seed} · engine={latestResult.engineVersion}</p>
