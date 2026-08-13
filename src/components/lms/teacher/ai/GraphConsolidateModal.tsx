@@ -60,7 +60,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
   }, [open, courseId]);
 
   const stats = useMemo(() => {
-    if (!preview) return { selectedGroups: 0, willAbsorb: 0 };
+    if (!preview) return { selectedGroups: 0, willAbsorb: 0, willDeleteOrphans: 0 };
     let willAbsorb = 0;
     let selectedGroups = 0;
     for (const g of preview.groups) {
@@ -69,7 +69,11 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
         willAbsorb += g.absorbed_ids.length;
       }
     }
-    return { selectedGroups, willAbsorb };
+    return {
+      selectedGroups,
+      willAbsorb,
+      willDeleteOrphans: preview.orphaned_ids?.length ?? 0,
+    };
   }, [preview, enabled]);
 
   const handleToggle = (survivorId: number) => {
@@ -77,12 +81,18 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
   };
 
   const handleConfirm = async () => {
-    if (!preview || stats.selectedGroups === 0) return;
+    if (!preview || (stats.selectedGroups === 0 && stats.willDeleteOrphans === 0)) return;
 
     setPhase("executing");
     setStatusMsg("Đang gửi yêu cầu…");
     try {
-      const job = await aiService.triggerGraphConsolidation(courseId);
+      const selectedSurvivorIds = preview.groups
+        .filter((group) => enabled[group.survivor_id])
+        .map((group) => group.survivor_id);
+      const job = await aiService.triggerGraphConsolidation(
+        courseId,
+        selectedSurvivorIds,
+      );
       setStatusMsg("Đang xử lý ở backend…");
 
       // Poll the existing AI job-status endpoint.
@@ -180,27 +190,51 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
             <>
               {/* Summary */}
               <div className="mb-4 p-3 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800 text-sm text-violet-700 dark:text-violet-300">
-                {preview.groups.length === 0 ? (
+                {preview.groups.length === 0 && stats.willDeleteOrphans === 0 ? (
                   <span>
-                    Graph đã sạch - không có nhóm nào cần hợp nhất.
+                    Graph đã sạch - không có node nào cần hợp nhất hoặc dọn bỏ.
                   </span>
                 ) : (
                   <span>
-                    Sẽ hợp nhất{" "}
-                    <strong>{stats.willAbsorb + stats.selectedGroups}</strong> nodes
-                    thành <strong>{stats.selectedGroups}</strong> nhóm - graph còn{" "}
-                    <strong>{preview.total_nodes_before - stats.willAbsorb}</strong>/{
+                    Sẽ gộp <strong>{stats.willAbsorb}</strong> node trùng lặp
+                    {stats.willDeleteOrphans > 0 && (
+                      <> và xóa <strong>{stats.willDeleteOrphans}</strong> node tự sinh không có tài liệu</>
+                    )}. Graph còn{" "}
+                    <strong>{preview.total_nodes_before - stats.willAbsorb - stats.willDeleteOrphans}</strong>/{
                       preview.total_nodes_before
                     }{" "}
                     nodes (giảm{" "}
                     {Math.round(
-                      (100 * stats.willAbsorb) /
+                      (100 * (stats.willAbsorb + stats.willDeleteOrphans)) /
                         Math.max(1, preview.total_nodes_before)
                     )}
                     %).
                   </span>
                 )}
               </div>
+
+              {stats.willDeleteOrphans > 0 && (
+                <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+                  <div className="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-200">
+                    <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">
+                        {stats.willDeleteOrphans} node tự sinh không có tài liệu sẽ được xóa
+                      </p>
+                      <p className="mt-1 text-xs opacity-80">
+                        Node tạo thủ công được giữ nguyên. Backend sẽ kiểm tra lại chunk ngay trước khi xóa.
+                      </p>
+                      <div className="mt-2 flex max-h-24 flex-wrap gap-1.5 overflow-y-auto">
+                        {(preview.orphaned_ids ?? []).map((id) => (
+                          <span key={id} className="rounded bg-white/80 px-2 py-0.5 text-xs dark:bg-slate-900/50">
+                            {preview.orphaned_names?.[String(id)] ?? `#${id}`}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Group list */}
               <div className="space-y-3">
@@ -214,7 +248,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
                 ))}
               </div>
 
-              {preview.groups.length === 0 && (
+              {preview.groups.length === 0 && stats.willDeleteOrphans === 0 && (
                 <p className="text-sm text-slate-500 text-center py-8">
                   Không phát hiện node nào trùng lặp ở thời điểm này.
                 </p>
@@ -232,10 +266,10 @@ export default function GraphConsolidateModal({ courseId, open, onClose, onCompl
           >
             {phase === "done" ? "Đóng" : "Hủy"}
           </button>
-          {phase === "preview" && preview && preview.groups.length > 0 && (
+          {phase === "preview" && preview && (preview.groups.length > 0 || stats.willDeleteOrphans > 0) && (
             <button
               onClick={handleConfirm}
-              disabled={stats.selectedGroups === 0}
+              disabled={stats.selectedGroups === 0 && stats.willDeleteOrphans === 0}
               className="px-4 py-2 text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
               <Sparkles className="w-3.5 h-3.5" />

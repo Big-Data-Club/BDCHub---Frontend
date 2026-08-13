@@ -4,6 +4,7 @@ import { X, Trash2, Plus, Loader2, Check, AlertCircle, Building2 } from "lucide-
 import { postBulkRegister } from "@/lib/users/api";
 import { mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { fetchRoles, Role } from "@/lib/admin/rolesApi";
+import { fetchTeams, fetchTypes, Team, UserTypeOption } from "@/lib/admin/teamsTypesApi";
 import { organizationService } from "@/services/organizationService";
 
 interface BulkUser {
@@ -25,10 +26,20 @@ interface BulkUploadPreviewModalProps {
   onImportSuccess: () => void;
 }
 
+const normalizeCatalogValue = (value: string) => value
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/đ/gi, "d")
+  .trim()
+  .toLowerCase();
+
 export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onImportSuccess }: BulkUploadPreviewModalProps) {
   const [users, setUsers] = useState<BulkUser[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [organizations, setOrganizations] = useState<any[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [types, setTypes] = useState<UserTypeOption[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,22 +55,44 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
         code: u.code || "",
         roles: u.roles || u.role || "ROLE_USER",
         lmsRoles: u.lmsRoles || u.lms_roles || "",
-        team: u.team || "RESEARCH",
-        type: u.type || "CLC",
+        team: u.team || "",
+        type: u.type || "",
         organizations: u.organizations || u.organization || "",
       }));
       setUsers(mapped);
       setError(null);
       setSuccess(false);
 
-      // Load roles & organizations
-      fetchRoles()
-        .then(setRoles)
-        .catch(err => console.error("Failed to load roles:", err));
+      setCatalogLoading(true);
+      Promise.all([
+        fetchRoles(),
+        fetchTeams(),
+        fetchTypes(),
+        organizationService.list({ limit: 10000 }),
+      ]).then(([roleItems, teamItems, typeItems, organizationPage]) => {
+        setRoles(roleItems);
+        setTeams(teamItems);
+        setTypes(typeItems);
+        setOrganizations(organizationPage.items || []);
 
-      organizationService.list({ limit: 100 })
-        .then(res => setOrganizations(res.items || []))
-        .catch(err => console.error("Failed to load organizations:", err));
+        const resolveCode = (value: string, items: Array<{ code: string; name: string }>) => {
+          const cleaned = normalizeCatalogValue(value);
+          return items.find(item => normalizeCatalogValue(item.code) === cleaned || normalizeCatalogValue(item.name) === cleaned)?.code ?? value;
+        };
+        const resolveRoles = (value: string) => value.split(";").map(rawRole => {
+          const cleaned = normalizeCatalogValue(rawRole);
+          return roleItems.find(role => normalizeCatalogValue(role.name) === cleaned || normalizeCatalogValue(role.displayName) === cleaned)?.name ?? rawRole.trim();
+        }).filter(Boolean).join(";");
+        setUsers(current => current.map(user => ({
+          ...user,
+          roles: resolveRoles(user.roles) || roleItems.find(role => role.name === "ROLE_USER")?.name || roleItems[0]?.name || "",
+          team: resolveCode(user.team, teamItems) || teamItems[0]?.code || "",
+          type: resolveCode(user.type, typeItems) || typeItems[0]?.code || "",
+        })));
+      }).catch(err => {
+        console.error("Failed to load import catalogs:", err);
+        setError("Không tải được đầy đủ danh mục role, team, type hoặc tổ chức từ hệ thống.");
+      }).finally(() => setCatalogLoading(false));
     }
   }, [open, parsedUsers]);
 
@@ -81,8 +114,8 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
         code: "",
         roles: "ROLE_USER",
         lmsRoles: "",
-        team: "RESEARCH",
-        type: "CLC",
+        team: teams[0]?.code || "",
+        type: types[0]?.code || "",
         organizations: "",
       }
     ]);
@@ -93,6 +126,8 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
     const seenEmails = new Set<string>();
     const seenCodes = new Set<string>();
     const validRoles = new Set(roles.map(role => role.name.toUpperCase()));
+    const validTeams = new Set(teams.map(team => team.code.toUpperCase()));
+    const validTypes = new Set(types.map(type => type.code.toUpperCase()));
     const validOrganizations = new Set(organizations.flatMap(org => [org.slug.toLowerCase(), org.name.toLowerCase()]));
     const validOrgRoles = new Set(["MEMBER", "ADMIN", "OWNER"]);
 
@@ -103,6 +138,10 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
       if (!user.name.trim()) errors.push("Thiếu họ tên");
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errors.push("Email không hợp lệ");
       if (!code) errors.push("Thiếu mã số");
+      if (!user.team.trim()) errors.push("Thiếu team");
+      else if (validTeams.size && !validTeams.has(user.team.toUpperCase())) errors.push(`Team không tồn tại: ${user.team}`);
+      if (!user.type.trim()) errors.push("Thiếu type");
+      else if (validTypes.size && !validTypes.has(user.type.toUpperCase())) errors.push(`Type không tồn tại: ${user.type}`);
       if (seenEmails.has(email)) errors.push("Trùng email trong file");
       if (seenCodes.has(code)) errors.push("Trùng mã số trong file");
       seenEmails.add(email);
@@ -131,7 +170,7 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
       if (errors.length) result[user.id] = errors;
     });
     return result;
-  }, [organizations, roles, users]);
+  }, [organizations, roles, teams, types, users]);
 
   if (!open) return null;
 
@@ -205,7 +244,13 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Phát hiện {users.length} dòng dữ liệu từ file. Vui lòng rà soát lại thông tin trước khi lưu.
+              {catalogLoading && " Đang tải danh mục từ hệ thống..."}
             </p>
+            {!catalogLoading && (
+              <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-1">
+                Đã tải từ backend: {roles.length} role · {teams.length} team · {types.length} type · {organizations.length} tổ chức
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -284,10 +329,8 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
                         onChange={(e) => handleUpdateField(u.id, "team", e.target.value)}
                         className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-sm dark:text-slate-100 dark:bg-slate-900"
                       >
-                        <option value="RESEARCH">Research</option>
-                        <option value="ENGINEER">Engineer</option>
-                        <option value="EVENT">Event</option>
-                        <option value="MEDIA">Media</option>
+                        {!u.team && <option value="">Chọn team</option>}
+                        {teams.map(team => <option key={team.id} value={team.code}>{team.name} ({team.code})</option>)}
                       </select>
                     </td>
                     <td className="px-3 py-2">
@@ -296,19 +339,25 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
                         onChange={(e) => handleUpdateField(u.id, "type", e.target.value)}
                         className="w-full px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-sm dark:text-slate-100 dark:bg-slate-900"
                       >
-                        <option value="CLC">CLC</option>
-                        <option value="DT">DT</option>
-                        <option value="TN">TN</option>
+                        {!u.type && <option value="">Chọn type</option>}
+                        {types.map(type => <option key={type.id} value={type.code}>{type.name} ({type.code})</option>)}
                       </select>
                     </td>
                     <td className="px-3 py-2">
-                      <input
-                        value={u.roles}
-                        onChange={(e) => handleUpdateField(u.id, "roles", e.target.value)}
-                        placeholder="ROLE_MANAGER;ROLE_USER"
+                      <select
+                        multiple
+                        size={Math.min(Math.max(roles.length, 2), 6)}
+                        value={u.roles.split(";").map(role => role.trim()).filter(Boolean)}
+                        onChange={(e) => handleUpdateField(
+                          u.id,
+                          "roles",
+                          Array.from(e.currentTarget.selectedOptions, option => option.value).join(";"),
+                        )}
                         title={`Phân cách nhiều role bằng dấu ;. Hợp lệ: ${roles.map(role => role.name).join(", ")}`}
                         className="min-w-[210px] w-full px-2 py-1.5 border border-slate-200 dark:border-slate-800 bg-transparent rounded-lg focus:border-blue-500 outline-none text-xs dark:text-slate-100"
-                      />
+                      >
+                        {roles.map(role => <option key={role.id} value={role.name}>{role.displayName} ({role.name})</option>)}
+                      </select>
                     </td>
                     <td className="px-3 py-2">
                       <input
@@ -350,7 +399,6 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
               </tbody>
             </table>
           </div>
-
           <button
             onClick={handleAddRow}
             className="mt-4 flex items-center gap-1.5 px-4 py-2 border border-dashed border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-blue-500 hover:text-blue-500 dark:hover:text-blue-400 rounded-xl text-sm font-medium transition-all active:scale-95 w-full justify-center"
@@ -370,7 +418,7 @@ export default function BulkUploadPreviewModal({ open, onClose, parsedUsers, onI
           </button>
           <button
             onClick={handleConfirmImport}
-            disabled={saving || users.length === 0}
+            disabled={saving || catalogLoading || users.length === 0}
             className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50 flex items-center gap-1.5"
           >
             {saving ? (
