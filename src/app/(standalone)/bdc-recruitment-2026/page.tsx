@@ -17,6 +17,7 @@ import { Step3Department } from "./components/Step3Department";
 import { Step4Review } from "./components/Step4Review";
 import { SuccessScreen } from "./components/SuccessScreen";
 import { AlreadySubmittedScreen } from "./components/AlreadySubmittedScreen";
+import { Toast } from "../hpc-summer-school/components/Toast";
 
 const LS_DRAFT = "bdc_recruitment_2026_draft";
 const LS_DONE = "bdc_recruitment_2026_submitted";
@@ -28,7 +29,7 @@ const INITIAL_FORM: FormData = {
   emailPersonal: "",
   emailSchool: "",
   facebookLink: "",
-  university: "Trường Đại học Bách Khoa - ĐHQG TP.HCM (HCMUT)",
+  university: "",
   faculty: "",
   studentId: "",
   academicStatus: "freshman",
@@ -36,8 +37,13 @@ const INITIAL_FORM: FormData = {
   gpaCumulative: "",
   gpaLatest: "",
   thptDgnlScores: "",
+  thptScore: "",
+  hasDgnl: "yes",
+  dgnlScore: "",
   achievementsExtracurricular: "",
   englishCert: "",
+  englishCertType: "none",
+  englishCertScore: "",
   cvFile: null,
   evidenceFiles: [],
   department: "",
@@ -60,6 +66,11 @@ export default function BDCRecruitment2026Page() {
   const [savedName, setSavedName] = useState("");
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -81,6 +92,7 @@ export default function BDCRecruitment2026Page() {
         const draft = JSON.parse(raw);
         setForm((prev) => ({ ...prev, ...draft }));
         if (draft._step && draft._step > 0 && draft._step <= 4) setStep(draft._step);
+        setDraftRestored(true);
       }
     } catch { /* ignore */ }
   }, []);
@@ -128,8 +140,14 @@ export default function BDCRecruitment2026Page() {
     }
     if (stepToValidate === 2) {
       if (form.academicStatus === "freshman") {
-        if (!form.thptDgnlScores.trim()) errs.thptDgnlScores = t.errRequired;
-        if (!form.englishCert.trim()) errs.englishCert = t.errRequired;
+        if (!form.thptScore?.trim()) errs.thptScore = t.errRequired;
+        if (!form.hasDgnl) errs.hasDgnl = t.errRequired;
+        if (form.hasDgnl === "yes" && !form.dgnlScore?.trim()) {
+          errs.dgnlScore = t.errDgnlRequired;
+        }
+        if (form.englishCertType !== "none" && !form.englishCertScore?.trim()) {
+          errs.englishCertScore = t.errRequired;
+        }
       } else {
         if (!form.gpaCumulative.trim()) errs.gpaCumulative = t.errRequired;
         if (!form.gpaLatest.trim()) errs.gpaLatest = t.errRequired;
@@ -178,11 +196,15 @@ export default function BDCRecruitment2026Page() {
         student_id:                   form.studentId || "N/A",
         academic_status:              ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.labelVi
                                     ?? (form.academicStatusOther || form.academicStatus),
-        thpt_dgnl_scores:             form.thptDgnlScores  || "N/A",
+        thpt_dgnl_scores:             form.academicStatus === "freshman"
+                                      ? `THPT: ${form.thptScore || "N/A"}${form.hasDgnl === "yes" && form.dgnlScore?.trim() ? ` | ĐGNL: ${form.dgnlScore}` : " | ĐGNL: Không"}`
+                                      : (form.thptDgnlScores || "N/A"),
         gpa_cumulative:               form.gpaCumulative   || "N/A",
         gpa_latest:                   form.gpaLatest       || "N/A",
         achievements_extracurricular: form.achievementsExtracurricular || "Chưa có",
-        english_cert:                 form.englishCert     || "Chưa có",
+        english_cert:                 form.academicStatus === "freshman"
+                                      ? (form.englishCertType === "none" || !form.englishCertType ? "Chưa có" : `${form.englishCertType.toUpperCase()}: ${form.englishCertScore || ""}`)
+                                      : (form.englishCert || "Chưa có"),
         cv_url:                       form.cvFile?.url     || "",
         cv_filename:                  form.cvFile?.filename || "",
         evidence_files:               form.evidenceFiles.map((f) => `${f.filename}: ${f.url}`).join(" | "),
@@ -261,52 +283,61 @@ export default function BDCRecruitment2026Page() {
   if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} confirmationEmailQueued={confirmationEmailQueued} />;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white font-sans pb-20 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white font-sans pb-16 pt-16 sm:pt-20 transition-colors duration-300">
       {/* Toast */}
       {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 bg-rose-600 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 animate-in slide-in-from-bottom-4 duration-300">
-          <ShieldAlert className="w-4 h-4" />
+        <div className="fixed bottom-6 right-6 z-50 bg-rose-600 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 animate-in slide-in-from-bottom-4 duration-300">
+          <ShieldAlert className="w-4 h-4 shrink-0" />
           <span>{toastMsg}</span>
         </div>
       )}
 
-      {/* ── Sticky Header ── */}
-      <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/50 shadow-sm py-3"
-          : "bg-white/60 dark:bg-transparent backdrop-blur-sm py-3.5"
-      }`}>
+      {/* Toast for Draft Restoration Notification */}
+      <Toast
+        message={lang === "en" ? "Your previous progress has been restored." : "Tiến độ điền form trước đó đã được khôi phục."}
+        isVisible={draftRestored && !submitted && !alreadySubmitted}
+        onClose={() => setDraftRestored(false)}
+      />
+
+      {/* ── Fixed Glass Header ── */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+          scrolled
+            ? "bg-white/80 dark:bg-[#050B18]/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-blue-500/10 shadow-sm py-3"
+            : "bg-white/60 dark:bg-transparent backdrop-blur-md py-3.5"
+        }`}
+      >
         <div className="max-w-4xl mx-auto px-4 flex items-center justify-between gap-4">
           {/* Left: logo + title */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-9 h-9 flex-shrink-0 bg-white/60 dark:bg-white/10 p-1 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 bg-white dark:bg-[#0D192E] p-1.5 rounded-xl border border-slate-200 dark:border-blue-500/20 shadow-sm">
               <Image src={bdcLogo} alt="BDC" fill className="object-contain" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
-                BIG DATA CLUB <span className="text-blue-500 dark:text-blue-400 text-xs font-normal">2026</span>
+              <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
+                BIG DATA CLUB <span className="bg-gradient-to-r from-blue-600 to-cyan-400 bg-clip-text text-transparent text-xs font-bold ml-1">2026</span>
               </h1>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Chào Đón Thế Hệ Mới</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold truncate">HCMUT · Empowering Tomorrow's Tech Leaders</p>
             </div>
           </div>
 
-          {/* Right: org logos + lang + theme */}
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-2 mr-2 pr-2 border-r border-slate-200 dark:border-slate-800">
+          {/* Right: partner logos + lang + theme */}
+          <div className="flex items-center gap-2.5">
+            <div className="hidden sm:flex items-center gap-2.5 mr-2 pr-2.5 border-r border-slate-200 dark:border-blue-500/15">
               {[
                 { src: hcmutLogo, alt: "HCMUT", cls: "w-5 h-5" },
                 { src: hpccLogo, alt: "HPCC", cls: "w-10 h-5" },
                 { src: cseLogo, alt: "CSE", cls: "w-5 h-5" },
               ].map((logo) => (
                 <div key={logo.alt} className={`relative flex-shrink-0 ${logo.cls}`}>
-                  <Image src={logo.src} alt={logo.alt} fill className="object-contain opacity-70 dark:opacity-80 dark:brightness-125" />
+                  <Image src={logo.src} alt={logo.alt} fill className="object-contain opacity-75 dark:opacity-90 dark:brightness-125" />
                 </div>
               ))}
             </div>
 
             <button
               onClick={() => setLang((l) => (l === "vi" ? "en" : "vi"))}
-              className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors font-medium shadow-sm"
+              className="text-xs px-3 py-1.5 rounded-full border border-slate-200 dark:border-blue-500/20 bg-white dark:bg-[#0D192E] hover:bg-slate-100 dark:hover:bg-[#0F1E35] text-slate-700 dark:text-cyan-400 font-bold transition-all shadow-sm active:scale-95"
             >
               {t.langToggle}
             </button>
@@ -315,87 +346,111 @@ export default function BDCRecruitment2026Page() {
         </div>
       </header>
 
-      {/* ── Hero Banner ── */}
-      <div className="relative overflow-hidden pt-20 pb-10 px-4 bg-gradient-to-b from-blue-50 via-white to-white dark:from-blue-950/40 dark:via-slate-950 dark:to-slate-950 border-b border-slate-100 dark:border-slate-800/50">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-200/40 via-transparent to-transparent dark:from-blue-600/10 pointer-events-none" />
-        <div className="max-w-3xl mx-auto text-center space-y-3 relative z-10">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-widest shadow-sm">
+      {/* ── Main Wizard ── */}
+      <main className="relative z-10 max-w-3xl mx-auto px-4 pt-8">
+        {/* Compact Hero Info Header */}
+        <div className="text-center mb-6 space-y-2">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100/80 dark:bg-cyan-500/10 border border-blue-200 dark:border-cyan-500/20 text-blue-700 dark:text-cyan-400 text-xs font-bold uppercase tracking-widest shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{t.heroBadge}</span>
           </div>
-
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-blue-700 to-blue-500 dark:from-white dark:via-slate-100 dark:to-blue-200">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-blue-700 to-blue-500 dark:from-white dark:via-slate-100 dark:to-cyan-300">
             {t.heroTitle}
           </h1>
-
-          <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">{t.heroSubtitle}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">{t.heroDesc}</p>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed font-medium">
+            {t.heroSubtitle} · {t.heroDesc}
+          </p>
         </div>
-      </div>
 
-      {/* ── Main Wizard ── */}
-      <main className="max-w-3xl mx-auto px-4 mt-8">
-        {/* Step Progress Bar */}
-        <div className="mb-8 p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm dark:shadow-xl backdrop-blur-md">
-          <div className="grid grid-cols-4 gap-2">
+        {/* Step Progress Bar (Integrated Overlay Stepper) */}
+        <div className="relative mb-14 mt-6 w-full px-8 sm:px-16 z-10">
+          {/* Background Track Line */}
+          <div className="absolute top-[18px] left-[50px] right-[50px] sm:left-[82px] sm:right-[82px] h-1 bg-slate-200 dark:bg-slate-800/85 -translate-y-1/2 rounded-full" />
+
+          {/* Active Progress Line */}
+          <div className="absolute top-[18px] left-[50px] right-[50px] sm:left-[82px] sm:right-[82px] h-1 -translate-y-1/2 pointer-events-none">
+            <div
+              className="h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-500 rounded-full transition-all duration-500"
+              style={{ width: `${((step - 1) / 3) * 100}%` }}
+            />
+          </div>
+
+          {/* Steps Container */}
+          <div className="relative flex justify-between w-full">
             {t.steps.map((st) => {
               const isCompleted = step > st.step;
               const isCurrent = step === st.step;
+
+              const handleStepClick = () => {
+                if (st.step === step) return;
+                if (st.step < step) {
+                  setStep(st.step);
+                } else {
+                  for (let temp = step; temp < st.step; temp++) {
+                    if (!validateStep(temp)) {
+                      if (temp !== step) setStep(temp);
+                      return;
+                    }
+                  }
+                  setStep(st.step);
+                }
+              };
+
               return (
-                <button
-                  key={st.step}
-                  onClick={() => {
-                    if (st.step < step || validateStep(step)) setStep(st.step);
-                  }}
-                  className={`text-left transition-all p-2 rounded-xl border ${
-                    isCurrent
-                      ? "bg-blue-50 dark:bg-blue-500/15 border-blue-300 dark:border-blue-500/60 text-blue-700 dark:text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.15)] dark:shadow-[0_0_15px_rgba(59,130,246,0.2)]"
-                      : isCompleted
-                      ? "bg-slate-100 dark:bg-slate-800/40 border-slate-300 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800"
-                      : "bg-transparent border-transparent text-slate-400 dark:text-slate-500"
-                  }`}
-                >
-                  <div className="flex items-center space-x-2 mb-1">
-                    <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center border transition-all ${
-                      isCompleted
-                        ? "bg-emerald-500 text-white border-emerald-400"
-                        : isCurrent
-                        ? "bg-blue-500 text-white border-blue-400"
-                        : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-300 dark:border-slate-700"
-                    }`}>
-                      {isCompleted ? <CheckCircle2 className="w-4 h-4 stroke-[3]" /> : st.step}
-                    </div>
-                    <span className="text-xs font-bold hidden sm:inline truncate">Bước {st.step}</span>
-                  </div>
-                  <p className="text-[11px] font-semibold truncate leading-tight hidden sm:block">{st.title}</p>
-                </button>
+                <div key={st.step} className="flex flex-col items-center relative w-9">
+                  {/* Circle Node */}
+                  <button
+                    type="button"
+                    onClick={handleStepClick}
+                    className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all duration-300 relative z-10 hover:scale-105 active:scale-95 cursor-pointer
+                      ${
+                        isCurrent
+                          ? "border-blue-500 bg-white dark:bg-[#050B18] text-blue-600 dark:text-cyan-400 shadow-[0_0_15px_rgba(59,130,246,0.3)] scale-110"
+                          : isCompleted
+                          ? "border-blue-500 bg-blue-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                          : "border-slate-300 dark:border-slate-800 bg-white dark:bg-[#050B18] text-slate-400 dark:text-slate-650 hover:border-blue-400 hover:text-blue-500"
+                      }`}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-4 h-4 stroke-[3]" />
+                    ) : (
+                      String(st.step).padStart(2, "0")
+                    )}
+                  </button>
+                  {/* Text Label */}
+                  <span
+                    onClick={handleStepClick}
+                    className={`absolute top-11 left-1/2 -translate-x-1/2 text-[11px] font-bold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-blue-600 dark:hover:text-cyan-400
+                      ${
+                        isCurrent
+                          ? "text-blue-600 dark:text-cyan-400"
+                          : isCompleted
+                          ? "text-slate-700 dark:text-slate-350"
+                          : "text-slate-400 dark:text-slate-600"
+                      }`}
+                  >
+                    {st.title}
+                  </span>
+                </div>
               );
             })}
           </div>
-
-          {/* Progress indicator */}
-          <div className="mt-3 w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-cyan-400 h-full transition-all duration-500 ease-out"
-              style={{ width: `${(step / 4) * 100}%` }}
-            />
-          </div>
         </div>
 
-        {/* Step Content */}
-        <div className="p-6 sm:p-8 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 rounded-3xl shadow-xl dark:shadow-2xl dark:backdrop-blur-xl">
+        {/* Step Content Card */}
+        <div className="relative z-10 p-6 sm:p-10 bg-white dark:bg-[#0F1E35] border border-slate-200/90 dark:border-blue-500/15 rounded-3xl shadow-xl dark:shadow-none">
           {step === 1 && <Step1Personal form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 2 && <Step2Academic form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 3 && <Step3Department form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 4 && <Step4Review form={form} onChange={updateForm} errors={errors} lang={lang} onEditStep={(st) => setStep(st)} />}
 
-          {/* Navigation */}
-          <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          {/* Navigation Controls */}
+          <div className="mt-10 pt-6 border-t border-slate-200/80 dark:border-blue-500/15 flex items-center justify-between">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={handlePrev}
-                className="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all border border-slate-200 dark:border-slate-700"
+                className="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0D192E] dark:hover:bg-[#162644] text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all active:scale-95 border border-slate-200 dark:border-blue-500/20"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>{t.btnPrev}</span>
@@ -408,7 +463,7 @@ export default function BDCRecruitment2026Page() {
               <button
                 type="button"
                 onClick={handleNext}
-                className="inline-flex items-center space-x-2 px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all shadow-lg hover:shadow-blue-500/25 ml-auto"
+                className="inline-flex items-center space-x-2 px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-all active:scale-95 shadow-md hover:shadow-blue-500/25 ml-auto"
               >
                 <span>{t.btnNext}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -418,7 +473,7 @@ export default function BDCRecruitment2026Page() {
                 type="button"
                 disabled={submitting}
                 onClick={handleSubmit}
-                className="inline-flex items-center space-x-2 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold transition-all shadow-xl hover:shadow-emerald-500/30 ml-auto cursor-pointer"
+                className="inline-flex items-center space-x-2 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-extrabold transition-all active:scale-95 shadow-lg hover:shadow-emerald-500/30 ml-auto cursor-pointer"
               >
                 {submitting ? (
                   <>

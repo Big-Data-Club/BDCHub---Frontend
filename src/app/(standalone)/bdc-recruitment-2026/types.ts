@@ -29,8 +29,13 @@ export interface FormData {
   gpaCumulative: string;
   gpaLatest: string;
   thptDgnlScores: string;
+  thptScore?: string;
+  hasDgnl?: string;
+  dgnlScore?: string;
   achievementsExtracurricular: string;
   englishCert: string;
+  englishCertType?: string;
+  englishCertScore?: string;
   cvFile: CloudinaryFile | null;
   evidenceFiles: CloudinaryFile[];
 
@@ -153,10 +158,21 @@ export const T = {
     gpaLatestPh: "vd: 3.78 / 4.0",
     thptDgnlScores: "Điểm thi THPT QG và / hoặc điểm thi ĐGNL *",
     thptDgnlScoresPh: "vd: THPT QG: 28.5 (Toán 9.6, Lý 9.25, Anh 9.65) | ĐGNL: 950/1200",
+    thptScore: "Điểm thi Tốt nghiệp THPT *",
+    thptScorePh: "vd: Toán 9.0, Lý 8.5, Hóa 9.0 hoặc Tổng điểm 26.5",
+    hasDgnl: "Bạn có tham gia kỳ thi ĐGNL ĐHQG không? *",
+    hasDgnlPh: "Chọn câu trả lời...",
+    dgnlScore: "Điểm thi ĐGNL ĐHQG *",
+    dgnlScorePh: "vd: 920/1200",
+    errDgnlRequired: "Vui lòng nhập điểm thi ĐGNL ĐHQG.",
     achievementsExtracurricular: "Thành tích học tập & hoạt động ngoại khóa (nếu chưa có ghi 'Chưa có')",
     achievementsExtracurricularPh: "vd: Giải Nhất HSG Tỉnh môn Tin học, Trưởng ban Truyền thông CLB Cấp 3, Học bổng Học tập...",
     englishCert: "Chứng chỉ Tiếng Anh (nếu chưa có ghi 'Chưa có') *",
     englishCertPh: "vd: IELTS 7.5 / TOEIC 850 / VSTEP B2 / Khác (ghi rõ nếu chưa có)",
+    englishCertType: "Loại chứng chỉ Tiếng Anh *",
+    englishCertTypePh: "Chọn loại chứng chỉ...",
+    englishCertScore: "Điểm số chứng chỉ *",
+    englishCertScorePh: "vd: 7.5 (hoặc 850, B2...)",
     cvUploadLabel: "CV ứng tuyển của bạn (Định dạng PDF, tối đa 10MB) *",
     cvUploadHint: "Một bản CV ấn tượng sẽ giúp bạn ghi điểm rất lớn với Ban tuyển dụng!",
     evidenceUploadLabel: "Minh chứng / Chứng chỉ / Bảng điểm đi kèm (Tùy chọn, tối đa 5 file)",
@@ -264,10 +280,21 @@ export const T = {
     gpaLatestPh: "e.g. 3.78 / 4.0",
     thptDgnlScores: "High School Exam / Competency Test Scores *",
     thptDgnlScoresPh: "e.g. National Exam: 28.5 | Competency Test: 950/1200",
+    thptScore: "High School Graduation Exam Score *",
+    thptScorePh: "e.g. Math 9.0, Phys 8.5, Chem 9.0 or Total: 26.5",
+    hasDgnl: "Did you take the VNU Competency Test (ĐGNL)? *",
+    hasDgnlPh: "Select answer...",
+    dgnlScore: "Competency Test Score *",
+    dgnlScorePh: "e.g. 920/1200",
+    errDgnlRequired: "Please enter your Competency Test (ĐGNL) score.",
     achievementsExtracurricular: "Achievements & Extracurricular Activities (enter 'None' if applicable)",
     achievementsExtracurricularPh: "e.g. Provincial Informatics Award, High School Club Lead, Academic Scholarship...",
     englishCert: "English Certificates (enter 'None' if applicable) *",
     englishCertPh: "e.g. IELTS 7.5 / TOEIC 850 / VSTEP B2 / None",
+    englishCertType: "English Certificate Type *",
+    englishCertTypePh: "Select certificate type...",
+    englishCertScore: "Certificate Score *",
+    englishCertScorePh: "e.g. 7.5 (or 850, B2...)",
     cvUploadLabel: "Upload Your CV (PDF, max 10MB) *",
     cvUploadHint: "A strong CV will make your application stand out!",
     evidenceUploadLabel: "Supporting Documents / Transcripts (Optional, max 5 files)",

@@ -15,9 +15,9 @@ export const AlreadySubmittedScreen: React.FC<AlreadySubmittedScreenProps> = ({ 
   const t = T[lang];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center px-4 py-16 transition-colors duration-300">
-      <div className="max-w-md w-full p-8 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl dark:shadow-2xl dark:backdrop-blur-xl text-center space-y-6 animate-in zoom-in-95 duration-300">
-        <div className="mx-auto w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-500/20 border border-blue-200 dark:border-blue-500/40 text-blue-500 dark:text-blue-400 flex items-center justify-center">
+    <div className="relative z-10 min-h-screen bg-slate-50 dark:bg-[#050B18] flex items-center justify-center px-4 py-16 transition-colors duration-300">
+      <div className="max-w-md w-full p-8 bg-white dark:bg-[#0F1E35] border border-slate-200/90 dark:border-blue-500/15 rounded-3xl shadow-xl text-center space-y-6 animate-in zoom-in-95 duration-300">
+        <div className="mx-auto w-16 h-16 rounded-full bg-blue-50 dark:bg-cyan-500/10 border border-blue-200 dark:border-cyan-500/20 text-blue-600 dark:text-cyan-400 flex items-center justify-center">
           <CheckCircle className="w-8 h-8" />
         </div>
 
