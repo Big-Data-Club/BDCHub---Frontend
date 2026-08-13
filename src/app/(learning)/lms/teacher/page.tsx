@@ -180,7 +180,7 @@ export default function TeacherDashboard() {
               Hệ thống quản lý học tập (LMS)
             </p>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-              Tổng quan Giảng dạy 👨‍🏫
+              Tổng quan Giảng dạy
             </h1>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">
               Quản lý khóa học của bạn, theo dõi dữ liệu chuyên sâu và kết nối với học viên.
