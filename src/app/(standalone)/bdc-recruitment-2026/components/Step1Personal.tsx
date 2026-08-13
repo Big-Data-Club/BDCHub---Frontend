@@ -3,7 +3,7 @@
 import React from "react";
 import { User, Mail, Phone, Globe, GraduationCap, Building, IdCard, Sparkles } from "lucide-react";
 import { FormData, Errors, T, Lang, ACADEMIC_STATUS_OPTIONS, AcademicStatus } from "../types";
-import { FSel } from "../../hpc-summer-school/components/FormFields";
+import { FSel } from "@/components/form/FormFields";
 import universitiesData from "../../hpc-summer-school/universities.json";
 
 interface Step1PersonalProps {

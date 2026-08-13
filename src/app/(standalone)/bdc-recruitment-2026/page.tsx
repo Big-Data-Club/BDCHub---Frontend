@@ -37,8 +37,13 @@ const INITIAL_FORM: FormData = {
   gpaCumulative: "",
   gpaLatest: "",
   thptDgnlScores: "",
+  thptScore: "",
+  hasDgnl: "yes",
+  dgnlScore: "",
   achievementsExtracurricular: "",
   englishCert: "",
+  englishCertType: "none",
+  englishCertScore: "",
   cvFile: null,
   evidenceFiles: [],
   department: "",
@@ -135,8 +140,14 @@ export default function BDCRecruitment2026Page() {
     }
     if (stepToValidate === 2) {
       if (form.academicStatus === "freshman") {
-        if (!form.thptDgnlScores.trim()) errs.thptDgnlScores = t.errRequired;
-        if (!form.englishCert.trim()) errs.englishCert = t.errRequired;
+        if (!form.thptScore?.trim()) errs.thptScore = t.errRequired;
+        if (!form.hasDgnl) errs.hasDgnl = t.errRequired;
+        if (form.hasDgnl === "yes" && !form.dgnlScore?.trim()) {
+          errs.dgnlScore = t.errDgnlRequired;
+        }
+        if (form.englishCertType !== "none" && !form.englishCertScore?.trim()) {
+          errs.englishCertScore = t.errRequired;
+        }
       } else {
         if (!form.gpaCumulative.trim()) errs.gpaCumulative = t.errRequired;
         if (!form.gpaLatest.trim()) errs.gpaLatest = t.errRequired;
@@ -185,11 +196,15 @@ export default function BDCRecruitment2026Page() {
         student_id:                   form.studentId || "N/A",
         academic_status:              ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.labelVi
                                     ?? (form.academicStatusOther || form.academicStatus),
-        thpt_dgnl_scores:             form.thptDgnlScores  || "N/A",
+        thpt_dgnl_scores:             form.academicStatus === "freshman"
+                                      ? `THPT: ${form.thptScore || "N/A"}${form.hasDgnl === "yes" && form.dgnlScore?.trim() ? ` | ĐGNL: ${form.dgnlScore}` : " | ĐGNL: Không"}`
+                                      : (form.thptDgnlScores || "N/A"),
         gpa_cumulative:               form.gpaCumulative   || "N/A",
         gpa_latest:                   form.gpaLatest       || "N/A",
         achievements_extracurricular: form.achievementsExtracurricular || "Chưa có",
-        english_cert:                 form.englishCert     || "Chưa có",
+        english_cert:                 form.academicStatus === "freshman"
+                                      ? (form.englishCertType === "none" || !form.englishCertType ? "Chưa có" : `${form.englishCertType.toUpperCase()}: ${form.englishCertScore || ""}`)
+                                      : (form.englishCert || "Chưa có"),
         cv_url:                       form.cvFile?.url     || "",
         cv_filename:                  form.cvFile?.filename || "",
         evidence_files:               form.evidenceFiles.map((f) => `${f.filename}: ${f.url}`).join(" | "),
