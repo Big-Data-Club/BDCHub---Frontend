@@ -3,22 +3,29 @@
     {
       "id": "m1",
       "name": "PGS.TS Thoại Nam",
-      "role": "Cố vấn chuyên môn",
+      "role": "Cố vấn hoạt động & chuyên môn",
       "imageUrl": "https://lh3.googleusercontent.com/uc?id=MENTOR_THOAI_NAM",
       "description": "Bảo trợ chuyên môn, dự án và cơ sở vật chất"
     },
     {
       "id": "m2",
       "name": "Diệp Thanh Đăng",
-      "role": "Cố vấn học thuật",
+      "role": "Cố vấn chuyên môn",
       "imageUrl": "https://lh3.googleusercontent.com/uc?id=MENTOR_DIEP_THANH_DANG",
       "description": "Giảng viên hướng dẫn nghiên cứu khoa học"
     },
     {
       "id": "m3",
       "name": "Hoàng Lê Hải Thanh",
-      "role": "Founder, Cố vấn học thuật",
+      "role": "Founder, Cố vấn chuyên môn",
       "imageUrl": "https://lh3.googleusercontent.com/uc?id=MENTOR_HOANG_LE_HAI_THANH",
+      "description": "Giảng viên hướng dẫn nghiên cứu khoa học, founder CLB"
+    },
+    {
+      "id": "m4",
+      "name": "Nguyễn Mạnh Thìn",
+      "role": "Cố vấn chuyên môn",
+      "imageUrl": "https://lh3.googleusercontent.com/uc?id=MENTOR_NGUYEN_MANH_THIN",
       "description": "Giảng viên hướng dẫn nghiên cứu khoa học, founder CLB"
     }
   ],
@@ -533,66 +540,151 @@
       "desc": "Cơ sở dữ liệu vector trong tính toán lượng tử - nghiên cứu ứng dụng quantum computing cho vector databases",
       "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_QUANTUM_VECTOR_DB",
       "projectShowcaseUrl": "/projects/quantum-vector-database"
+    },
+    {
+      "id": "p9",
+      "projectName": "AI in Education (AIE)",
+      "desc": "Ứng dụng AI trong LMS, hệ thống mini-module học tập, đề xuất khóa học, phân tích trình độ học viên và liên kết kho học liệu qua MCP.",
+      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_AI_EDUCATION",
+      "projectShowcaseUrl": "/projects/ai-in-education"
+    },
+    {
+      "id": "p10",
+      "projectName": "HPC-QC Monitoring & Scheduling",
+      "desc": "Nền tảng giám sát HPC/GPU, phân tích luồng dữ liệu, dự đoán QoS và thuật toán điều phối tài nguyên cho HPC và QC.",
+      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_HPC_SCHEDULING",
+      "projectShowcaseUrl": "/projects/hpc-qc-monitoring"
+    },
+    {
+      "id": "p11",
+      "projectName": "X-Stream Data Lakehouse",
+      "desc": "Hệ thống truyền tải dữ liệu streaming, feature storage và phân tích cho healthcare, IoT, telco và môi trường.",
+      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_IOT_ANALYTICS",
+      "projectShowcaseUrl": "/projects/x-stream-data-lakehouse"
+    },
+    {
+      "id": "p12",
+      "projectName": "Transportation Digital Twin",
+      "desc": "Giải pháp số hóa hệ thống bus với phát hiện bất thường, bản đồ số, phân tích chuyến và thuật toán đường đi nhanh nhất.",
+      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_QUANTUM_VECTOR_DB",
+      "projectShowcaseUrl": "/projects/transportation-digital-twin"
+    },
+    {
+      "id": "p13",
+      "projectName": "Agri Digital Twin",
+      "desc": "Mô phỏng FarmLab ảo, thu thập cảm biến nông nghiệp, imputation dữ liệu IoT và giải pháp AI cho nông nghiệp thông minh.",
+      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_AI_EDUCATION",
+      "projectShowcaseUrl": "/projects/agri-digital-twin"
+    },
+    {
+      "id": "p14",
+      "projectName": "Federated Learning & Open LLMs",
+      "desc": "Nghiên cứu học phân tán, mô hình LLM mã nguồn mở, agent RL và ứng dụng bảo mật cho dữ liệu phân tán.",
+      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_QUANTUM_ML",
+      "projectShowcaseUrl": "/projects/federated-learning-llms"
     }
   ],
   "publications": [
     {
+      "id": "0",
+      "title": "A Smart Monitoring Architecture for HPC Clusters with an AI-Powered Natural Language Visualization Agent",
+      "authors": "Khanh Le, Ngoc Phu Dang, Nhut-Huan La-Quoc, Nam Thoai*",
+      "publisher": "SOMET 2026:The 25th International Conference on Intelligent Software Methodologies, Tools, and Techniques",
+      "year": 2026
+    },
+    {
       "id": "1",
-      "title": "QCFace: Image Quality Control for boosting Face Representation & Recognition",
-      "authors": "Doan Ngo Duc Phuong, Diep Thanh Dang*, Nguyen Duc Thanh, Le Thanh Sach*, Thoai Nam*",
-      "publisher": "The IEEE/CVF Winter Conference on Applications of Computer Vision 2026 (WACV 2026)",
+      "title": "A Cross-Paradigm Performance Study of Text-to-Visualization Systems: The Multi-Level Format-Agnostic Evaluation Framework",
+      "authors": "Khanh Le, Ngoc Phu Dang, Thanh-Dang Diep, Nam Thoai*",
+      "publisher": "SOMET 2026:The 25th International Conference on Intelligent Software Methodologies, Tools, and Techniques",
       "year": 2026
     },
     {
       "id": "2",
-      "title": "A New Approach to Transformer-based State Encoding for Deep Reinforcement Learning Scheduling in Sustainable HPC Systems",
-      "authors": "Nguyen Phuc Nhan*, Bui Ngoc Minh, Nguyen Tran Phuong Mai, Hoang Le Hai Thanh, Thoai Nam*",
-      "publisher": "The 39th International Conference on Industrial, Engineering & Other Applications of Applied Intelligent Systems - IEA/AIE 2026",
-      "year": 2026,
-      "volume": "16354",
-      "doi": "10.1145/3784828.3785247"
+      "title": "Soft-Rank Diversity: Diversity Regularisation for Multi-hop Knowledge Graph Reasoning in Conversational Recommendation",
+      "authors": "Thanh Nguyen*, Tu Nguyen, Thuong Nguyen, Nam Thoai*",
+      "publisher": "SOMET 2026:The 25th International Conference on Intelligent Software Methodologies, Tools, and Techniques",
+      "year": 2026
     },
     {
       "id": "3",
-      "title": "Fine-Tuned Sentence-BERT for HPC Job Outcome Prediction via Textual Feature Embedding",
-      "authors": "Hoang Le Hai Thanh*, Nguyen Tuan Huy, Tran Dang Bao, Vo Thuong Bao, Thoai Nam*",
-      "publisher": "Proceedings of the Supercomputing Asia and International Conference on High Performance Computing in Asia Pacific Region Workshops",
-      "year": 2026,
-      "volume": "Pages 378 - 387",
-      "doi": "10.1007/978-981-95-4960-3_33"
+      "title": "Quantum Hamming-Distanced-Based Locality-Sensitive Hashing",
+      "authors": "Tam Huynh, Phuc Duong, Duc-Phuong Doan-Ngo, Thanh-Dang Diep, Nam Thoai*",
+      "publisher": "SOMET 2026:The 25th International Conference on Intelligent Software Methodologies, Tools, and Techniques",
+      "year": 2026
     },
     {
       "id": "4",
-      "title": "Toward Sustainable and Cost-Efficient HPC Systems: A Deep Reinforcement Learning Job Scheduling Approach",
-      "authors": "Hoang Le Hai Thanh*, Nguyen Phuc Nhan, Nguyen Tran Phuong Mai, Bui Ngoc Minh, Thoai Nam*",
-      "publisher": "Multi-disciplinary Trends in Artificial Intelligence - MIWAI 2025. Lecture Notes in Computer Science. Springer, Singapore",
-      "year": 2025,
-      "volume": "16354",
-      "doi": "10.1007/978-981-95-4960-3_33"
+      "title": "On the Evaluation of Blind Super-Resolution: What Lies Behind Superior Results?",
+      "authors": "Quoc-Huy Le, Duc-Phuong Doan-Ngo*, Thanh-Dang Diep, Xuan Giang Bui, Manh-Thin Nguyen, Nam Thoai",
+      "publisher": "European Conference on Machine Learning and Principles and Practice of Knowledge Discovery in Databases (ECMLPKDD)",
+      "year": 2026,
+      "url": "https://www.researchgate.net/publication/408063787_On_the_Evaluation_of_Blind_Super-Resolution_What_Lies_Behind_Superior_Results"
     },
     {
       "id": "5",
+      "title": "QCFace: Image Quality Control for boosting Face Representation & Recognition",
+      "authors": "Duc-Phuong Doan-Ngo, Thanh-Dang Diep*, Thanh Nguyen-Duc, Thanh-Sach LE*, Nam Thoai*",
+      "publisher": "The IEEE/CVF Winter Conference on Applications of Computer Vision 2026 (WACV 2026)",
+      "year": 2026,
+      "url": "https://arxiv.org/abs/2510.15289"
+    },
+    {
+      "id": "6",
+      "title": "A New Approach to Transformer-based State Encoding for Deep Reinforcement Learning Scheduling in Sustainable HPC Systems",
+      "authors": "Nhan Nguyen Phuc*, Minh Bui Ngoc, Mai Nguyen Tran Phuong, Thanh Hoang Le Hai, Thoai Nam*",
+      "publisher": "The 39th International Conference on Industrial, Engineering & Other Applications of Applied Intelligent Systems - IEA/AIE 2026",
+      "year": 2026,
+      "volume": "16354",
+      "doi": "10.1145/3784828.3785247",
+      "url": "https://doi.org/10.1145/3784828.3785247"
+    },
+    {
+      "id": "7",
+      "title": "Fine-Tuned Sentence-BERT for HPC Job Outcome Prediction via Textual Feature Embedding",
+      "authors": "Thanh Hoang Le Hai*, Huy Nguyen Tuan, Bao Tran Dang, Bao Vo Thuong, Nam Thoai*",
+      "publisher": "Proceedings of the Supercomputing Asia and International Conference on High Performance Computing in Asia Pacific Region Workshops",
+      "year": 2026,
+      "volume": "Pages 378 - 387",
+      "doi": "10.1007/978-981-95-4960-3_33",
+      "url": "https://doi.org/10.1007/978-981-95-4960-3_33"
+    },
+    {
+      "id": "8",
+      "title": "Toward Sustainable and Cost-Efficient HPC Systems: A Deep Reinforcement Learning Job Scheduling Approach",
+      "authors": "Thanh Hoang Le Hai*, Nhan Nguyen Phuc, Mai Nguyen Tran Phuong, Minh Bui Ngoc, Nam Thoai*",
+      "publisher": "Multi-disciplinary Trends in Artificial Intelligence - MIWAI 2025. Lecture Notes in Computer Science. Springer, Singapore",
+      "year": 2025,
+      "volume": "16354",
+      "doi": "10.1007/978-981-95-4960-3_33",
+      "url": "https://doi.org/10.1007/978-981-95-4960-3_33"
+    },
+    {
+      "id": "9",
       "title": "HDEM: A Hierarchical Dynamic Ensemble Model for Accurate Runtime Prediction on High Performance Computing Systems",
-      "authors": "Hoang Le Hai Thanh*, Nguyen Tuan Huy, Tran Dang Bao, Vo Thuong Bao, Phan Tran Dinh Khoi, Thoai Nam*",
+      "authors": "Thanh Hoang Le Hai*, Huy Nguyen Tuan, Bao Tran Dang, Bao Vo Thuong, Khoi Phan Tran Dinh, Nam Thoai*",
       "publisher": "Future Data and Security Engineering - FDSE 2025. Communications in Computer and Information Science. Springer, Singapore.",
       "year": 2025,
       "volume": "2709",
       "pages": "200-210",
-      "doi": "10.1007/978-981-95-4724-1_13"
+      "doi": "10.1007/978-981-95-4724-1_13",
+      "url": "https://doi.org/10.1007/978-981-95-4724-1_13"
     },
     {
-      "id": "6",
+      "id": "10",
       "title": "A Performance Study of Piecewise Constant Approximation in Streaming Data Compression",
-      "authors": "Phan Alan,La Quoc Nhut Huan,Diep Thanh Dang*,Thoai Nam",
+      "authors": "Alan Phan, Nhut-Huan La-Quoc , Thanh-Dang Diep*, Nam Thoai",
       "publisher": "International Conference on Advanced Computing and Analytics (ACOMPA)",
-      "year": 2025
+      "year": 2025,
+      "url": "https://ieeexplore.ieee.org/document/11360241"
     },
     {
-      "id": "7",
+      "id": "11",
       "title": "EDM4QS: An Emulator-Driven Model for Quantum Scheduling",
-      "authors": "Nguyen Trieu,Minh Chung,Diep Thanh Dang*,Thoai Nam",
+      "authors": "Trieu Nguyen, Minh Chung, Thanh-Dang Diep*, Nam Thoai",
       "publisher": "International Symposium on Information and Communication Technology (SoICT)",
-      "year": 2025
+      "year": 2025,
+      "url": "https://www.researchgate.net/publication/397745906_EDM4QS_An_Emulator-Driven_Model_for_Quantum_Scheduling"
     }
   ]
 }

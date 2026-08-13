@@ -123,7 +123,7 @@ export default function GlobalKnowledgeGraphPanel({
         ? await aiService.getGlobalKnowledgeGraph({ min_strength: 0.1, limit: 1000 })
         : await aiService.getKnowledgeGraph(courseId!);
       setRaw(data);
-    } catch (e: any) {
+    } catch {
       // ignore
     } finally {
       setLoading(false);

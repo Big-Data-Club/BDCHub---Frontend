@@ -91,7 +91,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
   const processEventRef = useRef<any>(null);
   const consumedUrlSessionRef = useRef<string | undefined>(undefined);
 
-  const loadHistory = async (sid: string) => {
+  const loadHistory = useCallback(async (sid: string) => {
     setIsLoadingHistory(true);
     try {
       const history: AgentHistoryMessage[] = await agentService.getSessionMessages(sid);
@@ -121,7 +121,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
     } finally {
       setIsLoadingHistory(false);
     }
-  };
+  }, [initialMessages, initialSessionId]);
 
   /**
    * Abort the current SSE stream.
@@ -140,7 +140,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
       setMessages([]);
     }
     await loadHistory(newSessionId);
-  }, [stopStreaming, initialMessages, initialSessionId]);
+  }, [stopStreaming, initialMessages, initialSessionId, loadHistory]);
 
   // Load history only when the URL itself changes.  A local sidebar click
   // changes state before AgentChatPanel has time to replace the query string;

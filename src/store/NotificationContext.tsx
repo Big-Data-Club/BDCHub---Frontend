@@ -29,7 +29,7 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const pathname = usePathname();
   const [alerts, setAlerts] = useState<StudyAlert[]>([]);
   const [readAlertKeys, setReadAlertKeys] = useState<Set<string>>(new Set());

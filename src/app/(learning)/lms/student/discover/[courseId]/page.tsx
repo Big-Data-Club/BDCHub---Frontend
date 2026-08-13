@@ -78,7 +78,7 @@ function InstructorChip({ name, email, isPrimary }: { name?: string; email?: str
         )}
         {isPrimary && (
           <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-blue-600 dark:text-cyan-400">
-            Giáo viên chính
+            Người tạo khóa học
           </span>
         )}
       </div>
@@ -190,6 +190,10 @@ function CTASidebar({ course, isEnrolled, isEnrolling, onEnroll, onGoLearn }: CT
             src={course.thumbnail_url}
             alt={course.title}
             fill
+            unoptimized
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
             className="object-cover"
           />
         ) : (
@@ -251,10 +255,10 @@ function CTASidebar({ course, isEnrolled, isEnrolling, onEnroll, onGoLearn }: CT
 
         {/* Quick info strip */}
         <div className="pt-2 border-t border-slate-100 dark:border-blue-500/10 space-y-2">
-          {course.teacher_name && (
+          {course.creator_name && (
             <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
               <GraduationCap className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              <span className="font-medium">{course.teacher_name}</span>
+              <span className="font-medium">Tạo bởi {course.creator_name}</span>
             </div>
           )}
           {course.published_at && (
@@ -423,8 +427,8 @@ export default function CourseOverviewPage() {
   ];
 
   const allInstructors = [
-    ...(course.teacher_name
-      ? [{ id: -1, name: course.teacher_name, email: course.teacher_email ?? "", isPrimary: true }]
+    ...(course.creator_name
+      ? [{ id: -1, name: course.creator_name, email: course.creator_email ?? "", isPrimary: true }]
       : []),
     ...coTeachers.map((t: any) => ({
       id: t.id ?? t.user_id ?? Math.random(),

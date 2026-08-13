@@ -6,17 +6,26 @@ import { useAdminStats } from "@/hooks/useAdminStats";
 import { LoadingState } from "../LoadingState";
 import lmsService from "@/services/lmsService";
 import { toast } from "react-hot-toast";
+import { Course } from "@/types/course";
 
 export function AdminDashboard() {
   const { courses, loading, error, refresh } = useAdminStats();
 
-  const handleDeleteCourse = async (id: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa khóa học này? Hành động này không thể hoàn tác.")) {
+  const handleDeleteCourse = async (course: Course) => {
+    const reason = window.prompt(
+      `Nhập lý do xóa khóa học "${course.title}". Lý do này sẽ được gửi email tới người tạo và tất cả đồng giáo viên:`
+    )?.trim();
+    if (reason === undefined) {
       return;
     }
+    if (reason.length < 5) {
+      toast.error("Lý do xóa phải có ít nhất 5 ký tự.");
+      return;
+    }
+    if (!window.confirm("Xác nhận xóa vĩnh viễn khóa học và gửi lý do tới toàn bộ giáo viên?")) return;
 
     try {
-      await lmsService.deleteCourse(id);
+      await lmsService.deleteCourse(course.id, reason);
       toast.success("Đã xóa khóa học thành công");
       refresh();
     } catch (err: any) {

@@ -14,6 +14,9 @@ export interface Course {
   created_at: string;
   updated_at?: string;
   published_at?: string;
+  creator_name?: string;
+  creator_email?: string;
+  /** @deprecated Enrollment responses still use these compatibility fields. */
   teacher_name?: string;
   teacher_email?: string;
   enrollment_count?: number;

@@ -8,6 +8,8 @@ export type UserLogin = {
   name: string;
   email: string;
   role: Role | string;
+  roles?: string[];
+  lmsRoles?: string[];
 };
 
 export type User = {
@@ -18,6 +20,8 @@ export type User = {
   team: Team | string;
   type: TypeTag | string;
   role: Role | string;
+  roles?: string[];
+  lmsRoles?: string[];
   score?: number;
   totalScore?: number;
   dateAdded?: string;

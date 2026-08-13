@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import React, { useState } from 'react';
 import { AgentThinkingIndicator } from '@/components/lms/agent/AgentThinkingIndicator';
 import { MOCK_THINKING_STEPS } from '../mocks/chatFixtures';
 

@@ -35,7 +35,7 @@ export function CourseLearningSidebar() {
   return (
     <div className="h-full flex flex-col bg-white dark:bg-[#070E1C]">
       {/* Sidebar header (Giảng viên & Trợ giảng) */}
-      {(course?.teacher_name || (coTeachers && coTeachers.length > 0)) && (
+      {(course?.creator_name || (coTeachers && coTeachers.length > 0)) && (
         <div className="p-4 border-b border-slate-200/80 dark:border-blue-500/10 bg-slate-50/30 dark:bg-[#070E1C]">
           <div className="bg-slate-50/50 dark:bg-[#0F1E35]/40 border border-slate-200/40 dark:border-blue-500/8 rounded-2xl p-3.5 space-y-3">
             <button
@@ -48,16 +48,20 @@ export function CourseLearningSidebar() {
 
             {isTeachersExpanded && (
               <div className="space-y-2.5 pt-1">
-                {/* Giảng viên chính */}
-                {course?.teacher_name && (
+                {/* Người tạo khóa học */}
+                {course?.creator_name && (
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-full bg-blue-600 dark:bg-cyan-500 text-white dark:text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-xs shrink-0">
-                      {course.teacher_name.substring(0, 2).toUpperCase()}
+                      {course.creator_name.substring(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <span className="block text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-                        {course.teacher_name}
+                        {course.creator_name}
                       </span>
+                      <span className="block truncate text-[10px] text-blue-600 dark:text-cyan-400">Người tạo khóa học</span>
+                      {course.creator_email && (
+                        <span className="block truncate text-[10px] text-slate-400">{course.creator_email}</span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -72,6 +76,7 @@ export function CourseLearningSidebar() {
                       <span className="block text-xs font-semibold text-slate-600 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors truncate">
                         {ct.full_name}
                       </span>
+                      <span className="block truncate text-[10px] text-slate-400">Đồng giáo viên · {ct.email}</span>
                     </div>
                   </div>
                 ))}

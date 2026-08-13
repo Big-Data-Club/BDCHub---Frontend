@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   BookOpen, Users, User, Calendar, GraduationCap
@@ -50,6 +50,12 @@ export function CourseCard({
   title, description, category, level, status, teacherName,
   thumbnailUrl, enrollmentCount, progress, createdAt, onClick, actions, className
 }: CourseCardProps) {
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
+
+  useEffect(() => {
+    setThumbnailFailed(false);
+  }, [thumbnailUrl]);
+
   return (
     <InteractiveGlowCard
       accentColor="blue"
@@ -62,11 +68,14 @@ export function CourseCard({
     >
       {/* Thumbnail Area with Overlay Badges */}
       <div className="h-44 bg-gradient-to-br from-blue-50 to-slate-100 dark:from-blue-950/20 dark:to-[#0D192E] overflow-hidden relative flex-shrink-0">
-        {thumbnailUrl ? (
+        {thumbnailUrl && !thumbnailFailed ? (
           <Image 
             src={thumbnailUrl} 
             alt={title} 
             fill 
+            unoptimized
+            loading="lazy"
+            onError={() => setThumbnailFailed(true)}
             className="object-cover group-hover:scale-105 transition-transform duration-500" 
           />
         ) : (
@@ -114,7 +123,7 @@ export function CourseCard({
             {teacherName && (
               <span className="flex items-center gap-1 min-w-0">
                 <GraduationCap className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                <span className="truncate">{teacherName}</span>
+                <span className="truncate">Tạo bởi {teacherName}</span>
               </span>
             )}
             {teacherName && createdAt && (

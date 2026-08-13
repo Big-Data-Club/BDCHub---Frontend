@@ -12,7 +12,7 @@ export default function Projects() {
           <SectionHeader icon={Briefcase} title="Dự Án Nổi Bật" />
           
           <div className="space-y-4">
-            {clubData.projects.slice(0, 6).map((project) => (
+            {clubData.projects.map((project) => (
               <div key={project.id}>
                 <Link
                   href={project.projectShowcaseUrl}
