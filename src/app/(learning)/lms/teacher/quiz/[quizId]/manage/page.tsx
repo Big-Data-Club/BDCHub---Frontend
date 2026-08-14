@@ -15,6 +15,7 @@ import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { useQuizCourse } from "@/hooks/useQuizCourse";
 import { useMarkdownImage } from "@/hooks/useMarkdownImage";
 import { useSetPageContext } from "@/hooks/usePageContext";
+import { Select } from "@/components/lms/shared";
 import type {
   FillBlankTextSettings,
   FillBlankTextCorrectAnswer,
@@ -608,20 +609,20 @@ export default function TeacherQuizManagePage() {
               {/* Type selector */}
               <div>
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Loại câu hỏi *</label>
-                <select
+                <Select
                   value={questionForm.question_type}
                   onChange={e => {
                     setQuestionForm(f => ({ ...f, question_type: e.target.value }));
                     setFillBlankSettings(null);
                   }}
-                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                  className="py-2 px-4 h-[42px] font-medium"
                   disabled={!!editingQuestion}
                   required
                 >
                   {QUESTION_TYPES.map(t => (
                     <option key={t.value} value={t.value}>{t.icon} {t.label}</option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               {/* Fill blank editors */}

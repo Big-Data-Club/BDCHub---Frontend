@@ -20,6 +20,7 @@ import {
 import { organizationService } from "@/services/organizationService";
 import type { Organization, OrgMember, OrgStats } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
+import { Select } from "@/components/lms/shared";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -497,23 +498,25 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
                     onChange={(e) => setSingleInput(e.target.value)}
                     className="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
                   />
-                  <div className="flex gap-2">
-                    <select
-                      value={addRole}
-                      onChange={(e) =>
-                        setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")
-                      }
-                      className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
-                    >
-                      <option value="MEMBER">Member</option>
-                      <option value="ADMIN">Admin</option>
-                      <option value="OWNER">Owner</option>
-                    </select>
+                  <div className="flex gap-2 items-center">
+                    <div className="w-28 shrink-0">
+                      <Select
+                        value={addRole}
+                        onChange={(e) =>
+                          setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")
+                        }
+                        className="py-1 px-3 h-[38px] text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
+                      >
+                        <option value="MEMBER">Member</option>
+                        <option value="ADMIN">Admin</option>
+                        <option value="OWNER">Owner</option>
+                      </Select>
+                    </div>
                     <button
                       id="confirm-add-member"
                       onClick={handleExecuteAddMember}
                       disabled={saving || !singleInput.trim()}
-                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 shadow-sm"
+                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 shadow-sm h-[38px] flex items-center justify-center shrink-0"
                     >
                       {saving ? "Adding…" : "Add"}
                     </button>
@@ -530,22 +533,24 @@ function OrgDetailPanel({ org, onBack, onRefresh }: OrgDetailPanelProps) {
                     className="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200 resize-none font-mono"
                   />
                   <div className="flex items-center justify-between">
-                    <select
-                      value={addRole}
-                      onChange={(e) =>
-                        setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")
-                      }
-                      className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
-                    >
-                      <option value="MEMBER">Member</option>
-                      <option value="ADMIN">Admin</option>
-                      <option value="OWNER">Owner</option>
-                    </select>
+                    <div className="w-28 shrink-0">
+                      <Select
+                        value={addRole}
+                        onChange={(e) =>
+                          setAddRole(e.target.value as "OWNER" | "ADMIN" | "MEMBER")
+                        }
+                        className="py-1 px-3 h-[38px] text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
+                      >
+                        <option value="MEMBER">Member</option>
+                        <option value="ADMIN">Admin</option>
+                        <option value="OWNER">Owner</option>
+                      </Select>
+                    </div>
                     <button
                       id="confirm-bulk-add-member"
                       onClick={handleExecuteBulkAdd}
                       disabled={saving || parsedEmails.length === 0}
-                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 shadow-sm"
+                      className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 shadow-sm h-[38px] flex items-center justify-center shrink-0"
                     >
                       {saving ? "Importing…" : `Import ${parsedEmails.length} Member(s)`}
                     </button>

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import quizService from "@/services/quizService";
 import { BreadcrumbNav } from "@/components/lms/BreadcrumbNav";
 import { useQuizCourse } from "@/hooks/useQuizCourse";
+import { Select } from "@/components/lms/shared";
 import {
   ArrowLeft, CheckCircle, FileText,
   User, Calendar, Award, MessageSquare,
@@ -170,15 +171,15 @@ export default function TeacherGradingPage() {
           {/* Graded status */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Trạng thái chấm</label>
-            <select
+            <Select
               value={filterGraded}
               onChange={e => setFilterGraded(e.target.value as any)}
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="py-2 px-4 h-[42px]"
             >
               <option value="all">Tất cả</option>
               <option value="graded">Đã chấm</option>
               <option value="ungraded">Chưa chấm</option>
-            </select>
+            </Select>
           </div>
 
           {/* Student search */}
@@ -191,7 +192,7 @@ export default function TeacherGradingPage() {
                 value={searchStudent}
                 onChange={e => setSearchStudent(e.target.value)}
                 placeholder="Tên hoặc email…"
-                className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
             </div>
           </div>
@@ -199,16 +200,16 @@ export default function TeacherGradingPage() {
           {/* Question type */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Loại câu hỏi</label>
-            <select
+            <Select
               value={filterQuestionType}
               onChange={e => setFilterQuestionType(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="py-2 px-4 h-[42px]"
             >
               <option value="all">Tất cả</option>
               {questionTypes.map(t => (
                 <option key={t} value={t}>{questionTypeLabel[t] || t}</option>
               ))}
-            </select>
+            </Select>
           </div>
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-4">

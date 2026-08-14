@@ -9,6 +9,7 @@ import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import { FileInfo, Organization } from "@/types";
 import { CourseBlueprintWorkspace } from "@/components/lms/teacher/CourseBlueprintWorkspace";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { Select } from "@/components/lms/shared";
 
 const COURSE_LEVELS = [
   { value: "BEGINNER", label: "Cơ bản" },
@@ -185,17 +186,17 @@ export default function CreateCoursePage() {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Mức độ khó
               </label>
-              <select
+              <Select
                 value={formData.level}
                 onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="py-2 px-4 h-[44px]"
               >
                 {COURSE_LEVELS.map((level) => (
                   <option key={level.value} value={level.value}>
                     {level.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -207,10 +208,10 @@ export default function CreateCoursePage() {
             {orgLoading ? (
               <div className="text-sm text-slate-500 animate-pulse py-2.5">Đang tải danh sách tổ chức...</div>
             ) : (
-              <select
+              <Select
                 value={formData.org_id || ""}
                 onChange={(e) => setFormData({ ...formData, org_id: Number(e.target.value) })}
-                className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                className="py-2 px-4 h-[44px] font-medium"
               >
                 {orgs.length === 0 ? (
                   <option value="">Không thuộc tổ chức nào (Mặc định: Big Data Club)</option>
@@ -221,7 +222,7 @@ export default function CreateCoursePage() {
                     </option>
                   ))
                 )}
-              </select>
+              </Select>
             )}
             <p className="text-xs text-slate-400 mt-1.5">
               Chọn tổ chức chịu trách nhiệm quản lý và sở hữu khóa học này.
