@@ -32,6 +32,7 @@ export default function Navbar() {
     { href: "/#about", label: "Về CLB" },
     { href: "/#activities", label: "Hoạt Động" },
     { href: "/#projects", label: "Dự Án" },
+    { href: "/#members", label: "Thành Viên" },
     { href: "/instructions/student", label: "Hướng dẫn" },
   ];
 
@@ -39,24 +40,28 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white/80 dark:bg-[#070E1C]/85 backdrop-blur-xl shadow-sm dark:shadow-none border-b border-slate-200/80 dark:border-blue-500/8 py-3"
-          : "bg-transparent py-5"
+          ? "bg-white/95 dark:bg-[#070E1C]/95 backdrop-blur-xl shadow-md dark:shadow-[0_4px_20px_rgba(7,14,28,0.7)] border-b border-slate-200/80 dark:border-blue-500/20 py-3"
+          : "bg-white/80 dark:bg-[#070E1C]/80 backdrop-blur-md border-b border-slate-200/40 dark:border-white/5 py-4 sm:py-5"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-            if (window.location.hash) {
-              window.history.replaceState(null, "", window.location.pathname);
-            }
-          }}>
+          <button 
+            className="flex items-center gap-3 cursor-pointer text-left bg-transparent border-0 p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-cyan-400 rounded-xl"
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              if (window.location.hash) {
+                window.history.replaceState(null, "", window.location.pathname);
+              }
+            }}
+            aria-label="BDC Hub - Về đầu trang"
+          >
             <Logo />
             <div className="hidden sm:block">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">BDC Hub</h2>
               <p className="text-xs text-blue-600 dark:text-cyan-400 font-semibold tracking-wide uppercase">Think Big • Speak Data</p>
             </div>
-          </div>
+          </button>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
@@ -64,7 +69,7 @@ export default function Navbar() {
               <a 
                 key={index} 
                 href={item.href} 
-                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                className="text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
               >
                 {item.label}
               </a>
@@ -77,7 +82,12 @@ export default function Navbar() {
               onMouseLeave={() => setIsHpcDropdownOpen(false)}
             >
               <button
-                className="flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-cyan-400 hover:opacity-85 transition-all py-2 cursor-pointer"
+                type="button"
+                onClick={() => setIsHpcDropdownOpen(!isHpcDropdownOpen)}
+                aria-expanded={isHpcDropdownOpen}
+                aria-haspopup="true"
+                aria-label="Danh mục HPC School 2026"
+                className="flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-cyan-400 hover:opacity-85 transition-all py-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-cyan-400 rounded-lg"
               >
                 HPC School 2026
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isHpcDropdownOpen ? "rotate-180" : ""}`} />
@@ -89,11 +99,11 @@ export default function Navbar() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute left-1/2 -translate-x-1/2 mt-1 w-56 rounded-2xl bg-white dark:bg-[#070E1C] border border-slate-200 dark:border-blue-500/10 p-2 shadow-xl backdrop-blur-xl z-50"
+                    className="absolute left-1/2 -translate-x-1/2 mt-1 w-56 rounded-2xl bg-white dark:bg-[#070E1C] border border-slate-200 dark:border-blue-500/20 p-2 shadow-xl backdrop-blur-xl z-50"
                   >
                     <a
                       href="/hpc-summer-school"
-                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-205 hover:bg-slate-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-[#0F1E35] hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
                     >
                       <CalendarDays className="w-4 h-4 text-cyan-500" />
                       Đăng ký School
@@ -102,27 +112,27 @@ export default function Navbar() {
                       href="https://hpcc.hcmut.edu.vn/hpc-school"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#0F1E35] hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
                     >
                       <ExternalLink className="w-4 h-4 text-blue-500" />
                       Đi đến School
                     </a>
-                    <div className="h-px bg-slate-100 dark:bg-blue-500/5 my-1" />
-                    <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div className="h-px bg-slate-100 dark:bg-blue-500/10 my-1" />
+                    <div className="px-3 py-1 text-xs font-bold text-slate-400 uppercase tracking-wider">
                       Liên hệ BTC
                     </div>
                     <a
                       href="https://www.facebook.com/BDCofHCMUT"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-650 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#0F1E35] hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
                     >
                       <Facebook className="w-4 h-4 text-sky-600" />
                       Qua Facebook
                     </a>
                     <a
                       href="mailto:bdc@hcmut.edu.vn"
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-650 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#0F1E35] hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
                     >
                       <Mail className="w-4 h-4 text-rose-500" />
                       Qua Email
@@ -140,7 +150,7 @@ export default function Navbar() {
                 <Button
                   onClick={handleLogout}
                   variant="outline"
-                  className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-blue-500/20 hover:bg-slate-50 dark:hover:bg-[#162644] rounded-xl active:scale-95 transition-all duration-200"
+                  className="text-slate-700 dark:text-slate-200 border-slate-300 dark:border-blue-500/20 hover:bg-slate-50 dark:hover:bg-[#162644] rounded-xl active:scale-95 transition-all duration-200"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Đăng xuất
@@ -148,7 +158,7 @@ export default function Navbar() {
               ) : (
                 <button
                   onClick={() => router.push("/login")}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm dark:shadow-blue-900/30 active:scale-95 transition-all duration-200"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm dark:shadow-blue-900/30 active:scale-95 transition-all duration-200 cursor-pointer"
                 >
                   Đăng nhập
                 </button>
@@ -160,7 +170,7 @@ export default function Navbar() {
               <ThemeToggle />
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                className="p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#0F1E35] rounded-lg transition-colors cursor-pointer"
                 aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
               >
                 {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -186,21 +196,21 @@ export default function Navbar() {
                   key={index}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-3 text-base font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-blue-900/10 rounded-xl transition-all"
+                  className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-cyan-400 hover:bg-slate-50 dark:hover:bg-[#0F1E35] rounded-xl transition-all"
                 >
                   {item.label}
                 </a>
               ))}
 
               {/* HPC School Section for Mobile */}
-              <div className="pt-2 border-t border-slate-100 dark:border-blue-500/5 mt-2">
-                <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider dark:text-slate-500">
+              <div className="pt-2 border-t border-slate-100 dark:border-blue-500/10 mt-2">
+                <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider dark:text-slate-400">
                   HPC School 2026
                 </div>
                 <a
                   href="/hpc-summer-school"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-3 text-base font-semibold text-blue-650 dark:text-cyan-400 hover:bg-slate-50 dark:hover:bg-blue-900/10 rounded-xl transition-all"
+                  className="block px-4 py-3 text-base font-semibold text-blue-600 dark:text-cyan-400 hover:bg-slate-50 dark:hover:bg-[#0F1E35] rounded-xl transition-all"
                 >
                   📝 Đăng ký School
                 </a>
@@ -209,7 +219,7 @@ export default function Navbar() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-3 text-base font-semibold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-blue-900/10 rounded-xl transition-all"
+                  className="block px-4 py-3 text-base font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#0F1E35] rounded-xl transition-all"
                 >
                   🌐 Đi đến School
                 </a>
@@ -218,24 +228,24 @@ export default function Navbar() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-3 text-base font-medium text-slate-650 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-blue-900/10 rounded-xl transition-all"
+                  className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#0F1E35] rounded-xl transition-all"
                 >
                   🔵 Liên hệ qua Facebook
                 </a>
                 <a
                   href="mailto:bdc@hcmut.edu.vn"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-4 py-3 text-base font-medium text-slate-650 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-blue-900/10 rounded-xl transition-all"
+                  className="block px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#0F1E35] rounded-xl transition-all"
                 >
                   ✉️ Liên hệ qua Email
                 </a>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 dark:border-blue-500/5 mt-2 px-4">
+              <div className="pt-4 border-t border-slate-100 dark:border-blue-500/10 mt-2 px-4">
                 {isAuthenticated ? (
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 dark:bg-blue-900/20 text-slate-700 dark:text-slate-300 font-semibold rounded-xl active:scale-95 transition-all"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 dark:bg-[#0F1E35] text-slate-700 dark:text-slate-200 font-semibold rounded-xl active:scale-95 transition-all"
                   >
                     <LogOut className="h-5 w-5" />
                     Đăng xuất

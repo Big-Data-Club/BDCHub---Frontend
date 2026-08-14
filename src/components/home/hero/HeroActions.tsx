@@ -3,18 +3,19 @@
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 export interface HeroActionsProps {
-  actionsDuration: number;
-  actionsYOffset: number;
+  actionsDuration?: number;
+  actionsYOffset?: number;
 }
 
 export function HeroActions({
-  actionsDuration,
-  actionsYOffset,
-}: HeroActionsProps) {
-  void actionsDuration;
-  void actionsYOffset;
+  actionsDuration: _actionsDuration,
+  actionsYOffset: _actionsYOffset,
+}: HeroActionsProps = {}) {
+  void _actionsDuration;
+  void _actionsYOffset;
   const router = useRouter();
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
@@ -37,7 +38,10 @@ export function HeroActions({
   };
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center pt-2 w-full sm:w-auto transition-all duration-200"
     >
       {isAuthenticated ? (
@@ -93,6 +97,6 @@ export function HeroActions({
           </a>
         </>
       )}
-    </div>
+    </motion.div>
   );
 }
