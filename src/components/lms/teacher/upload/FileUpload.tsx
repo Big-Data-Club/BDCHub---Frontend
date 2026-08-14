@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FileInfo } from "@/types";
 import { getAccessToken } from "@/services/authToken";
+import { FileType as FileTypeIcon, HardDrive, AlertCircle } from "lucide-react";
 
 interface FileUploadProps {
   onFileUploaded: (fileInfo: FileInfo) => void;
@@ -139,14 +140,21 @@ export default function FileUpload({
       )}
 
       {error && (
-        <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
-          ❌ {error}
+        <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-xs flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
-      <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-        <p>📁 Định dạng: {getAcceptString()}</p>
-        <p>📊 Kích thước tối đa: {maxSize}MB</p>
+      <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 space-y-1">
+        <p className="flex items-center gap-1.5">
+          <FileTypeIcon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+          <span>Định dạng: {getAcceptString()}</span>
+        </p>
+        <p className="flex items-center gap-1.5">
+          <HardDrive className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+          <span>Kích thước tối đa: {maxSize}MB</span>
+        </p>
       </div>
     </div>
   );

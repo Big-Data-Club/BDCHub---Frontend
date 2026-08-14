@@ -180,26 +180,26 @@ export function CourseTableRow({
                 <MoreVertical className="w-4 h-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="dark:bg-[#0F1E35] dark:border-blue-500/15">
+            <DropdownMenuContent align="end" className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 shadow-xl rounded-2xl p-1.5 min-w-[170px] z-50">
               <DropdownMenuItem
                 onClick={onOpen}
-                className="text-slate-700 dark:text-slate-200 focus:bg-slate-50 dark:focus:bg-slate-800/50 cursor-pointer flex items-center gap-2"
+                className="text-slate-700 dark:text-slate-200 focus:bg-slate-100 dark:focus:bg-blue-950/60 focus:text-blue-600 dark:focus:text-cyan-400 cursor-pointer flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl transition-colors"
               >
-                <Settings className="w-3.5 h-3.5" />
+                <Settings className="w-4 h-4 text-slate-400 dark:text-slate-400" />
                 <span>Chỉnh sửa chi tiết</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem
                 onClick={onArchive}
                 disabled={archiving}
-                className="text-amber-600 dark:text-amber-450 focus:bg-amber-50 dark:focus:bg-amber-955/10 cursor-pointer flex items-center gap-2"
+                className="text-amber-600 dark:text-amber-400 focus:bg-amber-50 dark:focus:bg-amber-950/40 cursor-pointer flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl transition-colors"
               >
                 {archiving ? (
-                  <Spinner className="w-3.5 h-3.5" />
+                  <Spinner className="w-4 h-4" />
                 ) : course.status === "ARCHIVED" ? (
-                  <ArchiveRestore className="w-3.5 h-3.5" />
+                  <ArchiveRestore className="w-4 h-4 text-amber-500" />
                 ) : (
-                  <Archive className="w-3.5 h-3.5" />
+                  <Archive className="w-4 h-4 text-amber-500" />
                 )}
                 <span>{course.status === "ARCHIVED" ? "Khôi phục" : "Lưu trữ"}</span>
               </DropdownMenuItem>
@@ -207,12 +207,12 @@ export function CourseTableRow({
               <DropdownMenuItem
                 onClick={onDelete}
                 disabled={deleting}
-                className="text-red-500 dark:text-red-450 focus:bg-red-50 dark:focus:bg-red-955/10 cursor-pointer flex items-center gap-2"
+                className="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/40 cursor-pointer flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl transition-colors"
               >
                 {deleting ? (
-                  <Spinner className="w-3.5 h-3.5" />
+                  <Spinner className="w-4 h-4" />
                 ) : (
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-4 h-4 text-red-500" />
                 )}
                 <span>Xóa khóa học</span>
               </DropdownMenuItem>

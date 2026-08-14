@@ -35,26 +35,26 @@ export function QuickActionCard({
         {/* Icon wrapper */}
         <div
           className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 border",
-            "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-cyan-400 border-transparent dark:border-cyan-500/10",
-            "group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white dark:group-hover:bg-cyan-500 dark:group-hover:text-slate-950"
+            "w-9 h-9 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 border",
+            "bg-slate-100 dark:bg-blue-950/40 text-slate-700 dark:text-cyan-400 border-slate-200/60 dark:border-blue-500/15",
+            "group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-cyan-300"
           )}
         >
           {icon}
         </div>
 
         {/* Title & Description */}
-        <h4 className="text-base font-bold text-slate-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">
+        <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">
           {title}
         </h4>
-        <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed mb-4 flex-grow">
+        <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed mb-3 flex-grow font-normal">
           {description}
         </p>
 
-        {/* Action button */}
-        <div className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-cyan-400 mt-auto group-hover:gap-2 transition-all">
+        {/* Action link */}
+        <div className="flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-cyan-400 mt-auto group-hover:gap-1.5 transition-all">
           <span>{actionLabel}</span>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <ArrowRight className="w-3 h-3" />
         </div>
       </div>
     </InteractiveGlowCard>

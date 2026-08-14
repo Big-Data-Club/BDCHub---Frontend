@@ -13,7 +13,8 @@ import {
 import {
   Card, SectionHeader,
   PrimaryBtn, SecondaryBtn, GhostBtn,
-  EmptyState, PageLoader, Alert, ProgressBar, GridBackground
+  EmptyState, PageLoader, Alert, ProgressBar, GridBackground,
+  QuickActionCard, TeacherSummaryCard, TeacherHeader
 } from "@/components/lms/shared";
 import { useSession } from "next-auth/react";
 import type { TeacherDashboardSummaryResponse } from "@/services/analyticsService";
@@ -35,35 +36,6 @@ const TeacherDashboardCharts = dynamic(
   () => import("@/components/lms/teacher/page/TeacherDashboardCharts").then((module) => module.TeacherDashboardCharts),
   { ssr: false, loading: () => <div className="grid grid-cols-1 gap-6 lg:grid-cols-2"><div className="h-[350px] animate-pulse rounded-2xl bg-slate-155 dark:bg-slate-800/40" /><div className="h-[350px] animate-pulse rounded-2xl bg-slate-155 dark:bg-slate-800/40" /></div> },
 );
-
-// ─── Quick action card ────────────────────────────────────────────────────────
-
-function ActionCard({
-  icon, title, description, onClick, variant = "default",
-}: {
-  icon: React.ReactNode; title: string; description: string;
-  onClick: () => void;
-  variant?: "default" | "primary" | "success" | "warning";
-}) {
-  const VARIANT = {
-    default: "border-slate-200/80 dark:border-blue-500/10 hover:border-slate-350 dark:hover:border-blue-500/25 bg-white/70 dark:bg-[#0D192E]/60",
-    primary: "border-blue-200/60 dark:border-blue-800/30 hover:border-blue-450 dark:hover:border-blue-600/60 bg-blue-50/40 dark:bg-blue-950/10",
-    success: "border-[#10b981]/30 dark:border-[#10b981]/15 hover:border-[#10b981]/50 dark:hover:border-[#10b981]/30 bg-emerald-50/30 dark:bg-emerald-950/10",
-    warning: "border-amber-250 dark:border-amber-500/15 hover:border-amber-400 dark:hover:border-amber-500/30 bg-amber-50/40 dark:bg-amber-950/10",
-  };
-  return (
-    <button
-      onClick={onClick}
-      className={`group relative flex items-start gap-4 p-5 rounded-2xl border transition-all active:scale-97 hover:shadow-[0_8px_20px_rgba(0,0,0,0.02)] dark:hover:shadow-[0_8px_25px_rgba(6,182,212,0.02)] w-full text-left backdrop-blur-xs ${VARIANT[variant]}`}
-    >
-      <div className="text-2xl flex-shrink-0 mt-0.5 transform group-hover:scale-110 transition-transform duration-300">{icon}</div>
-      <div>
-        <p className="font-bold text-slate-800 dark:text-slate-200 text-sm tracking-wide">{title}</p>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">{description}</p>
-      </div>
-    </button>
-  );
-}
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 
@@ -170,127 +142,21 @@ export default function TeacherDashboard() {
 
   return (
     <div className="flex flex-col min-h-screen w-full">
-      {/* ── Premium Full-width Header synced with StudentDashboardHeader ── */}
-      <div className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/20 dark:bg-[#070E1C]/20 backdrop-blur-xs py-4 md:py-5">
-        <GridBackground />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 w-full">
-          <div className="min-w-0 flex-1 lg:max-w-md">
-            <p className="text-xs text-blue-600 dark:text-cyan-400 uppercase tracking-widest font-extrabold mb-1">
-              Hệ thống quản lý học tập (LMS)
-            </p>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-              Tổng quan Giảng dạy
-            </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">
-              Quản lý khóa học của bạn, theo dõi dữ liệu chuyên sâu và kết nối với học viên.
-            </p>
-            <div className="mt-4 flex items-center gap-2 flex-wrap">
-              <GhostBtn
-                size="sm"
-                icon={<RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`} />}
-                onClick={() => loadDashboard()}
-                className="active:scale-95 border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
-              >
-                Làm mới
-              </GhostBtn>
-              <GhostBtn
-                size="sm"
-                icon={<Home className="w-3.5 h-3.5" />}
-                onClick={() => router.push("/")}
-                className="active:scale-95 border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
-              >
-                Trang chủ
-              </GhostBtn>
-              <GhostBtn
-                size="sm"
-                icon={<LogOut className="w-3.5 h-3.5" />}
-                onClick={() => { sessionStorage.removeItem("lms_selected_role"); router.push("/lms"); }}
-                className="active:scale-95 border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
-              >
-                Đổi vai trò
-              </GhostBtn>
-            </div>
-          </div>
-
-          {/* Teacher Summary Mirror Card */}
+      {/* ── Premium Full-width Header synced with Teacher Suite ── */}
+      <TeacherHeader
+        title="Tổng quan Giảng dạy"
+        description="Quản lý khóa học của bạn, theo dõi dữ liệu chuyên sâu và kết nối với học viên."
+        actions={
           <div className="w-full lg:max-w-xl xl:max-w-2xl flex-shrink-0">
-            <div className="group/card bg-white/80 dark:bg-[#0F1E35]/80 backdrop-blur-xs border border-slate-200/85 dark:border-blue-500/15 rounded-2xl p-4 shadow-xs hover:border-slate-355 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.03)] dark:hover:shadow-[0_8px_30px_rgba(6,182,212,0.03)] w-full grid grid-cols-1 md:grid-cols-[1fr_1.25px_1fr] gap-x-6 gap-y-3 relative">
-              
-              {/* Left column: Courses status */}
-              <div className="md:col-start-1 flex flex-col justify-start">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-50/80 text-blue-600 dark:bg-blue-950/60 dark:text-cyan-400 border border-blue-200/50 dark:border-cyan-500/20 group-hover/card:scale-105 transition-all duration-300">
-                    <BookOpen className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Trạng thái Khóa học</h4>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
-                  Tổng số: <span className="text-blue-600 dark:text-cyan-400 font-bold">{totalCoursesCount}</span> khóa học đã tạo
-                </p>
-
-                <div className="h-2.5 w-full mt-3 rounded-full overflow-hidden flex bg-slate-200 dark:bg-[#080F1E]">
-                  {publishedCoursesCount > 0 && (
-                    <div style={{ width: `${publishedPercent}%` }} className="bg-emerald-500 dark:bg-emerald-400" title={`Đã xuất bản: ${publishedCoursesCount}`} />
-                  )}
-                  {draftCoursesCount > 0 && (
-                    <div style={{ width: `${draftPercent}%` }} className="bg-amber-500 dark:bg-amber-450" title={`Bản nháp: ${draftCoursesCount}`} />
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-200/60 dark:border-blue-500/10">
-                  <div className="text-center">
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Đã xuất bản</span>
-                    <p className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">{publishedCoursesCount}</p>
-                  </div>
-                  <div className="text-center border-l border-slate-200/60 dark:border-blue-500/10">
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Bản nháp</span>
-                    <p className="text-base font-extrabold text-amber-600 dark:text-amber-450 mt-0.5">{draftCoursesCount}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Vertical divider */}
-              <div className="hidden md:block md:col-start-2 w-[1.5px] bg-slate-200 dark:bg-blue-500/15 self-stretch my-1 transition-all duration-300 flex-shrink-0" />
-
-              {/* Right column: Learner Engagement */}
-              <div className="md:col-start-3 flex flex-col justify-start">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-50/80 text-purple-600 dark:bg-purple-950/65 dark:text-purple-300 border border-purple-200/50 dark:border-purple-500/20 group-hover/card:scale-105 transition-all duration-300">
-                    <Users className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tác động giảng dạy</h4>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
-                  Tổng số học viên trong các lớp học của bạn
-                </p>
-
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                    {totalUniqueStudents}
-                  </span>
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Học viên</span>
-                </div>
-
-                <div className="mt-auto border-t border-slate-200/60 dark:border-blue-500/10 pt-2 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
-                  <div className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse flex-shrink-0" />
-                    <span>Lớp đang hoạt động</span>
-                  </div>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">24/7 Live</span>
-                </div>
-              </div>
-
-            </div>
+            <TeacherSummaryCard
+              totalCourses={totalCoursesCount}
+              publishedCourses={publishedCoursesCount}
+              draftCourses={draftCoursesCount}
+              totalStudents={totalUniqueStudents}
+            />
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* ── Content Container (Middle and Bottom) ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 flex-grow">
@@ -425,24 +291,28 @@ export default function TeacherDashboard() {
             <Card className="p-6">
               <SectionHeader title="Thao tác nhanh" />
               <div className="flex flex-col gap-3.5 mt-2">
-                <ActionCard
-                  icon={<Plus className="w-6 h-6 text-blue-600 dark:text-cyan-400" />}
+                <QuickActionCard
+                  icon={<Plus className="w-5 h-5" />}
                   title="Tạo khóa học mới"
                   description="Thêm bài học, giáo trình, và tài liệu vào LMS"
-                  variant="primary"
+                  accentColor="blue"
+                  actionLabel="Tạo khóa học"
                   onClick={() => router.push("/lms/teacher/courses/create")}
                 />
-                <ActionCard
-                  icon={<BookOpen className="w-6 h-6 text-slate-600 dark:text-slate-355" />}
+                <QuickActionCard
+                  icon={<BookOpen className="w-5 h-5" />}
                   title="Quản lý khóa học"
                   description="Xem chi tiết các bài học, sửa đổi nội dung đã đăng"
+                  accentColor="cyan"
+                  actionLabel="Xem khóa học"
                   onClick={() => router.push("/lms/teacher/courses")}
                 />
-                <ActionCard
-                  icon={<ClipboardList className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />}
+                <QuickActionCard
+                  icon={<ClipboardList className="w-5 h-5" />}
                   title="Bài tập & Quizzes"
                   description="Quản lý hệ thống câu hỏi, trắc nghiệm và chấm điểm"
-                  variant="success"
+                  accentColor="green"
+                  actionLabel="Quản lý Quizzes"
                   onClick={() => router.push("/lms/teacher/quiz")}
                 />
               </div>
