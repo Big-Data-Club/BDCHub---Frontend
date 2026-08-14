@@ -606,7 +606,7 @@ export default function LabDetailPage() {
                         )}
                         {/* Test results loop */}
                         {runResult.testResults && (
-                          <div className="flex flex-wrap gap-2 text-[10px]">
+                          <div className="space-y-2 text-[10px]">
                             {runResult.testResults.map((tr: any, idx: number) => (
                               <div key={idx} className="space-y-1">
                                 <div
@@ -617,12 +617,34 @@ export default function LabDetailPage() {
                                   }`}
                                 >
                                   {tr.status === "PASSED" ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
-                                  <span>Test {idx + 1}: {tr.status} ({tr.runtimeMs}ms)</span>
+                                  <span>Test {idx + 1}{tr.testName ? ` — ${tr.testName}` : ""}: {tr.status} ({tr.runtimeMs}ms)</span>
                                 </div>
-                                {tr.status !== "PASSED" && tr.actualOutput && (
-                                  <pre className="max-w-full overflow-auto rounded border border-red-900/60 bg-slate-950 p-2 text-[10px] text-red-300 whitespace-pre-wrap">
-                                    {tr.actualOutput}
-                                  </pre>
+                                {tr.isSample && (
+                                  <details open={tr.status !== "PASSED"} className="max-w-full rounded border border-slate-700 bg-slate-950 p-2 text-slate-300">
+                                    <summary className="cursor-pointer select-none font-semibold text-slate-400">Test details</summary>
+                                    <div className="mt-2 grid gap-2 md:grid-cols-2">
+                                      <div>
+                                        <p className="mb-1 font-semibold text-slate-500">Input</p>
+                                        <pre className="overflow-auto rounded bg-slate-900 p-2 whitespace-pre-wrap">{tr.input ?? ""}</pre>
+                                      </div>
+                                      <div>
+                                        <p className="mb-1 font-semibold text-slate-500">Expected output</p>
+                                        <pre className="overflow-auto rounded bg-slate-900 p-2 whitespace-pre-wrap">{tr.expectedOutput ?? ""}</pre>
+                                      </div>
+                                      {tr.actualOutput !== undefined && (
+                                        <div className="md:col-span-2">
+                                          <p className="mb-1 font-semibold text-slate-500">Your output</p>
+                                          <pre className="overflow-auto rounded bg-slate-900 p-2 whitespace-pre-wrap">{tr.actualOutput}</pre>
+                                        </div>
+                                      )}
+                                      {tr.errorOutput && (
+                                        <div className="md:col-span-2">
+                                          <p className="mb-1 font-semibold text-red-400">Error</p>
+                                          <pre className="overflow-auto rounded border border-red-900/60 bg-red-950/30 p-2 text-red-300 whitespace-pre-wrap">{tr.errorOutput}</pre>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </details>
                                 )}
                               </div>
                             ))}
@@ -654,7 +676,7 @@ export default function LabDetailPage() {
                           </pre>
                         )}
                         {submitResult.testResults && (
-                          <div className="flex flex-wrap gap-2 text-[10px]">
+                          <div className="space-y-2 text-[10px]">
                             {submitResult.testResults.map((tr: any, idx: number) => (
                               <div key={idx} className="space-y-1">
                                 <div
@@ -665,12 +687,34 @@ export default function LabDetailPage() {
                                   }`}
                                 >
                                   {tr.status === "PASSED" ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
-                                  <span>Test {idx + 1}: {tr.status} ({tr.runtimeMs}ms)</span>
+                                  <span>Test {idx + 1}{tr.testName ? ` — ${tr.testName}` : ""}: {tr.status} ({tr.runtimeMs}ms)</span>
                                 </div>
-                                {tr.status !== "PASSED" && tr.actualOutput && (
-                                  <pre className="max-w-full overflow-auto rounded border border-red-900/60 bg-slate-950 p-2 text-[10px] text-red-300 whitespace-pre-wrap">
-                                    {tr.actualOutput}
-                                  </pre>
+                                {tr.isSample && (
+                                  <details open={tr.status !== "PASSED"} className="max-w-full rounded border border-slate-700 bg-slate-950 p-2 text-slate-300">
+                                    <summary className="cursor-pointer select-none font-semibold text-slate-400">Sample-test details</summary>
+                                    <div className="mt-2 grid gap-2 md:grid-cols-2">
+                                      <div>
+                                        <p className="mb-1 font-semibold text-slate-500">Input</p>
+                                        <pre className="overflow-auto rounded bg-slate-900 p-2 whitespace-pre-wrap">{tr.input ?? ""}</pre>
+                                      </div>
+                                      <div>
+                                        <p className="mb-1 font-semibold text-slate-500">Expected output</p>
+                                        <pre className="overflow-auto rounded bg-slate-900 p-2 whitespace-pre-wrap">{tr.expectedOutput ?? ""}</pre>
+                                      </div>
+                                      {tr.actualOutput !== undefined && (
+                                        <div className="md:col-span-2">
+                                          <p className="mb-1 font-semibold text-slate-500">Your output</p>
+                                          <pre className="overflow-auto rounded bg-slate-900 p-2 whitespace-pre-wrap">{tr.actualOutput}</pre>
+                                        </div>
+                                      )}
+                                      {tr.errorOutput && (
+                                        <div className="md:col-span-2">
+                                          <p className="mb-1 font-semibold text-red-400">Error</p>
+                                          <pre className="overflow-auto rounded border border-red-900/60 bg-red-950/30 p-2 text-red-300 whitespace-pre-wrap">{tr.errorOutput}</pre>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </details>
                                 )}
                               </div>
                             ))}

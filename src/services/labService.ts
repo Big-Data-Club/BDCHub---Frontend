@@ -118,6 +118,18 @@ const mapSubmission = (raw: any): any => {
     memoryKb: raw.memory_kb,
     slurmJobId: raw.slurm_job_id,
     compilerOutput: raw.compiler_output,
+    testResults: (raw.test_results || []).map((tr: any) => ({
+      testCaseId: tr.test_case_id,
+      testName: tr.test_name,
+      status: tr.status,
+      input: tr.input,
+      expectedOutput: tr.expected_output,
+      actualOutput: tr.actual_output,
+      errorOutput: tr.error_output,
+      runtimeMs: tr.runtime_ms,
+      memoryKb: tr.memory_kb,
+      isSample: tr.is_sample,
+    })),
     submittedAt: raw.submitted_at,
   };
 };
@@ -131,8 +143,12 @@ const mapRunResult = (raw: any): any => {
     status: raw.status,
     testResults: (raw.test_results || []).map((tr: any) => ({
       testCaseId: tr.test_case_id,
+      testName: tr.test_name,
       status: tr.status,
+      input: tr.input,
+      expectedOutput: tr.expected_output,
       actualOutput: tr.actual_output,
+      errorOutput: tr.error_output,
       runtimeMs: tr.runtime_ms,
       memoryKb: tr.memory_kb,
       isSample: tr.is_sample,
