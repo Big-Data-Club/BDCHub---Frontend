@@ -23,8 +23,8 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 
 export default function LabsPage() {
-  const { user, isAdmin, isManager } = useAuth();
-  const canManage = isAdmin || isManager || user?.role === "ROLE_TEACHER";
+  const { isAdmin } = useAuth();
+  const canManage = isAdmin;
 
   const {
     labs,

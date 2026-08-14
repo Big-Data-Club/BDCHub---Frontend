@@ -50,6 +50,9 @@ const mapLab = (raw: any): Lab => {
     allowLateSubmission: raw.allow_late_submission,
     latePenaltyPercent: raw.late_penalty_percent,
     createdBy: raw.created_by,
+    creatorName: raw.creator_name,
+    creatorEmail: raw.creator_email,
+    enrollmentCount: raw.enrollment_count,
     publishedAt: raw.published_at,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
@@ -317,6 +320,19 @@ export const labService = {
       ...res,
       items: (res.items || []).map(mapLab),
     };
+  },
+
+  getManagedLabs: async (params?: {
+    status?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<ListResponse<Lab>> => {
+    const query = new URLSearchParams();
+    Object.entries(params || {}).forEach(([key, value]) => {
+      if (value !== undefined && value !== "") query.set(key, String(value));
+    });
+    const res = await labApiClient.get<ListResponse<any>>(`/labs/manage${query.size ? `?${query.toString()}` : ""}`);
+    return { ...res, items: (res.items || []).map(mapLab) };
   },
 
   enrollLab: async (id: number): Promise<SuccessResponse<{ enrollment_id: number }>> => {

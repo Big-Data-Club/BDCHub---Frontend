@@ -22,6 +22,9 @@ export interface Lab {
   allowLateSubmission: boolean;
   latePenaltyPercent: number;
   createdBy: number;
+  creatorName?: string;
+  creatorEmail?: string;
+  enrollmentCount?: number;
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;

@@ -22,25 +22,25 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function LabManagePage() {
-  const { user, isAdmin, isManager } = useAuth();
+  const { user, isAdmin } = useAuth();
   const router = useRouter();
   
-  const isAuthorized = isAdmin || isManager || user?.role === "ROLE_TEACHER";
+  const isAuthorized = isAdmin;
   
   const [labs, setLabs] = useState<Lab[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [publishingId, setPublishingId] = useState<number | null>(null);
 
-  const fetchMyLabs = async () => {
+  const fetchManagedLabs = async () => {
     try {
       setLoading(true);
-      const res = await labService.getMyLabs();
+      const res = await labService.getManagedLabs({ page_size: 100 });
       // Go backend returns ListResponse with .items
       setLabs(res.items || []);
     } catch (err: any) {
       console.error(err);
-      toast.error("Failed to load your virtual labs.");
+      toast.error("Failed to load virtual labs.");
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export default function LabManagePage() {
 
   useEffect(() => {
     if (isAuthorized) {
-      fetchMyLabs();
+      fetchManagedLabs();
     } else if (user) {
       // If user is loaded but not authorized, we let the UI show unauthorized
       setLoading(false);
@@ -60,7 +60,7 @@ export default function LabManagePage() {
       setPublishingId(id);
       await labService.publishLab(id);
       toast.success("Virtual lab published successfully!");
-      fetchMyLabs();
+      fetchManagedLabs();
     } catch (err) {
       toast.error("Failed to publish the lab.");
     } finally {
@@ -105,7 +105,7 @@ export default function LabManagePage() {
           <div>
             <h2 className="text-2xl font-extrabold text-slate-900 dark:text-slate-50">Access Denied</h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 leading-relaxed">
-              Only teachers, managers, and administrators have permission to access the Lab Management Panel.
+              Only system administrators can access the Lab Management Panel.
             </p>
           </div>
           <Link
@@ -144,7 +144,7 @@ export default function LabManagePage() {
                   Lab Management Panel
                 </h1>
                 <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
-                  Create, configure, and publish virtual learning containers and test challenges.
+                  Configure and publish every virtual lab in the system.
                 </p>
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function LabManagePage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl">
             <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-3" />
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Loading your virtual labs...</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Loading all virtual labs...</p>
           </div>
         ) : labs.length === 0 ? (
           <div className="text-center py-24 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm space-y-5">
@@ -192,6 +192,7 @@ export default function LabManagePage() {
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                     <th className="px-6 py-4.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Lab Details</th>
+                    <th className="px-6 py-4.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Creator</th>
                     <th className="px-6 py-4.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Type</th>
                     <th className="px-6 py-4.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-4.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Level</th>
@@ -214,6 +215,12 @@ export default function LabManagePage() {
                           <p className="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 max-w-sm">
                             {lab.description || "No description provided."}
                           </p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="text-xs">
+                          <p className="font-semibold text-slate-700 dark:text-slate-300">{lab.creatorName || `User #${lab.createdBy}`}</p>
+                          <p className="mt-1 text-slate-400">{lab.creatorEmail || "—"}</p>
                         </div>
                       </td>
                       <td className="px-6 py-5">

@@ -16,10 +16,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function LabCreatePage() {
-  const { user, isAdmin, isManager } = useAuth();
+  const { user, isAdmin } = useAuth();
   const router = useRouter();
   
-  const isAuthorized = isAdmin || isManager || user?.role === "ROLE_TEACHER";
+  const isAuthorized = isAdmin;
 
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -96,7 +96,7 @@ export default function LabCreatePage() {
           <div>
             <h2 className="text-2xl font-extrabold text-slate-900 dark:text-slate-50">Access Denied</h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 leading-relaxed">
-              Only teachers, managers, and administrators have permission to access the Lab Management Panel.
+              Only system administrators can access the Lab Management Panel.
             </p>
           </div>
           <Link
