@@ -3,9 +3,9 @@ import Hero from "@/components/home/Hero";
 import About from "@/components/home/About";
 import Activities from "@/components/home/Activities";
 import Projects from "@/components/home/Projects";
-// import Members from "@/components/home/Members";
+import Members from "@/components/home/Members";
 import ScrollReset from "@/components/common/ScrollReset";
-// import HpcNotice from "@/components/home/HpcNotice";
+import HpcNotice from "@/components/home/HpcNotice";
 
 export const metadata: Metadata = {
   title: "BDC Hub | Big Data Club - HCMUT",
@@ -44,12 +44,12 @@ export default function LandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
       <ScrollReset />
-      {/* <HpcNotice /> */}
+      <HpcNotice />
       <Hero />
       <About />
       <Activities />
       <Projects />
-      {/* <Members /> */}
+      <Members />
     </div>
   );
 }

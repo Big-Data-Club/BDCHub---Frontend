@@ -3,6 +3,8 @@ import { Activity } from "lucide-react";
 import clubData from "@/data/clubData.json";
 import SectionHeader from "../common/SectionHeader";
 import SafeImage from "../common/SafeImage";
+import TerminalCard from "../common/TerminalCard";
+import CyberBadge from "../common/CyberBadge";
 
 export default function Activities() {
   return (
@@ -12,35 +14,22 @@ export default function Activities() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {clubData.activities.map((activity) => (
-            <div
+            <TerminalCard
               key={activity.id} 
-              className="bg-white dark:bg-[#0F1E35]
-                         rounded-2xl
-                         border border-slate-200 dark:border-blue-500/20
-                         overflow-hidden
-                         shadow-md dark:shadow-[0_4px_20px_rgba(7,14,28,0.4)]
-                         hover:-translate-y-1.5
-                         hover:shadow-xl hover:shadow-blue-500/10
-                         dark:hover:shadow-[0_12px_40px_rgba(34,211,238,0.12)]
-                         hover:border-blue-400/60 dark:hover:border-cyan-400/40
-                         transition-transform transition-shadow transition-colors duration-300 group"
+              className="overflow-hidden group flex flex-col"
             >
               <div className="h-48 bg-slate-200 dark:bg-[#0A1628] relative overflow-hidden">
                 <SafeImage src={activity.imageUrl} alt={activity.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/5 dark:group-hover:bg-cyan-400/5 transition-colors duration-300" />
               </div>
               <div className="p-6">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
-                                 text-xs font-semibold uppercase tracking-wider mb-3 w-fit
-                                 bg-blue-50 dark:bg-blue-900/30
-                                 text-blue-600 dark:text-cyan-400
-                                 border border-blue-200 dark:border-blue-500/20">
+                <CyberBadge variant="blue" className="mb-3">
                    {activity.type}
-                </span>
+                </CyberBadge>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-300">{activity.title}</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3">{activity.description}</p>
               </div>
-            </div>
+            </TerminalCard>
           ))}
         </div>
       </div>

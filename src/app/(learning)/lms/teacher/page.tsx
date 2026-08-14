@@ -292,27 +292,24 @@ export default function TeacherDashboard() {
               <SectionHeader title="Thao tác nhanh" />
               <div className="flex flex-col gap-3.5 mt-2">
                 <QuickActionCard
-                  icon={<Plus className="w-5 h-5" />}
+                  icon={<Plus className="w-5 h-5 text-blue-600 dark:text-cyan-400" />}
                   title="Tạo khóa học mới"
                   description="Thêm bài học, giáo trình, và tài liệu vào LMS"
-                  accentColor="blue"
-                  actionLabel="Tạo khóa học"
+                  variant="primary"
                   onClick={() => router.push("/lms/teacher/courses/create")}
                 />
                 <QuickActionCard
-                  icon={<BookOpen className="w-5 h-5" />}
+                  icon={<BookOpen className="w-5 h-5 text-slate-600 dark:text-slate-300" />}
                   title="Quản lý khóa học"
                   description="Xem chi tiết các bài học, sửa đổi nội dung đã đăng"
-                  accentColor="cyan"
-                  actionLabel="Xem khóa học"
+                  variant="default"
                   onClick={() => router.push("/lms/teacher/courses")}
                 />
                 <QuickActionCard
-                  icon={<ClipboardList className="w-5 h-5" />}
+                  icon={<ClipboardList className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
                   title="Bài tập & Quizzes"
                   description="Quản lý hệ thống câu hỏi, trắc nghiệm và chấm điểm"
-                  accentColor="green"
-                  actionLabel="Quản lý Quizzes"
+                  variant="success"
                   onClick={() => router.push("/lms/teacher/quiz")}
                 />
               </div>

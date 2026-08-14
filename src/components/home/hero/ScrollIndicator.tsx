@@ -1,6 +1,5 @@
 "use client";
 
-
 export interface ScrollIndicatorProps {
   actionsDuration: number;
   actionsYOffset: number;
@@ -38,9 +37,9 @@ export function ScrollIndicator({
         href="#about" 
         onClick={(e) => handleScrollToElement(e, "about")}
         aria-label="Cuộn xuống để xem thêm"
-        className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors group cursor-pointer"
+        className="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] p-2 gap-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-cyan-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-cyan-400 rounded-xl transition-colors group cursor-pointer"
       >
-        <span className="text-[10px] font-semibold uppercase tracking-[0.25em] opacity-60 group-hover:opacity-100 transition-opacity">Tiếp tục</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] opacity-60 group-hover:opacity-100 transition-opacity">Tiếp tục</span>
         <div className="w-6 h-10 rounded-full border-2 border-slate-300 dark:border-slate-700 flex items-start justify-center p-1.5 group-hover:border-blue-500 dark:group-hover:border-cyan-400 transition-colors">
           <span className="w-1 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 group-hover:bg-blue-600 dark:group-hover:bg-cyan-400 transition-colors" />
         </div>
