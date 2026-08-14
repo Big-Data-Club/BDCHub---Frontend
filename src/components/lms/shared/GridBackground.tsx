@@ -15,8 +15,8 @@ interface GridBackgroundProps {
 export function GridBackground({
   gridOpacity = "opacity-40 dark:opacity-20",
   showGlow = true,
-  glowTopClass = "absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none",
-  glowBottomClass = "absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none",
+  glowTopClass = "absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none",
+  glowBottomClass = "absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 dark:bg-blue-500/10 rounded-full blur-[120px] pointer-events-none",
   children,
   className,
 }: GridBackgroundProps) {
@@ -39,8 +39,8 @@ export function GridBackground({
       ) : (
         <>
           {/* Default overlays for Discover and dashboard headers */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-100/40 to-slate-100 dark:via-[#050B18]/40 dark:to-[#050B18]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_60%,#f1f5f9_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_60%,#050B18_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/20 to-slate-50 dark:via-[#050B18]/30 dark:to-[#050B18]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,#f8fafc_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_40%,#050B18_100%)]" />
         </>
       )}
     </div>

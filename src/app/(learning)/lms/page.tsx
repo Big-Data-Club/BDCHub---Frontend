@@ -63,8 +63,16 @@ export default function LMSRoleSelection() {
 
   const fetchUserRoles = useCallback(async () => {
     try {
-      const data = await lmsService.getMyRoles();
-      const roles = data || [];
+      const cached = sessionStorage.getItem("lms_user_roles");
+      let roles: string[] = [];
+
+      if (cached) {
+        roles = JSON.parse(cached);
+      } else {
+        const data = await lmsService.getMyRoles();
+        roles = data || [];
+        sessionStorage.setItem("lms_user_roles", JSON.stringify(roles));
+      }
 
       if (roles.length === 0) {
         setError("Bạn chưa được cấp quyền sử dụng LMS. Vui lòng liên hệ quản trị viên.");
@@ -96,15 +104,31 @@ export default function LMSRoleSelection() {
     }
   }, [status, router, fetchUserRoles]);
 
-  if (loading || redirecting) {
-    const statusText = redirecting
-      ? `Đang chuyển hướng đến dashboard ${ROLE_OPTIONS[redirectingRole]?.label || redirectingRole}...`
-      : "Đang tải vai trò của bạn...";
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (loading || redirecting) return;
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") return;
+
+      const key = e.key;
+      if (key === "1" || key === "2" || key === "3") {
+        const index = parseInt(key) - 1;
+        if (index >= 0 && index < userRoles.length) {
+          const roleToSelect = userRoles[index];
+          selectRole(roleToSelect);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [userRoles, loading, redirecting, selectRole]);
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-[#050B18]">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-blue-600 dark:border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">{statusText}</p>
+          <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">Đang tải vai trò của bạn...</p>
         </div>
       </div>
     );
@@ -128,7 +152,7 @@ export default function LMSRoleSelection() {
             </button>
             <button
               onClick={() => router.push("/contact")}
-              className="px-5 py-2.5 bg-slate-100 dark:bg-blue-950/40 text-slate-950 dark:text-cyan-400 border border-slate-200 dark:border-blue-900/30 rounded-xl hover:bg-slate-200 dark:hover:bg-blue-900/20 transition-all font-semibold active:scale-95 text-sm"
+              className="px-5 py-2.5 bg-slate-100 dark:bg-blue-950/40 text-blue-900 dark:text-cyan-400 border border-slate-200 dark:border-blue-900/30 rounded-xl hover:bg-slate-200 dark:hover:bg-blue-900/20 transition-all font-semibold active:scale-95 text-sm"
             >
               Liên hệ hỗ trợ
             </button>
@@ -150,8 +174,8 @@ export default function LMSRoleSelection() {
       <div className="relative max-w-5xl w-full z-10">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-14 h-14 mb-6">
-            <Image src={bdcLogo} alt="BDC Logo" className="object-contain" width={56} height={56} priority />
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-2xl bg-white/50 dark:bg-[#0F1E35]/40 p-2 shadow-[0_0_15px_rgba(37,99,235,0.1)] dark:shadow-[0_0_20px_rgba(6,182,212,0.15)] border border-slate-200/40 dark:border-blue-500/10 transition-all duration-500 hover:scale-105">
+            <Image src={bdcLogo} alt="BDC Logo" className="object-contain" width={48} height={48} priority />
           </div>
           <h1 className="text-3xl font-medium tracking-tight text-slate-900 dark:text-white mb-2">
             Hệ thống học tập <span className="font-extrabold text-slate-950 dark:text-slate-50">BD<span className="text-blue-600 dark:text-cyan-400">Course</span></span>
@@ -167,8 +191,8 @@ export default function LMSRoleSelection() {
         </div>
 
         {/* Role Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto mb-10">
-          {userRoles.map((role) => {
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
+          {userRoles.map((role, idx) => {
             const option = ROLE_OPTIONS[role];
             if (!option) return null;
 
@@ -181,6 +205,9 @@ export default function LMSRoleSelection() {
                 icon={option.icon}
                 features={option.features}
                 onSelect={selectRole}
+                hotkey={`${idx + 1}`}
+                className="animate-fade-slide-up"
+                style={{ animationDelay: `${idx * 80}ms` }}
               />
             );
           })}
@@ -192,7 +219,7 @@ export default function LMSRoleSelection() {
             onClick={() => router.push("/")}
             className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors group font-semibold"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" />
             <span>Quay lại trang chủ</span>
           </button>
           <div className="text-xs text-slate-500 dark:text-slate-500">
@@ -200,6 +227,48 @@ export default function LMSRoleSelection() {
           </div>
         </div>
       </div>
+
+      {/* Sliding Transition Overlay */}
+      <div
+        className={`fixed inset-y-0 right-0 w-full bg-slate-50 dark:bg-[#050B18] z-50 flex flex-col items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.85,0,0.15,1)] ${
+          redirecting ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="text-center max-w-md px-4">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 animate-pulse">
+            Chuyển tiếp Dashboard
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
+            Đang khởi tạo quyền truy cập {ROLE_OPTIONS[redirectingRole]?.label || redirectingRole}...
+          </p>
+          {/* Futuristic horizontal progress bar */}
+          <div className="w-64 h-1.5 bg-slate-200 dark:bg-blue-950 rounded-full overflow-hidden mx-auto">
+            <div className="h-full bg-blue-600 dark:bg-cyan-400 rounded-full animate-[progress-grow_1.5s_ease-out_infinite]" />
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes progress-grow {
+          0% { transform: translateX(-100%); }
+          50% { transform: translateX(0%); }
+          100% { transform: translateX(100%); }
+        }
+        @keyframes fade-slide-up {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-slide-up {
+          opacity: 0;
+          animation: fade-slide-up 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
     </div>
   );
 }

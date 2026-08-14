@@ -488,8 +488,8 @@ html:where(.dark) {
 }
 :where(.dark) .bg-grid-paper {
   background-image: 
-    linear-gradient(to right, rgba(169, 210, 240, 0.15) 2px, transparent 2px),
-    linear-gradient(to bottom, rgba(169, 210, 240, 0.15) 2px, transparent 2px);
+    linear-gradient(to right, rgba(169, 210, 240, 0.30) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(169, 210, 240, 0.30) 2px, transparent 2px);
 }
 
 @keyframes grid-slide {
@@ -503,4 +503,10 @@ html:where(.dark) {
 
 .animate-grid-slide {
   animation: grid-slide 25s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-grid-slide {
+    animation: none !important;
+  }
 }
