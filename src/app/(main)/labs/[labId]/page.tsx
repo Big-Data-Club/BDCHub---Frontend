@@ -608,16 +608,22 @@ export default function LabDetailPage() {
                         {runResult.testResults && (
                           <div className="flex flex-wrap gap-2 text-[10px]">
                             {runResult.testResults.map((tr: any, idx: number) => (
-                              <div 
-                                key={idx}
-                                className={`px-2 py-1 rounded flex items-center gap-1 border ${
-                                  tr.status === "PASSED"
-                                    ? "bg-emerald-950/40 text-emerald-400 border-emerald-900/60"
-                                    : "bg-red-950/40 text-red-400 border-red-900/60"
-                                }`}
-                              >
-                                {tr.status === "PASSED" ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
-                                <span>Test {idx + 1}: {tr.status} ({tr.runtimeMs}ms)</span>
+                              <div key={idx} className="space-y-1">
+                                <div
+                                  className={`px-2 py-1 rounded flex items-center gap-1 border ${
+                                    tr.status === "PASSED"
+                                      ? "bg-emerald-950/40 text-emerald-400 border-emerald-900/60"
+                                      : "bg-red-950/40 text-red-400 border-red-900/60"
+                                  }`}
+                                >
+                                  {tr.status === "PASSED" ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+                                  <span>Test {idx + 1}: {tr.status} ({tr.runtimeMs}ms)</span>
+                                </div>
+                                {tr.status !== "PASSED" && tr.actualOutput && (
+                                  <pre className="max-w-full overflow-auto rounded border border-red-900/60 bg-slate-950 p-2 text-[10px] text-red-300 whitespace-pre-wrap">
+                                    {tr.actualOutput}
+                                  </pre>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -650,16 +656,22 @@ export default function LabDetailPage() {
                         {submitResult.testResults && (
                           <div className="flex flex-wrap gap-2 text-[10px]">
                             {submitResult.testResults.map((tr: any, idx: number) => (
-                              <div 
-                                key={idx}
-                                className={`px-2 py-1 rounded flex items-center gap-1 border ${
-                                  tr.status === "PASSED"
-                                    ? "bg-emerald-950/40 text-emerald-400 border-emerald-900/60"
-                                    : "bg-red-950/40 text-red-400 border-red-900/60"
-                                }`}
-                              >
-                                {tr.status === "PASSED" ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
-                                <span>Test {idx + 1}: {tr.status} ({tr.runtimeMs}ms)</span>
+                              <div key={idx} className="space-y-1">
+                                <div
+                                  className={`px-2 py-1 rounded flex items-center gap-1 border ${
+                                    tr.status === "PASSED"
+                                      ? "bg-emerald-950/40 text-emerald-400 border-emerald-900/60"
+                                      : "bg-red-950/40 text-red-400 border-red-900/60"
+                                  }`}
+                                >
+                                  {tr.status === "PASSED" ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+                                  <span>Test {idx + 1}: {tr.status} ({tr.runtimeMs}ms)</span>
+                                </div>
+                                {tr.status !== "PASSED" && tr.actualOutput && (
+                                  <pre className="max-w-full overflow-auto rounded border border-red-900/60 bg-slate-950 p-2 text-[10px] text-red-300 whitespace-pre-wrap">
+                                    {tr.actualOutput}
+                                  </pre>
+                                )}
                               </div>
                             ))}
                           </div>
