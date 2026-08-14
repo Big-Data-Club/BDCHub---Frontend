@@ -78,6 +78,7 @@ export interface LabSubmission {
   totalTests: number;
   runtimeMs: number;
   memoryKb: number;
+  slurmJobId?: number;
   submittedAt: string;
   gradedAt?: string;
 }

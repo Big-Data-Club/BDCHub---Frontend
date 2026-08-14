@@ -191,6 +191,29 @@ export default function LabDetailPage() {
     }
   };
 
+  const handleSubmitHPCJob = async () => {
+    if (!code.trim()) {
+      toast.error("Please write a batch script before submitting.");
+      return;
+    }
+    setIsSubmitting(true);
+    setSubmitResult(null);
+    try {
+      const res = await labService.submitHPCJob(labId, {
+        script_content: code,
+      });
+      setSubmitResult(res.data);
+      toast.success(`Slurm job ${res.data.slurmJobId ?? ""} was queued.`);
+      const subRes = await labService.getMySubmissions(labId);
+      setSubmissions(subRes.items || []);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.message || err.message || "Failed to submit Slurm job.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Connect to real WebSocket terminal
   const connectWebSocket = async () => {
     try {
@@ -646,8 +669,50 @@ export default function LabDetailPage() {
                   </div>
                 )}
               </>
+            ) : lab.labType === "HPC" ? (
+              <>
+                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800 flex-shrink-0">
+                  <div className="flex items-center gap-2">
+                    <Cpu className="text-amber-400 h-4 w-4" />
+                    <span className="text-xs font-semibold text-slate-300">Slurm batch job</span>
+                  </div>
+                  <span className="inline-flex px-2.5 py-1 rounded-xl text-[10px] bg-amber-950/40 text-amber-300 border border-amber-900/60 font-mono">
+                    {lab.runtimeConfig?.hpc_profile_id || "Scheduler profile required"}
+                  </span>
+                </div>
+                <div className="px-5 py-3 border-b border-slate-800 bg-slate-950 text-[11px] text-slate-400 leading-relaxed">
+                  Submit an <code>sbatch</code> script. The lab&apos;s partition, account, QoS, time and resource caps are enforced by the server; no SSH password or interactive shell is exposed.
+                </div>
+                <div className="flex-1 min-h-0 relative">
+                  <textarea
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className="w-full h-full p-5 bg-slate-950 text-slate-100 font-mono text-sm leading-relaxed focus:outline-none resize-none no-scrollbar placeholder:text-slate-700"
+                    placeholder={'#!/bin/bash\nmodule load mpi\nsrun ./hello_mpi'}
+                    spellCheck="false"
+                  />
+                </div>
+                <div className="flex items-center justify-between px-5 py-3 bg-slate-950 border-t border-slate-800 flex-shrink-0">
+                  <span className="text-[10px] text-slate-500">The queue ID will appear after Slurm accepts the job.</span>
+                  <button
+                    onClick={handleSubmitHPCJob}
+                    disabled={isSubmitting}
+                    className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl px-4 py-2 text-xs shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                  >
+                    {isSubmitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={12} />}
+                    Submit to Slurm
+                  </button>
+                </div>
+                {(submitResult || isSubmitting) && (
+                  <div className="border-t border-slate-800 bg-slate-950 p-5 text-xs flex-shrink-0">
+                    {isSubmitting ? <span className="flex items-center gap-2 text-slate-400"><Loader2 size={14} className="animate-spin text-amber-400" />Submitting constrained job…</span> : (
+                      <span className="text-slate-300">Status: <strong className="text-amber-300">{submitResult.status}</strong>{submitResult.slurmJobId ? ` · Slurm job ${submitResult.slurmJobId}` : ""}</span>
+                    )}
+                  </div>
+                )}
+              </>
             ) : (
-              // ── Option B: Sandbox Interactive Terminal (For WORKSPACE and HPC labs) ──
+              // ── Option B: Sandbox Interactive Terminal (for non-HPC workspaces) ──
               <>
                 {/* Header Toolbars */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800 flex-shrink-0">

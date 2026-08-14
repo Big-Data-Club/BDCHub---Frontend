@@ -116,6 +116,7 @@ const mapSubmission = (raw: any): any => {
     totalTests: raw.total_tests,
     runtimeMs: raw.runtime_ms,
     memoryKb: raw.memory_kb,
+    slurmJobId: raw.slurm_job_id,
     compilerOutput: raw.compiler_output,
     submittedAt: raw.submitted_at,
   };
@@ -373,6 +374,20 @@ export const labService = {
       ...res,
       data: mapSubmission(res.data),
     };
+  },
+
+  submitHPCJob: async (labId: number, data: {
+    job_name?: string;
+    script_content: string;
+    num_nodes?: number;
+    num_tasks?: number;
+    cpus_per_task?: number;
+    memory_mb?: number;
+    gpu_count?: number;
+    max_time?: string;
+  }): Promise<SuccessResponse<any>> => {
+    const res = await labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/hpc-jobs`, data);
+    return { ...res, data: mapSubmission(res.data) };
   },
 
   getMySubmissions: async (labId: number, page = 1, pageSize = 20): Promise<any> => {

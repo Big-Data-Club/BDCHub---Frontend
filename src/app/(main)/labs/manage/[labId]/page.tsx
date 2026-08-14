@@ -98,7 +98,17 @@ export default function LabEditPage() {
     starterCode: {} as Record<string, string>,
     dbType: "POSTGRESQL",
     schemaSql: "",
-    seedSql: ""
+    seedSql: "",
+    hpcProfileId: "",
+    slurmPartition: "",
+    slurmAccount: "",
+    slurmQos: "",
+    slurmMaxTime: "01:00:00",
+    maxNodes: 1,
+    maxTasks: 1,
+    maxCpusPerTask: 1,
+    maxMemoryMb: 512,
+    maxGpuCount: 0
   });
 
   const fetchLabDetails = async () => {
@@ -132,7 +142,17 @@ export default function LabEditPage() {
           starterCode: runtime.starter_code || {},
           dbType: runtime.db_type || "POSTGRESQL",
           schemaSql: runtime.schema_sql || "",
-          seedSql: runtime.seed_sql || ""
+          seedSql: runtime.seed_sql || "",
+          hpcProfileId: runtime.hpc_profile_id || "",
+          slurmPartition: runtime.slurm_partition || "",
+          slurmAccount: runtime.slurm_account || "",
+          slurmQos: runtime.slurm_qos || "",
+          slurmMaxTime: runtime.slurm_max_time || "01:00:00",
+          maxNodes: runtime.max_nodes || 1,
+          maxTasks: runtime.max_tasks || 1,
+          maxCpusPerTask: runtime.max_cpus_per_task || 1,
+          maxMemoryMb: runtime.max_memory_mb || 512,
+          maxGpuCount: runtime.max_gpu_count || 0
         });
       }
     } catch (err) {
@@ -166,7 +186,17 @@ export default function LabEditPage() {
         starter_code: sandboxForm.starterCode,
         db_type: sandboxForm.dbType,
         schema_sql: sandboxForm.schemaSql,
-        seed_sql: sandboxForm.seedSql
+        seed_sql: sandboxForm.seedSql,
+        hpc_profile_id: sandboxForm.hpcProfileId,
+        slurm_partition: sandboxForm.slurmPartition,
+        slurm_account: sandboxForm.slurmAccount,
+        slurm_qos: sandboxForm.slurmQos,
+        slurm_max_time: sandboxForm.slurmMaxTime,
+        max_nodes: Number(sandboxForm.maxNodes) || 1,
+        max_tasks: Number(sandboxForm.maxTasks) || 1,
+        max_cpus_per_task: Number(sandboxForm.maxCpusPerTask) || 1,
+        max_memory_mb: Number(sandboxForm.maxMemoryMb) || 512,
+        max_gpu_count: Number(sandboxForm.maxGpuCount) || 0
       };
 
       await labService.updateLab(labId, {
@@ -1323,6 +1353,58 @@ export default function LabEditPage() {
 
               {(lab.labType === "WORKSPACE" || lab.labType === "HPC" || lab.labType === "CUSTOM") && (
                 <div className="space-y-6">
+                  {lab.labType === "HPC" && (
+                    <div className="space-y-5 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 dark:border-amber-900/60 dark:bg-amber-950/20">
+                      <div>
+                        <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200">Trusted Slurm scheduler</h3>
+                        <p className="mt-1 text-xs leading-relaxed text-amber-800/80 dark:text-amber-300/80">
+                          Select the profile installed by the HPC operator, then narrow the limits for this lab. Do not put an SSH host, password, private key or arbitrary remote command in this form.
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">HPC profile ID</label>
+                          <input required value={sandboxForm.hpcProfileId} onChange={(e) => setSandboxForm(prev => ({ ...prev, hpcProfileId: e.target.value }))}
+                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                            placeholder="e.g. hpcc-teaching-2026" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Maximum wall time</label>
+                          <input required value={sandboxForm.slurmMaxTime} onChange={(e) => setSandboxForm(prev => ({ ...prev, slurmMaxTime: e.target.value }))}
+                            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 font-mono text-sm text-slate-900 outline-none transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                            placeholder="01:00:00" />
+                        </div>
+                        {([
+                          ["Partition", "slurmPartition", "teaching"],
+                          ["Slurm account", "slurmAccount", "students"],
+                          ["QoS", "slurmQos", "teaching"],
+                        ] as const).map(([label, key, placeholder]) => (
+                          <div className="space-y-2" key={key}>
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</label>
+                            <input required value={sandboxForm[key]} onChange={(e) => setSandboxForm(prev => ({ ...prev, [key]: e.target.value }))}
+                              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                              placeholder={placeholder} />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+                        {([
+                          ["Max nodes", "maxNodes", 1, 1],
+                          ["Max tasks", "maxTasks", 1, 1],
+                          ["CPUs/task", "maxCpusPerTask", 1, 1],
+                          ["Memory (MB)", "maxMemoryMb", 64, 512],
+                          ["GPUs", "maxGpuCount", 0, 0],
+                        ] as const).map(([label, key, min, placeholder]) => (
+                          <div className="space-y-2" key={key}>
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{label}</label>
+                            <input type="number" min={min} value={sandboxForm[key]} onChange={(e) => setSandboxForm(prev => ({ ...prev, [key]: Number(e.target.value) }))}
+                              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition-all focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                              placeholder={String(placeholder)} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Compute Backend</label>
