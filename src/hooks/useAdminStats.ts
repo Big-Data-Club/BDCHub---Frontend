@@ -14,8 +14,8 @@ export function useAdminStats() {
     setLoading(true);
     setError(null);
     try {
-      // The admin endpoint includes every course status, but remains paginated.
-      // Load all pages so management/search is not limited to the first 20.
+      // The catalogue returns published courses only and remains paginated.
+      // Load all pages so management/search is not limited to the first 100.
       const firstPage = await lmsService.listPublishedCourses({ page: 1, page_size: 100 });
       const pagination = firstPage?.pagination;
       const remainingPages = Array.from(
