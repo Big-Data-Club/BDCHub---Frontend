@@ -14,9 +14,22 @@ export function useAdminStats() {
     setLoading(true);
     setError(null);
     try {
-      const coursesRes = await lmsService.listPublishedCourses();
+      // The admin endpoint includes every course status, but remains paginated.
+      // Load all pages so management/search is not limited to the first 20.
+      const firstPage = await lmsService.listPublishedCourses({ page: 1, page_size: 100 });
+      const pagination = firstPage?.pagination;
+      const remainingPages = Array.from(
+        { length: Math.max(0, (pagination?.total_pages ?? 1) - 1) },
+        (_, index) => index + 2,
+      );
+      const remainingResults = await Promise.all(
+        remainingPages.map((page) => lmsService.listPublishedCourses({ page, page_size: 100 })),
+      );
 
-      setCourses((coursesRes?.items || []) as Course[]);
+      setCourses([
+        ...((firstPage?.items || []) as Course[]),
+        ...remainingResults.flatMap((result) => (result?.items || []) as Course[]),
+      ]);
     } catch (err: any) {
       console.error("Failed to fetch admin stats:", err);
       setError(err.message || "Không thể tải dữ liệu quản trị");
