@@ -11,15 +11,8 @@ import {
 import {
   Card, Badge, PrimaryBtn, GhostBtn,
   EmptyState, PageLoader, Alert, TabBar, Spinner,
-  InfiniteScrollTrigger, GridBackground
+  InfiniteScrollTrigger, GridBackground, ConfirmModal, TeacherSummaryCard, FilterDropdown, TeacherHeader
 } from "@/components/lms/shared";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Course } from "@/types";
 import { cn } from "@/lib/utils";
 import { CourseTableRow, CourseMobileCard, formatDate } from "@/components/lms/teacher/CourseRowComponents";
@@ -129,48 +122,100 @@ export default function CoursesListPage() {
 
   useEffect(() => { load(filter); }, [filter, load]);
 
-  const handlePublish = async (course: Course) => {
+  // Confirm modal state
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    confirmText: string;
+    variant: "danger" | "warning" | "info";
+    onConfirm: () => Promise<void>;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    confirmText: "Xác nhận",
+    variant: "danger",
+    onConfirm: async () => {},
+  });
+
+  const handlePublish = (course: Course) => {
     const isDraft = course.status === "DRAFT";
-    if (!confirm(isDraft ? `Xuất bản khóa học "${course.title}"?` : `Gỡ xuất bản khóa học "${course.title}" về bản nháp?`)) return;
-    setPublishing(course.id);
-    try {
-      if (isDraft) {
-        await lmsService.publishCourse(course.id);
-        setCourses(prev => prev.map(c => c.id === course.id ? { ...c, status: "PUBLISHED" } : c));
-      } else {
-        // Toggle publish back to draft is supported by API
-        // For fallback if not supported, we load again
-        await lmsService.unarchiveCourse(course.id); // Or alternative unpublish call if backend supports it
-        await load(filter);
-      }
-    } catch { setError(isDraft ? "Không thể xuất bản." : "Không thể gỡ xuất bản."); }
-    finally { setPublishing(null); }
+    setConfirmConfig({
+      isOpen: true,
+      title: isDraft ? "Xuất bản khóa học" : "Gỡ xuất bản khóa học",
+      description: isDraft
+        ? `Bạn có chắc chắn muốn xuất bản khóa học "${course.title}" để tất cả học viên có thể học?`
+        : `Bạn có muốn gỡ xuất bản khóa học "${course.title}" về trạng thái bản nháp?`,
+      confirmText: isDraft ? "Xuất bản" : "Đưa về nháp",
+      variant: "info",
+      onConfirm: async () => {
+        setPublishing(course.id);
+        try {
+          if (isDraft) {
+            await lmsService.publishCourse(course.id);
+            setCourses(prev => prev.map(c => c.id === course.id ? { ...c, status: "PUBLISHED" } : c));
+          } else {
+            await lmsService.unarchiveCourse(course.id);
+            await load(filter);
+          }
+        } catch {
+          setError(isDraft ? "Không thể xuất bản." : "Không thể gỡ xuất bản.");
+        } finally {
+          setPublishing(null);
+          setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
-  const handleDelete = async (course: Course) => {
-    if (!confirm(`Xóa khóa học "${course.title}"? Hành động này không thể hoàn tác.`)) return;
-    setDeleting(course.id);
-    try {
-      await lmsService.deleteCourse(course.id);
-      setCourses(prev => prev.filter(c => c.id !== course.id));
-    } catch { setError("Không thể xóa khóa học."); }
-    finally { setDeleting(null); }
+  const handleDelete = (course: Course) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Xóa khóa học",
+      description: `Bạn có chắc chắn muốn xóa khóa học "${course.title}"? Hành động này không thể hoàn tác và dữ liệu học tập liên quan sẽ bị loại bỏ.`,
+      confirmText: "Xóa khóa học",
+      variant: "danger",
+      onConfirm: async () => {
+        setDeleting(course.id);
+        try {
+          await lmsService.deleteCourse(course.id);
+          setCourses(prev => prev.filter(c => c.id !== course.id));
+        } catch {
+          setError("Không thể xóa khóa học.");
+        } finally {
+          setDeleting(null);
+          setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
-  const handleArchive = async (course: Course) => {
+  const handleArchive = (course: Course) => {
     const restoring = course.status === "ARCHIVED";
-    const action = restoring ? "khôi phục" : "lưu trữ";
-    if (!confirm(`${restoring ? "Khôi phục" : "Lưu trữ"} khóa học "${course.title}"?${restoring ? " Người học có thể truy cập lại theo trạng thái trước đó." : " Tất cả người dùng sẽ không thể truy cập cho đến khi bạn khôi phục."}`)) return;
-    setArchiving(course.id);
-    try {
-      await (restoring ? lmsService.unarchiveCourse(course.id) : lmsService.archiveCourse(course.id));
-      setCourses(prev => prev.map(item => item.id === course.id ? { ...item, status: restoring ? "DRAFT" : "ARCHIVED" } : item));
-      if (restoring) await load(filter);
-    } catch {
-      setError(`Không thể ${action} khóa học.`);
-    } finally {
-      setArchiving(null);
-    }
+    const actionLabel = restoring ? "Khôi phục" : "Lưu trữ";
+    setConfirmConfig({
+      isOpen: true,
+      title: `${actionLabel} khóa học`,
+      description: restoring
+        ? `Khôi phục khóa học "${course.title}"? Người học có thể truy cập lại theo trạng thái trước đó.`
+        : `Lưu trữ khóa học "${course.title}"? Tất cả người dùng sẽ tạm thời không thể truy cập cho đến khi bạn khôi phục.`,
+      confirmText: actionLabel,
+      variant: restoring ? "info" : "warning",
+      onConfirm: async () => {
+        setArchiving(course.id);
+        try {
+          await (restoring ? lmsService.unarchiveCourse(course.id) : lmsService.archiveCourse(course.id));
+          setCourses(prev => prev.map(item => item.id === course.id ? { ...item, status: restoring ? "DRAFT" : "ARCHIVED" } : item));
+          if (restoring) await load(filter);
+        } catch {
+          setError(`Không thể ${restoring ? "khôi phục" : "lưu trữ"} khóa học.`);
+        } finally {
+          setArchiving(null);
+          setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
   };
 
   const allTags = Array.from(
@@ -224,134 +269,22 @@ export default function CoursesListPage() {
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-slate-50 dark:bg-[#050B18]">
-      {/* ── Premium Full-width Header synced with Teacher Dashboard Header ── */}
-      <div className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/20 dark:bg-[#070E1C]/20 backdrop-blur-xs py-4 md:py-5">
-        <GridBackground />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 w-full">
-          <div className="min-w-0 flex-1 lg:max-w-md">
-            <p className="text-xs text-blue-600 dark:text-cyan-400 uppercase tracking-widest font-extrabold mb-1">
-              Hệ thống quản lý học tập (LMS)
-            </p>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-              Khóa học của tôi
-            </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">
-              Quản lý danh sách khóa học của bạn, theo dõi trạng thái xuất bản và số lượng học viên.
-            </p>
-            <div className="mt-4 flex items-center gap-2 flex-wrap">
-              <GhostBtn
-                size="sm"
-                icon={<RefreshCw className="w-3.5 h-3.5" />}
-                onClick={() => load(filter)}
-                className="active:scale-95 border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
-              >
-                Làm mới
-              </GhostBtn>
-              <GhostBtn
-                size="sm"
-                icon={<Home className="w-3.5 h-3.5" />}
-                onClick={() => router.push("/lms/teacher")}
-                className="active:scale-95 border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-[#0D192E]/60 backdrop-blur-xs font-semibold"
-              >
-                Dashboard
-              </GhostBtn>
-              <PrimaryBtn
-                size="sm"
-                icon={<Plus className="w-3.5 h-3.5" />}
-                onClick={() => router.push("/lms/teacher/courses/create")}
-                className="active:scale-95 font-semibold"
-              >
-                Tạo khóa học
-              </PrimaryBtn>
-            </div>
-          </div>
-
-          {/* Teacher Summary Mirror Card */}
+      {/* ── Premium Full-width Header synced with Teacher Suite ── */}
+      <TeacherHeader
+        title="Khóa học của tôi"
+        description="Quản lý danh sách khóa học của bạn, theo dõi trạng thái xuất bản và số lượng học viên."
+        actions={
           <div className="w-full lg:max-w-xl xl:max-w-2xl flex-shrink-0">
-            <div className="group/card bg-white/80 dark:bg-[#0F1E35]/80 backdrop-blur-xs border border-slate-200/85 dark:border-blue-500/15 rounded-2xl p-4 shadow-xs hover:border-slate-355 dark:hover:border-blue-500/20 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.03)] dark:hover:shadow-[0_8px_30px_rgba(6,182,212,0.03)] w-full grid grid-cols-1 md:grid-cols-[1fr_1.25px_1fr] gap-x-6 gap-y-3 relative">
-              
-              {/* Left column: Courses status */}
-              <div className="md:col-start-1 flex flex-col justify-start">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-blue-50/80 text-blue-600 dark:bg-blue-950/60 dark:text-cyan-400 border border-blue-200/50 dark:border-cyan-500/20 group-hover/card:scale-105 transition-all duration-300">
-                    <BookOpen className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Trạng thái khóa học</h4>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-550 dark:text-slate-400 mt-2 font-medium">
-                  Tổng số: <span className="text-blue-600 dark:text-cyan-400 font-bold">{totalCoursesCount}</span> khóa học
-                </p>
-
-                <div className="h-2.5 w-full mt-3 rounded-full overflow-hidden flex bg-slate-200 dark:bg-[#080F1E]">
-                  {published > 0 && (
-                    <div style={{ width: `${publishedPercent}%` }} className="bg-emerald-500 dark:bg-emerald-400" title={`Đã xuất bản: ${published}`} />
-                  )}
-                  {draft > 0 && (
-                    <div style={{ width: `${draftPercent}%` }} className="bg-amber-500 dark:bg-amber-450" title={`Bản nháp: ${draft}`} />
-                  )}
-                  {archived > 0 && (
-                    <div style={{ width: `${archivedPercent}%` }} className="bg-slate-400 dark:bg-slate-550" title={`Đã lưu trữ: ${archived}`} />
-                  )}
-                </div>
-
-                <div className="grid grid-cols-3 gap-1 mt-4 pt-3 border-t border-slate-200/60 dark:border-blue-500/10">
-                  <div className="text-center">
-                    <span className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Xuất bản</span>
-                    <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">{published}</p>
-                  </div>
-                  <div className="text-center border-l border-slate-200/60 dark:border-blue-500/10">
-                    <span className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Bản nháp</span>
-                    <p className="text-sm font-extrabold text-amber-600 dark:text-amber-450 mt-0.5">{draft}</p>
-                  </div>
-                  <div className="text-center border-l border-slate-200/60 dark:border-blue-500/10">
-                    <span className="text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider block">Lưu trữ</span>
-                    <p className="text-sm font-extrabold text-slate-500 dark:text-slate-400 mt-0.5">{archived}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Vertical divider */}
-              <div className="hidden md:block md:col-start-2 w-[1.5px] bg-slate-200 dark:bg-blue-500/15 self-stretch my-1 transition-all duration-300 flex-shrink-0" />
-
-              {/* Right column: Learner Engagement */}
-              <div className="md:col-start-3 flex flex-col justify-start">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-50/80 text-purple-600 dark:bg-purple-950/65 dark:text-purple-300 border border-purple-200/50 dark:border-purple-500/20 group-hover/card:scale-105 transition-all duration-300">
-                    <Users className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-550 dark:text-slate-400">Tác động giảng dạy</h4>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-550 dark:text-slate-400 mt-2 font-medium">
-                  Tổng số học viên đã đăng ký
-                </p>
-
-                <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                    {totalEnrollments}
-                  </span>
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Học viên</span>
-                </div>
-
-                <div className="mt-auto border-t border-slate-200/60 dark:border-blue-500/10 pt-2 flex items-center justify-between text-xs text-slate-550 dark:text-slate-400 font-medium">
-                  <div className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse flex-shrink-0" />
-                    <span>Lớp đang hoạt động</span>
-                  </div>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">24/7 Live</span>
-                </div>
-              </div>
-
-            </div>
+            <TeacherSummaryCard
+              totalCourses={totalCoursesCount}
+              publishedCourses={published}
+              draftCourses={draft}
+              archivedCourses={archived}
+              totalStudents={totalEnrollments}
+            />
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 w-full flex-grow">
 
@@ -360,8 +293,8 @@ export default function CoursesListPage() {
         {/* Dynamic Filter / Sort Control Dashboard */}
         <Card className="p-5 border border-slate-200/80 dark:border-blue-500/10 bg-white/70 dark:bg-[#0F1E35]/65 backdrop-blur-md rounded-3xl">
           <div className="flex flex-col gap-5">
-            {/* Row 1: Clean TabBar directly on top */}
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-blue-500/5 pb-4">
+            {/* Row 1: Clean TabBar directly on top & Create Button */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-blue-500/5 pb-4">
               <TabBar
                 tabs={[
                   { id: "all" as StatusFilter,       label: "Tất cả",    badge: courses.length },
@@ -372,9 +305,19 @@ export default function CoursesListPage() {
                 active={filter}
                 onChange={setFilter}
               />
-              <span className="text-xs font-semibold text-slate-550 dark:text-slate-400 self-center hidden lg:block">
-                Hiển thị {sortedAndFilteredCourses.length} khóa học
-              </span>
+              <div className="flex items-center gap-3 self-end sm:self-center">
+                <span className="text-xs font-semibold text-slate-550 dark:text-slate-400 hidden lg:block">
+                  Hiển thị {sortedAndFilteredCourses.length} khóa học
+                </span>
+                <PrimaryBtn
+                  size="sm"
+                  icon={<Plus className="w-4 h-4" />}
+                  onClick={() => router.push("/lms/teacher/courses/create")}
+                  className="py-2 px-4 text-xs font-bold shadow-xs whitespace-nowrap"
+                >
+                  Tạo khóa học mới
+                </PrimaryBtn>
+              </div>
             </div>
 
             {/* Row 2: Filtering Controls Grid */}
@@ -403,60 +346,46 @@ export default function CoursesListPage() {
               </div>
 
               {/* Tag selector */}
-              <div className="w-full">
-                <Select value={selectedTag} onValueChange={(value) => setSelectedTag(value)}>
-                  <SelectTrigger className="w-full h-[42px] bg-slate-50 dark:bg-[#0D192E] border border-slate-200 dark:border-blue-500/15 focus:ring-2 focus:ring-blue-500/20 text-slate-800 dark:text-slate-100 transition-all rounded-xl text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-slate-400" />
-                      <SelectValue placeholder="Tất cả danh mục" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="dark:bg-[#0F1E35] dark:border-blue-500/15">
-                    <SelectItem value="all">Tất cả danh mục (tag)</SelectItem>
-                    {allTags.map(tag => (
-                      <SelectItem key={tag} value={tag}>{tag}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <FilterDropdown
+                value={selectedTag}
+                onValueChange={setSelectedTag}
+                icon={<Tag className="w-4 h-4 text-slate-400" />}
+                placeholder="Tất cả danh mục"
+                options={[
+                  { value: "all", label: "Tất cả danh mục (tag)" },
+                  ...allTags.map(tag => ({ value: tag, label: tag }))
+                ]}
+              />
 
               {/* Level selector */}
-              <div className="w-full">
-                <Select value={selectedLevel} onValueChange={(value) => setSelectedLevel(value)}>
-                  <SelectTrigger className="w-full h-[42px] bg-slate-50 dark:bg-[#0D192E] border border-slate-200 dark:border-blue-500/15 focus:ring-2 focus:ring-blue-500/20 text-slate-800 dark:text-slate-100 transition-all rounded-xl text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <Award className="w-4 h-4 text-slate-400" />
-                      <SelectValue placeholder="Tất cả cấp độ" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="dark:bg-[#0F1E35] dark:border-blue-500/15">
-                    <SelectItem value="all">Tất cả cấp độ</SelectItem>
-                    <SelectItem value="BEGINNER">Cơ bản</SelectItem>
-                    <SelectItem value="INTERMEDIATE">Trung cấp</SelectItem>
-                    <SelectItem value="ADVANCED">Nâng cao</SelectItem>
-                    <SelectItem value="ALL_LEVELS">Mọi cấp độ</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <FilterDropdown
+                value={selectedLevel}
+                onValueChange={setSelectedLevel}
+                icon={<Award className="w-4 h-4 text-slate-400" />}
+                placeholder="Tất cả cấp độ"
+                options={[
+                  { value: "all", label: "Tất cả cấp độ" },
+                  { value: "BEGINNER", label: "Cơ bản" },
+                  { value: "INTERMEDIATE", label: "Trung cấp" },
+                  { value: "ADVANCED", label: "Nâng cao" },
+                  { value: "ALL_LEVELS", label: "Mọi cấp độ" },
+                ]}
+              />
 
               {/* Sort selector */}
-              <div className="w-full">
-                <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-                  <SelectTrigger className="w-full h-[42px] bg-slate-50 dark:bg-[#0D192E] border border-slate-200 dark:border-blue-500/15 focus:ring-2 focus:ring-blue-500/20 text-slate-800 dark:text-slate-100 transition-all rounded-xl text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <ArrowUpDown className="w-4 h-4 text-slate-400" />
-                      <SelectValue placeholder="Sắp xếp" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="dark:bg-[#0F1E35] dark:border-blue-500/15">
-                    <SelectItem value="newest">Mới nhất trước</SelectItem>
-                    <SelectItem value="oldest">Cũ nhất trước</SelectItem>
-                    <SelectItem value="enrollments-desc">Nhiều học viên nhất</SelectItem>
-                    <SelectItem value="title-asc">Tên (A-Z)</SelectItem>
-                    <SelectItem value="title-desc">Tên (Z-A)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <FilterDropdown
+                value={sortBy}
+                onValueChange={(val) => setSortBy(val as SortOption)}
+                icon={<ArrowUpDown className="w-4 h-4 text-slate-400" />}
+                placeholder="Sắp xếp"
+                options={[
+                  { value: "newest", label: "Mới nhất trước" },
+                  { value: "oldest", label: "Cũ nhất trước" },
+                  { value: "enrollments-desc", label: "Nhiều học viên nhất" },
+                  { value: "title-asc", label: "Tên (A-Z)" },
+                  { value: "title-desc", label: "Tên (Z-A)" },
+                ]}
+              />
             </div>
           </div>
         </Card>
@@ -603,6 +532,18 @@ export default function CoursesListPage() {
             </>
           )}
         </Card>
+
+        {/* Global Confirm Modal for course management actions */}
+        <ConfirmModal
+          isOpen={confirmConfig.isOpen}
+          onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+          onConfirm={confirmConfig.onConfirm}
+          title={confirmConfig.title}
+          description={confirmConfig.description}
+          confirmText={confirmConfig.confirmText}
+          variant={confirmConfig.variant}
+          loading={publishing !== null || deleting !== null || archiving !== null}
+        />
 
       </div>
     </div>
