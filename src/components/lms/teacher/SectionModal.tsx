@@ -7,7 +7,7 @@ export function SectionModal({ courseId, section, onClose, onSuccess, existingSe
   courseId: number;
   section: Section | null;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (section: Section) => void;
   existingSections: Section[];
 }) {
   const [formData, setFormData] = useState({
@@ -24,11 +24,12 @@ export function SectionModal({ courseId, section, onClose, onSuccess, existingSe
       setLoading(true);
       if (section) {
         await lmsService.updateSection(section.id, formData);
+        onSuccess({ ...section, ...formData });
       } else {
-        await lmsService.createSection(courseId, formData);
+        const response = await lmsService.createSection(courseId, formData);
+        onSuccess(response.data as Section);
       }
       alert(section ? "Cập nhật chương thành công!" : "Tạo chương thành công!");
-      onSuccess();
     } catch (error: any) {
       alert(error.response?.data?.error || "Lỗi khi lưu chương");
     } finally {

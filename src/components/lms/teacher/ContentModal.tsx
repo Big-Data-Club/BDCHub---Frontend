@@ -75,7 +75,7 @@ interface ContentModalProps {
   sectionId: number;
   existingContents: Content[];
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (content: Content) => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -175,7 +175,7 @@ export default function ContentModal({
       }
 
       alert("Tạo nội dung thành công!");
-      onSuccess();
+      onSuccess(contentResponse.data as Content);
     } catch (err: any) {
       alert(err?.response?.data?.error || err?.message || "Lỗi khi tạo nội dung.");
     } finally {

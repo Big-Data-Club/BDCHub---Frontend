@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 interface EditContentModalProps {
   content: Content;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (content: Content) => void;
 }
 
 export default function EditContentModal({
@@ -274,7 +274,11 @@ export default function EditContentModal({
       }
 
       alert("Cập nhật nội dung thành công!");
-      onSuccess();
+      onSuccess({
+        ...content,
+        ...formData,
+        metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
+      });
     } catch (error: any) {
       console.error("Error updating content:", error);
       alert(error.response?.data?.error || "Lỗi khi cập nhật nội dung");

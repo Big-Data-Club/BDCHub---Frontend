@@ -45,7 +45,8 @@ export default function CourseContentPage() {
       <ContentTab
         courseId={id}
         sections={sections}
-        onSectionsChange={loadSections}
+        onSectionsChange={setSections}
+        onSectionsRefetch={loadSections}
       />
     </div>
   );

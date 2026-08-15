@@ -16,7 +16,7 @@
  * stays lean. Each modal is only fetched when the user triggers it.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import dynamic from "next/dynamic";
 import {
   Plus, Edit3, Upload, Eye, Trash2,
@@ -119,12 +119,13 @@ const CONTENT_ICON: Record<string, React.ReactNode> = {
 interface ContentTabProps {
   courseId: number;
   sections: Section[];
-  onSectionsChange: () => void;
+  onSectionsChange: Dispatch<SetStateAction<Section[]>>;
+  onSectionsRefetch: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabProps) {
+export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRefetch }: ContentTabProps) {
   const [expanded, setExpanded]   = useState<Set<number>>(new Set());
   const [sectionContents, setSectionContents] = useState<Record<number, Content[]>>({});
   const [loadingContent, setLoadingContent]   = useState<Record<number, boolean>>({});
@@ -170,7 +171,12 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
     try {
       const ids = localSections.map(s => s.id);
       await lmsService.reorderSections(courseId, ids);
-      onSectionsChange();
+      const reorderedSections = localSections.map((section, index) => ({
+        ...section,
+        order_index: index,
+      }));
+      setLocalSections(reorderedSections);
+      onSectionsChange(reorderedSections);
     } catch (err) {
       console.error("Reorder sections failed:", err);
       setLocalSections(sections);
@@ -209,7 +215,13 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
     try {
       const ids = currentItems.map(c => c.id);
       await lmsService.reorderContents(sectionId, ids);
-      await reloadSectionContent(sectionId);
+      setSectionContents(prev => ({
+        ...prev,
+        [sectionId]: currentItems.map((content, index) => ({
+          ...content,
+          order_index: index,
+        })),
+      }));
     } catch (err) {
       console.error("Reorder contents failed:", err);
       await reloadSectionContent(sectionId);
@@ -300,7 +312,20 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
   const deleteSection = async (id: number) => {
     if (!confirm("Xóa chương này? Tất cả nội dung bên trong cũng sẽ bị xóa.")) return;
     setDeletingSection(id);
-    try { await lmsService.deleteSection(id); onSectionsChange(); }
+    try {
+      await lmsService.deleteSection(id);
+      onSectionsChange(prev => prev.filter(section => section.id !== id));
+      setSectionContents(prev => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setExpanded(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
     finally { setDeletingSection(null); }
   };
 
@@ -666,7 +691,7 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
       )}
 
       {/* ── Modals ────────────────────────────────────────────────────────── */}
-      {showCourseRoutingModal && <CourseMaterialRoutingModal courseId={courseId} sections={sections} onClose={() => setShowCourseRoutingModal(false)} onSuccess={() => { setShowCourseRoutingModal(false); onSectionsChange(); Object.keys(sectionContents).forEach(id => reloadSectionContent(Number(id))); }} />}
+      {showCourseRoutingModal && <CourseMaterialRoutingModal courseId={courseId} sections={sections} onClose={() => setShowCourseRoutingModal(false)} onSuccess={() => { setShowCourseRoutingModal(false); onSectionsRefetch(); Object.keys(sectionContents).forEach(id => reloadSectionContent(Number(id))); }} />}
 
       {showSectionModal && (
         <SectionModal
@@ -674,7 +699,18 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
           section={editingSection}
           existingSections={sections}
           onClose={() => { setShowSectionModal(false); setEditingSection(null); }}
-          onSuccess={() => { setShowSectionModal(false); setEditingSection(null); onSectionsChange(); }}
+          onSuccess={(savedSection) => {
+            setShowSectionModal(false);
+            setEditingSection(null);
+            setExpanded(prev => new Set(prev).add(savedSection.id));
+            onSectionsChange(prev => {
+              const exists = prev.some(section => section.id === savedSection.id);
+              const next = exists
+                ? prev.map(section => section.id === savedSection.id ? savedSection : section)
+                : [...prev, savedSection];
+              return [...next].sort((a, b) => a.order_index - b.order_index);
+            });
+          }}
         />
       )}
 
@@ -683,9 +719,19 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
           sectionId={selectedSectionId}
           existingContents={sectionContents[selectedSectionId] ?? []}
           onClose={() => { setShowContentModal(false); setSelectedSectionId(null); }}
-          onSuccess={() => {
+          onSuccess={(createdContent) => {
             setShowContentModal(false);
-            if (selectedSectionId) reloadSectionContent(selectedSectionId);
+            if (selectedSectionId && Object.hasOwn(sectionContents, selectedSectionId)) {
+              setSectionContents(prev => ({
+                ...prev,
+                [selectedSectionId]: [...(prev[selectedSectionId] ?? []), createdContent]
+                  .sort((a, b) => a.order_index - b.order_index),
+              }));
+            } else if (selectedSectionId) {
+              // The section was collapsed, so its local content cache is not
+              // populated yet. Refresh only that one section.
+              reloadSectionContent(selectedSectionId);
+            }
             setSelectedSectionId(null);
           }}
         />
@@ -707,9 +753,14 @@ export function ContentTab({ courseId, sections, onSectionsChange }: ContentTabP
         <EditContentModal
           content={editingContent}
           onClose={() => { setShowEditContentModal(false); setEditingContent(null); }}
-          onSuccess={() => {
+          onSuccess={(updatedContent) => {
             setShowEditContentModal(false);
-            reloadSectionContent(editingContent.section_id);
+            setSectionContents(prev => ({
+              ...prev,
+              [updatedContent.section_id]: (prev[updatedContent.section_id] ?? []).map(content =>
+                content.id === updatedContent.id ? updatedContent : content
+              ),
+            }));
             setEditingContent(null);
           }}
         />
