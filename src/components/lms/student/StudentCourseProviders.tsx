@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 import lmsService from "@/services/lmsService";
 import progressService, { CourseProgress, ProgressDetailItem } from "@/services/progressService";
 import { useSetPageContext } from "@/hooks/usePageContext";
 import { Content, Course, Section } from "@/types";
 import { PageLoader } from "@/components/lms/shared";
+import { AlertCircle } from "lucide-react";
 
 import {
   StudentCourseNavigationContext,
@@ -33,19 +33,12 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
   const [sections, setSections] = useState<Section[]>([]);
   const [coTeachers, setCoTeachers] = useState<any[]>([]);
   
-  const { data: session } = useSession();
-  const userId = session?.user ? Number((session.user as any).id || (session.user as any).userId) : undefined;
-  const [userRoles, setUserRoles] = useState<string[]>([]);
-
-  useEffect(() => {
-    lmsService.getMyRoles().then(roles => setUserRoles(roles || [])).catch(() => {});
-  }, []);
-
   const [sectionContents, setSectionContents] = useState<Record<number, Content[]>>({});
   const [loadingSection, setLoadingSection] = useState<Record<number, boolean>>({});
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [activeContent, setActiveContent] = useState<Content | null>(null);
   const [loadingPage, setLoadingPage] = useState(true);
+  const [courseArchived, setCourseArchived] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // ── Progress state ──
@@ -189,7 +182,11 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
             loadSectionContentsInner(secs[0].id, true);
           }
         }
-      } catch {
+      } catch (error: any) {
+        if (error?.response?.data?.error === "course_archived") {
+          setCourseArchived(true);
+          return;
+        }
         router.back();
       } finally {
         setLoadingPage(false);
@@ -245,6 +242,18 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
 
   if (loadingPage) {
     return <PageLoader message="Đang tải khóa học..." />;
+  }
+
+  if (courseArchived) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-[#050B18]">
+        <section className="max-w-lg rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center shadow-sm dark:border-amber-900/60 dark:bg-amber-950/30">
+          <AlertCircle className="mx-auto h-10 w-10 text-amber-600 dark:text-amber-400" />
+          <h1 className="mt-4 text-lg font-bold text-amber-950 dark:text-amber-100">Khóa học tạm thời không khả dụng</h1>
+          <p className="mt-2 text-sm text-amber-900 dark:text-amber-200">Khóa học tạm thời bị vô hiệu hóa để xem xét lại nội dung vi phạm.</p>
+        </section>
+      </main>
+    );
   }
 
   return (

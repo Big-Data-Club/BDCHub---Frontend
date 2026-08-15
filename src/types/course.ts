@@ -96,6 +96,7 @@ export interface Enrollment {
   course_description?: string;
   course_category?: string;
   course_level?: string;
+  course_status?: CourseStatus;
   course_updated_at?: string;
   course_published_at?: string;
   last_activity_at?: string;

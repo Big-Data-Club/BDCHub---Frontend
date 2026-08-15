@@ -56,7 +56,11 @@ export function useStudentDashboard() {
       const enrollList = accepted || [];
       setAcceptedEnrollments(enrollList);
 
-      if (enrollList.length === 0) {
+      const availableEnrollments = enrollList.filter(
+        (enrollment: Enrollment) => enrollment.course_status !== "ARCHIVED",
+      );
+
+      if (availableEnrollments.length === 0) {
         setCourseRecommendations([]);
         setCourseRecommendationSetId(null);
         setSelectedCourseId(null);
@@ -66,12 +70,12 @@ export function useStudentDashboard() {
       try {
         const recommendationSet = await getRecommendations({
           surface: "dashboard",
-          limit: Math.min(50, Math.max(1, enrollList.length)),
+          limit: Math.min(50, Math.max(1, availableEnrollments.length)),
           goal: profile.target_career || undefined,
           interestedCategories: profile.interested_categories,
           experienceLevel: profile.experience_level || undefined,
           profileResolved: true,
-          candidates: enrollList.map((enrollment: Enrollment) => ({
+          candidates: availableEnrollments.map((enrollment: Enrollment) => ({
             entity_id: enrollment.course_id,
             title: enrollment.course_title ?? `Khóa học #${enrollment.course_id}`,
             description: enrollment.course_description,
@@ -101,9 +105,10 @@ export function useStudentDashboard() {
 
       // Select first course by default for analytics
       setSelectedCourseId((prev) => {
-        if (enrollList.length > 0 && !prev) {
-          return enrollList[0].course_id;
+        if (availableEnrollments.length > 0 && !prev) {
+          return availableEnrollments[0].course_id;
         }
+        if (prev && !availableEnrollments.some((enrollment) => enrollment.course_id === prev)) return availableEnrollments[0]?.course_id ?? null;
         return prev;
       });
     } catch (e) {
@@ -154,19 +159,24 @@ export function useStudentDashboard() {
 
   // ── Computed properties (useMemo for optimal rendering) ─────────────────────
 
+  const availableEnrollments = useMemo(
+    () => acceptedEnrollments.filter((e) => e.course_status !== "ARCHIVED"),
+    [acceptedEnrollments],
+  );
+
   const completedEnrollments = useMemo(
-    () => acceptedEnrollments.filter((e) => (e.progress_percent || 0) === 100),
-    [acceptedEnrollments]
+    () => availableEnrollments.filter((e) => (e.progress_percent || 0) === 100),
+    [availableEnrollments]
   );
 
   const inProgressEnrollments = useMemo(
-    () => acceptedEnrollments.filter((e) => (e.progress_percent || 0) > 0 && (e.progress_percent || 0) < 100),
-    [acceptedEnrollments]
+    () => availableEnrollments.filter((e) => (e.progress_percent || 0) > 0 && (e.progress_percent || 0) < 100),
+    [availableEnrollments]
   );
 
   const notStartedEnrollments = useMemo(
-    () => acceptedEnrollments.filter((e) => (e.progress_percent || 0) === 0),
-    [acceptedEnrollments]
+    () => availableEnrollments.filter((e) => (e.progress_percent || 0) === 0),
+    [availableEnrollments]
   );
 
   const filteredAndSortedEnrollments = useMemo(() => {
@@ -198,7 +208,7 @@ export function useStudentDashboard() {
   const completedCount = completedEnrollments.length;
   const inProgressCount = inProgressEnrollments.length;
   const notStartedCount = notStartedEnrollments.length;
-  const totalCount = acceptedEnrollments.length;
+  const totalCount = availableEnrollments.length;
 
   const completedPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   const inProgressPercent = totalCount > 0 ? Math.round((inProgressCount / totalCount) * 100) : 0;
@@ -206,7 +216,7 @@ export function useStudentDashboard() {
 
   const focusCourse = useMemo(() => {
     const recommendedCourseId = courseRecommendations[0]?.entity.course_id;
-    const recommendedCourse = acceptedEnrollments.find((enrollment) => enrollment.course_id === recommendedCourseId);
+    const recommendedCourse = availableEnrollments.find((enrollment) => enrollment.course_id === recommendedCourseId);
     if (recommendedCourse) return recommendedCourse;
     if (inProgressEnrollments.length > 0) {
       return inProgressEnrollments.reduce(
@@ -218,7 +228,7 @@ export function useStudentDashboard() {
       return notStartedEnrollments[0];
     }
     return null;
-  }, [acceptedEnrollments, courseRecommendations, inProgressEnrollments, notStartedEnrollments]);
+  }, [availableEnrollments, courseRecommendations, inProgressEnrollments, notStartedEnrollments]);
 
   const focusRecommendation = useMemo(
     () => courseRecommendations.find((item) => item.entity.course_id === focusCourse?.course_id) ?? null,
@@ -226,8 +236,8 @@ export function useStudentDashboard() {
   );
 
   const currentCourse = useMemo(
-    () => acceptedEnrollments.find((e) => e.course_id === selectedCourseId),
-    [acceptedEnrollments, selectedCourseId]
+    () => availableEnrollments.find((e) => e.course_id === selectedCourseId),
+    [availableEnrollments, selectedCourseId]
   );
 
   return {

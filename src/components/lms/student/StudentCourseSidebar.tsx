@@ -144,6 +144,7 @@ export function StudentCourseSidebar({
         <div className="max-h-[480px] lg:max-h-[calc(100vh-250px)] min-h-[200px] overflow-y-auto overflow-x-hidden overscroll-contain pl-3 pr-3.5 py-3 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-blue-900/50 space-y-3">
           {filteredAndSortedEnrollments.map((en) => {
             const isSelected = en.course_id === selectedCourseId;
+            const isArchived = en.course_status === "ARCHIVED";
             const recommendation = courseRecommendations.find(item => item.entity.course_id === en.course_id);
             return (
               <ProgressCard
@@ -156,8 +157,10 @@ export function StudentCourseSidebar({
                 isSelected={isSelected}
                 enrolledAt={en.accepted_at || en.enrolled_at}
                 recommendationBadge={recommendation?.badges[0]?.text}
-                onClick={() => setSelectedCourseId(en.course_id)}
-                onOpenDetails={() => onNavigateToCourse(en.course_id)}
+                isUnavailable={isArchived}
+                unavailableMessage={isArchived ? "Khóa học tạm thời bị vô hiệu hóa để xem xét lại nội dung vi phạm." : undefined}
+                onClick={() => !isArchived && setSelectedCourseId(en.course_id)}
+                onOpenDetails={() => !isArchived && onNavigateToCourse(en.course_id)}
               />
             );
           })}

@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, ChevronRight, Calendar } from "lucide-react";
+import { ChevronRight, Calendar } from "lucide-react";
 import { InteractiveGlowCard } from "./InteractiveGlowCard";
 import { ProgressBar } from "./ProgressBar";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,8 @@ interface ProgressCardProps {
   isSelected?: boolean;
   enrolledAt?: string;
   recommendationBadge?: string;
+  isUnavailable?: boolean;
+  unavailableMessage?: string;
   onClick?: () => void;
   onOpenDetails?: (e: React.MouseEvent) => void;
 }
@@ -36,7 +38,7 @@ const formatDate = (dateStr?: string) => {
       month: "2-digit",
       year: "numeric",
     });
-  } catch (e) {
+  } catch {
     return "";
   }
 };
@@ -50,16 +52,18 @@ export function ProgressCard({
   isSelected = false,
   enrolledAt,
   recommendationBadge,
+  isUnavailable = false,
+  unavailableMessage,
   onClick,
   onOpenDetails,
 }: ProgressCardProps) {
   return (
     <InteractiveGlowCard
       accentColor={isSelected ? "cyan" : "blue"}
-      interactive={true}
-      onClick={onClick}
+      interactive={!isUnavailable}
+      onClick={isUnavailable ? undefined : onClick}
       isSelected={isSelected}
-      className="transition-all duration-200"
+      className={cn("transition-all duration-200", isUnavailable && "opacity-70")}
       innerClassName="p-4"
     >
       <div className="flex flex-col gap-3">
@@ -70,6 +74,7 @@ export function ProgressCard({
               <Badge variant={progress === 100 ? "green" : progress > 0 ? "blue" : "gray"}>
                 {progress === 100 ? "Đã xong" : progress > 0 ? "Đang học" : "Chưa học"}
               </Badge>
+              {isUnavailable && <Badge variant="red">Tạm vô hiệu hóa</Badge>}
               {recommendationBadge && <Badge variant="purple">{recommendationBadge}</Badge>}
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">#{courseId}</span>
             </div>
@@ -117,7 +122,7 @@ export function ProgressCard({
           </div>
 
           {/* Nút hành động tròn đặt tinh tế ở góc phải, tự động đổi màu khi hover vào card */}
-          {onOpenDetails && (
+          {onOpenDetails && !isUnavailable && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -130,6 +135,12 @@ export function ProgressCard({
             </button>
           )}
         </div>
+
+        {isUnavailable && unavailableMessage && (
+          <p className="text-xs font-medium leading-relaxed text-rose-700 dark:text-rose-300">
+            {unavailableMessage}
+          </p>
+        )}
 
         {/* Phần tiến độ gọn gàng phía dưới */}
         <div className="pt-2 border-t border-slate-200 dark:border-blue-500/15 flex items-center justify-between gap-3">

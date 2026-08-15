@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Alert } from "@/components/lms/shared";
 import { StudentCourseSidebar } from "@/components/lms/student/StudentCourseSidebar";
@@ -57,6 +57,11 @@ export default function StudentDashboard() {
     currentCourse,
   } = useStudentDashboard();
 
+  const archivedEnrollments = useMemo(
+    () => acceptedEnrollments.filter((enrollment) => enrollment.course_status === "ARCHIVED"),
+    [acceptedEnrollments],
+  );
+
   return (
     <div className="flex flex-col min-h-screen w-full">
       {/* ── Header with Grid Background (Full-width, tràn viền) ── */}
@@ -88,6 +93,11 @@ export default function StudentDashboard() {
       <div ref={contentRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 flex-grow">
         {/* ── Error alert ── */}
         {error && <Alert type="error">{error}</Alert>}
+        {archivedEnrollments.length > 0 && (
+          <Alert type="error">
+            Khóa học tạm thời bị vô hiệu hóa để xem xét lại nội dung vi phạm.
+          </Alert>
+        )}
 
         {/* ── Dashboard Layout ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -96,7 +106,7 @@ export default function StudentDashboard() {
             <StudentCourseAnalytics
               selectedCourseId={selectedCourseId}
               currentCourseTitle={currentCourse?.course_title}
-              acceptedEnrollments={acceptedEnrollments}
+              acceptedEnrollments={acceptedEnrollments.filter((enrollment) => enrollment.course_status !== "ARCHIVED")}
               setSelectedCourseId={setSelectedCourseId}
               loadingAnalytics={loadingAnalytics}
               analyticsTab={analyticsTab}

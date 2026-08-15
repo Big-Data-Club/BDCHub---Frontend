@@ -123,6 +123,18 @@ class LMSService {
     return response.data?.data as PaginatedList;
   }
 
+  async listAllCoursesForAdmin(params?: {
+    status?: string;
+    category?: string;
+    level?: string;
+    search?: string;
+    page?: number;
+    page_size?: number;
+  }) {
+    const response = await lmsApiClient.get("/admin/courses", { params });
+    return response.data?.data as PaginatedList;
+  }
+
   // ─── Section ──────────────────────────────────────────────────────────────
 
   async createSection(

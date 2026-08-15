@@ -14,16 +14,16 @@ export function useAdminStats() {
     setLoading(true);
     setError(null);
     try {
-      // The catalogue returns published courses only and remains paginated.
-      // Load all pages so management/search is not limited to the first 100.
-      const firstPage = await lmsService.listPublishedCourses({ page: 1, page_size: 100 });
+      // Admin moderation uses its own endpoint, which includes draft and
+      // archived courses without changing the student catalogue's visibility.
+      const firstPage = await lmsService.listAllCoursesForAdmin({ page: 1, page_size: 100 });
       const pagination = firstPage?.pagination;
       const remainingPages = Array.from(
         { length: Math.max(0, (pagination?.total_pages ?? 1) - 1) },
         (_, index) => index + 2,
       );
       const remainingResults = await Promise.all(
-        remainingPages.map((page) => lmsService.listPublishedCourses({ page, page_size: 100 })),
+        remainingPages.map((page) => lmsService.listAllCoursesForAdmin({ page, page_size: 100 })),
       );
 
       setCourses([
