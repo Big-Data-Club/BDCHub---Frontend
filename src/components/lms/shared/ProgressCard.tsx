@@ -25,6 +25,7 @@ interface ProgressCardProps {
   recommendationBadge?: string;
   isUnavailable?: boolean;
   unavailableMessage?: string;
+  onUnavailableClick?: () => void;
   onClick?: () => void;
   onOpenDetails?: (e: React.MouseEvent) => void;
 }
@@ -54,14 +55,15 @@ export function ProgressCard({
   recommendationBadge,
   isUnavailable = false,
   unavailableMessage,
+  onUnavailableClick,
   onClick,
   onOpenDetails,
 }: ProgressCardProps) {
   return (
     <InteractiveGlowCard
       accentColor={isSelected ? "cyan" : "blue"}
-      interactive={!isUnavailable}
-      onClick={isUnavailable ? undefined : onClick}
+      interactive={!isUnavailable || Boolean(onUnavailableClick)}
+      onClick={isUnavailable ? onUnavailableClick : onClick}
       isSelected={isSelected}
       className={cn("transition-all duration-200", isUnavailable && "opacity-70")}
       innerClassName="p-4"

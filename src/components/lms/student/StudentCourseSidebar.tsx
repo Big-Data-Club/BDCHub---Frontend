@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { toast } from "react-hot-toast";
 import { BookOpen, Search } from "lucide-react";
 import {
   Select,
@@ -159,6 +160,7 @@ export function StudentCourseSidebar({
                 recommendationBadge={recommendation?.badges[0]?.text}
                 isUnavailable={isArchived}
                 unavailableMessage={isArchived ? "Khóa học tạm thời bị vô hiệu hóa để xem xét lại nội dung vi phạm." : undefined}
+                onUnavailableClick={isArchived ? () => toast.error("Khóa học tạm thời đóng để kiểm duyệt lại nội dung/bản quyền.", { duration: 5000 }) : undefined}
                 onClick={() => !isArchived && setSelectedCourseId(en.course_id)}
                 onOpenDetails={() => !isArchived && onNavigateToCourse(en.course_id)}
               />

@@ -9,7 +9,18 @@ import { toast } from "react-hot-toast";
 import { Course } from "@/types/course";
 
 export function AdminDashboard() {
-  const { courses, loading, error, refresh } = useAdminStats();
+  const {
+    courses,
+    loading,
+    error,
+    refresh,
+    page,
+    totalPages,
+    total,
+    statusFilter,
+    setPage,
+    setStatusFilter,
+  } = useAdminStats();
 
   const handleDeleteCourse = async (course: Course) => {
     const reason = window.prompt(
@@ -88,6 +99,12 @@ export function AdminDashboard() {
         courses={courses} 
         onDelete={handleDeleteCourse} 
         onArchive={handleArchiveCourse}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        statusFilter={statusFilter}
+        onPageChange={setPage}
+        onStatusFilterChange={setStatusFilter}
       />
     </div>
   );

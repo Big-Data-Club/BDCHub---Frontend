@@ -1,19 +1,36 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Edit2, Trash2, ArrowRight, Archive, ArchiveRestore } from "lucide-react";
+import { Search, Edit2, Trash2, ArrowRight, Archive, ArchiveRestore, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Course } from "@/types/course";
 import lmsService from "@/services/lmsService";
+import type { AdminCourseStatusFilter } from "@/hooks/useAdminStats";
 
 interface AdminCourseListProps {
   courses: Course[];
   onDelete: (course: Course) => void;
   onArchive: (course: Course) => void;
+  page: number;
+  totalPages: number;
+  total: number;
+  statusFilter: AdminCourseStatusFilter;
+  onPageChange: (page: number) => void;
+  onStatusFilterChange: (status: AdminCourseStatusFilter) => void;
 }
 
-export function AdminCourseList({ courses, onDelete, onArchive }: AdminCourseListProps) {
+export function AdminCourseList({
+  courses,
+  onDelete,
+  onArchive,
+  page,
+  totalPages,
+  total,
+  statusFilter,
+  onPageChange,
+  onStatusFilterChange,
+}: AdminCourseListProps) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -51,7 +68,7 @@ export function AdminCourseList({ courses, onDelete, onArchive }: AdminCourseLis
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-10">
         <div>
           <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">Quản Lý Khóa Học</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">Toàn bộ tài liệu và khóa học hiện có</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">{total} khóa học trong hệ thống</p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
@@ -67,6 +84,17 @@ export function AdminCourseList({ courses, onDelete, onArchive }: AdminCourseLis
                          text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:bg-white dark:focus:bg-zinc-800 focus:ring-4 focus:ring-zinc-100 dark:focus:ring-zinc-800/50 transition-all outline-none"
             />
           </div>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => onStatusFilterChange(e.target.value as AdminCourseStatusFilter)}
+            className="w-full sm:w-auto bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/30 rounded-2xl px-5 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-50 focus:bg-white dark:focus:bg-zinc-800 transition-all outline-none cursor-pointer appearance-none min-w-[160px]"
+          >
+            <option value="ALL">Mọi trạng thái</option>
+            <option value="DRAFT">Bản thảo</option>
+            <option value="PUBLISHED">Đã xuất bản</option>
+            <option value="ARCHIVED">Đã lưu trữ</option>
+          </select>
 
           {/* Category Filter */}
           <select
@@ -196,6 +224,28 @@ export function AdminCourseList({ courses, onDelete, onArchive }: AdminCourseLis
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="mt-6 flex items-center justify-between gap-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Trang {page}/{totalPages}</p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onPageChange(page - 1)}
+            disabled={page <= 1}
+            className="inline-flex items-center gap-1 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            <ChevronLeft className="h-4 w-4" /> Trước
+          </button>
+          <button
+            type="button"
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= totalPages}
+            className="inline-flex items-center gap-1 rounded-xl border border-zinc-200 px-3 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            Sau <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

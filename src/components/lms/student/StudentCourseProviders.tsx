@@ -151,8 +151,11 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
     (async () => {
       try {
         const targetContentId = initialContentId.current;
-        const [courseRes, sectionsRes, coTeachersRes, targetContentRes] = await Promise.all([
-          lmsService.getCourse(id),
+        // Check course availability before requesting dependent resources. When
+        // an archived course rejects, Promise.all used to race with sections
+        // and could redirect before the archive message was rendered.
+        const courseRes = await lmsService.getCourse(id);
+        const [sectionsRes, coTeachersRes, targetContentRes] = await Promise.all([
           lmsService.listSections(id),
           lmsService.getCoTeachers(id).catch(() => []),
           targetContentId
@@ -182,6 +185,8 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
             loadSectionContentsInner(secs[0].id, true);
           }
         }
+
+        await loadProgress();
       } catch (error: any) {
         if (error?.response?.data?.error === "course_archived") {
           setCourseArchived(true);
@@ -192,7 +197,6 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
         setLoadingPage(false);
       }
     })();
-    loadProgress();
   }, [id]); // eslint-disable-line
 
   // ── Push page context for AI sidebar ───────────────────────────────────────
