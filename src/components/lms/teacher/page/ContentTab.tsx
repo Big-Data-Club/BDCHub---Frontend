@@ -4,115 +4,22 @@
  * ContentTab
  *
  * Manages the full section → content tree for a course.
- * Extracted from the old monolithic [courseId]/page.tsx so it can be
- * mounted as a standalone page and independently loaded/refreshed.
- *
- * Props:
- *   courseId          – parent course id
- *   sections          – pre-fetched sections list (owner manages refresh)
- *   onSectionsChange  – called after any section create/update/delete
- *
- * Heavy modals are lazy-loaded via next/dynamic so the initial chunk
- * stays lean. Each modal is only fetched when the user triggers it.
+ * Modularized into:
+ * - ContentTabHeader
+ * - SectionItemCard & ContentRowItem
+ * - ContentTabModals
  */
 
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import dynamic from "next/dynamic";
-import {
-  Plus, Edit3, Upload, Eye, Trash2,
-  Play, FileText, HelpCircle, MessageSquare,
-  Megaphone, Image as ImageIcon, File,
-  ChevronDown, ChevronRight, Sparkles, History, BookOpen,
-  GripVertical,
-} from "lucide-react";
+import { Plus, FileText } from "lucide-react";
 import lmsService from "@/services/lmsService";
-import { SectionModal } from "@/components/lms/teacher/SectionModal";
-import { AIIndexButton } from "@/components/lms/teacher/ai/AIIndexButton";
 import { AIIndexPollerProvider } from "@/hooks/useAIIndexPoller";
-import {
-  Badge, ContentTypeBadge, EmptyState, PrimaryBtn, Spinner,
-} from "@/components/lms/shared";
+import { Alert, EmptyState, PrimaryBtn } from "@/components/lms/shared";
 import { Content, Section } from "@/types";
 
-// ─── Lazy-loaded heavy modals (only fetched when opened) ──────────────────────
-
-const ContentViewer = dynamic(
-  () => import("@/components/lms/student/ContentViewer"),
-  { ssr: false },
-);
-
-const ContentModal = dynamic(
-  () => import("@/components/lms/teacher/ContentModal").then(m => ({ default: m.default })),
-  { ssr: false },
-);
-
-const EditContentModal = dynamic(
-  () => import("@/components/lms/teacher/EditContentModal").then(m => ({ default: m.default })),
-  { ssr: false },
-);
-
-const BulkUploadModal = dynamic(
-  () => import("@/components/lms/teacher/upload/BulkUploadModal").then(m => ({ default: m.default })),
-  { ssr: false },
-);
-const CourseMaterialRoutingModal = dynamic(() => import("@/components/lms/teacher/upload/CourseMaterialRoutingModal"), { ssr: false });
-
-const GenerateMicroLessonsModal = dynamic(
-  () => import("@/components/lms/teacher/micro/GenerateMicroLessonsModal").then(m => ({ default: m.GenerateMicroLessonsModal })),
-  { ssr: false },
-);
-
-const MicroLessonsDrawer = dynamic(
-  () => import("@/components/lms/teacher/micro/MicroLessonsDrawer").then(m => ({ default: m.MicroLessonsDrawer })),
-  { ssr: false },
-);
-
-const MicroLessonHistoryModal = dynamic(
-  () => import("@/components/lms/teacher/micro/MicroLessonHistoryModal").then(m => ({ default: m.MicroLessonHistoryModal })),
-  { ssr: false },
-);
-
-const GenerateMicroQuizzesModal = dynamic(
-  () => import("@/components/lms/teacher/micro/GenerateMicroQuizzesModal").then(m => ({ default: m.GenerateMicroQuizzesModal })),
-  { ssr: false },
-);
-
-const MicroQuizzesDrawer = dynamic(
-  () => import("@/components/lms/teacher/micro/MicroQuizzesDrawer").then(m => ({ default: m.MicroQuizzesDrawer })),
-  { ssr: false },
-);
-
-const MicroQuizHistoryModal = dynamic(
-  () => import("@/components/lms/teacher/micro/MicroQuizHistoryModal").then(m => ({ default: m.MicroQuizHistoryModal })),
-  { ssr: false },
-);
-
-const GenerateSectionOverviewModal = dynamic(
-  () => import("@/components/lms/teacher/overview/GenerateSectionOverviewModal").then(m => ({ default: m.GenerateSectionOverviewModal })),
-  { ssr: false },
-);
-
-const SectionOverviewDrawer = dynamic(
-  () => import("@/components/lms/teacher/overview/SectionOverviewDrawer").then(m => ({ default: m.SectionOverviewDrawer })),
-  { ssr: false },
-);
-
-const SectionOverviewHistoryModal = dynamic(
-  () => import("@/components/lms/teacher/overview/SectionOverviewHistoryModal").then(m => ({ default: m.SectionOverviewHistoryModal })),
-  { ssr: false },
-);
-
-// ─── Content type icon map ────────────────────────────────────────────────────
-
-const CONTENT_ICON: Record<string, React.ReactNode> = {
-  VIDEO:        <Play className="w-3.5 h-3.5" />,
-  DOCUMENT:     <FileText className="w-3.5 h-3.5" />,
-  IMAGE:        <ImageIcon className="w-3.5 h-3.5" />,
-  TEXT:         <FileText className="w-3.5 h-3.5" />,
-  QUIZ:         <HelpCircle className="w-3.5 h-3.5" />,
-  FORUM:        <MessageSquare className="w-3.5 h-3.5" />,
-  ANNOUNCEMENT: <Megaphone className="w-3.5 h-3.5" />,
-};
+import { ContentTabHeader } from "./ContentTabHeader";
+import { SectionItemCard } from "./SectionItemCard";
+import { ContentTabModals } from "./ContentTabModals";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -141,34 +48,77 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
   } | null>(null);
   const [canDragContent, setCanDragContent] = useState<number | null>(null);
 
+  // ── Content loading ─────────────────────────────────────────────────────────
+
+  const reloadSectionContent = useCallback(async (sectionId: number) => {
+    setLoadingContent(prev => ({ ...prev, [sectionId]: true }));
+    try {
+      const res = await lmsService.listContent(sectionId);
+      setSectionContents(prev => ({ ...prev, [sectionId]: res?.data ?? [] }));
+    } finally {
+      setLoadingContent(prev => ({ ...prev, [sectionId]: false }));
+    }
+  }, []);
+
+  const loadContents = useCallback(async (sectionId: number) => {
+    if (sectionContents[sectionId]) return;
+    setLoadingContent(prev => ({ ...prev, [sectionId]: true }));
+    try {
+      const res = await lmsService.listContent(sectionId);
+      setSectionContents(prev => ({ ...prev, [sectionId]: res?.data ?? [] }));
+    } finally {
+      setLoadingContent(prev => ({ ...prev, [sectionId]: false }));
+    }
+  }, [sectionContents]);
+
+  // Initial expansion & section load sync: expand all when sections are loaded
   useEffect(() => {
-    setLocalSections(sections);
+    if (sections.length > 0) {
+      setLocalSections(sections);
+      setExpanded(prev => {
+        if (prev.size === 0) {
+          const allIds = new Set(sections.map(s => s.id));
+          sections.forEach(s => {
+            lmsService.listContent(s.id).then(res => {
+              setSectionContents(pc => ({ ...pc, [s.id]: res?.data ?? [] }));
+            }).catch(() => {});
+          });
+          return allIds;
+        }
+        return prev;
+      });
+    }
   }, [sections]);
+
+  const [reorderError, setReorderError] = useState<string | null>(null);
 
   // ── Drag & Drop Handlers for Sections ──────────────────────────────────────
 
-  const handleSectionDragStart = (e: React.DragEvent, index: number) => {
+  const handleSectionDragStart = useCallback((e: React.DragEvent, index: number) => {
     e.dataTransfer.effectAllowed = "move";
     setDraggedSecIndex(index);
-  };
+  }, []);
 
-  const handleSectionDragOver = (e: React.DragEvent, index: number) => {
+  const handleSectionDragOver = useCallback((e: React.DragEvent, index: number) => {
     e.preventDefault();
-    if (draggedSecIndex === null || draggedSecIndex === index) return;
+    setDraggedSecIndex(prevDragged => {
+      if (prevDragged === null || prevDragged === index) return prevDragged;
+      setLocalSections(prevSections => {
+        const updated = [...prevSections];
+        const [draggedItem] = updated.splice(prevDragged, 1);
+        updated.splice(index, 0, draggedItem);
+        return updated;
+      });
+      return index;
+    });
+  }, []);
 
-    const updated = [...localSections];
-    const [draggedItem] = updated.splice(draggedSecIndex, 1);
-    updated.splice(index, 0, draggedItem);
-
-    setDraggedSecIndex(index);
-    setLocalSections(updated);
-  };
-
-  const handleSectionDragEnd = async () => {
+  const handleSectionDragEnd = useCallback(async () => {
     setDraggedSecIndex(null);
     setCanDragSection(false);
 
     try {
+      setReorderError(null);
       const ids = localSections.map(s => s.id);
       await lmsService.reorderSections(courseId, ids);
       const reorderedSections = localSections.map((section, index) => ({
@@ -179,40 +129,40 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
       onSectionsChange(reorderedSections);
     } catch (err) {
       console.error("Reorder sections failed:", err);
+      setReorderError("Không thể thay đổi thứ tự chương. Đang khôi phục lại...");
       setLocalSections(sections);
+      setTimeout(() => setReorderError(null), 4000);
     }
-  };
+  }, [courseId, localSections, onSectionsChange, sections]);
 
   // ── Drag & Drop Handlers for Contents ──────────────────────────────────────
 
-  const handleContentDragStart = (e: React.DragEvent, sectionId: number, index: number) => {
+  const handleContentDragStart = useCallback((e: React.DragEvent, sectionId: number, index: number) => {
     e.dataTransfer.effectAllowed = "move";
     setDraggedContentInfo({ sectionId, index });
-  };
+  }, []);
 
-  const handleContentDragOver = (e: React.DragEvent, sectionId: number, index: number) => {
+  const handleContentDragOver = useCallback((e: React.DragEvent, sectionId: number, index: number) => {
     e.preventDefault();
-    if (!draggedContentInfo) return;
-    if (draggedContentInfo.sectionId !== sectionId) return;
-    if (draggedContentInfo.index === index) return;
+    setDraggedContentInfo(prevInfo => {
+      if (!prevInfo || prevInfo.sectionId !== sectionId || prevInfo.index === index) return prevInfo;
+      setSectionContents(prevContents => {
+        const sectionItems = [...(prevContents[sectionId] ?? [])];
+        const [draggedItem] = sectionItems.splice(prevInfo.index, 1);
+        sectionItems.splice(index, 0, draggedItem);
+        return { ...prevContents, [sectionId]: sectionItems };
+      });
+      return { sectionId, index };
+    });
+  }, []);
 
-    const sectionItems = [...(sectionContents[sectionId] ?? [])];
-    const [draggedItem] = sectionItems.splice(draggedContentInfo.index, 1);
-    sectionItems.splice(index, 0, draggedItem);
-
-    setSectionContents(prev => ({
-      ...prev,
-      [sectionId]: sectionItems,
-    }));
-    setDraggedContentInfo({ sectionId, index });
-  };
-
-  const handleContentDragEnd = async (sectionId: number) => {
+  const handleContentDragEnd = useCallback(async (sectionId: number) => {
     setDraggedContentInfo(null);
     setCanDragContent(null);
 
     const currentItems = sectionContents[sectionId] ?? [];
     try {
+      setReorderError(null);
       const ids = currentItems.map(c => c.id);
       await lmsService.reorderContents(sectionId, ids);
       setSectionContents(prev => ({
@@ -224,9 +174,11 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
       }));
     } catch (err) {
       console.error("Reorder contents failed:", err);
+      setReorderError("Không thể thay đổi thứ tự bài học. Đang tải lại...");
       await reloadSectionContent(sectionId);
+      setTimeout(() => setReorderError(null), 4000);
     }
-  };
+  }, [sectionContents, reloadSectionContent]);
 
   // Modal state
   const [showSectionModal, setShowSectionModal]       = useState(false);
@@ -264,38 +216,6 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
   const [overviewSectionId, setOverviewSectionId]       = useState<number | null>(null);
   const [overviewSectionTitle, setOverviewSectionTitle] = useState("");
   const [activeOverviewJobId, setActiveOverviewJobId]   = useState<number | null>(null);
-
-  // ── Content loading ─────────────────────────────────────────────────────────
-
-  const loadContents = useCallback(async (sectionId: number) => {
-    if (sectionContents[sectionId]) return;
-    setLoadingContent(prev => ({ ...prev, [sectionId]: true }));
-    try {
-      const res = await lmsService.listContent(sectionId);
-      setSectionContents(prev => ({ ...prev, [sectionId]: res?.data ?? [] }));
-    } finally {
-      setLoadingContent(prev => ({ ...prev, [sectionId]: false }));
-    }
-  }, [sectionContents]);
-
-  // Initial expansion: expand all when sections are loaded
-  useEffect(() => {
-    if (sections.length > 0 && expanded.size === 0) {
-      const allIds = sections.map(s => s.id);
-      setExpanded(new Set(allIds));
-      allIds.forEach(id => loadContents(id));
-    }
-  }, [sections, loadContents]); // eslint-disable-line
-
-  const reloadSectionContent = useCallback(async (sectionId: number) => {
-    setLoadingContent(prev => ({ ...prev, [sectionId]: true }));
-    try {
-      const res = await lmsService.listContent(sectionId);
-      setSectionContents(prev => ({ ...prev, [sectionId]: res?.data ?? [] }));
-    } finally {
-      setLoadingContent(prev => ({ ...prev, [sectionId]: false }));
-    }
-  }, []);
 
   // ── Toggle section expand ───────────────────────────────────────────────────
 
@@ -343,7 +263,6 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
 
   // ── onIndexed callback for the batch poller ─────────────────────────────────
   const handleContentIndexed = useCallback((contentId: number) => {
-    // Find which section this content belongs to and reload it
     for (const [sectionId, contents] of Object.entries(sectionContents)) {
       if ((contents as Content[]).some(c => c.id === contentId)) {
         reloadSectionContent(Number(sectionId));
@@ -356,543 +275,188 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
 
   return (
     <AIIndexPollerProvider onIndexed={handleContentIndexed}>
-    <div className="space-y-4">
-      {/* Top action bar */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <p className="text-sm text-slate-500 dark:text-slate-500">
-          {sections.length} chương
-        </p>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setShowCourseRoutingModal(true)} disabled={!sections.length} className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"><Upload className="h-4 w-4"/>Upload chung + AI phân chương</button>
-          <button
-            onClick={() => setShowMicroHistoryModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
-            title="Xem lại các tiến trình tạo bài học micro"
-          >
-            <History className="w-4 h-4" />
-            Lịch sử Lesson
-          </button>
-          <button
-            onClick={() => setShowQuizHistoryModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
-            title="Xem lại các tiến trình tạo bài quiz micro"
-          >
-            <History className="w-4 h-4" />
-            Lịch sử Quiz
-          </button>
-          <button
-            onClick={() => {
-              setMicroPresetContentId(undefined);
-              setMicroPresetSectionId(undefined);
-              setShowMicroModal(true);
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white transition-colors"
-            title="AI sẽ phân tích tài liệu và chia thành các bài học ngắn ~5 phút"
-          >
-            <Sparkles className="w-4 h-4" />
-            Tạo bài học micro
-          </button>
-          <button
-            onClick={() => {
-              setQuizPresetContentId(undefined);
-              setQuizPresetSectionId(undefined);
-              setShowQuizModal(true);
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
-            title="AI sẽ tạo bộ câu hỏi trắc nghiệm bao quát toàn bộ kiến thức"
-          >
-            <HelpCircle className="w-4 h-4" />
-            Tạo micro quiz
-          </button>
-          <PrimaryBtn
-            size="sm"
-            icon={<Plus className="w-4 h-4" />}
-            onClick={() => { setEditingSection(null); setShowSectionModal(true); }}
-          >
-            Thêm chương
-          </PrimaryBtn>
-        </div>
-      </div>
+      <div className="space-y-4">
+        {reorderError && (
+          <Alert type="error">
+            {reorderError}
+          </Alert>
+        )}
 
-      {/* Empty state */}
-      {sections.length === 0 ? (
-        <EmptyState
-          icon={<FileText className="w-10 h-10" />}
-          title="Chưa có chương nào"
-          description="Tạo chương đầu tiên để bắt đầu thêm nội dung."
-          action={
-            <PrimaryBtn
-              size="sm"
-              icon={<Plus className="w-4 h-4" />}
-              onClick={() => setShowSectionModal(true)}
-            >
-              Tạo chương đầu tiên
-            </PrimaryBtn>
-          }
-        />
-      ) : (
-        <div className="space-y-3">
-          {localSections.map((sec, i) => {
-            const isExpanded  = expanded.has(sec.id);
-            const contents    = sectionContents[sec.id] ?? [];
-            const isLoadingC  = loadingContent[sec.id];
-
-            return (
-              <div
-                key={sec.id}
-                draggable={canDragSection}
-                onDragStart={(e) => handleSectionDragStart(e, i)}
-                onDragOver={(e) => handleSectionDragOver(e, i)}
-                onDragEnd={handleSectionDragEnd}
-                className={`rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 transition-all duration-200 ${
-                  draggedSecIndex === i ? "opacity-45 border-dashed border-blue-400 dark:border-blue-800" : ""
-                }`}
-              >
-                {/* ── Section header ── */}
-                <div
-                  className="flex items-center gap-3 px-5 py-4 bg-slate-50 dark:bg-slate-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  onClick={() => toggle(sec.id)}
-                >
-                  {/* Grip handle */}
-                  <div
-                    className="p-1 cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                    onMouseDown={() => setCanDragSection(true)}
-                    onMouseUp={() => setCanDragSection(false)}
-                    onMouseLeave={() => setCanDragSection(false)}
-                  >
-                    <GripVertical className="w-4 h-4" />
-                  </div>
-
-                  {/* Index badge */}
-                  <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold flex-shrink-0 border border-blue-200 dark:border-blue-800">
-                    {i + 1}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-900 dark:text-slate-50 truncate">
-                      {sec.title}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      {isExpanded
-                        ? `${contents.length} nội dung`
-                        : sec.description || "Nhấn để xem nội dung"}
-                    </p>
-                  </div>
-
-                  {/* Section actions */}
-                  <div
-                    className="flex items-center gap-1"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    {/* Add content */}
-                    <button
-                      title="Thêm nội dung"
-                      className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-500 transition-colors"
-                      onClick={() => { setSelectedSectionId(sec.id); setShowContentModal(true); }}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-
-                    {/* Bulk upload */}
-                    <button
-                      title="Upload nhiều file"
-                      className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-500 transition-colors"
-                      onClick={() => { setSelectedSectionId(sec.id); setShowBulkModal(true); }}
-                    >
-                      <Upload className="w-4 h-4" />
-                    </button>
-
-                    {/* Edit section */}
-                    <button
-                      title="Sửa chương"
-                      className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-500 transition-colors"
-                      onClick={() => { setEditingSection(sec); setShowSectionModal(true); }}
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-
-                    {/* Delete section */}
-                    <button
-                      title="Xóa chương"
-                      disabled={deletingSection === sec.id}
-                      className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors"
-                      onClick={() => deleteSection(sec.id)}
-                    >
-                      {deletingSection === sec.id
-                        ? <Spinner className="w-4 h-4 border-2" />
-                        : <Trash2 className="w-4 h-4" />}
-                    </button>
-
-                    {/* Section overview */}
-                    <button
-                      title="Tạo bài học & quiz tổng quan chương"
-                      className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-indigo-500 transition-colors"
-                      onClick={() => {
-                        setOverviewSectionId(sec.id);
-                        setOverviewSectionTitle(sec.title);
-                        setShowOverviewModal(true);
-                      }}
-                    >
-                      <BookOpen className="w-4 h-4" />
-                    </button>
-
-                    {/* Lịch sử tổng quan */}
-                    <button
-                      title="Lịch sử tạo tổng quan chương"
-                      className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-500 transition-colors"
-                      onClick={() => {
-                        setOverviewSectionId(sec.id);
-                        setOverviewSectionTitle(sec.title);
-                        setShowOverviewHistoryModal(true);
-                      }}
-                    >
-                      <History className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {isExpanded
-                    ? <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    : <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />}
-                </div>
-
-                {/* ── Content list ── */}
-                {isExpanded && (
-                  <div>
-                    {isLoadingC ? (
-                      <div className="px-5 py-4 space-y-2">
-                        {[0, 1, 2].map(k => (
-                          <div key={k} className="h-8 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
-                        ))}
-                      </div>
-                    ) : contents.length === 0 ? (
-                      <div className="px-5 py-6 text-center">
-                        <p className="text-sm text-slate-400 dark:text-slate-500">
-                          Chưa có nội dung. Nhấn&nbsp;
-                          <span className="font-semibold">+</span>
-                          &nbsp;để thêm.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {contents.map((c, ci) => (
-                          <div
-                            key={c.id}
-                            draggable={canDragContent === c.id}
-                            onDragStart={(e) => handleContentDragStart(e, sec.id, ci)}
-                            onDragOver={(e) => handleContentDragOver(e, sec.id, ci)}
-                            onDragEnd={() => handleContentDragEnd(sec.id)}
-                            className={`flex items-center gap-3 px-5 py-3 group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all duration-200 ${
-                              draggedContentInfo?.sectionId === sec.id && draggedContentInfo?.index === ci
-                                ? "opacity-45 bg-blue-50/50 dark:bg-blue-950/20"
-                                : ""
-                            }`}
-                          >
-                            {/* Grip handle */}
-                            <div
-                              className="p-1 cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                              onMouseDown={() => setCanDragContent(c.id)}
-                              onMouseUp={() => setCanDragContent(null)}
-                              onMouseLeave={() => setCanDragContent(null)}
-                            >
-                              <GripVertical className="w-3.5 h-3.5" />
-                            </div>
-
-                            {/* Index */}
-                            <span className="text-slate-400 dark:text-slate-500 flex-shrink-0 w-4 text-xs text-right">
-                              {ci + 1}
-                            </span>
-
-                            {/* Type icon */}
-                            <span className="text-slate-400 dark:text-slate-500 flex-shrink-0">
-                              {CONTENT_ICON[c.type] ?? <File className="w-3.5 h-3.5" />}
-                            </span>
-
-                            <p className="flex-1 text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
-                              {c.title}
-                            </p>
-
-                            <ContentTypeBadge type={c.type} />
-                            {c.is_mandatory && <Badge variant="yellow">Bắt buộc</Badge>}
-
-                            {/* AI Index */}
-                            <div className="ml-2">
-                              <AIIndexButton
-                                contentId={c.id}
-                                contentType={c.type}
-                                filePath={c.metadata?.file_path || null}
-                                initialStatus={c.ai_index_status || "not_indexed"}
-                              />
-                            </div>
-
-                            {/* Hover actions */}
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              {(c.type === "DOCUMENT" || c.type === "VIDEO" || c.type === "IMAGE") && (
-                                <>
-                                  <button
-                                    title="Tạo bài học micro từ file này"
-                                    className="p-1.5 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-950/30 text-violet-600 dark:text-violet-400"
-                                    onClick={() => {
-                                      setMicroPresetContentId(c.id);
-                                      setMicroPresetSectionId(sec.id);
-                                      setShowMicroModal(true);
-                                    }}
-                                  >
-                                    <Sparkles className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    title="Tạo micro quiz từ file này"
-                                    className="p-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400"
-                                    onClick={() => {
-                                      setQuizPresetContentId(c.id);
-                                      setQuizPresetSectionId(sec.id);
-                                      setShowQuizModal(true);
-                                    }}
-                                  >
-                                    <HelpCircle className="w-3.5 h-3.5" />
-                                  </button>
-                                </>
-                              )}
-                              <button
-                                title="Xem nội dung"
-                                className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500"
-                                onClick={() => { setViewingContent(c); setShowContentViewer(true); }}
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                title="Chỉnh sửa"
-                                className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500"
-                                onClick={() => { setEditingContent(c); setShowEditContentModal(true); }}
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                title="Xóa"
-                                disabled={deletingContent === c.id}
-                                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500"
-                                onClick={() => deleteContent(c.id, sec.id)}
-                              >
-                                {deletingContent === c.id
-                                  ? <Spinner className="w-3.5 h-3.5 border-2" />
-                                  : <Trash2 className="w-3.5 h-3.5" />}
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── Modals ────────────────────────────────────────────────────────── */}
-      {showCourseRoutingModal && <CourseMaterialRoutingModal courseId={courseId} sections={sections} onClose={() => setShowCourseRoutingModal(false)} onSuccess={() => { setShowCourseRoutingModal(false); onSectionsRefetch(); Object.keys(sectionContents).forEach(id => reloadSectionContent(Number(id))); }} />}
-
-      {showSectionModal && (
-        <SectionModal
-          courseId={courseId}
-          section={editingSection}
-          existingSections={sections}
-          onClose={() => { setShowSectionModal(false); setEditingSection(null); }}
-          onSuccess={(savedSection) => {
-            setShowSectionModal(false);
+        {/* Top action bar */}
+        <ContentTabHeader
+          sectionsCount={sections.length}
+          hasSections={sections.length > 0}
+          onExpandAll={() => {
+            const allIds = new Set(sections.map(s => s.id));
+            setExpanded(allIds);
+            sections.forEach(s => loadContents(s.id));
+          }}
+          onCollapseAll={() => setExpanded(new Set())}
+          onOpenAddSection={() => {
             setEditingSection(null);
-            setExpanded(prev => new Set(prev).add(savedSection.id));
-            onSectionsChange(prev => {
-              const exists = prev.some(section => section.id === savedSection.id);
-              const next = exists
-                ? prev.map(section => section.id === savedSection.id ? savedSection : section)
-                : [...prev, savedSection];
-              return [...next].sort((a, b) => a.order_index - b.order_index);
-            });
+            setShowSectionModal(true);
           }}
-        />
-      )}
-
-      {showContentModal && selectedSectionId && (
-        <ContentModal
-          sectionId={selectedSectionId}
-          existingContents={sectionContents[selectedSectionId] ?? []}
-          onClose={() => { setShowContentModal(false); setSelectedSectionId(null); }}
-          onSuccess={(createdContent) => {
-            setShowContentModal(false);
-            if (selectedSectionId && Object.hasOwn(sectionContents, selectedSectionId)) {
-              setSectionContents(prev => ({
-                ...prev,
-                [selectedSectionId]: [...(prev[selectedSectionId] ?? []), createdContent]
-                  .sort((a, b) => a.order_index - b.order_index),
-              }));
-            } else if (selectedSectionId) {
-              // The section was collapsed, so its local content cache is not
-              // populated yet. Refresh only that one section.
-              reloadSectionContent(selectedSectionId);
-            }
-            setSelectedSectionId(null);
+          onOpenMicroModal={() => {
+            setMicroPresetContentId(undefined);
+            setMicroPresetSectionId(undefined);
+            setShowMicroModal(true);
           }}
-        />
-      )}
-
-      {showBulkModal && selectedSectionId && (
-        <BulkUploadModal
-          sectionId={selectedSectionId}
-          onClose={() => { setShowBulkModal(false); setSelectedSectionId(null); }}
-          onSuccess={() => {
-            setShowBulkModal(false);
-            if (selectedSectionId) reloadSectionContent(selectedSectionId);
-            setSelectedSectionId(null);
+          onOpenQuizModal={() => {
+            setQuizPresetContentId(undefined);
+            setQuizPresetSectionId(undefined);
+            setShowQuizModal(true);
           }}
+          onOpenCourseRoutingModal={() => setShowCourseRoutingModal(true)}
+          onOpenMicroHistoryModal={() => setShowMicroHistoryModal(true)}
+          onOpenQuizHistoryModal={() => setShowQuizHistoryModal(true)}
         />
-      )}
 
-      {showEditContentModal && editingContent && (
-        <EditContentModal
-          content={editingContent}
-          onClose={() => { setShowEditContentModal(false); setEditingContent(null); }}
-          onSuccess={(updatedContent) => {
-            setShowEditContentModal(false);
-            setSectionContents(prev => ({
-              ...prev,
-              [updatedContent.section_id]: (prev[updatedContent.section_id] ?? []).map(content =>
-                content.id === updatedContent.id ? updatedContent : content
-              ),
-            }));
-            setEditingContent(null);
-          }}
-        />
-      )}
-
-      {showMicroModal && (
-        <GenerateMicroLessonsModal
-          courseId={courseId}
-          sections={sections}
-          presetContentId={microPresetContentId}
-          presetSectionId={microPresetSectionId}
-          onClose={() => setShowMicroModal(false)}
-          onJobCreated={(jobId) => {
-            setShowMicroModal(false);
-            setActiveMicroJobId(jobId);
-          }}
-        />
-      )}
-
-      {showMicroHistoryModal && (
-        <MicroLessonHistoryModal
-          courseId={courseId}
-          onClose={() => setShowMicroHistoryModal(false)}
-          onSelectJob={(jobId) => {
-            setShowMicroHistoryModal(false);
-            setActiveMicroJobId(jobId);
-          }}
-        />
-      )}
-
-      {activeMicroJobId !== null && (
-        <MicroLessonsDrawer
-          jobId={activeMicroJobId}
-          sections={sections}
-          onClose={() => setActiveMicroJobId(null)}
-          onPublished={(sectionId) => reloadSectionContent(sectionId)}
-        />
-      )}
-
-      {showQuizModal && (
-        <GenerateMicroQuizzesModal
-          courseId={courseId}
-          sections={sections}
-          presetContentId={quizPresetContentId}
-          presetSectionId={quizPresetSectionId}
-          onClose={() => setShowQuizModal(false)}
-          onJobCreated={(jobId) => {
-            setShowQuizModal(false);
-            setActiveQuizJobId(jobId);
-          }}
-        />
-      )}
-
-      {activeQuizJobId !== null && (
-        <MicroQuizzesDrawer
-          jobId={activeQuizJobId}
-          sections={sections}
-          onClose={() => setActiveQuizJobId(null)}
-          onPublished={(sectionId) => reloadSectionContent(sectionId)}
-        />
-      )}
-
-      {showQuizHistoryModal && (
-        <MicroQuizHistoryModal
-          courseId={courseId}
-          onClose={() => setShowQuizHistoryModal(false)}
-          onSelectJob={(jobId) => {
-            setShowQuizHistoryModal(false);
-            setActiveQuizJobId(jobId);
-          }}
-        />
-      )}
-
-      {/* ── Section Overview modals & drawer ── */}
-      {showOverviewModal && overviewSectionId !== null && (
-        <GenerateSectionOverviewModal
-          courseId={courseId}
-          sectionId={overviewSectionId}
-          sectionTitle={overviewSectionTitle}
-          onClose={() => setShowOverviewModal(false)}
-          onJobCreated={(jobId) => {
-            setShowOverviewModal(false);
-            setActiveOverviewJobId(jobId);
-          }}
-        />
-      )}
-
-      {showOverviewHistoryModal && overviewSectionId !== null && (
-        <SectionOverviewHistoryModal
-          courseId={courseId}
-          sectionId={overviewSectionId}
-          sectionTitle={overviewSectionTitle}
-          onClose={() => setShowOverviewHistoryModal(false)}
-          onSelectJob={(jobId) => {
-            setShowOverviewHistoryModal(false);
-            setActiveOverviewJobId(jobId);
-          }}
-        />
-      )}
-
-      {activeOverviewJobId !== null && overviewSectionId !== null && (
-        <SectionOverviewDrawer
-          jobId={activeOverviewJobId}
-          sectionTitle={overviewSectionTitle}
-          sections={sections}
-          onClose={() => setActiveOverviewJobId(null)}
-          onLessonPublished={(sectionId) => reloadSectionContent(sectionId)}
-          onQuizPublished={(sectionId) => reloadSectionContent(sectionId)}
-        />
-      )}
-
-      {showContentViewer && viewingContent && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 dark:text-slate-50">
-                {viewingContent.title}
-              </h3>
-              <button
-                onClick={() => { setShowContentViewer(false); setViewingContent(null); }}
-                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+        {/* Empty state or Sections list */}
+        {sections.length === 0 ? (
+          <EmptyState
+            icon={<FileText className="w-10 h-10" />}
+            title="Chưa có chương nào"
+            description="Tạo chương đầu tiên để bắt đầu thêm nội dung."
+            action={
+              <PrimaryBtn
+                size="sm"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={() => setShowSectionModal(true)}
               >
-                ✕
-              </button>
-            </div>
-            <div className="p-6">
-              <ContentViewer content={viewingContent} userRole="TEACHER" />
-            </div>
+                Tạo chương đầu tiên
+              </PrimaryBtn>
+            }
+          />
+        ) : (
+          <div className="space-y-3">
+            {localSections.map((sec, i) => (
+              <SectionItemCard
+                key={sec.id}
+                section={sec}
+                index={i}
+                isExpanded={expanded.has(sec.id)}
+                contents={sectionContents[sec.id] ?? []}
+                isLoadingContents={Boolean(loadingContent[sec.id])}
+                isDraggingSection={draggedSecIndex === i}
+                canDragSection={canDragSection}
+                deletingSectionId={deletingSection}
+                draggedContentInfo={draggedContentInfo}
+                canDragContentId={canDragContent}
+                deletingContentId={deletingContent}
+                onToggleExpand={() => toggle(sec.id)}
+                onSectionDragStart={(e) => handleSectionDragStart(e, i)}
+                onSectionDragOver={(e) => handleSectionDragOver(e, i)}
+                onSectionDragEnd={handleSectionDragEnd}
+                onMouseDownSectionDrag={() => setCanDragSection(true)}
+                onMouseUpSectionDrag={() => setCanDragSection(false)}
+                onAddContent={() => {
+                  setSelectedSectionId(sec.id);
+                  setShowContentModal(true);
+                }}
+                onBulkUpload={() => {
+                  setSelectedSectionId(sec.id);
+                  setShowBulkModal(true);
+                }}
+                onEditSection={() => {
+                  setEditingSection(sec);
+                  setShowSectionModal(true);
+                }}
+                onOpenSectionOverview={() => {
+                  setOverviewSectionId(sec.id);
+                  setOverviewSectionTitle(sec.title);
+                  setShowOverviewModal(true);
+                }}
+                onOpenOverviewHistory={() => {
+                  setOverviewSectionId(sec.id);
+                  setOverviewSectionTitle(sec.title);
+                  setShowOverviewHistoryModal(true);
+                }}
+                onDeleteSection={() => deleteSection(sec.id)}
+                onContentDragStart={(e, ci) => handleContentDragStart(e, sec.id, ci)}
+                onContentDragOver={(e, ci) => handleContentDragOver(e, sec.id, ci)}
+                onContentDragEnd={() => handleContentDragEnd(sec.id)}
+                onMouseDownContentDrag={(cid) => setCanDragContent(cid)}
+                onMouseUpContentDrag={() => setCanDragContent(null)}
+                onGenerateMicroLesson={(cid) => {
+                  setMicroPresetContentId(cid);
+                  setMicroPresetSectionId(sec.id);
+                  setShowMicroModal(true);
+                }}
+                onGenerateMicroQuiz={(cid) => {
+                  setQuizPresetContentId(cid);
+                  setQuizPresetSectionId(sec.id);
+                  setShowQuizModal(true);
+                }}
+                onViewContent={(c) => {
+                  setViewingContent(c);
+                  setShowContentViewer(true);
+                }}
+                onEditContent={(c) => {
+                  setEditingContent(c);
+                  setShowEditContentModal(true);
+                }}
+                onDeleteContent={(cid) => deleteContent(cid, sec.id)}
+              />
+            ))}
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        {/* Dynamic Modals Orchestrator */}
+        <ContentTabModals
+          courseId={courseId}
+          sections={sections}
+          sectionContents={sectionContents}
+          selectedSectionId={selectedSectionId}
+          editingSection={editingSection}
+          editingContent={editingContent}
+          viewingContent={viewingContent}
+          showSectionModal={showSectionModal}
+          showContentModal={showContentModal}
+          showBulkModal={showBulkModal}
+          showCourseRoutingModal={showCourseRoutingModal}
+          showEditContentModal={showEditContentModal}
+          showContentViewer={showContentViewer}
+          showMicroModal={showMicroModal}
+          showMicroHistoryModal={showMicroHistoryModal}
+          microPresetContentId={microPresetContentId}
+          microPresetSectionId={microPresetSectionId}
+          activeMicroJobId={activeMicroJobId}
+          showQuizModal={showQuizModal}
+          showQuizHistoryModal={showQuizHistoryModal}
+          quizPresetContentId={quizPresetContentId}
+          quizPresetSectionId={quizPresetSectionId}
+          activeQuizJobId={activeQuizJobId}
+          showOverviewModal={showOverviewModal}
+          showOverviewHistoryModal={showOverviewHistoryModal}
+          overviewSectionId={overviewSectionId}
+          overviewSectionTitle={overviewSectionTitle}
+          activeOverviewJobId={activeOverviewJobId}
+          setShowSectionModal={setShowSectionModal}
+          setEditingSection={setEditingSection}
+          setShowContentModal={setShowContentModal}
+          setSelectedSectionId={setSelectedSectionId}
+          setShowBulkModal={setShowBulkModal}
+          setShowCourseRoutingModal={setShowCourseRoutingModal}
+          setShowEditContentModal={setShowEditContentModal}
+          setEditingContent={setEditingContent}
+          setShowContentViewer={setShowContentViewer}
+          setViewingContent={setViewingContent}
+          setShowMicroModal={setShowMicroModal}
+          setActiveMicroJobId={setActiveMicroJobId}
+          setShowMicroHistoryModal={setShowMicroHistoryModal}
+          setShowQuizModal={setShowQuizModal}
+          setActiveQuizJobId={setActiveQuizJobId}
+          setShowQuizHistoryModal={setShowQuizHistoryModal}
+          setShowOverviewModal={setShowOverviewModal}
+          setActiveOverviewJobId={setActiveOverviewJobId}
+          setShowOverviewHistoryModal={setShowOverviewHistoryModal}
+          setExpanded={setExpanded}
+          onSectionsChange={onSectionsChange}
+          onSectionsRefetch={onSectionsRefetch}
+          reloadSectionContent={reloadSectionContent}
+          setSectionContents={setSectionContents}
+        />
+      </div>
     </AIIndexPollerProvider>
   );
 }
