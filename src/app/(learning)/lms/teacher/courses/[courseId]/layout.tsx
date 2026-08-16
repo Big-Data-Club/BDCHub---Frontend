@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { Edit3 } from "lucide-react";
 import lmsService from "@/services/lmsService";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/BreadcrumbNav";
-import { Badge, Spinner, GridBackground } from "@/components/lms/shared";
+import { Badge, Spinner, GridBackground, NavTabBar } from "@/components/lms/shared";
 import { Course } from "@/types";
 import { cn } from "@/lib/utils";
 import { useSetPageContext } from "@/hooks/usePageContext";
@@ -125,26 +125,10 @@ export default function CourseDetailLayout({ children }: { children: React.React
 
             <div className="flex items-center gap-3 mt-5 flex-wrap">
               {/* Tab switcher pills */}
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0D192E] border border-slate-200/60 dark:border-blue-500/15 rounded-xl p-1 flex-shrink-0 shadow-inner h-10 overflow-x-auto max-w-full">
-                {COURSE_TABS.map(tab => {
-                  const href = `${basePath}${tab.path}`;
-                  const isActive = activeTab.id === tab.id;
-                  return (
-                    <Link
-                      key={tab.id}
-                      href={href}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 h-full cursor-pointer whitespace-nowrap",
-                        isActive
-                          ? "bg-white dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 shadow-xs border border-slate-200/40 dark:border-blue-500/15"
-                          : "text-slate-500 dark:text-slate-450 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50/50 dark:hover:bg-[#162644]/30"
-                      )}
-                    >
-                      {tab.label}
-                    </Link>
-                  );
-                })}
-              </div>
+              <NavTabBar
+                tabs={COURSE_TABS}
+                basePath={basePath}
+              />
             </div>
           </div>
 

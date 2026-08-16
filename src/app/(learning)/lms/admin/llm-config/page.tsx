@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLlmConfig } from "@/hooks/useLlmConfig";
+import { TabBar } from "@/components/lms/shared";
 import { ProvidersPanel } from "@/components/lms/admin/llm-config/ProvidersPanel";
 import { KeysPanel }      from "@/components/lms/admin/llm-config/KeysPanel";
 import { ModelsPanel }    from "@/components/lms/admin/llm-config/ModelsPanel";
@@ -57,24 +58,12 @@ export default function LlmConfigPage() {
         </p>
       </header>
 
-      <nav className="flex overflow-x-auto gap-1 border-b border-slate-200 dark:border-slate-800">
-        {TABS.map((t) => {
-          const active = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${
-                active
-                  ? "border-blue-600 text-blue-700 dark:text-blue-400"
-                  : "border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-400"
-              }`}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </nav>
+      <TabBar
+        variant="underline"
+        tabs={TABS}
+        active={tab}
+        onChange={setTab}
+      />
 
       {tab === "providers" && (
         <ProvidersPanel

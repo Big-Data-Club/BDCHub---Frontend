@@ -56,13 +56,18 @@ const MobileNav = () => {
                                               bg-white dark:bg-slate-900
                                               border-r border-slate-200 dark:border-slate-800">
           {/* Logo */}
-          <div className="flex items-center gap-2.5 px-4 py-5 border-b border-slate-200 dark:border-slate-800">
+          <Link
+            href="/"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-2.5 px-4 py-5 border-b border-slate-200 dark:border-slate-800 hover:opacity-85 transition-opacity"
+            title="Trang chủ BDC Hub"
+          >
             <SafeImage src={LogoIcon} alt="BDC" width={28} height={28} priority />
             <div>
               <p className="text-sm font-bold text-slate-900 dark:text-slate-50">Think Big</p>
               <p className="text-xs text-blue-600 font-semibold tracking-wide">Speak Data</p>
             </div>
-          </div>
+          </Link>
 
           {/* User */}
           <div className="px-3 py-3 border-b border-slate-200 dark:border-slate-800">

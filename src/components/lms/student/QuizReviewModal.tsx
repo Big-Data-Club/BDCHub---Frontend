@@ -6,6 +6,7 @@ import quizService from "@/services/quizService";
 import FillBlankTextStudent from "@/components/lms/student/FillBlankTextStudent";
 import FillBlankDropdownStudent from "@/components/lms/student/FillBlankDropdownStudent";
 import AIDiagnosisModal from "./AIDiagnosisModal";
+import { TabBar } from "@/components/lms/shared";
 import {
   ArrowLeft,
   CheckCircle,
@@ -177,45 +178,7 @@ function ScoreRing({
   );
 }
 
-/** Inline tab bar following BDC palette */
-function InlineTabBar({
-  tabs,
-  active,
-  onChange,
-}: {
-  tabs: { id: string; label: string; badge?: number }[];
-  active: string;
-  onChange: (id: string) => void;
-}) {
-  return (
-    <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
-      {tabs.map((t) => (
-        <button
-          key={t.id}
-          onClick={() => onChange(t.id)}
-          className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-            active === t.id
-              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm"
-              : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-          }`}
-        >
-          {t.label}
-          {t.badge !== undefined && (
-            <span
-              className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
-                active === t.id
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
-              }`}
-            >
-              {t.badge}
-            </span>
-          )}
-        </button>
-      ))}
-    </div>
-  );
-}
+
 
 /** Small stat card */
 function MiniStat({
@@ -868,7 +831,7 @@ export default function QuizReviewPage({
         </div>
 
         {/* ── Tab bar ────────────────────────────────────────────────────────── */}
-        <InlineTabBar
+        <TabBar
           tabs={[
             { id: "summary", label: "Tổng kết" },
             { id: "review", label: "Xem lại chi tiết", badge: questions_with_answers.length },
@@ -1023,7 +986,7 @@ export default function QuizReviewPage({
                 <p className="text-sm font-bold text-slate-900 dark:text-slate-50">
                   Câu hỏi &amp; đáp án
                 </p>
-                <InlineTabBar
+                <TabBar
                   tabs={[
                     { id: "all", label: "Tất cả", badge: questions_with_answers.length },
                     { id: "correct", label: "Đúng", badge: correctCount },

@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { NotificationPopover } from "@/components/lms/notifications/NotificationPopover";
-import { SecondaryBtn, GhostBtn } from "@/components/lms/shared/Button";
+import { SecondaryBtn } from "@/components/lms/shared/Button";
 
 interface NavItem {
   href: string;
@@ -66,13 +66,6 @@ export function LmsHeader({
             )}
             <ThemeToggle />
             <div className="h-4 w-px bg-slate-200 dark:bg-blue-500/15 hidden sm:block" />
-            <GhostBtn
-              size="sm"
-              asChild
-              className="hidden sm:inline-flex"
-            >
-              <Link href="/">Trang chủ</Link>
-            </GhostBtn>
             <SecondaryBtn
               size="sm"
               onClick={handleChangeRole}

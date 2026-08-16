@@ -109,14 +109,18 @@ const Sidebar: React.FC = () => {
                    transition-[width] duration-200 ease-in-out z-20"
       >
         {/* Logo */}
-        <div className={cn("flex items-center gap-2.5 px-4 py-5 border-b border-slate-200 dark:border-blue-500/10", isCollapsed && "justify-center px-2")}>
-          <SafeImage src={LogoIcon} alt="BDC" width={48} height={48} priority className="flex-shrink-0" />
+        <Link
+          href="/"
+          className={cn("flex items-center gap-2.5 px-4 py-4 border-b border-slate-200 dark:border-blue-500/10 hover:opacity-85 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-cyan-400 rounded-lg", isCollapsed && "justify-center px-2")}
+          title="Trang chủ BDC Hub"
+        >
+          <SafeImage src={LogoIcon} alt="BDC" width={40} height={40} priority className="flex-shrink-0 w-10 h-10 object-contain" />
           {!isCollapsed && (
             <div>
               <p className="text-sm font-bold text-slate-900 dark:text-slate-50 leading-tight">Big Data Club</p>
             </div>
           )}
-        </div>
+        </Link>
 
         {/* User */}
         <div className={cn("px-3 py-3 border-b border-slate-200 dark:border-blue-500/10", isCollapsed && "px-2")}>

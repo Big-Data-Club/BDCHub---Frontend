@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Brain, Target, ListTodo } from "lucide-react";
-import { Card, PageLoader } from "@/components/lms/shared";
+import { Card, PageLoader, TabBar } from "@/components/lms/shared";
 import {
   Select,
   SelectContent,
@@ -92,46 +92,16 @@ export function StudentCourseAnalytics({
       ) : (
         <div className="space-y-6">
           {/* Tab selector buttons */}
-          <div className="flex pb-1 mb-8 overflow-x-auto" role="tablist">
-            <div className="inline-flex p-1 bg-slate-100/80 dark:bg-lms-input border border-slate-200/60 dark:border-blue-500/10 rounded-2xl gap-1">
-              <button
-                role="tab"
-                aria-selected={analyticsTab === "lessons"}
-                onClick={() => setAnalyticsTab("lessons")}
-                className={`flex items-center gap-2 px-5 py-2 text-xs md:text-sm font-bold rounded-xl transition-all whitespace-nowrap active:scale-95 ${analyticsTab === "lessons"
-                  ? "bg-white text-blue-600 shadow-sm border border-slate-200 dark:bg-cyan-500 dark:text-slate-950 dark:border-transparent dark:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-blue-900/20"
-                  }`}
-              >
-                <ListTodo className="w-4 h-4" />
-                Tiến độ bài học
-              </button>
-              <button
-                role="tab"
-                aria-selected={analyticsTab === "mastery"}
-                onClick={() => setAnalyticsTab("mastery")}
-                className={`flex items-center gap-2 px-5 py-2 text-xs md:text-sm font-bold rounded-xl transition-all whitespace-nowrap active:scale-95 ${analyticsTab === "mastery"
-                  ? "bg-white text-blue-600 shadow-sm border border-slate-200 dark:bg-cyan-500 dark:text-slate-950 dark:border-transparent dark:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-blue-900/20"
-                  }`}
-              >
-                <Target className="w-4 h-4" />
-                Năng lực & Quiz
-              </button>
-              <button
-                role="tab"
-                aria-selected={analyticsTab === "flashcards"}
-                onClick={() => setAnalyticsTab("flashcards")}
-                className={`flex items-center gap-2 px-5 py-2 text-xs md:text-sm font-bold rounded-xl transition-all whitespace-nowrap active:scale-95 ${analyticsTab === "flashcards"
-                  ? "bg-white text-blue-600 shadow-sm border border-slate-200 dark:bg-cyan-500 dark:text-slate-950 dark:border-transparent dark:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-blue-900/20"
-                  }`}
-              >
-                <Brain className="w-4 h-4" />
-                Flashcard
-              </button>
-            </div>
-          </div>
+          <TabBar
+            tabs={[
+              { id: "lessons", label: "Tiến độ bài học", icon: <ListTodo className="w-4 h-4" /> },
+              { id: "mastery", label: "Năng lực & Quiz", icon: <Target className="w-4 h-4" /> },
+              { id: "flashcards", label: "Flashcard", icon: <Brain className="w-4 h-4" /> },
+            ]}
+            active={analyticsTab}
+            onChange={setAnalyticsTab}
+            className="mb-8"
+          />
 
           {/* Render Tabs content */}
           {analyticsTab === "lessons" && (
