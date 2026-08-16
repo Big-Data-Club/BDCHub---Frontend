@@ -1,4 +1,12 @@
-# LMS Design System Reference
+---
+title: "LMS Student Design System Specification"
+category: "design-system"
+status: "active-spec"
+last_updated: "2026-08-16"
+target_surface: "src/app/(learning)/lms/student"
+---
+
+# LMS Student Design System Specification
 
 This document serves as the design system reference for the Learning Management System (LMS) module. It establishes the design language, color tokens, layout specifications, and micro-interaction behaviors starting from the **LMS Role Selection Page**.
 
@@ -56,7 +64,7 @@ Two atmospheric background lights are placed at diagonal coordinates to add dept
    - Dark Mode: `dark:bg-cyan-500/5` (Cyan light)
    - Size & Blur: `w-96 h-96 blur-[120px] rounded-full`
 2. **Bottom-Right Spot**:
-   - Light Mode: `bg-purple-500/10` (Purple light, mixing with the page background to create a soft pinkish-violet tint)
+   - Light Mode: `bg-purple-500/10` (Purple light)
    - Dark Mode: `dark:bg-blue-500/5` (Blue light)
    - Size & Blur: `w-96 h-96 blur-[120px] rounded-full`
 

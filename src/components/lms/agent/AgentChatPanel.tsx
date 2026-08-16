@@ -20,7 +20,7 @@ import {
   type ConversationSidebarHandle,
 } from "./ConversationSidebar";
 import { AgentConsoleSidebar } from "./AgentConsoleSidebar";
-import type { AgentMessage, HITLRequestData } from "@/types";
+import type { AgentMessage, AgentSession, HITLRequestData } from "@/types";
 
 interface AgentChatPanelProps {
   agentType: "teacher" | "mentor";
@@ -33,7 +33,7 @@ interface AgentChatPanelProps {
   isOverlaySidebar?: boolean;
   initialSelectedMessageId?: string;
   initialMessages?: AgentMessage[];
-  initialSessions?: any[];
+  initialSessions?: AgentSession[];
 }
 
 const WELCOME: Record<string, { title: string; subtitle: string; hints: string[] }> = {
@@ -262,20 +262,21 @@ export function AgentChatPanel({
       <div
         className={cn(
           "flex items-center gap-3 px-5 py-3.5 flex-shrink-0",
-          "border-b border-slate-200 dark:border-blue-500/10",
-          "bg-white/80 dark:bg-[#070E1C]/90 backdrop-blur-md z-10",
+          "border-b border-slate-200/80 dark:border-blue-500/15",
+          "bg-white/90 dark:bg-[#070E1C]/90 backdrop-blur-md z-10",
         )}
       >
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] transition-all duration-200 active:scale-95 flex-shrink-0"
+          aria-label={sidebarOpen ? "Thu gọn thanh bên lịch sử hội thoại" : "Mở rộng thanh bên lịch sử hội thoại"}
+          className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] transition-all duration-200 active:scale-95 flex-shrink-0 cursor-pointer"
           title={sidebarOpen ? "Thu gọn thanh bên" : "Mở rộng thanh bên"}
         >
           {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
         </button>
         
-        <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-cyan-400 border border-blue-100 dark:border-cyan-500/15 flex items-center justify-center flex-shrink-0 shadow-sm dark:shadow-none">
-          <Sparkles className="w-4.5 h-4.5 text-blue-600 dark:text-cyan-400" />
+        <div className="w-9.5 h-9.5 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-cyan-400 border border-blue-100 dark:border-cyan-500/20 flex items-center justify-center flex-shrink-0 shadow-xs dark:shadow-none">
+          <Sparkles className="w-5 h-5 text-blue-600 dark:text-cyan-400" />
         </div>
         <div className="flex items-center gap-2.5 flex-wrap min-w-0">
           <div>
@@ -287,7 +288,7 @@ export function AgentChatPanel({
             </p>
           </div>
           {courseId && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-cyan-400 border border-blue-200 dark:border-blue-500/20">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-cyan-400 border border-blue-200 dark:border-cyan-500/20">
               Môn học #{courseId}
             </span>
           )}
@@ -295,10 +296,11 @@ export function AgentChatPanel({
 
         <button
           onClick={() => setConsoleOpen(!consoleOpen)}
+          aria-label={consoleOpen ? "Ẩn nhật ký AI Console" : "Hiện nhật ký AI Console"}
           className={cn(
-            "ml-auto p-2 rounded-xl border transition-all duration-200 active:scale-95 flex-shrink-0 flex items-center gap-1.5 text-xs font-semibold",
+            "ml-auto p-2 rounded-xl border transition-all duration-200 active:scale-95 flex-shrink-0 flex items-center gap-1.5 text-xs font-semibold cursor-pointer",
             consoleOpen
-              ? "text-blue-600 bg-blue-50 border-blue-200 dark:text-cyan-400 dark:bg-blue-950/40 dark:border-blue-500/30 shadow-sm"
+              ? "text-blue-600 bg-blue-50 border-blue-200 dark:text-cyan-400 dark:bg-blue-950/40 dark:border-cyan-500/30 shadow-xs"
               : "text-slate-600 border-slate-200 dark:text-slate-400 dark:border-blue-500/20 hover:bg-slate-50 dark:hover:bg-[#162644]"
           )}
           title={consoleOpen ? "Ẩn Console" : "Hiện Console Debugger"}
@@ -318,7 +320,7 @@ export function AgentChatPanel({
           {isEmpty ? (
             /* Empty state - welcome + hint chips */
             <div className="flex flex-col items-center justify-center text-center space-y-6 py-16">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-cyan-500/20 flex items-center justify-center shadow-sm dark:shadow-none animate-in fade-in zoom-in-75 duration-300">
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-[#0F1E35] border border-blue-100 dark:border-cyan-500/20 flex items-center justify-center shadow-xs dark:shadow-none animate-in fade-in zoom-in-75 duration-300">
                 <MessageSquare className="w-8 h-8 text-blue-600 dark:text-cyan-400" />
               </div>
               <div className="space-y-2">
@@ -336,14 +338,14 @@ export function AgentChatPanel({
                     key={hint}
                     onClick={() => sendMessage(hint)}
                     className={cn(
-                      "px-4 py-2 rounded-full text-xs font-semibold",
+                      "px-4 py-2 rounded-xl text-xs font-semibold",
                       "bg-white dark:bg-[#0F1E35]",
-                      "border border-slate-200 dark:border-blue-500/20",
-                      "text-slate-700 dark:text-slate-300",
-                      "hover:bg-blue-50/80 dark:hover:bg-[#162644]",
-                      "hover:border-blue-300 dark:hover:border-cyan-400/40",
+                      "border border-slate-200 dark:border-blue-500/15",
+                      "text-slate-700 dark:text-slate-200",
+                      "hover:bg-blue-50/80 dark:hover:bg-[#12223a]",
+                      "hover:border-blue-400/60 dark:hover:border-cyan-500/40",
                       "hover:text-blue-600 dark:hover:text-cyan-400",
-                      "transition-all duration-200 active:scale-95",
+                      "transition-all duration-200 active:scale-95 cursor-pointer",
                       "shadow-xs dark:shadow-none",
                     )}
                   >
@@ -399,6 +401,7 @@ export function AgentChatPanel({
         <div className="relative z-30">
           <button
             onClick={() => scrollToBottom(true)}
+            aria-label="Cuộn xuống tin nhắn mới nhất"
             className={cn(
               "absolute right-6 -top-12 p-2.5 rounded-full",
               "bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20",

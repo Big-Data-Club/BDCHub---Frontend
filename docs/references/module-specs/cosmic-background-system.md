@@ -1,3 +1,11 @@
+---
+title: "BDC Cosmic Background System Specification"
+category: "module-spec"
+status: "active-spec"
+last_updated: "2026-08-16"
+target_surface: "src/components/layout/Background.tsx"
+---
+
 # BDC Cosmic Background System - High Performance Animation Architecture
 
 This document provides a comprehensive overview of the advanced, worker-based background system implemented in `src/components/layout/Background.tsx` and `src/components/layout/background.worker.ts`.
@@ -47,33 +55,13 @@ To eliminate Garbage Collection (GC) spikes and ensure consistent 60/120fps:
 - **Visual Clarity Filter**: To maintain a premium, uncluttered aesthetic, automatic star-to-star connections are only formed between stars with **$z \ge 0.45$**. 
 - **Depth Focus**: This prevents "visual noise" from distant micro-stars, focusing the geometric patterns on the more prominent foreground layers.
 
-### 3.3 Interactive Ripple
-- **Shimmer Physics**: Shooting stars and data pulses leave a luminous wake in nearby stars with an exponential decay factor of **0.98** per frame.
-
 ---
 
-## 4. Interaction System
+## 4. Web Worker Message Protocol
 
-### 4.1 Extreme Needle-point Hover
-- **Grid-Optimized Interaction**: Uses a Radius-2 spatial grid search (5x5 cells) to instantly identify stars within the `160px` grab distance, reducing complexity from $O(N)$ to $O(1)$ effectively.
-- **Concentrated Excitation**: Stars brighten significantly when directly under the cursor using a **Power of 8** falloff distribution.
-- **Precision Focus**: Only the stars in immediate proximity (0-20px) are energized, while stars further away remain untouched.
-- **Universal Connectivity**: Unlike background constellations, the **Energy Web (Hover)** connects to **all stars** regardless of depth, ensuring a responsive feel across the entire field.
+Communication between `Background.tsx` and `background.worker.ts` uses structured worker messages:
 
-### 4.2 Energy Web
-- **Luminosity-Linked Alpha**: The brightness and width of web lines are **purely dependent** on the real-time luminosity (`starAlpha`) of the connected stars.
-- **Materialization Check**: The web effect only connects to stars that have already fully materialized, preventing "phantom" connections to invisible stars during the bloom phase.
-
-### 4.3 Immersive Parallax
-- **High-Intensity Movement**: Features a reactive parallax multiplier (**18x Horizontal / 12x Vertical**) for an expansive sense of spatial depth.
-- **Depth Mapping**: Parallax intensity scales with the `z` coordinate, providing realistic motion parallax.
-
----
-
-## 5. Known Issues & Lifecycle Quirks
-
-### 5.1 Offscreen Canvas Transfer on SPA Transitions
-- **The Issue**: During client-side SPA transitions (e.g., navigating to the Login page and returning to the landing page), Next.js's Router Cache may preserve and reuse the layout's `<canvas>` DOM element. Re-triggering `transferControlToOffscreen()` on a reused element throws a `DOMException` ("Cannot transfer control to offscreen twice"), causing silent initialization failures and disabling the background.
-- **Current Mitigation**: Handled via a global module-level reference cache tracking the active Worker and Canvas instances in [Background.tsx](file:///home/thanh/BDCHub---Frontend/src/components/layout/Background.tsx), preventing redundant transfer calls.
-- **Future Refactoring**: Open for simplification if a cleaner state-sharing mechanism or standard offscreen lifecycle abstraction is introduced.
-
+- `INIT`: Transfer `OffscreenCanvas`, dimensions, DPR, and theme mode.
+- `RESIZE`: Update canvas dimensions on window resize.
+- `MOUSE_MOVE`: Send cursor position for parallax and interactive constellation lines.
+- `THEME_CHANGE`: Toggle color parameters between dark mode cosmic navy and light mode subtle space.

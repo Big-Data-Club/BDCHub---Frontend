@@ -239,159 +239,91 @@ export function AgentMessageBubble({
         )}
 
         {!isUser && message.content && !message.isStreaming && (
-          <div className="flex items-center gap-1.5 ml-1 pt-1">
-            {/* Copy button */}
-            <button
-              type="button"
-              onClick={handleCopyContent}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#162644] dark:hover:text-cyan-400 transition-colors cursor-pointer"
-              title="Sao chép câu trả lời"
-            >
-              {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-              <span>{copied ? "Đã sao chép" : "Sao chép"}</span>
-            </button>
-
-            {/* Save to Notebook button */}
-            <button
-              type="button"
-              onClick={saveResponseToNotebook}
-              disabled={savingNote || noteSaved}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 disabled:cursor-default disabled:text-emerald-600 dark:hover:bg-[#162644] dark:disabled:text-emerald-400 transition-colors cursor-pointer"
-              title="Lưu vào Notebook học tập"
-            >
-              {savingNote ? <Loader2 className="h-3 w-3 animate-spin" /> : <BookmarkPlus className="h-3 w-3" />}
-              <span>{noteSaved ? "Đã lưu Notebook" : "Lưu ghi chú"}</span>
-            </button>
-
-            {/* Thumbs up / down feedback buttons */}
-            <div className="flex items-center gap-0.5 ml-1 border-l border-slate-200 dark:border-blue-500/10 pl-1.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 ml-1 pt-1.5 border-t border-slate-100 dark:border-blue-500/10 mt-1.5">
+            {/* Group 1: User Interactions (Copy, Notebook, Like/Dislike) */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {/* Copy button */}
               <button
                 type="button"
-                onClick={() => toggleFeedback("like")}
-                className={cn(
-                  "p-1 rounded-md text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer",
-                  feedback === "like" && "text-blue-600 dark:text-cyan-400 bg-blue-50 dark:bg-blue-900/30"
-                )}
-                title="Hữu ích"
+                onClick={handleCopyContent}
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#162644] dark:hover:text-cyan-400 transition-colors cursor-pointer active:scale-95"
+                title="Sao chép câu trả lời"
               >
-                <ThumbsUp className="w-3 h-3" />
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copied ? "Đã sao chép" : "Sao chép"}</span>
               </button>
+
+              {/* Save to Notebook button */}
               <button
                 type="button"
-                onClick={() => toggleFeedback("dislike")}
-                className={cn(
-                  "p-1 rounded-md text-slate-400 hover:text-red-500 transition-colors cursor-pointer",
-                  feedback === "dislike" && "text-red-500 bg-red-50 dark:bg-red-950/40"
-                )}
-                title="Chưa hữu ích"
+                onClick={saveResponseToNotebook}
+                disabled={savingNote || noteSaved}
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 disabled:cursor-default disabled:text-emerald-600 dark:hover:bg-[#162644] dark:disabled:text-emerald-400 transition-colors cursor-pointer active:scale-95"
+                title="Lưu vào Notebook học tập"
               >
-                <ThumbsDown className="w-3 h-3" />
+                {savingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <BookmarkPlus className="h-3.5 w-3.5" />}
+                <span>{noteSaved ? "Đã lưu Notebook" : "Lưu ghi chú"}</span>
               </button>
+
+              {/* Thumbs up / down feedback buttons */}
+              <div className="flex items-center gap-1 border-l border-slate-200 dark:border-blue-500/15 pl-2">
+                <button
+                  type="button"
+                  onClick={() => toggleFeedback("like")}
+                  className={cn(
+                    "p-1 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer active:scale-95",
+                    feedback === "like" && "text-blue-600 dark:text-cyan-400 bg-blue-50 dark:bg-blue-900/30"
+                  )}
+                  title="Hữu ích"
+                >
+                  <ThumbsUp className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleFeedback("dislike")}
+                  className={cn(
+                    "p-1 rounded-lg text-slate-400 hover:text-red-500 transition-colors cursor-pointer active:scale-95",
+                    feedback === "dislike" && "text-red-500 bg-red-50 dark:bg-red-950/40"
+                  )}
+                  title="Chưa hữu ích"
+                >
+                  <ThumbsDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* Compact, server-verified context trace. Do not expose page body. */}
-        {!isUser && message.context && message.context.status !== "global" && (
-          <div className="flex w-fit max-w-full items-center gap-1.5 rounded-lg border border-blue-100 bg-blue-50/70 px-2.5 py-1 text-[11px] text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/25 dark:text-cyan-400">
-            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="truncate">
-              {message.context.snapshot.course_name || "Ngữ cảnh khóa học đã xác thực"}
-              {message.context.snapshot.content_title ? ` › ${message.context.snapshot.content_title}` : ""}
-            </span>
-          </div>
-        )}
+            {/* Group 2: Telemetry Badges (Console Sync & Trace Toggle) */}
+            {onSelectForLogs && (message.spawningScore !== undefined || (message.multiAgentLogs && message.multiAgentLogs.length > 0)) && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={onSelectForLogs}
+                  className={cn(
+                    "flex items-center gap-1 py-1 px-2.5 rounded-lg text-[10.5px] font-semibold transition-all duration-200 border active:scale-95 cursor-pointer",
+                    isSelectedForLogs
+                      ? "bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:border-cyan-500/30 text-blue-600 dark:text-cyan-400"
+                      : "bg-transparent border-slate-200/60 dark:border-blue-500/15 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#162644]"
+                  )}
+                  title="Đồng bộ hóa vết xử lý sang Console Debugger"
+                >
+                  <Cpu className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400" />
+                  <span>{isSelectedForLogs ? "Đang đồng bộ Console" : "Đồng bộ Console"}</span>
+                </button>
 
-        {/* References display section (Inline Tag List without nested cards) */}
-        {!isUser && message.references && message.references.length > 0 && (
-          <div className="w-full mt-2 pt-1">
-            <button
-              onClick={() => setShowReferences(!showReferences)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400" />
-              <span>Nguồn trích dẫn ({message.references.length})</span>
-              {showReferences ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-            </button>
-            {showReferences && (
-              <div className="mt-2 space-y-1.5 text-xs border-l-2 border-slate-200 dark:border-blue-500/20 pl-3">
-                {message.references.map((ref, idx) => (
-                  <div key={idx} className="flex flex-col space-y-0.5 group">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
-                        {ref.source_type === "web" ? (
-                          <Globe className="w-3.5 h-3.5 text-cyan-500" />
-                        ) : (
-                          <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
-                        )}
-                        {ref.url ? (
-                          <a
-                            href={ref.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-blue-500 hover:underline transition-colors break-all"
-                          >
-                            {ref.title}
-                          </a>
-                        ) : ref.content_id ? (
-                          <ReferenceLink
-                            contentId={ref.content_id}
-                            title={ref.title || "Tài liệu khóa học"}
-                            pageNumber={ref.page_number}
-                          />
-                        ) : (
-                          <span>{ref.title}</span>
-                        )}
-                      </div>
-                      <span className={cn(
-                        "px-1.5 py-0.2 rounded text-[10px] font-semibold uppercase tracking-wide",
-                        ref.source_type === "web" ? "bg-cyan-50 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
-                      )}>
-                        {ref.source_type === "web" ? "Web" : ref.page_number ? `Trang ${ref.page_number}` : "Tài liệu"}
-                      </span>
-                    </div>
-                    {ref.content && (
-                      <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed line-clamp-2">
-                        {ref.content}
-                      </p>
-                    )}
-                  </div>
-                ))}
+                <button
+                  onClick={() => setShowTrace(!showTrace)}
+                  className={cn(
+                    "flex items-center gap-1 py-1 px-2.5 rounded-lg text-[10.5px] font-semibold transition-all duration-200 border active:scale-95 cursor-pointer",
+                    showTrace
+                      ? "bg-indigo-50 border-indigo-200 dark:bg-indigo-950/40 dark:border-indigo-900 text-indigo-600 dark:text-indigo-400"
+                      : "bg-transparent border-slate-200/60 dark:border-blue-500/15 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#162644]"
+                  )}
+                  title="Hiện nhật ký giải trình xử lý Multi-Agent inline"
+                >
+                  <Layers className="w-3.5 h-3.5 text-indigo-500 dark:text-cyan-400" />
+                  <span>{showTrace ? "Ẩn vết" : "Vết xử lý"}</span>
+                </button>
               </div>
             )}
-          </div>
-        )}
-
-        {/* Telemetry Select Button */}
-        {!isUser && onSelectForLogs && (message.spawningScore !== undefined || (message.multiAgentLogs && message.multiAgentLogs.length > 0)) && (
-          <div className="flex justify-start pt-1 gap-2">
-            <button
-              onClick={onSelectForLogs}
-              className={cn(
-                "flex items-center gap-1 py-0.5 px-2 rounded-lg text-[10px] font-semibold transition-all duration-200 border active:scale-95",
-                isSelectedForLogs
-                  ? "bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:border-blue-900 text-blue-600 dark:text-blue-400"
-                  : "bg-transparent border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              )}
-              title="Đồng bộ hóa vết xử lý sang Console Debugger"
-            >
-              <Cpu className="w-3 h-3" />
-              <span>{isSelectedForLogs ? "Đang đồng bộ Console" : "Đồng bộ Console"}</span>
-            </button>
-
-            <button
-              onClick={() => setShowTrace(!showTrace)}
-              className={cn(
-                "flex items-center gap-1 py-0.5 px-2 rounded-lg text-[10px] font-semibold transition-all duration-200 border active:scale-95",
-                showTrace
-                  ? "bg-indigo-50 border-indigo-200 dark:bg-indigo-950/40 dark:border-indigo-900 text-indigo-600 dark:text-indigo-400"
-                  : "bg-transparent border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              )}
-              title="Hiện nhật ký giải trình xử lý Multi-Agent inline"
-            >
-              <Cpu className="w-3 h-3 text-indigo-500" />
-              <span>{showTrace ? "Ẩn vết xử lý" : "Hiện vết xử lý"}</span>
-            </button>
           </div>
         )}
 

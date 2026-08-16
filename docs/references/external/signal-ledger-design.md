@@ -1,4 +1,13 @@
 ---
+title: "Signal Ledger - External Design Reference"
+category: "external"
+status: "reference"
+last_updated: "2026-08-16"
+---
+
+# Signal Ledger - External Design Reference
+
+---
 version: "alpha"
 name: "Signal Ledger"
 description: "Signal Ledger Dashboard Section is designed for demonstrating application workflows and interface hierarchy. Key features include clear information density, modular panels, and interface rhythm. It is suitable for product showcases, admin panels, and analytics experiences."
@@ -180,39 +189,3 @@ Reconstruct the graphics as a full-bleed background field using alpha, antialias
     - **Value:** alpha, antialias, DPR clamp, custom shaders
 
 **Techniques:** Breathing pulse, Pointer parallax, Shader gradients, DOM fallback
-
-**Code Evidence:**
-  - **HTML reference:**
-    - **Language:** html
-    - **Snippet:**
-      ```html
-      <canvas id="orbit-canvas" class="absolute inset-0 h-full w-full" aria-hidden="true" style="display:block; filter: drop-shadow(0 0 1.15rem rgba(185, 218, 255, 0.28));" width="1219" height="876"></canvas>
-      ```
-  - **JS reference:**
-    - **Language:** js
-    - **Snippet:**
-      ```
-      const canvas = document.getElementById('orbit-canvas');
-      const gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: false });
-
-      const revealItems = document.querySelectorAll('[data-reveal]');
-      requestAnimationFrame(() => {
-        revealItems.forEach((item) => {
-          item.style.opacity = '1';
-          item.style.transform = 'translateY(0)';
-      …
-      ```
-  - **Renderer setup:**
-    - **Language:** js
-    - **Snippet:**
-      ```
-      const vertexSource = `
-        attribute vec2 a_position;
-        attribute float a_alpha;
-        attribute float a_intensity;
-        uniform vec2 u_resolution;
-        varying float v_alpha;
-        varying float v_intensity;
-        void main() {
-      …
-      ```

@@ -67,7 +67,7 @@ export function AgentInputBar({
       className={cn(
         "flex items-end gap-2 p-1.5 sm:p-2 rounded-2xl",
         "bg-white dark:bg-[#0D192E]",
-        "border border-slate-300/80 dark:border-blue-500/25",
+        "border border-slate-300/80 dark:border-blue-500/20",
         "focus-within:border-blue-500 dark:focus-within:border-cyan-400/50",
         "focus-within:ring-2 focus-within:ring-blue-500/20 dark:focus-within:ring-cyan-400/20",
         "shadow-md shadow-slate-200/50 dark:shadow-cyan-950/20 transition-all duration-200",

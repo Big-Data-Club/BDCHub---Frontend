@@ -6,11 +6,11 @@
  */
 import { useSearchParams } from "next/navigation";
 import { AgentChatPanel } from "@/components/lms/agent/AgentChatPanel";
-import type { AgentMessage } from "@/types";
+import type { AgentMessage, AgentSession } from "@/types";
 
 interface AIMentorPageProps {
   initialMessages?: AgentMessage[];
-  initialSessions?: any[];
+  initialSessions?: AgentSession[];
   defaultConsoleOpen?: boolean;
   initialSelectedMessageId?: string;
 }
@@ -28,7 +28,7 @@ export default function AIMentorPage({
   const sessionId = searchParams.get("sessionId") || undefined;
 
   return (
-    <div className="w-full h-full flex-1 flex flex-col min-h-0 overflow-hidden">
+    <div className="w-full h-full flex-1 flex flex-col min-h-0 overflow-hidden relative z-10">
       <AgentChatPanel
         agentType="mentor"
         courseId={courseId}
