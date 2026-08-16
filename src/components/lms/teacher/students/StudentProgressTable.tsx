@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { CourseStudentProgress } from "@/services/analyticsService";
 import { UserAvatar } from "@/components/user/UserAvatar";
+import { ProgressBar } from "@/components/lms/shared";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -70,33 +71,34 @@ function ProgressCell({ pct, completed, total }: {
   pct: number; completed: number; total: number;
 }) {
   const color =
-    pct >= 80 ? "bg-emerald-500" :
-    pct >= 50 ? "bg-blue-500" :
-    pct >= 20 ? "bg-amber-400" :
-    "bg-red-400";
+    pct >= 80 ? "green" :
+    pct >= 50 ? "blue" :
+    pct >= 20 ? "orange" :
+    "orange";
 
   return (
-    <div className="min-w-[120px]">
+    <div className="min-w-[140px]">
       <div className="flex items-center justify-between mb-1">
         <span className={cn(
-          "text-xs font-semibold",
+          "text-xs font-bold",
           pct >= 80 ? "text-emerald-600 dark:text-emerald-400" :
           pct >= 50 ? "text-blue-600 dark:text-blue-400" :
           pct >= 20 ? "text-amber-600 dark:text-amber-400" :
-          "text-red-500 dark:text-red-400"
+          "text-rose-500 dark:text-rose-400"
         )}>
           {pct.toFixed(0)}%
         </span>
-        <span className="text-xs text-slate-400 dark:text-slate-500">
+        <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
           {completed}/{total}
         </span>
       </div>
-      <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-        <div
-          className={cn("h-full rounded-full transition-all duration-500", color)}
-          style={{ width: `${Math.min(pct, 100)}%` }}
-        />
-      </div>
+      <ProgressBar
+        value={pct}
+        max={100}
+        color={color}
+        showPercent={false}
+        className="w-full"
+      />
     </div>
   );
 }

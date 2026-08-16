@@ -427,8 +427,8 @@ export default function EditContentModal({
                   </div>
 
                   {removeFileConfirm && (
-                    <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg text-sm">
-                      <p className="text-red-700 dark:text-red-400 mb-2">
+                    <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-lg text-sm">
+                      <p className="text-red-800 dark:text-red-300 font-medium mb-2">
                         Bạn có chắc muốn xóa file này?
                       </p>
                       <div className="flex gap-2">

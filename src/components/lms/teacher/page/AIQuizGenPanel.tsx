@@ -548,7 +548,7 @@ export function AIQuizGenPanel({ courseId }: Props) {
               />
             </div>
             
-            <div className="flex flex-wrap items-center gap-2 text-[11px]">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
               <div className="flex items-center gap-1 text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-1 rounded-lg">
                 <Filter className="w-3 h-3" />
                 <span className="font-bold uppercase tracking-tighter">Bloom:</span>

@@ -224,7 +224,7 @@ export function QuizSmartImportModal({
               </div>
 
               {parseError && (
-                <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm animate-in fade-in">
+                <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl text-red-700 dark:text-red-300 font-medium text-sm animate-in fade-in">
                   <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <p>{parseError}</p>
                 </div>
@@ -345,7 +345,7 @@ export function QuizSmartImportModal({
               })}
 
               {saveError && (
-                <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
+                <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl text-red-700 dark:text-red-300 font-medium text-sm">
                   <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <p>{saveError}</p>
                 </div>

@@ -108,9 +108,9 @@ export default function GraphConsolidateModal({ courseId, open, onClose }: Props
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-slate-900 w-full max-w-3xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-violet-50 to-fuchsia-50 dark:from-violet-950/40 dark:to-fuchsia-950/40">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-blue-500/15 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-[#0D192E] dark:to-[#0A1628]">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-violet-600" />
+            <Sparkles className="w-5 h-5 text-blue-600 dark:text-cyan-400" />
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               Làm gọn Graph
             </h2>
@@ -127,7 +127,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose }: Props
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {phase === "loading" && (
             <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-              <Loader2 className="w-8 h-8 animate-spin mb-3 text-violet-500" />
+              <Loader2 className="w-8 h-8 animate-spin mb-3 text-blue-600 dark:text-cyan-400" />
               <p className="text-sm">Đang phân tích graph…</p>
             </div>
           )}
@@ -143,7 +143,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose }: Props
 
           {phase === "executing" && (
             <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-              <Loader2 className="w-8 h-8 animate-spin mb-3 text-violet-500" />
+              <Loader2 className="w-8 h-8 animate-spin mb-3 text-blue-600 dark:text-cyan-400" />
               <p className="text-sm">{statusMsg || "Đang xử lý…"}</p>
             </div>
           )}
@@ -151,7 +151,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose }: Props
           {phase === "preview" && preview && (
             <>
               {/* Summary */}
-              <div className="mb-4 p-3 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800 text-sm text-violet-700 dark:text-violet-300">
+              <div className="mb-4 p-3 rounded-xl bg-blue-50 dark:bg-[#0D192E] border border-blue-200 dark:border-blue-500/20 text-sm text-blue-800 dark:text-cyan-300">
                 {preview.groups.length === 0 && stats.willDeleteOrphans === 0 ? (
                   <span>
                     Graph đã sạch - không có node nào cần hợp nhất hoặc dọn bỏ.
@@ -232,7 +232,7 @@ export default function GraphConsolidateModal({ courseId, open, onClose }: Props
             <button
               onClick={handleConfirm}
               disabled={stats.selectedGroups === 0 && stats.willDeleteOrphans === 0}
-              className="px-4 py-2 text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+              className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
               <Sparkles className="w-3.5 h-3.5" />
               Xác nhận Làm gọn
@@ -263,7 +263,7 @@ function GroupCard({
       className={cn(
         "rounded-xl border p-4 transition-all",
         enabled
-          ? "border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-900"
+          ? "border-blue-300 dark:border-blue-500/30 bg-white dark:bg-[#0F1E35]"
           : "border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 opacity-60"
       )}
     >
@@ -272,19 +272,19 @@ function GroupCard({
           type="checkbox"
           checked={enabled}
           onChange={onToggle}
-          className="mt-1 w-4 h-4 accent-violet-600"
+          className="mt-1 w-4 h-4 accent-blue-600"
         />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span
               className={cn(
-                "text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full border",
+                "text-xs uppercase font-bold px-2 py-0.5 rounded-full border",
                 badge.cls
               )}
             >
               {badge.label}
             </span>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-500 font-medium">
               độ tương đồng {Math.round(group.similarity * 100)}%
             </span>
           </div>
@@ -301,7 +301,7 @@ function GroupCard({
               </span>
             ))}
             <ArrowRight className="w-4 h-4 text-slate-400" />
-            <span className="px-2 py-1 rounded-md bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-200 font-semibold">
+            <span className="px-2 py-1 rounded-md bg-blue-50 dark:bg-cyan-950/30 text-blue-700 dark:text-cyan-300 font-semibold border border-blue-200/60 dark:border-cyan-500/20">
               {group.new_name_vi || group.new_name || survivorName}
             </span>
           </div>
@@ -313,7 +313,7 @@ function GroupCard({
           )}
 
           {group.reason && (
-            <p className="mt-1.5 text-[11px] italic text-slate-500">
+            <p className="mt-1.5 text-xs italic text-slate-500">
               {group.reason}
             </p>
           )}

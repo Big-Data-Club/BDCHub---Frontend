@@ -85,18 +85,31 @@ export function SectionItemCard({
       onDragStart={onSectionDragStart}
       onDragOver={onSectionDragOver}
       onDragEnd={onSectionDragEnd}
-      className={`rounded-2xl border border-slate-200/80 dark:border-blue-500/15 overflow-hidden bg-white dark:bg-[#070E1C] transition-all duration-300 hover:border-slate-300 dark:hover:border-blue-500/30 hover:shadow-xs ${
+      className={`rounded-2xl border border-slate-200/80 dark:border-blue-500/15 overflow-hidden bg-white dark:bg-[#070E1C] transition-all duration-200 hover:border-slate-300 dark:hover:border-blue-500/30 hover:shadow-xs ${
         isDraggingSection ? "opacity-45 border-dashed border-blue-400 dark:border-blue-800" : ""
       }`}
     >
       {/* ── Section header ── */}
       <div
-        className="flex items-center gap-3 px-5 py-4 bg-slate-50/70 dark:bg-[#0D192E]/60 cursor-pointer hover:bg-slate-100/80 dark:hover:bg-[#0F1E35] transition-colors"
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        aria-label={`Chương ${i + 1}: ${sec.title}`}
+        className="flex items-center gap-3.5 px-5 py-4 bg-slate-50/70 dark:bg-[#0D192E]/60 cursor-pointer hover:bg-slate-100/80 dark:hover:bg-[#0F1E35] transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500/40 rounded-t-2xl"
         onClick={onToggleExpand}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onToggleExpand();
+          }
+        }}
       >
         {/* Grip handle */}
         <div
-          className="p-1 cursor-grab active:cursor-grabbing text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 rounded transition-colors"
+          role="button"
+          tabIndex={0}
+          aria-label="Kéo để sắp xếp lại vị trí chương"
+          className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-grab active:cursor-grabbing text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 rounded-lg hover:bg-slate-200/50 dark:hover:bg-blue-900/30 transition-colors"
           onClick={(e) => e.stopPropagation()}
           onMouseDown={onMouseDownSectionDrag}
           onMouseUp={onMouseUpSectionDrag}
@@ -128,8 +141,10 @@ export function SectionItemCard({
         >
           {/* Add content */}
           <button
+            type="button"
             title="Thêm nội dung"
-            className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+            aria-label="Thêm nội dung bài học"
+            className="p-2 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
             onClick={onAddContent}
           >
             <Plus className="w-4 h-4" />
@@ -137,8 +152,10 @@ export function SectionItemCard({
 
           {/* Bulk upload */}
           <button
+            type="button"
             title="Upload nhiều file"
-            className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+            aria-label="Upload nhiều file tài liệu"
+            className="p-2 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
             onClick={onBulkUpload}
           >
             <Upload className="w-4 h-4" />
@@ -146,8 +163,10 @@ export function SectionItemCard({
 
           {/* Edit section */}
           <button
+            type="button"
             title="Sửa chương"
-            className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+            aria-label="Sửa thông tin chương"
+            className="p-2 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
             onClick={onEditSection}
           >
             <Edit3 className="w-4 h-4" />
@@ -155,8 +174,10 @@ export function SectionItemCard({
 
           {/* Section overview */}
           <button
+            type="button"
             title="Tạo bài học & quiz tổng quan chương"
-            className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 transition-colors"
+            aria-label="Tạo bài học và quiz tổng quan chương"
+            className="p-2 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 transition-colors cursor-pointer"
             onClick={onOpenSectionOverview}
           >
             <BookOpen className="w-4 h-4" />
@@ -164,8 +185,10 @@ export function SectionItemCard({
 
           {/* Lịch sử tổng quan */}
           <button
+            type="button"
             title="Lịch sử tạo tổng quan chương"
-            className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+            aria-label="Xem lịch sử tạo tổng quan chương"
+            className="p-2 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
             onClick={onOpenOverviewHistory}
           >
             <History className="w-4 h-4" />
@@ -173,9 +196,11 @@ export function SectionItemCard({
 
           {/* Delete section */}
           <button
+            type="button"
             title="Xóa chương"
+            aria-label="Xóa chương học"
             disabled={deletingSectionId === sec.id}
-            className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 transition-colors"
+            className="p-2 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500 transition-colors cursor-pointer disabled:opacity-50"
             onClick={onDeleteSection}
           >
             {deletingSectionId === sec.id ? (
