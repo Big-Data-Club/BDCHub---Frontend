@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { PrimaryBtn, SecondaryBtn, GhostBtn, DangerBtn } from "@/components/lms/shared/Button";
 import { Input }  from "@/components/ui/input";
 import { Label }  from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -172,14 +172,14 @@ function BindingRow({ binding, onChanged }: { binding: LlmBinding; onChanged: ()
         <Switch checked={isEnabled} onCheckedChange={toggleEnabled} disabled={busy} />
       </td>
       <td className="px-4 py-3 text-right">
-        <Button
-          variant="ghost" size="sm"
-          className="h-7 w-7 p-0 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 active:scale-95 transition-all duration-200"
+        <GhostBtn
+          size="icon"
+          className="h-7 w-7 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30"
           onClick={remove} disabled={busy}
           title="Xoá binding"
         >
           <Trash2 className="h-4 w-4" />
-        </Button>
+        </GhostBtn>
       </td>
     </tr>
   );
@@ -215,11 +215,9 @@ function BindingAddInline({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline"
-          className="gap-1.5 h-7 text-xs active:scale-95 transition-all duration-200"
-        >
-          <Plus className="h-3 w-3" /> Model
-        </Button>
+        <SecondaryBtn size="sm" icon={<Plus className="h-3 w-3" />} className="h-7 text-xs">
+          Model
+        </SecondaryBtn>
       </DialogTrigger>
       <DialogContent className="max-w-sm">
         <DialogHeader>
@@ -260,12 +258,9 @@ function BindingAddInline({
           </div>
         </div>
         <DialogFooter>
-          <Button
-            onClick={add} disabled={saving || !modelId}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-5 shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50"
-          >
-            {saving ? "Đang thêm…" : "Thêm"}
-          </Button>
+          <PrimaryBtn onClick={add} loading={saving} disabled={!modelId}>
+            Thêm
+          </PrimaryBtn>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -306,12 +301,12 @@ function BindingDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
+        <PrimaryBtn
           disabled={models.length === 0}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-5 shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50"
+          icon={<Plus className="h-4 w-4" />}
         >
-          <Plus className="h-4 w-4" /> Thêm binding
-        </Button>
+          Thêm binding
+        </PrimaryBtn>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
@@ -381,12 +376,13 @@ function BindingDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button
-            onClick={save} disabled={saving || !modelId || !effectiveTask}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50"
+          <PrimaryBtn
+            onClick={save}
+            loading={saving}
+            disabled={!modelId || !effectiveTask}
           >
-            {saving ? "Đang lưu…" : "Lưu"}
-          </Button>
+            Lưu
+          </PrimaryBtn>
         </DialogFooter>
       </DialogContent>
     </Dialog>

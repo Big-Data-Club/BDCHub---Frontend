@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { PrimaryBtn } from "@/components/lms/shared/Button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -72,9 +72,9 @@ export function TestCallPanel({ catalogue }: { catalogue: LlmCatalogue | null })
         </div>
       </div>
 
-      <Button onClick={run} disabled={running || !prompt}>
-        {running ? "Đang chạy…" : "Chạy test"}
-      </Button>
+      <PrimaryBtn onClick={run} loading={running} disabled={!prompt}>
+        Chạy test
+      </PrimaryBtn>
 
       {error && (
         <div className="rounded-lg border border-rose-300 bg-rose-50 dark:bg-rose-900/20 p-4 text-sm text-rose-700 dark:text-rose-400">

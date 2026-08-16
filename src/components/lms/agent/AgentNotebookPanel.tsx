@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Trash2, BookOpen, Search, Calendar, Loader2, Plus, Save } from "lucide-react";
 import { agentService } from "@/services/agentService";
-import { Button } from "@/components/ui/button";
+import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -107,9 +107,9 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Notebook</h3>
             <p className="text-[11px] text-slate-400 dark:text-slate-500">Lưu ý tưởng, câu trả lời AI và nội dung ôn tập</p>
           </div>
-          <Button onClick={() => setCreateOpen(true)} size="sm" className="h-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 text-xs active:scale-95 transition-all">
-            <Plus className="mr-1 h-3.5 w-3.5" />Ghi chú
-          </Button>
+          <PrimaryBtn onClick={() => setCreateOpen(true)} size="sm" icon={<Plus className="h-3.5 w-3.5" />}>
+            Ghi chú
+          </PrimaryBtn>
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
@@ -150,8 +150,7 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
                     <CardTitle className="text-sm font-semibold text-slate-900 dark:text-white line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">
                       {note.title}
                     </CardTitle>
-                    <Button
-                      variant="ghost"
+                    <GhostBtn
                       size="icon"
                       disabled={deletingId === note.id}
                       onClick={(e) => handleDelete(note.id, e)}
@@ -162,7 +161,7 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
                       ) : (
                         <Trash2 className="h-3.5 w-3.5" />
                       )}
-                    </Button>
+                    </GhostBtn>
                   </div>
                   <CardDescription className="flex items-center text-[10px] text-slate-400 dark:text-slate-500 gap-1 mt-1">
                     <Calendar className="w-3 h-3" />

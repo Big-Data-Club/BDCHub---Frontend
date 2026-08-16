@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { NotificationPopover } from "@/components/lms/notifications/NotificationPopover";
+import { SecondaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 
 interface NavItem {
   href: string;
@@ -65,18 +66,20 @@ export function LmsHeader({
             )}
             <ThemeToggle />
             <div className="h-4 w-px bg-slate-200 dark:bg-blue-500/15 hidden sm:block" />
-            <Link
-              href="/"
-              className="hidden sm:inline-flex items-center px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-250 dark:border-blue-500/20 rounded-xl hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#162644] active:scale-95 transition-all duration-200"
+            <GhostBtn
+              size="sm"
+              asChild
+              className="hidden sm:inline-flex"
             >
-              Trang chủ
-            </Link>
-            <button
+              <Link href="/">Trang chủ</Link>
+            </GhostBtn>
+            <SecondaryBtn
+              size="sm"
               onClick={handleChangeRole}
-              className="inline-flex items-center px-3.5 py-1.5 text-xs font-bold text-blue-600 dark:text-cyan-400 border border-blue-200 dark:border-blue-500/20 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-50 dark:hover:bg-blue-900/20 active:scale-95 transition-all duration-200"
+              className="text-blue-600 dark:text-cyan-400 bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-500/20"
             >
               Đổi vai trò
-            </button>
+            </SecondaryBtn>
             <NotificationPopover />
           </div>
         </div>

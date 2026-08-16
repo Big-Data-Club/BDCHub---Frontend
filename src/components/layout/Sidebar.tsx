@@ -20,6 +20,7 @@ import { useTheme } from "next-themes";
 import SafeImage from "../common/SafeImage";
 import lmsService from "@/services/lmsService";
 import { logout } from "@/services/logout";
+import { GhostBtn } from "@/components/lms/shared/Button";
 
 const MIN_WIDTH = 64;
 const MAX_WIDTH = 280;
@@ -260,40 +261,40 @@ const Sidebar: React.FC = () => {
             </Link>
           )}
 
-          <button
+          <GhostBtn
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
             className={cn(
-              "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
+              "w-full flex items-center gap-3 px-3 py-2 text-sm font-medium justify-start h-auto",
               "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] hover:text-slate-900 dark:hover:text-slate-100",
-              isCollapsed && "justify-center"
+              isCollapsed && "justify-center px-0"
             )}
           >
             {mounted && (theme === "dark" ? <Sun className="h-4 w-4 flex-shrink-0" /> : <Moon className="h-4 w-4 flex-shrink-0" />)}
             {!isCollapsed && mounted && (theme === "dark" ? "Light mode" : "Dark mode")}
-          </button>
+          </GhostBtn>
 
-          <button
+          <GhostBtn
             onClick={handleLogout}
             className={cn(
-              "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
+              "w-full flex items-center gap-3 px-3 py-2 text-sm font-medium justify-start h-auto",
               "text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600",
-              isCollapsed && "justify-center"
+              isCollapsed && "justify-center px-0"
             )}
           >
             <LogOut className="h-4 w-4 flex-shrink-0" />
             {!isCollapsed && "Logout"}
-          </button>
+          </GhostBtn>
 
-          <button
+          <GhostBtn
             onClick={toggleSidebar}
             className={cn(
-              "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
+              "w-full flex items-center gap-3 px-3 py-2 text-sm font-medium justify-start h-auto",
               "text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-[#162644]",
-              isCollapsed && "justify-center"
+              isCollapsed && "justify-center px-0"
             )}
           >
             {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <><ChevronsLeft className="h-4 w-4" /><span>Collapse</span></>}
-          </button>
+          </GhostBtn>
         </div>
 
         {/* Resize handle */}

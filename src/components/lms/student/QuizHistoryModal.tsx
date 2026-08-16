@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { PrimaryBtn, SecondaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 import quizService from "@/services/quizService";
 import { Clock, CheckCircle, XCircle, Eye, Calendar, Timer, Award, TrendingUp, AlertCircle } from "lucide-react";
 
@@ -168,12 +168,12 @@ export default function QuizHistoryModal({
               <h2 className="text-2xl font-bold mb-2">{quizTitle}</h2>
               <p className="text-blue-100 text-sm">Lịch sử làm bài quiz</p>
             </div>
-            <Button
+            <GhostBtn
               onClick={onClose}
-              className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white border-0 rounded-lg"
+              className="text-white hover:bg-white/20 hover:text-white"
             >
               Đóng
-            </Button>
+            </GhostBtn>
           </div>
 
           {/* Statistics */}
@@ -220,12 +220,12 @@ export default function QuizHistoryModal({
             <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
               <XCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
               <p className="text-red-700 font-medium mb-2">{error}</p>
-              <Button
+              <PrimaryBtn
                 onClick={loadAttempts}
-                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                className="mt-4"
               >
                 Thử lại
-              </Button>
+              </PrimaryBtn>
             </div>
           ) : attempts.length === 0 ? (
             <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-12 text-center">
@@ -275,14 +275,13 @@ export default function QuizHistoryModal({
                       </div>
                     </div>
 
-                    <Button
+                    <PrimaryBtn
                       onClick={() => onViewAttempt(attempt.id)}
                       size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2"
+                      icon={<Eye className="w-4 h-4" />}
                     >
-                      <Eye className="w-4 h-4" />
                       Xem chi tiết
-                    </Button>
+                    </PrimaryBtn>
                   </div>
 
                   {/* Score Info */}

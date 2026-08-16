@@ -22,6 +22,7 @@ import {
 import aiService, { DiagnosisResult, DeepLink } from "@/services/aiService";
 import { cn } from "@/lib/utils";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 
 interface Props {
   attemptId: number;
@@ -126,9 +127,9 @@ export default function AIDiagnosisModal({
             <p className="font-bold text-sm">AI Phân tích lỗi</p>
             <p className="text-xs text-white/70 truncate">{questionText}</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/20 transition-all">
+          <GhostBtn onClick={onClose} size="icon" className="text-white hover:bg-white/20 hover:text-white">
             <X className="w-4 h-4" />
-          </button>
+          </GhostBtn>
         </div>
 
         {/* Body */}
@@ -276,13 +277,13 @@ export default function AIDiagnosisModal({
 
         {/* Footer */}
         {result && !loading && (
-          <div className="px-6 pb-5 border-t border-slate-200 dark:border-slate-800 flex-shrink-0">
-            <button
+          <div className="px-6 pb-5 pt-3 border-t border-slate-200 dark:border-slate-800 flex-shrink-0">
+            <PrimaryBtn
               onClick={onClose}
-              className="w-full mt-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-all active:scale-95"
+              className="w-full"
             >
               Đã hiểu, đóng lại
-            </button>
+            </PrimaryBtn>
           </div>
         )}
 
