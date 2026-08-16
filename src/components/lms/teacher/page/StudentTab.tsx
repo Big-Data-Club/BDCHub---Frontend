@@ -15,6 +15,7 @@ import Link from "next/link";
 import { analyticsService, CourseStudentProgress } from "@/services/analyticsService";
 import { StudentSummaryBar }    from "@/components/lms/teacher/students/StudentSummaryBar";
 import { StudentProgressTable } from "@/components/lms/teacher/students/StudentProgressTable";
+import { TabBar }               from "@/components/lms/shared";
 
 interface Props {
   courseId: number;
@@ -25,6 +26,7 @@ export function StudentsTab({ courseId }: Props) {
   const [loading, setLoading]       = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch]         = useState("");
+  const [filterTab, setFilterTab]   = useState<"ALL" | "IN_PROGRESS" | "COMPLETED" | "ATTENTION">("ALL");
   const [selected, setSelected]     = useState<CourseStudentProgress | null>(null);
   const [sortBy, setSortBy]         = useState<keyof CourseStudentProgress>("progress_percent");
   const [sortDir, setSortDir]       = useState<"asc" | "desc">("desc");
@@ -50,12 +52,27 @@ export function StudentsTab({ courseId }: Props) {
     else { setSortBy(col); setSortDir("desc"); }
   };
 
+  const counts = {
+    all: students.length,
+    inProgress: students.filter(s => s.progress_percent > 0 && s.progress_percent < 100).length,
+    completed: students.filter(s => s.progress_percent >= 100).length,
+    attention: students.filter(s => s.progress_percent < 20 && s.total_mandatory > 0).length,
+  };
+
   const filtered = students
-    .filter(s =>
-      !search ||
-      s.student_name.toLowerCase().includes(search.toLowerCase()) ||
-      s.student_email.toLowerCase().includes(search.toLowerCase())
-    )
+    .filter(s => {
+      const matchesSearch =
+        !search ||
+        s.student_name.toLowerCase().includes(search.toLowerCase()) ||
+        s.student_email.toLowerCase().includes(search.toLowerCase());
+
+      if (!matchesSearch) return false;
+
+      if (filterTab === "IN_PROGRESS") return s.progress_percent > 0 && s.progress_percent < 100;
+      if (filterTab === "COMPLETED") return s.progress_percent >= 100;
+      if (filterTab === "ATTENTION") return s.progress_percent < 20 && s.total_mandatory > 0;
+      return true;
+    })
     .sort((a, b) => {
       const av = a[sortBy] as any ?? 0;
       const bv = b[sortBy] as any ?? 0;
@@ -79,12 +96,24 @@ export function StudentsTab({ courseId }: Props) {
 
   return (
     // relative để StudentDetailPanel có thể dùng sticky bên trong tab layout
-    <div className="relative">
+    <div className="relative space-y-6">
       {/* Summary bar */}
       <StudentSummaryBar students={students} />
 
+      {/* Filter tabs */}
+      <TabBar
+        tabs={[
+          { id: "ALL",         label: "Tất cả học viên", badge: counts.all },
+          { id: "IN_PROGRESS", label: "Đang học",       badge: counts.inProgress },
+          { id: "COMPLETED",   label: "Đã hoàn thành", badge: counts.completed },
+          { id: "ATTENTION",   label: "Cần chú ý",      badge: counts.attention },
+        ]}
+        active={filterTab}
+        onChange={id => setFilterTab(id as any)}
+      />
+
       {/* Search + refresh */}
-      <div className="flex items-center gap-3 mt-6 mb-4">
+      <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -155,9 +184,9 @@ function InlineStudentDetail({
     d ? new Date(d).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "-";
 
   const colors = [
-    "from-blue-400 to-blue-600", "from-violet-400 to-violet-600",
+    "from-blue-400 to-blue-600", "from-cyan-400 to-blue-600",
     "from-emerald-400 to-emerald-600", "from-amber-400 to-amber-600",
-    "from-pink-400 to-pink-600",
+    "from-sky-400 to-indigo-600",
   ];
   const gradient = colors[student.student_name.charCodeAt(0) % colors.length];
   const initials  = student.student_name.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase();
@@ -224,7 +253,7 @@ function InlineStudentDetail({
         {student.quiz_avg_score != null && (
           <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
             <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-violet-500" />
+              <Award className="w-4 h-4 text-blue-500 dark:text-cyan-400" />
               <span className="text-xs text-slate-600 dark:text-slate-400">Điểm quiz TB</span>
             </div>
             <span className={`text-sm font-bold ${student.quiz_avg_score >= 70 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>

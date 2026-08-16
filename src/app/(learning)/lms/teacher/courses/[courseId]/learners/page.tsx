@@ -1,14 +1,20 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { LearnersTab } from "@/components/lms/teacher/page/LearnersTab";
+import { redirect, useParams } from "next/navigation";
+import { useEffect } from "react";
 
-/**
- * /lms/teacher/courses/[courseId]/learners
- *
- * Shows enrolled learners with ACCEPTED / REJECTED filter.
- */
-export default function CourseLearnersPage() {
+export default function LegacyLearnersRedirect() {
   const { courseId } = useParams<{ courseId: string }>();
-  return <LearnersTab courseId={Number(courseId)} />;
+
+  useEffect(() => {
+    if (courseId) {
+      redirect(`/lms/teacher/courses/${courseId}/students`);
+    }
+  }, [courseId]);
+
+  return (
+    <div className="py-12 text-center text-sm text-slate-400">
+      Đang chuyển hướng sang trang Học viên & Tiến độ…
+    </div>
+  );
 }

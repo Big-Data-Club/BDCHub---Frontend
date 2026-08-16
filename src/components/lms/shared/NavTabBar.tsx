@@ -94,9 +94,9 @@ function NavTabBarInner({
   return (
     <div
       className={cn(
-        "flex items-center gap-1 bg-slate-100/80 dark:bg-[#0D192E] border border-slate-200/60 dark:border-blue-500/15 rounded-xl p-1 shadow-inner overflow-x-auto max-w-full scrollbar-none",
+        "inline-flex items-center gap-1 bg-slate-100/90 dark:bg-[#070E1C]/90 backdrop-blur-md border border-slate-200/80 dark:border-blue-500/20 rounded-xl p-1 shadow-2xs overflow-x-auto max-w-full scrollbar-none",
         size === "sm" ? "h-10" : "h-11",
-        fullWidth && "w-full",
+        fullWidth ? "flex w-full" : "w-fit",
         className
       )}
     >
@@ -109,11 +109,11 @@ function NavTabBarInner({
             href={href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex items-center justify-center gap-2 px-4 py-1.5 text-xs font-bold rounded-lg transition-colors duration-150 cursor-pointer whitespace-nowrap h-full border active:opacity-80",
+              "flex items-center justify-center gap-2 px-3.5 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap h-full border active:scale-95",
               fullWidth && "flex-1",
               active
-                ? "bg-white text-blue-600 border-slate-200 shadow-xs dark:bg-cyan-500 dark:text-slate-950 dark:border-transparent dark:shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                : "bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-blue-900/20"
+                ? "bg-white text-blue-600 border-slate-200/90 shadow-2xs dark:bg-blue-600/20 dark:text-cyan-300 dark:border-cyan-500/30"
+                : "bg-transparent text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-blue-900/30"
             )}
           >
             {tab.icon}
@@ -123,7 +123,7 @@ function NavTabBarInner({
                 className={cn(
                   "text-xs font-bold rounded-full px-1.5 py-0.5 transition-colors duration-150",
                   active
-                    ? "bg-blue-600 text-white dark:bg-slate-950 dark:text-cyan-400"
+                    ? "bg-blue-100 text-blue-700 dark:bg-cyan-950 dark:text-cyan-300"
                     : "bg-slate-200 text-slate-700 dark:bg-[#162644] dark:text-slate-300"
                 )}
               >

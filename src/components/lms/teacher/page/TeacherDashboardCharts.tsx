@@ -29,7 +29,7 @@ export function TeacherDashboardCharts({
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#64748b" }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: "#64748b" }} />
-                <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
+                <Tooltip contentStyle={{ fontSize: "12px", borderRadius: "8px" }} />
                 <Line type="monotone" dataKey="Học viên mới" stroke="#3b82f6" strokeWidth={2.5} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -50,7 +50,7 @@ export function TeacherDashboardCharts({
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="name" tick={{ fontSize: 9, fill: "#64748b" }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#64748b" }} />
-                <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "8px" }} />
+                <Tooltip contentStyle={{ fontSize: "12px", borderRadius: "8px" }} />
                 <Legend wrapperStyle={{ fontSize: "11px" }} />
                 <Bar dataKey="Hoàn thành (%)" fill="#10b981" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="Điểm Quiz (%)" fill="#a78bfa" radius={[4, 4, 0, 0]} />
