@@ -1,3 +1,11 @@
+---
+title: "HCMUT HPC School 2026 - Design System Specification"
+category: "design-system"
+status: "active-spec"
+last_updated: "2026-08-16"
+target_surface: "src/app/(standalone)/hpc-summer-school"
+---
+
 # HCMUT HPC School 2026 - UI/UX Design System & Aesthetic Analysis
 
 Tài liệu này phân tích chi tiết toàn bộ hệ thống thiết kế giao diện (UI/UX) của trang đăng ký **HCMUT HPC School 2026**. Tài liệu đã được cập nhật để phản ánh đầy đủ các cải tiến thực tế về mặt cấu trúc Modular, hiệu ứng kính mờ (Glassmorphism), thiết kế Stepper tích hợp toán học và thành phần thông báo Toast nổi cao cấp.
@@ -50,7 +58,7 @@ Thông báo khôi phục nháp cũ đã được chuyển đổi hoàn toàn t�
 
 ---
 
-## 5. Đầu Vào & Điều Hướngsleek (Inputs & Navigation)
+## 5. Đầu Vào & Điều Hướng Sleek (Inputs & Navigation)
 
 * **Trường nhập liệu (Form Fields):** Được đóng gói thành các component tái sử dụng (`FIn`, `FTa`, `FSel`) với chất liệu bán thấu quang `bg-slate-50/50 dark:bg-slate-800/40 backdrop-blur-sm`, tỏa sáng nhẹ nhàng với bóng viền `focus:shadow-[0_0_15px_rgba(6,182,212,0.15)]` khi được chọn.
 * **Nút bấm Sleek & Chuyên nghiệp:** Loại bỏ hiệu ứng phóng to phóng đại và bóng sáng gây chói mắt. Các nút bấm chính duy trì kích thước ổn định, chỉ phản hồi nhấn vật lý đàn hồi nhẹ khi click (`active:scale-95`) cùng bóng đổ mờ tối giản (`shadow-cyan-900/10 dark:shadow-cyan-950/20`), đảm bảo trải nghiệm trang trọng nhất.

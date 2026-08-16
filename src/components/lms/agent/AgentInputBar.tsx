@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, memo } from "react";
 import { Send, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ interface AgentInputBarProps {
 const MIN_HEIGHT = 36;
 const MAX_HEIGHT = 192;
 
-export function AgentInputBar({
+export const AgentInputBar = memo(function AgentInputBar({
   onSend,
   isStreaming,
   onStop,
@@ -27,51 +27,40 @@ export function AgentInputBar({
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Synchronous bidirectional height calculation BEFORE paint to eliminate scrollbar flicker & ensure collapse
   useLayoutEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
-
-    // Reset height to "auto" to force browser DOM layout engine to recompute exact scrollHeight for current string
-    el.style.height = "auto";
-
-    const scrollHeight = el.scrollHeight;
-    const targetHeight = Math.min(Math.max(scrollHeight, MIN_HEIGHT), MAX_HEIGHT);
-
-    el.style.height = `${targetHeight}px`;
-
-    // Strictly hide overflow-y until max height is reached to prevent scrollbar flicker
-    el.style.overflowY = scrollHeight > MAX_HEIGHT ? "auto" : "hidden";
+    el.style.height = `${MIN_HEIGHT}px`;
+    const nextHeight = Math.min(Math.max(el.scrollHeight, MIN_HEIGHT), MAX_HEIGHT);
+    el.style.height = `${nextHeight}px`;
   }, [input]);
 
-  function handleSubmit(e?: React.FormEvent) {
+  const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || isStreaming || disabled) return;
     onSend(input.trim());
     setInput("");
-  }
+  };
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    // Prevent premature send during IME composition (Vietnamese Telex/Unikey, Japanese, Chinese)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.nativeEvent.isComposing) return;
-
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
-  }
+  };
 
   return (
     <form
       onSubmit={handleSubmit}
       className={cn(
-        "flex items-end gap-2 p-1.5 sm:p-2 rounded-2xl",
-        "bg-white dark:bg-[#0D192E]",
-        "border border-slate-300/80 dark:border-blue-500/25",
-        "focus-within:border-blue-500 dark:focus-within:border-cyan-400/50",
-        "focus-within:ring-2 focus-within:ring-blue-500/20 dark:focus-within:ring-cyan-400/20",
-        "shadow-md shadow-slate-200/50 dark:shadow-cyan-950/20 transition-all duration-200",
-        className
+        "relative flex items-end gap-2 p-2 sm:p-2.5 rounded-2xl",
+        "bg-white dark:bg-[#070E1C]",
+        "border border-slate-200/90 dark:border-blue-500/20",
+        "shadow-lg dark:shadow-none shadow-blue-500/5",
+        "focus-within:border-blue-500/50 dark:focus-within:border-cyan-500/40",
+        "transition-all duration-200",
+        className,
       )}
     >
       <textarea
@@ -80,21 +69,13 @@ export function AgentInputBar({
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        rows={1}
         disabled={disabled || isStreaming}
+        rows={1}
         className={cn(
-          "flex-1 resize-none bg-transparent px-3 py-2",
-          "text-xs sm:text-sm leading-5 text-slate-900 dark:text-slate-100",
-          "placeholder:text-slate-400 dark:placeholder:text-slate-500",
-          "focus:outline-none",
-          "disabled:opacity-50",
-          "custom-scrollbar",
-          "transition-[height] duration-150 ease-out",
+          "flex-1 bg-transparent resize-none border-none outline-none",
+          "text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500",
+          "px-2 py-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800",
         )}
-        style={{
-          height: `${MIN_HEIGHT}px`,
-          overflowY: "hidden",
-        }}
       />
 
       {isStreaming ? (
@@ -106,7 +87,7 @@ export function AgentInputBar({
             "bg-red-500 hover:bg-red-600 active:scale-95 text-white",
             "transition-all duration-200 shadow-xs cursor-pointer mb-0.5",
           )}
-          title="Dừng sinh trả lời"
+          title="Dừng phản hồi"
         >
           <Square className="w-3.5 h-3.5 fill-current" />
         </button>
@@ -127,4 +108,4 @@ export function AgentInputBar({
       )}
     </form>
   );
-}
+});

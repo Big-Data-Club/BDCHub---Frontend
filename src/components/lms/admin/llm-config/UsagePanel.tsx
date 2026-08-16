@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { SecondaryBtn } from "@/components/lms/shared/Button";
 import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -83,9 +83,9 @@ export function UsagePanel({ catalogue }: { catalogue: LlmCatalogue | null }) {
               </SelectContent>
             </Select>
           </div>
-          <Button variant="outline" onClick={refresh} disabled={loading}>
-            {loading ? "…" : "Refresh"}
-          </Button>
+          <SecondaryBtn onClick={refresh} loading={loading}>
+            Refresh
+          </SecondaryBtn>
         </div>
       </div>
 

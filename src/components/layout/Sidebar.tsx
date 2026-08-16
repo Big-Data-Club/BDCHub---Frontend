@@ -20,6 +20,7 @@ import { useTheme } from "next-themes";
 import SafeImage from "../common/SafeImage";
 import lmsService from "@/services/lmsService";
 import { logout } from "@/services/logout";
+import { GhostBtn } from "@/components/lms/shared/Button";
 
 const MIN_WIDTH = 64;
 const MAX_WIDTH = 280;
@@ -103,27 +104,31 @@ const Sidebar: React.FC = () => {
       <aside
         style={{ width }}
         className="group relative hidden md:flex flex-col h-screen flex-shrink-0
-                   bg-white dark:bg-slate-900
-                   border-r border-slate-200 dark:border-slate-800
+                   bg-white dark:bg-[#070E1C]
+                   border-r border-slate-200 dark:border-blue-500/10
                    transition-[width] duration-200 ease-in-out z-20"
       >
         {/* Logo */}
-        <div className={cn("flex items-center gap-2.5 px-4 py-5 border-b border-slate-200 dark:border-slate-800", isCollapsed && "justify-center px-2")}>
-          <SafeImage src={LogoIcon} alt="BDC" width={48} height={48} priority className="flex-shrink-0" />
+        <Link
+          href="/"
+          className={cn("flex items-center gap-2.5 px-4 py-4 border-b border-slate-200 dark:border-blue-500/10 hover:opacity-85 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-cyan-400 rounded-lg", isCollapsed && "justify-center px-2")}
+          title="Trang chủ BDC Hub"
+        >
+          <SafeImage src={LogoIcon} alt="BDC" width={40} height={40} priority className="flex-shrink-0 w-10 h-10 object-contain" />
           {!isCollapsed && (
             <div>
               <p className="text-sm font-bold text-slate-900 dark:text-slate-50 leading-tight">Big Data Club</p>
             </div>
           )}
-        </div>
+        </Link>
 
         {/* User */}
-        <div className={cn("px-3 py-3 border-b border-slate-200 dark:border-slate-800", isCollapsed && "px-2")}>
+        <div className={cn("px-3 py-3 border-b border-slate-200 dark:border-blue-500/10", isCollapsed && "px-2")}>
           <Link
             href="/myaccount"
             className={cn(
               "flex items-center gap-3 rounded-xl p-2 transition-colors duration-200",
-              "hover:bg-slate-100 dark:hover:bg-slate-800",
+              "hover:bg-slate-100 dark:hover:bg-[#162644]",
               isCollapsed && "justify-center"
             )}
           >
@@ -171,7 +176,7 @@ const Sidebar: React.FC = () => {
             .filter((section) => section.links.length > 0)
             .map((section, i) => (
             <div key={section.title}>
-              {i > 0 && <div className="border-t border-slate-200 dark:border-slate-800 mb-3" />}
+              {i > 0 && <div className="border-t border-slate-200 dark:border-blue-500/10 mb-3" />}
               {!isCollapsed && (
                 <p className="text-xs font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-wider px-3 mb-1.5">
                   {section.title}
@@ -193,7 +198,7 @@ const Sidebar: React.FC = () => {
                         "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive
                           ? "bg-blue-600 text-white"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100",
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] hover:text-slate-900 dark:hover:text-slate-100",
                         isCollapsed && "justify-center px-2"
                       )}
                     >
@@ -213,12 +218,12 @@ const Sidebar: React.FC = () => {
                             <span>{link.label}</span>
                           )}
                           {hasBadge && (
-                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white leading-none">
+                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-xs scale-90 font-bold text-white leading-none">
                               {unreadAlertsCount > 9 ? "9+" : unreadAlertsCount}
                             </span>
                           )}
                           {hasChatBadge && (
-                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white leading-none animate-pulse">
+                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-xs scale-90 font-bold text-white leading-none animate-pulse">
                               {unreadChatCount > 9 ? "9+" : unreadChatCount}
                             </span>
                           )}
@@ -243,7 +248,7 @@ const Sidebar: React.FC = () => {
         </nav>
 
         {/* Footer actions */}
-        <div className="border-t border-slate-200 dark:border-slate-800 p-2 space-y-0.5">
+        <div className="border-t border-slate-200 dark:border-blue-500/10 p-2 space-y-0.5">
           {isAdmin && (
             <Link
               href="/settings"
@@ -251,7 +256,7 @@ const Sidebar: React.FC = () => {
                 "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
                 pathname.startsWith("/settings")
                   ? "bg-blue-600 text-white"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100",
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] hover:text-slate-900 dark:hover:text-slate-100",
                 isCollapsed && "justify-center"
               )}
             >
@@ -260,40 +265,40 @@ const Sidebar: React.FC = () => {
             </Link>
           )}
 
-          <button
+          <GhostBtn
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
             className={cn(
-              "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
-              "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100",
-              isCollapsed && "justify-center"
+              "w-full flex items-center gap-3 px-3 py-2 text-sm font-medium justify-start h-auto",
+              "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] hover:text-slate-900 dark:hover:text-slate-100",
+              isCollapsed && "justify-center px-0"
             )}
           >
             {mounted && (theme === "dark" ? <Sun className="h-4 w-4 flex-shrink-0" /> : <Moon className="h-4 w-4 flex-shrink-0" />)}
             {!isCollapsed && mounted && (theme === "dark" ? "Light mode" : "Dark mode")}
-          </button>
+          </GhostBtn>
 
-          <button
+          <GhostBtn
             onClick={handleLogout}
             className={cn(
-              "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
+              "w-full flex items-center gap-3 px-3 py-2 text-sm font-medium justify-start h-auto",
               "text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600",
-              isCollapsed && "justify-center"
+              isCollapsed && "justify-center px-0"
             )}
           >
             <LogOut className="h-4 w-4 flex-shrink-0" />
             {!isCollapsed && "Logout"}
-          </button>
+          </GhostBtn>
 
-          <button
+          <GhostBtn
             onClick={toggleSidebar}
             className={cn(
-              "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
-              "text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800",
-              isCollapsed && "justify-center"
+              "w-full flex items-center gap-3 px-3 py-2 text-sm font-medium justify-start h-auto",
+              "text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-[#162644]",
+              isCollapsed && "justify-center px-0"
             )}
           >
             {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <><ChevronsLeft className="h-4 w-4" /><span>Collapse</span></>}
-          </button>
+          </GhostBtn>
         </div>
 
         {/* Resize handle */}

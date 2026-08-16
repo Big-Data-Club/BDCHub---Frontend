@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { PrimaryBtn, SecondaryBtn, DangerBtn } from "@/components/lms/shared/Button";
 import { Input }  from "@/components/ui/input";
 import { Label }  from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -136,21 +136,23 @@ function ModelRow({
         <div className="flex justify-end gap-2">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5 active:scale-95 transition-all duration-200">
-                <Pencil className="h-3.5 w-3.5" /> Sửa
-              </Button>
+              <SecondaryBtn size="sm" icon={<Pencil className="h-3.5 w-3.5" />}>
+                Sửa
+              </SecondaryBtn>
             </DialogTrigger>
             <ModelDialogContent
               model={model} providers={providers}
               onSaved={() => { setOpen(false); onChanged(); }}
             />
           </Dialog>
-          <Button variant="destructive" size="sm"
-            className="gap-1.5 active:scale-95 transition-all duration-200"
-            onClick={remove} disabled={busy}
+          <DangerBtn
+            size="sm"
+            icon={<Trash2 className="h-3.5 w-3.5" />}
+            onClick={remove}
+            disabled={busy}
           >
-            <Trash2 className="h-3.5 w-3.5" /> Xoá
-          </Button>
+            Xoá
+          </DangerBtn>
         </div>
       </td>
     </tr>
@@ -162,12 +164,12 @@ function ModelDialog({ providers, onSaved }: { providers: LlmProvider[]; onSaved
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
+        <PrimaryBtn
           disabled={providers.length === 0}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-5 shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50"
+          icon={<Plus className="h-4 w-4" />}
         >
-          <Plus className="h-4 w-4" /> Thêm model
-        </Button>
+          Thêm model
+        </PrimaryBtn>
       </DialogTrigger>
       <ModelDialogContent providers={providers} onSaved={() => { setOpen(false); onSaved(); }} />
     </Dialog>
@@ -377,13 +379,13 @@ function ModelDialogContent({
       </div>
 
       <DialogFooter>
-        <Button
+        <PrimaryBtn
           onClick={save}
-          disabled={saving || !modelName || !providerId}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50"
+          loading={saving}
+          disabled={!modelName || !providerId}
         >
-          {saving ? "Đang lưu…" : "Lưu"}
-        </Button>
+          Lưu
+        </PrimaryBtn>
       </DialogFooter>
     </DialogContent>
   );

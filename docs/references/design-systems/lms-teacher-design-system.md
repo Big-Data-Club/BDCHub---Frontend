@@ -1,3 +1,11 @@
+---
+title: "LMS Teacher Design System Reference"
+category: "design-system"
+status: "active-spec"
+last_updated: "2026-08-16"
+target_surface: "src/app/(learning)/lms/teacher"
+---
+
 # LMS Teacher Design System Reference
 
 This document serves as the official visual design, layout, and component spec for the **LMS Teacher (Giảng viên) module** in the BDCHub ecosystem. It defines the design tokens, user experience guidelines, interactive states, and component architectures used across all teacher dashboards, course managers, and quiz tools.

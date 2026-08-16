@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { PrimaryBtn, SecondaryBtn, DangerBtn } from "@/components/lms/shared/Button";
 import { Input }  from "@/components/ui/input";
 import { Label }  from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -125,9 +125,9 @@ function ProviderRow({
         <div className="flex justify-end gap-2">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5 active:scale-95 transition-all duration-200">
-                <Pencil className="h-3.5 w-3.5" /> Sửa
-              </Button>
+              <SecondaryBtn size="sm" icon={<Pencil className="h-3.5 w-3.5" />}>
+                Sửa
+              </SecondaryBtn>
             </DialogTrigger>
             <ProviderDialogContent
               provider={provider}
@@ -135,13 +135,14 @@ function ProviderRow({
               onSaved={() => { setOpen(false); onChanged(); }}
             />
           </Dialog>
-          <Button
-            variant="destructive" size="sm"
-            className="gap-1.5 active:scale-95 transition-all duration-200"
-            onClick={remove} disabled={busy}
+          <DangerBtn
+            size="sm"
+            icon={<Trash2 className="h-3.5 w-3.5" />}
+            onClick={remove}
+            disabled={busy}
           >
-            <Trash2 className="h-3.5 w-3.5" /> Xoá
-          </Button>
+            Xoá
+          </DangerBtn>
         </div>
       </td>
     </tr>
@@ -153,9 +154,9 @@ function ProviderDialog({ catalogue, onSaved }: { catalogue: LlmCatalogue | null
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-5 shadow-sm active:scale-95 transition-all duration-200">
-          <Plus className="h-4 w-4" /> Thêm provider
-        </Button>
+        <PrimaryBtn icon={<Plus className="h-4 w-4" />}>
+          Thêm provider
+        </PrimaryBtn>
       </DialogTrigger>
       <ProviderDialogContent catalogue={catalogue} onSaved={() => { setOpen(false); onSaved(); }} />
     </Dialog>
@@ -286,13 +287,13 @@ function ProviderDialogContent({
       </div>
 
       <DialogFooter>
-        <Button
+        <PrimaryBtn
           onClick={save}
-          disabled={saving || !code || !displayName}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50"
+          loading={saving}
+          disabled={!code || !displayName}
         >
-          {saving ? "Đang lưu…" : "Lưu"}
-        </Button>
+          Lưu
+        </PrimaryBtn>
       </DialogFooter>
     </DialogContent>
   );

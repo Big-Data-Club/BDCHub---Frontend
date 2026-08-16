@@ -93,7 +93,7 @@ export function AgentConsoleSidebar({
             </span>
             <span
               className={cn(
-                "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap shrink-0",
+                "px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider whitespace-nowrap shrink-0",
                 didSpawn 
                   ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400" 
                   : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
@@ -124,7 +124,7 @@ export function AgentConsoleSidebar({
 
             {/* Formula Breakdown */}
             {breakdown && Object.keys(breakdown).length > 0 && (
-              <div className="grid grid-cols-2 gap-2 pt-2 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/60">
+              <div className="grid grid-cols-2 gap-2 pt-2 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/60">
                 <div className="flex justify-between">
                   <span>Context Pres. (w_c):</span>
                   <span className="font-semibold text-slate-700 dark:text-slate-300">{(breakdown.c_ratio || 0).toFixed(2)}</span>
@@ -164,7 +164,7 @@ export function AgentConsoleSidebar({
               </div>
               <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 dark:border-slate-850">
                 <span className="text-slate-500">Compression Savings:</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-400">
+                <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-400">
                   {consolidation.compression_ratio}% Savings
                 </span>
               </div>
@@ -181,7 +181,7 @@ export function AgentConsoleSidebar({
               </span>
               <span
                 className={cn(
-                  "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider",
+                  "px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider",
                   critique.verdict === "approve"
                     ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400"
                     : "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400"
@@ -195,7 +195,7 @@ export function AgentConsoleSidebar({
               {/* Scores Grid */}
               <div className="grid grid-cols-3 gap-2">
                 <div className="flex flex-col items-center bg-slate-50/60 dark:bg-[#0D192E] p-2 rounded-lg border border-slate-200/60 dark:border-blue-500/10">
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Factuality</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Factuality</span>
                   <span className={cn(
                     "text-sm font-bold mt-0.5",
                     critique.factuality_score >= 0.7 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
@@ -204,7 +204,7 @@ export function AgentConsoleSidebar({
                   </span>
                 </div>
                 <div className="flex flex-col items-center bg-slate-50/60 dark:bg-[#0D192E] p-2 rounded-lg border border-slate-200/60 dark:border-blue-500/10">
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Pedagogy</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Pedagogy</span>
                   <span className={cn(
                     "text-sm font-bold mt-0.5",
                     critique.pedagogy_score >= 0.7 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
@@ -213,7 +213,7 @@ export function AgentConsoleSidebar({
                   </span>
                 </div>
                 <div className="flex flex-col items-center bg-slate-50/60 dark:bg-[#0D192E] p-2 rounded-lg border border-slate-200/60 dark:border-blue-500/10">
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Format</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Format</span>
                   <span className={cn(
                     "text-sm font-bold mt-0.5",
                     critique.format_score >= 0.7 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
@@ -271,14 +271,14 @@ export function AgentConsoleSidebar({
                           <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                             {log.role}
                           </h4>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5" title={log.task}>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5" title={log.task}>
                             {log.task}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className={cn("text-[9px] px-1.5 py-0.5 rounded font-bold uppercase", statusColor)}>
+                        <span className={cn("text-xs px-1.5 py-0.5 rounded font-bold uppercase", statusColor)}>
                           {log.status}
                         </span>
                         {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
@@ -295,7 +295,7 @@ export function AgentConsoleSidebar({
                       )}
                     >
                       <div className="overflow-hidden max-w-full">
-                        <div className="p-3 text-[11px] font-mono text-emerald-400 dark:text-emerald-500 space-y-2">
+                        <div className="p-3 text-xs font-mono text-emerald-400 dark:text-emerald-500 space-y-2">
                           <div className="max-h-56 overflow-y-auto leading-relaxed whitespace-pre-wrap break-words">
                             {log.thinking || "Waiting for output..."}
                             {log.status === "running" && (
@@ -303,12 +303,12 @@ export function AgentConsoleSidebar({
                             )}
                           </div>
                           {log.summary && (
-                            <div className="text-[10px] text-slate-400 border-t border-slate-800 pt-2 font-sans italic leading-relaxed">
+                            <div className="text-xs text-slate-400 border-t border-slate-800 pt-2 font-sans italic leading-relaxed">
                               Result: {log.summary}
                             </div>
                           )}
                           {log.error && (
-                            <div className="text-[10px] text-rose-400 border-t border-slate-800 pt-2 font-sans italic leading-relaxed">
+                            <div className="text-xs text-rose-400 border-t border-slate-800 pt-2 font-sans italic leading-relaxed">
                               Error: {log.error}
                             </div>
                           )}

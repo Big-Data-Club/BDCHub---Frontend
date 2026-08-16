@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { NotificationPopover } from "@/components/lms/notifications/NotificationPopover";
+import { SecondaryBtn } from "@/components/lms/shared/Button";
 
 interface NavItem {
   href: string;
@@ -28,7 +29,7 @@ export function LmsHeader({
   const pathname = usePathname();
 
   return (
-    <header className="bg-white dark:bg-[#070E1C] border-b border-slate-200/80 dark:border-blue-500/10 shadow-sm sticky top-0 z-50 flex-shrink-0">
+    <header className="bg-white dark:bg-[#070E1C] border-b border-slate-200/80 dark:border-blue-500/12 shadow-sm sticky top-0 z-40 flex-shrink-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-3">
@@ -65,18 +66,13 @@ export function LmsHeader({
             )}
             <ThemeToggle />
             <div className="h-4 w-px bg-slate-200 dark:bg-blue-500/15 hidden sm:block" />
-            <Link
-              href="/"
-              className="hidden sm:inline-flex items-center px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-250 dark:border-blue-500/20 rounded-xl hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#162644] active:scale-95 transition-all duration-200"
-            >
-              Trang chủ
-            </Link>
-            <button
+            <SecondaryBtn
+              size="sm"
               onClick={handleChangeRole}
-              className="inline-flex items-center px-3.5 py-1.5 text-xs font-bold text-blue-600 dark:text-cyan-400 border border-blue-200 dark:border-blue-500/20 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-50 dark:hover:bg-blue-900/20 active:scale-95 transition-all duration-200"
+              className="text-blue-600 dark:text-cyan-400 bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-500/20"
             >
               Đổi vai trò
-            </button>
+            </SecondaryBtn>
             <NotificationPopover />
           </div>
         </div>

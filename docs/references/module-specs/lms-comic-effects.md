@@ -1,3 +1,11 @@
+---
+title: "LMS Comic & Retro Effects Specification"
+category: "module-spec"
+status: "active-spec"
+last_updated: "2026-08-16"
+target_surface: "components/lms/shared/"
+---
+
 # LMS Comic Effects Documentation
 
 Tài liệu về các hiệu ứng tương tác phong cách Comic/Retro được thiết kế cho hệ thống LMS. 

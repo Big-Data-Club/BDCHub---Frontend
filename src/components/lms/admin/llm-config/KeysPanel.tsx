@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { PrimaryBtn, SecondaryBtn, DangerBtn } from "@/components/lms/shared/Button";
 import { Input }  from "@/components/ui/input";
 import { Label }  from "@/components/ui/label";
 import {
@@ -122,26 +122,33 @@ function KeyRow({
       <td className="px-4 py-3">
         <div className="flex justify-end gap-2">
           {isActive ? (
-            <Button variant="outline" size="sm"
-              className="gap-1.5 active:scale-95 transition-all duration-200"
-              onClick={() => toggle("disabled")} disabled={busy}
+            <SecondaryBtn
+              size="sm"
+              icon={<PowerOff className="h-3.5 w-3.5" />}
+              onClick={() => toggle("disabled")}
+              disabled={busy}
             >
-              <PowerOff className="h-3.5 w-3.5" /> Tắt
-            </Button>
+              Tắt
+            </SecondaryBtn>
           ) : (
-            <Button variant="outline" size="sm"
-              className="gap-1.5 text-emerald-700 border-emerald-300 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-950/30 active:scale-95 transition-all duration-200"
-              onClick={() => toggle("active")} disabled={busy}
+            <SecondaryBtn
+              size="sm"
+              icon={<Power className="h-3.5 w-3.5" />}
+              className="text-emerald-700 border-emerald-300 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-950/30"
+              onClick={() => toggle("active")}
+              disabled={busy}
             >
-              <Power className="h-3.5 w-3.5" /> Kích hoạt
-            </Button>
+              Kích hoạt
+            </SecondaryBtn>
           )}
-          <Button variant="destructive" size="sm"
-            className="gap-1.5 active:scale-95 transition-all duration-200"
-            onClick={remove} disabled={busy}
+          <DangerBtn
+            size="sm"
+            icon={<Trash2 className="h-3.5 w-3.5" />}
+            onClick={remove}
+            disabled={busy}
           >
-            <Trash2 className="h-3.5 w-3.5" /> Xoá
-          </Button>
+            Xoá
+          </DangerBtn>
         </div>
       </td>
     </tr>
@@ -181,12 +188,12 @@ function AddKeyDialog({ providers, onSaved }: { providers: LlmProvider[]; onSave
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
       <DialogTrigger asChild>
-        <Button
+        <PrimaryBtn
           disabled={providers.length === 0}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-5 shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50"
+          icon={<Plus className="h-4 w-4" />}
         >
-          <Plus className="h-4 w-4" /> Thêm API key
-        </Button>
+          Thêm API key
+        </PrimaryBtn>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
@@ -271,13 +278,13 @@ function AddKeyDialog({ providers, onSaved }: { providers: LlmProvider[]; onSave
         </div>
 
         <DialogFooter>
-          <Button
+          <PrimaryBtn
             onClick={save}
-            disabled={saving || !alias || !plaintext || !providerId}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50"
+            loading={saving}
+            disabled={!alias || !plaintext || !providerId}
           >
-            {saving ? "Đang lưu…" : "Lưu"}
-          </Button>
+            Lưu
+          </PrimaryBtn>
         </DialogFooter>
       </DialogContent>
     </Dialog>

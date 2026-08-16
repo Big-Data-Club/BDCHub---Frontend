@@ -1,3 +1,11 @@
+---
+title: "LMS Student Scroll Snap R&D Investigation"
+category: "technical-report"
+status: "completed"
+last_updated: "2026-08-16"
+target_surface: "src/app/(learning)/lms/student/page.tsx"
+---
+
 # Điều tra Tính năng Snap Cuộn Tự động (Scroll Snap Investigation)
 
 Tài liệu này ghi nhận quá trình nghiên cứu, triển khai và thử nghiệm tính năng tự động snap cuộn tại trang Dashboard Học viên (`/lms/student`).
@@ -26,33 +34,29 @@ Tài liệu này ghi nhận quá trình nghiên cứu, triển khai và thử ng
   - Tính toán tọa độ của phần content: `contentRef.current.offsetTop`.
   - Nếu tọa độ cuộn nằm trong vùng chuyển tiếp, thực hiện `window.scrollTo({ top: target, behavior: 'smooth' })`.
 - **Kết quả:** Không hoạt động vì:
-  - `offsetTop` chỉ tính toán khoảng cách so với thẻ cha gần nhất có `position: relative` (trong trường hợp này là lớp nền relative), khiến khoảng cách trả về sai lệch hoặc bằng `0`.
-  - Khi cuộn nhanh bằng trackpad hoặc chuột, giá trị `window.scrollY` lập tức nhảy vọt qua vùng điều kiện kích hoạt, khiến sự kiện không bao giờ được chạy.
+  - `offsetTop` chỉ tính toán khoảng cách so với thẻ cha gần nhất có `position: relative`, khiến khoảng cách trả về sai lệch hoặc bằng `0`.
+  - Khi cuộn nhanh bằng trackpad hoặc chuột, giá trị `window.scrollY` lập tức nhảy vọt qua vùng điều kiện kích hoạt.
 
 ### Cách 3: Sử dụng Bounding Client Rect & Debounced Direction Scroll (V2 - Hiện tại)
 - **Phương pháp:**
   - Sử dụng `contentRef.current.getBoundingClientRect().top + window.scrollY` để lấy tọa độ tuyệt đối của phần nội dung từ đỉnh trang.
   - Khấu trừ đi 64px chiều cao của thanh Navigation ghim phía trên (`stickyHeaderHeight = 64`).
-  - Sử dụng cơ chế lắng nghe hướng cuộn (`scrollingDown`) và thiết lập `debounce 100ms` để kiểm tra khi thao tác cuộn dừng lại bên trong khoảng chuyển tiếp (từ 15px đến sát mép nội dung).
-  - Khóa sự kiện cuộn bằng cờ `isSnapping` khi trình duyệt đang thực hiện animation `scrollTo` mượt mà để tránh xung đột gây giật lag.
+  - Sử dụng cơ chế lắng nghe hướng cuộn (`scrollingDown`) và thiết lập `debounce 100ms`.
 
 ---
 
-## 3. Lý do hiệu ứng vẫn chưa hoạt động (Phân tích kỹ thuật - Cập nhật)
-
-Hiện tại, hiệu ứng snap cuộn bằng JS (Cách 3) vẫn chưa phản hồi rõ rệt trên trình duyệt do các nguyên nhân chính sau:
+## 3. Lý do hiệu ứng vẫn chưa hoạt động (Phân tích kỹ thuật)
 
 1. **Vùng trigger quá hẹp kết hợp debounce:**
-   - Điều kiện `currentScrollY > 15 && currentScrollY < targetScrollY - 10` tạo vùng kích hoạt chỉ ~225px (tùy chiều cao header).
-   - Kết hợp với `debounce 100ms`, khi người dùng scroll nhanh bằng trackpad hoặc scroll wheel, giá trị `scrollY` luôn nhảy vượt qua vùng trigger trước khi debounce kịp kích hoạt callback.
+   - Điều kiện `currentScrollY > 15 && currentScrollY < targetScrollY - 10` tạo vùng kích hoạt chỉ ~225px.
+   - Kết hợp với `debounce 100ms`, khi người dùng scroll nhanh bằng trackpad, giá trị `scrollY` luôn nhảy vượt qua vùng trigger trước khi debounce kịp kích hoạt callback.
 
 2. **`getBoundingClientRect().top + scrollY` không ổn định:**
-   - Giá trị `getBoundingClientRect().top` thay đổi liên tục theo mỗi pixel scroll, khiến `targetScrollY` "di chuyển" theo → điều kiện kích hoạt không ổn định và có thể tự hủy trong quá trình debounce.
+   - Giá trị `getBoundingClientRect().top` thay đổi liên tục theo mỗi pixel scroll, khiến `targetScrollY` di chuyển theo.
 
 3. **`overflow-hidden` trên student layout KHÔNG chặn window scroll:**
-   - Thuộc tính `overflow-hidden` trên div wrapper (`student/layout.tsx` line 46) chỉ chặn nội dung tràn theo phương ngang (glow effects), **không** biến div đó thành scroll container (vì không có `overflow-y: auto/scroll`).
+   - Thuộc tính `overflow-hidden` trên div wrapper chỉ chặn nội dung tràn theo phương ngang.
    - Scroll thực tế vẫn xảy ra ở `document`/`window` level → `window.scrollY` hoạt động bình thường.
-   - Kết luận: Giả thuyết ban đầu về `window.scrollY = 0` là **không chính xác** trong trường hợp này.
 
 ---
 
@@ -63,13 +67,11 @@ Hiện tại, hiệu ứng snap cuộn bằng JS (Cách 3) vẫn chưa phản h�
 - Sử dụng `IntersectionObserver` với `rootMargin: -64px 0px 0px 0px` (khấu trừ chiều cao sticky nav) để phát hiện khi sentinel đi qua ranh giới viewport.
 - Theo dõi hướng cuộn bằng `requestAnimationFrame` (so sánh `scrollY` liên tục).
 - Khi sentinel **rời khỏi** viewport (scroll xuống) → snap tới mép content.
-- Khi sentinel **quay lại** viewport (scroll lên) → snap về đầu trang.
 - Cơ chế **cooldown 700ms** ngăn re-trigger trong khi animation đang chạy.
 
 ### Ưu điểm so với Cách 3:
 - **Không phụ thuộc vào scroll event timing** → hoạt động với cả trackpad scroll nhanh.
 - **IntersectionObserver là passive** → không gây layout thrashing hay jank.
-- **Không cần tính toán position thủ công liên tục** → ổn định hơn.
 - **Browser-native optimization** → hiệu suất cao.
 
 ### Files liên quan:
@@ -82,17 +84,9 @@ Hiện tại, hiệu ứng snap cuộn bằng JS (Cách 3) vẫn chưa phản h�
 
 ## 5. Cải tiến UX: Chỉ Snap theo Hướng Cuộn Xuống (V4.1)
 
-### Vấn đề phát hiện sau khi triển khai Cách 4:
-
-1. **Snap ngược khi scroll lên:** Sau khi đã snap xuống (header đã ẩn hoàn toàn), nếu người dùng cố scroll lên thì hook vẫn phát hiện header đang partially visible và tự động snap ngược xuống — gây cảm giác bị "kẹt" không thể quay lại header.
-
-2. **Snap ngược lên khi scroll nhẹ từ đầu trang:** Ở trạng thái ban đầu (chưa cuộn), nếu scroll nhẹ xuống dưới, điều kiện `visibleBelowNav > totalHeight * 0.5` đánh giá header vẫn hiển thị > 50% → snap ngược lên top, gây khó chịu.
-
-### Giải pháp:
-
 - **Theo dõi hướng cuộn** (`scrollDirectionRef`): So sánh `scrollTop` hiện tại với giá trị trước đó, chỉ cập nhật khi delta > 2px (lọc noise).
 - **Chỉ snap khi cuộn XUỐNG:** `checkAndSnap()` bỏ qua hoàn toàn nếu `scrollDirectionRef !== "down"`.
 - **Loại bỏ snap-to-top:** Không còn behavior snap ngược về đầu trang — khi cuộn lên, người dùng có toàn quyền điều khiển thủ công.
-- **Ngưỡng kích hoạt 40%:** Chỉ snap khi header đã bị ẩn ≥ 40% (`visibleBelowNav > totalHeight * 0.6` → return), tránh trigger khi scroll nhẹ.
+- **Ngưỡng kích hoạt 40%:** Chỉ snap khi header đã bị ẩn ≥ 40% (`visibleBelowNav > totalHeight * 0.6` → return).
 
 ### Kết quả: ✅ Snap chỉ xảy ra một chiều (xuống), UX tự nhiên hơn.

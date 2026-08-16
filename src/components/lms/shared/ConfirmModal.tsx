@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { AlertTriangle, Info, Trash2, X } from "lucide-react";
-import { PrimaryBtn, SecondaryBtn, GhostBtn } from "./Button";
+import { PrimaryBtn, SecondaryBtn, GhostBtn, DangerBtn } from "./Button";
 import { cn } from "@/lib/utils";
 
 export interface ConfirmModalProps {
@@ -68,14 +68,15 @@ export function ConfirmModal({
         aria-modal="true"
         aria-labelledby="confirm-modal-title"
       >
-        <button
+        <GhostBtn
           onClick={onClose}
           disabled={loading}
-          className="absolute top-4 right-4 p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+          size="icon"
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
           aria-label="Đóng modal"
         >
           <X className="w-4 h-4" />
-        </button>
+        </GhostBtn>
 
         <div className="flex items-start gap-4 mb-5">
           <div className={cn("w-11 h-11 rounded-2xl flex items-center justify-center border flex-shrink-0", VARIANT_ICON_BG[variant])}>
@@ -95,16 +96,15 @@ export function ConfirmModal({
           <SecondaryBtn onClick={onClose} disabled={loading} size="sm">
             {cancelText}
           </SecondaryBtn>
-          <PrimaryBtn
-            onClick={onConfirm}
-            loading={loading}
-            size="sm"
-            className={cn(
-              variant === "danger" && "bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white shadow-xs"
-            )}
-          >
-            {confirmText}
-          </PrimaryBtn>
+          {variant === "danger" ? (
+            <DangerBtn onClick={onConfirm} loading={loading} size="sm">
+              {confirmText}
+            </DangerBtn>
+          ) : (
+            <PrimaryBtn onClick={onConfirm} loading={loading} size="sm">
+              {confirmText}
+            </PrimaryBtn>
+          )}
         </div>
       </div>
     </div>

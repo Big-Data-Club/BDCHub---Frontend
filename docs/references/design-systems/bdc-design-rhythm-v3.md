@@ -1,8 +1,15 @@
+---
+title: "BDC Design Rhythm v3.0 Specification"
+category: "design-system"
+status: "master-spec"
+last_updated: "2026-08-16"
+---
+
 # BDC - Design Rhythm v3.0
 ## Enterprise AI · Academic Intelligence · Precision-First
 
-> Tài liệu chuẩn hóa UI/UX cho Big Data Club.
-> Phong cách tham chiếu: AI-native enterprise (Tencent Cloud · ByteDance · AWS re:Invent).
+> Tài liệu chuẩn hóa UI/UX cho Big Data Club.  
+> Phong cách tham chiếu: AI-native enterprise (Tencent Cloud · ByteDance · AWS re:Invent).  
 > Mọi component phải hoạt động hoàn hảo ở cả **dark mode** và **light mode**.
 
 ---

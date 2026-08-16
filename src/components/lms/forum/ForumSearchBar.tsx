@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { PrimaryBtn, SecondaryBtn } from "@/components/lms/shared/Button";
 import { Search, SlidersHorizontal } from "lucide-react";
 
 interface ForumSearchBarProps {
@@ -40,19 +40,15 @@ export default function ForumSearchBar({ sortBy, onSortChange, onSearch }: Forum
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-600" />
         </div>
-        <Button
-          onClick={handleSearch}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 py-3 shadow-sm transition-all active:scale-95"
-        >
+        <PrimaryBtn onClick={handleSearch}>
           Tìm kiếm
-        </Button>
-        <Button
+        </PrimaryBtn>
+        <SecondaryBtn
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl px-4 py-3 font-medium transition-all"
+          icon={<SlidersHorizontal className="w-4 h-4" />}
         >
-          <SlidersHorizontal className="w-4 h-4" />
           Lọc
-        </Button>
+        </SecondaryBtn>
       </div>
 
       {/* Filters */}

@@ -25,7 +25,7 @@ authors:
   - BDC Team
 requires:
   - bdc-core-orchestrator
-  - DESIGN_RHYTHM.md
+  - docs/references/design-systems/bdc-design-rhythm-v3.md
 ---
 
 # BDC Frontend - Developer Skill v3.0
@@ -38,7 +38,7 @@ requires:
 **Design System:** BDC Design Rhythm v3.0 (dark-first, AI-native enterprise)  
 **Backends:** Auth service `:8080` · LMS service `:8081`
 
-> **Luôn đọc DESIGN_RHYTHM.md trước khi viết bất kỳ className nào.**  
+> **Luôn đọc [BDC Design Rhythm v3.0](file:///home/thanh/BDCHub---Frontend/docs/references/design-systems/bdc-design-rhythm-v3.md) trước khi viết bất kỳ className nào.**  
 > Mọi component phải hoạt động đúng ở cả `light` và `dark` mode.
 
 ---
@@ -260,7 +260,7 @@ export default function FeaturePage() {
 
 ## Styling Reference
 
-> Full token definitions in `DESIGN_RHYTHM.md`. This section is the quick-reference.
+> Full token definitions in [BDC Design Rhythm v3.0](file:///home/thanh/BDCHub---Frontend/docs/references/design-systems/bdc-design-rhythm-v3.md). This section is the quick-reference.
 
 ### Color Token Table
 

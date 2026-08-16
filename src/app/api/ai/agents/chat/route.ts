@@ -80,6 +80,41 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("[agent-proxy] Upstream fetch failed:", err.message);
+
+    if (process.env.MOCK_AI_SERVICE === "true") {
+      console.warn("[agent-proxy] MOCK_AI_SERVICE is true, streaming mock SSE response for dev UI preview.");
+      
+      const encoder = new TextEncoder();
+      const mockStream = new ReadableStream({
+        async start(controller) {
+          const events = [
+            { type: "thinking", step: "Đang phân tích câu hỏi của bạn..." },
+            { type: "text", delta: "Chào bạn! Đây là câu phản hồi **chế độ Mock UI** của AI Mentor.\n\n" },
+            { type: "text", delta: "Vì bạn đang bật chế độ `MOCK_AI_SERVICE=true` không có backend AI Service (`ai-service:8000`), mình hiển thị giao diện này để bạn kiểm tra thử layout và chat!\n\n" },
+            { type: "text", delta: "### Công thức Toán LaTeX Demo:\n$$E = mc^2$$\n$$\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$$\n\n" },
+            { type: "text", delta: "Chúc bạn lập trình giao diện vui vẻ! 🎉" },
+            { type: "done" },
+          ];
+
+          for (const ev of events) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(ev)}\n\n`));
+            await new Promise((r) => setTimeout(r, 200));
+          }
+          controller.close();
+        },
+      });
+
+      return new Response(mockStream, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache, no-transform",
+          Connection: "keep-alive",
+          "X-Accel-Buffering": "no",
+        },
+      });
+    }
+
     return NextResponse.json(
       { error: "AI service unavailable" },
       { status: 502 },

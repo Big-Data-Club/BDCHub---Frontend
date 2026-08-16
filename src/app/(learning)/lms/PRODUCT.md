@@ -54,8 +54,8 @@ Accessed via desktop and mobile web browsers. Students and teachers interact wit
 - [Teacher Dashboard](file:///home/thanh/BDCHub---Frontend/src/app/(learning)/lms/teacher/page.tsx) - Course analytics, stats summaries, timeline charts, and quick action cards.
 - [Teacher Layout Guard](file:///home/thanh/BDCHub---Frontend/src/app/(learning)/lms/teacher/layout.tsx) - Header navigation layout and role permissions guard.
 - [Course Details Layout](file:///home/thanh/BDCHub---Frontend/src/app/(learning)/lms/teacher/courses/[courseId]/layout.tsx) - Premium layout containing breadcrumbs, course configuration details cards, and tab pill navigators.
-- [LMS Design System Specification](file:///home/thanh/BDCHub---Frontend/docs/LMS_DesignSystem.md) - Colors, typography, spacing, and component definitions.
-- [LMS Comic Effects Documentation](file:///home/thanh/BDCHub---Frontend/docs/LMS_Effect_Docs.md) - Exact Tailwind and CSS classes for interactions.
+- [LMS Design System Specification](file:///home/thanh/BDCHub---Frontend/docs/references/design-systems/lms-design-system.md) - Colors, typography, spacing, and component definitions.
+- [LMS Comic Effects Documentation](file:///home/thanh/BDCHub---Frontend/docs/references/module-specs/lms-comic-effects.md) - Exact Tailwind and CSS classes for interactions.
 
 ## Product Principles
 

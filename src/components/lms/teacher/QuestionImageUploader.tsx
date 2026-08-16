@@ -3,7 +3,7 @@
 
 import { useState, useRef } from "react";
 import { Upload, X, Image as ImageIcon, Loader2, ZoomIn, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { SecondaryBtn, DangerBtn, GhostBtn } from "@/components/lms/shared/Button";
 import quizService from "@/services/quizService";
 
 export interface QuestionImage {
@@ -247,26 +247,23 @@ export default function QuestionImageUploader({
                     
                     {/* Overlay Actions */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center gap-2 pb-3">
-                      <Button
+                      <SecondaryBtn
                         type="button"
                         size="sm"
-                        className="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-lg border border-slate-200 dark:border-slate-700"
-                        onClick={() => setPreviewImage(image.url)} // Sửa thành .url
+                        icon={<ZoomIn className="w-4 h-4" />}
+                        onClick={() => setPreviewImage(image.url)}
                       >
-                        <ZoomIn className="w-4 h-4 mr-1" />
                         Xem
-                      </Button>
-                      <Button
+                      </SecondaryBtn>
+                      <DangerBtn
                         type="button"
                         size="sm"
-                        variant="destructive"
-                        className="shadow-lg"
+                        icon={<X className="w-4 h-4" />}
                         onClick={() => handleDelete(image.id)}
                         disabled={disabled}
                       >
-                        <X className="w-4 h-4 mr-1" />
                         Xóa
-                      </Button>
+                      </DangerBtn>
                     </div>
                   </div>
 
@@ -297,18 +294,18 @@ export default function QuestionImageUploader({
           onClick={() => setPreviewImage(null)}
         >
           <div className="relative max-w-7xl max-h-full">
-            <Button
+            <GhostBtn
               type="button"
               size="sm"
-              className="absolute -top-14 right-0 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-lg border border-slate-200 dark:border-slate-700"
+              icon={<X className="w-4 h-4" />}
+              className="absolute -top-14 right-0 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
               onClick={(e) => {
                 e.stopPropagation();
                 setPreviewImage(null);
               }}
             >
-              <X className="w-4 h-4 mr-2" />
               Đóng (ESC)
-            </Button>
+            </GhostBtn>
             <img
               src={previewImage}
               alt="Preview"
