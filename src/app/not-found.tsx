@@ -10,7 +10,7 @@ export default function NotFound() {
 
         <p className="text-sm text-orange-500 font-semibold uppercase tracking-[0.24em] mb-4">Trang chưa phát triển</p>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mb-4">
-          404 — Xin lỗi, trang này chưa có.
+          404 - Xin lỗi, trang này chưa có.
         </h1>
         <p className="mx-auto max-w-xl text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-8 mb-8">
           Có vẻ bạn vừa truy cập một trang chưa sẵn sàng. Hãy quay lại sau hoặc trở về trang chủ để tiếp tục khám phá.
