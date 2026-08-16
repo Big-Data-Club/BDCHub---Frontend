@@ -28,7 +28,7 @@ export function LmsHeader({
   const pathname = usePathname();
 
   return (
-    <header className="bg-white dark:bg-[#070E1C] border-b border-slate-200/80 dark:border-blue-500/10 shadow-sm sticky top-0 z-50 flex-shrink-0">
+    <header className="bg-white dark:bg-[#070E1C] border-b border-slate-200/80 dark:border-blue-500/12 shadow-sm sticky top-0 z-40 flex-shrink-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-3">

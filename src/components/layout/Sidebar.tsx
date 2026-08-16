@@ -103,12 +103,12 @@ const Sidebar: React.FC = () => {
       <aside
         style={{ width }}
         className="group relative hidden md:flex flex-col h-screen flex-shrink-0
-                   bg-white dark:bg-slate-900
-                   border-r border-slate-200 dark:border-slate-800
+                   bg-white dark:bg-[#070E1C]
+                   border-r border-slate-200 dark:border-blue-500/10
                    transition-[width] duration-200 ease-in-out z-20"
       >
         {/* Logo */}
-        <div className={cn("flex items-center gap-2.5 px-4 py-5 border-b border-slate-200 dark:border-slate-800", isCollapsed && "justify-center px-2")}>
+        <div className={cn("flex items-center gap-2.5 px-4 py-5 border-b border-slate-200 dark:border-blue-500/10", isCollapsed && "justify-center px-2")}>
           <SafeImage src={LogoIcon} alt="BDC" width={48} height={48} priority className="flex-shrink-0" />
           {!isCollapsed && (
             <div>
@@ -118,12 +118,12 @@ const Sidebar: React.FC = () => {
         </div>
 
         {/* User */}
-        <div className={cn("px-3 py-3 border-b border-slate-200 dark:border-slate-800", isCollapsed && "px-2")}>
+        <div className={cn("px-3 py-3 border-b border-slate-200 dark:border-blue-500/10", isCollapsed && "px-2")}>
           <Link
             href="/myaccount"
             className={cn(
               "flex items-center gap-3 rounded-xl p-2 transition-colors duration-200",
-              "hover:bg-slate-100 dark:hover:bg-slate-800",
+              "hover:bg-slate-100 dark:hover:bg-[#162644]",
               isCollapsed && "justify-center"
             )}
           >
@@ -171,7 +171,7 @@ const Sidebar: React.FC = () => {
             .filter((section) => section.links.length > 0)
             .map((section, i) => (
             <div key={section.title}>
-              {i > 0 && <div className="border-t border-slate-200 dark:border-slate-800 mb-3" />}
+              {i > 0 && <div className="border-t border-slate-200 dark:border-blue-500/10 mb-3" />}
               {!isCollapsed && (
                 <p className="text-xs font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-wider px-3 mb-1.5">
                   {section.title}
@@ -193,7 +193,7 @@ const Sidebar: React.FC = () => {
                         "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
                         isActive
                           ? "bg-blue-600 text-white"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100",
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] hover:text-slate-900 dark:hover:text-slate-100",
                         isCollapsed && "justify-center px-2"
                       )}
                     >
@@ -243,7 +243,7 @@ const Sidebar: React.FC = () => {
         </nav>
 
         {/* Footer actions */}
-        <div className="border-t border-slate-200 dark:border-slate-800 p-2 space-y-0.5">
+        <div className="border-t border-slate-200 dark:border-blue-500/10 p-2 space-y-0.5">
           {isAdmin && (
             <Link
               href="/settings"
@@ -251,7 +251,7 @@ const Sidebar: React.FC = () => {
                 "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
                 pathname.startsWith("/settings")
                   ? "bg-blue-600 text-white"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100",
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] hover:text-slate-900 dark:hover:text-slate-100",
                 isCollapsed && "justify-center"
               )}
             >
@@ -264,7 +264,7 @@ const Sidebar: React.FC = () => {
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
             className={cn(
               "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
-              "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100",
+              "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#162644] hover:text-slate-900 dark:hover:text-slate-100",
               isCollapsed && "justify-center"
             )}
           >
@@ -288,7 +288,7 @@ const Sidebar: React.FC = () => {
             onClick={toggleSidebar}
             className={cn(
               "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
-              "text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800",
+              "text-slate-500 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-[#162644]",
               isCollapsed && "justify-center"
             )}
           >

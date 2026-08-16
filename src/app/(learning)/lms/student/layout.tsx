@@ -61,16 +61,16 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
   return (
     <>
-      <div className={cn("relative bg-slate-100/80 dark:bg-[#050B18] transition-colors duration-300", isFullHeightPage ? "h-screen overflow-hidden" : "min-h-screen overflow-clip")}>
+      <div className={cn("relative bg-slate-50 dark:bg-[#050B18] transition-colors duration-300 w-full flex-1 flex flex-col min-h-0", isFullHeightPage ? "h-[calc(100vh)] md:h-screen overflow-hidden" : "min-h-screen overflow-clip")}>
         
         {/* Glow ambient background spots */}
         <div className="absolute top-10 left-10 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
 
         {/* Smooth radial gradient overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#f1f5f9_95%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_60%,#050B18_95%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#f8fafc_95%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_60%,#050B18_95%)] pointer-events-none" />
 
-        <div className={cn("relative z-10 flex flex-col", isFullHeightPage ? "h-screen overflow-hidden" : "min-h-screen")}>
+        <div className={cn("relative z-10 flex flex-col flex-1 min-h-0 w-full", isFullHeightPage ? "h-full overflow-hidden" : "min-h-screen")}>
           <LmsHeader
             roleTitle="Học viên LMS"
             navItems={navItems}
@@ -79,7 +79,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             basePath="/lms/student"
           />
 
-          <main className={cn("w-full flex-col", isFullHeightPage ? "flex-1 min-h-0 overflow-hidden flex" : "flex-grow flex")}>
+          <main className={cn("w-full flex-col flex-1 min-h-0 overflow-hidden flex", isFullHeightPage ? "h-full" : "flex-grow")}>
             {children}
           </main>
         </div>

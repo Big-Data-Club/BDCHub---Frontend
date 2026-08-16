@@ -142,6 +142,22 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
     localStorage.setItem("bdc_coworker_open", "false");
   }, []);
 
+  // Global Keyboard Shortcut: Shift+A toggles AI Coworker drawer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+        return;
+      }
+      if (e.shiftKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        handleToggleOpen();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleToggleOpen]);
+
   // Resizing mouse handlers
   const startResize = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -322,7 +338,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      {/* Floating Chat Bubble Button */}
+      {/* Floating AI Coworker Trigger Pill (Quieter & Refined) */}
       {showCoworker && !isOpen && (
         pathname.startsWith("/lms/teacher") ||
         pathname.startsWith("/lms/admin") ||
@@ -333,17 +349,19 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
           onMouseEnter={preloadCoworker}
           onFocus={preloadCoworker}
           className={cn(
-            "fixed bottom-6 right-6 z-[55] flex items-center justify-center w-14 h-14 rounded-full",
-            "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700",
-            "shadow-xl shadow-indigo-500/20 text-white transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer group"
+            "fixed bottom-6 right-6 z-[55] flex items-center gap-2 px-3.5 py-2 rounded-full",
+            "bg-white/95 dark:bg-[#070E1C]/95 backdrop-blur-md",
+            "border border-slate-200/80 dark:border-blue-500/20",
+            "hover:border-slate-300 dark:hover:border-blue-500/40",
+            "shadow-sm hover:shadow-md",
+            "transition-all duration-200 active:scale-95 cursor-pointer group"
           )}
-          title="Mở AI Coworker"
+          title="Mở AI Coworker (Shift+A)"
         >
-          {/* Subtle glow pulse ring */}
-          <span className="absolute inset-0 rounded-full border border-blue-500/50 group-hover:scale-125 opacity-0 group-hover:opacity-100 transition-all duration-500" />
-          <span className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping opacity-75" />
-          
-          <Sparkles className="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300" />
+          <Sparkles className="w-4 h-4 text-blue-600 dark:text-cyan-400 transition-transform duration-200 group-hover:scale-110" />
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 tracking-tight">
+            AI Cowork
+          </span>
         </button>
       )}
 

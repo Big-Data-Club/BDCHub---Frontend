@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { cn } from "@/lib/utils";
 import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles, MapPin, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
 import type { AgentMessage, HITLRequestData } from "@/types";
@@ -28,15 +28,20 @@ const ReferenceLink = ({ contentId, title, pageNumber }: { contentId: number; ti
     lmsService.getContent(contentId)
       .then((res) => {
         const content = res?.data || res;
-        if (content && content.file_path) {
-          let fileUrl = `/files/${content.file_path}`;
+        if (content?.file_path) {
+          let fileUrl = content.file_path;
+          if (!fileUrl.startsWith("http")) {
+            const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+            const baseUrl = apiBase.replace(/\/api\/v1\/?$/, "");
+            fileUrl = `${baseUrl}${fileUrl.startsWith("/") ? "" : "/"}${fileUrl}`;
+          }
           if (pageNumber) {
             fileUrl += `#page=${pageNumber}`;
           }
           setUrl(fileUrl);
         }
       })
-      .catch((err) => console.error("Failed to load reference content", err));
+      .catch(() => {});
   }, [contentId, pageNumber]);
 
   if (url) {
@@ -45,8 +50,9 @@ const ReferenceLink = ({ contentId, title, pageNumber }: { contentId: number; ti
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:text-blue-500 hover:underline transition-colors break-all"
+        className="text-blue-600 dark:text-cyan-400 hover:underline inline-flex items-center gap-1 font-medium"
       >
+        <BookOpen className="w-3 h-3 flex-shrink-0" />
         {title}
       </a>
     );
@@ -55,7 +61,7 @@ const ReferenceLink = ({ contentId, title, pageNumber }: { contentId: number; ti
   return <span>{title}</span>;
 };
 
-export function AgentMessageBubble({
+export const AgentMessageBubble = memo(function AgentMessageBubble({
   message,
   onClarificationSelect,
   isSelectedForLogs = false,
@@ -490,4 +496,4 @@ export function AgentMessageBubble({
 
     </div>
   );
-}
+});
