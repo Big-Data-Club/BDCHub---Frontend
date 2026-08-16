@@ -95,7 +95,7 @@ export const ConversationSidebar = forwardRef<
       refresh: fetchSessions,
       patchSession: (sessionId, patch) => {
         setSessions((prev) => {
-          const idx = prev.findIndex((s) => s.session_id === sessionId);
+          const idx = prev.findIndex((s) => (s.session_id || (s as any).id) === sessionId);
           if (idx === -1) {
             // Unknown session - pull a fresh list asynchronously.
             fetchSessions();
@@ -108,7 +108,7 @@ export const ConversationSidebar = forwardRef<
       },
       touchSession: (sessionId) => {
         setSessions((prev) => {
-          const idx = prev.findIndex((s) => s.session_id === sessionId);
+          const idx = prev.findIndex((s) => (s.session_id || (s as any).id) === sessionId);
           if (idx === -1) {
             fetchSessions();
             return prev;
@@ -136,7 +136,7 @@ export const ConversationSidebar = forwardRef<
       // Optimistic UI update
       setSessions((prev) =>
         prev.map((s) =>
-          s.session_id === sessionId ? { ...s, title: trimmed } : s
+          (s.session_id || (s as any).id) === sessionId ? { ...s, title: trimmed } : s
         )
       );
       onRenameSession?.(sessionId, trimmed);
@@ -194,13 +194,14 @@ export const ConversationSidebar = forwardRef<
             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Bắt đầu trò chuyện mới với AI Mentor ngay</p>
           </div>
         ) : (
-          sessions.map((session) => {
-            const isActive = session.session_id === activeSessionId;
-            const isEditing = editingSessionId === session.session_id;
+          sessions.map((session, idx) => {
+            const sid = session.session_id || (session as any).id || `session-idx-${idx}`;
+            const isActive = Boolean(activeSessionId && sid === activeSessionId);
+            const isEditing = Boolean(sid && editingSessionId === sid);
             return (
               <div
-                key={session.session_id}
-                onClick={() => !isEditing && onSelectSession(session.session_id)}
+                key={sid}
+                onClick={() => !isEditing && sid && onSelectSession(sid)}
                 className={cn(
                   "w-full text-left p-2.5 rounded-xl transition-all duration-200 cursor-pointer group flex items-center justify-between gap-2.5 active:scale-[0.99] border",
                   isEditing
@@ -230,10 +231,10 @@ export const ConversationSidebar = forwardRef<
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e) => setRenameVal(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") handleRenameSubmit(session.session_id);
+                          if (e.key === "Enter") handleRenameSubmit(sid);
                           if (e.key === "Escape") setEditingSessionId(null);
                         }}
-                        onBlur={() => handleRenameSubmit(session.session_id)}
+                        onBlur={() => handleRenameSubmit(sid)}
                         maxLength={100}
                         className="w-full text-xs font-semibold bg-white dark:bg-[#0D192E] border border-blue-500 dark:border-cyan-400 rounded-lg px-2 py-1 outline-none text-slate-900 dark:text-slate-100 shadow-xs"
                         placeholder="Tên cuộc hội thoại..."
@@ -242,7 +243,7 @@ export const ConversationSidebar = forwardRef<
                       <div
                         onDoubleClick={(e) => {
                           e.stopPropagation();
-                          setEditingSessionId(session.session_id);
+                          setEditingSessionId(sid);
                           setRenameVal(session.title || "");
                         }}
                       >
@@ -286,7 +287,7 @@ export const ConversationSidebar = forwardRef<
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setEditingSessionId(session.session_id);
+                        setEditingSessionId(sid);
                         setRenameVal(session.title || "");
                       }}
                       className="p-1 rounded-lg hover:bg-blue-100 dark:hover:bg-[#162644] text-slate-500 hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200 active:scale-90"
@@ -300,7 +301,7 @@ export const ConversationSidebar = forwardRef<
                       onClick={(e) => {
                         e.stopPropagation();
                         if (confirm("Bạn có chắc chắn muốn xóa cuộc hội thoại này?")) {
-                          onDeleteSession(session.session_id);
+                          onDeleteSession(sid);
                         }
                       }}
                       className="p-1 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/40 text-slate-500 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 active:scale-90"

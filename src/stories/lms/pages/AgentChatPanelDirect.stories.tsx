@@ -24,7 +24,7 @@ const MOCK_MESSAGES: AgentMessage[] = [
 ];
 
 const MOCK_SESSIONS = [
-  { session_id: 'sess-1', title: 'Thuật toán QuickSort & Luyện tập', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
+  { session_id: 'sess-1', title: 'Thuật toán QuickSort & Luyện tập', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor' as const, user_id: 1, turn_count: 5 },
 ];
 
 const meta: Meta<typeof AgentChatPanel> = {

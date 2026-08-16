@@ -213,12 +213,12 @@ const Sidebar: React.FC = () => {
                             <span>{link.label}</span>
                           )}
                           {hasBadge && (
-                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white leading-none">
+                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-xs scale-90 font-bold text-white leading-none">
                               {unreadAlertsCount > 9 ? "9+" : unreadAlertsCount}
                             </span>
                           )}
                           {hasChatBadge && (
-                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white leading-none animate-pulse">
+                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-xs scale-90 font-bold text-white leading-none animate-pulse">
                               {unreadChatCount > 9 ? "9+" : unreadChatCount}
                             </span>
                           )}

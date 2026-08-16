@@ -117,11 +117,11 @@ const MOCK_MESSAGES: AgentMessage[] = [
 ];
 
 const MOCK_SESSIONS = [
-  { session_id: 'sess-1', title: 'Thuật toán QuickSort & Luyện tập', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
-  { session_id: 'sess-2', title: 'Ôn tập Cấu trúc dữ liệu Cây AVL', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
-  { session_id: 'sess-3', title: 'Thực hành Đồ thị Dijkstra', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
-  { session_id: 'sess-4', title: 'Học máy nâng cao: Tìm hiểu chi tiết về thuật toán lan truyền ngược (Backpropagation) trong mạng Nơ-ron nhân tạo', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
-  { session_id: 'sess-5', title: 'Thiết kế hệ thống phân tán siêu lớn có khả năng chịu lỗi cao và mở rộng tự động trên nền tảng Cloud Kubernetes', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor', user_id: 1 },
+  { session_id: 'sess-1', title: 'Thuật toán QuickSort & Luyện tập', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor' as const, user_id: 1, turn_count: 5 },
+  { session_id: 'sess-2', title: 'Ôn tập Cấu trúc dữ liệu Cây AVL', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor' as const, user_id: 1, turn_count: 3 },
+  { session_id: 'sess-3', title: 'Thực hành Đồ thị Dijkstra', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor' as const, user_id: 1, turn_count: 8 },
+  { session_id: 'sess-4', title: 'Học máy nâng cao: Tìm hiểu chi tiết về thuật toán lan truyền ngược (Backpropagation) trong mạng Nơ-ron nhân tạo', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor' as const, user_id: 1, turn_count: 12 },
+  { session_id: 'sess-5', title: 'Thiết kế hệ thống phân tán siêu lớn có khả năng chịu lỗi cao và mở rộng tự động trên nền tảng Cloud Kubernetes', created_at: new Date().toISOString(), last_active_at: new Date().toISOString(), agent_type: 'mentor' as const, user_id: 1, turn_count: 2 },
 ];
 
 const meta: Meta = {
