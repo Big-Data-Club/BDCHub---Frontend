@@ -93,9 +93,9 @@ export default function StudentDashboard() {
       <div ref={contentRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 flex-grow">
         {/* ── Error alert ── */}
         {error && <Alert type="error">{error}</Alert>}
-        {archivedEnrollments.length > 0 && (
+        {currentCourse?.course_status === "ARCHIVED" && (
           <Alert type="error">
-            Khóa học tạm thời bị vô hiệu hóa để xem xét lại nội dung vi phạm.
+            Khóa học &quot;{currentCourse.course_title}&quot; tạm thời bị vô hiệu hóa để xem xét lại nội dung vi phạm.
           </Alert>
         )}
 
