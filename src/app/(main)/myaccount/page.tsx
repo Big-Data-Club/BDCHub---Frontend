@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { User, Lock, Loader2, Globe } from "lucide-react";
 
 import { userService, UserResponse, UpdateProfileRequest } from "@/services/userService";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useUser } from "@/store/UserContext";
 
 import MessageAlert from "@/components/user/manage/MessageAlert";

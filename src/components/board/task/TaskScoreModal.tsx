@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { X, Plus, Trash2, Save, Check, Award, AlertCircle, Loader2 } from "lucide-react";
 import { Task, User } from "@/types";
 import { taskScoreService, TaskScoreResponse } from "@/services/taskScoreService";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 interface TaskScoreModalProps {
   task: Task;

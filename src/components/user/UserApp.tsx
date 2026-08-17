@@ -4,7 +4,7 @@ import { User } from "@/types";
 import { fetchUsers, updateUserStatus } from "@/lib/users/api";
 import UserRow from "./table/UserRow";
 import dynamic from "next/dynamic";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 
 // Lazy-load components to optimize initial bundle size and page load speed

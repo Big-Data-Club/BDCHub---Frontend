@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { UserPlus, Trash2, Shield, Search } from "lucide-react";
 import lmsService from "@/services/lmsService";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { Badge, InteractiveGlowCard, Spinner } from "@/components/lms/shared";
 import { Course } from "@/types";
 

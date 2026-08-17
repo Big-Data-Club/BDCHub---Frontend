@@ -14,7 +14,7 @@ import {
   Calendar,
   Sparkles
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { labService, ListResponse } from "@/services/labService";
 import type { Lab } from "@/types";
 import toast from "react-hot-toast";

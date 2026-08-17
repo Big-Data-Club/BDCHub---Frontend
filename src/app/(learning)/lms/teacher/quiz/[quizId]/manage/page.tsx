@@ -12,9 +12,9 @@ import FillBlankTextEditor from "@/components/lms/shared/FillBlankTextEditor";
 import FillBlankDropdownEditor from "@/components/lms/shared/FillBlankDropdownEditor";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
-import { useQuizCourse } from "@/hooks/useQuizCourse";
-import { useMarkdownImage } from "@/hooks/useMarkdownImage";
-import { useSetPageContext } from "@/hooks/usePageContext";
+import { useQuizCourse } from "@/hooks/lms/student/useQuizCourse";
+import { useMarkdownImage } from "@/hooks/common/useMarkdownImage";
+import { useSetPageContext } from "@/hooks/common/usePageContext";
 import { Select } from "@/components/lms/shared";
 import type {
   FillBlankTextSettings,

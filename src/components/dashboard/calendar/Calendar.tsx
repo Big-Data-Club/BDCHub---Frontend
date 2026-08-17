@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
-import { useCalendarTasks } from "@/hooks/useCalendarTasks";
+import { useCalendarTasks } from "@/hooks/dashboard/useCalendarTasks";
 import { ViewMode, TaskWithColor, WEEK_DAYS } from "@/types";
 import { getDaysInView, buildTaskRows, navigate } from "@/utils/calendar";
 import { CalendarHeader } from "./CalendarHeader";

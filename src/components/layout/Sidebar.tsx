@@ -15,7 +15,7 @@ import {
 import { ChevronsLeft, ChevronsRight, LogOut, Sun, Moon, Settings } from "lucide-react";
 import { useUser } from "@/store/UserContext";
 import { useNotifications } from "@/store/NotificationContext";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { useTheme } from "next-themes";
 import SafeImage from "../common/SafeImage";
 import lmsService from "@/services/lmsService";

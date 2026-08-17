@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Course } from "@/types/course";
 import lmsService from "@/services/lmsService";
-import type { AdminCourseStatusFilter } from "@/hooks/useAdminStats";
+import type { AdminCourseStatusFilter } from "@/hooks/lms/admin/useAdminStats";
 
 interface AdminCourseListProps {
   courses: Course[];

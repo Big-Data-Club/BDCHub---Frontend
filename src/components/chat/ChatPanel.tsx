@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Hash, Lock, Loader2, ChevronUp, Wifi, WifiOff } from "lucide-react";
-import { useChat } from "@/hooks/useChat";
+import { useChat } from "@/hooks/chat/useChat";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { cn } from "@/lib/utils";

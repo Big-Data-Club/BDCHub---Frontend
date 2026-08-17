@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Calendar, CheckSquare, Trophy } from "lucide-react";
-import { useTasks } from "@/hooks/useTasks";
+import { useTasks } from "@/hooks/dashboard/useTasks";
 
 interface StatsCardsProps {
   eventsCount: number;

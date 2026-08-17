@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import quizService from "@/services/quizService";
 import { BreadcrumbNav } from "@/components/lms/shared/BreadcrumbNav";
-import { useQuizCourse } from "@/hooks/useQuizCourse";
+import { useQuizCourse } from "@/hooks/lms/student/useQuizCourse";
 import { Select } from "@/components/lms/shared";
 import {
   ArrowLeft, CheckCircle, FileText,

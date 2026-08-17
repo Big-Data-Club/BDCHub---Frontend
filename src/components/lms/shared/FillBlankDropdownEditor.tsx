@@ -8,7 +8,7 @@ import type {
   FillBlankDropdownOption,
   FillBlankDropdownEditorProps,
 } from '@/types';
-import { useMarkdownImage } from '@/hooks/useMarkdownImage';
+import { useMarkdownImage } from '@/hooks/common/useMarkdownImage';
 import { Image as ImageIcon } from 'lucide-react';
 
 /**

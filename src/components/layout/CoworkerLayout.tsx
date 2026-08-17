@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Sparkles, X, Book } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/useAuth";
-import { usePageContext } from "@/hooks/usePageContext";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { usePageContext } from "@/hooks/common/usePageContext";
 
 
 // The coworker is available on every authenticated page. Keep its sizeable

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { ChatProvider } from "@/hooks/useChat";
+import { ChatProvider } from "@/hooks/chat/useChat";
 import ChatSidebar from "@/components/chat/ChatSidebar";
 import ChatPanel from "@/components/chat/ChatPanel";
 

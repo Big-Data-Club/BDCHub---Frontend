@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { organizationService } from "@/services/organizationService";
 import type { Organization, OrgMember, OrgStats } from "@/types";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { Select } from "@/components/lms/shared";
 
 // ── Helpers ────────────────────────────────────────────────────────────────

@@ -11,8 +11,8 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { MessageSquare, Sparkles, Sidebar, Cpu, ArrowDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { useAgentChat } from "@/hooks/useAgentChat";
-import { usePageContext } from "@/hooks/usePageContext";
+import { useAgentChat } from "@/hooks/lms/agent/useAgentChat";
+import { usePageContext } from "@/hooks/common/usePageContext";
 import { AgentMessageBubble } from "./AgentMessageBubble";
 import { AgentInputBar } from "./AgentInputBar";
 import {

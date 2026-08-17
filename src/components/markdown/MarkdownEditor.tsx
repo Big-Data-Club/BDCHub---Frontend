@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import MDEditor from '@uiw/react-md-editor';
-import { useMarkdownImage } from '@/hooks/useMarkdownImage';
+import { useMarkdownImage } from '@/hooks/common/useMarkdownImage';
 import { useTheme } from 'next-themes';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';

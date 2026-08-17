@@ -10,7 +10,7 @@ import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/Brea
 import { Badge, Spinner, GridBackground, NavTabBar } from "@/components/lms/shared";
 import { Course, Section } from "@/types";
 import { cn } from "@/lib/utils";
-import { useSetPageContext } from "@/hooks/usePageContext";
+import { useSetPageContext } from "@/hooks/common/usePageContext";
 import { CourseReadinessPopover } from "@/components/lms/teacher/views/CourseReadinessPopover";
 
 // Lazy-load modal - only needed when user clicks "Chỉnh sửa"

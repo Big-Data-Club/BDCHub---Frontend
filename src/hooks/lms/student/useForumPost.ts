@@ -6,7 +6,7 @@ import forumService, {
   ForumComment,
 } from "@/services/forumService";
 import toast from "react-hot-toast";
-import { useCurrentUser } from "./useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 
 /**
  * useForumPost - Optimistic state management for a forum post detail page.

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useLlmConfig } from "@/hooks/useLlmConfig";
+import { useLlmConfig } from "@/hooks/lms/admin/useLlmConfig";
 import { TabBar } from "@/components/lms/shared";
 import { ProvidersPanel } from "@/components/lms/admin/llm-config/ProvidersPanel";
 import { KeysPanel }      from "@/components/lms/admin/llm-config/KeysPanel";

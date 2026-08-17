@@ -16,8 +16,8 @@ import {
   Sprout,
   Bot
 } from "lucide-react";
-import { useLabs } from "@/hooks/useLabs";
-import { useAuth } from "@/hooks/useAuth";
+import { useLabs } from "@/hooks/labs/useLabs";
+import { useAuth } from "@/hooks/auth/useAuth";
 import type { LabType, LabLevel } from "@/types";
 import toast from "react-hot-toast";
 import Link from "next/link";

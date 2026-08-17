@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { userService } from "@/services/userService";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function PasswordChangeForm() {

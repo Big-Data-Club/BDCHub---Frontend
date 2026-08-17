@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Task, User as UserType, EventItem, PRIORITY_COLORS } from "@/types";
 import { formatDate } from "@/utils/utils";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { UserAvatar } from "@/components/user/UserAvatar";
 
 interface TaskCardProps {

@@ -7,7 +7,7 @@ import { organizationService } from "@/services/organizationService";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import { FileInfo, Organization } from "@/types";
 import { CourseBlueprintWorkspace } from "@/components/lms/teacher/CourseBlueprintWorkspace";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { Input, Textarea, PrimaryBtn, SecondaryBtn, Alert, GridBackground, CourseCard, RadioTileGroup, FilterDropdown, TeacherHeader } from "@/components/lms/shared";
 import { 
   ArrowLeft, BookOpen, Layers, Wand2, FileEdit, PlusCircle, Trash2, Globe, Lock, Sparkles, CheckCircle2, Award, Building2

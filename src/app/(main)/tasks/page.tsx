@@ -6,8 +6,8 @@ import TaskModal from "@/components/board/task/TaskModal";
 import TaskScoreModal from "@/components/board/task/TaskScoreModal";
 import BoardColumn from "@/components/board/column/BoardColumn";
 import { Column, Task, User } from "@/types";
-import { useTasks } from "@/hooks/useTasks";
-import { useEvents } from "@/hooks/useEvents";
+import { useTasks } from "@/hooks/dashboard/useTasks";
+import { useEvents } from "@/hooks/dashboard/useEvents";
 import { userService } from "@/services/userService";
 import { TaskRequest } from "@/services/taskService";
 

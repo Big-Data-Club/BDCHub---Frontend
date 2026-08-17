@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Hash, Lock, Plus, MessageSquare, Settings } from "lucide-react";
-import { useChat } from "@/hooks/useChat";
+import { useChat } from "@/hooks/chat/useChat";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { useRouter } from "next/navigation";
 import UserSearchModal from "./UserSearchModal";
 import ChatAvatar from "./ChatAvatar";

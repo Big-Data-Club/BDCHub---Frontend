@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, X, ExternalLink, AlertCircle } from "lucide-react";
 import { Task, User, EventItem } from "@/types";
 import { formatDateForInput } from "@/utils/utils";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 interface TaskModalProps {
   task: Task | null;

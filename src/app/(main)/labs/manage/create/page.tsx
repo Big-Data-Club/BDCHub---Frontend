@@ -8,7 +8,7 @@ import {
   HelpCircle,
   AlertCircle
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { labService } from "@/services/labService";
 import type { LabType, LabLevel } from "@/types";
 import toast from "react-hot-toast";

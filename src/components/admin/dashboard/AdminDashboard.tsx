@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AdminCourseList } from "./AdminCourseList";
-import { useAdminStats } from "@/hooks/useAdminStats";
+import { useAdminStats } from "@/hooks/lms/admin/useAdminStats";
 import { LoadingState } from "@/components/common/LoadingState";
 import lmsService from "@/services/lmsService";
 import { toast } from "react-hot-toast";
