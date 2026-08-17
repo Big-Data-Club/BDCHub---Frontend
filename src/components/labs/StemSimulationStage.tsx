@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff, Gauge, Pause, Play, RotateCcw, Sprout } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import type { ExperimentDefinition, StemTrialResult } from "@/types";
+import { ChemistryCanvasStage } from "./chemistry/ChemistryCanvasStage";
 
 type Props = {
   definition: ExperimentDefinition;
@@ -80,7 +81,21 @@ export default function StemSimulationStage({ definition, result, comparison }: 
       </div>
 
       <div className="relative aspect-[16/8.2] min-h-[260px] w-full overflow-hidden">
-        {result.domain === "PLANT" ? (
+        {result.domain === "CHEMISTRY" ? (
+          <ChemistryCanvasStage
+            spec={
+              (definition as any).chemistrySpec || {
+                labType: "CHEMISTRY",
+                title: definition.title || "Thí nghiệm Hóa Học Ảo",
+                workspace: { viewMode: "2.5D", benchWidth: 1200, benchHeight: 700 },
+                substances: [],
+                equipments: [],
+                reactions: [],
+                evaluationCriteria: [],
+              }
+            }
+          />
+        ) : result.domain === "PLANT" ? (
           <PlantScene
             definition={definition}
             result={result}
