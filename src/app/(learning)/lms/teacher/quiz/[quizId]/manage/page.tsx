@@ -4,12 +4,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import quizService from "@/services/quizService";
-import { BreadcrumbNav } from "@/components/lms/BreadcrumbNav";
-import { QuizSettingsModal } from "@/components/lms/teacher/QuizSettingsModal";
-import { QuizSmartImportModal } from "@/components/lms/teacher/QuizSmartImportModal";
-import QuestionImageUploader from "@/components/lms/teacher/QuestionImageUploader";
-import FillBlankTextEditor from "@/components/lms/teacher/FillBlankTextEditor";
-import FillBlankDropdownEditor from "@/components/lms/teacher/FillBlankDropdownEditor";
+import { BreadcrumbNav } from "@/components/lms/shared/BreadcrumbNav";
+import { QuizSettingsModal } from "@/components/lms/teacher/modals/QuizSettingsModal";
+import { QuizSmartImportModal } from "@/components/lms/teacher/modals/QuizSmartImportModal";
+import QuestionImageUploader from "@/components/lms/shared/QuestionImageUploader";
+import FillBlankTextEditor from "@/components/lms/shared/FillBlankTextEditor";
+import FillBlankDropdownEditor from "@/components/lms/shared/FillBlankDropdownEditor";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { useQuizCourse } from "@/hooks/useQuizCourse";

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { EventCard } from "@/components/dashboard/event/EventCard";
 import { EventModal } from "@/components/dashboard/modals/EventModal";
-import { LoadingState } from "@/components/dashboard/LoadingState";
+import { LoadingState } from "@/components/common/LoadingState";
 import { useEvents } from "@/hooks/useEvents";
 import { useAuth } from "@/hooks/useAuth";
 import { Search, Filter, Calendar, ArrowLeft, Plus } from "lucide-react";

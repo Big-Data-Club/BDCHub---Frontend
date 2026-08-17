@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { InstructionGuide, type InstructionRole } from "@/components/instructions/InstructionGuide";
+import { InstructionGuide, type InstructionRole } from "@/components/guide/InstructionGuide";
 
 const roles: InstructionRole[] = ["student", "teacher", "admin"];
 

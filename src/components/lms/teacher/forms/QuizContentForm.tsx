@@ -1,6 +1,6 @@
 "use client";
 
-import QuizSettingsForm, { QuizSettings } from "@/components/lms/teacher/QuizSettingsForm";
+import QuizSettingsForm, { QuizSettings } from "@/components/lms/teacher/quiz/QuizSettingsForm";
 import type { ContentFormProps } from "@/types";
 
 interface QuizContentFormProps extends ContentFormProps {

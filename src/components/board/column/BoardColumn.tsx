@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Plus, X } from "lucide-react";
-import TaskCard from "@/components/Board/Task/TaskCard";
+import TaskCard from "@/components/board/task/TaskCard";
 import { Column, User, EventItem, Task } from "@/types";
 
 interface BoardColumnProps {

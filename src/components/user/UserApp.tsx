@@ -2,16 +2,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { User } from "@/types";
 import { fetchUsers, updateUserStatus } from "@/lib/users/api";
-import UserRow from "./UserRow";
+import UserRow from "./table/UserRow";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 
 
 // Lazy-load components to optimize initial bundle size and page load speed
-const DetailModal = dynamic(() => import("./DetailModal"), { ssr: false });
-const CreateUserModal = dynamic(() => import("./CreateUserModal"), { ssr: false });
-const BulkUploadPreviewModal = dynamic(() => import("./BulkUploadPreviewModal"), { ssr: false });
-const PendingUsersSection = dynamic(() => import("./PendingUsersSection").then(m => m.PendingUsersSection), { ssr: false });
+const DetailModal = dynamic(() => import("./modals/DetailModal"), { ssr: false });
+const CreateUserModal = dynamic(() => import("./modals/CreateUserModal"), { ssr: false });
+const BulkUploadPreviewModal = dynamic(() => import("./modals/BulkUploadPreviewModal"), { ssr: false });
+const PendingUsersSection = dynamic(() => import("./table/PendingUsersSection").then(m => m.PendingUsersSection), { ssr: false });
 
 function UserRowSkeleton() {
   return (

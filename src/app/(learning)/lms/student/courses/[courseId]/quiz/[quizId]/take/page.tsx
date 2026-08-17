@@ -6,7 +6,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import lmsService from "@/services/lmsService";
 import quizService from "@/services/quizService";
 import { Button } from "@/components/ui/button";
-import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/BreadcrumbNav";
+import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 import FillBlankTextStudent from "@/components/lms/student/FillBlankTextStudent";
 import FillBlankDropdownStudent from "@/components/lms/student/FillBlankDropdownStudent";
 import FileUploadQuestion from "@/components/lms/student/FileUploadQuestion";

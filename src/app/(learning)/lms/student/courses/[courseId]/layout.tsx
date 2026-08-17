@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { PageLoader, GridBackground, NavTabBar } from "@/components/lms/shared";
-import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/BreadcrumbNav";
+import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 import { useStudentCourse } from "@/components/lms/student/StudentCourseContext";
 import { StudentCourseProviders } from "@/components/lms/student/StudentCourseProviders";
 import { CourseLearningSidebar } from "@/components/lms/student/CourseLearningSidebar";

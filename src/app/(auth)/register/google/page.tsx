@@ -1,5 +1,5 @@
 import React from "react";
-import { GoogleRegisterForm } from "@/components/login/GoogleRegisterForm";
+import { GoogleRegisterForm } from "@/components/auth/GoogleRegisterForm";
 import { Logo } from "@/components/layout/Logo";
 
 export default function GoogleRegisterPage() {

@@ -28,13 +28,13 @@ import lmsService from "@/services/lmsService";
 import quizService from "@/services/quizService";
 import { Content, ContentType, FileInfo } from "@/types";
 
-import { TextContentForm }              from "./forms/TextContentForm";
-import { VideoContentForm }             from "./forms/VideoContentForm";
+import { TextContentForm }              from "../forms/TextContentForm";
+import { VideoContentForm }             from "../forms/VideoContentForm";
 import { DocumentContentForm,
-         ImageContentForm }             from "./forms/FileContentForms";
-import { QuizContentForm }              from "./forms/QuizContentForm";
-import { ForumAnnouncementContentForm } from "./forms/ForumAnnouncementContentForm";
-import { QuizSettings } from "./QuizSettingsForm";
+         ImageContentForm }             from "../forms/FileContentForms";
+import { QuizContentForm }              from "../forms/QuizContentForm";
+import { ForumAnnouncementContentForm } from "../forms/ForumAnnouncementContentForm";
+import { QuizSettings } from "../quiz/QuizSettingsForm";
 import type { ContentFormState } from "@/types";
 
 // ─── Constants ────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { SessionProvider } from 'next-auth/react';
-import { HeroActions } from './hero/HeroActions';
+import { HeroActions } from '@/components/home/hero/HeroActions';
 
 const meta: Meta<typeof HeroActions> = {
   title: 'Landing/Hero/Actions',

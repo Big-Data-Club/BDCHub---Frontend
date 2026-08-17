@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useArgs } from 'storybook/preview-api';
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw, Sparkles, Clock } from 'lucide-react';
-import { HeroTitle, HeroTitleProps } from './hero/HeroTitle';
+import { HeroTitle, HeroTitleProps } from '@/components/home/hero/HeroTitle';
 
 export interface StorybookTitleProps extends Omit<HeroTitleProps, 'ease'> {
   easePreset: string;

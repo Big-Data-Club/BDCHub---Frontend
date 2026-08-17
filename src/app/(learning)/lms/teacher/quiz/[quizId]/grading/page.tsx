@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import quizService from "@/services/quizService";
-import { BreadcrumbNav } from "@/components/lms/BreadcrumbNav";
+import { BreadcrumbNav } from "@/components/lms/shared/BreadcrumbNav";
 import { useQuizCourse } from "@/hooks/useQuizCourse";
 import { Select } from "@/components/lms/shared";
 import {

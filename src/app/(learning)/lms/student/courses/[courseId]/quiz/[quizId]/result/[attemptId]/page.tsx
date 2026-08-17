@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import QuizReviewModal from "@/components/lms/student/QuizReviewModal";
+import QuizReviewModal from "@/components/lms/student/modals/QuizReviewModal";
 
 export default function AttemptResultPage() {
   const params = useParams();

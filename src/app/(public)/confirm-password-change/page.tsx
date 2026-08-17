@@ -3,8 +3,8 @@
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Logo } from "@/components/layout/Logo";
-import InvalidTokenCard from "@/components/login/InvalidTokenCard";
-import ConfirmPasswordForm from "@/components/login/ConfirmPasswordForm";
+import InvalidTokenCard from "@/components/auth/InvalidTokenCard";
+import ConfirmPasswordForm from "@/components/auth/ConfirmPasswordForm";
 
 function PasswordChangeContent() {
   const searchParams = useSearchParams();

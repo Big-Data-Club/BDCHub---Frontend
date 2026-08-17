@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import { HeroVisualCore } from './hero/HeroVisualCore';
-import { HeroStatsMobile } from './hero/HeroStatsMobile';
+import { HeroVisualCore } from '@/components/home/hero/HeroVisualCore';
+import { HeroStatsMobile } from '@/components/home/hero/HeroStatsMobile';
 
 const meta: Meta<typeof HeroVisualCore> = {
   title: 'Landing/Hero/Stats',

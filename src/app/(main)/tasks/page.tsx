@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { Plus, Loader2, RefreshCw, LayoutDashboard, AlertCircle } from "lucide-react";
-import TaskModal from "@/components/Board/Task/TaskModal";
-import TaskScoreModal from "@/components/Board/Task/TaskScoreModal";
-import BoardColumn from "@/components/Board/Column/BoardColumn";
+import TaskModal from "@/components/board/task/TaskModal";
+import TaskScoreModal from "@/components/board/task/TaskScoreModal";
+import BoardColumn from "@/components/board/column/BoardColumn";
 import { Column, Task, User } from "@/types";
 import { useTasks } from "@/hooks/useTasks";
 import { useEvents } from "@/hooks/useEvents";

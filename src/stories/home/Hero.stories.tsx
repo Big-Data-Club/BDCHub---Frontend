@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import Hero, { HeroProps } from './Hero';
+import Hero, { HeroProps } from '@/components/home/Hero';
 
 interface StorybookHeroProps extends Omit<HeroProps, 'ease'> {
   easePreset: string;

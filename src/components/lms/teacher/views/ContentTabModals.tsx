@@ -6,7 +6,7 @@ import { Content, Section } from "@/types";
 
 // Dynamic imports
 const SectionModal = dynamic(
-  () => import("@/components/lms/teacher/SectionModal").then((m) => ({ default: m.SectionModal })),
+  () => import("@/components/lms/teacher/modals/SectionModal").then((m) => ({ default: m.SectionModal })),
   { ssr: false }
 );
 
@@ -17,12 +17,12 @@ const ContentViewer = dynamic(
 );
 
 const ContentModal = dynamic(
-  () => import("@/components/lms/teacher/ContentModal").then((m) => ({ default: m.default })),
+  () => import("@/components/lms/teacher/modals/ContentModal").then((m) => ({ default: m.default })),
   { ssr: false }
 );
 
 const EditContentModal = dynamic(
-  () => import("@/components/lms/teacher/EditContentModal").then((m) => ({ default: m.default })),
+  () => import("@/components/lms/teacher/modals/EditContentModal").then((m) => ({ default: m.default })),
   { ssr: false }
 );
 

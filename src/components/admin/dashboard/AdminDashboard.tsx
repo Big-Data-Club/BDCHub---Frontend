@@ -3,7 +3,7 @@
 import React from "react";
 import { AdminCourseList } from "./AdminCourseList";
 import { useAdminStats } from "@/hooks/useAdminStats";
-import { LoadingState } from "../LoadingState";
+import { LoadingState } from "@/components/common/LoadingState";
 import lmsService from "@/services/lmsService";
 import { toast } from "react-hot-toast";
 import { Course } from "@/types/course";

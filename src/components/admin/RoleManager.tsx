@@ -5,7 +5,7 @@ import { fetchRoles, deleteRole, fetchPermissions, fetchLmsRoleMappings, Role, P
 import { permissionService, LmsRole } from "@/services/permissionService";
 import { Loader2, Plus, Edit2, Trash2, Shield, Settings2, RefreshCcw, Lock } from "lucide-react";
 import RoleModal from "./RoleModal";
-import LmsMappingModal from "./LmsMappingModal";
+import LmsMappingModal from "@/components/lms/admin/LmsMappingModal";
 import PermissionEditor from "./PermissionEditor";
 
 export default function RoleManager() {

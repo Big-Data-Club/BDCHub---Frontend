@@ -6,21 +6,8 @@
  */
 import { useSearchParams } from "next/navigation";
 import { AgentChatPanel } from "@/components/lms/agent/AgentChatPanel";
-import type { AgentMessage, AgentSession } from "@/types";
 
-interface AIMentorPageProps {
-  initialMessages?: AgentMessage[];
-  initialSessions?: AgentSession[];
-  defaultConsoleOpen?: boolean;
-  initialSelectedMessageId?: string;
-}
-
-export default function AIMentorPage({
-  initialMessages,
-  initialSessions,
-  defaultConsoleOpen = false,
-  initialSelectedMessageId,
-}: AIMentorPageProps = {}) {
+export default function AIMentorPage() {
   const searchParams = useSearchParams();
   const courseId = searchParams.get("courseId")
     ? Number(searchParams.get("courseId"))
@@ -33,13 +20,9 @@ export default function AIMentorPage({
         agentType="mentor"
         courseId={courseId}
         sessionId={sessionId}
-        initialMessages={initialMessages}
-        initialSessions={initialSessions}
-        defaultConsoleOpen={defaultConsoleOpen}
-        initialSelectedMessageId={initialSelectedMessageId}
+        defaultConsoleOpen={false}
         className="h-full w-full"
       />
     </div>
   );
 }
-

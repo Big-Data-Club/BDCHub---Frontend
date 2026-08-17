@@ -1,6 +1,6 @@
 "use client";
 
-import { AdminDashboard } from "@/components/dashboard/admin/AdminDashboard";
+import { AdminDashboard } from "@/components/admin/dashboard/AdminDashboard";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { BrainCircuit, ChevronDown } from "lucide-react";

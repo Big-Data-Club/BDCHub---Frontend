@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { User } from "@/types";
-import Avatar from "./Avatar";
+import { UserAvatar } from "../UserAvatar";
 import { X, Pencil, Save, Loader2, Mail, Hash, Shield, Users, GraduationCap, Star, Calendar, Activity, Building2, Plus, Trash2 } from "lucide-react";
 import { updateUser, updateUserRole } from "@/lib/users/api";
 import { mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { fetchRoles, Role } from "@/lib/admin/rolesApi";
-import LmsUserRoleManager from "../admin/LmsUserRoleManager";
+import LmsUserRoleManager from "@/components/lms/admin/LmsUserRoleManager";
 import { fetchPublicTeams, fetchPublicTypes, Team as APITeam, UserTypeOption } from "@/lib/admin/teamsTypesApi";
 import { organizationService } from "@/services/organizationService";
 
@@ -251,7 +251,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
           {/* Profile */}
           <div className="flex items-center gap-4">
             <div className="relative">
-              <Avatar name={user.name} src={user.profilePicture} size={56} />
+              <UserAvatar name={user.name} src={user.profilePicture} className="w-[56px] h-[56px]" />
               {/* Status dot */}
               <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-slate-900 ${
                 user.status ? "bg-green-500" : "bg-slate-400"

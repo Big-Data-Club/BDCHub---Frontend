@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { HeroDescription } from './hero/HeroDescription';
+import { HeroDescription } from '@/components/home/hero/HeroDescription';
 
 const meta: Meta<typeof HeroDescription> = {
   title: 'Landing/Hero/Description',

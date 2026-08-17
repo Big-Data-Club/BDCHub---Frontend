@@ -19,7 +19,7 @@ const AINodeManager = dynamic(
 );
 
 const QuizSelectorModal = dynamic(
-  () => import("@/components/lms/teacher/QuizSelectorModal").then(m => ({ default: m.QuizSelectorModal })),
+  () => import("@/components/lms/teacher/modals/QuizSelectorModal").then(m => ({ default: m.QuizSelectorModal })),
   { ssr: false },
 );
 
