@@ -17,7 +17,7 @@ const ContentPickerModal = dynamic(
 
 const KnowledgeGraph = dynamic(
   () => import("../KnowledgeGraph"),
-  { ssr: false, loading: () => <div className="h-[600px] bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse flex items-center justify-center text-sm text-slate-400">Đang tải Knowledge Graph…</div> },
+  { ssr: false, loading: () => <div className="h-[360px] sm:h-[480px] bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse flex items-center justify-center text-xs font-semibold text-slate-400">Đang tải Knowledge Graph…</div> },
 );
 
 const GraphConsolidateModal = dynamic(
@@ -37,7 +37,7 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
   const [form, setForm] = useState({ name: "", name_vi: "", description: "", parent_id: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "graph">("graph");
   const [consolidateOpen, setConsolidateOpen] = useState(false);
 
@@ -111,7 +111,7 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
 
   const NodeRow = ({ node, depth = 0 }: { node: KnowledgeNode; depth?: number }) => {
     const children = childNodes(node.id);
-    const [open, setOpen] = useState(depth === 0);
+    const [open, setOpen] = useState(false);
     const [showContentPicker, setShowContentPicker] = useState(false);
     const [processing, setProcessing] = useState(false);
     
@@ -158,40 +158,48 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
           )}
         >
           {children.length > 0 ? (
-            <button onClick={() => setOpen(v => !v)} className="text-slate-400 flex-shrink-0">
-              {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+            <button 
+              type="button" 
+              onClick={() => setOpen(v => !v)} 
+              className="text-slate-400 p-1 min-w-[36px] min-h-[36px] flex items-center justify-center flex-shrink-0"
+              aria-label="Toggle child nodes"
+            >
+              {open ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
           ) : (
-            <span className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="w-4 h-4 flex-shrink-0" />
           )}
-          <BookOpen className="w-3.5 h-3.5 text-violet-500 flex-shrink-0" />
+          <BookOpen className="w-4 h-4 text-blue-600 dark:text-cyan-400 flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+            <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
               {node.name_vi || node.name}
             </p>
             {node.chunk_count > 0 && (
-              <p className="text-xs text-slate-400">{node.chunk_count} chunks</p>
+              <p className="text-xs text-slate-400 font-mono">{node.chunk_count} chunks</p>
             )}
           </div>
           <span className={cn(
-            "text-xs px-2 py-0.5 rounded-full flex-shrink-0",
+            "text-xs font-semibold px-2.5 py-0.5 rounded-full flex-shrink-0",
             node.chunk_count > 0
-              ? "bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800"
+              ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
               : "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
           )}>
             {node.chunk_count > 0 ? "Có tài liệu" : "Chưa có tài liệu"}
           </span>
           <button
+            type="button"
             onClick={() => setShowContentPicker(!showContentPicker)}
-            className="text-xs px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded transition-all"
+            className="text-xs px-2.5 py-1.5 min-h-[36px] bg-blue-50 dark:bg-cyan-950/40 hover:bg-blue-100 dark:hover:bg-cyan-900/50 text-blue-600 dark:text-cyan-400 font-bold rounded-lg transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
             title="Liên kết tài liệu với node"
           >
             📎 Liên kết
           </button>
           <button
+            type="button"
             onClick={handleDeleteNode}
-            className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+            className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:ring-2 focus:ring-rose-500 focus:outline-none"
             title="Xóa node"
+            aria-label="Xóa node"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -215,36 +223,40 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
   return (
     <div className="space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <button
+          type="button"
           onClick={() => setExpanded(v => !v)}
-          className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+          className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 p-1 -ml-1 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-lg"
+          aria-expanded={expanded}
         >
           {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           Knowledge Nodes ({nodes.length})
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* View Mode Toggle */}
           {nodes.length > 0 && expanded && (
-            <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+            <div className="flex gap-1 bg-slate-100 dark:bg-[#0D192E] rounded-xl p-1 border border-slate-200/80 dark:border-blue-500/15">
               <button
+                type="button"
                 onClick={() => setViewMode("graph")}
                 className={cn(
-                  "flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-all",
+                  "flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 min-h-[36px] rounded-lg transition-all focus:outline-none",
                   viewMode === "graph"
-                    ? "bg-violet-600 text-white shadow-md"
-                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    ? "bg-blue-600 dark:bg-cyan-600 text-white shadow-2xs"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
                 )}
               >
                 <Network className="w-3.5 h-3.5" /> Graph
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode("list")}
                 className={cn(
-                  "flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-all",
+                  "flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 min-h-[36px] rounded-lg transition-all focus:outline-none",
                   viewMode === "list"
-                    ? "bg-violet-600 text-white shadow-md"
-                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    ? "bg-blue-600 dark:bg-cyan-600 text-white shadow-2xs"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
                 )}
               >
                 <BookOpen className="w-3.5 h-3.5" /> List
@@ -252,6 +264,7 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
             </div>
           )}
           <button
+            type="button"
             onClick={() => setConsolidateOpen(true)}
             disabled={nodes.length < 5}
             title={
@@ -259,13 +272,14 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
                 ? "Cần ít nhất 5 nodes để chạy hợp nhất"
                 : "AI sẽ phân tích và gộp các node trùng lặp"
             }
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 text-xs px-3.5 py-2 min-h-[44px] bg-slate-800 hover:bg-slate-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs active:scale-95 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           >
             <Sparkles className="w-3.5 h-3.5" /> Làm gọn Graph
           </button>
           <button
+            type="button"
             onClick={() => { setCreating(v => !v); setError(""); }}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-all"
+            className="flex items-center gap-1.5 text-xs px-3.5 py-2 min-h-[44px] bg-blue-600 hover:bg-blue-700 dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white font-bold rounded-xl transition-all active:scale-95 shadow-2xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
           >
             <Plus className="w-3.5 h-3.5" /> Thêm Node
           </button>
@@ -280,48 +294,48 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
 
       {/* Create form */}
       {creating && (
-        <div className="bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-800 rounded-xl p-4 space-y-3">
-          <p className="text-xs font-semibold text-violet-700 dark:text-violet-400 uppercase tracking-wide">
+        <div className="bg-blue-50/80 dark:bg-cyan-950/20 border border-blue-200 dark:border-cyan-800 rounded-2xl p-4 space-y-3">
+          <p className="text-xs font-bold text-blue-700 dark:text-cyan-400 uppercase tracking-wider">
             Tạo Knowledge Node mới
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">Tên EN *</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Tên EN *</label>
               <input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="Dynamic Array"
-                className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                className="w-full px-3.5 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">Tên VI</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Tên VI</label>
               <input
                 value={form.name_vi}
                 onChange={e => setForm(f => ({ ...f, name_vi: e.target.value }))}
                 placeholder="Mảng động"
-                className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                className="w-full px-3.5 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
               />
             </div>
           </div>
           <div>
-            <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">Mô tả</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">Mô tả</label>
             <input
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               placeholder="Kiến thức về mảng động trong lập trình..."
-              className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+              className="w-full px-3.5 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
             />
           </div>
           {nodes.length > 0 && (
             <div>
-              <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">
-                Node cha (optional)
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+                Node cha (tùy chọn)
               </label>
               <select
                 value={form.parent_id}
                 onChange={e => setForm(f => ({ ...f, parent_id: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                className="w-full px-3.5 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
               >
                 <option value="">- Root node -</option>
                 {nodes.map(n => (
@@ -331,22 +345,24 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
             </div>
           )}
           {error && (
-            <div className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+            <div className="flex items-center gap-2 text-xs font-semibold text-rose-600 dark:text-rose-400">
               <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
               {error}
             </div>
           )}
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={handleCreate}
               disabled={saving}
-              className="flex-1 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-lg transition-all disabled:opacity-50"
+              className="flex-1 py-2.5 min-h-[44px] bg-blue-600 hover:bg-blue-700 dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               {saving ? "Đang tạo…" : "Tạo Node"}
             </button>
             <button
+              type="button"
               onClick={() => { setCreating(false); setError(""); }}
-              className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+              className="px-4 py-2.5 min-h-[44px] border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all focus:ring-2 focus:ring-slate-500 focus:outline-none"
             >
               Hủy
             </button>
@@ -358,9 +374,9 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
       {expanded && (
         <div className="mt-4 transition-all duration-300 ease-in-out">
           {nodes.length === 0 ? (
-            <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+            <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
               <Network className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
                 Chưa có Knowledge Node nào.
               </p>
               <p className="text-xs text-slate-400 mt-1">
@@ -368,15 +384,15 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
               </p>
             </div>
           ) : viewMode === "graph" ? (
-            // Bọc bằng một thẻ div có độ cao min-h-[600px] để panel mở ra không bị chật
-            <div className="min-h-[600px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+            // Bounded Graph Canvas Container with responsive height to prevent vertical viewport stretching
+            <div className="h-[360px] sm:h-[480px] rounded-2xl overflow-hidden border border-slate-200/80 dark:border-blue-500/15 shadow-inner">
               <KnowledgeGraph
                 courseId={courseId}
-                initialData={graphData} // Truyền dữ liệu dạng Graph Data (Nodes + Links)
+                initialData={graphData}
               />
             </div>
           ) : (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2 overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-[#0D192E] border border-slate-200/80 dark:border-blue-500/15 rounded-2xl p-3 max-h-[360px] sm:max-h-[480px] overflow-y-auto shadow-2xs scrollbar-thin">
               {rootNodes.map(node => (
                 <NodeRow key={node.id} node={node} />
               ))}
@@ -398,3 +414,4 @@ export function AINodeManager({ courseId, nodes, graphEdges = [], onNodesChange 
     </div>
   );
 }
+

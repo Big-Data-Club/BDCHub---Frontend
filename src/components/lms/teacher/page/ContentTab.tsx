@@ -14,7 +14,7 @@ import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } 
 import { Plus, FileText } from "lucide-react";
 import lmsService from "@/services/lmsService";
 import { AIIndexPollerProvider } from "@/hooks/useAIIndexPoller";
-import { Alert, EmptyState, PrimaryBtn } from "@/components/lms/shared";
+import { Alert, EmptyState, PrimaryBtn, ConfirmModal } from "@/components/lms/shared";
 import { Content, Section } from "@/types";
 
 import { ContentTabHeader } from "./ContentTabHeader";
@@ -192,9 +192,15 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
   const [editingContent, setEditingContent]           = useState<Content | null>(null);
   const [viewingContent, setViewingContent]           = useState<Content | null>(null);
 
-  // Deletion in-progress
+  // Deletion state
   const [deletingSection, setDeletingSection] = useState<number | null>(null);
   const [deletingContent, setDeletingContent] = useState<number | null>(null);
+  const [confirmDeleteTarget, setConfirmDeleteTarget] = useState<{
+    type: "section" | "content";
+    id: number;
+    sectionId?: number;
+    title: string;
+  } | null>(null);
 
   // Micro-lesson modal / drawer state
   const [showMicroModal, setShowMicroModal]       = useState(false);
@@ -229,36 +235,43 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
 
   // ── Delete handlers ─────────────────────────────────────────────────────────
 
-  const deleteSection = async (id: number) => {
-    if (!confirm("Xóa chương này? Tất cả nội dung bên trong cũng sẽ bị xóa.")) return;
-    setDeletingSection(id);
-    try {
-      await lmsService.deleteSection(id);
-      onSectionsChange(prev => prev.filter(section => section.id !== id));
-      setSectionContents(prev => {
-        const next = { ...prev };
-        delete next[id];
-        return next;
-      });
-      setExpanded(prev => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    }
-    finally { setDeletingSection(null); }
-  };
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteTarget) return;
 
-  const deleteContent = async (contentId: number, sectionId: number) => {
-    if (!confirm("Xóa nội dung này?")) return;
-    setDeletingContent(contentId);
-    try {
-      await lmsService.deleteContent(contentId);
-      setSectionContents(prev => ({
-        ...prev,
-        [sectionId]: (prev[sectionId] ?? []).filter(c => c.id !== contentId),
-      }));
-    } finally { setDeletingContent(null); }
+    if (confirmDeleteTarget.type === "section") {
+      const id = confirmDeleteTarget.id;
+      setDeletingSection(id);
+      try {
+        await lmsService.deleteSection(id);
+        onSectionsChange(prev => prev.filter(section => section.id !== id));
+        setSectionContents(prev => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
+        setExpanded(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      } finally {
+        setDeletingSection(null);
+        setConfirmDeleteTarget(null);
+      }
+    } else if (confirmDeleteTarget.type === "content" && confirmDeleteTarget.sectionId) {
+      const { id: contentId, sectionId } = confirmDeleteTarget;
+      setDeletingContent(contentId);
+      try {
+        await lmsService.deleteContent(contentId);
+        setSectionContents(prev => ({
+          ...prev,
+          [sectionId]: (prev[sectionId] ?? []).filter(c => c.id !== contentId),
+        }));
+      } finally {
+        setDeletingContent(null);
+        setConfirmDeleteTarget(null);
+      }
+    }
   };
 
   // ── onIndexed callback for the batch poller ─────────────────────────────────
@@ -328,12 +341,15 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
             }
           />
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 animate-fade-in-up duration-300">
             {localSections.map((sec, i) => (
-              <SectionItemCard
+              <div
                 key={sec.id}
-                section={sec}
-                index={i}
+                className={`animate-stagger-item stagger-delay-${Math.min(i + 1, 8)}`}
+              >
+                <SectionItemCard
+                  section={sec}
+                  index={i}
                 isExpanded={expanded.has(sec.id)}
                 contents={sectionContents[sec.id] ?? []}
                 isLoadingContents={Boolean(loadingContent[sec.id])}
@@ -371,7 +387,11 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
                   setOverviewSectionTitle(sec.title);
                   setShowOverviewHistoryModal(true);
                 }}
-                onDeleteSection={() => deleteSection(sec.id)}
+                onDeleteSection={() => setConfirmDeleteTarget({
+                  type: "section",
+                  id: sec.id,
+                  title: sec.title,
+                })}
                 onContentDragStart={(e, ci) => handleContentDragStart(e, sec.id, ci)}
                 onContentDragOver={(e, ci) => handleContentDragOver(e, sec.id, ci)}
                 onContentDragEnd={() => handleContentDragEnd(sec.id)}
@@ -395,10 +415,42 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
                   setEditingContent(c);
                   setShowEditContentModal(true);
                 }}
-                onDeleteContent={(cid) => deleteContent(cid, sec.id)}
+                onDeleteContent={(cid) => {
+                  const contentItem = (sectionContents[sec.id] ?? []).find(c => c.id === cid);
+                  setConfirmDeleteTarget({
+                    type: "content",
+                    id: cid,
+                    sectionId: sec.id,
+                    title: contentItem?.title || "Bài học",
+                  });
+                }}
               />
+              </div>
             ))}
           </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {confirmDeleteTarget && (
+          <ConfirmModal
+            isOpen={Boolean(confirmDeleteTarget)}
+            onClose={() => setConfirmDeleteTarget(null)}
+            onConfirm={handleConfirmDelete}
+            loading={Boolean(deletingSection || deletingContent)}
+            title={
+              confirmDeleteTarget.type === "section"
+                ? `Xóa chương "${confirmDeleteTarget.title}"?`
+                : `Xóa bài học "${confirmDeleteTarget.title}"?`
+            }
+            description={
+              confirmDeleteTarget.type === "section"
+                ? "Thao tác này sẽ xóa vĩnh viễn chương học này cùng với tất cả các bài học và tài liệu bên trong. Bạn không thể hoàn tác."
+                : "Thao tác này sẽ xóa vĩnh viễn bài học này khỏi khóa học. Bạn không thể hoàn tác."
+            }
+            confirmText="Xóa vĩnh viễn"
+            cancelText="Hủy bỏ"
+            variant="danger"
+          />
         )}
 
         {/* Dynamic Modals Orchestrator */}

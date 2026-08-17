@@ -1,123 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import { Course, Section } from "@/types";
-import { Badge, InteractiveGlowCard, EmptyState, ProgressBar } from "@/components/lms/shared";
+import { InteractiveGlowCard, EmptyState } from "@/components/lms/shared";
 import { 
-  BookOpen, Activity, Calendar, Eye, PlusCircle, 
-  Users, Shield, CheckCircle, Sparkles, Layers, ArrowRight, ChevronRight,
-  ChevronDown, ChevronUp, AlertCircle
+  BookOpen, PlusCircle, ArrowRight, ChevronRight,
+  Sparkles, Users, Layers
 } from "lucide-react";
 import Link from "next/link";
 import { CoTeacherSection } from "./CoTeacherSection";
 
 export function OverviewTab({ course, sections }: { course: Course; sections: Section[] }) {
-  const isPublished = course.status === "PUBLISHED";
-  const hasDescription = !!course.description;
-  const hasCategory = !!course.category;
-  const hasLevel = !!course.level;
-  const hasSections = sections.length > 0;
-
   const publishedSectionsCount = sections.filter(s => s.is_published).length;
-
-  // Checklist state: default open if draft, collapsed if published
-  const [showChecklist, setShowChecklist] = useState(!isPublished);
-
-  // Calculate readiness score
-  const checklistItems = [
-    { label: "Cập nhật mô tả chi tiết khóa học", checked: hasDescription },
-    { label: "Phân loại danh mục và cấp độ học", checked: hasCategory && hasLevel },
-    { label: "Biên soạn tối thiểu 01 chương học", checked: hasSections },
-    { label: "Xuất bản khóa học công khai", checked: isPublished },
-  ];
-
-  const checkedCount = checklistItems.filter(item => item.checked).length;
-  const readinessPercent = Math.round((checkedCount / checklistItems.length) * 100);
+  const draftSectionsCount = sections.length - publishedSectionsCount;
 
   return (
     <div className="space-y-6 md:space-y-8 animate-fadeIn duration-550">
       
-      {/* ── Top Collapsible Readiness Banner ── */}
-      <div className="bg-white/90 dark:bg-[#0F1E35]/90 backdrop-blur-md border border-slate-200/90 dark:border-blue-500/20 rounded-2xl p-4 md:p-5 shadow-xs transition-all duration-300">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${readinessPercent === 100 ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/25 shadow-2xs" : "bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200/80 dark:border-amber-500/25 shadow-2xs"}`}>
-              {readinessPercent === 100 ? <CheckCircle className="w-5 h-5 stroke-[2.2]" /> : <AlertCircle className="w-5 h-5 stroke-[2.2]" />}
-            </div>
-            
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">
-                  Độ sẵn sàng vận hành
-                </h4>
-                <div className="flex items-center gap-1.5">
-                  <span className={`text-xs font-black px-2 py-0.5 rounded-lg border ${readinessPercent === 100 ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30" : "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30"}`}>
-                    {readinessPercent}%
-                  </span>
-                  <Badge variant={readinessPercent === 100 ? "green" : "yellow"}>
-                    {readinessPercent === 100 ? "Đã hoàn thiện" : "Cần bổ sung"}
-                  </Badge>
-                </div>
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed truncate sm:whitespace-normal">
-                {readinessPercent === 100 
-                  ? "Khóa học đã đáp ứng đầy đủ các tiêu chuẩn vận hành và sẵn sàng phục vụ học viên."
-                  : `Đã hoàn thành ${checkedCount}/${checklistItems.length} hạng mục tiêu chuẩn để xuất bản khóa học.`
-                }
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between sm:justify-end gap-3.5 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-blue-500/10">
-            {/* Visual Progress Bar from shared design system */}
-            <div className="w-36 sm:w-44">
-              <ProgressBar 
-                value={readinessPercent} 
-                max={100} 
-                color={readinessPercent === 100 ? "green" : "blue"}
-                showPercent={false}
-                className="w-full"
-              />
-            </div>
-
-            <button
-              type="button"
-              aria-expanded={showChecklist}
-              aria-controls="course-readiness-checklist"
-              onClick={() => setShowChecklist(prev => !prev)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100/80 dark:bg-[#0D192E] hover:bg-slate-200/80 dark:hover:bg-[#162644] rounded-xl transition-all border border-slate-200 dark:border-blue-500/20 active:scale-95 cursor-pointer shadow-2xs"
-            >
-              <span>{showChecklist ? "Thu gọn" : "Xem tiêu chuẩn"}</span>
-              {showChecklist ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Collapsible Checklist Grid */}
-        {showChecklist && (
-          <div 
-            id="course-readiness-checklist"
-            className="mt-4 pt-4 border-t border-slate-100 dark:border-blue-500/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 transition-all duration-300 ease-in-out animate-fadeIn"
-          >
-            {checklistItems.map((item, idx) => (
-              <div 
-                key={idx} 
-                className={`p-3 rounded-xl border flex items-center gap-2.5 transition-all duration-200 ${item.checked ? "bg-slate-50/70 dark:bg-[#0D192E]/50 border-slate-200/80 dark:border-blue-500/15" : "bg-amber-50/40 dark:bg-amber-950/20 border-amber-200/70 dark:border-amber-800/40 shadow-2xs"}`}
-              >
-                {item.checked ? (
-                  <CheckCircle className="w-4 h-4 text-emerald-500 fill-emerald-500/10 flex-shrink-0" />
-                ) : (
-                  <div className="w-4 h-4 rounded-full border-2 border-amber-400 dark:border-amber-500 flex-shrink-0 animate-pulse" />
-                )}
-                <span className={`text-xs font-semibold tracking-tight ${item.checked ? "text-slate-500 dark:text-slate-400 line-through decoration-slate-300 dark:decoration-slate-600" : "text-slate-800 dark:text-slate-100 font-bold"}`}>
-                  {item.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* ── Main Layout Workspace Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         
@@ -134,10 +32,10 @@ export function OverviewTab({ course, sections }: { course: Course; sections: Se
               <div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-wide">
                   <BookOpen className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-                  Khung chương trình & Bài học
+                  Khung chương trình giảng dạy
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Xem nhanh danh sách chương học và truy cập trình quản lý nội dung chi tiết.
+                  Tổng quan các chương học và truy cập trình quản lý bài giảng.
                 </p>
               </div>
 
@@ -185,9 +83,9 @@ export function OverviewTab({ course, sections }: { course: Course; sections: Se
                     </p>
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <span className="text-slate-400 font-medium">Trạng thái biên soạn:</span>
-                    <p className="font-extrabold text-blue-600 dark:text-cyan-400 text-sm mt-0.5">
-                      Sẵn sàng giảng dạy
+                    <span className="text-slate-400 font-medium">Bản nháp:</span>
+                    <p className={`font-extrabold text-sm mt-0.5 ${draftSectionsCount > 0 ? "text-amber-600 dark:text-amber-400" : "text-slate-500 dark:text-slate-400"}`}>
+                      {draftSectionsCount} chương
                     </p>
                   </div>
                 </div>
@@ -268,10 +166,10 @@ export function OverviewTab({ course, sections }: { course: Course; sections: Se
                     </div>
                     <div className="min-w-0">
                       <h5 className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                        Tạo Quiz bằng AI
+                        Khởi tạo Quiz bằng AI
                       </h5>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
-                        Tự động khởi tạo câu hỏi từ tài liệu
+                        Tự động tạo câu hỏi từ tài liệu
                       </p>
                     </div>
                   </div>
@@ -294,10 +192,10 @@ export function OverviewTab({ course, sections }: { course: Course; sections: Se
                     </div>
                     <div className="min-w-0">
                       <h5 className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">
-                        Theo dõi Học viên
+                        Tiến độ học viên
                       </h5>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
-                        Quản lý danh sách & tiến độ học tập
+                        Theo dõi quá trình và kết quả học
                       </p>
                     </div>
                   </div>
@@ -320,10 +218,10 @@ export function OverviewTab({ course, sections }: { course: Course; sections: Se
                     </div>
                     <div className="min-w-0">
                       <h5 className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
-                        Soạn bài & Tài liệu
+                        Biên soạn bài giảng
                       </h5>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
-                        Thêm bài giảng video, tài liệu đính kèm
+                        Quản lý chương và nội dung học
                       </p>
                     </div>
                   </div>

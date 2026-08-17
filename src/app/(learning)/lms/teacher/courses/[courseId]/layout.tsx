@@ -11,6 +11,7 @@ import { Badge, Spinner, GridBackground, NavTabBar } from "@/components/lms/shar
 import { Course, Section } from "@/types";
 import { cn } from "@/lib/utils";
 import { useSetPageContext } from "@/hooks/usePageContext";
+import { CourseReadinessPopover } from "@/components/lms/teacher/page/CourseReadinessPopover";
 
 // Lazy-load modal - only needed when user clicks "Chỉnh sửa"
 const EditCourseModal = dynamic(
@@ -120,9 +121,6 @@ export default function CourseDetailLayout({ children }: { children: React.React
     COURSE_TABS.find(tab => {
       const fullPath = `${basePath}${tab.path}`;
       if (tab.id === "content") return pathname.startsWith(fullPath);
-      if (tab.id === "analytics" && pathname.startsWith(`${basePath}/ai`)) return true;
-      if (tab.id === "students" && pathname.startsWith(`${basePath}/learners`)) return true;
-      if (tab.id === "overview" && pathname.startsWith(`${basePath}/co-teachers`)) return true;
       return pathname === fullPath;
     }) ??
     COURSE_TABS[0];
@@ -176,8 +174,8 @@ export default function CourseDetailLayout({ children }: { children: React.React
                     </span>
                   </div>
                 ) : course ? (
-                  <div className="space-y-3.5">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                  <div className="space-y-3">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance">
                       {course.title}
                     </h1>
 
@@ -206,8 +204,8 @@ export default function CourseDetailLayout({ children }: { children: React.React
                         ) : (
                           <User className="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-800 p-0.5 text-slate-500" />
                         )}
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">
-                          Tạo bởi: {course.creator_name || "Giảng viên"}
+                        <span className="font-medium text-slate-700 dark:text-slate-300">
+                          Tạo bởi: <strong className="font-semibold">{course.creator_name || "Giảng viên"}</strong>
                         </span>
                       </div>
 
@@ -215,13 +213,13 @@ export default function CourseDetailLayout({ children }: { children: React.React
 
                       {/* Timestamps Pill */}
                       <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                        <span className="inline-flex items-center gap-1 font-medium" title={`Khởi tạo: ${new Date(course.created_at).toLocaleString("vi-VN")}`}>
+                        <span className="inline-flex items-center gap-1 font-normal" title={`Khởi tạo: ${new Date(course.created_at).toLocaleString("vi-VN")}`}>
                           <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                           <span>Tạo {new Date(course.created_at).toLocaleDateString("vi-VN")}</span>
                         </span>
 
                         {course.published_at && (
-                          <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400" title={`Xuất bản: ${new Date(course.published_at).toLocaleString("vi-VN")}`}>
+                          <span className="inline-flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400" title={`Xuất bản: ${new Date(course.published_at).toLocaleString("vi-VN")}`}>
                             <Clock className="w-3.5 h-3.5 text-emerald-500" />
                             <span>Xuất bản {new Date(course.published_at).toLocaleDateString("vi-VN")}</span>
                           </span>
@@ -232,7 +230,7 @@ export default function CourseDetailLayout({ children }: { children: React.React
 
                       <button
                         onClick={() => setShowEditModal(true)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 rounded-xl active:scale-95 transition-all shadow-xs border border-slate-200 dark:border-blue-500/20 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 rounded-xl active:scale-95 transition-all shadow-xs border border-slate-200 dark:border-blue-500/20 cursor-pointer"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Chỉnh sửa thông tin</span>
@@ -242,7 +240,7 @@ export default function CourseDetailLayout({ children }: { children: React.React
                         <button
                           onClick={handlePublish}
                           disabled={publishing}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 rounded-xl active:scale-95 transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 rounded-xl active:scale-95 transition-all shadow-xs disabled:opacity-50 cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>{publishing ? "Đang xuất bản…" : "Xuất bản khóa học"}</span>
@@ -251,7 +249,7 @@ export default function CourseDetailLayout({ children }: { children: React.React
                     </div>
                   </div>
                 ) : (
-                  <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                     Không tìm thấy khóa học
                   </h1>
                 )}
@@ -263,7 +261,7 @@ export default function CourseDetailLayout({ children }: { children: React.React
               <div className="lg:col-span-5 w-full">
                 <div className="bg-white/90 dark:bg-[#0F1E35]/90 backdrop-blur-md border border-slate-200/90 dark:border-blue-500/20 rounded-2xl p-4.5 shadow-sm space-y-3.5">
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-blue-500/10 pb-3">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-cyan-400">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-cyan-400">
                       Tổng quan chỉ số
                     </span>
                     <Badge variant={isPublished ? "green" : "yellow"}>
@@ -276,7 +274,7 @@ export default function CourseDetailLayout({ children }: { children: React.React
                     {/* Metric 1: Visibility */}
                     <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-[#0D192E]/90 border border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
                       <div>
-                        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Truy cập</p>
+                        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Phạm vi</p>
                         <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
                           {course.visibility === "PUBLIC" ? "Công khai" : "Nội bộ"}
                         </p>
@@ -298,7 +296,7 @@ export default function CourseDetailLayout({ children }: { children: React.React
                     {/* Metric 3: Sections */}
                     <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-[#0D192E]/90 border border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
                       <div>
-                        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Cấu trúc</p>
+                        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Chương học</p>
                         <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
                           {sections.length} chương
                         </p>
@@ -306,23 +304,8 @@ export default function CourseDetailLayout({ children }: { children: React.React
                       <BookOpen className="w-4 h-4 text-cyan-500 dark:text-cyan-400 flex-shrink-0" />
                     </div>
 
-                    {/* Metric 4: Readiness */}
-                    <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-[#0D192E]/90 border border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
-                      <div>
-                        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Sẵn sàng</p>
-                        <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
-                          {Math.round(
-                            ([
-                              !!course.description,
-                              !!course.category && !!course.level,
-                              sections.length > 0,
-                              isPublished,
-                            ].filter(Boolean).length / 4) * 100
-                          )}% hoàn tất
-                        </p>
-                      </div>
-                      <Activity className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                    </div>
+                    {/* Metric 4: Interactive Readiness Dropdown Popover */}
+                    <CourseReadinessPopover course={course} sections={sections} />
                   </div>
                 </div>
               </div>
