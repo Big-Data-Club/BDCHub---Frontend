@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import useSWR from "swr";
 import { ContentItem, CompletionBadge, EmptyState } from "./content-renderers/utils";
 import { TextRenderer } from "./content-renderers/TextRenderer";
@@ -91,7 +91,7 @@ export default function ContentViewer({
     return () => {
       clearTimeout(timer);
     };
-  }, [content.id, nodeId, courseId, isStudent, loadingNode]);
+  }, [content.id, content.type, nodeId, courseId, isStudent, loadingNode]);
 
   // 3. Track explicit completion when isCompleted changes from false to true
   const prevCompleted = useRef(isCompleted);
@@ -108,7 +108,7 @@ export default function ContentViewer({
       });
     }
     prevCompleted.current = isCompleted;
-  }, [isCompleted, courseId, isStudent, nodeId, loadingNode]);
+  }, [isCompleted, content.type, courseId, isStudent, nodeId, loadingNode]);
 
   const renderBody = () => {
     switch (content.type) {

@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { 
   X, Cpu, Layers, Activity, Search, FileCode, CheckCircle, 
-  XCircle, AlertTriangle, ShieldAlert, Sparkles, ChevronDown, ChevronUp 
+  Sparkles, ChevronDown, ChevronUp 
 } from "lucide-react";
-import type { AgentMessage, SubAgentLog } from "@/types";
+import type { AgentMessage } from "@/types";
 import { cn } from "@/lib/utils";
 
 interface AgentConsoleSidebarProps {

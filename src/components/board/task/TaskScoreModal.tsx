@@ -40,8 +40,8 @@ const TaskScoreModal: React.FC<TaskScoreModalProps> = ({
   const [lastScoredUserId, setLastScoredUserId] = useState<number | null>(null);
 
   const canManageScores = isAdmin || isManager;
-  const assignedUserIds = task?.assignees || [];
   const taskAssignees = React.useMemo(() => {
+    const assignedUserIds = task?.assignees || [];
     const list = users.filter((u) =>
       assignedUserIds.some((id) => id.toString() === u.id.toString())
     );
@@ -58,7 +58,7 @@ const TaskScoreModal: React.FC<TaskScoreModalProps> = ({
       if (b.id === lastScoredUserId) return 1;
       return a.name.localeCompare(b.name);
     });
-  }, [users, assignedUserIds, userSearch, lastScoredUserId]);
+  }, [users, task?.assignees, userSearch, lastScoredUserId]);
 
   useEffect(() => {
     if (isOpen && task?.id) loadScores();

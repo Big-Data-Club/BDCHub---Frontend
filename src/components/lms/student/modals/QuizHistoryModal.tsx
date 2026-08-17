@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { PrimaryBtn, SecondaryBtn, GhostBtn } from "@/components/lms/shared/Button";
+import { useState, useEffect, useCallback } from "react";
+import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 import quizService from "@/services/quizService";
 import { Clock, CheckCircle, XCircle, Eye, Calendar, Timer, Award, TrendingUp, AlertCircle } from "lucide-react";
 
@@ -42,11 +42,7 @@ export default function QuizHistoryModal({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadAttempts();
-  }, [quizId]);
-
-  const loadAttempts = async () => {
+  const loadAttempts = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -66,7 +62,11 @@ export default function QuizHistoryModal({
     } finally {
       setLoading(false);
     }
-  };
+  }, [quizId]);
+
+  useEffect(() => {
+    loadAttempts();
+  }, [quizId, loadAttempts]);
 
   const formatDuration = (seconds: number | null) => {
     if (!seconds) return "0 phút";

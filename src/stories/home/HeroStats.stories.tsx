@@ -68,7 +68,6 @@ export const MobileStats: StoryObj<typeof HeroStatsMobile> = {
 export const InteractiveReplay: StoryObj<typeof HeroVisualCore> = {
   name: '🔬 Test & Replay Animations',
   render: (args) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [animationKey, setAnimationKey] = useState(0);
 
     return (

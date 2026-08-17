@@ -4,14 +4,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Sparkles, X, Book } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { usePageContext } from "@/hooks/common/usePageContext";
 
-
-// The coworker is available on every authenticated page. Keep its sizeable
-// chat/notebook code out of the shared navigation bundle until it is opened.
 const AgentChatPanel = dynamic(
   () => import("../lms/agent/AgentChatPanel").then((mod) => mod.AgentChatPanel),
   { ssr: false, loading: () => <PanelLoading label="Đang mở AI trợ lý…" /> },
@@ -25,32 +22,6 @@ function PanelLoading({ label }: { label: string }) {
   return <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">{label}</div>;
 }
 
-class CoworkerPanelBoundary extends React.Component<{ children: React.ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-
-  componentDidCatch(error: Error) {
-    // Keep the failure isolated to the optional panel; the workspace must
-    // remain usable even if a persisted legacy widget is malformed.
-    console.error("[coworker-panel] render failed", error);
-  }
-
-  render() {
-    if (this.state.failed) {
-      return (
-        <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center text-sm text-slate-500 dark:text-slate-400">
-          <p>Không thể hiển thị phiên AI này.</p>
-          <button type="button" onClick={() => this.setState({ failed: false })} className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700">Thử lại</button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
 let coworkerPreloaded = false;
 function preloadCoworker() {
   if (coworkerPreloaded) return;
@@ -61,7 +32,7 @@ function preloadCoworker() {
 
 export function CoworkerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const { user } = useAuth();
 
   // State persistency in localStorage

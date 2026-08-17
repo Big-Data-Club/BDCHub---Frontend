@@ -12,7 +12,6 @@ import { useState } from "react";
 import type { UIComponentData } from "@/types";
 import { saveNotebookEntry } from "@/services/agentService";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const WIDGET_MAP: Record<string, React.ComponentType<any>> = {
   QuizDraftPreview: dynamic(() =>
     import("./widgets/QuizDraftPreview").then((m) => m.QuizDraftPreview),

@@ -9,7 +9,7 @@ interface ClarificationCardProps {
 }
 
 export function ClarificationCard({
-  question,
+  question: _question,
   options,
   onSelect,
 }: ClarificationCardProps) {

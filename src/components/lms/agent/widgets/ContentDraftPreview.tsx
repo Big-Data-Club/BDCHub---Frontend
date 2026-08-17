@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Edit2, Check, Save, FileText, ChevronDown, PlusCircle, Sparkles } from "lucide-react";
+import { Edit2, Check, Save, FileText, ChevronDown, Sparkles } from "lucide-react";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import lmsService from "@/services/lmsService";
 import { toast } from "react-hot-toast";
@@ -73,7 +73,7 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
       }
     };
     fetchCourses();
-  }, []);
+  }, [selectedCourseId]);
 
   useEffect(() => {
     const fetchSections = async () => {

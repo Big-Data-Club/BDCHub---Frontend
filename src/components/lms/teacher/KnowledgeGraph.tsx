@@ -169,7 +169,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
         toast.success("Hệ thống đang quét và kết nối các node cô lập...", { duration: 4000 });
         startPolling(graphData.links.length);
       } else {
-        toast.info(res.message || "Tác vụ đang được thực hiện.");
+        toast(res.message || "Tác vụ đang được thực hiện.", { icon: "ℹ️" });
       }
     } catch { setLinkJob("error"); toast.error("Không thể kích hoạt Link Graph."); }
   }, [courseId, graphData.links.length, linkJob, startPolling]);

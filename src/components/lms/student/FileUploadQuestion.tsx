@@ -18,7 +18,7 @@ interface FileUploadQuestionProps {
 }
 
 export default function FileUploadQuestion({
-  questionId,
+  questionId: _questionId,
   value,
   onChange,
   disabled = false,

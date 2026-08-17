@@ -8,7 +8,7 @@
  */
 import { useRef, useEffect, useCallback, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { MessageSquare, Sparkles, Sidebar, Cpu, ArrowDown } from "lucide-react";
+import { MessageSquare, Sidebar, Cpu, ArrowDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useAgentChat } from "@/hooks/lms/agent/useAgentChat";

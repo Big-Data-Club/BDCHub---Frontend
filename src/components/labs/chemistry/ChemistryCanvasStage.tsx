@@ -1,11 +1,11 @@
 // frontend/src/components/labs/chemistry/ChemistryCanvasStage.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChemistryLabSpec, TitrationDataPoint, VesselState } from "@/types/chemistry";
 import { ChemistryEngine } from "@/services/chemistryEngine";
 import { TitrationCurveWidget } from "./TitrationCurveWidget";
-import { Play, Pause, RotateCcw, Droplet, Flame, Thermometer, Gauge } from "lucide-react";
+import { Play, Pause, RotateCcw, Droplet, Thermometer, Gauge } from "lucide-react";
 
 interface Props {
   spec: ChemistryLabSpec;
@@ -15,14 +15,13 @@ interface Props {
 export function ChemistryCanvasStage({ spec, onStateUpdate }: Props) {
   const [engine] = useState(() => new ChemistryEngine(spec));
   const [isDripping, setIsDripping] = useState(false);
-  const [dripRate, setDripRate] = useState(2); // drops per second
+  const [dripRate] = useState(2); // drops per second
   const [dispensedMl, setDispensedMl] = useState(0);
   const [titrationHistory, setTitrationHistory] = useState<TitrationDataPoint[]>([]);
 
   const buretteEq = spec.equipments.find((e) => e.type === "burette");
   const flaskEq = spec.equipments.find((e) => e.type === "erlenmeyer_flask" || e.type === "beaker");
 
-  const buretteState = buretteEq ? engine.getVesselState(buretteEq.id) : null;
   const flaskState = flaskEq ? engine.getVesselState(flaskEq.id) : null;
 
   // Drip interval loop
@@ -39,6 +38,9 @@ export function ChemistryCanvasStage({ spec, onStateUpdate }: Props) {
         titrantSubstanceId,
         dropVolumeMl
       );
+      if (onStateUpdate) {
+        onStateUpdate({ [flaskEq.id]: updatedFlask });
+      }
 
       setDispensedMl((prev) => {
         const nextVol = prev + dropVolumeMl;

@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import { BookOpen, ChevronDown } from "lucide-react";
 import { useStudentCourse } from "./StudentCourseContext";
 import { SidebarSection } from "./SidebarSection";
-import { ProgressBar } from "@/components/lms/shared/ProgressBar";
+
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user/UserAvatar";
 
@@ -31,7 +31,7 @@ export function CourseLearningSidebar() {
   }, [sectionContents]);
   const totalMandatory = progress?.total_mandatory ?? memoizedMandatoryCount;
   const completedCount = progress?.completed_count ?? completedIds.size;
-  const progressPct = totalMandatory > 0 ? Math.round((completedCount / totalMandatory) * 100) : 0;
+  const _progressPct = totalMandatory > 0 ? Math.round((completedCount / totalMandatory) * 100) : 0;
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-[#070E1C]">

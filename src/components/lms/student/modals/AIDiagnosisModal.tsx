@@ -47,14 +47,6 @@ const GAP_LABEL: Record<string, string> = {
   unknown: "Chưa xác định",
 };
 
-const BLOOM_LABEL: Record<string, string> = {
-  remember: "Nhớ",
-  understand: "Hiểu",
-  apply: "Áp dụng",
-  analyze: "Phân tích",
-  evaluate: "Đánh giá",
-  create: "Sáng tạo",
-};
 
 export default function AIDiagnosisModal({
   attemptId,

@@ -17,7 +17,6 @@ import { logout } from "@/services/logout";
 
 const MobileNav = () => {
   const pathname = usePathname();
-  const router = useRouter();
   const { user, setUser } = useUser();
   const { isAdmin } = useAuth();
   const { theme, setTheme } = useTheme();

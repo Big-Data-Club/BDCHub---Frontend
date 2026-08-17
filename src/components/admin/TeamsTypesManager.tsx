@@ -15,8 +15,7 @@ import {
   Sparkles,
   Search,
   Check,
-  AlertTriangle,
-  FileText
+  AlertTriangle
 } from "lucide-react";
 import {
   fetchTeams,

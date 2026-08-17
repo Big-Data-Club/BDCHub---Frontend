@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PrimaryBtn, SecondaryBtn, GhostBtn, DangerBtn } from "@/components/lms/shared/Button";
+import { PrimaryBtn, SecondaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 import { Input }  from "@/components/ui/input";
 import { Label }  from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";

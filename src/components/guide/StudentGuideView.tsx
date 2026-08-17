@@ -14,9 +14,6 @@ import {
   HelpCircle,
   Video,
   FileCheck,
-  Award,
-  ChevronRight,
-  UserCheck,
   Upload
 } from "lucide-react";
 import { cn } from "@/lib/utils";

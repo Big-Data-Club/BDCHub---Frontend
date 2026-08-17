@@ -2,7 +2,7 @@
 
 import { useState, useEffect, memo } from "react";
 import { cn } from "@/lib/utils";
-import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles, MapPin, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Cpu, Layers, Sparkles, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
 import type { AgentMessage, HITLRequestData } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
@@ -21,45 +21,6 @@ interface AgentMessageBubbleProps {
   onActionReject?: (request: HITLRequestData) => void;
 }
 
-const ReferenceLink = ({ contentId, title, pageNumber }: { contentId: number; title: string; pageNumber?: number }) => {
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    lmsService.getContent(contentId)
-      .then((res) => {
-        const content = res?.data || res;
-        if (content?.file_path) {
-          let fileUrl = content.file_path;
-          if (!fileUrl.startsWith("http")) {
-            const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
-            const baseUrl = apiBase.replace(/\/api\/v1\/?$/, "");
-            fileUrl = `${baseUrl}${fileUrl.startsWith("/") ? "" : "/"}${fileUrl}`;
-          }
-          if (pageNumber) {
-            fileUrl += `#page=${pageNumber}`;
-          }
-          setUrl(fileUrl);
-        }
-      })
-      .catch(() => {});
-  }, [contentId, pageNumber]);
-
-  if (url) {
-    return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 dark:text-cyan-400 hover:underline inline-flex items-center gap-1 font-medium"
-      >
-        <BookOpen className="w-3 h-3 flex-shrink-0" />
-        {title}
-      </a>
-    );
-  }
-
-  return <span>{title}</span>;
-};
 
 export const AgentMessageBubble = memo(function AgentMessageBubble({
   message,
@@ -71,7 +32,6 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
 }: AgentMessageBubbleProps) {
   const isUser = message.role === "user";
   const [showThinking, setShowThinking] = useState(false);
-  const [showReferences, setShowReferences] = useState(false);
   const [showTrace, setShowTrace] = useState(false);
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
   const [savingNote, setSavingNote] = useState(false);

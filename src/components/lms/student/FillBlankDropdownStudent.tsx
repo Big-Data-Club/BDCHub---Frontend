@@ -26,7 +26,6 @@ export default function FillBlankDropdownStudent({
   onChange,
   disabled = false,
   showCorrectAnswers = false,
-  studentAnswer,
 }: FillBlankDropdownStudentProps) {
   const [localValue, setLocalValue] = useState<FillBlankDropdownStudentAnswer>(
     value || { blanks: [] }
@@ -98,10 +97,7 @@ export default function FillBlankDropdownStudent({
       .sort((a, b) => a.order_index - b.order_index);
   };
 
-  // Get blank config
-  const getBlankConfig = (blankId: number) => {
-    return settings.blanks.find(b => b.blank_id === blankId);
-  };
+
 
   // Check if student selection is correct (for review mode)
   const isSelectionCorrect = (blankId: number): boolean | null => {
@@ -281,7 +277,6 @@ export default function FillBlankDropdownStudent({
           {settings.blanks.length > 0 && (
             <div className="mt-2 space-y-2">
               {settings.blanks.map(blank => {
-                const blankOptions = getOptionsForBlank(blank.blank_id);
                 return (
                   <div key={blank.blank_id} className="text-xs">
                     <strong className="text-blue-700 dark:text-blue-300">BLANK_</strong>

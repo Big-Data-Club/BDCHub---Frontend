@@ -11,13 +11,13 @@ import type {
 } from "@/types/chemistry";
 import {
   Beaker,
-  CheckCircle2,
   Plus,
   Trash2,
   FlaskConical,
   Save,
   Layers,
-  Settings2,
+  Activity,
+  Award,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -391,6 +391,120 @@ export function ChemistryLabBuilder({ initialSpec, onSave }: Props) {
 
                 <button
                   onClick={() => setEquipments(equipments.filter((_, i) => i !== idx))}
+                  className="text-rose-400 hover:text-rose-300 justify-self-end"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section 3: Reaction Rules */}
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-cyan-300 flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              3. Phương trình & Quy tắc Phản ứng (Reactions)
+            </h3>
+            <button
+              onClick={() =>
+                setReactions([
+                  ...reactions,
+                  {
+                    id: `rxn_${Date.now()}`,
+                    equation: "A + B -> C",
+                    type: "acid_base",
+                    reactants: [],
+                    products: [],
+                  },
+                ])
+              }
+              className="flex items-center gap-1 text-xs text-cyan-400 hover:underline cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" /> Thêm phản ứng
+            </button>
+          </div>
+
+          <div className="divide-y divide-slate-800">
+            {reactions.map((rxn, idx) => (
+              <div key={rxn.id} className="grid grid-cols-1 md:grid-cols-4 gap-3 py-2.5 items-center text-xs">
+                <input
+                  type="text"
+                  placeholder="Phương trình"
+                  value={rxn.equation}
+                  onChange={(e) => {
+                    const next = [...reactions];
+                    next[idx].equation = e.target.value;
+                    setReactions(next);
+                  }}
+                  className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-white col-span-2"
+                />
+                <select
+                  value={rxn.type}
+                  onChange={(e) => {
+                    const next = [...reactions];
+                    next[idx].type = e.target.value as any;
+                    setReactions(next);
+                  }}
+                  className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-white"
+                >
+                  <option value="acid_base">Acid - Base</option>
+                  <option value="precipitation">Tạo kết tủa</option>
+                  <option value="gas_evolution">Tạo khí</option>
+                  <option value="redox">Oxy hóa - khử</option>
+                </select>
+                <button
+                  onClick={() => setReactions(reactions.filter((_, i) => i !== idx))}
+                  className="text-rose-400 hover:text-rose-300 justify-self-end"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section 4: Evaluation Criteria */}
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-cyan-300 flex items-center gap-2">
+              <Award className="h-4 w-4" />
+              4. Tiêu chí Chấm điểm & Các bước Thí nghiệm (Evaluation)
+            </h3>
+            <button
+              onClick={() =>
+                setCriteria([
+                  ...criteria,
+                  {
+                    id: `step_${Date.now()}`,
+                    stepName: "Bước mới",
+                    targetEquipmentId: equipments[0]?.id || "flask_1",
+                  },
+                ])
+              }
+              className="flex items-center gap-1 text-xs text-cyan-400 hover:underline cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" /> Thêm tiêu chí
+            </button>
+          </div>
+
+          <div className="divide-y divide-slate-800">
+            {criteria.map((cr, idx) => (
+              <div key={cr.id} className="grid grid-cols-1 md:grid-cols-4 gap-3 py-2.5 items-center text-xs">
+                <input
+                  type="text"
+                  placeholder="Tên bước thí nghiệm"
+                  value={cr.stepName}
+                  onChange={(e) => {
+                    const next = [...criteria];
+                    next[idx].stepName = e.target.value;
+                    setCriteria(next);
+                  }}
+                  className="rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-white col-span-3"
+                />
+                <button
+                  onClick={() => setCriteria(criteria.filter((_, i) => i !== idx))}
                   className="text-rose-400 hover:text-rose-300 justify-self-end"
                 >
                   <Trash2 className="h-4 w-4" />

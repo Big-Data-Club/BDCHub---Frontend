@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
-  BookOpen, Users, User, Calendar
+  BookOpen, Users, Calendar
 } from "lucide-react";
 import { Badge, BadgeVariant } from "./Badge";
 import { ProgressBar } from "./ProgressBar";
@@ -43,13 +43,13 @@ const formatDate = (dateStr?: string) => {
       month: "2-digit",
       year: "numeric",
     });
-  } catch (e) {
+  } catch {
     return "";
   }
 };
 
 export function CourseCard({
-  title, description, category, level, status, teacherName, teacherAvatarUrl,
+  title, category, level, status, teacherName, teacherAvatarUrl,
   thumbnailUrl, enrollmentCount, progress, createdAt, onClick, actions, className
 }: CourseCardProps) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);

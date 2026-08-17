@@ -86,7 +86,7 @@ export default function StemSimulationStage({ definition, result, comparison }: 
             spec={
               (definition as any).chemistrySpec || {
                 labType: "CHEMISTRY",
-                title: definition.title || "Thí nghiệm Hóa Học Ảo",
+                title: (definition as any).title || "Thí nghiệm Hóa Học Ảo",
                 workspace: { viewMode: "2.5D", benchWidth: 1200, benchHeight: 700 },
                 substances: [],
                 equipments: [],

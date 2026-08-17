@@ -68,7 +68,7 @@ export function QuizCreationWizard({ props }: QuizCreationWizardProps) {
   // -- Configuration State --
   const [title, setTitle] = useState(initial_config.quiz_title);
   const [duration, setDuration] = useState(initial_config.time_limit_minutes);
-  const [description, setDescription] = useState(initial_config.description || "");
+  const [description] = useState(initial_config.description || "");
   const [selectedSectionId, setSelectedSectionId] = useState<number>(initial_config.suggested_section_id || 0);
   const [newSectionTitle, setNewSectionTitle] = useState("");
   const [sections, setSections] = useState<any[]>([]);
@@ -90,7 +90,7 @@ export function QuizCreationWizard({ props }: QuizCreationWizardProps) {
       drafts.forEach(d => initial[d.gen_id] = "approved");
       setStatuses(initial);
     }
-  }, [drafts]);
+  }, [drafts, statuses]);
 
   // Fetch sections
   useEffect(() => {
@@ -113,7 +113,7 @@ export function QuizCreationWizard({ props }: QuizCreationWizardProps) {
       }
     }
     fetchSections();
-  }, [course_id, initial_config.suggested_section_id]);
+  }, [course_id, initial_config.suggested_section_id, selectedSectionId]);
 
   const approvedDrafts = drafts.filter(d => statuses[d.gen_id] === "approved");
 

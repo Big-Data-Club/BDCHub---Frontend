@@ -209,7 +209,7 @@ function ModelDialogContent({
     if (configStr.trim()) {
       try {
         parsedConfig = JSON.parse(configStr);
-      } catch (e) {
+      } catch {
         setError("Cấu hình JSON không hợp lệ! Vui lòng kiểm tra lại cú pháp.");
         setSaving(false);
         return;

@@ -14,7 +14,7 @@ export default function LmsUserRoleManager({ userId }: LmsUserRoleManagerProps) 
   const [allRoles, setAllRoles] = useState<RoleDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState("");
 
   const loadData = async () => {
@@ -35,7 +35,8 @@ export default function LmsUserRoleManager({ userId }: LmsUserRoleManagerProps) 
 
   useEffect(() => {
     loadData();
-  }, [userId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, loadData]);
 
   const handleAssign = async () => {
     if (!selectedRole) return;

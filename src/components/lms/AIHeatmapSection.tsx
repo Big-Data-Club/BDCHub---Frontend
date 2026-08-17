@@ -120,6 +120,7 @@ export function AIHeatmapSection({ courseId, role }: Props) {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetch(); }, [courseId, role]);
 
   const weakest = useMemo(() => {

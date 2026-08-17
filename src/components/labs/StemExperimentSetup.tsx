@@ -211,7 +211,8 @@ export default function StemExperimentSetup({ lab, onPublished }: Props) {
 
   useEffect(() => {
     loadVersions();
-  }, [lab.id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lab.id, loadVersions]);
 
   const normalizedDefinition = (): ExperimentDefinition => ({
     ...definition,

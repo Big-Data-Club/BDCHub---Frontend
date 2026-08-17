@@ -4,22 +4,17 @@ import React, { useState } from "react";
 import { 
   GraduationCap, 
   Plus, 
-  FileText, 
   Sparkles, 
   Settings, 
   Cpu, 
   Database, 
   Network, 
   CheckCircle, 
-  ChevronRight, 
   Info,
   Clock,
   RotateCw,
   FolderPlus,
-  HelpCircle,
-  Upload,
-  AlignLeft,
-  FileCheck
+  Upload
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

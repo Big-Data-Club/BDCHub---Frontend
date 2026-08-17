@@ -1,4 +1,4 @@
-export type LabType = 'CODING' | 'HPC' | 'JUPYTER' | 'WORKSPACE' | 'DATABASE' | 'CUSTOM' | 'PLANT' | 'ROBOT';
+export type LabType = 'CODING' | 'HPC' | 'JUPYTER' | 'WORKSPACE' | 'DATABASE' | 'CUSTOM' | 'PLANT' | 'ROBOT' | 'CHEMISTRY';
 export type LabLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'ALL_LEVELS';
 export type LabStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
@@ -117,7 +117,7 @@ export interface ExperimentVariable {
 }
 
 export interface ExperimentDefinition {
-  domain: 'PLANT' | 'ROBOT';
+  domain: 'PLANT' | 'ROBOT' | 'CHEMISTRY';
   inquiryLevel: InquiryLevel;
   workflowSchemaVersion: number;
   modelVersion: string;
@@ -203,7 +203,7 @@ export interface StemTrialResult {
   trialNumber: number;
   seed: number;
   engineVersion: string;
-  domain: 'PLANT' | 'ROBOT';
+  domain: 'PLANT' | 'ROBOT' | 'CHEMISTRY';
   xLabel: string;
   yLabel: string;
   points: Array<{ x: number; y: number }>;

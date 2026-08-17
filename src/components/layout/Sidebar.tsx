@@ -28,7 +28,6 @@ const DEFAULT_WIDTH = 240;
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
-  const router = useRouter();
   const { user, setUser } = useUser();
   const { unreadAlertsCount, unreadChatCount } = useNotifications();
   const { isAdmin } = useAuth();

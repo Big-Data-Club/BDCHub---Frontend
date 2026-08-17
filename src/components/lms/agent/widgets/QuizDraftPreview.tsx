@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { Check, X, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { aiService } from "@/services/aiService";
+
 
 interface DraftQuestion {
   gen_id: number;
@@ -37,7 +37,7 @@ const BLOOM_COLORS: Record<string, string> = {
 };
 
 export function QuizDraftPreview({ props }: QuizDraftPreviewProps) {
-  const { drafts, course_id } = props;
+  const { drafts, course_id: _course_id } = props;
   const [statuses, setStatuses] = useState<Record<number, "pending" | "approved" | "rejected">>({});
   const [expanded, setExpanded] = useState<number | null>(null);
 

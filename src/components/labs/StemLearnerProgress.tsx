@@ -83,7 +83,8 @@ export default function StemLearnerProgress({ lab }: Props) {
 
   useEffect(() => {
     loadRuns();
-  }, [lab.id, filter]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lab.id, filter, loadRuns]);
 
   const openRun = async (run: ExperimentRunSummary) => {
     setSelectedRun(run);
