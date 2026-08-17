@@ -357,6 +357,14 @@ class AIService {
   }
 
   /**
+   * Check current status of isolated node linking job for a course.
+   */
+  async getLinkIsolatedStatus(courseId: number): Promise<{ status: string; job_id: string; edges_created?: number; error?: string }> {
+    const res = await lmsApiClient.get(`/courses/${courseId}/ai/link-isolated/status`);
+    return res.data?.data ?? res.data;
+  }
+
+  /**
    * Create a new directed edge or update the relation_type/strength of an
    * existing one between two knowledge nodes. Idempotent.
    */

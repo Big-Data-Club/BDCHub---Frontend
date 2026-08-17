@@ -88,41 +88,91 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   useEffect(() => { if (initialData) setGraphData(initialData); }, [initialData]);
   useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
 
-  // ── Link Isolated ────────────────────────────────────────────────────────────
+  // ── Polling logic for Link Isolated Job ──────────────────────────────────────
 
-  const handleLinkIsolated = useCallback(async () => {
-    if (linkJob === "queued") return;
-    try {
-      setLinkJob("queued"); setLinkJobNewEdges(null);
-      await aiService.linkIsolatedNodes(courseId);
-      toast.success("He thong dang quet va ket noi cac node co lap...", { duration: 4000 });
-      const prevCount = graphData.links.length;
-      pollCount.current = 0;
-      pollRef.current = setInterval(async () => {
-        pollCount.current++;
-        if (pollCount.current > 24) {
-          clearInterval(pollRef.current!); pollRef.current = null;
-          setLinkJob("idle");
-          toast("Chua nhan ket qua. Hay tai lai do thi.", { icon: "⏱️" });
-          return;
-        }
-        try {
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
+
+  const startPolling = useCallback((prevCount: number) => {
+    stopPolling();
+    pollCount.current = 0;
+    pollRef.current = setInterval(async () => {
+      pollCount.current++;
+      if (pollCount.current > 24) {
+        stopPolling();
+        setLinkJob("idle");
+        toast("Chưa nhận kết quả. Hãy tải lại đồ thị.", { icon: "⏱️" });
+        return;
+      }
+      try {
+        // Query job status from backend
+        const jobInfo = await aiService.getLinkIsolatedStatus(courseId);
+        if (jobInfo.status === "completed" || jobInfo.status === "failed") {
+          stopPolling();
           const latest = await aiService.getKnowledgeGraph(courseId);
           const newLinks = latest.edges.map((e: any) => ({
             source: e.source, target: e.target, type: e.relation_type,
             strength: e.strength, auto_generated: e.auto_generated,
           }));
-          if (newLinks.length > prevCount) {
-            clearInterval(pollRef.current!); pollRef.current = null;
-            const added = newLinks.length - prevCount;
-            setLinkJobNewEdges(added); setLinkJob("done");
-            setGraphData({ nodes: latest.nodes.map((n: any) => ({ ...n })), links: newLinks });
-            toast.success(`Ket noi thanh cong - them ${added} lien ket moi!`);
+          const added = Math.max(0, newLinks.length - prevCount);
+          setLinkJobNewEdges(added);
+          setLinkJob("done");
+          setGraphData({ nodes: latest.nodes.map((n: any) => ({ ...n })), links: newLinks });
+          if (added > 0) {
+            toast.success(`Kết nối thành công - thêm ${added} liên kết mới!`);
+          } else {
+            toast.success("Đã hoàn tất kiểm tra các node cô lập!");
           }
-        } catch { /* retry */ }
-      }, 5000);
-    } catch { setLinkJob("error"); toast.error("Khong the kich hoat Link Graph."); }
-  }, [courseId, graphData.links.length, linkJob]);
+          return;
+        }
+
+        // Also check if graph edges count increased in the meantime
+        const latest = await aiService.getKnowledgeGraph(courseId);
+        if (latest.edges.length > prevCount) {
+          stopPolling();
+          const added = latest.edges.length - prevCount;
+          setLinkJobNewEdges(added);
+          setLinkJob("done");
+          const newLinks = latest.edges.map((e: any) => ({
+            source: e.source, target: e.target, type: e.relation_type,
+            strength: e.strength, auto_generated: e.auto_generated,
+          }));
+          setGraphData({ nodes: latest.nodes.map((n: any) => ({ ...n })), links: newLinks });
+          toast.success(`Kết nối thành công - thêm ${added} liên kết mới!`);
+        }
+      } catch { /* retry on next tick */ }
+    }, 5000);
+  }, [courseId, stopPolling]);
+
+  // Check active job status on mount so returning users don't double click
+  useEffect(() => {
+    aiService.getLinkIsolatedStatus(courseId).then((st) => {
+      if (st && (st.status === "queued" || st.status === "processing")) {
+        setLinkJob("queued");
+        startPolling(graphData.links.length);
+      }
+    }).catch(() => {});
+  }, [courseId, startPolling]);
+
+  // ── Link Isolated trigger ─────────────────────────────────────────────────────
+
+  const handleLinkIsolated = useCallback(async () => {
+    if (linkJob === "queued") return;
+    try {
+      setLinkJob("queued"); setLinkJobNewEdges(null);
+      const res = await aiService.linkIsolatedNodes(courseId);
+      if (res.status === "queued" || res.status === "processing") {
+        toast.success("Hệ thống đang quét và kết nối các node cô lập...", { duration: 4000 });
+        startPolling(graphData.links.length);
+      } else {
+        toast.info(res.message || "Tác vụ đang được thực hiện.");
+      }
+    } catch { setLinkJob("error"); toast.error("Không thể kích hoạt Link Graph."); }
+  }, [courseId, graphData.links.length, linkJob, startPolling]);
 
   // ── Node click ───────────────────────────────────────────────────────────────
 
@@ -135,7 +185,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
         setConnectMode(false); setConnectSrc(null);
       } else {
         setConnectSrc(node);
-        toast(`Node A: "${node.name}". Bam Node B de noi.`, { icon: "🔗" });
+        toast(`Node A: "${node.name}". Bấm Node B để nối.`, { icon: "🔗" });
       }
       return;
     }
@@ -146,16 +196,16 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   }, [connectMode, connectSrc, courseId]);
 
   const handleDeleteNode = async () => {
-    if (!selectedNode || !confirm(`Xoa node "${selectedNode.name}"?`)) return;
+    if (!selectedNode || !confirm(`Xóa node "${selectedNode.name}"?`)) return;
     try {
       await aiService.deleteKnowledgeNode(courseId, selectedNode.id);
-      toast.success("Da xoa node");
+      toast.success("Đã xóa node");
       setGraphData(p => ({
         nodes: p.nodes.filter((n: any) => n.id !== selectedNode.id),
         links: p.links.filter((l: any) => (l.source?.id ?? l.source) !== selectedNode.id && (l.target?.id ?? l.target) !== selectedNode.id),
       }));
       setSelectedNode(null);
-    } catch (e: any) { toast.error(e.response?.data?.message || "Khong the xoa node."); }
+    } catch (e: any) { toast.error(e.response?.data?.message || "Không thể xóa node."); }
   };
 
   const handleLinkClick = useCallback((link: any) => {
@@ -199,20 +249,20 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
         }
         return { ...prev, links };
       });
-      toast.success(edgeModal.mode === "create" ? "Da tao lien ket" : "Da cap nhat lien ket");
+      toast.success(edgeModal.mode === "create" ? "Đã tạo liên kết" : "Đã cập nhật liên kết");
       setEdgeModal(null);
-    } catch (e: any) { toast.error(e.response?.data?.message || "Khong the luu lien ket."); }
+    } catch (e: any) { toast.error(e.response?.data?.message || "Không thể lưu liên kết."); }
     finally { setEdgeSubmitting(false); }
   };
 
   const handleEdgeDelete = async () => {
-    if (!edgeModal || !confirm("Xoa lien ket nay?")) return;
+    if (!edgeModal || !confirm("Xóa liên kết này?")) return;
     setEdgeSubmitting(true);
     try {
       await aiService.deleteGraphEdge(courseId, { source_node_id: edgeModal.sourceNodeId, target_node_id: edgeModal.targetNodeId, relation_type: edgeModal.relationType });
       setGraphData(p => ({ ...p, links: p.links.filter((l: any) => !((l.source?.id ?? l.source) === edgeModal.sourceNodeId && (l.target?.id ?? l.target) === edgeModal.targetNodeId && l.type === edgeModal.relationType)) }));
-      toast.success("Da xoa lien ket"); setEdgeModal(null);
-    } catch { toast.error("Khong the xoa lien ket."); }
+      toast.success("Đã xóa liên kết"); setEdgeModal(null);
+    } catch { toast.error("Không thể xóa liên kết."); }
     finally { setEdgeSubmitting(false); }
   };
 
@@ -237,18 +287,18 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
       <div className="flex items-center gap-2 px-4 py-2.5 border border-b-0 border-slate-200 dark:border-slate-800 rounded-t-xl bg-white dark:bg-slate-950">
         <button id="btn-link-isolated" onClick={handleLinkIsolated} disabled={linkJob === "queued"}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${linkJob === "queued" ? "bg-blue-50 dark:bg-blue-900/20 text-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"}`}>
-          {linkJob === "queued" ? <><Loader2 size={14} className="animate-spin" /> Dang ket noi...</>
+          {linkJob === "queued" ? <><Loader2 size={14} className="animate-spin" /> Đang xử lý...</>
            : linkJob === "done" ? <><CheckCircle2 size={14} /> Link Graph {linkJobNewEdges != null ? `(+${linkJobNewEdges})` : ""}</>
            : <><GitMerge size={14} /> Link Graph</>}
         </button>
         <button id="btn-connect-mode" onClick={() => { setConnectMode(v => !v); setConnectSrc(null); }}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${connectMode ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 text-emerald-700 dark:text-emerald-400" : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
           <Plus size={14} />
-          {connectMode ? (connectSrc ? "Chon dich..." : "Chon Node A") : "Them lien ket"}
+          {connectMode ? (connectSrc ? "Chọn đích..." : "Chọn Node A") : "Thêm liên kết"}
         </button>
         <div className="ml-auto text-[11px] text-slate-400">
           {graphData.nodes.length} nodes · {graphData.links.length} edges
-          {connectMode && <span className="ml-2 text-emerald-500 font-medium animate-pulse"> Bam 2 node de noi</span>}
+          {connectMode && <span className="ml-2 text-emerald-500 font-medium animate-pulse"> Bấm 2 node để nối</span>}
         </div>
       </div>
 
@@ -262,7 +312,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
           </div>
           {activeTypes.length > 0 && (
             <div className="absolute bottom-4 left-4 z-10 bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 shadow-sm backdrop-blur-sm">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Loai lien ket</p>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Loại liên kết</p>
               <div className="flex flex-col gap-1">
                 {activeTypes.map(t => {
                   const s = getRelStyle(t);
@@ -279,8 +329,8 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
           {hoveredLink && (
             <div className="absolute top-4 right-4 z-10 bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 shadow-md backdrop-blur-sm pointer-events-none">
               <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{getRelStyle(hoveredLink.type).labelVi}</p>
-              <p className="text-[10px] text-slate-500 mt-0.5">Do manh: {((hoveredLink.strength ?? 0) * 100).toFixed(0)}% · {hoveredLink.auto_generated ? "AI tu tao" : "Thu cong"}</p>
-              <p className="text-[9px] text-slate-400 italic mt-0.5">Bam canh de chinh sua</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">Độ mạnh: {((hoveredLink.strength ?? 0) * 100).toFixed(0)}% · {hoveredLink.auto_generated ? "AI tự tạo" : "Thủ công"}</p>
+              <p className="text-[9px] text-slate-400 italic mt-0.5">Bấm cạnh để chỉnh sửa</p>
             </div>
           )}
           <ForceGraph2D
@@ -345,16 +395,16 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
               <div className="p-5 space-y-6">
                 {selectedNode.description && (
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl">
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mo ta khai niem</p>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mô tả khái niệm</p>
                     <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{selectedNode.description}</p>
                   </div>
                 )}
                 {(() => {
                   const cl = graphData.links.filter((l: any) => (l.source?.id ?? l.source) === selectedNode.id || (l.target?.id ?? l.target) === selectedNode.id);
-                  if (!cl.length) return <div className="p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-center text-xs text-slate-400">Node nay chua co lien ket nao.</div>;
+                  if (!cl.length) return <div className="p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-center text-xs text-slate-400">Node này chưa có liên kết nào.</div>;
                   return (
                     <div>
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Lien ket kien thuc</p>
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Liên kết kiến thức</p>
                       <div className="flex flex-wrap gap-2">
                         {cl.map((l: any, i: number) => {
                           const style = getRelStyle(l.type);
@@ -376,7 +426,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
                   );
                 })()}
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 text-sm"><Link2 size={16} className="text-blue-600" /> Du lieu goc trich xuat</h4>
+                  <h4 className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 text-sm"><Link2 size={16} className="text-blue-600" /> Dữ liệu gốc trích xuất</h4>
                   {isLoadingChunks ? (
                     <div className="space-y-3">{[1,2].map(i => <Card key={i} className="shadow-none animate-pulse"><CardContent className="p-4"><div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/3 mb-3" /><div className="h-2 bg-slate-200 dark:bg-slate-800 rounded w-full mb-2" /><div className="h-2 bg-slate-200 dark:bg-slate-800 rounded w-5/6" /></CardContent></Card>)}</div>
                   ) : nodeChunks.length ? (
@@ -385,14 +435,14 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
                         <CardContent className="p-4">
                           <div className="flex justify-between mb-3"><span className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded"><BrainCircuit size={12} /></span><button className="text-slate-400 hover:text-blue-600"><ExternalLink size={14} /></button></div>
                           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic border-l-2 border-slate-300 pl-3">{c.chunk_text}</p>
-                          {c.source && <div className="mt-3 flex items-center gap-1.5 text-xs text-slate-400"><BookOpen size={12} /><span>Trich tu: {c.source}</span></div>}
+                          {c.source && <div className="mt-3 flex items-center gap-1.5 text-xs text-slate-400"><BookOpen size={12} /><span>Trích từ: {c.source}</span></div>}
                         </CardContent>
                       </Card>
                     ))}</div>
                   ) : (
                     <div className="flex flex-col items-center p-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50">
                       <BrainCircuit className="text-slate-300 mb-2" size={24} />
-                      <p className="text-slate-500 text-sm font-medium">Chua co du lieu goc</p>
+                      <p className="text-slate-500 text-sm font-medium">Chưa có dữ liệu gốc</p>
                     </div>
                   )}
                 </div>
@@ -408,14 +458,14 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
               <div>
-                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">{edgeModal.mode === "create" ? "Tao lien ket moi" : "Chinh sua lien ket"}</h2>
+                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">{edgeModal.mode === "create" ? "Tạo liên kết mới" : "Chỉnh sửa liên kết"}</h2>
                 <p className="text-xs text-slate-500 mt-0.5">{edgeModal.sourceNodeName} → {edgeModal.targetNodeName}</p>
               </div>
               <button onClick={() => setEdgeModal(null)} className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"><X size={18} /></button>
             </div>
             <div className="px-6 py-5 space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Loai quan he</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Loại quan hệ</label>
                 <div className="grid grid-cols-2 gap-2">
                   {VALID_RELATION_TYPES.map(rt => {
                     const style = getRelStyle(rt), active = edgeModal.relationType === rt;
@@ -430,27 +480,27 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Do manh: <span className="text-blue-600">{(edgeModal.strength * 100).toFixed(0)}%</span></label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Độ mạnh: <span className="text-blue-600">{(edgeModal.strength * 100).toFixed(0)}%</span></label>
                 <input type="range" min={0.5} max={1.0} step={0.05} value={edgeModal.strength} onChange={e => setEdgeModal(em => em ? { ...em, strength: parseFloat(e.target.value) } : em)} className="w-full accent-blue-600" />
                 <div className="flex justify-between text-[10px] text-slate-400 mt-1"><span>50%</span><span>100%</span></div>
               </div>
               {edgeModal.mode === "create" && (
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" checked={edgeModal.bidirectional} onChange={e => setEdgeModal(em => em ? { ...em, bidirectional: e.target.checked } : em)} className="w-4 h-4 rounded accent-blue-600" />
-                  <span className="text-sm text-slate-700 dark:text-slate-300">Hai chieu (tao ca chieu nguoc lai)</span>
+                  <span className="text-sm text-slate-700 dark:text-slate-300">Hai chiều (tạo cả chiều ngược lại)</span>
                 </label>
               )}
             </div>
             <div className="flex items-center gap-2 px-6 pb-5">
               {edgeModal.mode === "edit" && (
                 <button onClick={handleEdgeDelete} disabled={edgeSubmitting} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 dark:border-red-800 transition-colors mr-auto">
-                  <Trash2 size={14} /> Xoa lien ket
+                  <Trash2 size={14} /> Xóa liên kết
                 </button>
               )}
-              <button onClick={() => setEdgeModal(null)} className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-colors ml-auto">Huy</button>
+              <button onClick={() => setEdgeModal(null)} className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-colors ml-auto">Hủy</button>
               <button onClick={handleEdgeSubmit} disabled={edgeSubmitting} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 shadow-sm">
                 {edgeSubmitting && <Loader2 size={14} className="animate-spin" />}
-                {edgeModal.mode === "create" ? "Tao lien ket" : "Luu thay doi"}
+                {edgeModal.mode === "create" ? "Tạo liên kết" : "Lưu thay đổi"}
               </button>
             </div>
           </div>
