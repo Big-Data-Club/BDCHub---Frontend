@@ -317,23 +317,22 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Active Panel (Chat or Notebook) */}
-          <div className="flex-1 min-h-0 overflow-hidden">
-            <CoworkerPanelBoundary key={`${agentType}-${activeTab}`}>
-              {activeTab === "chat" ? (
-                <AgentChatPanel
-                  key={agentType} // Re-mounts the panel when switching agent types to reset internal state correctly
-                  agentType={agentType}
-                  className="h-full border-none rounded-none"
-                  defaultSidebarOpen={false}
-                  isOverlaySidebar={true}
-                />
-              ) : (
-                <AgentNotebookPanel
-                  courseId={pageContext?.courseId ? Number(pageContext.courseId) : undefined}
-                  className="h-full"
-                />
-              )}
-            </CoworkerPanelBoundary>
+          <div className="flex-1 min-h-0 overflow-hidden relative">
+            <div className={cn("h-full", activeTab !== "chat" && "hidden")}>
+              <AgentChatPanel
+                key={agentType} // Re-mounts the panel when switching agent types to reset internal state correctly
+                agentType={agentType}
+                className="h-full border-none rounded-none"
+                defaultSidebarOpen={false}
+                isOverlaySidebar={true}
+              />
+            </div>
+            {activeTab === "notebook" && (
+              <AgentNotebookPanel
+                courseId={pageContext?.courseId ? Number(pageContext.courseId) : undefined}
+                className="h-full"
+              />
+            )}
           </div>
         </div>
       )}
