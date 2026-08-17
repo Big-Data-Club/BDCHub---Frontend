@@ -346,6 +346,44 @@ class AIService {
     await lmsApiClient.delete(`/courses/${courseId}/ai/nodes/${nodeId}`);
   }
 
+  /**
+   * Trigger an async Kafka job that scans zero-edge (isolated) nodes in a
+   * course and connects them via LLM-enriched similarity matching.
+   * Returns immediately with a job_id; result is pushed via ai.graph.status.
+   */
+  async linkIsolatedNodes(courseId: number): Promise<{ job_id: string; status: string; message: string }> {
+    const res = await lmsApiClient.post(`/courses/${courseId}/ai/link-isolated`);
+    return res.data?.data ?? res.data;
+  }
+
+  /**
+   * Create a new directed edge or update the relation_type/strength of an
+   * existing one between two knowledge nodes. Idempotent.
+   */
+  async upsertGraphEdge(courseId: number, payload: {
+    source_node_id: number;
+    target_node_id: number;
+    relation_type: string;
+    strength?: number;
+    reason?: string;
+    bidirectional?: boolean;
+  }): Promise<{ source_node_id: number; target_node_id: number; relation_type: string; strength: number }> {
+    const res = await lmsApiClient.post(`/courses/${courseId}/ai/graph/edge`, payload);
+    return res.data?.data ?? res.data;
+  }
+
+  /**
+   * Delete a specific edge (or all edges between a pair when relation_type is
+   * omitted) from PG and Neo4j.
+   */
+  async deleteGraphEdge(courseId: number, payload: {
+    source_node_id: number;
+    target_node_id: number;
+    relation_type?: string;
+  }): Promise<void> {
+    await lmsApiClient.delete(`/courses/${courseId}/ai/graph/edge`, { data: payload });
+  }
+
   // ─── Compact Graph (intelligent node consolidation) ──────────────────────
 
   /**
