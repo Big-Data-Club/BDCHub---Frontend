@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { ContentItem } from "./utils";
 import aiService from "@/services/aiService";
-import { useSetPageContext } from "@/hooks/usePageContext";
+import { useSetPageContext } from "@/hooks/common/usePageContext";
 
 const MarkdownRenderer = dynamic(
   () => import("@/components/markdown/MarkdownRenderer"),

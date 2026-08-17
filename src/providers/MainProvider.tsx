@@ -6,7 +6,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { UserProvider, useUser } from "@/store/UserContext";
 import { NotificationProvider } from "@/store/NotificationContext";
-import { PageContextProvider } from "@/hooks/usePageContext";
+import { PageContextProvider } from "@/hooks/common/usePageContext";
 import { CoworkerLayout } from "@/components/layout/CoworkerLayout";
 import { logout } from "@/services/logout";
 

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { EventCard } from "./EventCard";
-import { LoadingState } from "../LoadingState";
+import { LoadingState } from "@/components/common/LoadingState";
 import { EventItem } from "@/types";
 
 interface EventListProps {

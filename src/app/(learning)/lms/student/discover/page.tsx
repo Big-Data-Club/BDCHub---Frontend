@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/BreadcrumbNav";
+import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 import { Course, Enrollment } from "@/types";
 
 import { cn } from "@/lib/utils";

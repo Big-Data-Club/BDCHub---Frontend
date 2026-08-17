@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AnnouncementCard } from "./AnnouncementCard";
-import { LoadingState } from "../LoadingState";
+import { LoadingState } from "@/components/common/LoadingState";
 import { Announcement } from "@/types";
 
 interface AnnouncementListProps {

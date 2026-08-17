@@ -7,14 +7,14 @@ import { StatsCards } from "@/components/dashboard/StatsCards";
 import { SectionHeader } from "@/components/dashboard/SectionHeader";
 import { AnnouncementList } from "@/components/dashboard/announcement/AnnouncementList";
 import { EventList } from "@/components/dashboard/event/EventList";
-import { ShowMoreButton } from "@/components/dashboard/ShowMoreButton";
+import { ShowMoreButton } from "@/components/common/ShowMoreButton";
 import { AnnouncementModal } from "@/components/dashboard/modals/AnnouncementModal";
 import { EventModal } from "@/components/dashboard/modals/EventModal";
 import { ModernCalendar as ViewCalendar } from "@/components/dashboard/calendar/Calendar";
-import { useAnnouncements } from "@/hooks/useAnnouncements";
-import { useEvents } from "@/hooks/useEvents";
-import { useAuth } from "@/hooks/useAuth";
-import { usePagination } from "@/hooks/usePagination";
+import { useAnnouncements } from "@/hooks/dashboard/useAnnouncements";
+import { useEvents } from "@/hooks/dashboard/useEvents";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { usePagination } from "@/hooks/common/usePagination";
 
 export default function DashboardPage() {
   const router = useRouter();

@@ -4,7 +4,7 @@ import { format, isToday, isYesterday } from "date-fns";
 import { Trash2, Reply, Pencil, CornerUpRight } from "lucide-react";
 import { ChatMessage as ChatMessageType } from "@/types/chat";
 import { useSession } from "next-auth/react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { cn } from "@/lib/utils";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import ChatAvatar from "./ChatAvatar";

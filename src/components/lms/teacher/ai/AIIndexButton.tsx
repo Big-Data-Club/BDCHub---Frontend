@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAIIndexStatus } from "@/hooks/useAIIndexPoller";
+import { useAIIndexStatus } from "@/hooks/lms/teacher/useAIIndexPoller";
 
 type IndexStatus = "not_indexed" | "unindexed" | "pending" | "processing" | "indexed" | "failed";
 

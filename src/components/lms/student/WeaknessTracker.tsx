@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import analyticsService, { WeaknessOverviewResponse, WeakNode } from "@/services/analyticsService";
 import flashcardService from "@/services/flashcardService";
-import { FlashcardReviewModal } from "@/components/lms/student/FlashcardReviewModal";
+import { FlashcardReviewModal } from "@/components/lms/student/modals/FlashcardReviewModal";
 import toast from "react-hot-toast";
 
 interface Props {

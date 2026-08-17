@@ -2,7 +2,7 @@ import Footer from "@/components/layout/Footer";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
-import { AuthShell } from "@/components/login/AuthShell";
+import { AuthShell } from "@/components/auth/AuthShell";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

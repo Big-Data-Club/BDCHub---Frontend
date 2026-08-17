@@ -19,7 +19,7 @@ import { Course, Section } from "@/types";
 import {
   Badge, PrimaryBtn, GridBackground,
 } from "@/components/lms/shared";
-import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/BreadcrumbNav";
+import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

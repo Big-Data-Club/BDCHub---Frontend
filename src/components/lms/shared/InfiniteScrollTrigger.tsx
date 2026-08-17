@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useInView } from "@/hooks/useInView";
+import { useInView } from "@/hooks/common/useInView";
 import { Spinner } from "./Spinner";
 
 export function InfiniteScrollTrigger({

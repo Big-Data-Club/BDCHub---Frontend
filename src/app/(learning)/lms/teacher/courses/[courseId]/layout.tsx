@@ -6,16 +6,16 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Edit3, BookOpen, Users, Shield, Activity, Eye, User, Calendar, Clock } from "lucide-react";
 import lmsService from "@/services/lmsService";
-import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/BreadcrumbNav";
+import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 import { Badge, Spinner, GridBackground, NavTabBar } from "@/components/lms/shared";
 import { Course, Section } from "@/types";
 import { cn } from "@/lib/utils";
-import { useSetPageContext } from "@/hooks/usePageContext";
-import { CourseReadinessPopover } from "@/components/lms/teacher/page/CourseReadinessPopover";
+import { useSetPageContext } from "@/hooks/common/usePageContext";
+import { CourseReadinessPopover } from "@/components/lms/teacher/views/CourseReadinessPopover";
 
 // Lazy-load modal - only needed when user clicks "Chỉnh sửa"
 const EditCourseModal = dynamic(
-  () => import("@/components/lms/teacher/EditCourseModal").then(m => ({ default: m.EditCourseModal })),
+  () => import("@/components/lms/teacher/modals/EditCourseModal").then(m => ({ default: m.EditCourseModal })),
   { ssr: false },
 );
 

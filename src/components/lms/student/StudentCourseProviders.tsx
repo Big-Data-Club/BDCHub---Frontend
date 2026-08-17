@@ -5,7 +5,7 @@ import { useParams, useRouter, usePathname, useSearchParams } from "next/navigat
 
 import lmsService from "@/services/lmsService";
 import progressService, { CourseProgress, ProgressDetailItem } from "@/services/progressService";
-import { useSetPageContext } from "@/hooks/usePageContext";
+import { useSetPageContext } from "@/hooks/common/usePageContext";
 import { Content, Course, Section } from "@/types";
 import { PageLoader } from "@/components/lms/shared";
 import { AlertCircle } from "lucide-react";

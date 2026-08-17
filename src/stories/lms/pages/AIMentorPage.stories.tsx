@@ -2,7 +2,7 @@ import type { Meta } from '@storybook/nextjs-vite';
 import React from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import StudentLayout from '@/app/(learning)/lms/student/layout';
-import AIMentorPage from '@/app/(learning)/lms/student/ai-mentor/page';
+import { AgentChatPanel } from '@/components/lms/agent/AgentChatPanel';
 import type { AgentMessage } from '@/types';
 import {
   MOCK_TOOL_ACTIVITIES,
@@ -154,7 +154,7 @@ export const FullStudentAIMentorPage = {
         {/* Right Content Column wrapping StudentLayout & AIMentor Page */}
         <div className="flex flex-1 flex-col min-w-0">
           <StudentLayout>
-            <AIMentorPage
+            <AgentChatPanel agentType="mentor" className="h-full w-full"
               initialMessages={MOCK_MESSAGES}
               initialSessions={MOCK_SESSIONS}
             />
@@ -174,7 +174,7 @@ export const ConsoleDebuggerOpen = {
         </div>
         <div className="flex flex-1 flex-col min-w-0">
           <StudentLayout>
-            <AIMentorPage
+            <AgentChatPanel agentType="mentor" className="h-full w-full"
               initialMessages={MOCK_MESSAGES}
               initialSessions={MOCK_SESSIONS}
               defaultConsoleOpen={true}
@@ -204,7 +204,7 @@ export const EmptyChatState = {
         </div>
         <div className="flex flex-1 flex-col min-w-0">
           <StudentLayout>
-            <AIMentorPage />
+            <AgentChatPanel agentType="mentor" className="h-full w-full" />
           </StudentLayout>
         </div>
       </div>
@@ -237,7 +237,7 @@ export const InteractiveQuizState = {
         </div>
         <div className="flex flex-1 flex-col min-w-0">
           <StudentLayout>
-            <AIMentorPage
+            <AgentChatPanel agentType="mentor" className="h-full w-full"
               initialMessages={quizOnlyMessages}
               initialSessions={MOCK_SESSIONS}
             />

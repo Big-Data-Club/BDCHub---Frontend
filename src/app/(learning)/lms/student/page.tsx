@@ -6,8 +6,8 @@ import { Alert } from "@/components/lms/shared";
 import { StudentCourseSidebar } from "@/components/lms/student/StudentCourseSidebar";
 import { StudentCourseAnalytics } from "@/components/lms/student/StudentCourseAnalytics";
 import { StudentDashboardHeader } from "@/components/lms/student/StudentDashboardHeader";
-import { useScrollSnap } from "@/hooks/useScrollSnap";
-import { useStudentDashboard } from "@/hooks/useStudentDashboard";
+import { useScrollSnap } from "@/hooks/common/useScrollSnap";
+import { useStudentDashboard } from "@/hooks/lms/student/useStudentDashboard";
 import { trackRecommendationEvent } from "@/services/recommendationService";
 
 export default function StudentDashboard() {

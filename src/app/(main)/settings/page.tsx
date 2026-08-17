@@ -16,7 +16,7 @@ import {
   Mail,
   MessageSquare
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { redirect } from "next/navigation";
 
 interface SettingCard {

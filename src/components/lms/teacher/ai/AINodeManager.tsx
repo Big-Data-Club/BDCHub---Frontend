@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 // ─── Lazy-loaded heavy components ─────────────────────────────────────────────
 
 const ContentPickerModal = dynamic(
-  () => import("../ContentPickerModal").then(m => ({ default: m.ContentPickerModal })),
+  () => import("../modals/ContentPickerModal").then(m => ({ default: m.ContentPickerModal })),
   { ssr: false },
 );
 
