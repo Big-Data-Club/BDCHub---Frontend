@@ -12,14 +12,14 @@ const AIHeatmapSection = dynamic(
 
 const AIQuizGenPanel = dynamic(
   () => import("@/components/lms/teacher/page/AIQuizGenPanel").then(m => ({ default: m.AIQuizGenPanel })),
-  { ssr: false, loading: () => <div className="py-12 text-center text-sm text-slate-400">Đang tải AI Panel…</div> },
+  { ssr: false, loading: () => <div className="py-12 text-center text-xs text-slate-400">Đang tải AI Panel…</div> },
 );
 
 /**
  * /lms/teacher/courses/[courseId]/analytics
  *
  * Consolidated Analytics & AI Hub:
- * 1. AI Class Knowledge-Gap Heatmap (Visual Analytics on top)
+ * 1. AI Class Knowledge-Gap Heatmap (Visual Analytics)
  * 2. AI Quiz Generator & Knowledge Node Manager
  */
 export default function CourseAnalyticsPage() {
@@ -27,47 +27,30 @@ export default function CourseAnalyticsPage() {
   const id = Number(courseId);
 
   return (
-    <div className="space-y-10">
-      {/* ── Section 1: Visual Learning Analytics ── */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="p-2 rounded-xl bg-blue-50 dark:bg-cyan-950/30 text-blue-600 dark:text-cyan-400">
-            <BarChart3 className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-              Báo cáo & Bản đồ Lỗ hổng Kiến thức
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Phân tích mức độ nắm bắt bài học của cả lớp để kịp thời hỗ trợ các nội dung học sinh đang gặp khó khăn.
-            </p>
-          </div>
+    <div className="space-y-6 animate-fadeIn motion-reduce:animate-none duration-300">
+      {/* Page Title Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/60 dark:border-blue-500/15">
+        <div>
+          <h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <BarChart3 className="w-6 h-6 text-blue-600 dark:text-cyan-400 flex-shrink-0" />
+            Báo cáo & Trung tâm AI Khóa học
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+            Phân tích lỗ hổng kiến thức sinh viên, quản lý cây bài học (Knowledge Graph) và tạo đề thi tự động.
+          </p>
         </div>
+      </div>
 
+      {/* ── Section 1: Visual Learning Analytics ── */}
+      <section aria-label="Visual Heatmap Analytics">
         <AIHeatmapSection courseId={id} role="teacher" />
       </section>
 
-      {/* Divider line */}
-      <div className="h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-blue-500/20 to-transparent" />
-
       {/* ── Section 2: AI Quiz Center & Knowledge Nodes ── */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-              Trung tâm Trợ lý AI & Ngân hàng Đề thi
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Quản lý Cây kiến thức (Knowledge Graph) và khởi tạo câu hỏi trắc nghiệm tự động từ tài liệu khóa học.
-            </p>
-          </div>
-        </div>
-
+      <section aria-label="AI Quiz & Knowledge Nodes">
         <AIQuizGenPanel courseId={id} />
       </section>
     </div>
   );
 }
+

@@ -8,16 +8,23 @@ import {
 } from "lucide-react";
 import { AIIndexButton } from "@/components/lms/teacher/ai/AIIndexButton";
 import { Badge, ContentTypeBadge, Spinner } from "@/components/lms/shared";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Content } from "@/types";
 
 const CONTENT_ICON: Record<string, React.ReactNode> = {
-  VIDEO:        <Play className="w-3.5 h-3.5" />,
-  DOCUMENT:     <FileText className="w-3.5 h-3.5" />,
-  IMAGE:        <ImageIcon className="w-3.5 h-3.5" />,
-  TEXT:         <FileText className="w-3.5 h-3.5" />,
-  QUIZ:         <HelpCircle className="w-3.5 h-3.5" />,
-  FORUM:        <MessageSquare className="w-3.5 h-3.5" />,
-  ANNOUNCEMENT: <Megaphone className="w-3.5 h-3.5" />,
+  VIDEO:        <Play className="w-3.5 h-3.5 text-rose-500 dark:text-rose-400" />,
+  DOCUMENT:     <FileText className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400" />,
+  IMAGE:        <ImageIcon className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />,
+  TEXT:         <FileText className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />,
+  QUIZ:         <HelpCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />,
+  FORUM:        <MessageSquare className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />,
+  ANNOUNCEMENT: <Megaphone className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />,
 };
 
 interface ContentRowItemProps {
@@ -106,51 +113,79 @@ export function ContentRowItem({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-        {(c.type === "DOCUMENT" || c.type === "VIDEO" || c.type === "IMAGE") && (
-          <>
-            <button
-              title="Tạo bài học micro từ file này"
-              className="p-1.5 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-950/40 text-violet-600 dark:text-violet-400 transition-colors"
-              onClick={onGenerateMicroLesson}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-            </button>
-            <button
-              title="Tạo micro quiz từ file này"
-              className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 transition-colors"
-              onClick={onGenerateMicroQuiz}
-            >
-              <HelpCircle className="w-3.5 h-3.5" />
-            </button>
-          </>
-        )}
+      <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
         <button
+          type="button"
           title="Xem nội dung"
-          className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+          aria-label="Xem nội dung bài học"
+          className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition-colors cursor-pointer"
           onClick={onViewContent}
         >
           <Eye className="w-3.5 h-3.5" />
         </button>
         <button
+          type="button"
           title="Chỉnh sửa"
-          className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+          aria-label="Chỉnh sửa thông tin bài học"
+          className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition-colors cursor-pointer"
           onClick={onEditContent}
         >
           <Edit3 className="w-3.5 h-3.5" />
         </button>
-        <button
-          title="Xóa"
-          disabled={isDeleting}
-          className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/40 text-red-500 transition-colors"
-          onClick={onDeleteContent}
-        >
-          {isDeleting ? (
-            <Spinner className="w-3.5 h-3.5 border-2" />
-          ) : (
-            <Trash2 className="w-3.5 h-3.5" />
-          )}
-        </button>
+
+        {/* More Actions Dropdown via Radix Portal (Fixes z-index & transparency completely) */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              title="Thao tác khác"
+              aria-label="Xem các thao tác bổ sung"
+              className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400" />
+            </button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent
+            align="end"
+            className="w-48 bg-white dark:bg-[#0D192E] border border-slate-200 dark:border-blue-500/25 shadow-2xl rounded-xl p-1 space-y-0.5 ring-1 ring-slate-900/10 z-[200]"
+          >
+            {(c.type === "DOCUMENT" || c.type === "VIDEO" || c.type === "IMAGE") && (
+              <>
+                <DropdownMenuItem
+                  onClick={onGenerateMicroLesson}
+                  className="cursor-pointer flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400 focus:bg-violet-50 dark:focus:bg-violet-950/40 transition-colors"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-violet-500" />
+                  <span>Tạo Micro Lesson</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  onClick={onGenerateMicroQuiz}
+                  className="cursor-pointer flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 dark:hover:text-emerald-400 focus:bg-emerald-50 dark:focus:bg-emerald-950/40 transition-colors"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Tạo Micro Quiz</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator className="my-0.5 border-t border-slate-100 dark:border-slate-800" />
+              </>
+            )}
+
+            <DropdownMenuItem
+              disabled={isDeleting}
+              onClick={onDeleteContent}
+              className="cursor-pointer flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 focus:bg-red-50 dark:focus:bg-red-950/40 transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? (
+                <Spinner className="w-3.5 h-3.5 border-2" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5 text-red-500" />
+              )}
+              <span>Xóa bài học</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

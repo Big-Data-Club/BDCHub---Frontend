@@ -85,7 +85,7 @@ export function SectionItemCard({
       onDragStart={onSectionDragStart}
       onDragOver={onSectionDragOver}
       onDragEnd={onSectionDragEnd}
-      className={`rounded-2xl border border-slate-200/80 dark:border-blue-500/15 overflow-hidden bg-white dark:bg-[#070E1C] transition-all duration-200 hover:border-slate-300 dark:hover:border-blue-500/30 hover:shadow-xs ${
+      className={`rounded-2xl border border-slate-200/80 dark:border-blue-500/15 bg-white dark:bg-[#070E1C] transition-all duration-200 hover:border-slate-300 dark:hover:border-blue-500/30 hover:shadow-xs ${
         isDraggingSection ? "opacity-45 border-dashed border-blue-400 dark:border-blue-800" : ""
       }`}
     >
@@ -211,16 +211,14 @@ export function SectionItemCard({
           </button>
         </div>
 
-        {isExpanded ? (
-          <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
-        ) : (
-          <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />
-        )}
+        <ChevronDown className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-300 ease-out transform ${
+          isExpanded ? "rotate-0" : "-rotate-90"
+        }`} />
       </div>
 
-      {/* ── Content list ── */}
-      {isExpanded && (
-        <div>
+      {/* ── Content list with smooth CSS Grid expand/collapse transition ── */}
+      <div className={`accordion-wrapper ${isExpanded ? "open" : ""}`}>
+        <div className="accordion-content">
           {isLoadingContents ? (
             <div className="px-5 py-4 space-y-2">
               {[0, 1, 2].map((k) => (
@@ -231,12 +229,12 @@ export function SectionItemCard({
               ))}
             </div>
           ) : contents.length === 0 ? (
-            <div className="px-5 py-6 text-center">
+            <div className="px-5 py-6 text-center animate-fadeIn">
               <p className="text-xs text-slate-400 dark:text-slate-500">
                 Chưa có nội dung trong chương này.&nbsp;
                 <button
                   onClick={onAddContent}
-                  className="font-bold text-blue-600 dark:text-cyan-400 hover:underline"
+                  className="font-bold text-blue-600 dark:text-cyan-400 hover:underline cursor-pointer"
                 >
                   + Thêm ngay
                 </button>
@@ -245,33 +243,37 @@ export function SectionItemCard({
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-blue-500/10">
               {contents.map((c, ci) => (
-                <ContentRowItem
+                <div
                   key={c.id}
-                  content={c}
-                  index={ci}
-                  sectionId={sec.id}
-                  isDragging={
-                    draggedContentInfo?.sectionId === sec.id &&
-                    draggedContentInfo?.index === ci
-                  }
-                  canDrag={canDragContentId === c.id}
-                  isDeleting={deletingContentId === c.id}
-                  onDragStart={(e) => onContentDragStart(e, ci)}
-                  onDragOver={(e) => onContentDragOver(e, ci)}
-                  onDragEnd={onContentDragEnd}
-                  onMouseDownDrag={() => onMouseDownContentDrag(c.id)}
-                  onMouseUpDrag={onMouseUpContentDrag}
-                  onGenerateMicroLesson={() => onGenerateMicroLesson(c.id)}
-                  onGenerateMicroQuiz={() => onGenerateMicroQuiz(c.id)}
-                  onViewContent={() => onViewContent(c)}
-                  onEditContent={() => onEditContent(c)}
-                  onDeleteContent={() => onDeleteContent(c.id)}
-                />
+                  className={`animate-stagger-item stagger-delay-${Math.min(ci + 1, 8)}`}
+                >
+                  <ContentRowItem
+                    content={c}
+                    index={ci}
+                    sectionId={sec.id}
+                    isDragging={
+                      draggedContentInfo?.sectionId === sec.id &&
+                      draggedContentInfo?.index === ci
+                    }
+                    canDrag={canDragContentId === c.id}
+                    isDeleting={deletingContentId === c.id}
+                    onDragStart={(e) => onContentDragStart(e, ci)}
+                    onDragOver={(e) => onContentDragOver(e, ci)}
+                    onDragEnd={onContentDragEnd}
+                    onMouseDownDrag={() => onMouseDownContentDrag(c.id)}
+                    onMouseUpDrag={onMouseUpContentDrag}
+                    onGenerateMicroLesson={() => onGenerateMicroLesson(c.id)}
+                    onGenerateMicroQuiz={() => onGenerateMicroQuiz(c.id)}
+                    onViewContent={() => onViewContent(c)}
+                    onEditContent={() => onEditContent(c)}
+                    onDeleteContent={() => onDeleteContent(c.id)}
+                  />
+                </div>
               ))}
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

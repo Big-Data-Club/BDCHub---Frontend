@@ -9,12 +9,13 @@ import {
 } from "lucide-react";
 import aiService, { GeneratedQuestion, KnowledgeNode, KnowledgeGraphEdge } from "@/services/aiService";
 import { cn } from "@/lib/utils";
+import { TabBar } from "@/components/lms/shared/TabBar";
 
 // ─── Lazy-loaded heavy sub-components ─────────────────────────────────────────
 
 const AINodeManager = dynamic(
   () => import("@/components/lms/teacher/ai/AINodeManager").then(m => ({ default: m.AINodeManager })),
-  { ssr: false, loading: () => <div className="py-8 text-center text-sm text-slate-400">Đang tải quản lý nodes…</div> },
+  { ssr: false, loading: () => <div className="py-8 text-center text-xs text-slate-400">Đang tải quản lý nodes…</div> },
 );
 
 const QuizSelectorModal = dynamic(
@@ -37,9 +38,9 @@ const BLOOM_LEVELS = [
 
 const STATUS_CFG = {
   DRAFT:     { label: "Chờ duyệt", cls: "bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800" },
-  APPROVED:  { label: "Đã duyệt",  cls: "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800" },
-  REJECTED:  { label: "Từ chối",   cls: "bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800" },
-  PUBLISHED: { label: "Đã xuất bản", cls: "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800" },
+  APPROVED:  { label: "Đã duyệt",  cls: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800" },
+  REJECTED:  { label: "Từ chối",   cls: "bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800" },
+  PUBLISHED: { label: "Đã xuất bản", cls: "bg-blue-50 dark:bg-cyan-950/30 text-blue-700 dark:text-cyan-400 border border-blue-200 dark:border-cyan-800" },
 };
 
 function DraftCard({
@@ -70,10 +71,12 @@ function DraftCard({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all">
+    <div className="bg-white dark:bg-[#0D192E] rounded-2xl border border-slate-200/80 dark:border-blue-500/15 overflow-hidden shadow-xs hover:shadow-md transition-all">
       {/* Header row */}
-      <div
-        className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+      <button
+        type="button"
+        aria-expanded={open}
+        className="w-full flex items-center gap-3 px-4 py-3.5 text-left cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/40"
         onClick={() => setOpen((v) => !v)}
       >
         <span className="text-lg flex-shrink-0">{bloomEmoji}</span>
@@ -89,32 +92,32 @@ function DraftCard({
             )}
           </div>
         </div>
-        <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0", statusCfg.cls)}>
+        <span className={cn("text-xs font-semibold px-2.5 py-0.5 rounded-full flex-shrink-0", statusCfg.cls)}>
           {statusCfg.label}
         </span>
         {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-      </div>
+      </button>
 
       {/* Expanded */}
       {open && (
-        <div className="px-4 pb-4 space-y-4 border-t border-slate-100 dark:border-slate-800 pt-4">
+        <div className="px-4 pb-4 space-y-4 border-t border-slate-100 dark:border-blue-500/10 pt-4">
           {/* Answer options */}
           <div className="space-y-2">
             {q.answer_options.map((opt, i) => (
               <div
                 key={i}
                 className={cn(
-                  "flex items-start gap-2.5 px-3 py-2.5 rounded-xl text-sm border",
+                  "flex items-start gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm border",
                   opt.is_correct
-                    ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-300"
+                    ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-medium"
                     : "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                 )}
               >
-                <span className="flex-shrink-0 mt-0.5">{opt.is_correct ? "✓" : String.fromCharCode(65 + i) + "."}</span>
+                <span className="flex-shrink-0 mt-0.5 font-bold">{opt.is_correct ? "✓" : String.fromCharCode(65 + i) + "."}</span>
                 <div className="flex-1">
                   <p>{opt.text}</p>
                   {opt.is_correct && opt.explanation && (
-                    <p className="text-xs text-green-700 dark:text-green-400 mt-1 opacity-80">{opt.explanation}</p>
+                    <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-1 opacity-90">{opt.explanation}</p>
                   )}
                 </div>
               </div>
@@ -123,8 +126,8 @@ function DraftCard({
 
           {/* Explanation & source */}
           {q.explanation && (
-            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 text-sm text-blue-800 dark:text-blue-300">
-              <p className="font-semibold text-xs uppercase tracking-wide mb-1 text-blue-600 dark:text-blue-400">Giải thích</p>
+            <div className="bg-blue-50/80 dark:bg-cyan-950/20 border border-blue-200/80 dark:border-cyan-500/20 rounded-xl p-3 text-xs text-blue-900 dark:text-cyan-200">
+              <p className="font-bold text-xs uppercase tracking-wider mb-1 text-blue-600 dark:text-cyan-400">Giải thích</p>
               {q.explanation}
             </div>
           )}
@@ -137,25 +140,27 @@ function DraftCard({
 
           {/* Actions (only for DRAFT) */}
           {q.status === "DRAFT" && (
-            <div className="flex gap-2 pt-2">
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <button
+                type="button"
                 onClick={handleApprove}
-                className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-all active:scale-95"
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-[44px] bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all active:scale-95 shadow-2xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                Duyệt
+                Duyệt câu hỏi
               </button>
               <div className="flex-1 flex gap-2">
                 <input
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Lý do từ chối…"
-                  className="flex-1 px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400"
+                  className="flex-1 px-3.5 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400"
                 />
                 <button
+                  type="button"
                   onClick={handleReject}
                   disabled={rejecting}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-xl transition-all active:scale-95 disabled:opacity-50"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-[44px] bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50 focus:ring-2 focus:ring-rose-500 focus:outline-none"
                 >
                   <XCircle className="w-4 h-4" />
                   {rejecting ? "…" : "Từ chối"}
@@ -183,7 +188,7 @@ export function AIQuizGenPanel({ courseId }: Props) {
   const [loadingDrafts, setLoadingDrafts] = useState(false);
   const [error, setError] = useState("");
   const [activeSection, setActiveSection] = useState<"nodes" | "generate" | "drafts">("nodes");
-  
+
   // Quiz selector modal states
   const [isQuizSelectorOpen, setIsQuizSelectorOpen] = useState(false);
   const [pendingQuestionId, setPendingQuestionId] = useState<number | null>(null);
@@ -218,10 +223,8 @@ export function AIQuizGenPanel({ courseId }: Props) {
     try {
       const data = await aiService.listDraftQuestions(courseId);
       
-      // LÀM PHẲNG DỮ LIỆU Ở ĐÂY:
       const formattedDrafts = data.map((q: any) => ({
         ...q,
-        // Kiểm tra nếu là chuỗi thì ép kiểu về mảng object, nếu đã là mảng thì giữ nguyên
         answer_options: typeof q.answer_options === 'string' 
           ? JSON.parse(q.answer_options) 
           : q.answer_options
@@ -257,7 +260,6 @@ export function AIQuizGenPanel({ courseId }: Props) {
         throw new Error("Không nhận được Job ID từ server.");
       }
 
-      // Polling Logic
       let isDone = false;
       while (!isDone) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -274,11 +276,9 @@ export function AIQuizGenPanel({ courseId }: Props) {
           isDone = true;
           throw new Error(statusCheck.error || "Quá trình tạo lỗi.");
         }
-        // If pending or processing, loop continues
       }
-      
     } catch (e: any) {
-      setError(e?.response?.data?.error ?? e.message ?? "Không thể tạo quiz. Kiểm tra AI service.");
+      setError(e?.response?.data?.error ?? e.message ?? "Không thể tạo quiz. Kiểm tra dịch vụ AI.");
     } finally {
       setGenerating(false);
     }
@@ -309,7 +309,6 @@ export function AIQuizGenPanel({ courseId }: Props) {
     await loadDrafts();
   };
 
-  // Derived unique nodes for filter dropdown
   const uniqueNodes = useMemo(() => {
     const nodesInDrafts = drafts
       .map(d => d.node_name)
@@ -317,24 +316,16 @@ export function AIQuizGenPanel({ courseId }: Props) {
     return Array.from(new Set(nodesInDrafts)).sort();
   }, [drafts]);
 
-  // Main filtering & sorting logic
   const filteredDrafts = useMemo(() => {
     let result = [...drafts];
-
-    // 1. Filter by status (only show DRAFT in the main view)
     result = result.filter(d => d.status === "DRAFT");
 
-    // 2. Filter by Bloom level
     if (filterBloom !== "all") {
       result = result.filter(d => d.bloom_level === filterBloom);
     }
-
-    // 3. Filter by Knowledge Node
     if (filterNode !== "all") {
       result = result.filter(d => d.node_name === filterNode);
     }
-
-    // 4. Search by text
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(d => 
@@ -343,7 +334,6 @@ export function AIQuizGenPanel({ courseId }: Props) {
       );
     }
 
-    // 5. Sort
     result.sort((a, b) => {
       switch (sortBy) {
         case "oldest": return a.id - b.id;
@@ -365,44 +355,23 @@ export function AIQuizGenPanel({ courseId }: Props) {
   const draftCount = drafts.filter((d) => d.status === "DRAFT").length;
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-950/30 flex items-center justify-center border border-violet-200 dark:border-violet-800">
-          <Sparkles className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-        </div>
-        <div>
-          <h3 className="font-bold text-slate-900 dark:text-slate-50">AI Tạo câu hỏi</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Blooms Taxonomy · RAG-grounded · Không hallucination</p>
-        </div>
-      </div>
-
-      {/* Tab bar */}
-      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
-        {(["nodes", "generate", "drafts"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => {
-              setActiveSection(t);
-            }}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all",
-              activeSection === t
-                ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
-            )}
-          >
-            {t === "nodes" && <BookOpen className="w-3.5 h-3.5" />}
-            {t === "generate" && <Zap className="w-3.5 h-3.5" />}
-            {t === "drafts" && <Clock className="w-3.5 h-3.5" />}
-            {t === "nodes" ? "Nodes" : t === "generate" ? "Tạo mới" : `Chờ duyệt (${draftCount})`}
-          </button>
-        ))}
+    <div className="bg-white dark:bg-[#0F1E35] rounded-3xl border border-slate-200/80 dark:border-blue-500/15 p-5 md:p-6 shadow-xs space-y-5">
+      {/* System Tab Bar Navigation */}
+      <div className="border-b border-slate-100 dark:border-blue-500/10 pb-3">
+        <TabBar
+          tabs={[
+            { id: "nodes", label: "Cây kiến thức (Nodes)", badge: nodes.length },
+            { id: "generate", label: "Tạo mới bằng AI" },
+            { id: "drafts", label: "Chờ duyệt", badge: draftCount },
+          ]}
+          active={activeSection}
+          onChange={(id) => setActiveSection(id as any)}
+        />
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-400">
-          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-2 p-3 bg-[#FFF1F2] dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-semibold text-rose-700 dark:text-rose-400">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-500" />
           {error}
         </div>
       )}
@@ -412,31 +381,32 @@ export function AIQuizGenPanel({ courseId }: Props) {
         <div className="space-y-5">
           {/* Node selector */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
               Chủ đề (Knowledge Node) *
             </label>
             {nodes.length === 0 ? (
-              <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl text-sm text-amber-700 dark:text-amber-400">
+              <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-700 dark:text-amber-400">
                 <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 Chưa có Knowledge Node nào. Tạo node trong phần quản lý AI trước.
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                 {nodes.map((n) => (
                   <button
                     key={n.id}
+                    type="button"
                     onClick={() => setSelectedNode(n.id)}
                     className={cn(
-                      "flex items-center gap-2 p-3 rounded-xl border text-left text-sm transition-all",
+                      "flex items-center gap-2 p-3.5 rounded-xl border text-left text-xs font-semibold transition-all min-h-[44px] focus:ring-2 focus:ring-blue-500 focus:outline-none",
                       selectedNode === n.id
-                        ? "border-violet-400 dark:border-violet-600 bg-violet-50 dark:bg-violet-950/30 text-violet-800 dark:text-violet-200"
-                        : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
+                        ? "border-blue-500 dark:border-cyan-500 bg-blue-50/80 dark:bg-cyan-950/40 text-blue-900 dark:text-cyan-200"
+                        : "border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0D192E] text-slate-700 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-600"
                     )}
                   >
-                    <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
+                    <BookOpen className="w-4 h-4 text-blue-600 dark:text-cyan-400 flex-shrink-0" />
                     <span className="truncate">{n.name_vi ?? n.name}</span>
                     {n.chunk_count > 0 && (
-                      <span className="ml-auto text-xs text-slate-400">{n.chunk_count} chunks</span>
+                      <span className="ml-auto text-xs text-slate-400 font-mono flex-shrink-0">{n.chunk_count} chunks</span>
                     )}
                   </button>
                 ))}
@@ -446,7 +416,7 @@ export function AIQuizGenPanel({ courseId }: Props) {
 
           {/* Bloom levels */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
               Cấp độ Bloom *
             </label>
             <div className="flex flex-wrap gap-2">
@@ -455,13 +425,14 @@ export function AIQuizGenPanel({ courseId }: Props) {
                 return (
                   <button
                     key={b.id}
+                    type="button"
                     onClick={() => setSelectedBlooms((prev) =>
                       active ? prev.filter((x) => x !== b.id) : [...prev, b.id]
                     )}
                     className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm font-medium transition-all",
+                      "flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl border text-xs font-semibold transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none",
                       active
-                        ? "border-violet-400 dark:border-violet-600 bg-violet-50 dark:bg-violet-950/30 text-violet-800 dark:text-violet-200"
+                        ? "border-blue-500 dark:border-cyan-500 bg-blue-50 dark:bg-cyan-950/40 text-blue-900 dark:text-cyan-200"
                         : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
                     )}
                   >
@@ -475,16 +446,17 @@ export function AIQuizGenPanel({ courseId }: Props) {
 
           {/* Language */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Ngôn ngữ</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">Ngôn ngữ</label>
             <div className="flex gap-2">
               {[{ v: "vi", l: "🇻🇳 Tiếng Việt" }, { v: "en", l: "🇺🇸 English" }].map((lang) => (
                 <button
                   key={lang.v}
+                  type="button"
                   onClick={() => setLanguage(lang.v)}
                   className={cn(
-                    "flex-1 py-2 rounded-xl border text-sm font-medium transition-all",
+                    "flex-1 py-2.5 min-h-[44px] rounded-xl border text-xs font-bold transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none",
                     language === lang.v
-                      ? "border-violet-400 dark:border-violet-600 bg-violet-50 dark:bg-violet-950/30 text-violet-800 dark:text-violet-200"
+                      ? "border-blue-500 dark:border-cyan-500 bg-blue-50 dark:bg-cyan-950/40 text-blue-900 dark:text-cyan-200"
                       : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
                   )}
                 >
@@ -496,9 +468,10 @@ export function AIQuizGenPanel({ courseId }: Props) {
 
           {/* Generate button */}
           <button
+            type="button"
             onClick={handleGenerateQuiz}
             disabled={generating || !selectedNode || selectedBlooms.length === 0}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="w-full flex items-center justify-center gap-2 py-3.5 min-h-[44px] bg-blue-600 hover:bg-blue-700 dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white text-xs font-extrabold rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
           >
             {generating ? (
               <>
@@ -513,8 +486,8 @@ export function AIQuizGenPanel({ courseId }: Props) {
             )}
           </button>
 
-          <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
-            AI sẽ tạo 1 câu hỏi per cấp độ Bloom, grounded trong tài liệu thực tế của khóa học.
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 text-center">
+            Hệ thống AI sẽ trích xuất tài liệu thực tế của khóa học để khởi tạo tự động 1 câu hỏi tương ứng với từng cấp độ Bloom được chọn.
           </p>
         </div>
       )}
@@ -523,14 +496,18 @@ export function AIQuizGenPanel({ courseId }: Props) {
       {activeSection === "drafts" && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
               {filteredDrafts.length === draftCount 
                 ? `${draftCount} chờ duyệt` 
                 : `${filteredDrafts.length} / ${draftCount} kết quả`
               }
             </p>
-            <button onClick={loadDrafts} disabled={loadingDrafts}
-              className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors disabled:opacity-40">
+            <button 
+              type="button"
+              onClick={loadDrafts} 
+              disabled={loadingDrafts}
+              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-xs font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors disabled:opacity-40 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-xl"
+            >
               <RefreshCw className={cn("w-3.5 h-3.5", loadingDrafts && "animate-spin")} />
               Làm mới
             </button>
@@ -539,23 +516,23 @@ export function AIQuizGenPanel({ courseId }: Props) {
           {/* Filter Bar */}
           <div className="space-y-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Tìm kiếm nội dung câu hỏi..."
-                className="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all placeholder:text-slate-400"
+                className="w-full pl-9 pr-3.5 py-2.5 text-xs bg-slate-50 dark:bg-[#0D192E] border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all placeholder:text-slate-400 min-h-[44px]"
               />
             </div>
             
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              <div className="flex items-center gap-1 text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-1 rounded-lg">
-                <Filter className="w-3 h-3" />
-                <span className="font-bold uppercase tracking-tighter">Bloom:</span>
+              <div className="flex items-center gap-1.5 text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-xl min-h-[44px]">
+                <Filter className="w-3.5 h-3.5" />
+                <span className="font-bold uppercase tracking-wider text-xs">Bloom:</span>
                 <select
                   value={filterBloom}
                   onChange={e => setFilterBloom(e.target.value)}
-                  className="bg-transparent border-none focus:ring-0 cursor-pointer font-medium p-0"
+                  className="bg-transparent border-none focus:ring-0 cursor-pointer font-semibold p-0 text-slate-800 dark:text-slate-200"
                 >
                   <option value="all">Tất cả</option>
                   {BLOOM_LEVELS.map(b => (
@@ -565,13 +542,13 @@ export function AIQuizGenPanel({ courseId }: Props) {
               </div>
 
               {uniqueNodes.length > 0 && (
-                <div className="flex items-center gap-1 text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-1 rounded-lg">
-                  <Filter className="w-3 h-3" />
-                  <span className="font-bold uppercase tracking-tighter">Node:</span>
+                <div className="flex items-center gap-1.5 text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-xl min-h-[44px]">
+                  <Filter className="w-3.5 h-3.5" />
+                  <span className="font-bold uppercase tracking-wider text-xs">Node:</span>
                   <select
                     value={filterNode}
                     onChange={e => setFilterNode(e.target.value)}
-                    className="bg-transparent border-none focus:ring-0 cursor-pointer font-medium p-0 max-w-[120px]"
+                    className="bg-transparent border-none focus:ring-0 cursor-pointer font-semibold p-0 max-w-[120px] text-slate-800 dark:text-slate-200"
                   >
                     <option value="all">Tất cả</option>
                     {uniqueNodes.map(n => (
@@ -581,16 +558,16 @@ export function AIQuizGenPanel({ courseId }: Props) {
                 </div>
               )}
 
-              <div className="flex items-center gap-1 text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-1 rounded-lg ml-auto">
-                <ArrowUpDown className="w-3 h-3" />
-                <span className="font-bold uppercase tracking-tighter">Xếp:</span>
+              <div className="flex items-center gap-1.5 text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-xl min-h-[44px] ml-auto">
+                <ArrowUpDown className="w-3.5 h-3.5" />
+                <span className="font-bold uppercase tracking-wider text-xs">Xếp:</span>
                 <select
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value as any)}
-                  className="bg-transparent border-none focus:ring-0 cursor-pointer font-medium p-0"
+                  className="bg-transparent border-none focus:ring-0 cursor-pointer font-semibold p-0 text-slate-800 dark:text-slate-200"
                 >
-                  <option value="newest">Mới</option>
-                  <option value="oldest">Cũ</option>
+                  <option value="newest">Mới nhất</option>
+                  <option value="oldest">Cũ nhất</option>
                   <option value="bloom">Bloom</option>
                   <option value="node">Node</option>
                 </select>
@@ -600,13 +577,13 @@ export function AIQuizGenPanel({ courseId }: Props) {
 
           {loadingDrafts ? (
             <div className="flex items-center justify-center py-8 gap-3">
-              <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-slate-500">Đang tải…</p>
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs font-semibold text-slate-500">Đang tải câu hỏi…</p>
             </div>
           ) : filteredDrafts.length === 0 ? (
             <div className="py-8 text-center bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800/50">
               <Layers className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-2 opacity-50" />
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
                 {searchQuery || filterBloom !== "all" || filterNode !== "all" 
                   ? "Không tìm thấy câu hỏi phù hợp."
                   : "Chưa có câu hỏi nào. Hãy tạo mới ở tab Tạo mới."}
@@ -621,8 +598,8 @@ export function AIQuizGenPanel({ courseId }: Props) {
                   onReject={handleRejectQuestion}
                 />
                 {approvingId === q.id && (
-                  <div className="flex items-center justify-center gap-2 py-2 text-sm text-violet-600 dark:text-violet-400">
-                    <div className="w-3 h-3 border-2 border-violet-600 border-t-transparent rounded-full animate-spin dark:border-violet-400" />
+                  <div className="flex items-center justify-center gap-2 py-2 text-xs font-bold text-blue-600 dark:text-cyan-400">
+                    <div className="w-3 h-3 border-2 border-blue-600 dark:border-cyan-400 border-t-transparent rounded-full animate-spin" />
                     Đang duyệt…
                   </div>
                 )}
@@ -651,3 +628,4 @@ export function AIQuizGenPanel({ courseId }: Props) {
     </div>
   );
 }
+

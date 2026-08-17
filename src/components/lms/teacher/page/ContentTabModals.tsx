@@ -2,8 +2,13 @@
 
 import React, { Dispatch, SetStateAction } from "react";
 import dynamic from "next/dynamic";
-import { SectionModal } from "@/components/lms/teacher/SectionModal";
 import { Content, Section } from "@/types";
+
+// Dynamic imports
+const SectionModal = dynamic(
+  () => import("@/components/lms/teacher/SectionModal").then((m) => ({ default: m.SectionModal })),
+  { ssr: false }
+);
 
 // Dynamic imports
 const ContentViewer = dynamic(

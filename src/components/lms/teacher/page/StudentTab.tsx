@@ -13,9 +13,9 @@ import { useEffect, useState, useCallback } from "react";
 import { RefreshCw, Search } from "lucide-react";
 import Link from "next/link";
 import { analyticsService, CourseStudentProgress } from "@/services/analyticsService";
-import { StudentSummaryBar }    from "@/components/lms/teacher/students/StudentSummaryBar";
 import { StudentProgressTable } from "@/components/lms/teacher/students/StudentProgressTable";
 import { TabBar }               from "@/components/lms/shared";
+import { UserAvatar }           from "@/components/user/UserAvatar";
 
 interface Props {
   courseId: number;
@@ -95,46 +95,58 @@ export function StudentsTab({ courseId }: Props) {
   }
 
   return (
-    // relative để StudentDetailPanel có thể dùng sticky bên trong tab layout
     <div className="relative space-y-6">
-      {/* Summary bar */}
-      <StudentSummaryBar students={students} />
-
-      {/* Filter tabs */}
-      <TabBar
-        tabs={[
-          { id: "ALL",         label: "Tất cả học viên", badge: counts.all },
-          { id: "IN_PROGRESS", label: "Đang học",       badge: counts.inProgress },
-          { id: "COMPLETED",   label: "Đã hoàn thành", badge: counts.completed },
-          { id: "ATTENTION",   label: "Cần chú ý",      badge: counts.attention },
-        ]}
-        active={filterTab}
-        onChange={id => setFilterTab(id as any)}
-      />
-
-      {/* Search + refresh */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo tên, email..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+      {/* Search + Tab filters + Refresh Toolbar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-[#0F1E35] p-3.5 rounded-2xl border border-slate-200/80 dark:border-blue-500/15 shadow-xs">
+        {/* Left: Filter tabs */}
+        <div className="flex-1 min-w-0">
+          <TabBar
+            tabs={[
+              { id: "ALL",         label: "Tất cả",     badge: counts.all },
+              { id: "IN_PROGRESS", label: "Đang học",   badge: counts.inProgress },
+              { id: "COMPLETED",   label: "Hoàn tất",   badge: counts.completed },
+              { id: "ATTENTION",   label: "Cần chú ý",  badge: counts.attention },
+            ]}
+            active={filterTab}
+            onChange={id => setFilterTab(id as any)}
           />
         </div>
-        <span className="text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
-          {filtered.length} học viên
-        </span>
-        <button
-          onClick={() => fetchStudents(true)}
-          disabled={refreshing}
-          className="p-2 rounded-lg text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all disabled:opacity-40"
-          title="Làm mới"
-        >
-          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
-        </button>
+
+        {/* Right: Search Input + Refresh trigger */}
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+            <input
+              type="text"
+              placeholder="Tìm tên, email..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-8 pr-8 py-1.5 border border-slate-200/80 dark:border-blue-500/20 rounded-xl bg-slate-50/80 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-cyan-500/40 focus:border-blue-500 dark:focus:border-cyan-500 transition-all"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-all"
+                title="Xóa tìm kiếm"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-[#0D192E] border border-slate-200/60 dark:border-blue-500/15">
+            {filtered.length} học viên
+          </span>
+
+          <button
+            onClick={() => fetchStudents(true)}
+            disabled={refreshing}
+            className="p-2 rounded-xl border border-slate-200/80 dark:border-blue-500/15 bg-white dark:bg-[#0D192E] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-40 shadow-2xs"
+            title="Làm mới danh sách"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-blue-600 dark:text-cyan-400" : ""}`} />
+          </button>
+        </div>
       </div>
 
       {/* Main area: table + optional detail panel side-by-side */}
@@ -170,7 +182,7 @@ export function StudentsTab({ courseId }: Props) {
 // ─── Inline student detail (non-fixed variant for use inside a tab) ─────────────
 
 import {
-  X, Award, Clock, CheckCircle2, AlertCircle
+  X, Award, Clock, CheckCircle2, AlertCircle, MessageSquare
 } from "lucide-react";
 
 function InlineStudentDetail({
@@ -183,64 +195,59 @@ function InlineStudentDetail({
   const formatDate = (d: string | null) =>
     d ? new Date(d).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "-";
 
-  const colors = [
-    "from-blue-400 to-blue-600", "from-cyan-400 to-blue-600",
-    "from-emerald-400 to-emerald-600", "from-amber-400 to-amber-600",
-    "from-sky-400 to-indigo-600",
-  ];
-  const gradient = colors[student.student_name.charCodeAt(0) % colors.length];
-  const initials  = student.student_name.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase();
-
   const pct     = student.progress_percent;
   const barColor = pct >= 80 ? "bg-emerald-500" : pct >= 50 ? "bg-blue-500" : pct >= 20 ? "bg-amber-400" : "bg-red-400";
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden">
+    <div className="bg-white dark:bg-[#0F1E35] rounded-3xl border border-slate-200/80 dark:border-blue-500/20 shadow-lg overflow-hidden animate-fadeIn duration-200">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800">
-        <span className="text-sm font-bold text-slate-800 dark:text-slate-100">Chi tiết học viên</span>
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200/80 dark:border-blue-500/15 bg-slate-50/50 dark:bg-[#0D192E]/50">
+        <span className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-cyan-400">Chi tiết học viên</span>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors"
+          title="Đóng bảng thông tin (Esc)"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-5">
         {/* Profile */}
-        <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
-            {initials}
-          </div>
+        <div className="flex items-center gap-3.5">
+          <UserAvatar
+            name={student.student_name}
+            src={student.student_avatar_url}
+            className="w-12 h-12 ring-2 ring-blue-500/30"
+          />
           <div className="min-w-0">
-            <p className="font-bold text-slate-900 dark:text-slate-50 truncate">{student.student_name}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{student.student_email}</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1 mt-0.5">
-              <Clock className="w-3 h-3" />
-              {formatDate(student.last_activity)}
+            <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{student.student_name}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">{student.student_email}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1 mt-1 font-medium">
+              <Clock className="w-3 h-3 text-slate-400" />
+              Hoạt động: {formatDate(student.last_activity)}
             </p>
           </div>
         </div>
 
         {/* Progress */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="text-slate-600 dark:text-slate-400">Tiến độ bắt buộc</span>
-            <span className={pct >= 80 ? "text-emerald-600" : pct >= 50 ? "text-blue-600" : "text-amber-600"}>
+        <div className="space-y-2 p-3.5 bg-slate-50/80 dark:bg-[#0D192E] rounded-2xl border border-slate-200/60 dark:border-blue-500/15">
+          <div className="flex items-center justify-between text-xs font-bold">
+            <span className="text-slate-600 dark:text-slate-400 uppercase text-xs tracking-wider">Tiến độ bắt buộc</span>
+            <span className={pct >= 80 ? "text-emerald-600 dark:text-emerald-400" : pct >= 50 ? "text-blue-600 dark:text-cyan-400" : "text-amber-600 dark:text-amber-400"}>
               {pct.toFixed(0)}%
             </span>
           </div>
-          <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-700 ${barColor}`}
               style={{ width: `${Math.min(pct, 100)}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 pt-0.5">
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-              {student.completed_content} xong
+              {student.completed_content} hoàn thành
             </span>
             <span className="flex items-center gap-1">
               <AlertCircle className="w-3 h-3 text-amber-500" />
@@ -251,12 +258,12 @@ function InlineStudentDetail({
 
         {/* Quiz avg */}
         {student.quiz_avg_score != null && (
-          <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+          <div className="flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-[#0D192E] rounded-2xl border border-slate-200/60 dark:border-blue-500/15">
             <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-blue-500 dark:text-cyan-400" />
-              <span className="text-xs text-slate-600 dark:text-slate-400">Điểm quiz TB</span>
+              <Award className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Điểm quiz trung bình</span>
             </div>
-            <span className={`text-sm font-bold ${student.quiz_avg_score >= 70 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+            <span className={`text-xs font-black ${student.quiz_avg_score >= 70 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
               {student.quiz_avg_score.toFixed(1)}%
             </span>
           </div>
@@ -264,28 +271,29 @@ function InlineStudentDetail({
 
         {/* Alert */}
         {pct < 20 && student.total_mandatory > 0 && (
-          <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-800/50">
+          <div className="flex items-start gap-2.5 p-3.5 bg-amber-50/90 dark:bg-amber-950/30 rounded-2xl border border-amber-200 dark:border-amber-500/30">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-700 dark:text-amber-400">
-              Tiến độ dưới 20% - nên liên hệ hỗ trợ.
+            <p className="text-xs font-semibold text-amber-800 dark:text-amber-300 leading-relaxed">
+              Tiến độ dưới 20% — Khuyến nghị gửi nhắc nhở hoặc hỗ trợ học viên.
             </p>
           </div>
         )}
         {pct === 100 && student.total_mandatory > 0 && (
-          <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800/50">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-              Hoàn thành tất cả nội dung bắt buộc!
+          <div className="flex items-center gap-2.5 p-3.5 bg-emerald-50/90 dark:bg-emerald-950/30 rounded-2xl border border-emerald-200 dark:border-emerald-500/30">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+            <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
+              Đã hoàn thành toàn bộ nội dung bắt buộc!
             </p>
           </div>
         )}
 
-        {/* Contact */}
+        {/* Contact Action */}
         <Link
           href={`/chat?userId=${student.student_id}`}
-          className="block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-all active:scale-95"
+          className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-cyan-500 dark:hover:bg-cyan-600 text-white text-xs font-bold rounded-xl transition-all active:scale-95 shadow-xs"
         >
-          Liên hệ học viên
+          <MessageSquare className="w-4 h-4" />
+          <span>Liên hệ học viên</span>
         </Link>
       </div>
     </div>
