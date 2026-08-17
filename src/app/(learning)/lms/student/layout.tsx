@@ -61,7 +61,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
   return (
     <>
-      <div className={cn("relative bg-slate-50 dark:bg-[#050B18] transition-colors duration-300 w-full flex-1 flex flex-col min-h-0", isFullHeightPage ? "h-[calc(100vh)] md:h-screen overflow-hidden" : "min-h-screen overflow-clip")}>
+      <div className={cn("relative bg-slate-50 dark:bg-[#050B18] transition-colors duration-300 w-full flex-1 flex flex-col min-h-0", isFullHeightPage ? "h-[calc(100vh)] md:h-screen overflow-hidden" : "min-h-screen")}>
         
         {/* Glow ambient background spots */}
         <div className="absolute top-10 left-10 w-96 h-96 bg-blue-500/10 dark:bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
@@ -79,7 +79,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             basePath="/lms/student"
           />
 
-          <main className={cn("w-full flex-col flex-1 min-h-0 overflow-hidden flex", isFullHeightPage ? "h-full" : "flex-grow")}>
+          <main className={cn("w-full flex-col flex-1 min-h-0 flex", isFullHeightPage ? "h-full overflow-hidden" : "flex-grow")}>
             {children}
           </main>
         </div>
