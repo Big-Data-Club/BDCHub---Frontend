@@ -2,13 +2,14 @@
 title: "LMS Student Design System Specification"
 category: "design-system"
 status: "active-spec"
-last_updated: "2026-08-16"
+extends: "bdc-design-rhythm-v3.md"
+last_updated: "2026-08-17"
 target_surface: "src/app/(learning)/lms/student"
 ---
 
 # LMS Student Design System Specification
 
-This document serves as the design system reference for the Learning Management System (LMS) module. It establishes the design language, color tokens, layout specifications, and micro-interaction behaviors starting from the **LMS Role Selection Page**.
+This document serves as the design system reference for the Learning Management System (LMS) module. It inherits all core tokens from the Master Specification [`bdc-design-rhythm-v3.md`](file:///home/thanh/BDCHub---Frontend/docs/references/design-systems/bdc-design-rhythm-v3.md) (Single Source of Truth).
 
 ---
 

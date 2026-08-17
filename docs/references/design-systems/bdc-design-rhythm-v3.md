@@ -38,7 +38,17 @@ Giao diện phải **cảm giác như** sản phẩm của một công ty công 
 
 ---
 
-## 2. Color System
+## 2. Color System & Module Visual Matrix
+
+### 2.0 Module Visual Matrix (Bảng Phân Vùng Thị Giác)
+
+| Phân vùng (Module) | Dark Root BG | Card BG | Accent Color chính | Mục tiêu nhận diện thị giác |
+|---|---|---|---|---|
+| **LMS (`/lms/*`)** | `bg-[#050B18]` (Deep Navy) | `bg-[#0F1E35]` / `bg-[#132240]` | Cyan (`#22D3EE`) & Blue (`#2563EB`) | AI-Native Academic Intelligence, tập trung cao độ |
+| **Dashboard (`/dashboard`)** | `bg-[#050B18]` | `bg-slate-900` / `bg-[#0F1E35]` | Blue (`#2563EB`) & Violet | Quản trị tác vụ Enterprise, thanh lịch, trung tính |
+| **Auth (`/login`, `/auth`)** | `bg-[#050B18]` | `bg-[#0F1E35]` | Cyan (`#22D3EE`) & Blue | Hiện đại, sắc sảo, tạo ấn tượng công nghệ ban đầu |
+
+---
 
 ### 2.1 Dark Mode (Primary - Default cho LMS/Dashboard)
 

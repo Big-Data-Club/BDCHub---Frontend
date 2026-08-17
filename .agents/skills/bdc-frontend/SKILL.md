@@ -39,6 +39,7 @@ requires:
 **Backends:** Auth service `:8080` · LMS service `:8081`
 
 > **Luôn đọc [BDC Design Rhythm v3.0](file:///home/thanh/BDCHub---Frontend/docs/references/design-systems/bdc-design-rhythm-v3.md) trước khi viết bất kỳ className nào.**  
+> **Luôn đọc [Component & Hook Guide](file:///home/thanh/BDCHub---Frontend/docs/references/architecture/COMPONENT_HOOK_GUIDE.md) trước khi tạo hoặc di chuyển tệp mới.**  
 > Mọi component phải hoạt động đúng ở cả `light` và `dark` mode.
 
 ---
@@ -56,12 +57,18 @@ frontend/src/
 ├── components/
 │   ├── ui/                   shadcn/ui primitives - DO NOT modify directly
 │   ├── layout/               Sidebar, MobileNav, Navbar, Footer, ThemeToggle, Background
-│   ├── common/               SafeImage, LoadingState, EmptyState, SectionHeader
+│   ├── common/               SafeImage, LoadingState, EmptyState, SectionHeader, CountDown...
+│   ├── auth/                 AuthShell, LoginForm, GoogleRegisterForm, Mascot...
+│   ├── board/                Kanban board components (column/, task/)
 │   ├── dashboard/            announcement/, event/, calendar/, modals/
-│   ├── lms/shared/           LMS-flavoured primitives (check here before building new)
-│   ├── lms/student/          AIDiagnosisModal, ContentViewer, QuizHistoryModal
-│   └── lms/teacher/          AINodeManager, AIQuizGenPanel, BulkUploadModal
-├── hooks/                    useAuth, useCurrentUser, useAnnouncements, useEvents, useTasks
+│   ├── admin/                System & Platform Admin (role/, permission/, dashboard/)
+│   ├── lms/admin/            LMS Admin (LmsMappingModal, LmsUserRoleManager, llm-config/)
+│   ├── lms/shared/           LMS-flavoured primitives (BreadcrumbNav, QuestionImageUploader...)
+│   ├── lms/student/          ContentViewer, modals/, stats/, analytics/
+│   ├── lms/teacher/          AINodeManager, AIQuizGenPanel, modals/, quiz/, upload/, views/
+│   └── user/                 User management (manage/, modals/, table/)
+├── hooks/                    Structured by domain (auth/, common/, dashboard/, lms/, chat/, labs/)
+│   └── index.ts              Central barrel export for all hooks
 ├── services/                 ALL fetch() calls - never in components or hooks
 ├── types/                    All shared TypeScript interfaces - re-export from index.ts
 ├── store/UserContext.tsx      Global user state
