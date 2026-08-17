@@ -86,14 +86,14 @@ export function QuizDraftPreview({ props }: QuizDraftPreviewProps) {
                 <div className="flex items-center gap-2 mb-2">
                   <span
                     className={cn(
-                      "text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase",
+                      "text-xs font-semibold px-2 py-0.5 rounded-md uppercase",
                       BLOOM_COLORS[d.bloom_level] || BLOOM_COLORS.remember,
                     )}
                   >
                     {d.bloom_level}
                   </span>
                   {d.node_name && (
-                    <span className="text-[10px] text-slate-400 dark:text-slate-600 truncate">
+                    <span className="text-xs text-slate-400 dark:text-slate-500 truncate">
                       {d.node_name}
                     </span>
                   )}

@@ -43,21 +43,21 @@ interface StudyPlanWidgetProps {
 const TYPE_CONFIG = {
   review: {
     icon: RefreshCw,
-    trackCls: "border-l-rose-500",
+    trackCls: "border-t-2 border-t-rose-500",
     badgeCls: "bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400",
     iconCls: "text-rose-500",
     label: "Ôn tập",
   },
   study: {
     icon: AlertCircle,
-    trackCls: "border-l-amber-500",
+    trackCls: "border-t-2 border-t-amber-500",
     badgeCls: "bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400",
     iconCls: "text-amber-500",
     label: "Cần cải thiện",
   },
   strength: {
     icon: TrendingUp,
-    trackCls: "border-l-emerald-500",
+    trackCls: "border-t-2 border-t-emerald-500",
     badgeCls: "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400",
     iconCls: "text-emerald-500",
     label: "Điểm mạnh",
@@ -72,7 +72,7 @@ function MasteryBar({ value }: { value: number }) {
       <div className="flex-1 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700">
         <div className={cn("h-1.5 rounded-full transition-all", color)} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[10px] text-slate-500 tabular-nums w-7 text-right">{pct}%</span>
+      <span className="text-xs text-slate-500 tabular-nums w-8 text-right font-medium">{pct}%</span>
     </div>
   );
 }
@@ -85,9 +85,9 @@ export function StudyPlanWidget({ props }: StudyPlanWidgetProps) {
   /* ── Legacy format fallback ── */
   if (!plan && legacyItems && legacyItems.length > 0) {
     const PRIO: Record<string, string> = {
-      high:   "border-l-rose-500",
-      medium: "border-l-amber-500",
-      low:    "border-l-emerald-500",
+      high:   "border-t-2 border-t-rose-500",
+      medium: "border-t-2 border-t-amber-500",
+      low:    "border-t-2 border-t-emerald-500",
     };
     return (
       <div className="space-y-3 mt-2">
@@ -97,11 +97,11 @@ export function StudyPlanWidget({ props }: StudyPlanWidgetProps) {
         <div className="space-y-2">
           {legacyItems.map((item, i) => (
             <div key={i} className={cn(
-              "flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] border-l-4",
+              "flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35]",
               PRIO[item.priority ?? "medium"],
             )}>
               <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-[10px] font-bold text-blue-600 dark:text-cyan-400">{i + 1}</span>
+                <span className="text-xs font-bold text-blue-600 dark:text-cyan-400">{i + 1}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{item.topic}</p>
@@ -139,7 +139,7 @@ export function StudyPlanWidget({ props }: StudyPlanWidgetProps) {
           const Icon = cfg.icon;
           return (
             <div key={si} className={cn(
-              "rounded-xl border border-slate-200/80 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] border-l-4 overflow-hidden shadow-xs dark:shadow-none",
+              "rounded-xl border border-slate-200/80 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] overflow-hidden shadow-xs dark:shadow-none",
               cfg.trackCls,
             )}>
               {/* Section header */}
@@ -148,10 +148,10 @@ export function StudyPlanWidget({ props }: StudyPlanWidgetProps) {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{section.title}</p>
                   {section.description && (
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{section.description}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{section.description}</p>
                   )}
                 </div>
-                <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0", cfg.badgeCls)}>
+                <span className={cn("text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0", cfg.badgeCls)}>
                   {cfg.label}
                 </span>
               </div>
@@ -168,7 +168,7 @@ export function StudyPlanWidget({ props }: StudyPlanWidgetProps) {
                         <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-slate-400 dark:text-slate-500" />
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{name}</p>
-                          {sub && <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{sub}</p>}
+                          {sub && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{sub}</p>}
                           {mastery !== undefined && <MasteryBar value={mastery} />}
                         </div>
                       </div>

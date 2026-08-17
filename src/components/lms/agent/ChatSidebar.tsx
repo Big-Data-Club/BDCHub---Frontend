@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAgentChat } from "@/hooks/lms/agent/useAgentChat";
 import { usePageContext } from "@/hooks/common/usePageContext";
-import { AgentMessageBubble } from "./AgentMessageBubble";
+import { AgentMessageItem } from "./AgentMessageItem";
 import { AgentInputBar } from "./AgentInputBar";
 import { ConversationSidebar } from "./ConversationSidebar";
 import type { HITLRequestData } from "@/types";
@@ -320,7 +320,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
                 </div>
               ) : (
                 messages.map((msg) => (
-                  <AgentMessageBubble
+                  <AgentMessageItem
                     key={msg.id}
                     message={msg}
                     onClarificationSelect={(option) => sendMessage(option)}

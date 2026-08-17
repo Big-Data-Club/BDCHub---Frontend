@@ -285,7 +285,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
                     setActiveTab("chat");
                   }}
                   className={cn(
-                    "flex-1 text-[10px] sm:text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
+                    "flex-1 text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
                     activeTab === "chat"
                       ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
@@ -296,7 +296,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
                 <button
                   onClick={() => setActiveTab("notebook")}
                   className={cn(
-                    "flex-1 text-[10px] sm:text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
+                    "flex-1 text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
                     activeTab === "notebook"
                       ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"

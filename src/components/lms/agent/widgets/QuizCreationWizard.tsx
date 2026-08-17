@@ -342,7 +342,7 @@ export function QuizCreationWizard({ props }: QuizCreationWizardProps) {
                   <div className="flex items-center gap-2 mb-2">
                     <span
                       className={cn(
-                        "text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wider",
+                        "text-xs font-bold px-2 py-0.5 rounded-lg uppercase tracking-wider",
                         BLOOM_COLORS[d.bloom_level] || BLOOM_COLORS.remember,
                       )}
                     >
@@ -382,7 +382,7 @@ export function QuizCreationWizard({ props }: QuizCreationWizardProps) {
 
               <button
                 onClick={() => setExpanded(isExpanded ? null : d.gen_id)}
-                className="mt-3 text-[11px] font-semibold text-slate-400 hover:text-blue-500 transition-colors flex items-center gap-1.5"
+                className="mt-3 text-xs font-semibold text-slate-400 hover:text-blue-500 transition-colors flex items-center gap-1.5"
               >
                 {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 {isExpanded ? "ẨN ĐÁP ÁN" : "XEM ĐÁP ÁN"}

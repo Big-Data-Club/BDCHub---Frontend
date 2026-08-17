@@ -69,7 +69,7 @@ export function FlashcardWidget({ props }: FlashcardWidgetProps) {
         )}
       >
         {card.node_name && !isFlipped && (
-          <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
             {card.node_name}
           </span>
         )}
@@ -83,7 +83,7 @@ export function FlashcardWidget({ props }: FlashcardWidgetProps) {
         >
           {isFlipped ? card.back : card.front}
         </p>
-        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-450 mt-1 font-medium">
+        <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-400 mt-1 font-medium">
           <RotateCw className="w-3 h-3 text-blue-500 dark:text-cyan-400" />
           <span>{isFlipped ? "Mặt sau" : "Nhấn để lật mặt"}</span>
         </div>

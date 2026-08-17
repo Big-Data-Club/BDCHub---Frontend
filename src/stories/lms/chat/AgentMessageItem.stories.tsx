@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import React from 'react';
-import { AgentMessageBubble } from '@/components/lms/agent/AgentMessageBubble';
+import { AgentMessageItem } from '@/components/lms/agent/AgentMessageItem';
 import {
   MOCK_TOOL_ACTIVITIES,
   RICH_MARKDOWN_SAMPLE
 } from '../mocks/chatFixtures';
 
-const meta: Meta<typeof AgentMessageBubble> = {
-  title: 'LMS / AI Mentor / Chat / AgentMessageBubble',
-  component: AgentMessageBubble,
+const meta: Meta<typeof AgentMessageItem> = {
+  title: 'LMS / AI Mentor / Chat / AgentMessageItem',
+  component: AgentMessageItem,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
@@ -23,7 +23,7 @@ const meta: Meta<typeof AgentMessageBubble> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof AgentMessageBubble>;
+type Story = StoryObj<typeof AgentMessageItem>;
 
 export const UserMessageShort: Story = {
   args: {

@@ -166,22 +166,19 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
   };
 
   return (
-    <div className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <div className="w-full my-3">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-            <FileText size={18} />
+      <div className="py-2 mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <FileText size={16} />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white capitalize">
+            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 capitalize">
               {contentTypeLabels[content_type] || content_type.replace("_", " ")}
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">
-              {topic}
-            </p>
             {source_was_reduced && (
-              <p className="mt-0.5 text-[10px] text-blue-600 dark:text-blue-400">
+              <p className="text-xs text-blue-600 dark:text-blue-400">
                 Đã tổng hợp toàn bộ tài liệu nguồn theo từng phần
               </p>
             )}
@@ -190,27 +187,27 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
 
         <button
           onClick={() => setIsEditing(!isEditing)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
             isEditing
               ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-              : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200"
           }`}
         >
           {isEditing ? <Check size={14} /> : <Edit2 size={14} />}
-          {isEditing ? "Finish" : "Edit Draft"}
+          {isEditing ? "Hoàn tất" : "Sửa bản nháp"}
         </button>
       </div>
 
       {/* Learning contract: exposes the model's pedagogical choices so a
           teacher can review the why, not just the generated prose. */}
       {content_type === "student_lesson" && learning_design && (
-        <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-blue-50/50 dark:bg-blue-950/10 text-xs">
+        <div className="py-2 mb-3 text-xs border-l-2 border-blue-500/30 pl-3">
           <div className="flex flex-wrap gap-2 text-slate-600 dark:text-slate-300">
-            {learning_design.chosen_approach && <span className="rounded-full bg-white dark:bg-slate-900 px-2 py-1">Cách học: {learning_design.chosen_approach}</span>}
-            {learning_design.practice_type && <span className="rounded-full bg-white dark:bg-slate-900 px-2 py-1">Thực hành: {learning_design.practice_type}</span>}
+            {learning_design.chosen_approach && <span className="rounded-md bg-slate-100 dark:bg-slate-800/60 px-2 py-0.5 text-xs">Cách học: {learning_design.chosen_approach}</span>}
+            {learning_design.practice_type && <span className="rounded-md bg-slate-100 dark:bg-slate-800/60 px-2 py-0.5 text-xs">Thực hành: {learning_design.practice_type}</span>}
           </div>
           {(learning_design.objectives?.length || learning_design.prerequisites?.length) ? (
-            <div className="mt-2 space-y-1 text-slate-600 dark:text-slate-300">
+            <div className="mt-1.5 space-y-0.5 text-slate-500 dark:text-slate-400 text-xs">
               {learning_design.objectives?.length ? <p><span className="font-semibold">Mục tiêu:</span> {learning_design.objectives.join(" · ")}</p> : null}
               {learning_design.prerequisites?.length ? <p><span className="font-semibold">Nền tảng:</span> {learning_design.prerequisites.join(" · ")}</p> : null}
             </div>
@@ -219,7 +216,7 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
       )}
 
       {/* Content Area */}
-      <div className="p-5 max-h-[400px] overflow-y-auto custom-scrollbar">
+      <div className="py-1">
         {isEditing ? (
           <div className="space-y-3">
             <input
@@ -242,8 +239,8 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
           </div>
         ) : (
           <>
-            <h4 className="mb-1 text-base font-semibold text-slate-900 dark:text-white">{title}</h4>
-            {description && <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">{description}</p>}
+            <h4 className="mb-1 text-base font-bold text-slate-900 dark:text-white">{title}</h4>
+            {description && <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">{description}</p>}
             <MarkdownRenderer content={draft} />
           </>
         )}
@@ -251,7 +248,7 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
 
       {/* Footer / Actions */}
       {!isSaved && (
-        <div className="px-5 py-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 space-y-4">
+        <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-[#0F1E35] border border-slate-200/80 dark:border-blue-500/15 space-y-3">
           <div className="flex flex-col gap-3">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
               <div className="relative w-full sm:w-1/2">
@@ -299,7 +296,7 @@ export function ContentDraftPreview({ props }: ContentDraftPreviewProps) {
             {selectedSectionId !== NEW_SECTION_VALUE && suggested_section_id && selectedCourseId === course_id && (
               <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-900/10 rounded-full w-max">
                 <Sparkles size={12} className="text-blue-500" />
-                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">AI Suggested Location</span>
+                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">AI Suggested Location</span>
               </div>
             )}
           </div>

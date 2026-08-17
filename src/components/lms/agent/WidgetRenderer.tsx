@@ -114,7 +114,7 @@ function SaveWidgetToNotebook({ data }: { data: UIComponentData }) {
   };
 
   return (
-    <button type="button" onClick={save} disabled={saving || saved} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-blue-600 disabled:cursor-default disabled:text-emerald-600 dark:hover:bg-slate-800 dark:disabled:text-emerald-400">
+    <button type="button" onClick={save} disabled={saving || saved} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-blue-600 disabled:cursor-default disabled:text-emerald-600 dark:hover:bg-slate-800 dark:disabled:text-emerald-400">
       {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : saved ? <Check className="h-3 w-3" /> : <BookmarkPlus className="h-3 w-3" />}
       {saved ? "Đã lưu vào Notebook" : "Lưu vào Notebook"}
     </button>

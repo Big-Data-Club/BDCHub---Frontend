@@ -70,7 +70,7 @@ export function AgentConsoleSidebar({
         <div className="flex items-center gap-2">
           <Cpu className="w-5 h-5 text-blue-600 dark:text-cyan-400 animate-pulse" />
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-50">
-            Multi-Agent Console
+            Multi-Agent Console - Debugger
           </h3>
         </div>
         <button

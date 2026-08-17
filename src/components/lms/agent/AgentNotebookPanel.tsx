@@ -105,7 +105,7 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
         <div className="flex items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Notebook</h3>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500">Lưu ý tưởng, câu trả lời AI và nội dung ôn tập</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">Lưu ý tưởng, câu trả lời AI và nội dung ôn tập</p>
           </div>
           <PrimaryBtn onClick={() => setCreateOpen(true)} size="sm" icon={<Plus className="h-3.5 w-3.5" />}>
             Ghi chú
@@ -163,7 +163,7 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
                       )}
                     </GhostBtn>
                   </div>
-                  <CardDescription className="flex items-center text-[10px] text-slate-400 dark:text-slate-500 gap-1 mt-1">
+                  <CardDescription className="flex items-center text-xs text-slate-400 dark:text-slate-500 gap-1 mt-1 font-medium">
                     <Calendar className="w-3 h-3" />
                     {formatDate(note.created_at)}
                   </CardDescription>

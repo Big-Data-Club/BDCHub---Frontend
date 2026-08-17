@@ -21,7 +21,7 @@ export const AgentInputBar = memo(function AgentInputBar({
   isStreaming,
   onStop,
   disabled,
-  placeholder = "Nhập tin nhắn...",
+  placeholder = "Hỏi AI Mentor về bài học, bài tập hoặc khái niệm... (Shift + Enter để xuống dòng)",
   className,
 }: AgentInputBarProps) {
   const [input, setInput] = useState("");
