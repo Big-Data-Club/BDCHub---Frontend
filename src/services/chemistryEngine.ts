@@ -3,7 +3,6 @@
 import type {
   ChemistryLabSpec,
   EquipmentItem,
-  IndicatorRange,
   ReactionRule,
   Substance,
   VesselState,
@@ -42,7 +41,7 @@ export class ChemistryEngine {
 
   public initVessel(eq: EquipmentItem): void {
     const molesBySubstance: Record<string, number> = {};
-    let totalVolMl = eq.initialVolumeMl || 0;
+    const totalVolMl = eq.initialVolumeMl || 0;
     let initialPh = 7.0;
 
     if (eq.filledSubstanceId && totalVolMl > 0) {

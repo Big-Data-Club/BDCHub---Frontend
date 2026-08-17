@@ -103,7 +103,7 @@ function ProgressCell({ pct, completed, total }: {
   );
 }
 
-function Avatar({ name }: { name: string }) {
+export function Avatar({ name }: { name: string }) {
   const initials = name.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase();
   const colors = [
     "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300",

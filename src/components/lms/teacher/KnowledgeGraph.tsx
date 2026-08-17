@@ -156,7 +156,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
         startPolling(graphData.links.length);
       }
     }).catch(() => {});
-  }, [courseId, startPolling]);
+  }, [courseId, startPolling, graphData.links.length]);
 
   // ── Link Isolated trigger ─────────────────────────────────────────────────────
 

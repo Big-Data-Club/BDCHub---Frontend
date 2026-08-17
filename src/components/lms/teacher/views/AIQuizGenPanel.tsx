@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import {
   Sparkles, RefreshCw, ChevronDown, ChevronUp,
   CheckCircle2, XCircle, BookOpen, AlertCircle,
-  Layers, Zap, Clock, Search, Filter, ArrowUpDown
+  Layers, Search, Filter, ArrowUpDown
 } from "lucide-react";
 import aiService, { GeneratedQuestion, KnowledgeNode, KnowledgeGraphEdge } from "@/services/aiService";
 import { cn } from "@/lib/utils";

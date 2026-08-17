@@ -2,7 +2,7 @@
 
 import React from "react";
 import {
-  GripVertical, Plus, Upload, Edit3, BookOpen, History, Trash2, ChevronDown, ChevronRight
+  GripVertical, Plus, Upload, Edit3, BookOpen, History, Trash2, ChevronDown
 } from "lucide-react";
 import { ContentRowItem } from "./ContentRowItem";
 import { Spinner } from "@/components/lms/shared";
