@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import lmsService from "@/services/lmsService";
-import { ContentTab } from "@/components/lms/teacher/page/ContentTab";
+import { ContentTab } from "@/components/lms/teacher/views/ContentTab";
 import { Alert, PageLoader } from "@/components/lms/shared";
 import { Section } from "@/types";
 

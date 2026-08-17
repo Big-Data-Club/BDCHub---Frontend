@@ -11,7 +11,7 @@ const AIHeatmapSection = dynamic(
 );
 
 const AIQuizGenPanel = dynamic(
-  () => import("@/components/lms/teacher/page/AIQuizGenPanel").then(m => ({ default: m.AIQuizGenPanel })),
+  () => import("@/components/lms/teacher/views/AIQuizGenPanel").then(m => ({ default: m.AIQuizGenPanel })),
   { ssr: false, loading: () => <div className="py-12 text-center text-xs text-slate-400">Đang tải AI Panel…</div> },
 );
 

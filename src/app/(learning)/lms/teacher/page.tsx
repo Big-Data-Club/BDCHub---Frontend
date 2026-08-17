@@ -33,7 +33,7 @@ function readDashboardCache(key: string): TeacherDashboardSummaryResponse | null
 }
 
 const TeacherDashboardCharts = dynamic(
-  () => import("@/components/lms/teacher/page/TeacherDashboardCharts").then((module) => module.TeacherDashboardCharts),
+  () => import("@/components/lms/teacher/views/TeacherDashboardCharts").then((module) => module.TeacherDashboardCharts),
   { ssr: false, loading: () => <div className="grid grid-cols-1 gap-6 lg:grid-cols-2"><div className="h-[350px] animate-pulse rounded-2xl bg-slate-155 dark:bg-slate-800/40" /><div className="h-[350px] animate-pulse rounded-2xl bg-slate-155 dark:bg-slate-800/40" /></div> },
 );
 

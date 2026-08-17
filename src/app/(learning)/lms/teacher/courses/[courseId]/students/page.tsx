@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { StudentsTab } from "@/components/lms/teacher/page/StudentTab";
+import { StudentsTab } from "@/components/lms/teacher/views/StudentTab";
 
 /**
  * /lms/teacher/courses/[courseId]/students

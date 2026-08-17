@@ -11,7 +11,7 @@ import { Badge, Spinner, GridBackground, NavTabBar } from "@/components/lms/shar
 import { Course, Section } from "@/types";
 import { cn } from "@/lib/utils";
 import { useSetPageContext } from "@/hooks/usePageContext";
-import { CourseReadinessPopover } from "@/components/lms/teacher/page/CourseReadinessPopover";
+import { CourseReadinessPopover } from "@/components/lms/teacher/views/CourseReadinessPopover";
 
 // Lazy-load modal - only needed when user clicks "Chỉnh sửa"
 const EditCourseModal = dynamic(
