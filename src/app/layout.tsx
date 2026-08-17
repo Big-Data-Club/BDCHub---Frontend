@@ -1,3 +1,4 @@
+// Trigger CI rebuild: chemistry virtual labs & LLM gateway updates
 import 'devextreme/dist/css/dx.light.css';
 import type { Metadata } from "next";
 import { Nunito_Sans, Roboto_Mono, Comfortaa } from "next/font/google";
