@@ -1,6 +1,6 @@
 import type { Meta } from '@storybook/nextjs-vite';
 import React, { useState } from 'react';
-import { AgentMessageBubble } from '@/components/lms/agent/AgentMessageBubble';
+import { AgentMessageItem } from '@/components/lms/agent/AgentMessageItem';
 import { AgentInputBar } from '@/components/lms/agent/AgentInputBar';
 import { AgentThinkingIndicator } from '@/components/lms/agent/AgentThinkingIndicator';
 import type { AgentMessage } from '@/types';
@@ -98,7 +98,7 @@ export const DynamicChatScenario = {
           </div>
 
           {messages.map((msg) => (
-            <AgentMessageBubble key={msg.id} message={msg} />
+            <AgentMessageItem key={msg.id} message={msg} />
           ))}
 
           {isThinking && (

@@ -78,11 +78,11 @@ export function RecommendationWidget({ props }: { props: { recommendation_set?: 
         <span>Gợi ý học tập cho bạn</span>
       </div>
       {recommendationSet.fallback && (
-        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Đang dùng gợi ý an toàn dự phòng; dữ liệu cá nhân hóa sẽ cập nhật sau.
         </p>
       )}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl bg-white/80 dark:bg-[#070E1C] p-2.5 text-[11px] border border-slate-200/60 dark:border-blue-500/10">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl bg-white/80 dark:bg-[#070E1C] p-2.5 text-xs border border-slate-200/60 dark:border-blue-500/10">
         <span className="font-semibold text-slate-700 dark:text-slate-300">Tùy chỉnh:</span>
         <select
           value={minutes}
@@ -114,7 +114,7 @@ export function RecommendationWidget({ props }: { props: { recommendation_set?: 
       {recommendationSet.items.map((item) => (
         <div key={item.recommendation_id} className="rounded-xl border border-slate-200/80 bg-white p-3.5 dark:border-blue-500/15 dark:bg-[#070E1C]">
           <div className="flex gap-2.5">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/40 text-[10px] font-extrabold text-blue-700 dark:text-cyan-400">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/40 text-xs font-extrabold text-blue-700 dark:text-cyan-400">
               {item.rank}
             </span>
             <div className="min-w-0 flex-1">
@@ -122,7 +122,7 @@ export function RecommendationWidget({ props }: { props: { recommendation_set?: 
               <p className="mt-1 text-xs text-slate-600 dark:text-slate-350 leading-relaxed">{item.description}</p>
             </div>
           </div>
-          <div className="mt-2.5 flex items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+          <div className="mt-2.5 flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
             <span className="inline-flex items-center gap-1 font-medium">
               <Clock3 className="h-3 w-3 text-blue-500 dark:text-cyan-400" />
               {item.estimated_minutes ?? 15} phút

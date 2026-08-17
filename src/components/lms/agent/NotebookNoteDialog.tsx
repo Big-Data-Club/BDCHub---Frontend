@@ -125,7 +125,7 @@ export function NotebookNoteDialog({
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
                   <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Nội dung</label>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500">Hỗ trợ Markdown</span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500">Hỗ trợ Markdown</span>
                 </div>
                 <textarea
                   value={content}
