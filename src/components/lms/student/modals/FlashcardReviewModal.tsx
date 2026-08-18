@@ -200,7 +200,7 @@ export function FlashcardReviewModal({ courseId, nodeId, nodeName, isOpen, onClo
                     exit={{ rotateY: isFlipped ? 90 : -90, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                     className={cn(
-                      "w-full h-full max-h-[300px] rounded-3xl p-8 flex flex-col items-center justify-center text-center shadow-sm border border-b-4 cursor-pointer",
+                      "w-full h-full max-h-[300px] rounded-3xl p-8 flex flex-col items-center justify-center text-center shadow-md border transition-shadow",
                       isFlipped
                         ? "bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800/80"
                         : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"

@@ -4,7 +4,6 @@ import React, { memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { TabsList } from "@/components/ui/tabs";
 import {
   lmsTabsListVariants,
   lmsTabsTriggerVariants,
@@ -60,7 +59,7 @@ function NavTabBarInner({
         className
       )}
     >
-      <TabsList
+      <div
         className={cn(lmsTabsListVariants({ variant }), fullWidth && "w-full")}
       >
         {tabs.map((tab) => {
@@ -84,7 +83,7 @@ function NavTabBarInner({
             </Link>
           );
         })}
-      </TabsList>
+      </div>
     </nav>
   );
 }

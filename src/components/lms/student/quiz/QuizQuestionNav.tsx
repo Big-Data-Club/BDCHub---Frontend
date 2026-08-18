@@ -109,7 +109,7 @@ export function QuizQuestionNav({
               >
                 <span>{idx + 1}</span>
                 {q.is_required && (
-                  <span className="absolute top-0.5 right-1 text-[8px] text-red-500 font-black">*</span>
+                  <span className="absolute top-0.5 right-1 text-xs text-red-500 font-black">*</span>
                 )}
               </button>
             );

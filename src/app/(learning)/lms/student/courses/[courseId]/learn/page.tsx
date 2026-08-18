@@ -83,6 +83,35 @@ export default function LearnPage() {
     setActiveContent(c);
   }, [setActiveContent]);
 
+  // ── Keyboard shortcuts for lesson navigation (ArrowLeft / ArrowRight) ──
+  const flatContents = useMemo(() => {
+    return sections.flatMap((s) => sectionContents[s.id] ?? []);
+  }, [sections, sectionContents]);
+
+  const currentIndex = useMemo(() => {
+    if (!activeContent) return -1;
+    return flatContents.findIndex((c) => c.id === activeContent.id);
+  }, [flatContents, activeContent]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = document.activeElement as HTMLElement | null;
+      const activeTag = target?.tagName?.toLowerCase();
+      if (activeTag === "input" || activeTag === "textarea" || target?.isContentEditable) {
+        return;
+      }
+      if (e.key === "ArrowLeft" && currentIndex > 0) {
+        e.preventDefault();
+        handleSelect(flatContents[currentIndex - 1]);
+      } else if (e.key === "ArrowRight" && currentIndex >= 0 && currentIndex < flatContents.length - 1) {
+        e.preventDefault();
+        handleSelect(flatContents[currentIndex + 1]);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, flatContents, handleSelect]);
+
   // ─── Render ───────────────────────────────────────────────────────────────
 
   if (!activeContent) {

@@ -30,7 +30,7 @@ export function PrevNextButtons({
             <ArrowLeft className="w-4 h-4 transition-transform duration-355 group-hover:-translate-x-0.5" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Bài học trước</p>
+            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Bài học trước</p>
             <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate mt-0.5">{prev.title}</p>
           </div>
         </button>
@@ -44,7 +44,7 @@ export function PrevNextButtons({
           onClick={() => onSelect(next)}
         >
           <div className="min-w-0 flex-1 text-left sm:text-right">
-            <p className="text-[10px] font-bold text-blue-600 dark:text-cyan-400 uppercase tracking-widest">Bài kế tiếp</p>
+            <p className="text-xs font-bold text-blue-600 dark:text-cyan-400 uppercase tracking-wider">Bài kế tiếp</p>
             <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate mt-0.5">{next.title}</p>
           </div>
           <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-cyan-500/10 border border-blue-100 dark:border-cyan-500/20 text-blue-600 dark:text-cyan-400 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 dark:group-hover:bg-cyan-500/20 group-hover:border-blue-500/35 dark:group-hover:border-cyan-400/40 transition-all duration-300">

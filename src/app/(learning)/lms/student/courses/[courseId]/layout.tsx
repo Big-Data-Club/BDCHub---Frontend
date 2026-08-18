@@ -84,25 +84,25 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] flex flex-col transition-colors duration-300">
 
-      {/* ── Premium Header Section (Synced with StudentDashboardHeader height, padding, and alignment) ── */}
-      <header className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/20 dark:bg-[#070E1C]/20 backdrop-blur-xs py-4 md:py-5 z-30 flex-shrink-0">
+      {/* ── Premium Compact Header Section ── */}
+      <header className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/30 dark:bg-[#070E1C]/40 backdrop-blur-md py-3 md:py-4 z-30 flex-shrink-0">
         <GridBackground />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 w-full flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-8">
           <div className="min-w-0 flex-1">
             <BreadcrumbNav items={breadcrumbItems} />
             
-            <div className="mt-4">
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+            <div className="mt-2.5">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-snug truncate">
                 {course?.title ?? "Khóa học"}
               </h1>
               {course?.description && (
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium max-w-xl line-clamp-2">
+                <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium max-w-xl line-clamp-1">
                   {course.description}
                 </p>
               )}
             </div>
 
-            <div className="flex items-center gap-3 mt-4.5 flex-wrap">
+            <div className="flex items-center gap-3 mt-3 flex-wrap">
               {/* Tab switcher pill */}
               <NavTabBar
                 tabs={TABS}
@@ -112,15 +112,16 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
 
               {/* Mobile: sidebar toggle */}
               <button
-                className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#0F1E35] text-slate-600 dark:text-slate-400"
+                className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-blue-500/20 bg-white dark:bg-[#0F1E35] text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs"
                 onClick={() => setSidebarOpen(true)}
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
+                Danh sách bài học
               </button>
             </div>
           </div>
 
-          <div className="w-full lg:max-w-xl xl:max-w-2xl flex-shrink-0">
+          <div className="w-full lg:max-w-md xl:max-w-lg flex-shrink-0">
             <CourseDetailProgressCard
               course={course}
               progress={progress}
@@ -134,7 +135,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
         </div>
         
         {/* Mobile tab bar */}
-        <div className="sm:hidden relative max-w-7xl mx-auto px-4 z-10 w-full mt-4">
+        <div className="sm:hidden relative max-w-7xl mx-auto px-4 z-10 w-full mt-3">
           <NavTabBar
             tabs={TABS}
             basePath={basePath}
@@ -166,15 +167,16 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
             }
           }}
           className={cn(
-            "hidden lg:flex absolute top-1/2 -translate-y-1/2 z-40 w-4 h-16 bg-white dark:bg-[#070E1C] border border-slate-200 dark:border-blue-500/10 rounded-r-lg items-center justify-center text-slate-400 hover:text-slate-655 dark:hover:text-slate-200 shadow-md transition-all duration-300 hover:w-5 hover:bg-slate-50 dark:hover:bg-[#0D192E] cursor-pointer",
+            "hidden lg:flex absolute top-12 z-40 w-6 h-10 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-r-xl items-center justify-center text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400 shadow-md transition-all duration-300 hover:w-7 cursor-pointer",
             sidebarCollapsed ? "left-0 border-l" : "left-[288px] xl:left-[320px] border-l-0"
           )}
           title={sidebarCollapsed ? "Mở rộng danh sách bài học" : "Thu gọn danh sách bài học"}
+          aria-label={sidebarCollapsed ? "Mở rộng danh sách bài học" : "Thu gọn danh sách bài học"}
         >
           {sidebarCollapsed ? (
-            <ChevronRight className="w-3 h-3" />
+            <ChevronRight className="w-4 h-4" />
           ) : (
-            <ChevronLeft className="w-3 h-3" />
+            <ChevronLeft className="w-4 h-4" />
           )}
         </button>
 
