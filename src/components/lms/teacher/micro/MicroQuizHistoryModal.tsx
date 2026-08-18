@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { Clock, CheckCircle2, XCircle, Loader2, HelpCircle } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Loader2, HelpCircle, X } from "lucide-react";
 import { microQuizService, type MicroQuizJob } from "@/services/microQuizService";
 import { Spinner } from "@/components/lms/shared";
 
@@ -14,6 +15,25 @@ interface Props {
 export function MicroQuizHistoryModal({ courseId, onClose, onSelectJob }: Props) {
   const [jobs, setJobs] = useState<MicroQuizJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
 
   useEffect(() => {
     let active = true;
@@ -34,16 +54,25 @@ export function MicroQuizHistoryModal({ courseId, onClose, onSelectJob }: Props)
     return () => { active = false; };
   }, [courseId]);
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-xl">
-        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
               <HelpCircle className="w-5 h-5 text-emerald-500" />
               Lịch sử tạo Micro-Quiz
             </h3>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               Các tiến trình phân tích AI gần đây
             </p>
           </div>
@@ -51,7 +80,7 @@ export function MicroQuizHistoryModal({ courseId, onClose, onSelectJob }: Props)
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
           >
-            ✕
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -117,6 +146,7 @@ export function MicroQuizHistoryModal({ courseId, onClose, onSelectJob }: Props)
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

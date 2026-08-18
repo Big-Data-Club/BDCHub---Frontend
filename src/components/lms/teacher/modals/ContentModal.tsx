@@ -22,7 +22,8 @@
  *   ForumAnnouncementContentForm → info card (no upload needed)
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import lmsService from "@/services/lmsService";
 import quizService from "@/services/quizService";
@@ -98,6 +99,25 @@ export default function ContentModal({
 
   const [quizSettings, setQuizSettings] = useState<QuizSettings>(DEFAULT_QUIZ_SETTINGS);
   const [loading, setLoading]           = useState(false);
+  const [mounted, setMounted]           = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !loading) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [loading, onClose]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -211,11 +231,18 @@ export default function ContentModal({
     }
   })();
 
-  // ── JSX ────────────────────────────────────────────────────────────────────
+  if (!mounted) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-lg">
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !loading) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 overflow-y-auto animate-in fade-in duration-200"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-blue-500/20 shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
 
         {/* Header */}
         <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 z-10">
@@ -371,6 +398,7 @@ export default function ContentModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

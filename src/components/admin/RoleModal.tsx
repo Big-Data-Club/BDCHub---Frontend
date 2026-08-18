@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Role, createRole, updateRole } from "@/lib/admin/rolesApi";
 import { X, Save, Loader2 } from "lucide-react";
 
@@ -15,6 +16,25 @@ export default function RoleModal({ role, onClose, onSuccess }: RoleModalProps) 
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !loading) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [loading, onClose]);
 
   const isEdit = !!role;
 
@@ -43,11 +63,18 @@ export default function RoleModal({ role, onClose, onSuccess }: RoleModalProps) 
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      
-      <div className="relative z-10 w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !loading) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+    >
+      <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-auto">
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
           <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">
             {isEdit ? "Edit Role" : "Create New Role"}
@@ -121,6 +148,7 @@ export default function RoleModal({ role, onClose, onSuccess }: RoleModalProps) 
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

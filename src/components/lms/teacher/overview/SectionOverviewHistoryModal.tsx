@@ -1,16 +1,10 @@
 "use client";
 
-/**
- * SectionOverviewHistoryModal
- *
- * Lists past section overview generation jobs for a given section.
- * Mirrors MicroLessonHistoryModal pattern.
- */
-
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { BookOpen, CheckCircle2, Clock, Loader2, XCircle } from "lucide-react";
+import { BookOpen, CheckCircle2, Clock, Loader2, XCircle, X } from "lucide-react";
 import { sectionOverviewService } from "@/services/sectionOverviewService";
 import type { SectionOverviewJob } from "@/types";
 import { Spinner } from "@/components/lms/shared";
@@ -42,6 +36,25 @@ export function SectionOverviewHistoryModal({
 }: Props) {
   const [jobs, setJobs] = useState<SectionOverviewJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
 
   useEffect(() => {
     let active = true;
@@ -67,11 +80,20 @@ export function SectionOverviewHistoryModal({
     return () => { active = false; };
   }, [courseId, sectionId]);
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-xl">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-5 border-b border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-indigo-500" />
@@ -79,7 +101,7 @@ export function SectionOverviewHistoryModal({
                 Lịch sử tổng quan chương
               </h3>
             </div>
-            <p className="text-sm text-slate-500 mt-1 ml-7 truncate max-w-sm">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 ml-7 truncate max-w-sm">
               {sectionTitle}
             </p>
           </div>
@@ -87,7 +109,7 @@ export function SectionOverviewHistoryModal({
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
           >
-            ✕
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -173,6 +195,7 @@ export function SectionOverviewHistoryModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

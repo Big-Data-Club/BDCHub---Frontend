@@ -92,7 +92,7 @@ export function CourseCard({
           {typeof category === "string" && category.split(",").slice(0, 2).map((cat, i) => {
             const trimmed = cat.trim();
             return trimmed ? (
-              <span key={i} className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-white/95 text-slate-800 border border-slate-200 shadow-sm dark:bg-blue-950/90 dark:text-cyan-400 dark:border-blue-500/20">
+              <span key={i} className="px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-white/95 text-slate-900 border border-slate-200 shadow-xs dark:bg-slate-900/90 dark:text-cyan-300 dark:border-blue-500/30">
                 {trimmed}
               </span>
             ) : null;
@@ -124,7 +124,7 @@ export function CourseCard({
           <div className="flex items-center gap-1.5 pt-0.5 flex-wrap text-xs text-slate-500 dark:text-slate-400 w-full font-semibold">
             {teacherName && (
               <span className="flex items-center gap-1 min-w-0">
-                <UserAvatar name={teacherName} src={teacherAvatarUrl} className="h-4 w-4" fallbackClassName="text-[7px]" />
+                <UserAvatar name={teacherName} src={teacherAvatarUrl} className="h-4 w-4" fallbackClassName="text-xs" />
                 <span className="truncate">Tạo bởi {teacherName}</span>
               </span>
             )}

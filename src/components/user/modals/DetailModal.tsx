@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { User } from "@/types";
 import { UserAvatar } from "../UserAvatar";
 import { X, Pencil, Save, Loader2, Mail, Hash, Shield, Users, GraduationCap, Star, Calendar, Activity, Building2, Plus, Trash2 } from "lucide-react";
@@ -60,6 +61,27 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
   const [roles, setRoles] = useState<Role[]>([]);
   const [organizations, setOrganizations] = useState<any[]>([]);
   const [selectedOrgToAdd, setSelectedOrgToAdd] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape" && !saving) {
+          onClose();
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [user, saving, onClose]);
 
   const getOrgIdByName = (name: string): number | undefined => {
     const found = organizations.find(o => o.name === name);
@@ -161,7 +183,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
     }
   }, [user, isAdmin, roles.length]);
 
-  if (!user) return null;
+  if (!user || !mounted) return null;
 
   const handleStartEdit = () => {
     setEditName(user.name);
@@ -217,13 +239,17 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !saving) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+    >
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+      <div className="relative z-10 w-full max-w-lg bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col my-auto">
         {/* ── Header - Profile Card ── */}
         <div className="relative p-6 pb-5 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
           {/* Actions */}
@@ -660,6 +686,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

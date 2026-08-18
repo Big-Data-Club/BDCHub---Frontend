@@ -13,7 +13,8 @@
  *   3. Teacher checks/unchecks questions → clicks "Add N questions"
  *   4. Questions are batch-inserted into the quiz
  */
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   Sparkles,
@@ -76,6 +77,25 @@ export function QuizSmartImportModal({
   const [questions, setQuestions]     = useState<ParsedQuestion[]>([]);
   const [selected, setSelected]       = useState<Set<number>>(new Set());
   const [expanded, setExpanded]       = useState<number | null>(null);
+  const [mounted, setMounted]         = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isParsing && !isSaving) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isParsing, isSaving, onClose]);
 
   // ── Parse ──────────────────────────────────────────────────────────────────
 
@@ -147,23 +167,26 @@ export function QuizSmartImportModal({
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
-        onClick={onClose}
-      />
+  if (!mounted) return null;
 
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isParsing && !isSaving) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+    >
       {/* Panel */}
       <div
         className={cn(
-          "relative z-10 bg-white dark:bg-slate-900",
-          "rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800",
+          "relative z-10 bg-white dark:bg-[#0F1E35]",
+          "rounded-2xl shadow-2xl border border-slate-200 dark:border-blue-500/20",
           "flex flex-col",
-          "w-full max-w-2xl mx-4",
+          "w-full max-w-2xl mx-auto my-auto",
           "max-h-[90vh]",
-          "animate-in slide-in-from-bottom-4 duration-300",
+          "animate-in zoom-in-95 duration-200",
         )}
       >
         {/* Header */}
@@ -423,6 +446,7 @@ export function QuizSmartImportModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

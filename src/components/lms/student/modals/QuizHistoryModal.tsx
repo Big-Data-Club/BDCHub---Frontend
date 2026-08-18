@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 import { Badge } from "@/components/lms/shared/Badge";
 import quizService from "@/services/quizService";
@@ -42,6 +43,25 @@ export default function QuizHistoryModal({
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
 
   const loadAttempts = useCallback(async () => {
     try {
@@ -151,9 +171,18 @@ export default function QuizHistoryModal({
   const bestAttempt = getBestAttempt();
   const averageScore = getAverageScore();
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4">
-      <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 overflow-y-auto animate-in fade-in duration-200"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
         {/* Header */}
         <div className="bg-blue-600 dark:bg-blue-700 p-6 text-white">
           <div className="flex justify-between items-start mb-4">
@@ -346,6 +375,7 @@ export default function QuizHistoryModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

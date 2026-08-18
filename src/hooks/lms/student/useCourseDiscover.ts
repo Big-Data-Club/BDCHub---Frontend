@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { lmsService } from "@/services/lmsService";
 import {
   getRecommendations,
@@ -26,6 +26,12 @@ export function useCourseDiscover() {
   const [preferenceLevel, setPreferenceLevel] = useState<"" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED">("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  // Synchronous guard against concurrent loadMore() calls.
+  // React state (loadingMore) is batched and may not reflect the latest
+  // value when the IntersectionObserver callback fires. This ref is
+  // set to true synchronously at the START of loadMore() and cleared
+  // at the END, so any concurrent invocation is reliably blocked.
+  const isLoadingRef = useRef(false);
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
@@ -36,11 +42,29 @@ export function useCourseDiscover() {
 
   const PAGE_SIZE = 9;
 
+  const checkHasMore = useCallback((res: any, currentCount: number, pageSize: number) => {
+    const itemsCount = res?.items?.length ?? 0;
+    if (itemsCount < pageSize) return false;
+
+    const totalPages = res?.pagination?.total_pages;
+    const currentPage = res?.pagination?.page;
+    if (typeof totalPages === "number" && typeof currentPage === "number") {
+      return currentPage < totalPages;
+    }
+
+    const total = res?.pagination?.total ?? res?.total ?? res?.total_items;
+    if (typeof total === "number") {
+      return currentCount < total;
+    }
+
+    return itemsCount >= pageSize;
+  }, []);
+
   const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
       const [allCourses, accepted, profile] = await Promise.all([
-        lmsService.listPublishedCourses({ page_size: 20 }),
+        lmsService.listPublishedCourses({ page_size: 100 }),
         lmsService.getMyEnrollments("ACCEPTED"),
         getLearningPreferenceProfile().catch((): LearningPreferenceProfile => ({
           interested_categories: [],
@@ -102,15 +126,14 @@ export function useCourseDiscover() {
       const items = (paginatedRes?.items || []) as Course[];
       setPublishedCourses(items);
       setPage(1);
-      const totalItems = (paginatedRes as any)?.total ?? (paginatedRes as any)?.total_items ?? items.length;
-      setHasMore(items.length >= PAGE_SIZE && totalItems > items.length);
+      setHasMore(checkHasMore(paginatedRes, items.length, PAGE_SIZE));
     } catch (err: any) {
       console.error(err);
       setError(err?.message || "Không thể tải danh sách khóa học");
     } finally {
       setLoading(false);
     }
-  }, [PAGE_SIZE]);
+  }, [PAGE_SIZE, checkHasMore]);
 
   useEffect(() => {
     loadInitialData();
@@ -132,17 +155,19 @@ export function useCourseDiscover() {
       const items = (res?.items || []) as Course[];
       setPublishedCourses(items);
       setPage(1);
-      const totalItems = (res as any)?.total ?? (res as any)?.total_items ?? items.length;
-      setHasMore(items.length >= PAGE_SIZE && totalItems > items.length);
+      setHasMore(checkHasMore(res, items.length, PAGE_SIZE));
     } catch (err: any) {
       setError(err?.message || "Lỗi tìm kiếm khóa học");
     } finally {
       setLoading(false);
     }
-  }, [PAGE_SIZE]);
+  }, [PAGE_SIZE, checkHasMore]);
 
   const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return;
+    // Use ref for the primary guard — it updates synchronously,
+    // unlike loadingMore state which is subject to React batching.
+    if (isLoadingRef.current || !hasMore) return;
+    isLoadingRef.current = true;
     try {
       setLoadingMore(true);
       const nextPage = page + 1;
@@ -153,15 +178,19 @@ export function useCourseDiscover() {
 
       const res = await lmsService.listPublishedCourses(params);
       const items = (res?.items || []) as Course[];
-      setPublishedCourses(prev => [...prev, ...items]);
+      setPublishedCourses(prev => {
+        const nextList = [...prev, ...items];
+        setHasMore(checkHasMore(res, nextList.length, PAGE_SIZE));
+        return nextList;
+      });
       setPage(nextPage);
-      setHasMore(items.length >= PAGE_SIZE);
     } catch (err: any) {
-      console.error(err);
+      console.error("Failed to load more courses:", err);
     } finally {
       setLoadingMore(false);
+      isLoadingRef.current = false;
     }
-  }, [loadingMore, hasMore, page, search, selectedTag, selectedLevel, PAGE_SIZE]);
+  }, [hasMore, page, search, selectedTag, selectedLevel, PAGE_SIZE, checkHasMore]);
 
   const handleSavePreferences = useCallback(async () => {
     try {

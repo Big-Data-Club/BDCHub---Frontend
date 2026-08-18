@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AlertTriangle, Info, Trash2, X } from "lucide-react";
 import { PrimaryBtn, SecondaryBtn, GhostBtn, DangerBtn } from "./Button";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,12 @@ export function ConfirmModal({
   variant = "danger",
   loading = false,
 }: ConfirmModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen && !loading) {
@@ -44,7 +51,7 @@ export function ConfirmModal({
     };
   }, [isOpen, loading, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const VARIANT_ICONS = {
     danger: <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />,
@@ -58,8 +65,15 @@ export function ConfirmModal({
     info: "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-cyan-500/20",
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200">
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !loading) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200"
+    >
       <div
         className={cn(
           "relative w-full max-w-md bg-white dark:bg-[#0F1E35] border border-slate-200/80 dark:border-blue-500/15 rounded-3xl p-6 shadow-2xl transition-all animate-in zoom-in-95 duration-200"
@@ -107,6 +121,7 @@ export function ConfirmModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

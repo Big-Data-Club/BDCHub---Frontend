@@ -11,6 +11,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Loader2, Sparkles, X, HelpCircle } from "lucide-react";
 import lmsService from "@/services/lmsService";
 import microQuizService from "@/services/microQuizService";
@@ -43,6 +44,25 @@ export function GenerateMicroQuizzesModal({
   const [loadingContents, setLoadingContents] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !submitting) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [submitting, onClose]);
 
   // Fetch all DOCUMENT/VIDEO contents across the course's sections
   useEffect(() => {
@@ -96,9 +116,18 @@ export function GenerateMicroQuizzesModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !submitting) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
         <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <HelpCircle className="w-5 h-5 text-emerald-500" />
@@ -243,6 +272,7 @@ export function GenerateMicroQuizzesModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
