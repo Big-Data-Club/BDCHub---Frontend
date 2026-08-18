@@ -137,13 +137,22 @@ This system operates on a hybrid elevation model:
 - **Background:** White (light) or #0f1e35 (dark).
 - **Glassmorphic variant:** Semi-transparent backing (`bg-white/80` or `bg-[#0f1e35]/80` with backdrop-blur) and custom hover scale transitions.
 
+### List Items & Navigation Rows
+- **Structure:** `w-full min-w-0 overflow-hidden` flex wrapper.
+- **Title Truncation:** Must apply `min-w-0 flex-1 truncate block overflow-hidden text-ellipsis whitespace-nowrap` on text containers.
+- **Fixed Action / Badge Slot:** Must use `shrink-0` or `flex-shrink-0` on trailing status icons/actions to prevent text pushing icons offscreen.
+
+**The Strict Flex Truncation Rule.** Whenever displaying truncated titles alongside trailing icons inside flex parents (e.g. sidebar navigation lists), all flex ancestor containers and the text element itself MUST explicitly set `min-w-0` and `overflow-hidden`, while trailing status badges MUST be explicitly declared `shrink-0`. Never allow unconstrained text children in flex layouts.
+
 ## Do's and Don'ts
 
 ### Do:
 - **Do** preserve the multi-step progress when a user returns by reading from local storage.
 - **Do** use uppercase cyber badges for section tags and status updates.
 - **Do** use unified `max-w-7xl` layouts for dashboard and course layout screens.
+- **Do** enforce `min-w-0` and `shrink-0` on sidebar list items to protect trailing status badges from layout clipping.
 
 ### Don't:
 - **Don't** use generic black borders or flat gray highlights. Use themed slate-300 or dark blue/cyan borders instead.
 - **Don't** use standard heavy drop shadows on dark mode cards.
+- **Don't** omit `min-w-0` on flex children containing truncated text (`truncate`), as flex items default to `min-width: auto` and will push trailing icons offscreen.

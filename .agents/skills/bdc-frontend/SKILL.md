@@ -554,6 +554,7 @@ Nếu KHÔNG → Giữ nguyên local utility class tại component
 | Dùng `<img>` mà không handle ESLint warning | Dùng `<Image />` từ `next/image` (ảnh static), hoặc dùng `/* eslint-disable-next-line @next/next/no-img-element */` (ảnh dynamic từ backend) |
 | Viết dấu nháy `'` hoặc `"` trực tiếp trong JSX text | Dùng `&quot;`, `&apos;` hoặc JSX expression `{"'..."}` |
 | Default export cho component | Named exports only |
+| Flex container thiếu `min-w-0` gây đẩy icon | Luôn thêm `min-w-0 flex-1 truncate` cho text và `shrink-0` cho status icon |
 | Build LMS primitive mới | Kiểm tra `components/lms/shared/` trước |
 | Shadow nặng trên dark mode | `dark:shadow-none` hoặc blue glow subtle |
 | Rounded nhỏ trên card | `rounded-2xl` cho card, `rounded-xl` cho input/button |
@@ -577,6 +578,10 @@ Nếu KHÔNG → Giữ nguyên local utility class tại component
 [ ] Card: bg-white border-slate-200 rounded-2xl shadow-sm
 [ ] Input: border-slate-300 focus:ring-blue-500/20 focus:border-blue-500
 [ ] Button: bg-blue-600 active:scale-95 transition-all duration-200
+
+── Styling - Layout & Truncation ──────────────────────────────────────
+[ ] List items & sidebar rows có `min-w-0` trên flex parent và text element (`truncate min-w-0 flex-1`)
+[ ] Trailing status icons/badges sử dụng `shrink-0` để không bị đẩy khỏi màn hình khi text dài
 
 ── Styling - Dark Mode ─────────────────────────────────────────────────
 [ ] Card: dark:bg-[#0F1E35] dark:border-blue-500/10 dark:shadow-none
