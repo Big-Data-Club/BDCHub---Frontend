@@ -11,7 +11,7 @@ import {
 import {
   Card, Badge, PrimaryBtn, GhostBtn,
   EmptyState, PageLoader, Alert, TabBar, Spinner,
-  InfiniteScrollTrigger, GridBackground, ConfirmModal, TeacherSummaryCard, FilterDropdown, TeacherHeader
+  InfiniteScrollTrigger, GridBackground, ConfirmModal, TeacherSummaryCard, FilterDropdown, LmsPageHeader
 } from "@/components/lms/shared";
 import { Course } from "@/types";
 import { cn } from "@/lib/utils";
@@ -269,11 +269,12 @@ export default function CoursesListPage() {
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-slate-50 dark:bg-[#050B18]">
-      {/* ── Premium Full-width Header synced with Teacher Suite ── */}
-      <TeacherHeader
+      {/* ── Premium Full-width Header with LmsPageHeader ── */}
+      <LmsPageHeader
+        categoryLabel="Hệ thống quản lý học tập (LMS)"
         title="Khóa học của tôi"
         description="Quản lý danh sách khóa học của bạn, theo dõi trạng thái xuất bản và số lượng học viên."
-        actions={
+        sideWidget={
           <div className="w-full lg:max-w-xl xl:max-w-2xl flex-shrink-0">
             <TeacherSummaryCard
               totalCourses={totalCoursesCount}

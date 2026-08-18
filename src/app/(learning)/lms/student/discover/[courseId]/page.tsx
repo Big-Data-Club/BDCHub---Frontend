@@ -12,7 +12,7 @@ import {
 import { lmsService } from "@/services/lms/lmsService";
 import { useCourseDiscoverDetail } from "@/hooks/lms/student/useCourseDiscoverDetail";
 import { Course, Section } from "@/types";
-import { Badge, PrimaryBtn, GridBackground } from "@/components/lms/shared";
+import { Badge, PrimaryBtn, GridBackground, LmsPageHeader } from "@/components/lms/shared";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 
 const LEVEL_LABEL: Record<string, string> = {
@@ -213,29 +213,22 @@ export default function CourseOverviewPage() {
   return (
     <div className="w-full flex flex-col min-h-screen bg-slate-50 dark:bg-[#050B18]">
       {/* Header */}
-      <div className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/20 dark:bg-[#070E1C]/20 backdrop-blur-xs py-6 md:py-8">
-        <GridBackground />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
-          <BreadcrumbNav items={breadcrumbItems} />
-          <div className="mt-4 flex items-start gap-4 flex-wrap justify-between">
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap gap-2 items-center mb-2">
-                {categories.map((cat, i) => (
-                  <span
-                    key={i}
-                    className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-100/80 dark:bg-blue-950/60 text-blue-700 dark:text-cyan-400 border border-blue-200 dark:border-blue-500/20"
-                  >
-                    {cat}
-                  </span>
-                ))}
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                {course.title}
-              </h1>
-            </div>
+      <LmsPageHeader
+        breadcrumbs={<BreadcrumbNav items={breadcrumbItems} />}
+        title={course.title}
+        bottomBar={
+          <div className="flex flex-wrap gap-2 items-center">
+            {categories.map((cat, i) => (
+              <span
+                key={i}
+                className="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-blue-100/80 dark:bg-blue-950/60 text-blue-700 dark:text-cyan-400 border border-blue-200 dark:border-blue-500/20"
+              >
+                {cat}
+              </span>
+            ))}
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Main Content Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">

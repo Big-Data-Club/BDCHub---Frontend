@@ -8,7 +8,7 @@ import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import { FileInfo, Organization } from "@/types";
 import { CourseBlueprintWorkspace } from "@/components/lms/teacher/CourseBlueprintWorkspace";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
-import { Input, Textarea, PrimaryBtn, SecondaryBtn, Alert, GridBackground, CourseCard, RadioTileGroup, FilterDropdown, TeacherHeader } from "@/components/lms/shared";
+import { Input, Textarea, PrimaryBtn, SecondaryBtn, Alert, GridBackground, CourseCard, RadioTileGroup, FilterDropdown, LmsPageHeader } from "@/components/lms/shared";
 import { 
   ArrowLeft, BookOpen, Layers, Wand2, FileEdit, PlusCircle, Trash2, Globe, Lock, Sparkles, CheckCircle2, Award, Building2
 } from "lucide-react";
@@ -124,10 +124,11 @@ export default function CreateCoursePage() {
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-slate-50 dark:bg-[#050B18]">
-      {/* ── Premium Full-width Header synced with Teacher Suite ── */}
-      <TeacherHeader
+      {/* ── Premium Full-width Header with LmsPageHeader ── */}
+      <LmsPageHeader
+        categoryLabel="Hệ thống quản lý học tập (LMS)"
         title="Tạo khóa học mới"
-        description="Chọn phương thức khởi tạo và thiết lập các thông tin cấu hình cơ bản cho khóa học của bạn."
+        description="Điền các thông tin cơ bản để bắt đầu thiết kế khóa học của bạn. Bạn có thể bổ sung bài học và tài liệu sau."
         breadcrumbs={
           <div className="flex items-center gap-2">
             <button

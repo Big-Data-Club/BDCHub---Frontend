@@ -118,9 +118,9 @@ export function CourseDetailProgressCard({
 
       {/* 3. Left column: Footer Stats */}
       <div className="md:col-start-1 md:row-start-3 w-full border-t border-slate-200/60 dark:border-blue-500/10 pt-2 min-h-[38px] flex items-center">
-        <div className="grid grid-cols-2 gap-2 w-full">
+        <div className="grid grid-cols-2 gap-1 w-full">
           <div className="flex flex-col items-center justify-center text-center">
-            <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <div className="flex items-center justify-center gap-1 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-450 flex-shrink-0" />
               <span>Đã hoàn thành</span>
             </div>
@@ -128,7 +128,7 @@ export function CourseDetailProgressCard({
           </div>
 
           <div className="flex flex-col items-center justify-center text-center border-l border-slate-200/60 dark:border-blue-500/10">
-            <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <div className="flex items-center justify-center gap-1 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-600 flex-shrink-0" />
               <span>Bắt buộc</span>
             </div>
@@ -157,7 +157,7 @@ export function CourseDetailProgressCard({
               {nextLesson.title}
             </h3>
             {nextLesson.is_mandatory && (
-              <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-450 bg-amber-50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-500/25 px-1.5 py-0.5 rounded-md whitespace-nowrap flex-shrink-0 uppercase tracking-wider">
+              <span className="text-xs font-bold text-amber-600 dark:text-amber-450 bg-amber-50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-500/25 px-1.5 py-0.5 rounded-md whitespace-nowrap flex-shrink-0 uppercase tracking-tight">
                 Bắt buộc
               </span>
             )}
