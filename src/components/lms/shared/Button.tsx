@@ -42,7 +42,7 @@ function renderButtonContent(
 }
 
 export const PrimaryBtn = React.forwardRef<HTMLButtonElement, LmsButtonProps>(
-  ({ children, loading, icon, iconPosition = "left", className, disabled, size = "default", asChild, variant: _variant, ...props }, ref) => (
+  ({ children, loading, icon, iconPosition = "left", className, disabled, size = "default", asChild, ...props }, ref) => (
     <ShadcnButton
       ref={ref}
       asChild={asChild}
@@ -64,7 +64,7 @@ export const PrimaryBtn = React.forwardRef<HTMLButtonElement, LmsButtonProps>(
 PrimaryBtn.displayName = "PrimaryBtn";
 
 export const SecondaryBtn = React.forwardRef<HTMLButtonElement, LmsButtonProps>(
-  ({ children, loading, icon, iconPosition = "left", className, disabled, size = "default", asChild, variant: _variant, ...props }, ref) => (
+  ({ children, loading, icon, iconPosition = "left", className, disabled, size = "default", asChild, ...props }, ref) => (
     <ShadcnButton
       ref={ref}
       asChild={asChild}
@@ -87,7 +87,7 @@ export const SecondaryBtn = React.forwardRef<HTMLButtonElement, LmsButtonProps>(
 SecondaryBtn.displayName = "SecondaryBtn";
 
 export const GhostBtn = React.forwardRef<HTMLButtonElement, LmsButtonProps>(
-  ({ children, loading, icon, iconPosition = "left", className, disabled, size = "default", asChild, variant: _variant, ...props }, ref) => (
+  ({ children, loading, icon, iconPosition = "left", className, disabled, size = "default", asChild, ...props }, ref) => (
     <ShadcnButton
       ref={ref}
       asChild={asChild}
@@ -110,7 +110,7 @@ export const GhostBtn = React.forwardRef<HTMLButtonElement, LmsButtonProps>(
 GhostBtn.displayName = "GhostBtn";
 
 export const DangerBtn = React.forwardRef<HTMLButtonElement, LmsButtonProps>(
-  ({ children, loading, icon, iconPosition = "left", className, disabled, size = "default", asChild, variant: _variant, ...props }, ref) => (
+  ({ children, loading, icon, iconPosition = "left", className, disabled, size = "default", asChild, ...props }, ref) => (
     <ShadcnButton
       ref={ref}
       asChild={asChild}

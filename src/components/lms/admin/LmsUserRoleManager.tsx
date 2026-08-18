@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { adminLmsService, UserRoleDetail, RoleDefinition } from "@/services/adminLmsService";
+import { Select } from "@/components/lms/shared";
 import { Shield, Plus, Trash2, Loader2, Info, CheckCircle2, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +18,7 @@ export default function LmsUserRoleManager({ userId }: LmsUserRoleManagerProps) 
   const [, setError] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState("");
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [uRoles, aRoles] = await Promise.all([
@@ -31,12 +32,11 @@ export default function LmsUserRoleManager({ userId }: LmsUserRoleManagerProps) 
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     loadData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, loadData]);
+  }, [loadData]);
 
   const handleAssign = async () => {
     if (!selectedRole) return;
@@ -161,10 +161,10 @@ export default function LmsUserRoleManager({ userId }: LmsUserRoleManagerProps) 
           Assign New LMS Role
         </label>
         <div className="flex gap-2">
-          <select
+          <Select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
-            className="flex-1 px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            className="flex-1"
           >
             <option value="">Select a role...</option>
             {allRoles
@@ -177,7 +177,7 @@ export default function LmsUserRoleManager({ userId }: LmsUserRoleManagerProps) 
             {!allRoles.some(r => r.name === "STUDENT") && !userRoles.some(ur => ur.role === "STUDENT") && <option value="STUDENT">STUDENT</option>}
             {!allRoles.some(r => r.name === "TEACHER") && !userRoles.some(ur => ur.role === "TEACHER") && <option value="TEACHER">TEACHER</option>}
             {!allRoles.some(r => r.name === "ADMIN") && !userRoles.some(ur => ur.role === "ADMIN") && <option value="ADMIN">ADMIN</option>}
-          </select>
+          </Select>
           <button
             onClick={handleAssign}
             disabled={!selectedRole || actionLoading !== null}
