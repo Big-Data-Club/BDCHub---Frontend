@@ -29,6 +29,10 @@ import { useRouter, useParams } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import StemExperimentSetup from "@/components/labs/StemExperimentSetup";
 import StemLearnerProgress from "@/components/labs/StemLearnerProgress";
+import { ChemistryLabBuilder } from "@/components/labs/chemistry/ChemistryLabBuilder";
+
+const isVirtualLab = (labType?: string) =>
+  labType === "PLANT" || labType === "ROBOT" || labType === "CHEMISTRY";
 
 
 export default function LabEditPage() {
@@ -116,7 +120,7 @@ export default function LabEditPage() {
       setLoading(true);
       const res = await labService.getLabById(labId);
       if (res.data) {
-        if (!lab && (res.data.labType === "PLANT" || res.data.labType === "ROBOT")) {
+        if (!lab && isVirtualLab(res.data.labType)) {
           setActiveTab("stem");
         }
         setLab(res.data);
@@ -546,7 +550,7 @@ export default function LabEditPage() {
             General Config
           </button>
 
-          {(lab.labType === "PLANT" || lab.labType === "ROBOT") && (
+          {isVirtualLab(lab.labType) && (
             <>
               <button
                 onClick={() => setActiveTab("stem")}
@@ -557,7 +561,7 @@ export default function LabEditPage() {
                 }`}
               >
                 <FlaskConical size={16} />
-                STEM Setup
+                {lab.labType === "CHEMISTRY" ? "🧪 Cấu hình Hóa học" : "STEM Setup"}
               </button>
               <button
                 onClick={() => setActiveTab("progress")}
@@ -599,7 +603,7 @@ export default function LabEditPage() {
             </button>
           )}
 
-          {lab.labType !== "PLANT" && lab.labType !== "ROBOT" && (
+          {!isVirtualLab(lab.labType) && (
             <button
               onClick={() => setActiveTab("sandbox")}
               className={`pb-3.5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
@@ -618,7 +622,20 @@ export default function LabEditPage() {
           <StemExperimentSetup lab={lab} onPublished={fetchLabDetails} />
         )}
 
-        {activeTab === "progress" && (lab.labType === "PLANT" || lab.labType === "ROBOT") && (
+        {activeTab === "stem" && lab.labType === "CHEMISTRY" && (
+          <ChemistryLabBuilder
+            initialSpec={lab.runtimeConfig?.chemistry_spec}
+            onSave={async (spec) => {
+              await labService.updateLab(lab.id, {
+                runtimeConfig: { ...lab.runtimeConfig, chemistry_spec: spec },
+              });
+              await fetchLabDetails();
+              toast.success("Đã lưu cấu hình thí nghiệm hóa học! ✅");
+            }}
+          />
+        )}
+
+        {activeTab === "progress" && isVirtualLab(lab.labType) && (
           <StemLearnerProgress lab={lab} />
         )}
 

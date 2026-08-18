@@ -80,6 +80,8 @@ export default function LabsPage() {
         return { icon: Sprout, label: "Plant Lab", color: "bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-400 border-lime-200 dark:border-lime-900/60" };
       case "ROBOT":
         return { icon: Bot, label: "Robot Lab", color: "bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-900/60" };
+      case "CHEMISTRY":
+        return { icon: FlaskConical, label: "Chemistry Lab", color: "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-900/60" };
       default:
         return { icon: BookOpen, label: type, color: "bg-slate-50 dark:bg-slate-950/40 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800" };
     }
@@ -174,7 +176,7 @@ export default function LabsPage() {
               >
                 All Types
               </button>
-              {(["PLANT", "ROBOT", "CODING", "DATABASE", "WORKSPACE", "HPC"] as LabType[]).map((type) => (
+              {(["CHEMISTRY", "PLANT", "ROBOT", "CODING", "DATABASE", "WORKSPACE", "HPC"] as LabType[]).map((type) => (
                 <button
                   key={type}
                   onClick={() => handleTypeChange(type)}

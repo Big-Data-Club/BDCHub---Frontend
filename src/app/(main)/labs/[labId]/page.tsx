@@ -27,6 +27,7 @@ import { useParams } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { XTerminal, type XTerminalHandle } from "@/components/terminal/XTerminal";
 import StemLearnerWorkspace from "@/components/labs/StemLearnerWorkspace";
+import { ChemistryLabStudentView } from "@/components/labs/chemistry/ChemistryLabStudentView";
 
 export default function LabDetailPage() {
   const params = useParams();
@@ -330,7 +331,7 @@ export default function LabDetailPage() {
 
   const supportedLanguages = lab.runtimeConfig?.supported_languages || ["python"];
   const isCodingOrDb = lab.labType === "CODING" || lab.labType === "DATABASE";
-  const isSTEMExperiment = lab.labType === "PLANT" || lab.labType === "ROBOT";
+  const isSTEMExperiment = lab.labType === "PLANT" || lab.labType === "ROBOT" || lab.labType === "CHEMISTRY";
 
   return (
     <div className="min-h-screen bg-transparent p-4 lg:p-6" id="lab-workspace">
@@ -490,7 +491,9 @@ export default function LabDetailPage() {
           {/* RIGHT SIDE PANEL (Code Playground / Compiler / Terminal Sandbox) */}
           <div className="lg:col-span-7 bg-slate-900 text-slate-100 border border-slate-800 rounded-2xl flex flex-col min-h-0 overflow-hidden">
             
-            {isSTEMExperiment ? (
+            {lab.labType === "CHEMISTRY" ? (
+              <ChemistryLabStudentView labId={lab.id} />
+            ) : isSTEMExperiment ? (
               <StemLearnerWorkspace lab={lab} />
             ) : isCodingOrDb ? (
               // ── Option A: Solution Editor (For CODING and DATABASE labs) ──
