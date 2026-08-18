@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
+import { Badge } from "@/components/lms/shared/Badge";
 import quizService from "@/services/quizService";
 import { Clock, CheckCircle, XCircle, Eye, Calendar, Timer, Award, TrendingUp, AlertCircle } from "lucide-react";
 
@@ -41,6 +43,25 @@ export default function QuizHistoryModal({
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
 
   const loadAttempts = useCallback(async () => {
     try {
@@ -96,47 +117,39 @@ export default function QuizHistoryModal({
   const getStatusBadge = (status: string, isPassed: boolean | null) => {
     if (status === "IN_PROGRESS") {
       return (
-        <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-lg text-xs font-semibold flex items-center gap-1">
+        <Badge variant="yellow" size="md">
           <Clock className="w-3 h-3" />
           Đang làm
-        </span>
+        </Badge>
       );
     }
     if (status === "SUBMITTED") {
       return (
-        <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg text-xs font-semibold flex items-center gap-1">
+        <Badge variant="blue" size="md">
           <AlertCircle className="w-3 h-3" />
           Chờ chấm
-        </span>
+        </Badge>
       );
     }
     if (status === "GRADED") {
       if (isPassed === true) {
         return (
-          <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold flex items-center gap-1">
+          <Badge variant="green" size="md">
             <CheckCircle className="w-3 h-3" />
             Đạt
-          </span>
+          </Badge>
         );
       } else if (isPassed === false) {
         return (
-          <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-xs font-semibold flex items-center gap-1">
+          <Badge variant="red" size="md">
             <XCircle className="w-3 h-3" />
             Không đạt
-          </span>
+          </Badge>
         );
       }
-      return (
-        <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold">
-          Đã chấm
-        </span>
-      );
+      return <Badge variant="gray" size="md">Đã chấm</Badge>;
     }
-    return (
-      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold">
-        {status}
-      </span>
-    );
+    return <Badge variant="gray" size="md">{status}</Badge>;
   };
 
   const getBestAttempt = () => {
@@ -158,9 +171,18 @@ export default function QuizHistoryModal({
   const bestAttempt = getBestAttempt();
   const averageScore = getAverageScore();
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4">
-      <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 overflow-y-auto animate-in fade-in duration-200"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
         {/* Header */}
         <div className="bg-blue-600 dark:bg-blue-700 p-6 text-white">
           <div className="flex justify-between items-start mb-4">
@@ -353,6 +375,7 @@ export default function QuizHistoryModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

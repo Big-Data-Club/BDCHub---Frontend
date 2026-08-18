@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import lmsService from "@/services/lmsService";
 import { FileToUpload } from "@/types";
@@ -21,7 +22,26 @@ export default function BulkUploadModal({
   const [filesToUpload, setFilesToUpload] = useState<FileToUpload[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropZoneRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isUploading) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isUploading, onClose]);
 
   // Detect file type from extension
   const detectFileType = (filename: string): "video" | "document" | "image" => {
@@ -216,10 +236,19 @@ export default function BulkUploadModal({
     return icons[type] || "📎";
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-slate-200 dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900 z-10">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isUploading) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 overflow-y-auto animate-in fade-in duration-200"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
+        <div className="p-6 border-b border-slate-200 dark:border-slate-800 sticky top-0 bg-white dark:bg-[#0F1E35] z-10">
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Tải lên nhiều file</h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
             Chọn hoặc kéo thả nhiều file để tải lên cùng lúc
@@ -231,6 +260,8 @@ export default function BulkUploadModal({
           {filesToUpload.length === 0 && (
             <div
               ref={dropZoneRef}
+              role="region"
+              aria-label="Khu vực kéo thả file tải lên"
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
@@ -316,26 +347,28 @@ export default function BulkUploadModal({
                     </div>
 
                     {/* Status Icon */}
-                    {fileItem.uploadStatus === "pending" && (
-                      <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs rounded-lg font-medium">
-                        Chờ
-                      </span>
-                    )}
-                    {fileItem.uploadStatus === "uploading" && (
-                      <span className="px-2 py-1 bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 text-xs rounded-lg font-medium">
-                        ⏳ Đang tải
-                      </span>
-                    )}
-                    {fileItem.uploadStatus === "success" && (
-                      <span className="px-2 py-1 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 text-xs rounded-lg font-medium">
-                        ✓ Thành công
-                      </span>
-                    )}
-                    {fileItem.uploadStatus === "error" && (
-                      <span className="px-2 py-1 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 text-xs rounded-lg font-medium">
-                        ✕ Lỗi
-                      </span>
-                    )}
+                    <div aria-live="polite">
+                      {fileItem.uploadStatus === "pending" && (
+                        <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs rounded-lg font-medium">
+                          Chờ
+                        </span>
+                      )}
+                      {fileItem.uploadStatus === "uploading" && (
+                        <span className="px-2 py-1 bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 text-xs rounded-lg font-medium">
+                          ⏳ Đang tải
+                        </span>
+                      )}
+                      {fileItem.uploadStatus === "success" && (
+                        <span className="px-2 py-1 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 text-xs rounded-lg font-medium">
+                          ✓ Thành công
+                        </span>
+                      )}
+                      {fileItem.uploadStatus === "error" && (
+                        <span className="px-2 py-1 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 text-xs rounded-lg font-medium">
+                          ✕ Lỗi
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Title Input */}
@@ -432,7 +465,7 @@ export default function BulkUploadModal({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 p-6 border-t border-slate-200 dark:border-slate-800 sticky bottom-0 bg-white dark:bg-slate-900">
+        <div className="flex gap-3 p-6 border-t border-slate-200 dark:border-slate-800 sticky bottom-0 bg-white dark:bg-[#0F1E35]">
           <Button
             type="button"
             onClick={uploadFiles}
@@ -451,6 +484,7 @@ export default function BulkUploadModal({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

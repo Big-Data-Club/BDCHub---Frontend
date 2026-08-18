@@ -1,13 +1,7 @@
 "use client";
 
-/**
- * GenerateSectionOverviewModal
- *
- * Configures and triggers an AI section overview generation job.
- * Teacher sets language + question count, then the job is queued.
- */
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { BookOpen, Loader2, X } from "lucide-react";
 import { sectionOverviewService } from "@/services/sectionOverviewService";
 
@@ -30,6 +24,25 @@ export function GenerateSectionOverviewModal({
   const [questionCount, setQuestionCount] = useState(10);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !submitting) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [submitting, onClose]);
 
   const submit = async () => {
     setError(null);
@@ -50,11 +63,20 @@ export function GenerateSectionOverviewModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full shadow-2xl">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !submitting) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+        <div className="sticky top-0 bg-white dark:bg-[#0F1E35] border-b border-slate-200 dark:border-blue-500/10 px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-indigo-500" />
             <h3 className="font-bold text-slate-900 dark:text-slate-50">
@@ -154,6 +176,7 @@ export function GenerateSectionOverviewModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

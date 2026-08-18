@@ -1,27 +1,19 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
   BookOpen, Users, GraduationCap, ChevronDown, ChevronUp,
-  ArrowLeft, CheckCircle2, Clock, BarChart3, Play,
-  Award, Globe, Lock, Layers,
+  CheckCircle2, Clock, Play, Award, Globe, Lock,
 } from "lucide-react";
 
 import { lmsService } from "@/services/lmsService";
-import {
-  consumeRecommendationAttribution,
-  trackRecommendationEvent,
-} from "@/services/recommendationService";
+import { useCourseDiscoverDetail } from "@/hooks/lms/student/useCourseDiscoverDetail";
 import { Course, Section } from "@/types";
-import {
-  Badge, PrimaryBtn, GridBackground,
-} from "@/components/lms/shared";
+import { Badge, PrimaryBtn, GridBackground } from "@/components/lms/shared";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const LEVEL_LABEL: Record<string, string> = {
   BEGINNER: "Cơ bản",
@@ -36,17 +28,18 @@ const LEVEL_BADGE: Record<string, "green" | "yellow" | "red" | "blue"> = {
   ALL_LEVELS: "blue",
 };
 
-
 function formatDate(dateStr?: string) {
   if (!dateStr) return "";
   try {
     return new Date(dateStr).toLocaleDateString("vi-VN", {
-      day: "2-digit", month: "2-digit", year: "numeric",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
-  } catch { return ""; }
+  } catch {
+    return "";
+  }
 }
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function StatPill({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
   return (
@@ -73,9 +66,7 @@ function InstructorChip({ name, email, isPrimary }: { name?: string; email?: str
       </div>
       <div className="min-w-0">
         <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{name}</p>
-        {email && (
-          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{email}</p>
-        )}
+        {email && <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{email}</p>}
         {isPrimary && (
           <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-blue-600 dark:text-cyan-400">
             Người tạo khóa học
@@ -94,9 +85,10 @@ function SectionAccordion({ section, index }: { section: Section; index: number 
   useEffect(() => {
     if (open && contents === null && !loadingContents) {
       setLoadingContents(true);
-      lmsService.listContent(section.id)
+      lmsService
+        .listContent(section.id)
         .then((res) => {
-          const list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+          const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
           setContents(list);
         })
         .catch(() => setContents([]))
@@ -114,9 +106,7 @@ function SectionAccordion({ section, index }: { section: Section; index: number 
           <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-cyan-400 text-xs font-extrabold flex items-center justify-center flex-shrink-0">
             {index + 1}
           </span>
-          <span className="font-semibold text-sm text-slate-900 dark:text-white truncate">
-            {section.title}
-          </span>
+          <span className="font-semibold text-sm text-slate-900 dark:text-white truncate">{section.title}</span>
         </div>
         <span className="text-slate-400 dark:text-slate-500 flex-shrink-0">
           {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -126,9 +116,7 @@ function SectionAccordion({ section, index }: { section: Section; index: number 
       {open && (
         <div className="px-4 pb-3.5 pt-2 bg-slate-50/60 dark:bg-[#0A1628]/50 border-t border-slate-100 dark:border-blue-500/10 space-y-2">
           {section.description && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed pb-1">
-              {section.description}
-            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed pb-1">{section.description}</p>
           )}
 
           {loadingContents ? (
@@ -147,9 +135,7 @@ function SectionAccordion({ section, index }: { section: Section; index: number 
                     <span className="text-blue-500 dark:text-cyan-400 font-bold flex-shrink-0">
                       {item.type === "VIDEO" ? "🎥" : item.type === "QUIZ" ? "❓" : item.type === "DOCUMENT" ? "📄" : "📝"}
                     </span>
-                    <span className="font-medium text-slate-800 dark:text-slate-200 truncate">
-                      {item.title}
-                    </span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200 truncate">{item.title}</span>
                   </div>
                   {item.is_mandatory && (
                     <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase rounded bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/30 flex-shrink-0">
@@ -160,9 +146,7 @@ function SectionAccordion({ section, index }: { section: Section; index: number 
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-400 dark:text-slate-500 italic py-1">
-              Chưa có nội dung bài học.
-            </p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 italic py-1">Chưa có nội dung bài học.</p>
           )}
         </div>
       )}
@@ -170,245 +154,35 @@ function SectionAccordion({ section, index }: { section: Section; index: number 
   );
 }
 
-// ─── CTA Hero Sidebar ─────────────────────────────────────────────────────────
-
-interface CTASidebarProps {
-  course: Course;
-  isEnrolled: boolean;
-  isEnrolling: boolean;
-  onEnroll: () => void;
-  onGoLearn: () => void;
-}
-
-function CTASidebar({ course, isEnrolled, isEnrolling, onEnroll, onGoLearn }: CTASidebarProps) {
-  return (
-    <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl overflow-hidden shadow-lg dark:shadow-[0_4px_40px_rgba(6,182,212,0.06)]">
-      {/* Thumbnail */}
-      <div className="h-48 bg-gradient-to-br from-blue-50 to-slate-100 dark:from-blue-950/20 dark:to-[#0D192E] overflow-hidden relative">
-        {course.thumbnail_url ? (
-          <Image
-            src={course.thumbnail_url}
-            alt={course.title}
-            fill
-            unoptimized
-            onError={(event) => {
-              event.currentTarget.style.display = "none";
-            }}
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <BookOpen className="w-16 h-16 text-blue-300 dark:text-blue-900/30" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" />
-        {/* Level badge overlay */}
-        {course.level && (
-          <div className="absolute bottom-3 left-3">
-            <Badge variant={LEVEL_BADGE[course.level] ?? "gray"}>
-              {LEVEL_LABEL[course.level] ?? course.level}
-            </Badge>
-          </div>
-        )}
-        {course.visibility === "ORG_ONLY" && (
-          <div className="absolute top-3 right-3">
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/90 text-white">
-              <Lock className="w-3 h-3" /> Nội bộ
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* CTA Body */}
-      <div className="p-5 space-y-4">
-        {isEnrolled ? (
-          <>
-            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-bold">
-              <CheckCircle2 className="w-4 h-4" />
-              Bạn đã đăng ký khóa học này
-            </div>
-            <PrimaryBtn
-              size="lg"
-              className="w-full shadow-md shadow-blue-500/20 dark:shadow-cyan-500/10"
-              onClick={onGoLearn}
-              icon={<Play className="w-4 h-4" />}
-            >
-              Vào học ngay
-            </PrimaryBtn>
-          </>
-        ) : (
-          <>
-            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              Đăng ký để bắt đầu học ngay hôm nay.
-            </div>
-            <PrimaryBtn
-              size="lg"
-              loading={isEnrolling}
-              className="w-full shadow-md shadow-blue-500/20 dark:shadow-cyan-500/10"
-              onClick={onEnroll}
-              icon={!isEnrolling ? <Award className="w-4 h-4" /> : undefined}
-            >
-              Đăng ký ngay
-            </PrimaryBtn>
-          </>
-        )}
-
-        {/* Quick info strip */}
-        <div className="pt-2 border-t border-slate-100 dark:border-blue-500/10 space-y-2">
-          {course.creator_name && (
-            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-              <GraduationCap className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              <span className="font-medium">Tạo bởi {course.creator_name}</span>
-            </div>
-          )}
-          {course.published_at && (
-            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-              <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              <span>Xuất bản: {formatDate(course.published_at)}</span>
-            </div>
-          )}
-          {course.enrollment_count !== undefined && (
-            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-              <Users className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              <span>{course.enrollment_count.toLocaleString()} học viên đang học</span>
-            </div>
-          )}
-          {course.visibility && (
-            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-              <Globe className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              <span>{course.visibility === "PUBLIC" ? "Công khai" : "Chỉ nội bộ tổ chức"}</span>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Page Skeleton ─────────────────────────────────────────────────────────────
-
-function OverviewSkeleton() {
-  return (
-    <div className="w-full flex flex-col min-h-screen bg-slate-50 dark:bg-[#050B18] animate-pulse">
-      <div className="h-32 bg-white/20 dark:bg-[#070E1C]/20 border-b border-slate-200/80 dark:border-blue-500/15" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="h-48 bg-slate-200 dark:bg-slate-800/60 rounded-2xl" />
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-12 bg-slate-200 dark:bg-slate-800/60 rounded-xl" />
-              ))}
-            </div>
-          </div>
-          <div className="h-80 bg-slate-200 dark:bg-slate-800/60 rounded-2xl" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
-
 export default function CourseOverviewPage() {
   const { courseId } = useParams<{ courseId: string }>();
-  const router = useRouter();
   const id = Number(courseId);
 
-  const [course, setCourse] = useState<Course | null>(null);
-  const [sections, setSections] = useState<Section[]>([]);
-  const [coTeachers, setCoTeachers] = useState<{ id: number; name: string; email: string }[]>([]);
-  const [isEnrolled, setIsEnrolled] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [enrolling, setEnrolling] = useState(false);
-  const [error, setError] = useState("");
+  const { course, sections, coTeachers, isEnrolled, loading, enrolling, error, handleEnroll, handleGoLearn } =
+    useCourseDiscoverDetail(id);
 
-  // ── Load all data in parallel ───────────────────────────────────────────────
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const [courseRes, sectionsRes, enrollmentsRes] = await Promise.all([
-        lmsService.getCourse(id),
-        lmsService.listSections(id),
-        lmsService.getMyEnrollments("ACCEPTED"),
-      ]);
-
-      // getCourse → returns response.data (full body { data: {...course} })
-      // So we need .data to get the actual course object
-      const courseData: Course = courseRes?.data ?? courseRes;
-      setCourse(courseData);
-
-      // listSections → returns response.data (full body { data: [...sections] } or array directly)
-      const secs: Section[] = Array.isArray(sectionsRes?.data)
-        ? sectionsRes.data
-        : (Array.isArray(sectionsRes) ? sectionsRes : []);
-      setSections(secs);
-
-      // getMyEnrollments already returns data?.data = the array directly
-      const enrollmentsArray = Array.isArray(enrollmentsRes) ? enrollmentsRes : [];
-      const enrolledIds = new Set(enrollmentsArray.map((e: any) => e.course_id));
-      setIsEnrolled(enrolledIds.has(id));
-
-      // Co-teachers: getCoTeachers returns data?.data = array directly; optional, fail gracefully
-      try {
-        const teachers = await lmsService.getCoTeachers(id);
-        setCoTeachers(teachers ?? []);
-      } catch {
-        setCoTeachers([]);
-      }
-    } catch {
-      setError("Không thể tải thông tin khóa học. Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  // ── Actions ─────────────────────────────────────────────────────────────────
-
-  const handleEnroll = async () => {
-    setEnrolling(true);
-    setError("");
-    try {
-      await lmsService.enrollCourse(id);
-      const attribution = consumeRecommendationAttribution(id);
-      if (attribution) {
-        trackRecommendationEvent(
-          attribution.item,
-          attribution.recommendationSetId,
-          "accept",
-          attribution.surface,
-        );
-      }
-      // After enrollment, navigate to course learning page
-      router.push(`/lms/student/courses/${id}/learn`);
-    } catch (e: any) {
-      setError(e?.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.");
-      setEnrolling(false);
-    }
-  };
-
-  const handleGoLearn = () => {
-    router.push(`/lms/student/courses/${id}/learn`);
-  };
-
-  // ── Render ──────────────────────────────────────────────────────────────────
-
-  if (loading) return <OverviewSkeleton />;
+  if (loading) {
+    return (
+      <div className="w-full flex flex-col min-h-screen bg-slate-50 dark:bg-[#050B18] animate-pulse">
+        <div className="h-32 bg-white/20 dark:bg-[#070E1C]/20 border-b border-slate-200/80 dark:border-blue-500/15" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="h-48 bg-slate-200 dark:bg-slate-800/60 rounded-2xl" />
+            </div>
+            <div className="h-80 bg-slate-200 dark:bg-slate-800/60 rounded-2xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!course) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] flex items-center justify-center flex-col gap-4 text-slate-500 dark:text-slate-400">
         <BookOpen className="w-12 h-12 opacity-40" />
         <p className="font-semibold">Không tìm thấy khóa học.</p>
-        <Link
-          href="/lms/student/discover"
-          className="text-sm text-blue-600 dark:text-cyan-400 hover:underline font-bold"
-        >
+        <Link href="/lms/student/discover" className="text-sm text-blue-600 dark:text-cyan-400 hover:underline font-bold">
           Quay lại khám phá
         </Link>
       </div>
@@ -427,9 +201,7 @@ export default function CourseOverviewPage() {
   ];
 
   const allInstructors = [
-    ...(course.creator_name
-      ? [{ id: -1, name: course.creator_name, email: course.creator_email ?? "", isPrimary: true }]
-      : []),
+    ...(course.creator_name ? [{ id: -1, name: course.creator_name, email: course.creator_email ?? "", isPrimary: true }] : []),
     ...coTeachers.map((t: any) => ({
       id: t.id ?? t.user_id ?? Math.random(),
       name: t.name ?? t.full_name ?? t.user_name ?? t.email ?? "Giáo viên",
@@ -440,7 +212,7 @@ export default function CourseOverviewPage() {
 
   return (
     <div className="w-full flex flex-col min-h-screen bg-slate-50 dark:bg-[#050B18]">
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/20 dark:bg-[#070E1C]/20 backdrop-blur-xs py-6 md:py-8">
         <GridBackground />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
@@ -448,199 +220,169 @@ export default function CourseOverviewPage() {
           <div className="mt-4 flex items-start gap-4 flex-wrap justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap gap-2 items-center mb-2">
-                {categories.map((cat) => (
+                {categories.map((cat, i) => (
                   <span
-                    key={cat}
-                    className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-cyan-400 border border-blue-200 dark:border-blue-500/20"
+                    key={i}
+                    className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-100/80 dark:bg-blue-950/60 text-blue-700 dark:text-cyan-400 border border-blue-200 dark:border-blue-500/20"
                   >
                     {cat}
                   </span>
                 ))}
-                {course.level && (
-                  <Badge variant={LEVEL_BADGE[course.level] ?? "gray"}>
-                    {LEVEL_LABEL[course.level] ?? course.level}
-                  </Badge>
-                )}
               </div>
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
                 {course.title}
               </h1>
-              {course.description && (
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium max-w-2xl">
-                  {course.description}
-                </p>
-              )}
             </div>
-
-            {/* Mobile-only back btn */}
-            <Link
-              href="/lms/student/discover"
-              className="lg:hidden inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors active:scale-95"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Quay lại
-            </Link>
           </div>
         </div>
       </div>
 
-      {/* ── Body ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      {/* Main Content Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
         {error && (
-          <div className="mb-6 p-3.5 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-500/20 rounded-xl text-sm text-rose-700 dark:text-rose-400 font-semibold">
+          <div className="mb-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 text-sm">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl p-6 shadow-sm space-y-4">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-blue-500/10 pb-3">
+                Giới thiệu khóa học
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                {course.description || "Chưa có mô tả chi tiết."}
+              </p>
 
-          {/* ── Left / Main Content ── */}
-          <div className="lg:col-span-2 space-y-7">
-
-            {/* Stats row */}
-            <div className="flex flex-wrap gap-3">
-              <StatPill
-                icon={<Users className="w-5 h-5" />}
-                label="Học viên"
-                value={(course.enrollment_count ?? 0).toLocaleString()}
-              />
-              <StatPill
-                icon={<Layers className="w-5 h-5" />}
-                label="Chương"
-                value={sections.length}
-              />
-              <StatPill
-                icon={<BarChart3 className="w-5 h-5" />}
-                label="Cấp độ"
-                value={LEVEL_LABEL[course.level] ?? course.level ?? "—"}
-              />
-              {course.published_at && (
-                <StatPill
-                  icon={<Clock className="w-5 h-5" />}
-                  label="Xuất bản"
-                  value={formatDate(course.published_at)}
-                />
-              )}
+              <div className="flex flex-wrap gap-3 pt-4">
+                <StatPill icon={<BookOpen className="w-5 h-5" />} label="Chương học" value={sections.length} />
+                <StatPill icon={<Users className="w-5 h-5" />} label="Học viên" value={course.enrollment_count ?? 0} />
+              </div>
             </div>
 
-            {/* Mobile CTA card */}
-            <div className="lg:hidden">
-              <CTASidebar
-                course={course}
-                isEnrolled={isEnrolled}
-                isEnrolling={enrolling}
-                onEnroll={handleEnroll}
-                onGoLearn={handleGoLearn}
-              />
+            {/* Syllabus */}
+            <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl p-6 shadow-sm space-y-4">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-blue-500/10 pb-3">
+                Nội dung chương trình ({sections.length} chương)
+              </h2>
+              {sections.length === 0 ? (
+                <p className="text-sm text-slate-400 dark:text-slate-500 italic">Chưa có chương học nào.</p>
+              ) : (
+                <div className="space-y-3">
+                  {sections.map((section, idx) => (
+                    <SectionAccordion key={section.id} section={section} index={idx} />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Instructors */}
             {allInstructors.length > 0 && (
-              <section className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl p-5 shadow-sm">
-                <h2 className="text-base font-extrabold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                  <GraduationCap className="w-4.5 h-4.5 text-blue-500 dark:text-cyan-400" />
-                  Giảng viên
+              <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl p-6 shadow-sm space-y-4">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-blue-500/10 pb-3">
+                  Đội ngũ giảng dạy
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {allInstructors.map((inst) => (
-                    <InstructorChip
-                      key={inst.id}
-                      name={inst.name}
-                      email={inst.email}
-                      isPrimary={inst.isPrimary}
-                    />
+                  {allInstructors.map((ins) => (
+                    <InstructorChip key={ins.id} name={ins.name} email={ins.email} isPrimary={ins.isPrimary} />
                   ))}
                 </div>
-              </section>
+              </div>
             )}
-
-            {/* Course Description (full) */}
-            {course.description && (
-              <section className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl p-5 shadow-sm">
-                <h2 className="text-base font-extrabold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                  <BookOpen className="w-4.5 h-4.5 text-blue-500 dark:text-cyan-400" />
-                  Mô tả khóa học
-                </h2>
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
-                  {course.description}
-                </p>
-              </section>
-            )}
-
-            {/* Sections (Chapters Accordion) */}
-            <section className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl p-5 shadow-sm">
-              <h2 className="text-base font-extrabold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                <Layers className="w-4.5 h-4.5 text-blue-500 dark:text-cyan-400" />
-                Nội dung khóa học
-                <span className="ml-auto text-xs font-semibold text-slate-500 dark:text-slate-400 normal-case">
-                  {sections.length} chương
-                </span>
-              </h2>
-
-              {sections.length === 0 ? (
-                <div className="text-center py-8 text-slate-400 dark:text-slate-500">
-                  <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm font-medium">Chưa có nội dung được xuất bản.</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {sections
-                    .sort((a, b) => a.order_index - b.order_index)
-                    .map((section, index) => (
-                      <SectionAccordion
-                        key={section.id}
-                        section={section}
-                        index={index}
-                      />
-                    ))}
-                </div>
-              )}
-            </section>
-
-            {/* Bottom CTA for mobile spacing */}
-            <div className="lg:hidden pb-4">
-              {isEnrolled ? (
-                <PrimaryBtn
-                  size="lg"
-                  className="w-full shadow-md"
-                  onClick={handleGoLearn}
-                  icon={<Play className="w-4 h-4" />}
-                >
-                  Vào học ngay
-                </PrimaryBtn>
-              ) : (
-                <PrimaryBtn
-                  size="lg"
-                  loading={enrolling}
-                  className="w-full shadow-md"
-                  onClick={handleEnroll}
-                  icon={!enrolling ? <Award className="w-4 h-4" /> : undefined}
-                >
-                  Đăng ký ngay
-                </PrimaryBtn>
-              )}
-            </div>
           </div>
 
-          {/* ── Right Sticky Sidebar ── */}
-          <div className="hidden lg:block">
-            <div className="sticky top-20">
-              <CTASidebar
-                course={course}
-                isEnrolled={isEnrolled}
-                isEnrolling={enrolling}
-                onEnroll={handleEnroll}
-                onGoLearn={handleGoLearn}
-              />
+          {/* CTA Hero Card */}
+          <div>
+            <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-2xl overflow-hidden shadow-lg sticky top-20">
+              <div className="h-48 bg-gradient-to-br from-blue-50 to-slate-100 dark:from-blue-950/20 dark:to-[#0D192E] overflow-hidden relative">
+                {course.thumbnail_url ? (
+                  <Image
+                    src={course.thumbnail_url}
+                    alt={course.title}
+                    fill
+                    unoptimized
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <BookOpen className="w-16 h-16 text-blue-300 dark:text-blue-900/30" />
+                  </div>
+                )}
+                {course.level && (
+                  <div className="absolute bottom-3 left-3">
+                    <Badge variant={LEVEL_BADGE[course.level] ?? "gray"}>
+                      {LEVEL_LABEL[course.level] ?? course.level}
+                    </Badge>
+                  </div>
+                )}
+                {course.visibility === "ORG_ONLY" && (
+                  <div className="absolute top-3 right-3">
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/90 text-white">
+                      <Lock className="w-3 h-3" /> Nội bộ
+                    </span>
+                  </div>
+                )}
+              </div>
 
-              {/* Back to Discover link */}
-              <Link
-                href="/lms/student/discover"
-                className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors duration-150 group"
-              >
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                Quay lại khám phá
-              </Link>
+              <div className="p-5 space-y-4">
+                {isEnrolled ? (
+                  <>
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-bold">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Bạn đã đăng ký khóa học này
+                    </div>
+                    <PrimaryBtn size="lg" className="w-full" onClick={handleGoLearn} icon={<Play className="w-4 h-4" />}>
+                      Vào học ngay
+                    </PrimaryBtn>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      Đăng ký để bắt đầu học ngay hôm nay.
+                    </div>
+                    <PrimaryBtn
+                      size="lg"
+                      loading={enrolling}
+                      className="w-full"
+                      onClick={handleEnroll}
+                      icon={!enrolling ? <Award className="w-4 h-4" /> : undefined}
+                    >
+                      Đăng ký ngay
+                    </PrimaryBtn>
+                  </>
+                )}
+
+                <div className="pt-2 border-t border-slate-100 dark:border-blue-500/10 space-y-2">
+                  {course.creator_name && (
+                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                      <GraduationCap className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <span className="font-medium">Tạo bởi {course.creator_name}</span>
+                    </div>
+                  )}
+                  {course.published_at && (
+                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                      <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <span>Xuất bản: {formatDate(course.published_at)}</span>
+                    </div>
+                  )}
+                  {course.enrollment_count !== undefined && (
+                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                      <Users className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <span>{course.enrollment_count.toLocaleString()} học viên</span>
+                    </div>
+                  )}
+                  {course.visibility && (
+                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                      <Globe className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <span>{course.visibility === "PUBLIC" ? "Công khai" : "Chỉ nội bộ tổ chức"}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>

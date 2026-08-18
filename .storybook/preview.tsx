@@ -5,7 +5,7 @@ import { ThemeProvider, useTheme } from 'next-themes';
 import { SessionProvider } from 'next-auth/react';
 import { UserProvider } from '../src/store/UserContext';
 import { NotificationProvider } from '../src/store/NotificationContext';
-import { PageContextProvider } from '../src/hooks/usePageContext';
+import { PageContextProvider } from '../src/hooks/common/usePageContext';
 
 // Helper component inside ThemeProvider to synchronize next-themes with Storybook background setting
 const ThemeSync = ({ background }: { background: any }) => {

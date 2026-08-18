@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Mail, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { userService } from "@/services/userService";
 
@@ -15,6 +16,27 @@ export default function ForgotPasswordModal({ open, onClose }: ForgotPasswordMod
   const [email, setEmail] = useState("");
   const [state, setState] = useState<ModalState>("idle");
   const [errorText, setErrorText] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape" && state !== "loading") {
+          handleClose();
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [open, state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,28 +61,25 @@ export default function ForgotPasswordModal({ open, onClose }: ForgotPasswordMod
     onClose();
   };
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && state !== "loading") {
+          handleClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
       aria-modal="true"
       role="dialog"
       aria-labelledby="forgot-password-title"
     >
-      {/* Backdrop - Design Rhythm standard */}
-      <div
-        className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
-        onClick={handleClose}
-        aria-hidden="true"
-      />
-
       {/* Modal card */}
-      <div className="relative z-10 w-full max-w-md rounded-2xl p-8 animate-in fade-in zoom-in-95 duration-200
-                      bg-white/95 dark:bg-[#0F1E35]/90
-                      backdrop-blur-xl
-                      border border-slate-200 dark:border-blue-500/15
-                      shadow-xl dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)]">
+      <div className="relative z-10 w-full max-w-md rounded-2xl p-8 animate-in zoom-in-95 duration-200
+                      bg-white dark:bg-[#0F1E35]
+                      border border-slate-200 dark:border-blue-500/20
+                      shadow-2xl my-auto">
         {/* Close button */}
         <button
           type="button"
@@ -166,6 +185,7 @@ export default function ForgotPasswordModal({ open, onClose }: ForgotPasswordMod
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

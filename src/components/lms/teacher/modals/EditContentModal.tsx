@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
@@ -41,7 +42,26 @@ export default function EditContentModal({
   );
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [removeFileConfirm, setRemoveFileConfirm] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !loading) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [loading, onClose]);
 
   const loadQuizSettings = useCallback(async () => {
     try {
@@ -306,9 +326,18 @@ export default function EditContentModal({
         }
       : null);
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 border dark:border-slate-800/80 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !loading) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 overflow-y-auto animate-in fade-in duration-200"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border dark:border-blue-500/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100 shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
         <div className="p-6 border-b dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900 z-10">
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Chỉnh sửa nội dung</h2>
           <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
@@ -552,6 +581,7 @@ export default function EditContentModal({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

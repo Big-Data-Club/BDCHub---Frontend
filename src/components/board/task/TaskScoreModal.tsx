@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Plus, Trash2, Save, Check, Award, AlertCircle, Loader2 } from "lucide-react";
 import { Task, User } from "@/types";
 import { taskScoreService, TaskScoreResponse } from "@/services/taskScoreService";
@@ -38,6 +39,27 @@ const TaskScoreModal: React.FC<TaskScoreModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [userSearch, setUserSearch] = useState("");
   const [lastScoredUserId, setLastScoredUserId] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape" && !loading) {
+          onClose();
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [isOpen, loading, onClose]);
 
   const canManageScores = isAdmin || isManager;
   const taskAssignees = React.useMemo(() => {
@@ -130,11 +152,18 @@ const TaskScoreModal: React.FC<TaskScoreModalProps> = ({
       await loadScores();
     });
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm max-w-2xl w-full mx-auto max-h-[90vh] flex flex-col">
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !loading) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl shadow-2xl max-w-2xl w-full mx-auto max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200 my-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
@@ -387,7 +416,8 @@ const TaskScoreModal: React.FC<TaskScoreModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

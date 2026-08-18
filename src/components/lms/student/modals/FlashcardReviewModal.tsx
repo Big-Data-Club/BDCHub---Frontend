@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, BookOpen, Clock, Calendar, ShieldCheck, DatabaseBackup } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -34,8 +35,11 @@ export function FlashcardReviewModal({ courseId, nodeId, nodeName, isOpen, onClo
   const [error, setError] = useState("");
   const [current, setCurrent] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // ... (useCallback skipped in ReplacementChunk intentionally, wait, replace_file needs exact text or contiguous replacement)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const loadCards = useCallback(async () => {
     if (!isOpen) return;
@@ -73,7 +77,7 @@ export function FlashcardReviewModal({ courseId, nodeId, nodeName, isOpen, onClo
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleNext = () => {
     if (current < cards.length - 1) {
@@ -92,16 +96,17 @@ export function FlashcardReviewModal({ courseId, nodeId, nodeName, isOpen, onClo
   const item = cards[current];
   const noCards = !loading && cards.length === 0;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+    >
       {/* Modal */}
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-xl flex flex-col max-h-[90vh] mx-4 border border-slate-200 dark:border-slate-800 pointer-events-auto">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] mx-auto my-auto animate-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
@@ -255,6 +260,7 @@ export function FlashcardReviewModal({ courseId, nodeId, nodeName, isOpen, onClo
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Plus, X, ExternalLink, AlertCircle } from "lucide-react";
 import { Task, User, EventItem } from "@/types";
 import { formatDateForInput } from "@/utils/utils";
@@ -42,6 +43,25 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, columnId, users, events, on
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [assigneeSearch, setAssigneeSearch] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !saving) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [saving, onClose]);
 
   useEffect(() => {
     if (task) {
@@ -117,9 +137,18 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, columnId, users, events, on
     });
   }, [users, assigneeSearch, formData.assignees]);
 
-  return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !saving) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+    >
+      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200 my-auto">
         <div className="p-6">
 
           {/* Header */}
@@ -358,7 +387,8 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, columnId, users, events, on
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

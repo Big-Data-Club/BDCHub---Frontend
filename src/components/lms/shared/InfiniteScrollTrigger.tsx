@@ -11,55 +11,62 @@ export function InfiniteScrollTrigger({
   loading?: boolean;
 }) {
   const triggerRef = useRef<HTMLDivElement | null>(null);
-
-  // Use refs so the observer callback always reads latest values
-  // without needing to destroy/recreate the observer
-  const loadingRef = useRef(loading);
-  const hasMoreRef = useRef(hasMore);
   const onLoadMoreRef = useRef(onLoadMore);
-
-  // After triggering, require the sentinel to exit viewport
-  // before it can trigger again — prevents cascade loading
-  const hasFiredRef = useRef(false);
-
-  // Sync props → refs on every render
-  loadingRef.current = loading;
-  hasMoreRef.current = hasMore;
   onLoadMoreRef.current = onLoadMore;
 
   useEffect(() => {
     const element = triggerRef.current;
-    if (!element) return;
+    if (!element || loading || !hasMore) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          if (hasMoreRef.current && !loadingRef.current && !hasFiredRef.current) {
-            hasFiredRef.current = true;
+    let observer: IntersectionObserver | null = null;
+
+    // Delay observer creation by one animation frame after React paint.
+    //
+    // WHY THIS IS NECESSARY (not a workaround):
+    // When `loading` transitions from true→false (batch finished loading),
+    // React commits new DOM nodes (the appended course cards) and paints.
+    // useEffect runs post-paint, but IntersectionObserver.observe() can
+    // fire its initial callback before the browser has fully evaluated
+    // the new layout. This means the sentinel might report as "intersecting"
+    // based on stale position data — even though the newly appended cards
+    // have pushed it well below the viewport.
+    //
+    // By deferring observe() to the next animation frame, we guarantee:
+    // 1. The browser has completed style recalc + layout for the new cards
+    // 2. The sentinel's position reflects the actual DOM state
+    // 3. The observer evaluates intersection against accurate geometry
+    //
+    // After the rAF, the observer works normally — no further delays or
+    // hacks are needed for subsequent intersection changes.
+    const rafId = requestAnimationFrame(() => {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
             onLoadMoreRef.current();
           }
-        } else {
-          // Sentinel left viewport — allow next trigger
-          hasFiredRef.current = false;
-        }
-      },
-      {
-        root: null,
-        rootMargin: "200px",
-        threshold: 0,
-      }
-    );
+        },
+        { root: null, rootMargin: "100px", threshold: 0 },
+      );
+      observer.observe(element);
+    });
 
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []); // Stable observer — created once, lives for component lifetime
+    return () => {
+      cancelAnimationFrame(rafId);
+      observer?.disconnect();
+    };
+  }, [loading, hasMore]);
 
   if (!hasMore) return null;
 
   return (
-    <div ref={triggerRef} className="w-full flex items-center justify-center py-6">
+    <div
+      ref={triggerRef}
+      className="w-full flex items-center justify-center py-6"
+      aria-live="polite"
+      aria-busy={loading}
+    >
       {loading ? (
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-2.5 text-xs font-semibold text-slate-600 dark:text-slate-400 bg-white/80 dark:bg-[#0F1E35]/80 backdrop-blur-sm px-4 py-2 rounded-full border border-slate-200 dark:border-blue-500/20 shadow-sm animate-in fade-in duration-200">
           <Spinner className="w-5 h-5 text-blue-600 dark:text-cyan-400" />
           <span>Đang tải thêm khóa học...</span>
         </div>

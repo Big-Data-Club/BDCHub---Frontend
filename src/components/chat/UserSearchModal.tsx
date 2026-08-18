@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Search, X, Loader2, MessageSquare } from "lucide-react";
 import { searchUsers, getOrCreateDM } from "@/services/chatService";
 import { ChatUser } from "@/types/chat";
@@ -23,15 +24,33 @@ export default function UserSearchModal({
   const [users, setUsers] = useState<ChatUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [submittingUserId, setSubmittingUserId] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
       setQuery("");
       setUsers([]);
+      document.body.style.overflow = "hidden";
       setTimeout(() => inputRef.current?.focus(), 100);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape" && !submittingUserId) {
+          onClose();
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
     }
-  }, [isOpen]);
+  }, [isOpen, submittingUserId, onClose]);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -54,7 +73,7 @@ export default function UserSearchModal({
     return () => clearTimeout(delayDebounce);
   }, [query]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleSelectUser = async (targetUser: ChatUser) => {
     setSubmittingUserId(targetUser.id);
@@ -70,11 +89,16 @@ export default function UserSearchModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300">
-      <div className="relative w-full max-w-md bg-white/95 dark:bg-slate-900/95 
-                      border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl 
-                      flex flex-col max-h-[85vh] overflow-hidden transition-all duration-300 transform scale-100">
+  return createPortal(
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !submittingUserId) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+    >
+      <div className="relative w-full max-w-md bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-200 my-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
@@ -153,6 +177,7 @@ export default function UserSearchModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
