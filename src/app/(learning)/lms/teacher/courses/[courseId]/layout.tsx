@@ -5,7 +5,7 @@ import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Edit3, BookOpen, Users, Shield, Activity, Eye, User, Calendar, Clock } from "lucide-react";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 import { Badge, Spinner, GridBackground, NavTabBar } from "@/components/lms/shared";
 import { Course, Section } from "@/types";

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { EyeIcon, EyeOffIcon, Spinner } from "@/components/icons/Icons";
-import { validatePassword } from "@/utils/utils";
+import { validatePassword } from "@/utils/common/utils";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import Mascot from "./Mascot";
 import { GoogleLoginButton } from "./GoogleLoginButton";

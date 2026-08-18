@@ -6,7 +6,7 @@
  */
 
 import { TrendingUp, CheckCircle2, Award, BookOpen } from "lucide-react";
-import { CourseProgress } from "@/services/progressService";
+import { CourseProgress } from "@/services/lms/progressService";
 import { cn } from "@/lib/utils";
 
 interface Props {

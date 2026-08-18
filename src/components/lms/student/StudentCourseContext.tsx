@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 import type { Content, Course, Section } from "@/types";
-import type { CourseProgress, ProgressDetailItem } from "@/services/progressService";
+import type { CourseProgress, ProgressDetailItem } from "@/services/lms/progressService";
 
 // ─── 1. Navigation Context ────────────────────────────────────────────────
 

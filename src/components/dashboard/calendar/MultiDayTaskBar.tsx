@@ -2,7 +2,7 @@
 
 import React from "react";
 import { TaskRow, PRIORITY_CONFIG } from "@/types";
-import { formatShort, parseDate } from "@/utils/calendar";
+import { formatShort, parseDate } from "@/utils/dashboard/calendar";
 
 interface MultiDayTaskBarProps {
   rows: TaskRow[];

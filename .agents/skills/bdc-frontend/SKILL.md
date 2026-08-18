@@ -67,26 +67,27 @@ frontend/src/
 │   ├── lms/student/          ContentViewer, modals/, stats/, analytics/
 │   ├── lms/teacher/          AINodeManager, AIQuizGenPanel, modals/, quiz/, upload/, views/
 │   └── user/                 User management (manage/, modals/, table/)
-├── hooks/                    Structured by domain (auth/, common/, dashboard/, lms/, chat/, labs/)
+├── hooks/                    Structured by domain (auth/, common/, dashboard/, lms/, ai/, chat/, labs/)
 │   └── index.ts              Central barrel export for all hooks
-├── services/                 Structured by domain (auth/, lms/, dashboard/, ai/, labs/, admin/, forms/, common/)
+├── services/                 Structured by domain (auth/, lms/, dashboard/, ai/, chat/, labs/, admin/, forms/, common/)
 │   └── index.ts              Central barrel export for all domain services
-├── schemas/                  Structured by domain (auth/, lms/, dashboard/, ai/, labs/, admin/, forms/, common/)
+├── schemas/                  Structured by domain (auth/, lms/, dashboard/, ai/, chat/, labs/, admin/, forms/, common/)
 │   └── index.ts              Central barrel export for all domain schemas
-├── constants/                Structured by domain (auth/, lms/, dashboard/, ai/, labs/, admin/, forms/, common/)
+├── constants/                Structured by domain (auth/, lms/, dashboard/, ai/, chat/, labs/, admin/, forms/, common/)
 │   └── index.ts              Central barrel export for all domain constants
-├── types/                    Structured by domain (auth/, lms/, dashboard/, ai/, labs/, admin/, forms/, common/)
+├── types/                    Structured by domain (auth/, lms/, dashboard/, ai/, chat/, labs/, admin/, forms/, common/)
 │   ├── auth/                 user.ts, account.ts
 │   ├── lms/                  course.ts, section.ts, quiz.ts
 │   ├── dashboard/            task.ts, event.ts, calendar.ts
-│   ├── ai/                   agent.ts, chat.ts
+│   ├── ai/                   agent.ts
+│   ├── chat/                 chat.ts
 │   ├── labs/                 lab.ts, chemistry.ts
 │   ├── admin/                organization.ts
 │   ├── forms/                form.ts
 │   └── index.ts              Central barrel export for all domain types
 ├── store/UserContext.tsx      Global user state
 ├── providers/MainProvider.tsx SessionProvider + UserContext + ThemeProvider
-└── utils/                    Structured by domain (auth/, lms/, dashboard/, ai/, labs/, admin/, forms/, common/)
+└── utils/                    Structured by domain (auth/, lms/, dashboard/, ai/, chat/, labs/, admin/, forms/, common/)
     └── index.ts              Central barrel export for all domain utils
 ```
 
@@ -137,18 +138,19 @@ src/features/feature-name/ (hoặc trong components/lms/domain/)
 ### 4. Quy Tắc Tổ Chức Theo Phân Miền (Domain-Driven Architecture: Types, Services, Schemas, Utils, Constants)
 
 * **Tất cả các tệp Types, Services, Schemas, Utils, Constants mới phải được đặt trong đúng subfolder miền (`src/<layer>/<domain>/`)**:
-  - Các phân miền chuẩn: `auth/`, `lms/`, `dashboard/`, `ai/`, `labs/`, `admin/`, `forms/`, `common/`.
+  - Các phân miền chuẩn: `auth/`, `lms/`, `dashboard/`, `ai/`, `chat/`, `labs/`, `admin/`, `forms/`, `common/`.
   - `auth/`: User authentication, token management, auth constants, login schemas.
   - `lms/`: LMS API client, courses, sections, quiz, analytics, flashcards, YouTube, fillBlankUtils.
   - `dashboard/`: Task/event/announcement services, calendar utils, navigation constants.
-  - `ai/`: Agent/AI services, chat API client, LaTeX API, LLM configs.
+  - `ai/`: LMS AI Agent services (`agentService.ts`, `agent.ts`), LaTeX API, LLM configs.
+  - `chat/`: User-to-User & Channel Chat services (`chatService.ts`, `chatApiClient.ts`, `chat.ts`).
   - `labs/`: Virtual lab services, chemistry engine.
   - `admin/`: Organization, permission, user profile hub services.
   - `forms/`: Form schemas & types.
   - `common/`: Core HTTP client (`api.ts`), pure utility helpers (`dateUtils`, `cookies`), shared constants.
 * **Mỗi subfolder miền chứa tệp `index.ts`** để re-export tất cả các tệp thuộc phân miền đó.
 * **Root `index.ts` của từng lớp (`src/<layer>/index.ts`)** re-export toàn bộ các phân miền, cho phép import nhanh từ `@/types`, `@/services`, `@/schemas`, `@/utils`, `@/constants` hoặc import trực tiếp từ `@/<layer>/<domain>`.
-* **Giữ tệp re-export shim tại đường dẫn cũ** (`src/services/<file>.ts`, `src/utils/<file>.ts`, `src/types/<file>.ts`) khi di chuyển tệp legacy để bảo đảm 100% tính tương thích ngược cho toàn hệ thống.
+* **Đường dẫn Import chuẩn (Clean Domain Imports)**: Tất cả tệp mới hoặc khi refactor phải import từ phân miền tương ứng (ví dụ `@/services/chat`, `@/types/auth/user`) hoặc qua central barrel export (ví dụ `@/services`, `@/types`). Không tạo tệp phẳng rác ở root folder.
 
 
 ---

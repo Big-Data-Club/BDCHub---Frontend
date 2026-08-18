@@ -4,9 +4,9 @@ import React from "react";
 import { AdminCourseList } from "./AdminCourseList";
 import { useAdminStats } from "@/hooks/lms/admin/useAdminStats";
 import { LoadingState } from "@/components/common/LoadingState";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { toast } from "react-hot-toast";
-import { Course } from "@/types/course";
+import { Course } from "@/types/lms/course";
 
 export function AdminDashboard() {
   const {

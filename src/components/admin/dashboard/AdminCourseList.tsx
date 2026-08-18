@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { Search, Edit2, Trash2, ArrowRight, Archive, ArchiveRestore, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Course } from "@/types/course";
-import lmsService from "@/services/lmsService";
+import { Course } from "@/types/lms/course";
+import lmsService from "@/services/lms/lmsService";
 import type { AdminCourseStatusFilter } from "@/hooks/lms/admin/useAdminStats";
 
 interface AdminCourseListProps {

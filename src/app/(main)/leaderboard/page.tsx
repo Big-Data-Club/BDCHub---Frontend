@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { Trophy, Medal, Award, TrendingUp, Loader2 } from "lucide-react";
-import { userService } from "@/services/userService";
-import type { UserResponse } from "@/services/userService";
+import { userService } from "@/services/auth/userService";
+import type { UserResponse } from "@/services/auth/userService";
 
 const RANK_CONFIG: Record<
   number,

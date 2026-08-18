@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { EventConfig } from '@/types/event';
+import { EventConfig } from '@/types/dashboard/event';
 
 export default function EventRegistration({ event }: { event: EventConfig }) {
   const isRegistrationOpen = new Date() <= event.registrationEnd;

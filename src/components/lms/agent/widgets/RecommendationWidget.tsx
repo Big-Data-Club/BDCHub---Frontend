@@ -10,7 +10,7 @@ import {
   type RecommendationItem,
   type RecommendationSet,
   trackRecommendationEvent,
-} from "@/services/recommendationService";
+} from "@/services/lms/recommendationService";
 
 function reason(item: RecommendationItem): string {
   const codes = new Set(item.why_facts.map((fact) => fact.code));

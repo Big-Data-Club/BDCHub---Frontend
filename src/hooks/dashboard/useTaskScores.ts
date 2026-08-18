@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { taskScoreService, TaskScoreResponse } from "@/services/taskScoreService";
+import { taskScoreService, TaskScoreResponse } from "@/services/dashboard/taskScoreService";
 
 export const useTaskScores = () => {
   const [scores, setScores] = useState<TaskScoreResponse[]>([]);

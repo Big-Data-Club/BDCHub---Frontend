@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Mail, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import { userService } from "@/services/userService";
+import { userService } from "@/services/auth/userService";
 
 interface ForgotPasswordModalProps {
   open: boolean;

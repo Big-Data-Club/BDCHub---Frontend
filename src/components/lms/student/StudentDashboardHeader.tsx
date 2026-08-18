@@ -4,7 +4,7 @@ import React from "react";
 import { RefreshCw } from "lucide-react";
 import { GhostBtn, GridBackground } from "@/components/lms/shared";
 import { CourseProgressAndGoalCard } from "./CourseProgressAndGoalCard";
-import type { RecommendationItem } from "@/services/recommendationService";
+import type { RecommendationItem } from "@/services/lms/recommendationService";
 
 interface FocusCourse {
   course_id: number;

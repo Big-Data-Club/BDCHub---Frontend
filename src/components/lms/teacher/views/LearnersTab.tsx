@@ -10,7 +10,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Users, CheckCircle2, MessageSquare } from "lucide-react";
 import Link from "next/link";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { Badge, EmptyState, PageLoader, StatCard, TabBar } from "@/components/lms/shared";
 import { UserAvatar } from "@/components/user/UserAvatar";
 

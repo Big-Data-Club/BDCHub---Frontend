@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { adminLmsService, UserRoleDetail, RoleDefinition } from "@/services/adminLmsService";
+import { adminLmsService, UserRoleDetail, RoleDefinition } from "@/services/lms/adminLmsService";
 import { Select } from "@/components/lms/shared";
 import { Shield, Plus, Trash2, Loader2, Info, CheckCircle2, History } from "lucide-react";
 import { cn } from "@/lib/utils";

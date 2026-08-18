@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import type { LlmCatalogue, LlmUsageResponse } from "@/services/llmConfigService";
-import { llmConfigService } from "@/services/llmConfigService";
+import type { LlmCatalogue, LlmUsageResponse } from "@/services/ai/llmConfigService";
+import { llmConfigService } from "@/services/ai/llmConfigService";
 
 export function UsagePanel({ catalogue }: { catalogue: LlmCatalogue | null }) {
   const [data, setData] = useState<LlmUsageResponse | null>(null);

@@ -2,8 +2,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { ChemistryLabSpec } from "@/types/chemistry";
-import { labService } from "@/services/labService";
+import type { ChemistryLabSpec } from "@/types/labs/chemistry";
+import { labService } from "@/services/labs/labService";
 import { ChemistryCanvasStage } from "./ChemistryCanvasStage";
 import { Loader2, FlaskConical, AlertCircle } from "lucide-react";
 

@@ -21,7 +21,7 @@
  * `lesson_view` event already.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import analyticsService from "@/services/analyticsService";
+import analyticsService from "@/services/lms/analyticsService";
 import FlashcardDeck from "./FlashcardDeck";
 import QuickCheck from "./QuickCheck";
 import AskAIDrawer from "./AskAIDrawer";

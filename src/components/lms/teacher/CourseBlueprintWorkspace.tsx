@@ -2,8 +2,8 @@
 
 import { useRef, useState } from "react";
 import { CheckCircle2, FileText, Loader2, Sparkles, Upload, X } from "lucide-react";
-import { getAccessToken } from "@/services/authToken";
-import { courseBlueprintService, type CourseBlueprint, type CourseBlueprintFile } from "@/services/courseBlueprintService";
+import { getAccessToken } from "@/services/auth/authToken";
+import { courseBlueprintService, type CourseBlueprint, type CourseBlueprintFile } from "@/services/lms/courseBlueprintService";
 import type { Organization } from "@/types";
 
 type Uploaded = CourseBlueprintFile & { size: number };

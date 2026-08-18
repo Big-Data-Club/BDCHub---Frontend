@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { BookOpen, Loader2, X } from "lucide-react";
-import { sectionOverviewService } from "@/services/sectionOverviewService";
+import { sectionOverviewService } from "@/services/lms/sectionOverviewService";
 
 interface Props {
   courseId: number;

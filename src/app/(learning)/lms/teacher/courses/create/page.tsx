@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import lmsService from "@/services/lmsService";
-import { organizationService } from "@/services/organizationService";
+import lmsService from "@/services/lms/lmsService";
+import { organizationService } from "@/services/admin/organizationService";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import { FileInfo, Organization } from "@/types";
 import { CourseBlueprintWorkspace } from "@/components/lms/teacher/CourseBlueprintWorkspace";

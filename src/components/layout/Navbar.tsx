@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { logout } from "@/services/logout";
+import { logout } from "@/services/auth/logout";
 import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";

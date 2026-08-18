@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import lmsService from "@/services/lmsService";
-import { Course } from "@/types/course";
+import lmsService from "@/services/lms/lmsService";
+import { Course } from "@/types/lms/course";
 
 export type AdminCourseStatusFilter = "ALL" | "DRAFT" | "PUBLISHED" | "ARCHIVED";
 

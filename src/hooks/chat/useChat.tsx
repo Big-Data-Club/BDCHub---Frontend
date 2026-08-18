@@ -17,13 +17,13 @@ import {
   WSMessagePayload,
   WSDeletePayload,
   WSEditPayload,
-} from "@/types/chat";
+} from "@/types/chat/chat";
 import {
   listChannels,
   listMessages,
   sendMessageRest,
   getOrCreateDM,
-} from "@/services/chatService";
+} from "@/services/chat/chatService";
 
 // ─── Notification helpers ─────────────────────────────────────────────────────
 
@@ -414,7 +414,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const sendAttachments = useCallback(
     async (files: File[], body: string, parentId?: number | null) => {
       if (!activeChannelId) return;
-      const { sendAttachments: upload } = await import("@/services/chatService");
+      const { sendAttachments: upload } = await import("@/services/chat/chatService");
       const message = await upload(activeChannelId, files, body, parentId);
       // The WebSocket broadcast normally arrives immediately. Insert the REST
       // result as well so a sender never waits on a reconnect; event handling
@@ -437,7 +437,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         m.id === msgId ? { ...m, isDeleted: true, body: "[deleted]" } : m
       ),
     }));
-    import("@/services/chatService").then(({ deleteMessage: del }) =>
+    import("@/services/chat/chatService").then(({ deleteMessage: del }) =>
       del(activeChannelId, msgId)
     );
   }, [activeChannelId]);
@@ -454,7 +454,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         ),
       }));
       try {
-        await import("@/services/chatService").then(({ editMessage: edit }) =>
+        await import("@/services/chat/chatService").then(({ editMessage: edit }) =>
           edit(activeChannelId, msgId, newBody)
         );
       } catch (err) {

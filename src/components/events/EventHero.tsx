@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Calendar, Trophy, MapPin, Clock } from 'lucide-react';
-import { EventConfig } from '@/types/event';
+import { EventConfig } from '@/types/dashboard/event';
 
 export default function EventHero({ event }: { event: EventConfig }) {
   const [currentTime, setCurrentTime] = useState(new Date());

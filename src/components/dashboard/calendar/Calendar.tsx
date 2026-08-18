@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { useCalendarTasks } from "@/hooks/dashboard/useCalendarTasks";
 import { ViewMode, TaskWithColor, WEEK_DAYS } from "@/types";
-import { getDaysInView, buildTaskRows, navigate } from "@/utils/calendar";
+import { getDaysInView, buildTaskRows, navigate } from "@/utils/dashboard/calendar";
 import { CalendarHeader } from "./CalendarHeader";
 import { CalendarDayCell } from "./CalendarDayCell";
 import { MultiDayTaskBar } from "./MultiDayTaskBar";

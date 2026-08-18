@@ -4,7 +4,7 @@
 import { useState, useRef } from "react";
 import { Upload, X, Image as ImageIcon, Loader2, ZoomIn, AlertCircle } from "lucide-react";
 import { SecondaryBtn, DangerBtn, GhostBtn } from "@/components/lms/shared/Button";
-import quizService from "@/services/quizService";
+import quizService from "@/services/lms/quizService";
 
 export interface QuestionImage {
   id: string;

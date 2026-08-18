@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipProvider
 } from "@/components/ui/tooltip";
-import type { RecommendationItem } from "@/services/recommendationService";
+import type { RecommendationItem } from "@/services/lms/recommendationService";
 
 interface FocusCourse {
   course_id: number;

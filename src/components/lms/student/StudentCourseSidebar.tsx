@@ -17,7 +17,7 @@ import {
   ProgressCard,
 } from "@/components/lms/shared";
 import { Enrollment } from "@/types";
-import type { RecommendationItem } from "@/services/recommendationService";
+import type { RecommendationItem } from "@/services/lms/recommendationService";
 
 interface StudentCourseSidebarProps {
   acceptedEnrollments: Enrollment[];

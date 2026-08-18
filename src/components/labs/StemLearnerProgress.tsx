@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { labService } from "@/services/labService";
+import { labService } from "@/services/labs/labService";
 import type { EvidenceEvent, ExperimentRunSummary, Lab } from "@/types";
 
 type Props = { lab: Lab };

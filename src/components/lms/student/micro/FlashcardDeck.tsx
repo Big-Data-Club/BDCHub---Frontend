@@ -14,8 +14,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import flashcardService, {
   FlashcardWithRepetition,
-} from "@/services/flashcardService";
-import analyticsService from "@/services/analyticsService";
+} from "@/services/lms/flashcardService";
+import analyticsService from "@/services/lms/analyticsService";
 import type { MicroLessonContext } from "./types";
 
 interface FlashcardDeckProps {

@@ -9,8 +9,8 @@ import {
   BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import analyticsService, { WeaknessOverviewResponse, WeakNode } from "@/services/analyticsService";
-import flashcardService from "@/services/flashcardService";
+import analyticsService, { WeaknessOverviewResponse, WeakNode } from "@/services/lms/analyticsService";
+import flashcardService from "@/services/lms/flashcardService";
 import { FlashcardReviewModal } from "@/components/lms/student/modals/FlashcardReviewModal";
 import toast from "react-hot-toast";
 
@@ -89,7 +89,7 @@ export function WeaknessTracker({ courseId }: Props) {
 
       // Polling Logic
       let isDone = false;
-      const { aiService } = await import("@/services/aiService");
+      const { aiService } = await import("@/services/ai/aiService");
       
       while (!isDone && isMounted.current) {
         await new Promise((resolve) => setTimeout(resolve, 3000));

@@ -9,7 +9,7 @@ import {
 } from "react";
 import { Send, Loader2, X, Eye, Pencil, CornerUpRight, Paperclip, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ChatMessage, ChatUser } from "@/types/chat";
+import { ChatMessage, ChatUser } from "@/types/chat/chat";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import ChatAvatar from "./ChatAvatar";
 
@@ -92,7 +92,7 @@ export default function ChatInput({
           if (mentionDebounceRef.current) clearTimeout(mentionDebounceRef.current);
           mentionDebounceRef.current = setTimeout(async () => {
             try {
-              const { searchChannelMembers } = await import("@/services/chatService");
+              const { searchChannelMembers } = await import("@/services/chat/chatService");
               const users = await searchChannelMembers(channelId, word);
               setMentionQuery(word);
               setMentionUsers(users.slice(0, 8));

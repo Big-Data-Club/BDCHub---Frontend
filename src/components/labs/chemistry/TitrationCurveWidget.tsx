@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { TitrationDataPoint } from "@/types/chemistry";
+import type { TitrationDataPoint } from "@/types/labs/chemistry";
 import { Activity } from "lucide-react";
 
 interface Props {

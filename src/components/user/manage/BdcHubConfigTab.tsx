@@ -6,7 +6,7 @@ import {
   PublicUserProfile,
   ProfileSection,
   ProfileItem,
-} from "@/services/userProfileHubService";
+} from "@/services/admin/userProfileHubService";
 import {
   Globe,
   Lock,

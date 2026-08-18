@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { lmsService } from "@/services/lmsService";
+import { lmsService } from "@/services/lms/lmsService";
 import {
   consumeRecommendationAttribution,
   trackRecommendationEvent,
-} from "@/services/recommendationService";
+} from "@/services/lms/recommendationService";
 import { Course, Section } from "@/types";
 
 export function useCourseDiscoverDetail(courseId: number) {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { SpacedRepetitionWidget } from '@/components/lms/student/SpacedRepetitionWidget';
-import aiService from '@/services/aiService';
+import aiService from '@/services/ai/aiService';
 import React from 'react';
 
 const meta: Meta<typeof SpacedRepetitionWidget> = {

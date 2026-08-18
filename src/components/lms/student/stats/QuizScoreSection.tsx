@@ -12,7 +12,7 @@ import {
   HelpCircle, CheckCircle2, XCircle, Clock, AlertCircle,
   ChevronRight, Play, RotateCcw, Minus
 } from "lucide-react";
-import { StudentQuizScore } from "@/services/analyticsService";
+import { StudentQuizScore } from "@/services/lms/analyticsService";
 import { cn } from "@/lib/utils";
 
 interface Props {

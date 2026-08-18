@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import StudentDashboard from '@/app/(learning)/lms/student/page';
-import lmsService from '@/services/lmsService';
-import analyticsService from '@/services/analyticsService';
-import aiService from '@/services/aiService';
+import lmsService from '@/services/lms/lmsService';
+import analyticsService from '@/services/lms/analyticsService';
+import aiService from '@/services/ai/aiService';
 import React from 'react';
 
 const meta: Meta<typeof StudentDashboard> = {

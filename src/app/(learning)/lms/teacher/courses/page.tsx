@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import {
   Plus, Search, BookOpen, Settings, Trash2, Archive, ArchiveRestore,
   Eye, EyeOff, ChevronRight, Users, RefreshCw, Home, X, ArrowUpDown,

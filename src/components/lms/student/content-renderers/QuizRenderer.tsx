@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ContentItem, StatPill, ActionButton } from "./utils";
-import quizService from "@/services/quizService";
+import quizService from "@/services/lms/quizService";
 import { cn } from "@/lib/utils";
 import { HelpCircle, History, Play } from "lucide-react";
 

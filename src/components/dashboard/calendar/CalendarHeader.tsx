@@ -3,7 +3,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { ViewMode } from "@/types";
-import { getCalendarTitle } from "@/utils/calendar";
+import { getCalendarTitle } from "@/utils/dashboard/calendar";
 
 interface CalendarHeaderProps {
   date: Date;

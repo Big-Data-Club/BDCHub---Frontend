@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import aiService, {
   KnowledgeGraphResponse,
-} from "@/services/aiService";
+} from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";

@@ -1,4 +1,4 @@
-import { TaskResponse } from "@/services/taskService";
+import { TaskResponse } from "@/services/dashboard/taskService";
 
 export type ViewMode = "day" | "week" | "month";
 

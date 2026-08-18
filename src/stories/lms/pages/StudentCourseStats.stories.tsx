@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import StatsPage from '@/app/(learning)/lms/student/courses/[courseId]/stats/page';
 import { StudentCourseContext } from '@/components/lms/student/StudentCourseContext';
-import analyticsService from '@/services/analyticsService';
+import analyticsService from '@/services/lms/analyticsService';
 import React from 'react';
 
 // Setup Meta

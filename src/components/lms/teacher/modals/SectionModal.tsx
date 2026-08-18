@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { FolderPlus, FolderEdit, X, Loader2, Tag, AlignLeft, Hash, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { Section } from "@/types";
 
 export interface SectionModalProps {

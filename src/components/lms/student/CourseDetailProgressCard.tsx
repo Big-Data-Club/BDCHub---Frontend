@@ -10,7 +10,7 @@ import {
   TooltipProvider
 } from "@/components/ui/tooltip";
 import { Content, Section, Course } from "@/types";
-import { CourseProgress } from "@/services/progressService";
+import { CourseProgress } from "@/services/lms/progressService";
 
 interface CourseDetailProgressCardProps {
   course: Course | null;

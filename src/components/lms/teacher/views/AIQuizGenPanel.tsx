@@ -7,7 +7,7 @@ import {
   CheckCircle2, XCircle, BookOpen, AlertCircle,
   Layers, Search, Filter, ArrowUpDown
 } from "lucide-react";
-import aiService, { GeneratedQuestion, KnowledgeNode, KnowledgeGraphEdge } from "@/services/aiService";
+import aiService, { GeneratedQuestion, KnowledgeNode, KnowledgeGraphEdge } from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
 import { TabBar } from "@/components/lms/shared/TabBar";
 

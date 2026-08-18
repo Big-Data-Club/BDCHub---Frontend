@@ -6,7 +6,7 @@ import { postBulkRegister } from "@/lib/users/api";
 import { mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { fetchRoles, Role } from "@/lib/admin/rolesApi";
 import { fetchTeams, fetchTypes, Team, UserTypeOption } from "@/lib/admin/teamsTypesApi";
-import { organizationService } from "@/services/organizationService";
+import { organizationService } from "@/services/admin/organizationService";
 
 interface BulkUser {
   id: string;

@@ -19,7 +19,7 @@ import {
 import microQuizService, {
   parseQuestions, unwrapNullString, unwrapNullInt, bloomLabel, bloomColor,
   type JobWithQuizzes, type MicroQuiz, type QuizQuestionItem, type QuizQuestionOption,
-} from "@/services/microQuizService";
+} from "@/services/lms/microQuizService";
 import type { Section } from "@/types";
 
 interface Props {

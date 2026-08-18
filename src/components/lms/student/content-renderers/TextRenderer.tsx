@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { ContentItem } from "./utils";
-import aiService from "@/services/aiService";
+import aiService from "@/services/ai/aiService";
 import { useSetPageContext } from "@/hooks/common/usePageContext";
 
 const MarkdownRenderer = dynamic(

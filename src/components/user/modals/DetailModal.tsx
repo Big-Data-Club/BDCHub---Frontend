@@ -9,7 +9,7 @@ import { mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/
 import { fetchRoles, Role } from "@/lib/admin/rolesApi";
 import LmsUserRoleManager from "@/components/lms/admin/LmsUserRoleManager";
 import { fetchPublicTeams, fetchPublicTypes, Team as APITeam, UserTypeOption } from "@/lib/admin/teamsTypesApi";
-import { organizationService } from "@/services/organizationService";
+import { organizationService } from "@/services/admin/organizationService";
 
 interface DetailModalProps {
   user: User | null;

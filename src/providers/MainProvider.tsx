@@ -8,7 +8,7 @@ import { UserProvider, useUser } from "@/store/UserContext";
 import { NotificationProvider } from "@/store/NotificationContext";
 import { PageContextProvider } from "@/hooks/common/usePageContext";
 import { CoworkerLayout } from "@/components/layout/CoworkerLayout";
-import { logout } from "@/services/logout";
+import { logout } from "@/services/auth/logout";
 
 function SessionMonitor() {
   const { data: session, status } = useSession();

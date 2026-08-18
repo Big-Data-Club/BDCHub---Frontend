@@ -6,7 +6,7 @@ import {
   ChannelRoleEntry,
   ChatUser,
   ChatAttachment,
-} from "@/types/chat";
+} from "@/types/chat/chat";
 
 // ─── Channels ─────────────────────────────────────────────────────────────────
 

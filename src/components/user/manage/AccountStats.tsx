@@ -1,4 +1,4 @@
-import { UserResponse } from "@/services/userService";
+import { UserResponse } from "@/services/auth/userService";
 
 interface AccountStatsProps {
   fullUserData: UserResponse | null;

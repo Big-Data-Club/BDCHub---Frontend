@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { fetchRoles, deleteRole, fetchPermissions, fetchLmsRoleMappings, Role, Permission } from "@/lib/admin/rolesApi";
-import { permissionService, LmsRole } from "@/services/permissionService";
+import { permissionService, LmsRole } from "@/services/admin/permissionService";
 import { Loader2, Plus, Edit2, Trash2, Shield, Settings2, RefreshCcw, Lock } from "lucide-react";
 import RoleModal from "./RoleModal";
 import LmsMappingModal from "@/components/lms/admin/LmsMappingModal";

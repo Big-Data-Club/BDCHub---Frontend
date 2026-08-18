@@ -1,6 +1,6 @@
 "use client";
 
-import { ForumPost } from "@/services/forumService";
+import { ForumPost } from "@/services/lms/forumService";
 import ForumPostCard from "./ForumPostCard";
 
 interface ForumPostListProps {

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { lmsService } from "@/services/lmsService";
-import { analyticsService } from "@/services/analyticsService";
+import { lmsService } from "@/services/lms/lmsService";
+import { analyticsService } from "@/services/lms/analyticsService";
 import { Enrollment } from "@/types";
 import {
   getRecommendations,
@@ -10,7 +10,7 @@ import {
   trackRecommendationEvent,
   type LearningPreferenceProfile,
   type RecommendationItem,
-} from "@/services/recommendationService";
+} from "@/services/lms/recommendationService";
 
 export function useStudentDashboard() {
   const [mounted, setMounted] = useState(false);

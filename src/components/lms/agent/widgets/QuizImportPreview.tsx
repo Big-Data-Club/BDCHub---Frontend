@@ -12,8 +12,8 @@
 import { useState, useEffect } from "react";
 import { Check, X, ChevronDown, ChevronUp, Loader2, AlertCircle, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import quizService from "@/services/quizService";
-import type { ParsedQuestion } from "@/services/aiService";
+import quizService from "@/services/lms/quizService";
+import type { ParsedQuestion } from "@/services/ai/aiService";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

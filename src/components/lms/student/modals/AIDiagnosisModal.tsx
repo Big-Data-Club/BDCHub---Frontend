@@ -19,7 +19,7 @@ import {
   X, Sparkles, BookOpen, Video, AlertCircle,
   ChevronRight, Brain, Lightbulb, Target
 } from "lucide-react";
-import aiService, { DiagnosisResult, DeepLink } from "@/services/aiService";
+import aiService, { DiagnosisResult, DeepLink } from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";

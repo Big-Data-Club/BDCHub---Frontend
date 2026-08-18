@@ -12,7 +12,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { RefreshCw, Search } from "lucide-react";
 import Link from "next/link";
-import { analyticsService, CourseStudentProgress } from "@/services/analyticsService";
+import { analyticsService, CourseStudentProgress } from "@/services/lms/analyticsService";
 import { StudentProgressTable } from "@/components/lms/teacher/students/StudentProgressTable";
 import { TabBar }               from "@/components/lms/shared";
 import { UserAvatar }           from "@/components/user/UserAvatar";

@@ -12,8 +12,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Plus, Power, PowerOff, Trash2 } from "lucide-react";
-import type { LlmApiKey, LlmProvider } from "@/services/llmConfigService";
-import { llmConfigService } from "@/services/llmConfigService";
+import type { LlmApiKey, LlmProvider } from "@/services/ai/llmConfigService";
+import { llmConfigService } from "@/services/ai/llmConfigService";
 import { StatusBadge } from "./StatusBadge";
 
 type Props = {

@@ -3,9 +3,9 @@
 import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Plus, ChevronDown, ChevronRight, BookOpen, AlertCircle, Network, Trash2, Sparkles } from "lucide-react";
-import aiService, { KnowledgeNode, KnowledgeGraphEdge } from "@/services/aiService";
+import aiService, { KnowledgeNode, KnowledgeGraphEdge } from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import toast from "react-hot-toast";
 
 // ─── Lazy-loaded heavy components ─────────────────────────────────────────────

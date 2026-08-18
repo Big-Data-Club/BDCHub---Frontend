@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import quizService from "@/services/quizService";
+import quizService from "@/services/lms/quizService";
 
 export interface QuizAttempt {
   id: number;

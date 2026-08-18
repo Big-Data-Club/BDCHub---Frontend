@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { userService } from "@/services/userService";
+import { userService } from "@/services/auth/userService";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { Eye, EyeOff } from "lucide-react";
 

@@ -15,7 +15,7 @@ import {
   Play, FileText, Image as ImageIcon, HelpCircle,
   MessageSquare, Megaphone, File as FileIcon, AlertCircle
 } from "lucide-react";
-import { CourseProgress, ProgressDetailItem } from "@/services/progressService";
+import { CourseProgress, ProgressDetailItem } from "@/services/lms/progressService";
 import { Badge } from "@/components/lms/shared/Badge";
 import { cn } from "@/lib/utils";
 

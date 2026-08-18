@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, FileText, Loader2, Sparkles, Upload, X } from "lucide-react";
-import lmsService from "@/services/lmsService";
-import { getAccessToken } from "@/services/authToken";
+import lmsService from "@/services/lms/lmsService";
+import { getAccessToken } from "@/services/auth/authToken";
 
 type MaterialType = "DOCUMENT" | "VIDEO" | "IMAGE";
 type ItemStatus = "draft" | "uploading" | "done" | "error";

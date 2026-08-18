@@ -18,8 +18,8 @@ import {
   Cpu,
   Database as DbIcon
 } from "lucide-react";
-import { labService } from "@/services/labService";
-import { getAccessToken } from "@/services/authToken";
+import { labService } from "@/services/labs/labService";
+import { getAccessToken } from "@/services/auth/authToken";
 import type { Lab, LabSubmission } from "@/types";
 import toast from "react-hot-toast";
 import Link from "next/link";

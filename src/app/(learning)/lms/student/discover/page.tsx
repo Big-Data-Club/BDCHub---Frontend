@@ -8,7 +8,7 @@ import { DiscoverCourseGrid } from "@/components/lms/student/discover/DiscoverCo
 import { DiscoverPreferenceModal } from "@/components/lms/student/discover/DiscoverPreferenceModal";
 import { CourseCard, Alert, Select } from "@/components/lms/shared";
 import { Sparkles, SlidersHorizontal, RotateCcw, CheckCircle2 } from "lucide-react";
-import { trackRecommendationEvent } from "@/services/recommendationService";
+import { trackRecommendationEvent } from "@/services/lms/recommendationService";
 
 export default function DiscoverPage() {
   const router = useRouter();

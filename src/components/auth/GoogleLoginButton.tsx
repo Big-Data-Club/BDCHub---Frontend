@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { signIn, signOut } from "next-auth/react";
 import { Spinner } from "@/components/icons/Icons";
-import { clearAccessTokenCache } from "@/services/authToken";
+import { clearAccessTokenCache } from "@/services/auth/authToken";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 

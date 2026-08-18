@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import quizService from "@/services/quizService";
-import lmsService from "@/services/lmsService";
+import quizService from "@/services/lms/quizService";
+import lmsService from "@/services/lms/lmsService";
 
 export interface QuizCourseInfo {
   quizId:    number;

@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { Target, Lightbulb, Trophy } from 'lucide-react';
-import { EventConfig } from '@/types/event';
+import { EventConfig } from '@/types/dashboard/event';
 
 export default function EventDetails({ event }: { event: EventConfig }) {
   return (

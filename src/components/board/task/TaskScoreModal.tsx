@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Plus, Trash2, Save, Check, Award, AlertCircle, Loader2 } from "lucide-react";
 import { Task, User } from "@/types";
-import { taskScoreService, TaskScoreResponse } from "@/services/taskScoreService";
+import { taskScoreService, TaskScoreResponse } from "@/services/dashboard/taskScoreService";
 import { useAuth } from "@/hooks/auth/useAuth";
 
 interface TaskScoreModalProps {

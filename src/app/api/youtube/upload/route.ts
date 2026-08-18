@@ -1,6 +1,6 @@
 // app/api/youtube/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import youtubeTokenManager from '@/services/youtubeTokenManager';
+import youtubeTokenManager from '@/services/lms/youtubeTokenManager';
 import { google } from 'googleapis';
 import { Readable } from 'stream';
 

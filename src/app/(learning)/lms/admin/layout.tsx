@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LmsHeader } from "@/components/layout/LmsHeader";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { activateLmsRole, hasLmsRole } from "@/lib/lms-navigation";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

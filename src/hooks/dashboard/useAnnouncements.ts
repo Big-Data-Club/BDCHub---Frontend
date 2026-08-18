@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Announcement, ModalMode } from "@/types";
-import { announcementService } from "@/services/announcementService";
-import { sortByDate } from "@/utils/dateUtils";
+import { announcementService } from "@/services/dashboard/announcementService";
+import { sortByDate } from "@/utils/common/dateUtils";
 
 export function useAnnouncements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);

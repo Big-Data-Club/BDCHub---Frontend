@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
-import lmsService from "@/services/lmsService";
-import { organizationService } from "@/services/organizationService";
+import lmsService from "@/services/lms/lmsService";
+import { organizationService } from "@/services/admin/organizationService";
 import { Course, FileInfo, Organization } from "@/types";
 
 export function EditCourseModal({ course, onClose, onSuccess }: {

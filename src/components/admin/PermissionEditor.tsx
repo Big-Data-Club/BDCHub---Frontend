@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, X, Loader2, Save, CheckCircle2, ShieldAlert } from 'lucide-react';
-import { permissionService, Permission, LmsRole } from '@/services/permissionService';
+import { permissionService, Permission, LmsRole } from '@/services/admin/permissionService';
 
 interface PermissionEditorProps {
   lmsRole: LmsRole;

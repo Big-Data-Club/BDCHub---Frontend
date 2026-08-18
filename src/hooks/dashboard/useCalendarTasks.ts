@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { taskService, TaskResponse } from "@/services/taskService";
+import { taskService, TaskResponse } from "@/services/dashboard/taskService";
 
 type TaskWithColor = TaskResponse & {
   color: string;

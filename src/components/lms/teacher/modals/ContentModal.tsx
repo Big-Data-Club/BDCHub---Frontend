@@ -26,8 +26,8 @@ import { Select } from "@/components/lms/shared";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
-import lmsService from "@/services/lmsService";
-import quizService from "@/services/quizService";
+import lmsService from "@/services/lms/lmsService";
+import quizService from "@/services/lms/quizService";
 import { Content, ContentType, FileInfo } from "@/types";
 
 import { TextContentForm }              from "../forms/TextContentForm";

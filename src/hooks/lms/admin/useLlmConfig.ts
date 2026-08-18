@@ -6,7 +6,7 @@ import {
   type LlmCatalogue,
   type LlmModel,
   type LlmProvider,
-} from "@/services/llmConfigService";
+} from "@/services/ai/llmConfigService";
 
 export interface LlmConfigState {
   catalogue: LlmCatalogue | null;

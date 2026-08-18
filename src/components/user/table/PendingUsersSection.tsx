@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { userService, UserResponse } from "@/services/userService";
+import { userService, UserResponse } from "@/services/auth/userService";
 
 interface PendingUsersSectionProps {
   isAdmin: boolean;

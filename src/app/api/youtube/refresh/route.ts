@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import youtubeTokenManager from '@/services/youtubeTokenManager';
+import youtubeTokenManager from '@/services/lms/youtubeTokenManager';
 
 export async function POST(request: NextRequest) {
   try {

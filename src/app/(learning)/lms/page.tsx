@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { useSession } from "next-auth/react";
 import { Shield, BookOpen, GraduationCap, AlertCircle, ArrowLeft } from "lucide-react";
 import Image from "next/image";

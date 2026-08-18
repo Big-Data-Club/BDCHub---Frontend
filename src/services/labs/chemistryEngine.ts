@@ -6,7 +6,7 @@ import type {
   ReactionRule,
   Substance,
   VesselState,
-} from "@/types/chemistry";
+} from "@/types/labs/chemistry";
 
 /**
  * ChemistryEngine - Rigorous physical chemistry calculation core.

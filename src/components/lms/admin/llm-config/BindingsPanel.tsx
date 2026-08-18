@@ -13,8 +13,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
-import type { LlmBinding, LlmCatalogue, LlmModel } from "@/services/llmConfigService";
-import { llmConfigService } from "@/services/llmConfigService";
+import type { LlmBinding, LlmCatalogue, LlmModel } from "@/services/ai/llmConfigService";
+import { llmConfigService } from "@/services/ai/llmConfigService";
 
 type Props = {
   bindings: LlmBinding[];

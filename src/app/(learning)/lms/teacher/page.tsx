@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { analyticsService } from "@/services/analyticsService";
+import { analyticsService } from "@/services/lms/analyticsService";
 import {
   BookOpen, Users, CheckCircle2,
   Plus, ChevronRight, TrendingUp,
@@ -17,7 +17,7 @@ import {
   QuickActionCard, TeacherSummaryCard, TeacherHeader
 } from "@/components/lms/shared";
 import { useSession } from "next-auth/react";
-import type { TeacherDashboardSummaryResponse } from "@/services/analyticsService";
+import type { TeacherDashboardSummaryResponse } from "@/services/lms/analyticsService";
 
 const DASHBOARD_CACHE_TTL_MS = 5 * 60 * 1000;
 

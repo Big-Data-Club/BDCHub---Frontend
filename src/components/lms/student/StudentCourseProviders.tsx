@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 
-import lmsService from "@/services/lmsService";
-import progressService, { CourseProgress, ProgressDetailItem } from "@/services/progressService";
+import lmsService from "@/services/lms/lmsService";
+import progressService, { CourseProgress, ProgressDetailItem } from "@/services/lms/progressService";
 import { useSetPageContext } from "@/hooks/common/usePageContext";
 import { Content, Course, Section } from "@/types";
 import { PageLoader } from "@/components/lms/shared";

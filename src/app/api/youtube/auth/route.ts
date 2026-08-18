@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import youtubeService from '@/services/youtubeService';
+import youtubeService from '@/services/lms/youtubeService';
 
 export async function GET(request: NextRequest) {
   try {

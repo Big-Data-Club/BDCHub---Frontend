@@ -23,7 +23,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { lmsApiClient } from "@/services/lmsApiClient";
+import { lmsApiClient } from "@/services/lms/lmsApiClient";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

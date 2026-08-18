@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, BookOpen, Clock, Calendar, ShieldCheck, DatabaseBackup } from "lucide-react";
 import { cn } from "@/lib/utils";
-import flashcardService, { FlashcardWithRepetition } from "@/services/flashcardService";
+import flashcardService, { FlashcardWithRepetition } from "@/services/lms/flashcardService";
 
 interface FlashcardReviewModalProps {
   courseId: number;

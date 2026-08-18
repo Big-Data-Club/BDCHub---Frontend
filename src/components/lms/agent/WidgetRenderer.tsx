@@ -10,7 +10,7 @@ import dynamic from "next/dynamic";
 import { BookmarkPlus, Check, Loader2 } from "lucide-react";
 import { useState } from "react";
 import type { UIComponentData } from "@/types";
-import { saveNotebookEntry } from "@/services/agentService";
+import { saveNotebookEntry } from "@/services/ai/agentService";
 
 const WIDGET_MAP: Record<string, React.ComponentType<any>> = {
   QuizDraftPreview: dynamic(() =>

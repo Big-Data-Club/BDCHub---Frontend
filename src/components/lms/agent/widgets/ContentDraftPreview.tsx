@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Edit2, Check, Save, FileText, ChevronDown, Sparkles } from "lucide-react";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { toast } from "react-hot-toast";
 
 interface LearningDesign {

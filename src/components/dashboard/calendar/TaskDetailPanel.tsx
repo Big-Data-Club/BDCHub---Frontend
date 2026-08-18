@@ -3,7 +3,7 @@
 import React from "react";
 import { X, Clock, Users, Link2 } from "lucide-react";
 import { TaskWithColor, PRIORITY_CONFIG, STATUS_CONFIG } from "@/types";
-import { parseDate, formatDateTime } from "@/utils/calendar";
+import { parseDate, formatDateTime } from "@/utils/dashboard/calendar";
 
 interface TaskDetailPanelProps {
   task: TaskWithColor;

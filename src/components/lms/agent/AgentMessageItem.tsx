@@ -9,7 +9,7 @@ import { ClarificationCard } from "./ClarificationCard";
 import { WidgetRenderer } from "./WidgetRenderer";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { ActionApprovalCard } from "./ActionApprovalCard";
-import { saveNotebookEntry } from "@/services/agentService";
+import { saveNotebookEntry } from "@/services/ai/agentService";
 
 interface AgentMessageItemProps {
   message: AgentMessage;

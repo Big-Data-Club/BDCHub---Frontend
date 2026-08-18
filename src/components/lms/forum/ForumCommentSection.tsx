@@ -1,6 +1,6 @@
 "use client";
 
-import { ForumComment } from "@/services/forumService";
+import { ForumComment } from "@/services/lms/forumService";
 import ForumCommentItem from "./ForumCommentItem";
 
 interface ForumCommentSectionProps {
