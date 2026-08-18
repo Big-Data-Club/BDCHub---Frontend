@@ -54,7 +54,7 @@ function NavTabBarInner({
   return (
     <nav
       className={cn(
-        variant === "pill" && "flex pb-1 overflow-x-auto scrollbar-none",
+        variant === "pill" && "flex shrink-0",
         fullWidth && "w-full",
         className
       )}

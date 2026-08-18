@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 /* -------------------------------------------------------------------------- */
 
 export const lmsTabsListVariants = cva(
-  "inline-flex items-center justify-center text-muted-foreground",
+  "inline-flex items-center justify-center text-muted-foreground h-auto shrink-0",
   {
     variants: {
       variant: {
@@ -148,7 +148,7 @@ function TabBarInner<T extends string>({
   active,
   onChange,
   variant = "pill",
-  size = "md",
+  size = "sm",
   className,
   tabClassName,
   fullWidth = false,
@@ -158,7 +158,7 @@ function TabBarInner<T extends string>({
       value={active}
       onValueChange={(val) => onChange(val as T)}
       className={cn(
-        variant === "pill" && "flex pb-1 overflow-x-auto scrollbar-none",
+        variant === "pill" && "flex shrink-0",
         fullWidth && "w-full",
         className
       )}
