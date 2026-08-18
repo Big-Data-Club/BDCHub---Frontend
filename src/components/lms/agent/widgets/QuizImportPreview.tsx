@@ -158,10 +158,10 @@ export function QuizImportPreview({ props }: QuizImportPreviewProps) {
               <div className="flex-1 min-w-0">
                 {/* Badge */}
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                     {typeInfo.icon} {typeInfo.label}
                   </span>
-                  <span className="text-[10px] text-slate-400">{q.points} điểm</span>
+                  <span className="text-xs text-slate-400">{q.points} điểm</span>
                 </div>
                 {/* Question text */}
                 <p className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-relaxed">
@@ -200,7 +200,7 @@ export function QuizImportPreview({ props }: QuizImportPreviewProps) {
             {(q.answer_options.length > 0 || q.correct_answers.length > 0) && (
               <button
                 onClick={() => setExpanded(isExpanded ? null : i)}
-                className="mt-2 text-[11px] font-semibold text-slate-400 hover:text-blue-500 transition-colors flex items-center gap-1.5"
+                className="mt-2 text-xs font-semibold text-slate-400 hover:text-blue-500 transition-colors flex items-center gap-1.5"
               >
                 {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 {isExpanded ? "ẨN ĐÁP ÁN" : "XEM ĐÁP ÁN"}

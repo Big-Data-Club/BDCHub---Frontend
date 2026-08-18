@@ -2,7 +2,7 @@
 
 import { useState, useEffect, memo } from "react";
 import { cn } from "@/lib/utils";
-import { Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Cpu, Layers, Sparkles, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles, MapPin, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown, RefreshCw } from "lucide-react";
 import type { AgentMessage, HITLRequestData } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
@@ -12,7 +12,7 @@ import lmsService from "@/services/lmsService";
 import { ActionApprovalCard } from "./ActionApprovalCard";
 import { saveNotebookEntry } from "@/services/agentService";
 
-interface AgentMessageBubbleProps {
+interface AgentMessageItemProps {
   message: AgentMessage;
   onClarificationSelect?: (option: string) => void;
   isSelectedForLogs?: boolean;
@@ -22,14 +22,14 @@ interface AgentMessageBubbleProps {
 }
 
 
-export const AgentMessageBubble = memo(function AgentMessageBubble({
+export const AgentMessageItem = memo(function AgentMessageItem({
   message,
   onClarificationSelect,
   isSelectedForLogs = false,
   onSelectForLogs,
   onActionApprove,
   onActionReject,
-}: AgentMessageBubbleProps) {
+}: AgentMessageItemProps) {
   const isUser = message.role === "user";
   const [showThinking, setShowThinking] = useState(false);
   const [showTrace, setShowTrace] = useState(false);
@@ -111,22 +111,19 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
         isUser ? "justify-end" : "justify-start",
       )}
     >
-
-
       <div
         className={cn(
-          "max-w-[85%] md:max-w-[80%] lg:max-w-[85%] space-y-1",
-          isUser ? "items-end" : "items-start",
+          "space-y-1 transition-all duration-200",
+          isUser ? "max-w-[85%] md:max-w-[80%] lg:max-w-[85%] items-end" : "w-full max-w-full items-start"
         )}
       >
-        {/* Tool activities */}
         {!isUser && message.toolActivities && message.toolActivities.length > 0 && (
           <div className="space-y-1 mb-2">
             {message.toolActivities.map((t, i) => (
               <div
                 key={i}
                 className={cn(
-                  "flex items-center gap-2 text-[11px] px-3 py-1.5 rounded-lg border",
+                  "flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg border",
                   t.status === "running"
                     ? "bg-amber-500/5 border-amber-500/20 text-amber-600 dark:text-amber-400 animate-pulse"
                     : t.status === "error"
@@ -148,12 +145,10 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
           </div>
         )}
 
-        {/* Thinking indicator */}
         {!isUser && message.isStreaming && !message.content && !message.thinking && (
           <AgentThinkingIndicator steps={message.thinkingSteps} />
         )}
 
-        {/* Collapsible Chain of Thought (Timeline disclosure style, no nested card) */}
         {!isUser && message.thinking && (
           <div className="w-full border-l-2 border-blue-500/40 dark:border-cyan-400/40 pl-3.5 py-1 mb-3 space-y-1.5 transition-all">
             <button
@@ -166,11 +161,11 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
                 )}
                 <span className={cn("relative inline-flex rounded-full h-2 w-2", message.isStreaming && !message.content ? "bg-cyan-400" : "bg-slate-400 dark:bg-cyan-500/50")}></span>
               </span>
-              <span className="font-mono tracking-wider uppercase text-[11px]">Tiến trình suy nghĩ AI</span>
+              <span className="font-mono tracking-wider uppercase text-xs">Tiến trình suy nghĩ AI</span>
               {showThinking ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
             </button>
             {showThinking && (
-              <div className="pt-1 text-[11px] text-slate-600 dark:text-cyan-300 font-mono whitespace-pre-wrap max-h-56 overflow-y-auto leading-relaxed scrollbar-thin scrollbar-thumb-slate-800">
+              <div className="pt-1 text-xs text-slate-600 dark:text-cyan-300 font-mono whitespace-pre-wrap max-h-56 overflow-y-auto leading-relaxed scrollbar-thin scrollbar-thumb-slate-800">
                 {message.thinking}
                 {message.isStreaming && !message.content && <span className="animate-pulse text-cyan-400 font-bold">▋</span>}
               </div>
@@ -178,19 +173,13 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
           </div>
         )}
 
-        {/* Message bubble */}
         {message.content && (
           <div
             className={cn(
-              "px-4 py-3.5 rounded-2xl text-[14px] leading-relaxed transition-all duration-200",
+              "text-[14px] leading-relaxed transition-all duration-200",
               isUser
-                ? "bg-blue-600 hover:bg-blue-700 text-white rounded-br-sm shadow-xs whitespace-pre-wrap break-words"
-                : cn(
-                    "bg-white dark:bg-[#0F1E35] text-slate-800 dark:text-slate-200 rounded-bl-sm",
-                    isSelectedForLogs
-                      ? "border border-blue-500 dark:border-cyan-400 ring-2 ring-blue-500/20 dark:ring-cyan-400/20 shadow-xs"
-                      : "border border-slate-200/70 dark:border-blue-500/10"
-                  )
+                ? "px-4 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white rounded-br-sm shadow-xs whitespace-pre-wrap break-words"
+                : "px-1 py-1 bg-transparent text-slate-800 dark:text-slate-100"
             )}
           >
             {isUser ? (
@@ -205,40 +194,36 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
         )}
 
         {!isUser && message.content && !message.isStreaming && (
-          <div className="flex flex-wrap items-center justify-between gap-2 ml-1 pt-1.5 border-t border-slate-100 dark:border-blue-500/10 mt-1.5">
-            {/* Group 1: User Interactions (Copy, Notebook, Like/Dislike) */}
+          <div className="flex flex-wrap items-center justify-between gap-2 ml-1 pt-1.5 mt-1.5">
             <div className="flex items-center gap-1.5 flex-wrap">
-              {/* Copy button */}
               <button
                 type="button"
                 onClick={handleCopyContent}
-                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#162644] dark:hover:text-cyan-400 transition-colors cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#162644] dark:hover:text-cyan-400 transition-colors cursor-pointer active:scale-95"
                 title="Sao chép câu trả lời"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? "Đã sao chép" : "Sao chép"}</span>
               </button>
 
-              {/* Save to Notebook button */}
               <button
                 type="button"
                 onClick={saveResponseToNotebook}
                 disabled={savingNote || noteSaved}
-                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 disabled:cursor-default disabled:text-emerald-600 dark:hover:bg-[#162644] dark:disabled:text-emerald-400 transition-colors cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 disabled:cursor-default disabled:text-emerald-600 dark:hover:bg-[#162644] dark:disabled:text-emerald-400 transition-colors cursor-pointer active:scale-95"
                 title="Lưu vào Notebook học tập"
               >
                 {savingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <BookmarkPlus className="h-3.5 w-3.5" />}
                 <span>{noteSaved ? "Đã lưu Notebook" : "Lưu ghi chú"}</span>
               </button>
 
-              {/* Thumbs up / down feedback buttons */}
-              <div className="flex items-center gap-1 border-l border-slate-200 dark:border-blue-500/15 pl-2">
+              <div className="flex items-center gap-0.5 border-l border-slate-200 dark:border-blue-500/15 pl-1.5 ml-0.5">
                 <button
                   type="button"
                   onClick={() => toggleFeedback("like")}
                   className={cn(
-                    "p-1 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer active:scale-95",
-                    feedback === "like" && "text-blue-600 dark:text-cyan-400 bg-blue-50 dark:bg-blue-900/30"
+                    "p-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer active:scale-95",
+                    feedback === "like" && "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40"
                   )}
                   title="Hữu ích"
                 >
@@ -248,23 +233,34 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
                   type="button"
                   onClick={() => toggleFeedback("dislike")}
                   className={cn(
-                    "p-1 rounded-lg text-slate-400 hover:text-red-500 transition-colors cursor-pointer active:scale-95",
-                    feedback === "dislike" && "text-red-500 bg-red-50 dark:bg-red-950/40"
+                    "p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer active:scale-95",
+                    feedback === "dislike" && "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40"
                   )}
-                  title="Chưa hữu ích"
+                  title="Chưa tốt"
                 >
                   <ThumbsDown className="w-3.5 h-3.5" />
                 </button>
               </div>
+
+              {onClarificationSelect && (
+                <button
+                  type="button"
+                  onClick={() => onClarificationSelect("Tạo lại câu trả lời khác chi tiết hơn")}
+                  className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#162644] dark:hover:text-cyan-400 transition-colors cursor-pointer active:scale-95 border-l border-slate-200 dark:border-blue-500/15 ml-1 pl-2"
+                  title="Yêu cầu AI tạo lại đáp án mới"
+                >
+                  <RefreshCw className="w-3 h-3 text-slate-400" />
+                  <span>Thử lại</span>
+                </button>
+              )}
             </div>
 
-            {/* Group 2: Telemetry Badges (Console Sync & Trace Toggle) */}
             {onSelectForLogs && (message.spawningScore !== undefined || (message.multiAgentLogs && message.multiAgentLogs.length > 0)) && (
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={onSelectForLogs}
                   className={cn(
-                    "flex items-center gap-1 py-1 px-2.5 rounded-lg text-[10.5px] font-semibold transition-all duration-200 border active:scale-95 cursor-pointer",
+                    "flex items-center gap-1 py-1 px-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border active:scale-95 cursor-pointer",
                     isSelectedForLogs
                       ? "bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:border-cyan-500/30 text-blue-600 dark:text-cyan-400"
                       : "bg-transparent border-slate-200/60 dark:border-blue-500/15 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#162644]"
@@ -278,7 +274,7 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
                 <button
                   onClick={() => setShowTrace(!showTrace)}
                   className={cn(
-                    "flex items-center gap-1 py-1 px-2.5 rounded-lg text-[10.5px] font-semibold transition-all duration-200 border active:scale-95 cursor-pointer",
+                    "flex items-center gap-1 py-1 px-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border active:scale-95 cursor-pointer",
                     showTrace
                       ? "bg-indigo-50 border-indigo-200 dark:bg-indigo-950/40 dark:border-indigo-900 text-indigo-600 dark:text-indigo-400"
                       : "bg-transparent border-slate-200/60 dark:border-blue-500/15 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#162644]"
@@ -293,7 +289,6 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
           </div>
         )}
 
-        {/* Inline Multi-Agent Trace Panel (Timeline disclosure style, no nested cards) */}
         {!isUser && (message.spawningScore !== undefined || (message.multiAgentLogs && message.multiAgentLogs.length > 0)) && (
           <div className="w-full mt-2.5 pt-1">
             <button
@@ -303,7 +298,7 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
               <Cpu className={cn("w-3.5 h-3.5 text-indigo-500 dark:text-cyan-400", hasRunningLogs && "animate-pulse")} />
               <span>Nhật ký xử lý AI ({didSpawn ? "Multi-Agent" : "Single-Agent"})</span>
               {hasRunningLogs && (
-                <span className="ml-1 px-1.5 py-0.2 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-cyan-400 text-[10px] font-bold rounded animate-pulse">
+                <span className="ml-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-cyan-400 text-xs font-bold rounded animate-pulse">
                   Đang chạy...
                 </span>
               )}
@@ -312,12 +307,11 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
 
             {showTrace && (
               <div className="mt-2 space-y-3 text-xs text-slate-600 dark:text-slate-400 border-l-2 border-indigo-200 dark:border-indigo-500/20 pl-3">
-                {/* 1. Spawning decision */}
                 <div className="space-y-1">
-                  <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     <span>Khởi tạo Agent</span>
                     <span className={cn(
-                      "px-1.5 py-0.2 rounded text-[9px] font-semibold",
+                      "px-1.5 py-0.5 rounded text-xs font-semibold",
                       didSpawn 
                         ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" 
                         : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
@@ -326,17 +320,16 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
                     </span>
                   </div>
                   {breakdown && Object.keys(breakdown).length > 0 && (
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-slate-400 pt-1">
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-slate-400 pt-1">
                       <div>Độ phức tạp câu hỏi: <span className="font-semibold text-slate-600 dark:text-slate-300">{(breakdown.c_ratio || 0).toFixed(2)}</span></div>
                       <div>Độ dài ngữ cảnh: <span className="font-semibold text-slate-600 dark:text-slate-300">{(breakdown.d_intent || 0).toFixed(1)}</span></div>
                     </div>
                   )}
                 </div>
 
-                {/* 2. Context Consolidation */}
                 {consolidation && (
                   <div className="space-y-0.5 pt-1 border-t border-slate-100 dark:border-slate-800/60">
-                    <div className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center justify-between text-xs">
                       <span className="flex items-center gap-1 font-bold text-slate-500">
                         <Layers className="w-3 h-3 text-orange-500" /> Nén RAG:
                       </span>
@@ -348,7 +341,7 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
                 {/* 3. Sub-agents timeline */}
                 {logs.length > 0 && (
                   <div className="space-y-1.5 pt-1 border-t border-slate-100 dark:border-slate-800/60">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Trình tự Sub-Agent:</div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Trình tự Sub-Agent:</div>
                     <div className="space-y-1.5">
                       {logs.map((log) => {
                         const logExpanded = expandedLogs[log.subagentId] ?? true;
@@ -369,11 +362,11 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
                                   isCompleted && "bg-emerald-500",
                                   isFailed && "bg-rose-500"
                                 )} />
-                                <span className="font-bold text-slate-700 dark:text-slate-300 text-[11px] font-mono">{log.role}</span>
-                                <span className="text-[10px] text-slate-400 truncate max-w-[180px]">{log.task}</span>
+                                <span className="font-bold text-slate-700 dark:text-slate-300 text-xs font-mono">{log.role}</span>
+                                <span className="text-xs text-slate-400 truncate max-w-[180px]">{log.task}</span>
                               </div>
                               <span className={cn(
-                                "px-1.5 py-0.2 rounded text-[8px] font-bold uppercase font-mono",
+                                "px-1.5 py-0.5 rounded text-xs font-bold uppercase font-mono",
                                 isRunning && "text-blue-600 dark:text-cyan-400 animate-pulse",
                                 isCompleted && "text-emerald-600 dark:text-emerald-400",
                                 isFailed && "text-rose-600 dark:text-rose-400"
@@ -383,7 +376,7 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
                             </button>
 
                             {logExpanded && log.thinking && (
-                              <div className="ml-4 pl-2 border-l border-slate-200 dark:border-blue-500/20 text-cyan-400 font-mono text-[10px] whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto scrollbar-thin">
+                              <div className="ml-4 pl-2 border-l border-slate-200 dark:border-blue-500/20 text-cyan-400 font-mono text-xs whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto scrollbar-thin">
                                 {log.thinking}
                                 {isRunning && <span className="animate-pulse text-blue-400 font-bold">▋</span>}
                               </div>
@@ -398,19 +391,19 @@ export const AgentMessageBubble = memo(function AgentMessageBubble({
                 {/* 4. Critique Report */}
                 {critique && (
                   <div className="space-y-1 pt-1 border-t border-slate-100 dark:border-slate-800/60">
-                    <div className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center justify-between text-xs">
                       <span className="flex items-center gap-1 font-bold text-slate-500">
                         <Sparkles className="w-3 h-3 text-purple-500" /> Critique:
                       </span>
                       <span className={cn(
-                        "font-bold uppercase text-[10px]",
+                        "font-bold uppercase text-xs",
                         critique.verdict === "approve" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
                       )}>
                         {critique.verdict === "approve" ? "Đã thông qua" : "Cần sửa đổi"}
                       </span>
                     </div>
                     {critique.critique_report && (
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
                         {critique.critique_report}
                       </p>
                     )}

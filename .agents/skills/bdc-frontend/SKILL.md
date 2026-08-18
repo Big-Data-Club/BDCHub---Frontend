@@ -39,6 +39,7 @@ requires:
 **Backends:** Auth service `:8080` · LMS service `:8081`
 
 > **Luôn đọc [BDC Design Rhythm v3.0](file:///home/thanh/BDCHub---Frontend/docs/references/design-systems/bdc-design-rhythm-v3.md) trước khi viết bất kỳ className nào.**  
+> **Luôn đọc [Component & Hook Guide](file:///home/thanh/BDCHub---Frontend/docs/references/architecture/COMPONENT_HOOK_GUIDE.md) trước khi tạo hoặc di chuyển tệp mới.**  
 > Mọi component phải hoạt động đúng ở cả `light` và `dark` mode.
 
 ---
@@ -56,18 +57,68 @@ frontend/src/
 ├── components/
 │   ├── ui/                   shadcn/ui primitives - DO NOT modify directly
 │   ├── layout/               Sidebar, MobileNav, Navbar, Footer, ThemeToggle, Background
-│   ├── common/               SafeImage, LoadingState, EmptyState, SectionHeader
+│   ├── common/               SafeImage, LoadingState, EmptyState, SectionHeader, CountDown...
+│   ├── auth/                 AuthShell, LoginForm, GoogleRegisterForm, Mascot...
+│   ├── board/                Kanban board components (column/, task/)
 │   ├── dashboard/            announcement/, event/, calendar/, modals/
-│   ├── lms/shared/           LMS-flavoured primitives (check here before building new)
-│   ├── lms/student/          AIDiagnosisModal, ContentViewer, QuizHistoryModal
-│   └── lms/teacher/          AINodeManager, AIQuizGenPanel, BulkUploadModal
-├── hooks/                    useAuth, useCurrentUser, useAnnouncements, useEvents, useTasks
+│   ├── admin/                System & Platform Admin (role/, permission/, dashboard/)
+│   ├── lms/admin/            LMS Admin (LmsMappingModal, LmsUserRoleManager, llm-config/)
+│   ├── lms/shared/           LMS-flavoured primitives (BreadcrumbNav, QuestionImageUploader...)
+│   ├── lms/student/          ContentViewer, modals/, stats/, analytics/
+│   ├── lms/teacher/          AINodeManager, AIQuizGenPanel, modals/, quiz/, upload/, views/
+│   └── user/                 User management (manage/, modals/, table/)
+├── hooks/                    Structured by domain (auth/, common/, dashboard/, lms/, chat/, labs/)
+│   └── index.ts              Central barrel export for all hooks
 ├── services/                 ALL fetch() calls - never in components or hooks
 ├── types/                    All shared TypeScript interfaces - re-export from index.ts
 ├── store/UserContext.tsx      Global user state
 ├── providers/MainProvider.tsx SessionProvider + UserContext + ThemeProvider
 └── utils/                    Pure helpers - no React imports
 ```
+
+---
+
+## Modular Architecture & File Separation Guidelines
+
+Ngoài việc phân chia Component UI nhỏ gọn, dự án tuân thủ mô hình kiến trúc phân lớp chuyên nghiệp nhằm tối ưu khả năng **tái sử dụng (Reusability)**, **bảo trì (Maintainability)** và **mở rộng (Scalability)**:
+
+### 1. Phân Lớp Trách Nhiệm (Separation of Concerns)
+
+* **UI Components (`/components`)**: Chỉ chịu trách nhiệm hiển thị (Presentation Layer) và nhận callback. Không chứa API calls, không chứa complex business logic hay raw validation rules.
+* **Custom Hooks (`/hooks`)**: Chịu trách nhiệm quản lý state, side-effects, UI handlers và kết nối với Service Layer.
+* **Service / API Layer (`/services`)**: Nơi duy nhất xử lý HTTP requests (Fetch/Axios), interceptors, và transform data nếu cần.
+* **Form Schemas (`/schemas` hoặc trong module `schemas/`)**: Chứa Zod/Yup schemas để validate dữ liệu đầu vào độc lập với Form UI.
+* **Types / Interfaces (`/types`)**: Chứa toàn bộ định nghĩa data models, API DTOs, Enums. Tuyệt đối không dùng `any`.
+* **Utilities / Helpers (`/utils`)**: Các hàm thuần túy (Pure Functions) xử lý format tiền tệ, ngày tháng, chuỗi, toán học,... Không import React/State.
+* **Constants & Configs (`/constants`, `/config`)**: Chứa hằng số hệ thống, enum status, route URLs, API Endpoints, app settings. Đẩy các magic strings/numbers ra khỏi logic.
+
+### 2. Tiêu Chuẩn Khi Tạo Feature Mới (Feature-Based Structure)
+
+Đối với các tính năng phức tạp (ví dụ: `auth`, `lms/quiz`, `user`), khuyến khích gom nhóm theo module/feature nếu số lượng file lớn:
+
+```
+src/features/feature-name/ (hoặc trong components/lms/domain/)
+├── api/             # API service functions cho feature này
+├── components/      # Sub-components chỉ thuộc về feature này
+├── hooks/           # Custom hooks phục vụ feature này (logic & state)
+├── schemas/         # Validation schemas (zod/yup)
+├── types/           # TS Types/Interfaces cho feature
+└── index.ts         # Export duy nhất các thành phần public ra ngoài
+```
+
+### 3. Quy Tắc Tách File Khi Code
+
+1. **Khi Component vượt quá ~150-200 dòng**:
+   - Tách phần UI lặp lại/phức tạp thành các Sub-components (`components/...`).
+   - Tách phần State/Effects/Logic sang Custom Hook (`hooks/use...`).
+2. **Khi Form có validation**:
+   - Tạo file Schema riêng bằng Zod (`schemas/...Schema.ts`).
+3. **Khi làm việc với API**:
+   - Khai báo Response/Request Type trong `types/`.
+   - Viết hàm gọi API trong `services/` (dùng `api.ts` hoặc `lmsApiClient.ts`).
+   - Tránh gọi `fetch()` / `apiClient` trực tiếp từ Component hay Hook inline.
+4. **Khi cần định dạng dữ liệu / tính toán**:
+   - Viết helper thuần túy trong `utils/` kèm unit test / JSDoc nếu cần.
 
 ---
 
@@ -149,7 +200,7 @@ if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 
 ## Hook Template (CRUD + Modal)
 
 ```ts
-// hooks/useFeature.tsx
+// hooks/dashboard/useFeature.ts (Pure logic -> Dùng đuôi .ts)
 import { useState, useEffect, useCallback } from "react";
 import { featureService } from "@/services/featureService";
 import type { Feature } from "@/types";
@@ -358,21 +409,29 @@ export default function FeaturePage() {
 </span>
 ```
 
----
+## Naming Conventions & File Extension Rules
 
-## Naming Conventions
+### 1. Quy Định Đặt Tên (Naming Matrix)
 
-| Item | Convention | Example |
-|---|---|---|
-| Component file | PascalCase.tsx | `QuizPipelineCard.tsx` |
-| Hook file | camelCase.tsx, prefix `use` | `useQuizGenerator.tsx` |
-| Service file | camelCase.ts, suffix `Service` | `quizService.ts` |
-| Type file | kebab-case.ts | `quiz-types.ts` |
-| Component export | Named | `export function QuizPipelineCard` |
-| Page / layout | Default | `export default function QuizPage` |
-| Event handlers | Prefix `handle` | `handleGenerate`, `handleDelete` |
-| Boolean state | Prefix `is/has/show` | `isGenerating`, `hasResults` |
-| Props interface | `<Component>Props` | `QuizPipelineCardProps` |
+| Loại Đối Tượng | Quy Chuẩn Đặt Tên | Ví Dụ Đặt Tên File | Quy Chuẩn Export / Symbols |
+|---|---|---|---|
+| **Component File** | `PascalCase.tsx` | `TaskCard.tsx`, `QuizPipelineCard.tsx` | Named export (`export function TaskCard`) |
+| **Pure Logic Hook** | `camelCase.ts` (Bắt buộc `.ts`) | `useAuth.ts`, `useQuizCourse.ts` | Named export (`export function useQuizCourse`) |
+| **JSX Provider Hook** | `camelCase.tsx` (Chỉ dùng khi có JSX) | `useChat.tsx`, `usePageContext.tsx` | Named export (`export function useChat`) |
+| **Service File** | `camelCase.ts` (suffix `Service`/`ApiClient`) | `quizService.ts`, `lmsApiClient.ts` | Named export object/class |
+| **Utility / Helper** | `camelCase.ts` | `formatCurrency.ts`, `formatDate.ts` | Named export function |
+| **Form Schema** | `camelCase.ts` (suffix `Schema`) | `authSchema.ts`, `checkoutSchema.ts` | Named export (`export const loginSchema`) |
+| **Type / DTO File** | `kebab-case.ts` hoặc `camelCase.ts` | `quiz-types.ts`, `lms.types.ts` | Export interface/type |
+| **Folder / Thư mục** | `kebab-case` hoặc `lowercase` | `auth`, `board`, `common`, `modals` | **KHÔNG** dùng PascalCase cho tên thư mục |
+| **Barrel Export File** | `index.ts` | `src/hooks/index.ts` | `export * from "./auth/useAuth"` |
+| **Event Handlers** | Prefix `handle` | `handleGenerate`, `handleDelete` | Inside components |
+| **Boolean State** | Prefix `is/has/show` | `isGenerating`, `hasResults` | Inside hooks/components |
+| **Props Interface** | `<Component>Props` | `QuizPipelineCardProps` | Interface |
+
+### 2. Quy Tắc Phân Định Đuôi File (`.ts` vs `.tsx`)
+
+* **`.ts` (Pure TypeScript)**: Dùng cho Services, Utils, Types, Schemas, Constants, và **Custom Hooks chỉ chứa logic / state / side-effects thuần túy** (không chứa JSX).
+* **`.tsx` (TypeScript + JSX)**: Dùng cho UI Components, Layouts, Pages, và **Hooks có render trực tiếp JSX Element** (ví dụ: `<Context.Provider value={...}>`).
 
 ---
 
@@ -395,6 +454,10 @@ export default function FeaturePage() {
 |---|---|
 | `fetch()` trong component hoặc hook | Đặt trong `services/`, gọi từ hook |
 | Logic fetch trong `page.tsx` | Extract sang `use<Feature>()` hook |
+| Hook pure logic dùng đuôi `.tsx` (`useAuth.tsx`) | Dùng đuôi `.ts` chuẩn mực (`useAuth.ts`) |
+| Quên re-export hook mới tạo | Thêm re-export tại `src/hooks/index.ts` |
+| Để loose Modal ở root folder | Gom vào subfolder `modals/` (VD: `components/user/modals/`) |
+| Đặt tên folder bằng PascalCase (`src/components/Board/`) | Dùng lowercase/kebab-case (`src/components/board/`) |
 | Type `any` | Định nghĩa interface trong `src/types/` |
 | `lmsApiClient` từ `(main)/` pages | `(main)/` dùng `api.ts` duy nhất |
 | Hardcode URL/port | Dùng proxy paths qua service files |

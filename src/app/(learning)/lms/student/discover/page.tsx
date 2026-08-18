@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { lmsService } from "@/services/lmsService";
 import {
@@ -91,7 +91,7 @@ export default function DiscoverPage() {
   const loadInitialData = useCallback(async () => {
     try {
       const [allCourses, accepted, profile] = await Promise.all([
-        lmsService.listPublishedCourses({ page_size: 100 }),
+        lmsService.listPublishedCourses({ page_size: 20 }),
         lmsService.getMyEnrollments("ACCEPTED"),
         getLearningPreferenceProfile().catch((): LearningPreferenceProfile => ({
           interested_categories: [],
@@ -158,6 +158,9 @@ export default function DiscoverPage() {
     loadInitialData();
   }, [loadInitialData]);
 
+  const pageRef = useRef(1);
+  const loadingMoreRef = useRef(false);
+
   // ── Fetch courses from backend with filters & page ──────────────────────────
 
   const fetchCourses = useCallback(async (pageNum: number, isNewFilter: boolean) => {
@@ -165,6 +168,7 @@ export default function DiscoverPage() {
       setLoading(true);
     } else {
       setLoadingMore(true);
+      loadingMoreRef.current = true;
     }
     setError("");
 
@@ -182,8 +186,12 @@ export default function DiscoverPage() {
 
       if (isNewFilter) {
         setPublishedCourses(newCourses);
+        pageRef.current = 1;
+        setPage(1);
       } else {
         setPublishedCourses(prev => [...prev, ...newCourses]);
+        pageRef.current = pageNum;
+        setPage(pageNum);
       }
 
       setHasMore((coursesPage?.pagination?.page || pageNum) < (coursesPage?.pagination?.total_pages || 0));
@@ -192,22 +200,23 @@ export default function DiscoverPage() {
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      loadingMoreRef.current = false;
     }
   }, [search, selectedTag, selectedLevel]);
 
   // Reset page & trigger initial fetch on filter change
   useEffect(() => {
+    pageRef.current = 1;
     setPage(1);
     fetchCourses(1, true);
   }, [search, selectedTag, selectedLevel, fetchCourses]);
 
   // Load next page on scroll trigger
   const handleLoadMore = useCallback(() => {
-    if (loadingMore || !hasMore) return;
-    const nextPage = page + 1;
-    setPage(nextPage);
+    if (loadingMoreRef.current || !hasMore) return;
+    const nextPage = pageRef.current + 1;
     fetchCourses(nextPage, false);
-  }, [page, hasMore, loadingMore, fetchCourses]);
+  }, [hasMore, fetchCourses]);
 
   const handleRefresh = useCallback(() => {
     loadInitialData();
@@ -455,7 +464,7 @@ export default function DiscoverPage() {
                   "px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 border",
                   selectedTag === "all"
                     ? "bg-blue-600 text-white border-blue-600 shadow-sm active:scale-95"
-                    : "bg-slate-100 hover:bg-slate-200 dark:bg-blue-900/20 dark:hover:bg-blue-900/35 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-blue-500/10 active:scale-95"
+                    : "bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-800 dark:text-cyan-300 border-slate-200 dark:border-blue-500/20 active:scale-95"
                 )}
               >
                 Tất cả
@@ -468,7 +477,7 @@ export default function DiscoverPage() {
                     "px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 border",
                     selectedTag.toLowerCase() === tag.toLowerCase()
                       ? "bg-blue-600 text-white border-blue-600 shadow-sm active:scale-95"
-                      : "bg-slate-100 hover:bg-slate-200 dark:bg-blue-900/20 dark:hover:bg-blue-900/35 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-blue-500/10 active:scale-95"
+                      : "bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-800 dark:text-cyan-300 border-slate-200 dark:border-blue-500/20 active:scale-95"
                   )}
                 >
                   {tag}
@@ -513,8 +522,13 @@ export default function DiscoverPage() {
           )
         ) : (
           <div className="space-y-6">
-            <div className="flex justify-between items-center text-xs font-semibold text-slate-500 dark:text-slate-400">
-              <span>Đã tải {publishedCourses.length} khóa học</span>
+            <div className="flex justify-between items-center text-xs font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-blue-500/10 pb-3">
+              <span>Đang hiển thị {publishedCourses.length} khóa học</span>
+              {hasMore && (
+                <span className="text-slate-400 dark:text-slate-500 font-normal">
+                  Cuộn xuống để tải thêm
+                </span>
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
               {publishedCourses.map(course => {
@@ -555,15 +569,26 @@ export default function DiscoverPage() {
                   />
                 );
               })}
-              {loadingMore && Array.from({ length: 3 }).map((_, i) => (
-                <CourseCardSkeleton key={`more-${i}`} />
-              ))}
             </div>
-            <InfiniteScrollTrigger
-              key={page}
-              hasMore={hasMore}
-              onLoadMore={handleLoadMore}
-            />
+
+            {hasMore && (
+              <div className="flex flex-col items-center justify-center pt-2 pb-6 space-y-3">
+                <InfiniteScrollTrigger
+                  hasMore={hasMore}
+                  loading={loadingMore}
+                  onLoadMore={handleLoadMore}
+                />
+                {!loadingMore && (
+                  <GhostBtn
+                    size="sm"
+                    onClick={handleLoadMore}
+                    className="text-xs text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-blue-500/20 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 rounded-xl"
+                  >
+                    Tải thêm khóa học thủ công
+                  </GhostBtn>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

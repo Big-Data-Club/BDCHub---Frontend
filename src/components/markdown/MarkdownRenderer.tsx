@@ -134,7 +134,7 @@ export default function MarkdownRenderer({
               className={cn(
                 isUserChat ? "font-bold text-white" : "font-bold text-slate-850 dark:text-slate-100",
                 isChat
-                  ? "text-sm mt-2.5 mb-1 pb-0.5 border-b border-slate-100 dark:border-slate-800/50"
+                  ? "text-sm mt-3 mb-1.5 font-bold"
                   : "text-2xl mt-6 mb-3 border-b border-gray-100 dark:border-gray-800 pb-2"
               )}
               {...props}

@@ -13,7 +13,7 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useAgentChat } from "@/hooks/lms/agent/useAgentChat";
 import { usePageContext } from "@/hooks/common/usePageContext";
-import { AgentMessageBubble } from "./AgentMessageBubble";
+import { AgentMessageItem } from "./AgentMessageItem";
 import { AgentInputBar } from "./AgentInputBar";
 import {
   ConversationSidebar,
@@ -38,23 +38,23 @@ interface AgentChatPanelProps {
 
 const WELCOME: Record<string, { title: string; subtitle: string; hints: string[] }> = {
   mentor: {
-    title: "Virtual Mentor",
-    subtitle: "Tôi có thể giúp bạn học tập hiệu quả hơn",
+    title: "AI Mentor - Trợ lý Học tập",
+    subtitle: "Trợ lý AI hỗ trợ giải đáp bài học, phân tích điểm yếu và lập lộ trình ôn tập cá nhân hóa",
     hints: [
       "Giải thích khái niệm OOP",
-      "Tôi đang yếu phần nào?",
-      "Cho tôi 1 bài tập nhỏ",
-      "Lập kế hoạch ôn tập",
+      "Tôi đang yếu phần nào trong môn này?",
+      "Cho tôi 1 bài tập thực hành nhỏ",
+      "Lập kế hoạch ôn tập hôm nay",
     ],
   },
   teacher: {
-    title: "Virtual Teaching Assistant",
-    subtitle: "Tôi hỗ trợ bạn quản lý nội dung và phân tích học viên",
+    title: "AI Assistant - Trợ lý Giảng dạy",
+    subtitle: "Hỗ trợ giảng viên soạn bài giảng, tạo câu hỏi trắc nghiệm và phân tích học lực lớp học",
     hints: [
-      "Tạo 5 câu hỏi trắc nghiệm",
-      "Phân tích điểm yếu lớp",
-      "Đề xuất bài cần ôn lại",
-      "Index tài liệu mới",
+      "Tạo 5 câu hỏi trắc nghiệm Bloom High",
+      "Phân tích điểm yếu của lớp học",
+      "Đề xuất bài tập cần ôn lại",
+      "Index tài liệu bài giảng mới",
     ],
   },
 };
@@ -85,18 +85,6 @@ export function AgentChatPanel({
   const [sidebarOpen, setSidebarOpen] = useState(defaultSidebarOpen);
   const [consoleOpen, setConsoleOpen] = useState(defaultConsoleOpen);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(initialSelectedMessageId || null);
-
-  // Keyboard shortcut listener: Ctrl+Shift+C or Cmd+Shift+C toggles AI Console
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        setConsoleOpen((prev) => !prev);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   const handleSessionUpdated = useCallback(
     (update: { sessionId: string; title?: string; reason: string }) => {
@@ -135,6 +123,30 @@ export function AgentChatPanel({
     pageContext: pageContext || undefined,
     onSessionUpdated: handleSessionUpdated,
   });
+
+  // Keyboard shortcut listener:
+  // - Ctrl+Shift+C / Cmd+Shift+C: toggles AI Console
+  // - Ctrl+K / Cmd+K: starts a new chat session
+  // - Esc: closes active Console or Sidebar panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        setConsoleOpen((prev) => !prev);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        startNewChat();
+      } else if (e.key === "Escape") {
+        if (consoleOpen) {
+          setConsoleOpen(false);
+        } else if (sidebarOpen) {
+          setSidebarOpen(false);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [consoleOpen, sidebarOpen, startNewChat]);
 
   const lastAssistantMsg = [...messages].reverse().find((m) => m.role === "assistant") || null;
 
@@ -216,6 +228,15 @@ export function AgentChatPanel({
     }
   }, [router]);
 
+  const handleClarificationSelect = useCallback((option: string) => {
+    sendMessage(option);
+  }, [sendMessage]);
+
+  const handleSelectForLogs = useCallback((msgId: string) => {
+    setSelectedMessageId(msgId);
+    setConsoleOpen(true);
+  }, []);
+
   return (
     <div
       className={cn(
@@ -271,20 +292,19 @@ export function AgentChatPanel({
 
       {/* Main Chat Area */}
       <div className="flex-1 min-w-0 flex flex-col h-full bg-slate-50 dark:bg-[#050B18] overflow-hidden min-h-0 relative">
-        {/* Floating Top Controls */}
+        {/* Floating Action Controls: Left (History) & Right (Console) */}
         {!sidebarOpen && (
           <button
             onClick={() => setSidebarOpen(true)}
             aria-label="Mở lịch sử hội thoại"
             className={cn(
-              "absolute top-3.5 left-4 z-30 p-2 rounded-xl",
-              "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white",
-              "hover:bg-slate-200/60 dark:hover:bg-[#162644]/80 backdrop-blur-sm",
-              "transition-all duration-200 active:scale-95 flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+              "absolute top-3 left-4 z-30",
+              "p-2 sm:px-3 sm:py-1.5 rounded-xl backdrop-blur-md transition-all duration-200 active:scale-95 flex items-center gap-1.5 text-xs font-semibold cursor-pointer border shadow-xs",
+              "bg-white/80 dark:bg-[#070E1C]/80 text-slate-600 dark:text-slate-300 border-slate-200/80 dark:border-blue-500/20 hover:bg-slate-100 dark:hover:bg-[#162644]"
             )}
             title="Mở lịch sử hội thoại"
           >
-            <Sidebar className="w-4.5 h-4.5 text-blue-600 dark:text-cyan-400" />
+            <Sidebar className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
             <span className="hidden sm:inline">Lịch sử chat</span>
           </button>
         )}
@@ -293,10 +313,11 @@ export function AgentChatPanel({
           onClick={() => setConsoleOpen(!consoleOpen)}
           aria-label={consoleOpen ? "Ẩn nhật ký AI Console" : "Hiện nhật ký AI Console"}
           className={cn(
-            "absolute top-3.5 right-4 z-30 p-2 sm:px-3 sm:py-1.5 rounded-xl backdrop-blur-sm transition-all duration-200 active:scale-95 flex items-center gap-1.5 text-xs font-semibold cursor-pointer shadow-xs",
+            "absolute top-3 right-4 z-30",
+            "p-2 sm:px-3 sm:py-1.5 rounded-xl backdrop-blur-md transition-all duration-200 active:scale-95 flex items-center gap-1.5 text-xs font-semibold cursor-pointer border shadow-xs",
             consoleOpen
-              ? "text-blue-600 bg-blue-50/90 border border-blue-200 dark:text-cyan-400 dark:bg-blue-950/60 dark:border-cyan-500/30"
-              : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-[#162644]/80"
+              ? "text-blue-600 bg-blue-50/90 border-blue-200 dark:text-cyan-400 dark:bg-blue-950/70 dark:border-cyan-500/30"
+              : "bg-white/80 dark:bg-[#070E1C]/80 text-slate-600 dark:text-slate-300 border-slate-200/80 dark:border-blue-500/20 hover:bg-slate-100 dark:hover:bg-[#162644]"
           )}
           title={consoleOpen ? "Ẩn Console (Ctrl+Shift+C)" : "Hiện Console Debugger (Ctrl+Shift+C)"}
         >
@@ -308,7 +329,7 @@ export function AgentChatPanel({
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto px-4 pt-12 pb-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 relative"
+          className="flex-1 overflow-y-auto px-3 sm:px-4 pt-14 sm:pt-12 pb-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 relative"
         >
           <div className="max-w-4xl mx-auto w-full px-2 sm:px-4 space-y-6">
             {isEmpty ? (
@@ -351,16 +372,13 @@ export function AgentChatPanel({
             ) : (
               <div className="space-y-6">
                 {messages.map((msg) => (
-                  <AgentMessageBubble
+                  <AgentMessageItem
                     key={msg.id}
                     message={msg}
-                    onClarificationSelect={(option) => sendMessage(option)}
+                    onClarificationSelect={handleClarificationSelect}
                     onActionApprove={handleActionApprove}
                     isSelectedForLogs={activeLogMessage?.id === msg.id}
-                    onSelectForLogs={() => {
-                      setSelectedMessageId(msg.id);
-                      setConsoleOpen(true);
-                    }}
+                    onSelectForLogs={() => handleSelectForLogs(msg.id)}
                   />
                 ))}
               </div>
@@ -415,7 +433,7 @@ export function AgentChatPanel({
         )}
 
         {/* Floating Prompt Input bar wrapper */}
-        <div className="relative z-20 flex-shrink-0 px-4 pb-4 pt-2">
+        <div className="relative z-20 flex-shrink-0 px-3 sm:px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2">
           <div className="max-w-4xl mx-auto w-full">
             <AgentInputBar
               onSend={sendMessage}

@@ -96,19 +96,19 @@ export function PerformanceChart({ props }: PerformanceChartProps) {
             <TrendingUp size={20} />
           </div>
           <div>
-            <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Top Topic</div>
+            <div className="text-xs text-slate-500 uppercase font-bold tracking-wider">Top Topic</div>
             <div className="text-sm font-bold truncate max-w-[120px]">
               {chartData.length > 0 ? chartData.reduce((prev, curr) => prev.mastery > curr.mastery ? prev : curr).name : "N/A"}
             </div>
           </div>
         </div>
         
-        <div className={`flex items-center gap-3 p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl ${criticalCount > 0 ? 'ring-1 ring-red-500/20' : ''}`}>
+        <div className={`flex items-center gap-3 p-3 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 rounded-xl ${criticalCount > 0 ? 'ring-1 ring-red-500/20' : ''}`}>
           <div className={criticalCount > 0 ? "text-red-500" : "text-green-500"}>
             <AlertTriangle size={20} />
           </div>
           <div>
-            <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Weak Areas</div>
+            <div className="text-xs text-slate-500 uppercase font-bold tracking-wider">Weak Areas</div>
             <div className="text-sm font-bold">
               {criticalCount} Topics
             </div>
@@ -125,7 +125,7 @@ export function PerformanceChart({ props }: PerformanceChartProps) {
               dataKey="name" 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fontSize: 10, fill: '#64748B' }}
+              tick={{ fontSize: 12, fill: '#64748B' }}
               interval={0}
               angle={-25}
               textAnchor="end"
@@ -134,7 +134,7 @@ export function PerformanceChart({ props }: PerformanceChartProps) {
             <YAxis 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fontSize: 10, fill: '#64748B' }}
+              tick={{ fontSize: 12, fill: '#64748B' }}
               domain={[0, 100]}
               tickFormatter={(val) => `${val}%`}
             />
@@ -152,8 +152,8 @@ export function PerformanceChart({ props }: PerformanceChartProps) {
         </ResponsiveContainer>
       </div>
       
-      <div className="px-5 py-3 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800">
-        <p className="text-[10px] text-center text-slate-400 uppercase font-medium">
+      <div className="px-5 py-3 bg-slate-50/50 dark:bg-[#070E1C] border-t border-slate-100 dark:border-blue-500/10">
+        <p className="text-xs text-center text-slate-400 uppercase font-medium">
           Dữ liệu master thực tế dựa trên kết quả làm quiz của học viên
         </p>
       </div>
