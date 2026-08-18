@@ -22,6 +22,7 @@
  *   ForumAnnouncementContentForm → info card (no upload needed)
  */
 
+import { Select } from "@/components/lms/shared";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
@@ -254,24 +255,13 @@ export default function ContentModal({
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
           {/* Content type selector */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Loại nội dung *
-            </label>
-            <select
+            <Select
+              label="Loại nội dung *"
               value={formData.type}
-              onChange={e => handleTypeChange(e.target.value as ContentType)}
+              onValueChange={(val) => handleTypeChange(val as ContentType)}
               disabled={loading}
-              className="
-                w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl
-                bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
-                focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
-                transition-all
-              "
-            >
-              {CONTENT_TYPES.map(ct => (
-                <option key={ct.value} value={ct.value}>{ct.label}</option>
-              ))}
-            </select>
+              options={CONTENT_TYPES.map(ct => ({ value: ct.value, label: ct.label }))}
+            />
           </div>
 
           {/* Title */}

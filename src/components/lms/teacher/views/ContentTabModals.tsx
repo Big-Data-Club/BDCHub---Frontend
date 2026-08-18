@@ -1,7 +1,9 @@
 "use client";
 
 import React, { Dispatch, SetStateAction } from "react";
+import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
+import { X } from "lucide-react";
 import { Content, Section } from "@/types";
 
 // Dynamic imports
@@ -410,11 +412,19 @@ export function ContentTabModals({
         />
       )}
 
-      {showContentViewer && viewingContent && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 dark:text-slate-50">
+      {showContentViewer && viewingContent && typeof window !== "undefined" && createPortal(
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowContentViewer(false);
+              setViewingContent(null);
+            }
+          }}
+          className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+        >
+          <div className="bg-white dark:bg-[#0F1E35] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-blue-500/20 shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
+            <div className="sticky top-0 bg-white dark:bg-[#0F1E35] border-b border-slate-200 dark:border-blue-500/15 px-6 py-4 flex items-center justify-between z-10">
+              <h3 className="font-bold text-slate-900 dark:text-slate-50 text-lg">
                 {viewingContent.title}
               </h3>
               <button
@@ -422,16 +432,17 @@ export function ContentTabModals({
                   setShowContentViewer(false);
                   setViewingContent(null);
                 }}
-                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-blue-950/50 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6">
               <ContentViewer content={viewingContent} userRole="TEACHER" />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
