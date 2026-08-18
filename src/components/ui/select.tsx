@@ -88,7 +88,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-[200] min-w-[8rem] rounded-xl border",
+        "relative z-[10050] min-w-[8rem] rounded-xl border",
         // Cap height to available viewport space (Radix provides this var); fallback to 384px.
         // Use overflow-hidden - NOT overflow-y-auto - so Radix's own ScrollUpButton/ScrollDownButton
         // handle scrolling correctly. overflow-y-auto on the Content breaks their logic.
