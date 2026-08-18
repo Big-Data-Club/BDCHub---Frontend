@@ -346,6 +346,68 @@ export default function FeaturePage() {
 
 > Full token definitions in [BDC Design Rhythm v3.0](file:///home/thanh/BDCHub---Frontend/docs/references/design-systems/bdc-design-rhythm-v3.md). This section is the quick-reference.
 
+### Modular Styling Architecture (Tailwind CSS v4)
+
+Dự án tuân thủ mô hình **Modular CSS-First Architecture** với vị trí định nghĩa style tập trung tại `src/styles/`:
+- `src/styles/tokens/colors.css`: Design tokens cho palette màu (LMS, Sidebar, System dark/light mode).
+- `src/styles/tokens/motion.css`: Timing scale (`--duration-*`), Easing curves, `@keyframes` và `@theme` animate tokens (`--animate-*`).
+- `src/styles/base/reset.css`: HTML/Body base setup và `@media (prefers-reduced-motion: reduce)`.
+- `src/styles/base/scrollbar.css`: Global sleek custom scrollbar.
+- `src/styles/utilities/layout.css`: Custom layout utilities (`@utility bg-grid-paper`, `.accordion-wrapper`).
+- `src/styles/utilities/typography.css`: Font utilities và scrollbar hiding utilities (`@utility no-scrollbar`, `@utility hide-scrollbar`).
+- `src/styles/animations/components.css`: Component-specific entrance & micro-motions (HPC School, Stats Cards, Stagger delays).
+- `src/app/globals.css`: Entry point duy nhất nhập tất cả các file trong `src/styles/`.
+
+#### Quy Tắc Thêm / Sửa Style Mới:
+1. **Tuyệt đối không thêm CSS trực tiếp vào `globals.css`**: Đặt đúng file sub-module tương ứng trong `src/styles/`.
+2. **Khái niệm Token**: Sử dụng `--color-lms-*`, `--color-sidebar-*` và Tailwind classes thay vì hardcode mã màu hex rải rác.
+3. **Cú pháp Utility v4**: Viết custom utility classes bằng directive `@utility <name> { ... }`.
+4. **Tránh Override Toàn Cục**: Không khai báo CSS trực tiếp lên các tag HTML cơ bản (`button {}`, `input {}`) trong global stylesheets. Style của component thuộc về component TSX đó (Tailwind classes/CVA/Framer Motion).
+
+### Design Token System & Hierarchy
+
+1. **Semantic vs Primitive**:
+   - **Primitive Tokens**: `blue-600`, `slate-100`, `rounded-xl`, `duration-200`.
+   - **Semantic Tokens**: `bg-card`, `text-card-foreground`, `bg-lms-card`, `text-lms-cyan`, `border-lms-border`.
+   - Luôn ưu tiên dùng Semantic Token khi viết component layout/card/container.
+2. **Radius Scale Chuẩn**:
+   - **Card / Modal Panels**: `rounded-2xl` (16px).
+   - **Buttons / Inputs / Nested Panels**: `rounded-xl` (12px).
+   - **Badges / Status Chips**: `rounded-full` hoặc `rounded-md` (6px).
+   - *Tuyệt đối không dùng arbitrary radius*: `rounded-[10px]`, `rounded-[14px]`, `rounded-[12px]`.
+3. **Motion & Interaction Scale**:
+   - **Click Feedback**: Mọi button và clickable card đều phải có `active:scale-95 transition-all duration-200`.
+   - **Reveals / Modals**: `duration-300 ease-out`.
+
+### Workflow Khi Làm Việc Với Styles & Components
+
+#### 1. Khi Tạo Component Mới:
+1. **Kiểm tra Token có sẵn**: Tra cứu semantic colors (`bg-card`, `bg-lms-card`, `border-lms-border`, `text-lms-cyan`).
+2. **Tái sử dụng Tailwind Utilities & Patterns chuẩn**: Dùng `p-5` hoặc `p-6` cho card, `px-4 py-2.5` cho button.
+3. **Đảm bảo tính đối xứng Dark/Light mode**: Mọi thuộc tính màu (`bg-`, `text-`, `border-`) đều phải có cặp `dark:` tương ứng.
+4. **Không tạo abstraction hoặc CSS mới khi Tailwind utilities đã đáp ứng đầy đủ**.
+
+#### 2. Khi Chỉnh Sửa Component Hiện Có:
+1. **Kiểm tra duplicate**: Nếu component đang dùng hardcoded hex color rải rác (`#0F1E35`, `#050B18`) -> chuyển sang dùng semantic token (`bg-lms-card`, `bg-lms-bg`).
+2. **Chuẩn hóa Radius & Spacing**: Đưa các giá trị arbitrary lệch 1-2px về chuẩn `rounded-2xl` (card), `rounded-xl` (input/button).
+
+#### 3. Khi Cần Thêm Style Mới:
+Phải tự hỏi theo luồng:
+```text
+Style này đã tồn tại chưa?
+        ↓
+Có thể giải quyết bằng Tailwind utility chuẩn không?
+        ↓
+Có Semantic Token tương ứng chưa?
+        ↓
+Pattern này có dùng chung ở 3+ nơi không?
+        ↓
+Nếu CÓ → Thêm vào đúng sub-file trong `src/styles/`
+Nếu KHÔNG → Giữ nguyên local utility class tại component
+```
+
+
+
 ### Color Token Table
 
 | Role | Light | Dark |

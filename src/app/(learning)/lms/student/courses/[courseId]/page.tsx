@@ -1,10 +1,17 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function StudentCourseRoot({
-  params,
-}: {
-  params: Promise<{ courseId: string }>;
-}) {
-  const { courseId } = await params;
-  redirect(`/lms/student/courses/${courseId}/learn`);
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+
+export default function StudentCourseRoot() {
+  const router = useRouter();
+  const { courseId } = useParams<{ courseId: string }>();
+
+  useEffect(() => {
+    if (courseId) {
+      router.replace(`/lms/student/courses/${courseId}/learn`);
+    }
+  }, [courseId, router]);
+
+  return null;
 }

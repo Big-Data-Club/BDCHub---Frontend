@@ -70,7 +70,7 @@ export function MasteryTab({
                 <Target className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
               </div>
               <div>
-                <h4 className="font-bold text-slate-855 dark:text-slate-200 text-sm">
+                <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">
                   Độ thông thạo chủ đề (Heatmap)
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Đánh giá độ hiểu biết theo từng chuyên đề</p>
@@ -86,10 +86,10 @@ export function MasteryTab({
                     <button
                       key={type}
                       onClick={() => setRadarFilter(type)}
-                      className={`px-2.5 py-1 text-[9px] font-bold rounded-md transition-all whitespace-nowrap active:scale-95 ${
+                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all whitespace-nowrap active:scale-95 cursor-pointer ${
                         radarFilter === type
-                          ? "bg-white text-cyan-600 shadow-xs dark:bg-cyan-500 dark:text-slate-955"
-                          : "text-slate-550 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-205"
+                          ? "bg-white text-cyan-600 shadow-xs dark:bg-cyan-500 dark:text-slate-950 font-extrabold"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                       }`}
                     >
                       {labelMap[type]}
@@ -122,7 +122,7 @@ export function MasteryTab({
                         fill="#06b6d4"
                         fillOpacity={0.15}
                       />
-                      <Tooltip contentStyle={{ fontSize: "11px", borderRadius: "16px", background: "rgba(15, 30, 53, 0.95)", backdropFilter: "blur(12px)", border: "1px solid rgba(59,130,246,0.2)", color: "#fff" }} />
+                      <Tooltip contentStyle={{ fontSize: "12px", borderRadius: "16px", background: "rgba(15, 30, 53, 0.95)", backdropFilter: "blur(12px)", border: "1px solid rgba(59,130,246,0.2)", color: "#fff" }} />
                     </RadarChart>
                   </ResponsiveContainer>
                 )
@@ -132,12 +132,12 @@ export function MasteryTab({
             {/* Right Column: Borderless Topics List */}
             {heatmapData.length > 0 && (
               <div className="w-full md:w-[320px] flex flex-col justify-center border-t md:border-t-0 md:border-l border-slate-200/60 dark:border-blue-500/10 pt-3 md:pt-0 md:pl-4">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-2 block uppercase tracking-wider">
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 block uppercase tracking-wider">
                   Chi tiết tất cả chủ đề ({heatmapData.length})
                 </span>
                 <div className="space-y-1.5 overflow-y-auto max-h-[210px] pr-1 scrollbar-thin">
                   {heatmapData.map((h, idx) => (
-                    <div key={idx} className="group flex items-center justify-between text-[11px] py-1.5 px-2 border-b border-slate-200/40 dark:border-blue-500/5 transition-colors hover:bg-slate-100/30 dark:hover:bg-[#12223a]/25 rounded-lg">
+                    <div key={idx} className="group flex items-center justify-between text-xs py-1.5 px-2 border-b border-slate-200/40 dark:border-blue-500/5 transition-colors hover:bg-slate-100/30 dark:hover:bg-[#12223a]/25 rounded-lg">
                       <span className="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[160px] group-hover:text-cyan-600 dark:group-hover:text-cyan-405 transition-colors" title={h.subject}>
                         {h.subject}
                       </span>
@@ -148,7 +148,7 @@ export function MasteryTab({
                             style={{ width: `${h["Độ thông thạo (%)"]}%` }}
                           />
                         </div>
-                        <span className="font-bold text-[10px] text-slate-500 dark:text-cyan-400 w-8 text-right">
+                        <span className="font-bold text-xs text-slate-500 dark:text-cyan-400 w-8 text-right">
                           {h["Độ thông thạo (%)"]}%
                         </span>
                       </div>
@@ -179,15 +179,15 @@ export function MasteryTab({
               </div>
               <div className="grid grid-cols-3 gap-4 text-center mt-2">
                 <div className="py-2 px-1">
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Số câu</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Số câu</p>
                   <p className="text-base font-extrabold text-slate-800 dark:text-slate-100 mt-0.5">{microInteractions.total_interactions}</p>
                 </div>
                 <div className="py-2 px-1 border-x border-slate-200/50 dark:border-blue-500/10">
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Đúng</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Đúng</p>
                   <p className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">{microInteractions.total_correct}</p>
                 </div>
                 <div className="py-2 px-1">
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Tỷ lệ</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tỷ lệ</p>
                   <p className="text-base font-extrabold text-blue-600 dark:text-cyan-400 mt-0.5">
                     {Math.round((microInteractions.total_correct / microInteractions.total_interactions) * 100)}%
                   </p>
@@ -211,15 +211,15 @@ export function MasteryTab({
               </div>
               <div className="grid grid-cols-3 gap-4 text-center mt-2">
                 <div className="py-2 px-1">
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Theo dõi</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Theo dõi</p>
                   <p className="text-base font-extrabold text-slate-800 dark:text-slate-205 mt-0.5">{spacedRepQuizzes.total_tracked}</p>
                 </div>
                 <div className="py-2 px-1 border-x border-slate-200/50 dark:border-blue-500/10">
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Nhớ tốt</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Nhớ tốt</p>
                   <p className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">{spacedRepQuizzes.mastered}</p>
                 </div>
                 <div className="py-2 px-1">
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Điểm TB</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Điểm TB</p>
                   <p className="text-base font-extrabold text-violet-655 dark:text-violet-400 mt-0.5">{spacedRepQuizzes.avg_quality.toFixed(1)}</p>
                 </div>
               </div>
@@ -265,7 +265,7 @@ export function MasteryTab({
                       >
                         <XAxis type="number" domain={[0, 100]} hide />
                         <YAxis dataKey="name" type="category" tick={{ fontSize: 9, fill: "#64748b" }} width={120} />
-                        <Tooltip formatter={(value) => `${value}%`} contentStyle={{ fontSize: "11px", borderRadius: "16px", background: "rgba(15, 30, 53, 0.95)", backdropFilter: "blur(12px)", border: "1px solid rgba(59,130,246,0.2)", color: "#fff" }} />
+                        <Tooltip formatter={(value) => `${value}%`} contentStyle={{ fontSize: "12px", borderRadius: "16px", background: "rgba(15, 30, 53, 0.95)", backdropFilter: "blur(12px)", border: "1px solid rgba(59,130,246,0.2)", color: "#fff" }} />
                         <Bar dataKey="Điểm (%)" fill="#f59e0b" radius={[0, 4, 4, 0]} barSize={12} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -277,10 +277,10 @@ export function MasteryTab({
             {/* List Detail Area */}
             {quizScores.length > 0 && (
               <div className="w-full md:w-[280px] flex flex-col justify-center border-t md:border-t-0 md:border-l border-slate-200/60 dark:border-blue-500/10 pt-3 md:pt-0 md:pl-4">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mb-2 block uppercase">Chi tiết điểm trắc nghiệm</span>
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 block uppercase">Chi tiết điểm trắc nghiệm</span>
                 <div className="space-y-1.5 overflow-y-auto max-h-[160px] pr-1 scrollbar-thin">
                   {quizScores.slice(0, 4).map((q) => (
-                    <div key={q.quiz_id} className="group flex items-center justify-between text-[11px] py-1.5 px-2 border-b border-slate-200/40 dark:border-blue-500/5 transition-colors hover:bg-slate-100/30 dark:hover:bg-[#12223a]/25 rounded-lg">
+                    <div key={q.quiz_id} className="group flex items-center justify-between text-xs py-1.5 px-2 border-b border-slate-200/40 dark:border-blue-500/5 transition-colors hover:bg-slate-100/30 dark:hover:bg-[#12223a]/25 rounded-lg">
                       <span className="font-semibold text-slate-700 dark:text-slate-350 truncate max-w-[140px] group-hover:text-amber-600 dark:group-hover:text-cyan-405 transition-colors" title={q.quiz_title}>{q.quiz_title}</span>
                       <span className={`font-bold text-xs ${
                         q.best_percentage === null 

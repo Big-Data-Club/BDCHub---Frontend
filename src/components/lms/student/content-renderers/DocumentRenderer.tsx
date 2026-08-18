@@ -79,7 +79,7 @@ export function DocumentRenderer({ content }: DocumentRendererProps) {
             title={fileName}
             frameBorder="0"
           />
-          <div className="p-3 bg-slate-50 dark:bg-[#070E1C]/50 border-t border-slate-200 dark:border-blue-500/10 text-[10px] text-slate-400 text-center">
+          <div className="p-3 bg-slate-50 dark:bg-[#070E1C]/50 border-t border-slate-200 dark:border-blue-500/10 text-xs text-slate-400 text-center">
             Bản xem trước được cung cấp bởi Microsoft Office Online. Nếu không hiển thị, vui lòng tải xuống để xem.
           </div>
         </div>

@@ -14,7 +14,7 @@ import {
   Card, SectionHeader,
   PrimaryBtn, SecondaryBtn, GhostBtn,
   EmptyState, PageLoader, Alert, ProgressBar, GridBackground,
-  QuickActionCard, TeacherSummaryCard, TeacherHeader
+  QuickActionCard, TeacherSummaryCard, LmsPageHeader
 } from "@/components/lms/shared";
 import { useSession } from "next-auth/react";
 import type { TeacherDashboardSummaryResponse } from "@/services/lms/analyticsService";
@@ -142,11 +142,12 @@ export default function TeacherDashboard() {
 
   return (
     <div className="flex flex-col min-h-screen w-full">
-      {/* ── Premium Full-width Header synced with Teacher Suite ── */}
-      <TeacherHeader
+      {/* ── Premium Full-width Header with LmsPageHeader ── */}
+      <LmsPageHeader
+        categoryLabel="Hệ thống quản lý học tập (LMS)"
         title="Tổng quan Giảng dạy"
         description="Quản lý khóa học của bạn, theo dõi dữ liệu chuyên sâu và kết nối với học viên."
-        actions={
+        sideWidget={
           <div className="w-full lg:max-w-xl xl:max-w-2xl flex-shrink-0">
             <TeacherSummaryCard
               totalCourses={totalCoursesCount}

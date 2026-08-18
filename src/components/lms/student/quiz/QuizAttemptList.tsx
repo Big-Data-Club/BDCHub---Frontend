@@ -154,7 +154,7 @@ export function QuizAttemptList({
                 <div className="flex items-start gap-2">
                   <Calendar className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Bắt đầu</p>
+                    <p className="text-xs uppercase font-bold text-slate-400 dark:text-slate-500">Bắt đầu</p>
                     <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       {formatDate(attempt.started_at)}
                     </p>
@@ -165,7 +165,7 @@ export function QuizAttemptList({
                   <div className="flex items-start gap-2">
                     <Clock className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Thời gian làm</p>
+                      <p className="text-xs uppercase font-bold text-slate-400 dark:text-slate-500">Thời gian làm</p>
                       <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         {formatDuration(attempt.time_spent_seconds)}
                       </p>
@@ -174,7 +174,7 @@ export function QuizAttemptList({
                 )}
 
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Điểm số</p>
+                  <p className="text-xs uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Điểm số</p>
                   {getScoreDisplay(attempt)}
                 </div>
               </div>

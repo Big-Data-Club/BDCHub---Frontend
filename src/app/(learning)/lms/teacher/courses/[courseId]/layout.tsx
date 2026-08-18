@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { Edit3, BookOpen, Users, Shield, Activity, Eye, User, Calendar, Clock } from "lucide-react";
 import lmsService from "@/services/lms/lmsService";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
-import { Badge, Spinner, GridBackground, NavTabBar } from "@/components/lms/shared";
+import { Badge, Spinner, GridBackground, NavTabBar, LmsPageHeader } from "@/components/lms/shared";
 import { Course, Section } from "@/types";
 import { cn } from "@/lib/utils";
 import { useSetPageContext } from "@/hooks/common/usePageContext";
@@ -154,173 +154,160 @@ export default function CourseDetailLayout({ children }: { children: React.React
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] flex flex-col transition-colors duration-300">
       
-      {/* ── Premium Full-width Header synced with Student Layout ── */}
-      <header className="relative w-full overflow-visible border-b border-slate-200/80 dark:border-blue-500/15 bg-white/40 dark:bg-[#070E1C]/60 backdrop-blur-xl py-6 z-30 flex-shrink-0">
-        <GridBackground />
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 w-full flex flex-col gap-6">
-          {/* Top row: Breadcrumb + Title + Streamlined Header Panel */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left side: Main Course Overview Header */}
-            <div className="lg:col-span-7 space-y-4 min-w-0">
-              <BreadcrumbNav items={breadcrumbItems} />
-              
-              <div>
-                {loading ? (
-                  <div className="flex items-center gap-3 py-4">
-                    <Spinner className="w-4 h-4 border-2 animate-spin text-blue-600 dark:text-cyan-400" />
-                    <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                      Đang tải khóa học…
+      {/* ── Premium Full-width Header with Reusable LmsPageHeader ── */}
+      <LmsPageHeader
+        breadcrumbs={<BreadcrumbNav items={breadcrumbItems} />}
+        title={
+          loading ? (
+            <div className="flex items-center gap-3 py-4">
+              <Spinner className="w-4 h-4 border-2 animate-spin text-blue-600 dark:text-cyan-400" />
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                Đang tải khóa học…
+              </span>
+            </div>
+          ) : course ? (
+            <div className="space-y-3">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance">
+                {course.title}
+              </h1>
+
+              {course.description && (
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-normal max-w-2xl line-clamp-2 leading-relaxed tracking-normal">
+                  {course.description}
+                </p>
+              )}
+
+              {/* Metadata Pill Bar: Tags, Creator, Dates & Action buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <div className="flex items-center gap-2">
+                  {renderCategoryBadges(course.category)}
+                  {course.level && <Badge variant="blue">{course.level}</Badge>}
+                </div>
+
+                <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+
+                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  {course.creator_avatar_url ? (
+                    <img 
+                      src={course.creator_avatar_url} 
+                      alt={course.creator_name || "Giảng viên"} 
+                      className="w-4 h-4 rounded-full object-cover ring-1 ring-blue-500/20"
+                    />
+                  ) : (
+                    <User className="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-800 p-0.5 text-slate-500" />
+                  )}
+                  <span className="font-medium text-slate-700 dark:text-slate-300">
+                    Tạo bởi: <strong className="font-semibold">{course.creator_name || "Giảng viên"}</strong>
+                  </span>
+                </div>
+
+                <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+
+                {/* Timestamps Pill */}
+                <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                  <span className="inline-flex items-center gap-1 font-normal" title={`Khởi tạo: ${new Date(course.created_at).toLocaleString("vi-VN")}`}>
+                    <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                    <span>Tạo {new Date(course.created_at).toLocaleDateString("vi-VN")}</span>
+                  </span>
+
+                  {course.published_at && (
+                    <span className="inline-flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400" title={`Xuất bản: ${new Date(course.published_at).toLocaleString("vi-VN")}`}>
+                      <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Xuất bản {new Date(course.published_at).toLocaleDateString("vi-VN")}</span>
                     </span>
-                  </div>
-                ) : course ? (
-                  <div className="space-y-3">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] text-balance">
-                      {course.title}
-                    </h1>
+                  )}
+                </div>
 
-                    {course.description && (
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-normal max-w-2xl line-clamp-2 leading-relaxed tracking-normal">
-                        {course.description}
-                      </p>
-                    )}
+                <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 
-                    {/* Metadata Pill Bar: Tags, Creator, Dates & Action buttons */}
-                    <div className="flex flex-wrap items-center gap-3 pt-1">
-                      <div className="flex items-center gap-2">
-                        {renderCategoryBadges(course.category)}
-                        {course.level && <Badge variant="blue">{course.level}</Badge>}
-                      </div>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 rounded-xl active:scale-95 transition-all shadow-xs border border-slate-200 dark:border-blue-500/20 cursor-pointer"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Chỉnh sửa thông tin</span>
+                </button>
 
-                      <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
-
-                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                        {course.creator_avatar_url ? (
-                          <img 
-                            src={course.creator_avatar_url} 
-                            alt={course.creator_name || "Giảng viên"} 
-                            className="w-4 h-4 rounded-full object-cover ring-1 ring-blue-500/20"
-                          />
-                        ) : (
-                          <User className="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-800 p-0.5 text-slate-500" />
-                        )}
-                        <span className="font-medium text-slate-700 dark:text-slate-300">
-                          Tạo bởi: <strong className="font-semibold">{course.creator_name || "Giảng viên"}</strong>
-                        </span>
-                      </div>
-
-                      <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
-
-                      {/* Timestamps Pill */}
-                      <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                        <span className="inline-flex items-center gap-1 font-normal" title={`Khởi tạo: ${new Date(course.created_at).toLocaleString("vi-VN")}`}>
-                          <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                          <span>Tạo {new Date(course.created_at).toLocaleDateString("vi-VN")}</span>
-                        </span>
-
-                        {course.published_at && (
-                          <span className="inline-flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400" title={`Xuất bản: ${new Date(course.published_at).toLocaleString("vi-VN")}`}>
-                            <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                            <span>Xuất bản {new Date(course.published_at).toLocaleDateString("vi-VN")}</span>
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="h-3.5 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
-
-                      <button
-                        onClick={() => setShowEditModal(true)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 rounded-xl active:scale-95 transition-all shadow-xs border border-slate-200 dark:border-blue-500/20 cursor-pointer"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>Chỉnh sửa thông tin</span>
-                      </button>
-
-                      {!isPublished && (
-                        <button
-                          onClick={handlePublish}
-                          disabled={publishing}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 rounded-xl active:scale-95 transition-all shadow-xs disabled:opacity-50 cursor-pointer"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>{publishing ? "Đang xuất bản…" : "Xuất bản khóa học"}</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                    Không tìm thấy khóa học
-                  </h1>
+                {!isPublished && (
+                  <button
+                    onClick={handlePublish}
+                    disabled={publishing}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 rounded-xl active:scale-95 transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>{publishing ? "Đang xuất bản…" : "Xuất bản khóa học"}</span>
+                  </button>
                 )}
               </div>
             </div>
+          ) : (
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Không tìm thấy khóa học
+            </h1>
+          )
+        }
+        bottomBar={
+          <NavTabBar
+            tabs={COURSE_TABS}
+            basePath={basePath}
+          />
+        }
+        sideWidget={
+          !loading && course ? (
+            <div className="w-full lg:w-[380px] xl:w-[420px]">
+              <div className="bg-white/90 dark:bg-[#0F1E35]/90 backdrop-blur-md border border-slate-200/90 dark:border-blue-500/20 rounded-2xl p-4.5 shadow-sm space-y-3.5">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-blue-500/10 pb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-cyan-400">
+                    Tổng quan chỉ số
+                  </span>
+                  <Badge variant={isPublished ? "green" : "yellow"}>
+                    {isPublished ? "Đã xuất bản" : "Bản nháp"}
+                  </Badge>
+                </div>
 
-            {/* Right side: Expanded Header Dashboard Hero Panel */}
-            {!loading && course && (
-              <div className="lg:col-span-5 w-full">
-                <div className="bg-white/90 dark:bg-[#0F1E35]/90 backdrop-blur-md border border-slate-200/90 dark:border-blue-500/20 rounded-2xl p-4.5 shadow-sm space-y-3.5">
-                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-blue-500/10 pb-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-cyan-400">
-                      Tổng quan chỉ số
-                    </span>
-                    <Badge variant={isPublished ? "green" : "yellow"}>
-                      {isPublished ? "Đã xuất bản" : "Bản nháp"}
-                    </Badge>
+                {/* 2x2 Compact Metric Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Metric 1: Visibility */}
+                  <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-[#0D192E]/90 border border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Phạm vi</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                        {course.visibility === "PUBLIC" ? "Công khai" : "Nội bộ"}
+                      </p>
+                    </div>
+                    <Shield className="w-4 h-4 text-blue-500 dark:text-cyan-400 flex-shrink-0" />
                   </div>
 
-                  {/* 2x2 Compact Metric Grid */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Metric 1: Visibility */}
-                    <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-[#0D192E]/90 border border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
-                      <div>
-                        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Phạm vi</p>
-                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                          {course.visibility === "PUBLIC" ? "Công khai" : "Nội bộ"}
-                        </p>
-                      </div>
-                      <Shield className="w-4 h-4 text-blue-500 dark:text-cyan-400 flex-shrink-0" />
+                  {/* Metric 2: Enrollment */}
+                  <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-[#0D192E]/90 border border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Học viên</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                        {course.enrollment_count ?? 0} học viên
+                      </p>
                     </div>
-
-                    {/* Metric 2: Enrollment */}
-                    <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-[#0D192E]/90 border border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
-                      <div>
-                        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Học viên</p>
-                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                          {course.enrollment_count ?? 0} học viên
-                        </p>
-                      </div>
-                      <Users className="w-4 h-4 text-purple-500 dark:text-purple-400 flex-shrink-0" />
-                    </div>
-
-                    {/* Metric 3: Sections */}
-                    <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-[#0D192E]/90 border border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
-                      <div>
-                        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Chương học</p>
-                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                          {sections.length} chương
-                        </p>
-                      </div>
-                      <BookOpen className="w-4 h-4 text-cyan-500 dark:text-cyan-400 flex-shrink-0" />
-                    </div>
-
-                    {/* Metric 4: Interactive Readiness Dropdown Popover */}
-                    <CourseReadinessPopover course={course} sections={sections} />
+                    <Users className="w-4 h-4 text-purple-500 dark:text-purple-400 flex-shrink-0" />
                   </div>
+
+                  {/* Metric 3: Sections */}
+                  <div className="p-3 rounded-xl bg-slate-50/90 dark:bg-[#0D192E]/90 border border-slate-100 dark:border-blue-500/10 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Chương học</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                        {sections.length} chương
+                      </p>
+                    </div>
+                    <BookOpen className="w-4 h-4 text-cyan-500 dark:text-cyan-400 flex-shrink-0" />
+                  </div>
+
+                  {/* Metric 4: Interactive Readiness Dropdown Popover */}
+                  <CourseReadinessPopover course={course} sections={sections} />
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Bottom row: Compact NavTabBar */}
-          <div className="pt-1">
-            <NavTabBar
-              tabs={COURSE_TABS}
-              basePath={basePath}
-            />
-          </div>
-        </div>
-      </header>
+            </div>
+          ) : null
+        }
+      />
 
       {/* ── Main content (child pages with page-switch transition) ── */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow flex flex-col">
