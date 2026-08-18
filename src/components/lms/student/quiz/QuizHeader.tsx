@@ -1,4 +1,4 @@
-import { Clock, ArrowLeft, RefreshCw, AlertCircle } from "lucide-react";
+import { Clock, ArrowLeft, RefreshCw } from "lucide-react";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 
 interface QuizHeaderProps {

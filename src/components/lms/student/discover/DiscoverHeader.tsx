@@ -1,4 +1,4 @@
-import { Search, Sparkles, SlidersHorizontal } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { Input, GridBackground } from "@/components/lms/shared";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 import { RefObject } from "react";

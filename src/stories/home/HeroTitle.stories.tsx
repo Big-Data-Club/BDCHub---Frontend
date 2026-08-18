@@ -653,7 +653,7 @@ const CubicBezierRender = (args: CubicBezierRenderProps) => {
 
 // Story: Cubic Bezier Easing Visualizer
 export const CubicBezierVisualizer: Story = {
-  render: (_args) => {
+  render: () => {
     const [currentArgs, updateArgs] = useArgs();
     return <CubicBezierRender {...(currentArgs as any)} updateArgs={updateArgs} />;
   },

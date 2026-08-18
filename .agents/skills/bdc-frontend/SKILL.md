@@ -435,19 +435,6 @@ export default function FeaturePage() {
 
 ---
 
-## Route Groups
-
-| Group | Layout | Auth | Design mode |
-|---|---|---|---|
-| `(auth)` | AuthShell (cosmic bg + ThemeToggle) | No | Light / Dark toggle |
-| `(landing)` | Public landing | No | Light / Dark toggle |
-| `(main)` | Sidebar + MobileNav | Yes | Light (slate) |
-| `(learning)/lms` | LMS shell | Yes | Dark (navy) preferred |
-
-> LMS dark mode dùng blue-navy palette (`#050B18`), không dùng `slate-950`.
-
----
-
 ## Anti-Patterns
 
 | ❌ Đừng làm | ✅ Thay bằng |
@@ -468,6 +455,10 @@ export default function FeaturePage() {
 | Inline `style={{}}` | Tailwind only |
 | `active:scale-95` thiếu trên button | Mọi clickable element cần press feedback |
 | `console.log` trong code commit | Remove trước PR |
+| Prefix `_` cho unused variable/prop (`_course`, `_progressPct`) | Xóa hẳn variable/prop khỏi destructuring nếu không dùng (ESLint vẫn báo lỗi) |
+| Import icon dư thừa từ `lucide-react` | Xóa các unused imports trước khi commit |
+| Dùng `<img>` mà không handle ESLint warning | Dùng `<Image />` từ `next/image` (ảnh static), hoặc dùng `/* eslint-disable-next-line @next/next/no-img-element */` (ảnh dynamic từ backend) |
+| Viết dấu nháy `'` hoặc `"` trực tiếp trong JSX text | Dùng `&quot;`, `&apos;` hoặc JSX expression `{"'..."}` |
 | Default export cho component | Named exports only |
 | Build LMS primitive mới | Kiểm tra `components/lms/shared/` trước |
 | Shadow nặng trên dark mode | `dark:shadow-none` hoặc blue glow subtle |
@@ -512,9 +503,14 @@ export default function FeaturePage() {
 [ ] Modal có overlay + rounded-2xl panel
 [ ] Pipeline steps có numbered badge cyan/blue
 
-── Quality ─────────────────────────────────────────────────────────────
+── Quality & ESLint Clean Code ──────────────────────────────────────────
 [ ] Không hardcode localhost URLs
 [ ] Không có console.log
+[ ] Không để unused variables/props (kể cả khi prefix `_` như `_course`)
+[ ] Dọn dẹp unused imports (icons từ `lucide-react`, React hooks...)
+[ ] Escape các kí tự nháy `'` và `"` trong JSX text bằng `&quot;` / `&apos;`
+[ ] Thêm `/* eslint-disable-next-line @next/next/no-img-element */` nếu bắt buộc dùng `<img>` cho dynamic backend URLs
+[ ] Chạy `npx next lint` kiểm tra đạt 0 errors trước khi tạo PR
 [ ] Hoạt động đúng ở cả light và dark mode
 [ ] Kiểm tra contrast WCAG AA ở cả hai mode
 ```

@@ -11,8 +11,6 @@ interface QuizAttemptListProps {
 
 export function QuizAttemptList({
   attempts,
-  courseId,
-  quizId,
   onNavigateToResult,
   onNavigateToTake,
 }: QuizAttemptListProps) {

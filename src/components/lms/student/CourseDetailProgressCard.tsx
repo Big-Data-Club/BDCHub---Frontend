@@ -23,7 +23,6 @@ interface CourseDetailProgressCardProps {
 }
 
 export function CourseDetailProgressCard({
-  course: _course,
   progress,
   completedIds,
   sections,

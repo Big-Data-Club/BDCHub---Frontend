@@ -204,7 +204,7 @@ export const ConversationSidebar = forwardRef<
               <MessageSquare className="w-5 h-5" />
             </div>
             <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Chưa có lịch sử hội thoại</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Bấm 'Đoạn chat mới' ở trên để bắt đầu hội thoại với AI Mentor</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Bấm &quot;Đoạn chat mới&quot; ở trên để bắt đầu hội thoại với AI Mentor</p>
           </div>
         ) : (
           sessions.map((session, idx) => {
