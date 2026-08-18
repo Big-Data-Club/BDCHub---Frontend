@@ -16,6 +16,7 @@ import {
   MessageSquare, Megaphone, File as FileIcon, AlertCircle
 } from "lucide-react";
 import { CourseProgress, ProgressDetailItem } from "@/services/progressService";
+import { Badge } from "@/components/lms/shared/Badge";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -151,10 +152,10 @@ function ContentRow({
 
         {/* Mandatory badge */}
         {item.is_mandatory && !item.is_completed && (
-          <span className="hidden sm:flex items-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800/50 px-2 py-0.5 rounded-full">
+          <Badge variant="orange" size="sm" className="hidden sm:inline-flex">
             <AlertCircle className="w-3 h-3" />
             Bắt buộc
-          </span>
+          </Badge>
         )}
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
+import { Badge } from "@/components/lms/shared/Badge";
 import quizService from "@/services/quizService";
 import { Clock, CheckCircle, XCircle, Eye, Calendar, Timer, Award, TrendingUp, AlertCircle } from "lucide-react";
 
@@ -96,47 +97,39 @@ export default function QuizHistoryModal({
   const getStatusBadge = (status: string, isPassed: boolean | null) => {
     if (status === "IN_PROGRESS") {
       return (
-        <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-lg text-xs font-semibold flex items-center gap-1">
+        <Badge variant="yellow" size="md">
           <Clock className="w-3 h-3" />
           Đang làm
-        </span>
+        </Badge>
       );
     }
     if (status === "SUBMITTED") {
       return (
-        <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg text-xs font-semibold flex items-center gap-1">
+        <Badge variant="blue" size="md">
           <AlertCircle className="w-3 h-3" />
           Chờ chấm
-        </span>
+        </Badge>
       );
     }
     if (status === "GRADED") {
       if (isPassed === true) {
         return (
-          <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold flex items-center gap-1">
+          <Badge variant="green" size="md">
             <CheckCircle className="w-3 h-3" />
             Đạt
-          </span>
+          </Badge>
         );
       } else if (isPassed === false) {
         return (
-          <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-xs font-semibold flex items-center gap-1">
+          <Badge variant="red" size="md">
             <XCircle className="w-3 h-3" />
             Không đạt
-          </span>
+          </Badge>
         );
       }
-      return (
-        <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold">
-          Đã chấm
-        </span>
-      );
+      return <Badge variant="gray" size="md">Đã chấm</Badge>;
     }
-    return (
-      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold">
-        {status}
-      </span>
-    );
+    return <Badge variant="gray" size="md">{status}</Badge>;
   };
 
   const getBestAttempt = () => {
