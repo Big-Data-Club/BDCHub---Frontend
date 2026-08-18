@@ -14,7 +14,7 @@ import {
   Sparkles, Brain, CheckCircle2, X,
   ChevronRight, RotateCcw, AlertCircle
 } from "lucide-react";
-import aiService, { DueReview, ReviewStats } from "@/services/aiService";
+import aiService, { DueReview, ReviewStats } from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 

@@ -98,10 +98,10 @@ export function ActionButton({
     <button
       onClick={onClick}
       className={cn(
-        "flex-1 px-5 py-3 rounded-xl font-semibold text-sm shadow-sm transition-all active:scale-95",
+        "flex-1 px-5 py-3 rounded-xl font-semibold text-sm shadow-sm transition-all active:scale-95 cursor-pointer",
         variant === "success"
-          ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-          : "bg-blue-600 hover:bg-blue-700 text-white"
+          ? "bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-500"
+          : "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-500"
       )}
     >
       {label}

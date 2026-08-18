@@ -145,7 +145,7 @@ export default function UserApp() {
         import("@/lib/users/fileParser"),
         import("@/lib/admin/rolesApi"),
         import("@/lib/admin/teamsTypesApi"),
-        import("@/services/organizationService"),
+        import("@/services/admin/organizationService"),
       ]);
       const [roles, teams, types, organizationPage] = await Promise.all([
         fetchRoles(),

@@ -5,7 +5,7 @@ import { X, Loader2, Save, Building2 } from "lucide-react";
 import { postBulkRegister } from "@/lib/users/api";
 import { mapFrontendRoleToBackend, mapFrontendTeamToBackend, mapFrontendTypeToBackend } from "@/lib/users/auth";
 import { fetchRoles, Role } from "@/lib/admin/rolesApi";
-import { organizationService } from "@/services/organizationService";
+import { organizationService } from "@/services/admin/organizationService";
 import { fetchPublicTeams, fetchPublicTypes, Team as APITeam, UserTypeOption } from "@/lib/admin/teamsTypesApi";
 
 interface CreateUserModalProps {

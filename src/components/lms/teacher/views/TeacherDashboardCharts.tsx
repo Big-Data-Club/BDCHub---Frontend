@@ -5,7 +5,7 @@ import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid,
 } from "recharts";
 import { Card } from "@/components/lms/shared";
-import type { RegistrationTimeline, TeacherCourseStats } from "@/services/analyticsService";
+import type { RegistrationTimeline, TeacherCourseStats } from "@/services/lms/analyticsService";
 
 export function TeacherDashboardCharts({
   registrationTimeline,

@@ -8,7 +8,7 @@ import { StudentCourseAnalytics } from "@/components/lms/student/StudentCourseAn
 import { StudentDashboardHeader } from "@/components/lms/student/StudentDashboardHeader";
 import { useScrollSnap } from "@/hooks/common/useScrollSnap";
 import { useStudentDashboard } from "@/hooks/lms/student/useStudentDashboard";
-import { trackRecommendationEvent } from "@/services/recommendationService";
+import { trackRecommendationEvent } from "@/services/lms/recommendationService";
 
 export default function StudentDashboard() {
   const router = useRouter();

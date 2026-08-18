@@ -21,7 +21,7 @@ import {
   Activity
 } from "lucide-react";
 import { useAuth } from "@/hooks/auth/useAuth";
-import { labService } from "@/services/labService";
+import { labService } from "@/services/labs/labService";
 import type { Lab, LabLevel, LabType } from "@/types";
 import toast from "react-hot-toast";
 import Link from "next/link";

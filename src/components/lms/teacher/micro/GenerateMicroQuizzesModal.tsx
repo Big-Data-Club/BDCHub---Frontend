@@ -13,8 +13,8 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Loader2, Sparkles, X, HelpCircle } from "lucide-react";
-import lmsService from "@/services/lmsService";
-import microQuizService from "@/services/microQuizService";
+import lmsService from "@/services/lms/lmsService";
+import microQuizService from "@/services/lms/microQuizService";
 import type { Content, Section } from "@/types";
 
 interface Props {

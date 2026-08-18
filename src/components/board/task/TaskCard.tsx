@@ -12,7 +12,7 @@ import {
   Award,
 } from "lucide-react";
 import { Task, User as UserType, EventItem, PRIORITY_COLORS } from "@/types";
-import { formatDate } from "@/utils/utils";
+import { formatDate } from "@/utils/common/utils";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { UserAvatar } from "@/components/user/UserAvatar";
 

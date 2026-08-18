@@ -12,8 +12,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import type { LlmModel, LlmProvider } from "@/services/llmConfigService";
-import { llmConfigService } from "@/services/llmConfigService";
+import type { LlmModel, LlmProvider } from "@/services/ai/llmConfigService";
+import { llmConfigService } from "@/services/ai/llmConfigService";
 
 type Props = {
   models: LlmModel[];

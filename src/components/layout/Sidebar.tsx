@@ -18,8 +18,8 @@ import { useNotifications } from "@/store/NotificationContext";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useTheme } from "next-themes";
 import SafeImage from "../common/SafeImage";
-import lmsService from "@/services/lmsService";
-import { logout } from "@/services/logout";
+import lmsService from "@/services/lms/lmsService";
+import { logout } from "@/services/auth/logout";
 import { GhostBtn } from "@/components/lms/shared/Button";
 
 const MIN_WIDTH = 64;

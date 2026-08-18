@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { KeyRound, AlertCircle, CheckCircle2, Loader2, RotateCcw } from "lucide-react";
-import { userService } from "@/services/userService";
+import { userService } from "@/services/auth/userService";
 
 interface ConfirmPasswordFormProps {
   token: string;

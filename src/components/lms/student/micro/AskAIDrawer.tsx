@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useAgentChat } from "@/hooks/lms/agent/useAgentChat";
-import analyticsService from "@/services/analyticsService";
+import analyticsService from "@/services/lms/analyticsService";
 import type { MicroLessonContext } from "./types";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 

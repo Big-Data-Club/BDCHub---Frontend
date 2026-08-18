@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import forumService, { ForumPost } from "@/services/forumService";
+import forumService, { ForumPost } from "@/services/lms/forumService";
 import ForumPostList from "./ForumPostList";
 import ForumSearchBar from "./ForumSearchBar";
 import ForumCreatePost from "./ForumCreatePost";

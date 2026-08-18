@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ForumPost } from "@/services/forumService";
-import forumService from "@/services/forumService";
+import { ForumPost } from "@/services/lms/forumService";
+import forumService from "@/services/lms/forumService";
 import {
   ThumbsUp,
   ThumbsDown,

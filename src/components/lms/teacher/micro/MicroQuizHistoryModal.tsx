@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Clock, CheckCircle2, XCircle, Loader2, HelpCircle, X } from "lucide-react";
-import { microQuizService, type MicroQuizJob } from "@/services/microQuizService";
+import { microQuizService, type MicroQuizJob } from "@/services/lms/microQuizService";
 import { Spinner } from "@/components/lms/shared";
 
 interface Props {

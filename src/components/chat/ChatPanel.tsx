@@ -6,9 +6,9 @@ import { useChat } from "@/hooks/chat/useChat";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { cn } from "@/lib/utils";
-import { ChatMessage as ChatMessageType } from "@/types/chat";
+import { ChatMessage as ChatMessageType } from "@/types/chat/chat";
 import ChatAvatar from "./ChatAvatar";
-import { getChannelPresence } from "@/services/chatService";
+import { getChannelPresence } from "@/services/chat/chatService";
 
 export default function ChatPanel() {
   const {

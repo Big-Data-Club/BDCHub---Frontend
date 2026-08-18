@@ -15,7 +15,7 @@ import {
   BookOpen, ChevronLeft, CheckCircle2, Edit3, ExternalLink,
   HelpCircle, Loader2, Save, Send, Terminal, Trash2, X,
 } from "lucide-react";
-import { sectionOverviewService } from "@/services/sectionOverviewService";
+import { sectionOverviewService } from "@/services/lms/sectionOverviewService";
 import type {
   SectionOverviewJob,
   SectionOverviewJobDetail,

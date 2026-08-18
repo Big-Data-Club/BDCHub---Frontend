@@ -1,4 +1,4 @@
-import { EventConfig } from "@/types/event";
+import { EventConfig } from "@/types/dashboard/event";
 
 export const hackathon2025Data: EventConfig = {
   id: "bdc-data-hackathon-2025",

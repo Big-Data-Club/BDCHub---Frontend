@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import ForumView from "@/components/lms/forum/ForumView";
 
 export default function ForumPage() {

@@ -18,7 +18,7 @@ import {
 import microLessonService, {
   asImageUrls, asObjectives, unwrapNullString, unwrapNullInt,
   type JobWithLessons, type MicroLesson,
-} from "@/services/microLessonService";
+} from "@/services/lms/microLessonService";
 import type { Section } from "@/types";
 
 interface Props {

@@ -1,4 +1,4 @@
-import { getAccessToken } from "@/services/authToken";
+import { getAccessToken } from "@/services/auth/authToken";
 
 export interface Team {
   id: number;

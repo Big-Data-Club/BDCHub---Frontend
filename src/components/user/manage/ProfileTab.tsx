@@ -1,5 +1,5 @@
 import { User, Mail, Tag, Users, Save, Loader2 } from "lucide-react";
-import { UpdateProfileRequest, UserResponse } from "@/services/userService";
+import { UpdateProfileRequest, UserResponse } from "@/services/auth/userService";
 import AvatarUpload from "./AvatarUpload";
 
 interface ProfileTabProps {

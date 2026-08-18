@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { lmsApiClient } from '@/services/lmsApiClient';
+import { lmsApiClient } from '@/services/lms/lmsApiClient';
 
 export const useMarkdownImage = () => {
   const [uploading, setUploading] = useState(false);

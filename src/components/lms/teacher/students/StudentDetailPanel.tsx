@@ -13,7 +13,7 @@ import {
   X, TrendingUp, Award, Clock,
   CheckCircle2, AlertCircle
 } from "lucide-react";
-import { CourseStudentProgress } from "@/services/analyticsService";
+import { CourseStudentProgress } from "@/services/lms/analyticsService";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user/UserAvatar";
 

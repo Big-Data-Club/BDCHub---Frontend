@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { User, Lock, Loader2, Globe } from "lucide-react";
 
-import { userService, UserResponse, UpdateProfileRequest } from "@/services/userService";
+import { userService, UserResponse, UpdateProfileRequest } from "@/services/auth/userService";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useUser } from "@/store/UserContext";
 
@@ -13,7 +13,7 @@ import PasswordTab from "@/components/user/manage/PasswordTab";
 import BdcHubConfigTab from "@/components/user/manage/BdcHubConfigTab";
 import AccountStats from "@/components/user/manage/AccountStats";
 import { ActiveTab, MessageState, PasswordForm, ShowPasswords } from '@/types'
-import { validateOnlyPassword } from '@/utils/utils'
+import { validateOnlyPassword } from '@/utils/common/utils'
 
 const MyAccountPage: React.FC = () => {
   const { user: currentUser, saveUser } = useCurrentUser();

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { lmsService } from "@/services/lmsService";
+import { lmsService } from "@/services/lms/lmsService";
 import {
   getRecommendations,
   getLearningPreferenceProfile,
@@ -7,7 +7,7 @@ import {
   trackRecommendationEvent,
   type LearningPreferenceProfile,
   type RecommendationItem,
-} from "@/services/recommendationService";
+} from "@/services/lms/recommendationService";
 import { Course, Enrollment } from "@/types";
 
 export function useCourseDiscover() {

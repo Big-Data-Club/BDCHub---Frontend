@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import ForumPostDetail from "@/components/lms/forum/ForumPostDetail";
 
 export default function PostDetailPage() {

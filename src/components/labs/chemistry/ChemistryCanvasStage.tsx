@@ -2,8 +2,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ChemistryLabSpec, TitrationDataPoint, VesselState } from "@/types/chemistry";
-import { ChemistryEngine } from "@/services/chemistryEngine";
+import type { ChemistryLabSpec, TitrationDataPoint, VesselState } from "@/types/labs/chemistry";
+import { ChemistryEngine } from "@/services/labs/chemistryEngine";
 import { TitrationCurveWidget } from "./TitrationCurveWidget";
 import { Play, Pause, RotateCcw, Droplet, Thermometer, Gauge } from "lucide-react";
 

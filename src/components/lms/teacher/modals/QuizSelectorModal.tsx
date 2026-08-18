@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { X, Plus, AlertCircle, Loader } from "lucide-react";
-import lmsService from "@/services/lmsService";
-import { lmsApiClient } from "@/services/lmsApiClient";
+import lmsService from "@/services/lms/lmsService";
+import { lmsApiClient } from "@/services/lms/lmsApiClient";
 import { cn } from "@/lib/utils";
 
 export interface QuizFromContent {

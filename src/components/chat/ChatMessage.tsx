@@ -2,7 +2,7 @@
 
 import { format, isToday, isYesterday } from "date-fns";
 import { Trash2, Reply, Pencil, CornerUpRight } from "lucide-react";
-import { ChatMessage as ChatMessageType } from "@/types/chat";
+import { ChatMessage as ChatMessageType } from "@/types/chat/chat";
 import { useSession } from "next-auth/react";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { cn } from "@/lib/utils";

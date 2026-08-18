@@ -9,7 +9,7 @@ import {
   CheckCircle2, Clock, Play, Award, Globe, Lock,
 } from "lucide-react";
 
-import { lmsService } from "@/services/lmsService";
+import { lmsService } from "@/services/lms/lmsService";
 import { useCourseDiscoverDetail } from "@/hooks/lms/student/useCourseDiscoverDetail";
 import { Course, Section } from "@/types";
 import { Badge, PrimaryBtn, GridBackground } from "@/components/lms/shared";

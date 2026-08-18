@@ -8,7 +8,7 @@ import type {
   EvaluationStep,
   ReactionRule,
   Substance,
-} from "@/types/chemistry";
+} from "@/types/labs/chemistry";
 import {
   Beaker,
   Plus,

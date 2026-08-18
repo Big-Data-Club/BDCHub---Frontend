@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import aiService, {
   ConsolidationGroup,
   ConsolidationPreview,
-} from "@/services/aiService";
+} from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
 
 interface Props {

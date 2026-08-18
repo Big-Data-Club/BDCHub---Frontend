@@ -7,8 +7,8 @@ import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 import QuizSettingsForm, { QuizSettings } from "../quiz/QuizSettingsForm";
 
-import lmsService from "@/services/lmsService";
-import quizService from "@/services/quizService";
+import lmsService from "@/services/lms/lmsService";
+import quizService from "@/services/lms/quizService";
 import { Content, FileInfo } from "@/types";
 import { useRouter } from "next/navigation";
 

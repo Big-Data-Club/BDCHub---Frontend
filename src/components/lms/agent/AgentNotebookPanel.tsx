@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Trash2, BookOpen, Search, Calendar, Loader2, Plus } from "lucide-react";
-import { agentService } from "@/services/agentService";
+import { agentService } from "@/services/ai/agentService";
 import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, ReactNode } from "react";
-import quizService from "@/services/quizService";
+import quizService from "@/services/lms/quizService";
 import FillBlankTextStudent from "@/components/lms/student/FillBlankTextStudent";
 import FillBlankDropdownStudent from "@/components/lms/student/FillBlankDropdownStudent";
 import AIDiagnosisModal from "./AIDiagnosisModal";

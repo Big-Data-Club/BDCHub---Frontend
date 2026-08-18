@@ -19,9 +19,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import aiService, {
   type ConceptCheckQuestion,
-} from "@/services/aiService";
-import flashcardService from "@/services/flashcardService";
-import analyticsService from "@/services/analyticsService";
+} from "@/services/ai/aiService";
+import flashcardService from "@/services/lms/flashcardService";
+import analyticsService from "@/services/lms/analyticsService";
 import type { MicroLessonContext } from "./types";
 
 interface QuickCheckProps {

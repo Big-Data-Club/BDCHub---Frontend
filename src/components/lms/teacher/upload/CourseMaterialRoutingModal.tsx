@@ -3,8 +3,8 @@
 import { useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Loader2, Sparkles, Upload, X } from "lucide-react";
-import { getAccessToken } from "@/services/authToken";
-import { materialRoutingService, type MaterialRoutingJob, type RoutingDocument } from "@/services/materialRoutingService";
+import { getAccessToken } from "@/services/auth/authToken";
+import { materialRoutingService, type MaterialRoutingJob, type RoutingDocument } from "@/services/lms/materialRoutingService";
 import type { Section } from "@/types";
 
 export default function CourseMaterialRoutingModal({

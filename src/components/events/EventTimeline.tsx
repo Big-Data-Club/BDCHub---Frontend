@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { TimelineDay } from '@/types/event';
+import { TimelineDay } from '@/types/dashboard/event';
 
 export default function EventTimeline({ timelines }: { timelines: TimelineDay[] }) {
   return (

@@ -16,7 +16,7 @@ import {
   Save,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { labService } from "@/services/labService";
+import { labService } from "@/services/labs/labService";
 import type {
   ExperimentDefinition,
   ExperimentVariable,

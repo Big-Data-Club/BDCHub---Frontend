@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 import { Badge } from "@/components/lms/shared/Badge";
-import quizService from "@/services/quizService";
+import quizService from "@/services/lms/quizService";
 import { Clock, CheckCircle, XCircle, Eye, Calendar, Timer, Award, TrendingUp, AlertCircle } from "lucide-react";
 
 interface QuizAttempt {

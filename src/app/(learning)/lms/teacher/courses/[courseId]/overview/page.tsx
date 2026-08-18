@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { OverviewTab } from "@/components/lms/teacher/views/OverviewTab";
 import { Alert, PageLoader } from "@/components/lms/shared";
 import { Course, Section } from "@/types";

@@ -3,8 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Search, X, Loader2, MessageSquare } from "lucide-react";
-import { searchUsers, getOrCreateDM } from "@/services/chatService";
-import { ChatUser } from "@/types/chat";
+import { searchUsers, getOrCreateDM } from "@/services/chat/chatService";
+import { ChatUser } from "@/types/chat/chat";
 import ChatAvatar from "./ChatAvatar";
 
 interface UserSearchModalProps {

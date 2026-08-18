@@ -8,8 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import type { LlmCatalogue, LlmTestCallResponse } from "@/services/llmConfigService";
-import { llmConfigService } from "@/services/llmConfigService";
+import type { LlmCatalogue, LlmTestCallResponse } from "@/services/ai/llmConfigService";
+import { llmConfigService } from "@/services/ai/llmConfigService";
 
 export function TestCallPanel({ catalogue }: { catalogue: LlmCatalogue | null }) {
   const [task, setTask] = useState<string>("chat");

@@ -10,8 +10,8 @@ import { DocumentRenderer } from "./content-renderers/DocumentRenderer";
 import { QuizRenderer } from "./content-renderers/QuizRenderer";
 import { ForumRenderer } from "./content-renderers/ForumRenderer";
 import { AnnouncementRenderer } from "./content-renderers/AnnouncementRenderer";
-import analyticsService from "@/services/analyticsService";
-import aiService from "@/services/aiService";
+import analyticsService from "@/services/lms/analyticsService";
+import aiService from "@/services/ai/aiService";
 
 export type { ContentItem };
 

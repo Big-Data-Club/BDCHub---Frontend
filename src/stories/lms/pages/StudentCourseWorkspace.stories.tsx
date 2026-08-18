@@ -7,11 +7,11 @@ import LearnPage from '@/app/(learning)/lms/student/courses/[courseId]/learn/pag
 import StatsPage from '@/app/(learning)/lms/student/courses/[courseId]/stats/page';
 import StudentQuizTakingPage from '@/app/(learning)/lms/student/courses/[courseId]/quiz/[quizId]/take/page';
 
-import lmsService from '@/services/lmsService';
-import progressService from '@/services/progressService';
-import analyticsService from '@/services/analyticsService';
-import quizService from '@/services/quizService';
-import aiService from '@/services/aiService';
+import lmsService from '@/services/lms/lmsService';
+import progressService from '@/services/lms/progressService';
+import analyticsService from '@/services/lms/analyticsService';
+import quizService from '@/services/lms/quizService';
+import aiService from '@/services/ai/aiService';
 
 // ============================================================================
 // RICH MOCK DATA

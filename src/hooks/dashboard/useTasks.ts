@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Task } from "@/types";
-import { taskService, TaskRequest, TaskResponse } from "@/services/taskService";
+import { taskService, TaskRequest, TaskResponse } from "@/services/dashboard/taskService";
 
 // Map API response to frontend Task type
 function mapTaskResponseToTask(response: TaskResponse): Task {

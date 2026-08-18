@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { labService } from "@/services/labService";
+import { labService } from "@/services/labs/labService";
 import type { Lab, LabEnrollment } from "@/types";
 
 export function useLabs() {

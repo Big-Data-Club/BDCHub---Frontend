@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import forumService, { ForumPost } from "@/services/forumService";
+import forumService, { ForumPost } from "@/services/lms/forumService";
 import { ForumMarkdownEditor } from "./ForumMarkdownEditor";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";

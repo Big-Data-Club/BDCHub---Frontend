@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import {
   Plus, Search, BookOpen, Settings, Trash2, Archive, ArchiveRestore,
   Eye, EyeOff, ChevronRight, Users, RefreshCw, Home, X, ArrowUpDown,
@@ -156,8 +156,8 @@ export default function CoursesListPage() {
             await lmsService.publishCourse(course.id);
             setCourses(prev => prev.map(c => c.id === course.id ? { ...c, status: "PUBLISHED" } : c));
           } else {
-            await lmsService.unarchiveCourse(course.id);
-            await load(filter);
+            await lmsService.unpublishCourse(course.id);
+            setCourses(prev => prev.map(c => c.id === course.id ? { ...c, status: "DRAFT" } : c));
           }
         } catch {
           setError(isDraft ? "Không thể xuất bản." : "Không thể gỡ xuất bản.");

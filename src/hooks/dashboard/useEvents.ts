@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { EventItem, ModalMode } from "@/types";
-import { eventService } from "@/services/eventService";
-import { sortByDate } from "@/utils/dateUtils";
+import { eventService } from "@/services/dashboard/eventService";
+import { sortByDate } from "@/utils/common/dateUtils";
 
 export function useEvents() {
   const [events, setEvents] = useState<EventItem[]>([]);

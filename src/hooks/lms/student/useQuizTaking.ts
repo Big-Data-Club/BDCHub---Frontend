@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import lmsService from "@/services/lmsService";
-import quizService from "@/services/quizService";
+import lmsService from "@/services/lms/lmsService";
+import quizService from "@/services/lms/quizService";
 
 export interface QuestionImage {
   id: string;

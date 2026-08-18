@@ -15,7 +15,7 @@ import {
   ChevronUp, ChevronDown, ChevronsUpDown,
   User, TrendingUp, Award, Clock, AlertTriangle
 } from "lucide-react";
-import { CourseStudentProgress } from "@/services/analyticsService";
+import { CourseStudentProgress } from "@/services/lms/analyticsService";
 import { UserAvatar } from "@/components/user/UserAvatar";
 import { ProgressBar } from "@/components/lms/shared";
 import { cn } from "@/lib/utils";

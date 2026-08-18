@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { BookOpen, CheckCircle2, Clock, Loader2, XCircle, X } from "lucide-react";
-import { sectionOverviewService } from "@/services/sectionOverviewService";
+import { sectionOverviewService } from "@/services/lms/sectionOverviewService";
 import type { SectionOverviewJob } from "@/types";
 import { Spinner } from "@/components/lms/shared";
 

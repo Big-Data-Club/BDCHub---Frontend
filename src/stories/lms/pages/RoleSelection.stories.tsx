@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import LMSRoleSelection from '@/app/(learning)/lms/page';
-import lmsService from '@/services/lmsService';
+import lmsService from '@/services/lms/lmsService';
 
 // Stub the lmsService.getMyRoles API call to return mock roles
 lmsService.getMyRoles = async () => {

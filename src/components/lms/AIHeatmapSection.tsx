@@ -12,7 +12,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { RefreshCw, Sparkles, AlertCircle, Users, TrendingDown, ChevronDown, ChevronUp } from "lucide-react";
-import aiService, { HeatmapNode } from "@/services/aiService";
+import aiService, { HeatmapNode } from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
 
 interface Props {

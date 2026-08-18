@@ -27,8 +27,8 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { parseQuizText, type ParsedQuestion } from "@/services/aiService";
-import quizService from "@/services/quizService";
+import { parseQuizText, type ParsedQuestion } from "@/services/ai/aiService";
+import quizService from "@/services/lms/quizService";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

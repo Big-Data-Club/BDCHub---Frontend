@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FileInfo } from "@/types";
-import { getAccessToken } from "@/services/authToken";
+import { getAccessToken } from "@/services/auth/authToken";
 import { FileType as FileTypeIcon, HardDrive, AlertCircle } from "lucide-react";
 
 interface FileUploadProps {

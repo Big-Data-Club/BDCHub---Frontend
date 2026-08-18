@@ -2,15 +2,14 @@
 
 import { useState, useEffect, memo } from "react";
 import { cn } from "@/lib/utils";
-import { Bot, User, Wrench, Check, AlertCircle, ChevronDown, ChevronRight, BookOpen, Globe, Cpu, Layers, Sparkles, MapPin, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown, RefreshCw } from "lucide-react";
+import { Wrench, Check, AlertCircle, ChevronDown, ChevronRight, Cpu, Layers, Sparkles, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown, RefreshCw } from "lucide-react";
 import type { AgentMessage, HITLRequestData } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
 import { WidgetRenderer } from "./WidgetRenderer";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
-import lmsService from "@/services/lmsService";
 import { ActionApprovalCard } from "./ActionApprovalCard";
-import { saveNotebookEntry } from "@/services/agentService";
+import { saveNotebookEntry } from "@/services/ai/agentService";
 
 interface AgentMessageItemProps {
   message: AgentMessage;

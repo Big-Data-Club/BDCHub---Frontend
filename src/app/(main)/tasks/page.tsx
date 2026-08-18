@@ -8,8 +8,8 @@ import BoardColumn from "@/components/board/column/BoardColumn";
 import { Column, Task, User } from "@/types";
 import { useTasks } from "@/hooks/dashboard/useTasks";
 import { useEvents } from "@/hooks/dashboard/useEvents";
-import { userService } from "@/services/userService";
-import { TaskRequest } from "@/services/taskService";
+import { userService } from "@/services/auth/userService";
+import { TaskRequest } from "@/services/dashboard/taskService";
 
 const inputClass =
   "w-full border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 " +

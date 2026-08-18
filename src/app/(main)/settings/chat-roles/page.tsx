@@ -15,8 +15,8 @@ import {
   getChannelUsers,
   setChannelUsers,
   searchUsers,
-} from "@/services/chatService";
-import { ChatChannel, ChannelRoleEntry, ChatUser } from "@/types/chat";
+} from "@/services/chat/chatService";
+import { ChatChannel, ChannelRoleEntry, ChatUser } from "@/types/chat/chat";
 import { UserAvatar } from "@/components/user/UserAvatar";
 
 // All available roles in the system

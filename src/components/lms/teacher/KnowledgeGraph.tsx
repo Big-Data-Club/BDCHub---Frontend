@@ -11,7 +11,7 @@ import {
   X, ExternalLink, Link2, BookOpen, BrainCircuit, Trash2,
   GitMerge, Plus, Pencil, CheckCircle2, Loader2,
 } from "lucide-react";
-import aiService from "@/services/aiService";
+import aiService from "@/services/ai/aiService";
 import toast from "react-hot-toast";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {

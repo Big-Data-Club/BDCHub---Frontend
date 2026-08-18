@@ -12,7 +12,7 @@
 
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { Plus, FileText } from "lucide-react";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { AIIndexPollerProvider } from "@/hooks/lms/teacher/useAIIndexPoller";
 import { Alert, EmptyState, PrimaryBtn, ConfirmModal } from "@/components/lms/shared";
 import { Content, Section } from "@/types";

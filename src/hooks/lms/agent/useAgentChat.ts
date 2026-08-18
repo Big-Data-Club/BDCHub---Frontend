@@ -8,7 +8,7 @@
  * clarifications, and dynamic UI widgets.
  */
 import { useState, useCallback, useRef, useEffect } from "react";
-import { agentService } from "@/services/agentService";
+import { agentService } from "@/services/ai/agentService";
 import type {
   AgentMessage,
   AgentEvent,

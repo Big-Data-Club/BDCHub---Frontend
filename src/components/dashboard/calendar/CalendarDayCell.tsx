@@ -2,7 +2,7 @@
 
 import React from "react";
 import { TaskWithColor } from "@/types";
-import { getTasksForDay, getSpanInfo } from "@/utils/calendar";
+import { getTasksForDay, getSpanInfo } from "@/utils/dashboard/calendar";
 import { TaskChip } from "./TaskChip";
 
 interface CalendarDayCellProps {

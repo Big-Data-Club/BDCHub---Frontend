@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, Users, Eye, Edit, Trash2 } from "lucide-react";
 import { EventItem, STATUS_COLORS } from "@/types";
-import { getCountdown } from "@/utils/dateUtils";
+import { getCountdown } from "@/utils/common/dateUtils";
 
 interface EventCardProps {
   event: EventItem;

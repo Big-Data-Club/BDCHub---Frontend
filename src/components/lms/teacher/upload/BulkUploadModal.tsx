@@ -3,9 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { FileToUpload } from "@/types";
-import { getAccessToken } from "@/services/authToken";
+import { getAccessToken } from "@/services/auth/authToken";
 
 
 interface BulkUploadModalProps {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, FileText, Play, DollarSign, Loader } from "lucide-react";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import { cn } from "@/lib/utils";
 
 interface Content {

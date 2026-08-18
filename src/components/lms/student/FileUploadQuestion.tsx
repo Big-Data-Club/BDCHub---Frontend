@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, File as FileIcon, CheckCircle, XCircle, AlertCircle, Trash2, Download } from "lucide-react";
-import { getAccessToken } from "@/services/authToken";
+import { getAccessToken } from "@/services/auth/authToken";
 
 
 interface FileUploadQuestionProps {

@@ -8,8 +8,8 @@
 import { useState, useEffect } from "react";
 import { Check, X, ChevronDown, ChevronUp, Clock, BookOpen, Save, Loader2, AlertCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { quizService } from "@/services/quizService";
-import { lmsService } from "@/services/lmsService";
+import { quizService } from "@/services/lms/quizService";
+import { lmsService } from "@/services/lms/lmsService";
 
 interface DraftQuestion {
   gen_id: number;

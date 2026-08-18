@@ -1,6 +1,6 @@
 import { mapServerUserToClient } from "./mappers";
 import { User } from "@/types";
-import { getAccessToken } from "@/services/authToken";
+import { getAccessToken } from "@/services/auth/authToken";
 
 async function authHeaders(extra?: Record<string, string>): Promise<HeadersInit> {
   const headers: Record<string, string> = { ...extra };

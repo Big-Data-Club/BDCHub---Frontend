@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import forumService, {
   ForumPost,
   ForumComment,
-} from "@/services/forumService";
+} from "@/services/lms/forumService";
 import toast from "react-hot-toast";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 

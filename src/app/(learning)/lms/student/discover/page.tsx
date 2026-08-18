@@ -6,16 +6,9 @@ import { useCourseDiscover } from "@/hooks/lms/student/useCourseDiscover";
 import { DiscoverHeader } from "@/components/lms/student/discover/DiscoverHeader";
 import { DiscoverCourseGrid } from "@/components/lms/student/discover/DiscoverCourseGrid";
 import { DiscoverPreferenceModal } from "@/components/lms/student/discover/DiscoverPreferenceModal";
-import { CourseCard, Alert } from "@/components/lms/shared";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { CourseCard, Alert, Select } from "@/components/lms/shared";
 import { Sparkles, SlidersHorizontal, RotateCcw, CheckCircle2 } from "lucide-react";
-import { trackRecommendationEvent } from "@/services/recommendationService";
+import { trackRecommendationEvent } from "@/services/lms/recommendationService";
 
 export default function DiscoverPage() {
   const router = useRouter();
@@ -199,25 +192,23 @@ export default function DiscoverPage() {
               </button>
             )}
 
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-slate-400" />
+            <div className="w-[160px]">
               <Select
                 value={selectedLevel}
                 onValueChange={(val) => {
                   setSelectedLevel(val);
                   handleSearchFilter(search, selectedTag, val);
                 }}
-              >
-                <SelectTrigger className="w-[160px] h-9 bg-slate-50 dark:bg-[#0D192E] border-slate-200 dark:border-blue-500/20 text-xs font-semibold rounded-xl text-slate-900 dark:text-slate-100">
-                  <SelectValue placeholder="Trình độ" />
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-[#0F1E35] border-slate-200 dark:border-blue-500/20">
-                  <SelectItem value="all">Mọi trình độ</SelectItem>
-                  <SelectItem value="BEGINNER">Cơ bản</SelectItem>
-                  <SelectItem value="INTERMEDIATE">Trung cấp</SelectItem>
-                  <SelectItem value="ADVANCED">Nâng cao</SelectItem>
-                </SelectContent>
-              </Select>
+                icon={<SlidersHorizontal className="w-4 h-4 text-slate-400" />}
+                placeholder="Trình độ"
+                options={[
+                  { value: "all", label: "Mọi trình độ" },
+                  { value: "BEGINNER", label: "Cơ bản" },
+                  { value: "INTERMEDIATE", label: "Trung cấp" },
+                  { value: "ADVANCED", label: "Nâng cao" },
+                ]}
+                triggerClassName="h-9 text-xs font-semibold bg-slate-50 dark:bg-[#0D192E] border-slate-200 dark:border-blue-500/20"
+              />
             </div>
           </div>
         </div>

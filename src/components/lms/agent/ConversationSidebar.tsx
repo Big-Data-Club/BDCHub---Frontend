@@ -7,7 +7,7 @@ import {
 } from "react";
 import { MessageSquare, Plus, Clock, Loader2, Trash2, X, Pencil, Sidebar } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { agentService } from "@/services/agentService";
+import { agentService } from "@/services/ai/agentService";
 import type { AgentSession } from "@/types";
 import { TruncatedTooltip } from "@/components/common/TruncatedTooltip";
 

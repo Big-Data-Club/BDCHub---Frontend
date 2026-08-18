@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ForumComment } from "@/services/forumService";
+import { ForumComment } from "@/services/lms/forumService";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { ForumMarkdownEditor } from "./ForumMarkdownEditor";
 import {

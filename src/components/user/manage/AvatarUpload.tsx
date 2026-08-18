@@ -1,6 +1,6 @@
 import { Camera, User, Shield } from "lucide-react";
 import SafeImage from "@/components/common/SafeImage";
-import { UserResponse } from "@/services/userService";
+import { UserResponse } from "@/services/auth/userService";
 
 interface AvatarUploadProps {
   previewUrl: string;

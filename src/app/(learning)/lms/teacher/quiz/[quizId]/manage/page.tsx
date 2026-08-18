@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import quizService from "@/services/quizService";
+import quizService from "@/services/lms/quizService";
 import { BreadcrumbNav } from "@/components/lms/shared/BreadcrumbNav";
 import { QuizSettingsModal } from "@/components/lms/teacher/modals/QuizSettingsModal";
 import { QuizSmartImportModal } from "@/components/lms/teacher/modals/QuizSmartImportModal";

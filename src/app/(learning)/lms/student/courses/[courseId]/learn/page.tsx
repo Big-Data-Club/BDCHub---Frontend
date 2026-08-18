@@ -15,7 +15,7 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import lmsService from "@/services/lmsService";
+import lmsService from "@/services/lms/lmsService";
 import ContentViewer from "@/components/lms/student/ContentViewer";
 import {
   ArrowLeft, ChevronRight, BookOpen, BarChart3,
