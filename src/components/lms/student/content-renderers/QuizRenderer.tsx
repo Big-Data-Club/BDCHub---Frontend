@@ -30,8 +30,6 @@ export function QuizRenderer({
   content,
   userRole,
   courseId,
-  isCompleted: _isCompleted,
-  onComplete: _onComplete,
 }: QuizRendererProps) {
   const router = useRouter();
   const [quiz, setQuiz] = useState<QuizData | null>(null);

@@ -57,6 +57,7 @@ export function CourseTableRow({
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-16 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-[#0D192E] dark:to-[#0F1E35] flex items-center justify-center flex-shrink-0 relative border border-slate-200/80 dark:border-blue-500/15 group-hover:border-blue-500/30 dark:group-hover:border-cyan-400/40 transition-all duration-300">
             {course.thumbnail_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img src={course.thumbnail_url} alt={course.title} className="object-cover w-full h-full" />
             ) : (
               <BookOpen className="w-5 h-5 text-slate-400 dark:text-slate-500 group-hover:scale-110 transition-transform duration-300" />
@@ -248,6 +249,7 @@ export function CourseMobileCard({
       <div className="flex gap-3">
         <div className="w-16 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-[#0D192E] dark:to-[#0F1E35] flex items-center justify-center flex-shrink-0 relative border border-slate-200 dark:border-blue-500/15">
           {course.thumbnail_url ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img src={course.thumbnail_url} alt={course.title} className="object-cover w-full h-full" />
           ) : (
             <BookOpen className="w-5 h-5 text-slate-400 dark:text-slate-500" />

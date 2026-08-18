@@ -40,6 +40,7 @@ export function QuizQuestionCard({
         {positionImages.map((image) => (
           <div key={image.id} className="relative group">
             <div className="relative rounded-lg overflow-hidden border-2 border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={image.url}
                 alt={image.alt_text || image.file_name}

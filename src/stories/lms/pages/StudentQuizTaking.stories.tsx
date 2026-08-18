@@ -161,6 +161,7 @@ function QuizTakingStorybookDemo({
           onClick={() => setShowImageModal(null)}
         >
           <div className="relative max-w-4xl max-h-[90vh] bg-white dark:bg-[#0F1E35] p-2 rounded-2xl border border-slate-200 dark:border-blue-500/20 overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={showImageModal} alt="Preview" className="max-w-full max-h-[85vh] object-contain rounded-xl" />
             <button
               onClick={() => setShowImageModal(null)}
