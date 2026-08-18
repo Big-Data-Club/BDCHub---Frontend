@@ -70,7 +70,15 @@ frontend/src/
 ├── hooks/                    Structured by domain (auth/, common/, dashboard/, lms/, chat/, labs/)
 │   └── index.ts              Central barrel export for all hooks
 ├── services/                 ALL fetch() calls - never in components or hooks
-├── types/                    All shared TypeScript interfaces - re-export from index.ts
+├── types/                    Structured by domain (auth/, lms/, dashboard/, ai/, labs/, admin/, forms/)
+│   ├── auth/                 user.ts, account.ts
+│   ├── lms/                  course.ts, section.ts, quiz.ts
+│   ├── dashboard/            task.ts, event.ts, calendar.ts
+│   ├── ai/                   agent.ts, chat.ts
+│   ├── labs/                 lab.ts, chemistry.ts
+│   ├── admin/                organization.ts
+│   ├── forms/                form.ts
+│   └── index.ts              Central barrel export for all domain types
 ├── store/UserContext.tsx      Global user state
 ├── providers/MainProvider.tsx SessionProvider + UserContext + ThemeProvider
 └── utils/                    Pure helpers - no React imports
@@ -88,7 +96,7 @@ Ngoài việc phân chia Component UI nhỏ gọn, dự án tuân thủ mô hìn
 * **Custom Hooks (`/hooks`)**: Chịu trách nhiệm quản lý state, side-effects, UI handlers và kết nối với Service Layer.
 * **Service / API Layer (`/services`)**: Nơi duy nhất xử lý HTTP requests (Fetch/Axios), interceptors, và transform data nếu cần.
 * **Form Schemas (`/schemas` hoặc trong module `schemas/`)**: Chứa Zod/Yup schemas để validate dữ liệu đầu vào độc lập với Form UI.
-* **Types / Interfaces (`/types`)**: Chứa toàn bộ định nghĩa data models, API DTOs, Enums. Tuyệt đối không dùng `any`.
+* **Types / Interfaces (`/types`)**: Phân nhóm theo miền (`/types/<domain>/`), chứa toàn bộ định nghĩa data models, API DTOs, Enums. Tuyệt đối không dùng `any`.
 * **Utilities / Helpers (`/utils`)**: Các hàm thuần túy (Pure Functions) xử lý format tiền tệ, ngày tháng, chuỗi, toán học,... Không import React/State.
 * **Constants & Configs (`/constants`, `/config`)**: Chứa hằng số hệ thống, enum status, route URLs, API Endpoints, app settings. Đẩy các magic strings/numbers ra khỏi logic.
 
@@ -114,11 +122,26 @@ src/features/feature-name/ (hoặc trong components/lms/domain/)
 2. **Khi Form có validation**:
    - Tạo file Schema riêng bằng Zod (`schemas/...Schema.ts`).
 3. **Khi làm việc với API**:
-   - Khai báo Response/Request Type trong `types/`.
+   - Khai báo Response/Request Type trong `types/<domain>/`.
    - Viết hàm gọi API trong `services/` (dùng `api.ts` hoặc `lmsApiClient.ts`).
    - Tránh gọi `fetch()` / `apiClient` trực tiếp từ Component hay Hook inline.
 4. **Khi cần định dạng dữ liệu / tính toán**:
    - Viết helper thuần túy trong `utils/` kèm unit test / JSDoc nếu cần.
+
+### 4. Quy Tắc Tổ Chức Types Theo Phân Miền (Domain-Driven Types)
+
+* **Tất cả Types/DTOs mới phải được tạo trong đúng subfolder miền (`src/types/<domain>/`)**:
+  - `auth/`: `user.ts`, `account.ts`
+  - `lms/`: `course.ts`, `section.ts`, `quiz.ts`
+  - `dashboard/`: `task.ts`, `event.ts`, `calendar.ts`
+  - `ai/`: `agent.ts`, `chat.ts`
+  - `labs/`: `lab.ts`, `chemistry.ts`
+  - `admin/`: `organization.ts`
+  - `forms/`: `form.ts`
+* **Mỗi folder domain chứa một `index.ts`** để re-export tất cả tệp types thuộc miền đó.
+* **Root `src/types/index.ts`** re-export toàn bộ 7 miền (`export * from "./auth"`,...), cho phép import nhanh từ `@/types` hoặc import chính xác từ `@/types/<domain>`.
+* **Giữ tệp re-export shim tại root `src/types/<file>.ts`** khi di chuyển file cũ để duy trì 100% tính tương thích ngược cho các legacy subpath imports.
+
 
 ---
 
@@ -420,10 +443,9 @@ export default function FeaturePage() {
 | **JSX Provider Hook** | `camelCase.tsx` (Chỉ dùng khi có JSX) | `useChat.tsx`, `usePageContext.tsx` | Named export (`export function useChat`) |
 | **Service File** | `camelCase.ts` (suffix `Service`/`ApiClient`) | `quizService.ts`, `lmsApiClient.ts` | Named export object/class |
 | **Utility / Helper** | `camelCase.ts` | `formatCurrency.ts`, `formatDate.ts` | Named export function |
-| **Form Schema** | `camelCase.ts` (suffix `Schema`) | `authSchema.ts`, `checkoutSchema.ts` | Named export (`export const loginSchema`) |
-| **Type / DTO File** | `kebab-case.ts` hoặc `camelCase.ts` | `quiz-types.ts`, `lms.types.ts` | Export interface/type |
+| **Type / DTO File** | `lowercase.ts` hoặc `kebab-case.ts` | `auth/user.ts`, `lms/course.ts` | Phân miền trong `types/<domain>/` + Barrel export |
 | **Folder / Thư mục** | `kebab-case` hoặc `lowercase` | `auth`, `board`, `common`, `modals` | **KHÔNG** dùng PascalCase cho tên thư mục |
-| **Barrel Export File** | `index.ts` | `src/hooks/index.ts` | `export * from "./auth/useAuth"` |
+| **Barrel Export File** | `index.ts` | `src/types/index.ts`, `src/hooks/index.ts` | `export * from "./auth"` |
 | **Event Handlers** | Prefix `handle` | `handleGenerate`, `handleDelete` | Inside components |
 | **Boolean State** | Prefix `is/has/show` | `isGenerating`, `hasResults` | Inside hooks/components |
 | **Props Interface** | `<Component>Props` | `QuizPipelineCardProps` | Interface |

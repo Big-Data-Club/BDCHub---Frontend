@@ -1,14 +1,12 @@
-export * from "./user";
-export * from "./task";
-export * from "./announcement-event";
-export * from "./form";
-export * from "./course";
-export * from "./fill-blank";
-export * from "./calendar"
-export * from "./account"
-export * from "./contentform"
-export * from "./agent"
-export * from "./organization"
-export * from "./lab"
-export * from "./section-overview"
-export * from "./chat"
+/**
+ * BDCHub Frontend Types Central Barrel Export
+ * Domain-Driven Architecture
+ */
+
+export * from "./auth";
+export * from "./lms";
+export * from "./dashboard";
+export * from "./ai";
+export * from "./labs";
+export * from "./admin";
+export * from "./forms";
