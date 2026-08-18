@@ -156,15 +156,15 @@ export function CourseTableRow({
               disabled={publishing}
               className={cn(
                 "p-2 rounded-xl transition-all duration-200 text-sm font-medium border focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:focus:ring-cyan-400/40",
-                course.status === "DRAFT"
-                  ? "bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/10 dark:hover:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-250 dark:border-emerald-800/60"
+                course.status === "PUBLISHED"
+                  ? "bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60"
                   : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/50 dark:hover:bg-slate-800/80 text-slate-550 dark:text-slate-400 border-slate-200 dark:border-slate-800"
               )}
-              title={course.status === "DRAFT" ? "Xuất bản" : "Gỡ xuống (bản nháp)"}
+              title={course.status === "PUBLISHED" ? "Gỡ xuất bản (chuyển về nháp)" : "Xuất bản khóa học"}
             >
               {publishing ? (
                 <Spinner className="w-4 h-4 border-2" />
-              ) : course.status === "DRAFT" ? (
+              ) : course.status === "PUBLISHED" ? (
                 <Eye className="w-4 h-4" />
               ) : (
                 <EyeOff className="w-4 h-4" />
@@ -301,13 +301,13 @@ export function CourseMobileCard({
             disabled={publishing}
             className={cn(
               "px-3 py-1.5 rounded-xl transition-all duration-200 text-xs font-semibold border flex items-center gap-1",
-              course.status === "DRAFT"
-                ? "bg-emerald-50 dark:bg-emerald-950/10 text-emerald-700 dark:text-emerald-400 border-emerald-250 dark:border-emerald-800/60"
+              course.status === "PUBLISHED"
+                ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60"
                 : "bg-slate-50 dark:bg-slate-900/50 text-slate-550 dark:text-slate-400 border-slate-200 dark:border-slate-800"
             )}
           >
-            {publishing ? <Spinner className="w-3 h-3" /> : course.status === "DRAFT" ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-            {course.status === "DRAFT" ? "Xuất bản" : "Nháp"}
+            {publishing ? <Spinner className="w-3 h-3" /> : course.status === "PUBLISHED" ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+            {course.status === "PUBLISHED" ? "Đang xuất bản" : "Xuất bản"}
           </button>
         )}
 

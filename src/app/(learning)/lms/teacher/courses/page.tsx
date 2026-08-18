@@ -156,8 +156,8 @@ export default function CoursesListPage() {
             await lmsService.publishCourse(course.id);
             setCourses(prev => prev.map(c => c.id === course.id ? { ...c, status: "PUBLISHED" } : c));
           } else {
-            await lmsService.unarchiveCourse(course.id);
-            await load(filter);
+            await lmsService.unpublishCourse(course.id);
+            setCourses(prev => prev.map(c => c.id === course.id ? { ...c, status: "DRAFT" } : c));
           }
         } catch {
           setError(isDraft ? "Không thể xuất bản." : "Không thể gỡ xuất bản.");

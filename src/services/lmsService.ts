@@ -100,6 +100,11 @@ class LMSService {
     return response.data;
   }
 
+  async unpublishCourse(courseId: number) {
+    const response = await lmsApiClient.post(`/courses/${courseId}/unpublish`);
+    return response.data;
+  }
+
   async listMyCourses(params?: {
     status?: string;
     category?: string;
