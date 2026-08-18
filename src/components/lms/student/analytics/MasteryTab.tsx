@@ -70,7 +70,7 @@ export function MasteryTab({
                 <Target className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
               </div>
               <div>
-                <h4 className="font-bold text-slate-855 dark:text-slate-200 text-sm">
+                <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">
                   Độ thông thạo chủ đề (Heatmap)
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Đánh giá độ hiểu biết theo từng chuyên đề</p>
@@ -86,10 +86,10 @@ export function MasteryTab({
                     <button
                       key={type}
                       onClick={() => setRadarFilter(type)}
-                      className={`px-2.5 py-1 text-[9px] font-bold rounded-md transition-all whitespace-nowrap active:scale-95 ${
+                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all whitespace-nowrap active:scale-95 cursor-pointer ${
                         radarFilter === type
-                          ? "bg-white text-cyan-600 shadow-xs dark:bg-cyan-500 dark:text-slate-955"
-                          : "text-slate-550 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-205"
+                          ? "bg-white text-cyan-600 shadow-xs dark:bg-cyan-500 dark:text-slate-950 font-extrabold"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                       }`}
                     >
                       {labelMap[type]}

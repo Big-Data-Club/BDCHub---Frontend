@@ -84,25 +84,25 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] flex flex-col transition-colors duration-300">
 
-      {/* ── Premium Compact Header Section ── */}
-      <header className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/30 dark:bg-[#070E1C]/40 backdrop-blur-md py-3 md:py-4 z-30 flex-shrink-0">
+      {/* ── Header Section with Grid Background ── */}
+      <header className="relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/40 dark:bg-[#070E1C]/60 backdrop-blur-xl py-6 md:py-8 z-30 flex-shrink-0">
         <GridBackground />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-8">
-          <div className="min-w-0 flex-1">
+        <div className="relative w-full px-4 sm:px-6 lg:px-8 xl:px-12 z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-10">
+          <div className="min-w-0 flex-1 space-y-3">
             <BreadcrumbNav items={breadcrumbItems} />
-            
-            <div className="mt-2.5">
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-snug truncate">
+
+            <div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight truncate">
                 {course?.title ?? "Khóa học"}
               </h1>
               {course?.description && (
-                <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium max-w-xl line-clamp-1">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium mt-1.5 max-w-2xl line-clamp-2 leading-relaxed">
                   {course.description}
                 </p>
               )}
             </div>
 
-            <div className="flex items-center gap-3 mt-3 flex-wrap">
+            <div className="flex items-center gap-3 pt-1 flex-wrap">
               {/* Tab switcher pill */}
               <NavTabBar
                 tabs={TABS}
@@ -112,7 +112,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
 
               {/* Mobile: sidebar toggle */}
               <button
-                className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-blue-500/20 bg-white dark:bg-[#0F1E35] text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs"
+                className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-blue-500/20 bg-white dark:bg-[#0F1E35] text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs cursor-pointer"
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
@@ -121,7 +121,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
             </div>
           </div>
 
-          <div className="w-full lg:max-w-md xl:max-w-lg flex-shrink-0">
+          <div className="w-full lg:w-[480px] xl:w-[520px] flex-shrink-0">
             <CourseDetailProgressCard
               course={course}
               progress={progress}
@@ -133,7 +133,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
             />
           </div>
         </div>
-        
+
         {/* Mobile tab bar */}
         <div className="sm:hidden relative max-w-7xl mx-auto px-4 z-10 w-full mt-3">
           <NavTabBar

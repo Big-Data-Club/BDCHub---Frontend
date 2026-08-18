@@ -72,11 +72,11 @@ export function FlashcardTab({ flashcardStats, mounted }: FlashcardTabProps) {
                 )}
                 <div className="absolute flex flex-col items-center justify-center">
                   <span className="text-lg font-extrabold text-slate-800 dark:text-slate-100">{flashcardStats.total_active}</span>
-                  <span className="text-[9px] text-slate-550 dark:text-slate-400 uppercase font-semibold">TỔNG THẺ</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold tracking-wider">TỔNG THẺ</span>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-200/60 dark:border-blue-500/10 flex justify-between text-[10px] text-slate-500">
+              <div className="pt-3 border-t border-slate-200/60 dark:border-blue-500/10 flex justify-between text-xs text-slate-500">
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#10b981]" />Nhuần nhuyễn: {flashcardStats.total_mastered ?? 0}</span>
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#3b82f6]" />Đang học: {flashcardStats.total_learning ?? 0}</span>
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#64748b]" />Mới: {flashcardStats.total_new ?? 0}</span>
@@ -86,11 +86,11 @@ export function FlashcardTab({ flashcardStats, mounted }: FlashcardTabProps) {
             {/* Cột 2: Stats Grid */}
             <div className="lg:col-span-7 lg:border-l lg:border-slate-200/60 lg:dark:border-blue-500/10 lg:pl-8 flex flex-col justify-between h-[280px]">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-violet-50 dark:bg-violet-955/40 rounded-xl">
-                  <TrendingUp className="w-4 h-4 text-violet-650 dark:text-violet-400" />
+                <div className="p-2 bg-violet-50 dark:bg-violet-950/40 rounded-xl">
+                  <TrendingUp className="w-4 h-4 text-violet-600 dark:text-violet-400" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-855 dark:text-slate-200 text-sm">
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">
                     Chỉ số ôn tập
                   </h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400">Hiệu năng học và ghi nhớ định kỳ</p>
@@ -100,32 +100,32 @@ export function FlashcardTab({ flashcardStats, mounted }: FlashcardTabProps) {
               {/* Minimal Left Accent Grid */}
               <div className="grid grid-cols-2 gap-y-6 gap-x-4 flex-grow my-auto items-center mt-4">
                 {/* 1. Cần ôn hôm nay */}
-                <div className="flex flex-col gap-1 pl-4 border-l-2 border-red-500/70 dark:border-red-550/70">
-                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-widest">Cần ôn hôm nay</span>
+                <div className="flex flex-col gap-1 pl-4 border-l-2 border-red-500/70 dark:border-red-500/70">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cần ôn hôm nay</span>
                   <span className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
                     {flashcardStats.total_due ?? 0} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">thẻ</span>
                   </span>
                 </div>
 
                 {/* 2. Đã ôn hôm nay */}
-                <div className="flex flex-col gap-1 pl-4 border-l-2 border-emerald-500/70 dark:border-emerald-550/70">
-                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-widest">Đã ôn hôm nay</span>
+                <div className="flex flex-col gap-1 pl-4 border-l-2 border-emerald-500/70 dark:border-emerald-500/70">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Đã ôn hôm nay</span>
                   <span className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
                     {flashcardStats.reviews_today ?? 0} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">thẻ</span>
                   </span>
                 </div>
 
                 {/* 3. Độ dễ trung bình */}
-                <div className="flex flex-col gap-1 pl-4 border-l-2 border-violet-500/70 dark:border-violet-550/70">
-                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-455 uppercase tracking-widest">Độ dễ TB (EF)</span>
+                <div className="flex flex-col gap-1 pl-4 border-l-2 border-violet-500/70 dark:border-violet-500/70">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Độ dễ TB (EF)</span>
                   <span className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
                     {(flashcardStats.avg_easiness ?? 2.5).toFixed(2)}
                   </span>
                 </div>
 
                 {/* 4. Tổng lượt ôn */}
-                <div className="flex flex-col gap-1 pl-4 border-l-2 border-blue-500/70 dark:border-blue-550/70">
-                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-450 uppercase tracking-widest">Tổng lượt ôn</span>
+                <div className="flex flex-col gap-1 pl-4 border-l-2 border-blue-500/70 dark:border-blue-500/70">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tổng lượt ôn</span>
                   <span className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
                     {flashcardStats.total_reviews ?? 0} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">lượt</span>
                   </span>

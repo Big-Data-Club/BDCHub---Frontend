@@ -8,6 +8,8 @@ import { SidebarSection } from "./SidebarSection";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user/UserAvatar";
 
+import { CourseDetailProgressCard } from "./CourseDetailProgressCard";
+
 export function CourseLearningSidebar() {
   const {
     course,
@@ -20,20 +22,20 @@ export function CourseLearningSidebar() {
     expanded,
     toggleSection,
     completedIds,
+    progress,
   } = useStudentCourse();
 
   const [isTeachersExpanded, setIsTeachersExpanded] = useState(false);
-
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-[#070E1C]">
       {/* Sidebar header (Giảng viên & Trợ giảng) */}
       {(course?.creator_name || (coTeachers && coTeachers.length > 0)) && (
-        <div className="p-4 border-b border-slate-200/80 dark:border-blue-500/10 bg-slate-50/30 dark:bg-[#070E1C]">
-          <div className="bg-slate-50/50 dark:bg-[#0F1E35]/40 border border-slate-200/40 dark:border-blue-500/8 rounded-2xl p-3.5 space-y-3">
+        <div className="px-3.5 py-2.5 border-b border-slate-200/80 dark:border-blue-500/10 bg-slate-50/30 dark:bg-[#070E1C]">
+          <div className="bg-slate-50/50 dark:bg-[#0F1E35]/40 border border-slate-200/40 dark:border-blue-500/8 rounded-xl p-2.5 space-y-2">
             <button
               onClick={() => setIsTeachersExpanded(!isTeachersExpanded)}
-              className="flex items-center justify-between w-full text-[9.5px] font-bold text-slate-450 dark:text-slate-400 uppercase tracking-widest hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+              className="flex items-center justify-between w-full text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
             >
               <span>Giảng viên phụ trách</span>
               <ChevronDown className={cn("w-3 h-3 transition-transform duration-200", isTeachersExpanded ? "rotate-180" : "")} />

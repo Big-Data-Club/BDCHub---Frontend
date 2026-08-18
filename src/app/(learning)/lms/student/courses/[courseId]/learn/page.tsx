@@ -152,83 +152,80 @@ export default function LearnPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 w-full max-w-6xl mx-auto space-y-6">
-      {/* Unified Workspace Container */}
-      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-6 sm:p-8 shadow-sm dark:shadow-none space-y-6">
-        {/* Top Header section */}
-        <div className="border-b border-slate-100 dark:border-slate-400/8 pb-6">
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <ContentTypeBadge type={activeContent.type} />
-            {activeContent.is_mandatory && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-                Bắt buộc học
-              </span>
-            )}
-            {activeContent.is_mandatory && completedIds.has(activeContent.id) ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-                ✓ Đã hoàn thành
-              </span>
-            ) : activeContent.is_mandatory ? (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-[#0D192E] text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-blue-500/10">
-                Chưa hoàn thành
-              </span>
-            ) : null}
-          </div>
-
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-50 leading-tight mb-2">
-            {activeContent.title}
-          </h2>
-          {activeContent.description && (
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium leading-relaxed">{activeContent.description}</p>
+      {/* ── Content Header Section (No heavy card container) ── */}
+      <div className="border-b border-slate-200/80 dark:border-blue-500/10 pb-5">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <ContentTypeBadge type={activeContent.type} />
+          {activeContent.is_mandatory && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-500/20">
+              Bắt buộc học
+            </span>
           )}
+          {activeContent.is_mandatory && completedIds.has(activeContent.id) ? (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20">
+              ✓ Đã hoàn thành
+            </span>
+          ) : activeContent.is_mandatory ? (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-[#0D192E] text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-blue-500/10">
+              Chưa hoàn thành
+            </span>
+          ) : null}
         </div>
 
-        {/* Content Viewer Body */}
-        <div className="min-h-[300px]">
-          <ContentViewer
-            content={activeContent}
-            userRole={isCourseTeacher ? "TEACHER" : "STUDENT"}
-            isCompleted={completedIds.has(activeContent.id)}
-            courseId={courseId}
-            onComplete={() => handleMarkComplete(activeContent.id)}
-          />
-        </div>
-
-        {/* Manual complete button (non-quiz mandatory, not yet done) */}
-        {activeContent.is_mandatory &&
-         !completedIds.has(activeContent.id) &&
-         activeContent.type !== "QUIZ" && (
-          <div className="pt-6 border-t border-slate-100 dark:border-slate-400/8">
-            <div className="bg-amber-50/20 dark:bg-amber-950/5 border border-amber-200/40 dark:border-amber-500/10 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                  <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                  Xác nhận hoàn thành bài học
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed">
-                  Bài học này là bắt buộc. Hệ thống sẽ tự động ghi nhận sau khi bạn xem đủ thời gian, hoặc bạn có thể click xác nhận thủ công.
-                </p>
-              </div>
-              <button
-                onClick={() => handleMarkComplete(activeContent.id)}
-                disabled={markingComplete}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl font-semibold text-sm transition-all duration-200 active:scale-95 cursor-pointer shadow-sm shadow-emerald-600/10 hover:shadow-emerald-600/20 flex-shrink-0"
-              >
-                {markingComplete ? (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-                Hoàn thành bài học
-              </button>
-            </div>
-          </div>
+        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 leading-snug">
+          {activeContent.title}
+        </h2>
+        {activeContent.description && (
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium leading-relaxed max-w-3xl">
+            {activeContent.description}
+          </p>
         )}
       </div>
 
-      {/* Prev / Next navigation */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* ── Seamless Content Viewer Area ── */}
+      <div className="min-h-[400px]">
+        <ContentViewer
+          content={activeContent}
+          userRole={isCourseTeacher ? "TEACHER" : "STUDENT"}
+          isCompleted={completedIds.has(activeContent.id)}
+          courseId={courseId}
+          onComplete={() => handleMarkComplete(activeContent.id)}
+        />
+      </div>
+
+      {/* ── Confirmation Alert (If mandatory and uncompleted) ── */}
+      {activeContent.is_mandatory &&
+       !completedIds.has(activeContent.id) &&
+       activeContent.type !== "QUIZ" && (
+        <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-500/20 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              Xác nhận hoàn thành bài học
+            </h4>
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md leading-relaxed">
+              Bài học này là bắt buộc. Tự động ghi nhận sau khi học xong, hoặc bạn có thể click xác nhận thủ công.
+            </p>
+          </div>
+          <button
+            onClick={() => handleMarkComplete(activeContent.id)}
+            disabled={markingComplete}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg font-semibold text-xs transition-all duration-200 active:scale-95 cursor-pointer flex-shrink-0"
+          >
+            {markingComplete ? (
+              <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+            Hoàn thành bài học
+          </button>
+        </div>
+      )}
+
+      {/* ── Seamless Prev / Next Navigation Footer ── */}
+      <div className="pt-4 border-t border-slate-200/60 dark:border-blue-500/10">
         <PrevNextButtons
           sections={sections}
           sectionContents={sectionContents}
