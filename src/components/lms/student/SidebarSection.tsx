@@ -121,10 +121,10 @@ export const SidebarSection = React.memo(function SidebarSection({
 
       {/* Content items with smooth height & opacity grid transition */}
       <div className={cn(
-        "grid transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
+        "grid transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden w-full min-w-0",
         isExpanded ? "grid-rows-[1fr] opacity-100 border-t border-slate-200/40 dark:border-blue-500/5" : "grid-rows-[0fr] opacity-0 border-t-0"
       )}>
-        <div className="min-h-0 pb-2 px-3 pt-1 space-y-0.5 bg-slate-50/20 dark:bg-[#070E1C]/30">
+        <div className="min-h-0 pb-2 px-2 pt-1 space-y-0.5 bg-slate-50/20 dark:bg-[#070E1C]/30 w-full min-w-0 overflow-hidden">
           {loading && !contents.length ? (
             <div className="px-3 py-2 space-y-1.5">
               {[0, 1, 2].map(i => (
@@ -142,33 +142,29 @@ export const SidebarSection = React.memo(function SidebarSection({
                 label: "Nội dung",
               };
 
-              // Helper for formatting duration or metadata hints cleanly
+              // Only show duration text if actual time metadata is present to save horizontal space
               const durationText = c.metadata?.duration_seconds
                 ? `${Math.ceil(c.metadata.duration_seconds / 60)}p`
                 : c.metadata?.duration
                 ? c.metadata.duration
-                : c.type === "QUIZ"
-                ? "Quiz"
-                : c.type === "DOCUMENT"
-                ? "PDF"
                 : null;
 
               return (
                 <button
                   key={c.id}
                   className={cn(
-                    "w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] group active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:focus-visible:ring-cyan-400/50",
+                    "w-full flex items-center justify-between gap-1.5 px-2.5 py-2 rounded-lg text-left transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] group active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 dark:focus-visible:ring-cyan-400/50 min-w-0 overflow-hidden box-border",
                     isActive
                       ? "bg-blue-50/90 dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 font-bold shadow-xs border border-blue-200/50 dark:border-cyan-500/20"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-[#0F1E35]/40 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent"
                   )}
                   onClick={() => onSelect(c)}
                 >
-                  {/* Left part: Icon + Title */}
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
-                    {/* Unified Tech-Neutral Icon Badge */}
+                  {/* Left part: Icon + Title with strict overflow control */}
+                  <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden shrink">
+                    {/* Icon Badge - Fixed size */}
                     <span className={cn(
-                      "w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105",
+                      "w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105",
                       isActive
                         ? "bg-blue-600 text-white dark:bg-cyan-400 dark:text-black font-bold shadow-xs"
                         : "bg-slate-200/60 dark:bg-[#0D192E] text-slate-600 dark:text-slate-400 border border-slate-300/40 dark:border-blue-500/10 group-hover:text-blue-600 dark:group-hover:text-cyan-400"
@@ -176,43 +172,43 @@ export const SidebarSection = React.memo(function SidebarSection({
                       {config.icon}
                     </span>
 
-                    {/* Title & Metadata row */}
-                    <div className="min-w-0 flex-1 flex flex-col justify-center">
-                      <span
-                        title={`${i + 1}. ${c.title}`}
-                        className={cn(
-                          "text-xs font-medium transition-colors duration-150 truncate block",
-                          isActive
-                            ? "text-blue-600 dark:text-cyan-400 font-bold"
-                            : "text-slate-700 dark:text-slate-300"
-                        )}
-                      >
-                        {i + 1}. {c.title}
-                      </span>
-                    </div>
+                    {/* Title block strictly truncated */}
+                    <span
+                      title={`${i + 1}. ${c.title}`}
+                      className={cn(
+                        "text-xs font-medium transition-colors duration-150 truncate min-w-0 flex-1 block overflow-hidden text-ellipsis whitespace-nowrap",
+                        isActive
+                          ? "text-blue-600 dark:text-cyan-400 font-bold"
+                          : "text-slate-700 dark:text-slate-300"
+                      )}
+                    >
+                      {i + 1}. {c.title}
+                    </span>
                   </div>
 
-                  {/* Right part: Metadata / Status Badge */}
-                  <div className="flex-shrink-0 flex items-center gap-2">
+                  {/* Right part: Metadata / Status Badge (Strict shrink-0 to prevent clipping) */}
+                  <div className="shrink-0 flex items-center gap-1 ml-auto">
                     {durationText && (
-                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100/80 dark:bg-[#0D192E]/80">
-                        <Clock className="w-2.5 h-2.5 opacity-70" />
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100/80 dark:bg-[#0D192E]/80 whitespace-nowrap shrink-0">
+                        <Clock className="w-2.5 h-2.5 opacity-70 shrink-0" />
                         {durationText}
                       </span>
                     )}
 
-                    <div className="w-5 h-5 flex items-center justify-center">
-                      {isDone ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 transition-transform duration-200 scale-100" />
-                      ) : c.is_mandatory ? (
-                        <span
-                          className="flex items-center justify-center text-amber-600 dark:text-amber-400"
-                          title="Bài học bắt buộc"
-                        >
-                          <AlertCircle className="w-3.5 h-3.5" />
-                        </span>
-                      ) : null}
-                    </div>
+                    {(isDone || c.is_mandatory) && (
+                      <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                        {isDone ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 transition-transform duration-200 scale-100" />
+                        ) : c.is_mandatory ? (
+                          <span
+                            className="flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0"
+                            title="Bài học bắt buộc"
+                          >
+                            <AlertCircle className="w-3.5 h-3.5" />
+                          </span>
+                        ) : null}
+                      </div>
+                    )}
                   </div>
                 </button>
               );
