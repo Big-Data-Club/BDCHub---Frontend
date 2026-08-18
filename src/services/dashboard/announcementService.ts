@@ -1,5 +1,5 @@
 import { Announcement } from "@/types";
-import { apiClient } from "./api";
+import { apiClient } from "../common/api";
 
 export const announcementService = {
   getAll: () => apiClient.get<Announcement[]>("/api/announcements"),

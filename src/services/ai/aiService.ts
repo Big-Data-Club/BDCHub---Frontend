@@ -3,7 +3,7 @@
  * Frontend client for all AI features (Phase 1 & 2).
  * Calls Go lms-service endpoints which proxy to ai-service internally.
  */
-import { lmsApiClient } from "./lmsApiClient";
+import { lmsApiClient } from "../lms/lmsApiClient";
 
 // ─── Phase 1: Diagnosis ───────────────────────────────────────────────────────
 

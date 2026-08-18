@@ -1,4 +1,4 @@
-import { apiClient } from "./api";
+import { apiClient } from "../common/api";
 
 export interface ProfileItem {
   id: string;

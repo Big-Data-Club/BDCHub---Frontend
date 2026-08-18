@@ -1,4 +1,4 @@
-import { getAccessToken, clearAccessTokenCache } from "./authToken";
+import { getAccessToken, clearAccessTokenCache } from "../auth/authToken";
 
 export class ApiClient {
   readonly baseURL: string;
@@ -25,7 +25,7 @@ export class ApiClient {
     if (response.status === 401) {
       clearAccessTokenCache();
       if (typeof window !== "undefined") {
-        const { logout } = await import("./logout");
+        const { logout } = await import("../auth/logout");
         await logout();
       }
       throw new Error("Unauthorized (401)");
@@ -87,7 +87,7 @@ export class ApiClient {
     if (response.status === 401) {
        clearAccessTokenCache();
        if (typeof window !== "undefined") {
-         const { logout } = await import("./logout");
+         const { logout } = await import("../auth/logout");
          await logout();
        }
        return;

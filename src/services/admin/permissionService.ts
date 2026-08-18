@@ -1,4 +1,4 @@
-import { lmsApiClient } from './lmsApiClient';
+import { lmsApiClient } from '../lms/lmsApiClient';
 
 export interface Permission {
   id: number;

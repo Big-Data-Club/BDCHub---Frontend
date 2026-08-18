@@ -1,4 +1,4 @@
-import { apiClient } from "./api";
+import { apiClient } from "../common/api";
 
 // ── Types ────────────────────────────────────────────────────────────────
 export interface LlmProvider {

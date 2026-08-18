@@ -1,5 +1,5 @@
-import { lmsApiClient } from "./lmsApiClient";
-import { apiClient } from "./api";
+import { lmsApiClient } from "../lms/lmsApiClient";
+import { apiClient } from "../common/api";
 import type {
   Organization,
   OrgMember,

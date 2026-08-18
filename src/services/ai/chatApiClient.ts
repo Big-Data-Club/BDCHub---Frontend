@@ -27,7 +27,7 @@ chatApiClient.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
-        const { logout } = await import("./logout");
+        const { logout } = await import("../auth/logout");
         await logout();
       }
     }

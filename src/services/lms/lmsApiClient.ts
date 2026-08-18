@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAccessToken, clearAccessTokenCache } from "./authToken";
+import { getAccessToken, clearAccessTokenCache } from "../auth/authToken";
 
 export const lmsApiClient = axios.create({
   baseURL: "/lmsapiv1",
@@ -35,7 +35,7 @@ lmsApiClient.interceptors.response.use(
         console.error("Failed to clear roles cache:", e);
       }
       if (typeof window !== "undefined") {
-        const { logout } = await import("./logout");
+        const { logout } = await import("../auth/logout");
         await logout();
       }
     }

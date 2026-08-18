@@ -1,5 +1,5 @@
 import { EventItem } from "@/types";
-import { apiClient } from "./api";
+import { apiClient } from "../common/api";
 
 export const eventService = {
   getAll: () => apiClient.get<EventItem[]>("/api/events"),
