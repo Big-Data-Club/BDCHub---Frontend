@@ -15,6 +15,8 @@ export interface LmsPageHeaderProps {
   breadcrumbs?: ReactNode;
   /** Right-hand side action / widget element (e.g. ProgressCard, Action buttons) */
   sideWidget?: ReactNode;
+  /** Alias for sideWidget / right-hand side action element */
+  actions?: ReactNode;
   /** Bottom bar element (e.g. NavTabBar, Search filter) */
   bottomBar?: ReactNode;
   /** Custom container styling */
@@ -31,11 +33,14 @@ export function LmsPageHeader({
   description,
   breadcrumbs,
   sideWidget,
+  actions,
   bottomBar,
   className,
   contentClassName,
   fullWidth = false,
 }: LmsPageHeaderProps) {
+  const rightContent = actions ?? sideWidget;
+
   return (
     <header
       className={cn(
@@ -90,9 +95,9 @@ export function LmsPageHeader({
           )}
         </div>
 
-        {sideWidget && (
+        {rightContent && (
           <div className="w-full lg:w-auto flex-shrink-0">
-            {sideWidget}
+            {rightContent}
           </div>
         )}
       </div>
