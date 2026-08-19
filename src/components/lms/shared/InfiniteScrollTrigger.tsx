@@ -14,54 +14,82 @@ export function InfiniteScrollTrigger({
   const onLoadMoreRef = useRef(onLoadMore);
   onLoadMoreRef.current = onLoadMore;
 
+  const loadingRef = useRef(loading);
+  loadingRef.current = loading;
+
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
+
+  const isLockedRef = useRef(false);
+
+  // Manage post-load layout settle lock
   useEffect(() => {
-    const element = triggerRef.current;
-    if (!element || loading || !hasMore) return;
+    if (loading) {
+      isLockedRef.current = true;
+    } else {
+      const timer = setTimeout(() => {
+        isLockedRef.current = false;
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    if (!hasMore) return;
+
+    const tryTrigger = () => {
+      if (loadingRef.current || !hasMoreRef.current || isLockedRef.current) return;
+      const element = triggerRef.current;
+      if (!element) return;
+
+      const rect = element.getBoundingClientRect();
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+
+      if (rect.top <= windowHeight + 150 && rect.bottom >= -50) {
+        isLockedRef.current = true;
+        onLoadMoreRef.current();
+      }
+    };
 
     let observer: IntersectionObserver | null = null;
-
-    // Delay observer creation by one animation frame after React paint.
-    //
-    // WHY THIS IS NECESSARY (not a workaround):
-    // When `loading` transitions from true→false (batch finished loading),
-    // React commits new DOM nodes (the appended course cards) and paints.
-    // useEffect runs post-paint, but IntersectionObserver.observe() can
-    // fire its initial callback before the browser has fully evaluated
-    // the new layout. This means the sentinel might report as "intersecting"
-    // based on stale position data — even though the newly appended cards
-    // have pushed it well below the viewport.
-    //
-    // By deferring observe() to the next animation frame, we guarantee:
-    // 1. The browser has completed style recalc + layout for the new cards
-    // 2. The sentinel's position reflects the actual DOM state
-    // 3. The observer evaluates intersection against accurate geometry
-    //
-    // After the rAF, the observer works normally — no further delays or
-    // hacks are needed for subsequent intersection changes.
-    const rafId = requestAnimationFrame(() => {
+    if (typeof IntersectionObserver !== "undefined" && triggerRef.current) {
       observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            onLoadMoreRef.current();
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            tryTrigger();
           }
         },
-        { root: null, rootMargin: "100px", threshold: 0 },
+        { rootMargin: "150px" }
       );
-      observer.observe(element);
-    });
+      observer.observe(triggerRef.current);
+    }
+
+    let rafId: number | null = null;
+    const handleScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        tryTrigger();
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
 
     return () => {
-      cancelAnimationFrame(rafId);
       observer?.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [loading, hasMore]);
+  }, [hasMore]);
 
   if (!hasMore) return null;
 
   return (
     <div
       ref={triggerRef}
-      className="w-full flex items-center justify-center py-6"
+      className="w-full flex items-center justify-center py-6 [overflow-anchor:none]"
       aria-live="polite"
       aria-busy={loading}
     >
