@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { Layers, BookOpen, ListTodo } from "lucide-react";
-import { ProgressBar, Badge } from "@/components/lms/shared";
+import { ProgressBar, Badge, DataTable, ColumnDef } from "@/components/lms/shared";
 import {
   ResponsiveContainer,
   BarChart,
@@ -18,6 +18,71 @@ interface LessonProgressTabProps {
   lessonProgress: any;
   mounted: boolean;
 }
+
+interface SectionStat {
+  section: string;
+  total: number;
+  completed: number;
+  percent: number;
+}
+
+const sectionColumns: ColumnDef<SectionStat>[] = [
+  {
+    key: "section",
+    header: "Chương học",
+    cell: (s) => (
+      <span className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[220px] block" title={s.section}>
+        {s.section}
+      </span>
+    ),
+  },
+  {
+    key: "total",
+    header: "Tổng bài",
+    align: "center",
+    width: "100px",
+    cell: (s) => <span className="text-slate-500 dark:text-slate-400">{s.total}</span>,
+  },
+  {
+    key: "completed",
+    header: "Đã học",
+    align: "center",
+    width: "100px",
+    cell: (s) => <span className="font-bold text-slate-700 dark:text-slate-300">{s.completed}</span>,
+  },
+  {
+    key: "percent",
+    header: "Tiến độ",
+    minWidth: "160px",
+    cell: (s) => (
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <ProgressBar
+            value={s.completed}
+            max={s.total}
+            color={s.percent === 100 ? "green" : "blue"}
+            showPercent={false}
+          />
+        </div>
+        <span className="text-[10px] font-bold text-slate-500 dark:text-cyan-400 w-8 text-right">
+          {s.percent}%
+        </span>
+      </div>
+    ),
+  },
+  {
+    key: "status",
+    header: "Trạng thái",
+    align: "right",
+    width: "135px",
+    minWidth: "135px",
+    cell: (s) => {
+      const statusVariant = s.percent === 100 ? "green" : s.percent > 0 ? "blue" : "gray";
+      const statusText = s.percent === 100 ? "Đã xong" : s.percent > 0 ? "Đang học" : "Chưa học";
+      return <Badge variant={statusVariant}>{statusText}</Badge>;
+    },
+  },
+];
 
 export function LessonProgressTab({ lessonProgress, mounted }: LessonProgressTabProps) {
   const formatData = useMemo(() => {
@@ -39,7 +104,7 @@ export function LessonProgressTab({ lessonProgress, mounted }: LessonProgressTab
     }));
   }, [lessonProgress]);
 
-  const sectionStats = useMemo(() => {
+  const sectionStats = useMemo<SectionStat[]>(() => {
     if (!lessonProgress || !lessonProgress.by_section) return [];
     return lessonProgress.by_section.map((item: any) => ({
       section: item.section_title,
@@ -92,7 +157,7 @@ export function LessonProgressTab({ lessonProgress, mounted }: LessonProgressTab
         </div>
       </div>
 
-      {/* 2. Tiến độ theo chương học (Borderless Table directly on canvas) */}
+      {/* 2. Tiến độ theo chương học (Unified DataTable) */}
       <div className="pt-2">
         <div className="flex items-center gap-3 mb-5">
           <div className="p-2 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl">
@@ -106,60 +171,18 @@ export function LessonProgressTab({ lessonProgress, mounted }: LessonProgressTab
           </div>
         </div>
         
-        {!lessonProgress || !lessonProgress.by_section || lessonProgress.by_section.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center p-8 border border-dashed border-slate-200 dark:border-blue-500/10 rounded-2xl">
-            <ListTodo className="w-10 h-10 text-slate-300 dark:text-slate-700 mb-2" />
-            <p className="text-xs text-slate-500">Chưa có chương học nào được cấu hình.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-blue-900/50">
-            <table className="w-full text-left border-collapse min-w-[500px]">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-blue-500/10 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  <th className="py-2.5 px-3">Chương học</th>
-                  <th className="py-2.5 px-3 text-center w-24">Tổng bài</th>
-                  <th className="py-2.5 px-3 text-center w-24">Đã học</th>
-                  <th className="py-2.5 px-3">Tiến độ</th>
-                  <th className="py-2.5 px-3 text-right w-28">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-blue-500/5 text-xs">
-                {sectionStats.map((s, idx) => {
-                  const statusVariant = s.percent === 100 ? "green" : s.percent > 0 ? "blue" : "gray";
-                  const statusText = s.percent === 100 ? "Đã xong" : s.percent > 0 ? "Đang học" : "Chưa học";
-
-                  return (
-                    <tr key={idx} className="group hover:bg-slate-100/30 dark:hover:bg-[#12223a]/25 transition-colors">
-                      <td className="py-3.5 px-3 font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[220px]" title={s.section}>
-                        {s.section}
-                      </td>
-                      <td className="py-3.5 px-3 text-center text-slate-500 dark:text-slate-400">{s.total}</td>
-                      <td className="py-3.5 px-3 text-center font-bold text-slate-700 dark:text-slate-300">{s.completed}</td>
-                      <td className="py-3.5 px-3 min-w-[150px]">
-                        <div className="flex items-center gap-3">
-                          <div className="flex-1">
-                            <ProgressBar
-                              value={s.completed}
-                              max={s.total}
-                              color={s.percent === 100 ? "green" : "blue"}
-                              showPercent={false}
-                            />
-                          </div>
-                          <span className="text-[10px] font-bold text-slate-500 dark:text-cyan-400 w-8 text-right">
-                            {s.percent}%
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <Badge variant={statusVariant}>{statusText}</Badge>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable<SectionStat>
+          data={sectionStats}
+          columns={sectionColumns}
+          keyExtractor={(_, idx) => idx}
+          variant="flat"
+          emptyState={
+            <div className="flex flex-col items-center justify-center text-center p-8 border border-dashed border-slate-200 dark:border-blue-500/10 rounded-2xl">
+              <ListTodo className="w-10 h-10 text-slate-300 dark:text-slate-700 mb-2" />
+              <p className="text-xs text-slate-500">Chưa có chương học nào được cấu hình.</p>
+            </div>
+          }
+        />
       </div>
     </div>
   );

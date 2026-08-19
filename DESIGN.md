@@ -129,8 +129,9 @@ This system operates on a hybrid elevation model:
 - **Active state:** Active tab utilizes a distinct white (light) or #0f1e35 (dark) background and subtle border frame.
 
 ### Inputs / Fields
-- **Style:** Background slate-50 (light) or #0d192e (dark) with thin borders.
-- **Focus:** Highlighted with a blue focus border and a subtle glow ring.
+- **Style:** Built on `Field` primitive (`@/components/ui/field`), background slate-50 (light) or `dark:bg-lms-input` (#0d192e dark) with `rounded-xl` (12px) corners and thin borders (`border-slate-300` / `dark:border-blue-500/20`).
+- **Composition & Slots:** Supports `label` (with `required` asterisk indicator), `hint` text, `error` messaging, `icon` (left), and `rightIcon` slots.
+- **Focus & States:** Highlighted with a tech blue / cyan focus border (`focus:border-blue-500` / `dark:focus:border-cyan-400/50`) and soft glow ring. Error state turns border and message to red (`border-red-500`).
 
 ### Cards / Containers
 - **Corner Style:** rounded-3xl (24px) or rounded-2xl (16px)

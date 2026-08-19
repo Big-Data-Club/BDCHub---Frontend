@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { PrimaryBtn, SecondaryBtn } from "@/components/lms/shared/Button";
-import { Select } from "@/components/lms/shared";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Select, SearchBar } from "@/components/lms/shared";
+import { SlidersHorizontal } from "lucide-react";
 
 interface ForumSearchBarProps {
   sortBy: 'votes' | 'newest' | 'oldest' | 'views';
@@ -30,17 +30,14 @@ export default function ForumSearchBar({ sortBy, onSortChange, onSearch }: Forum
     <div className="bg-white dark:bg-[#0F1E35] rounded-2xl border border-slate-200 dark:border-blue-500/10 p-6 space-y-4 shadow-sm">
       {/* Search Bar */}
       <div className="flex gap-2">
-        <div className="flex-1 relative">
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Tìm kiếm trong tiêu đề và nội dung..."
-            className="w-full pl-10 pr-4 py-3 border border-slate-300 dark:border-blue-500/20 bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all text-sm"
-          />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
-        </div>
+        <SearchBar
+          value={searchInput}
+          onChange={setSearchInput}
+          onKeyDown={handleKeyPress}
+          placeholder="Tìm kiếm trong tiêu đề và nội dung..."
+          size="md"
+          containerClassName="flex-1"
+        />
         <PrimaryBtn onClick={handleSearch}>
           Tìm kiếm
         </PrimaryBtn>

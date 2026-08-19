@@ -1,5 +1,5 @@
-import { Search, Sparkles } from "lucide-react";
-import { Input, GridBackground } from "@/components/lms/shared";
+import { Sparkles } from "lucide-react";
+import { SearchBar, GridBackground } from "@/components/lms/shared";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 import { RefObject } from "react";
 
@@ -42,20 +42,17 @@ export function DiscoverHeader({ search, onSearchChange, onOpenPreferences, sear
           </button>
         </div>
 
-        {/* Search input with Kbd shortcut hint */}
-        <div className="relative max-w-xl">
-          <Input
+        {/* Search bar with Kbd shortcut hint */}
+        <div className="max-w-xl">
+          <SearchBar
             ref={searchInputRef}
             value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={onSearchChange}
             placeholder="Tìm theo tên khóa học, danh mục, từ khóa..."
-            className="pl-10 pr-12 bg-white dark:bg-[#0F1E35] border-slate-200 dark:border-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 rounded-xl text-xs sm:text-sm"
+            shortcutHint="/"
+            size="md"
             aria-label="Tìm kiếm khóa học"
           />
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <kbd className="hidden sm:inline-flex items-center justify-center h-5 px-1.5 rounded text-xs font-mono font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-[#0D192E] border border-slate-200 dark:border-slate-700/50 absolute right-3 top-1/2 -translate-y-1/2 select-none pointer-events-none">
-            /
-          </kbd>
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ import {
   PageLoader,
   PrimaryBtn,
   ProgressCard,
+  SearchBar,
 } from "@/components/lms/shared";
 import { Enrollment } from "@/types";
 import type { RecommendationItem } from "@/services/lms/recommendationService";
@@ -70,16 +71,12 @@ export function StudentCourseSidebar({
       {acceptedEnrollments.length > 0 && (
         <div className="flex flex-col gap-2.5 bg-slate-50/50 dark:bg-[#0D192E]/40 border border-slate-200/80 dark:border-blue-500/10 rounded-2xl p-3">
           {/* Search Row */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-            <input
-              type="text"
-              placeholder="Tìm kiếm học phần..."
-              value={courseSearchQuery}
-              onChange={(e) => setCourseSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-white dark:bg-[#070E1C] border border-slate-200 dark:border-blue-500/15 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 dark:focus:ring-cyan-400/10 focus:border-blue-500 dark:focus:border-cyan-450/40 transition-all duration-200 font-medium shadow-xs"
-            />
-          </div>
+          <SearchBar
+            placeholder="Tìm kiếm khóa học..."
+            value={courseSearchQuery}
+            onChange={setCourseSearchQuery}
+            size="sm"
+          />
 
           {/* Filter Dropdowns Row */}
           <div className="grid grid-cols-2 gap-2">

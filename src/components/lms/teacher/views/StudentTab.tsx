@@ -14,7 +14,7 @@ import { RefreshCw, Search } from "lucide-react";
 import Link from "next/link";
 import { analyticsService, CourseStudentProgress } from "@/services/lms/analyticsService";
 import { StudentProgressTable } from "@/components/lms/teacher/students/StudentProgressTable";
-import { TabBar }               from "@/components/lms/shared";
+import { TabBar, SearchBar }   from "@/components/lms/shared";
 import { UserAvatar }           from "@/components/user/UserAvatar";
 
 interface Props {
@@ -114,25 +114,13 @@ export function StudentsTab({ courseId }: Props) {
 
         {/* Right: Search Input + Refresh trigger */}
         <div className="flex items-center gap-2.5 flex-shrink-0">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-            <input
-              type="text"
-              placeholder="Tìm tên, email..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full pl-8 pr-8 py-1.5 border border-slate-200/80 dark:border-blue-500/20 rounded-xl bg-slate-50/80 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-cyan-500/40 focus:border-blue-500 dark:focus:border-cyan-500 transition-all"
-            />
-            {search && (
-              <button
-                onClick={() => setSearch("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-all"
-                title="Xóa tìm kiếm"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+          <SearchBar
+            placeholder="Tìm theo tên, email học viên..."
+            value={search}
+            onChange={setSearch}
+            size="sm"
+            containerClassName="w-full sm:w-64"
+          />
 
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-[#0D192E] border border-slate-200/60 dark:border-blue-500/15">
             {filtered.length} học viên

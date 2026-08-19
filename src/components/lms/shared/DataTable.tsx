@@ -45,10 +45,17 @@ export interface DataTableProps<T> {
   variant?: "card" | "flat" | "bordered";
 }
 
+// Synchronized wrapper styles for Container (card/bordered) vs Transparent (flat)
 const variantWrapperStyles = {
-  card: "bg-white dark:bg-[#0F1E35] rounded-3xl border border-slate-200/80 dark:border-blue-500/15 shadow-xs overflow-hidden",
-  flat: "bg-transparent border-0 shadow-none overflow-hidden",
-  bordered: "bg-white dark:bg-[#0F1E35] rounded-2xl border border-slate-200 dark:border-blue-500/20 overflow-hidden",
+  card: "bg-white dark:bg-[#0F1E35] rounded-2xl border border-slate-200/80 dark:border-blue-500/15 shadow-xs overflow-hidden transition-all duration-200",
+  bordered: "bg-white dark:bg-[#0F1E35] rounded-2xl border border-slate-200 dark:border-blue-500/20 overflow-hidden transition-all duration-200",
+  flat: "bg-transparent rounded-2xl border border-slate-200/60 dark:border-blue-500/10 overflow-hidden transition-all duration-200",
+};
+
+const variantHeaderStyles = {
+  card: "border-b border-slate-200/80 dark:border-blue-500/15 bg-slate-50/70 dark:bg-[#070e1c]/50",
+  bordered: "border-b border-slate-200 dark:border-blue-500/20 bg-slate-50/70 dark:bg-[#070e1c]/50",
+  flat: "border-b border-slate-200/80 dark:border-blue-500/15 bg-slate-100/60 dark:bg-[#0D192E]/40",
 };
 
 export function DataTable<T>({
@@ -93,10 +100,8 @@ export function DataTable<T>({
           <TableHeader>
             <TableRow
               className={cn(
-                "border-b text-xs font-bold text-slate-550 dark:text-slate-450 uppercase tracking-wider select-none hover:bg-transparent",
-                variant === "flat"
-                  ? "border-slate-200/60 dark:border-blue-500/10 bg-slate-100/50 dark:bg-[#0D192E]/40"
-                  : "border-slate-200/80 dark:border-blue-500/10 bg-slate-50/50 dark:bg-[#070e1c]/40"
+                "text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider select-none hover:bg-transparent transition-colors",
+                variantHeaderStyles[variant]
               )}
             >
               {columns.map((col) => {
@@ -113,7 +118,7 @@ export function DataTable<T>({
                   <TableHead
                     key={col.key}
                     className={cn(
-                      "px-6 py-4 h-auto font-bold",
+                      "px-5 py-3.5 h-auto font-extrabold text-[11px] whitespace-nowrap",
                       alignClass,
                       col.sortable && "cursor-pointer transition-colors hover:text-blue-600 dark:hover:text-cyan-400 group/th",
                       isSorted && "text-blue-600 dark:text-cyan-400",
@@ -134,7 +139,7 @@ export function DataTable<T>({
             </TableRow>
           </TableHeader>
 
-          <TableBody className="divide-y divide-slate-100 dark:divide-blue-500/5">
+          <TableBody className="divide-y divide-slate-100 dark:divide-blue-500/10 text-xs sm:text-sm">
             {loading ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-32 text-center text-slate-400">
@@ -164,8 +169,8 @@ export function DataTable<T>({
                   <TableRow
                     key={key}
                     className={cn(
-                      "group hover:bg-slate-50/60 dark:hover:bg-[#0D192E]/40 transition-all duration-200 border-b border-slate-100 dark:border-blue-500/5",
-                      onRowClick && "cursor-pointer",
+                      "group hover:bg-slate-50/70 dark:hover:bg-[#12223a]/40 transition-colors duration-150 border-b border-slate-100 dark:border-blue-500/10",
+                      onRowClick && "cursor-pointer active:scale-[0.998]",
                       customRowClass
                     )}
                     onClick={onRowClick ? () => onRowClick(item, index) : undefined}
@@ -181,7 +186,7 @@ export function DataTable<T>({
                       return (
                         <TableCell
                           key={col.key}
-                          className={cn("px-6 py-4", alignClass, col.className)}
+                          className={cn("px-5 py-4", alignClass, col.className)}
                         >
                           {col.cell(item, index)}
                         </TableCell>
@@ -200,7 +205,7 @@ export function DataTable<T>({
 
       {/* Mobile Responsive Card List View */}
       {renderMobileCard && (
-        <div className="block md:hidden divide-y divide-slate-100 dark:divide-blue-500/5">
+        <div className="block md:hidden divide-y divide-slate-100 dark:divide-blue-500/10">
           {loading ? (
             <div className="p-8 text-center text-slate-400">
               <div className="inline-block w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-2" />

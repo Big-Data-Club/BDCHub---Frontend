@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { UserPlus, Trash2, Shield, Search } from "lucide-react";
 import lmsService from "@/services/lms/lmsService";
 import { useAuth } from "@/hooks/auth/useAuth";
-import { Badge, InteractiveGlowCard, Spinner } from "@/components/lms/shared";
+import { Badge, InteractiveGlowCard, Spinner, SearchBar } from "@/components/lms/shared";
 import { Course } from "@/types";
 
 interface CoTeacher {
@@ -256,14 +256,12 @@ export function CoTeacherSection({ course }: { course: Course }) {
           </label>
           <div className="flex gap-2">
             <div className="relative flex-1" ref={dropdownRef}>
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
+              <SearchBar
                 value={searchQuery}
-                onChange={e => handleInputChange(e.target.value)}
+                onChange={handleInputChange}
                 onFocus={() => { if (searchResults.length > 0) setShowDropdown(true); }}
                 placeholder="Nhập tên hoặc email giáo viên..."
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-blue-500/20 bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-[#0A1628] focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                size="sm"
                 disabled={submitting}
               />
 
