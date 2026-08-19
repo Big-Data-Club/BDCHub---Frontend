@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { CourseTableRow, CourseMobileCard, formatDate } from "@/components/lms/teacher/CourseRowComponents";
 
 type StatusFilter = "all" | "draft" | "published" | "archived";
-type SortOption = "newest" | "oldest" | "enrollments-desc" | "title-asc" | "title-desc";
+type SortOption = "newest" | "oldest" | "enrollments-desc" | "enrollments-asc" | "title-asc" | "title-desc";
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function CoursesListPage() {
@@ -77,7 +77,7 @@ export default function CoursesListPage() {
       if (urlSearch) setSearch(urlSearch);
       if (urlTag) setSelectedTag(urlTag);
       if (urlLevel) setSelectedLevel(urlLevel);
-      if (urlSort && ["newest", "oldest", "enrollments-desc", "title-asc", "title-desc"].includes(urlSort)) {
+      if (urlSort && ["newest", "oldest", "enrollments-desc", "enrollments-asc", "title-asc", "title-desc"].includes(urlSort)) {
         setSortBy(urlSort);
       }
     }
@@ -244,6 +244,9 @@ export default function CoursesListPage() {
     if (sortBy === "enrollments-desc") {
       return (b.enrollment_count ?? 0) - (a.enrollment_count ?? 0);
     }
+    if (sortBy === "enrollments-asc") {
+      return (a.enrollment_count ?? 0) - (b.enrollment_count ?? 0);
+    }
     if (sortBy === "title-asc") {
       return (a.title || "").localeCompare(b.title || "");
     }
@@ -264,12 +267,12 @@ export default function CoursesListPage() {
   const archivedPercent = totalCoursesCount > 0 ? (archived / totalCoursesCount) * 100 : 0;
 
   // Clickable headers handler
-  const handleHeaderSort = (field: "title" | "enrollments" | "date") => {
+  const handleHeaderSort = (field: string) => {
     if (field === "title") {
       setSortBy(prev => prev === "title-asc" ? "title-desc" : "title-asc");
     } else if (field === "enrollments") {
-      setSortBy("enrollments-desc");
-    } else if (field === "date") {
+      setSortBy(prev => prev === "enrollments-desc" ? "enrollments-asc" : "enrollments-desc");
+    } else if (field === "date" || field === "updated_at") {
       setSortBy(prev => prev === "newest" ? "oldest" : "newest");
     }
   };
@@ -532,7 +535,7 @@ export default function CoursesListPage() {
                   },
                   {
                     key: "enrollments",
-                    sortKey: "enrollments-desc",
+                    sortKey: "enrollments",
                     sortable: true,
                     width: "12%",
                     minWidth: "90px",
@@ -542,7 +545,7 @@ export default function CoursesListPage() {
                         Học viên
                         <ArrowUpDown className={cn(
                           "w-3 h-3 transition-opacity duration-200",
-                          sortBy === "enrollments-desc" ? "opacity-100 text-blue-600 dark:text-cyan-400" : "opacity-0 group-hover/th:opacity-60"
+                          sortBy?.startsWith("enrollments") ? "opacity-100 text-blue-600 dark:text-cyan-400" : "opacity-0 group-hover/th:opacity-60"
                         )} />
                       </div>
                     ),
