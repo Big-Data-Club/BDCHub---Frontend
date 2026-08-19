@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Trash2, BookOpen, Search, Calendar, Loader2, Plus } from "lucide-react";
 import { agentService } from "@/services/ai/agentService";
 import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
+import { SearchBar } from "@/components/lms/shared";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -111,15 +112,12 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
             Ghi chú
           </PrimaryBtn>
         </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
-          <Input
-            placeholder="Tìm kiếm ghi chú..."
-            className="pl-9 bg-slate-50 dark:bg-[#0D192E] border border-slate-300 dark:border-blue-500/20 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#0A1628] focus:border-blue-500 dark:focus:border-cyan-400/50 rounded-xl focus-visible:ring-blue-500/20 transition-all duration-200"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        <SearchBar
+          placeholder="Tìm kiếm ghi chú..."
+          value={searchQuery}
+          onChange={setSearchQuery}
+          size="sm"
+        />
       </div>
 
       {/* Content Area */}

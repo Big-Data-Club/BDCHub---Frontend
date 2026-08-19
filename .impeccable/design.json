@@ -111,9 +111,9 @@
       "name": "Text Input",
       "kind": "input",
       "refersTo": "input-text",
-      "description": "Standard user entry text fields.",
-      "html": "<input type=\"text\" class=\"ds-input-text\" placeholder=\"Enter your name\" />",
-      "css": ".ds-input-text { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 16px; color: #0f172a; font-size: 14px; width: 100%; box-sizing: border-box; outline: none; transition: border-color 0.2s, box-shadow 0.2s; } .ds-input-text:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); background: #ffffff; }"
+      "description": "Standard LMS entry text field wrapped with Field primitive supporting label, hint, icons, and validation.",
+      "html": "<div class=\"ds-field-wrapper\"><label class=\"ds-field-label\">Course Title <span class=\"ds-required\">*</span></label><div class=\"ds-input-group\"><svg class=\"ds-left-icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input type=\"text\" class=\"ds-input-text\" placeholder=\"Search or enter title...\" /></div><span class=\"ds-field-hint\">Enter at least 3 characters.</span></div>",
+      "css": ".ds-field-wrapper { display: flex; flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; } .ds-field-label { font-size: 13px; font-weight: 600; color: #334155; } .ds-required { color: #ef4444; margin-left: 2px; } .ds-input-group { position: relative; display: flex; align-items: center; width: 100%; } .ds-left-icon { position: absolute; left: 14px; color: #94a3b8; pointer-events: none; } .ds-input-text { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 16px 12px 42px; color: #0f172a; font-size: 14px; width: 100%; box-sizing: border-box; outline: none; transition: border-color 0.2s, box-shadow 0.2s; } .ds-input-text:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); background: #ffffff; } .ds-field-hint { font-size: 11px; color: #64748b; }"
     },
     {
       "name": "AI Cowork Trigger Pill",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import lmsService from "@/services/lms/lmsService";
 import { organizationService } from "@/services/admin/organizationService";
@@ -8,10 +8,12 @@ import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import { FileInfo, Organization } from "@/types";
 import { CourseBlueprintWorkspace } from "@/components/lms/teacher/CourseBlueprintWorkspace";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
-import { Input, Textarea, PrimaryBtn, SecondaryBtn, Alert, GridBackground, CourseCard, RadioTileGroup, FilterDropdown, LmsPageHeader } from "@/components/lms/shared";
+import { Input, Textarea, PrimaryBtn, SecondaryBtn, Alert, CourseCard, RadioTileGroup, Select, TabBar, LmsPageHeader, BreadcrumbNav } from "@/components/lms/shared";
 import { 
-  ArrowLeft, BookOpen, Layers, Wand2, FileEdit, PlusCircle, Trash2, Globe, Lock, Sparkles, CheckCircle2, Award, Building2
+  Wand2, FileEdit, PlusCircle, Trash2, Globe, Lock, Sparkles, CheckCircle2, Award, Building2, Save, AlertTriangle
 } from "lucide-react";
+
+const DRAFT_STORAGE_KEY = "lms_create_course_draft_v1";
 
 const COURSE_LEVELS = [
   { value: "BEGINNER", label: "Cơ bản" },
@@ -20,15 +22,25 @@ const COURSE_LEVELS = [
   { value: "ALL_LEVELS", label: "Mọi cấp độ" }
 ];
 
+const WORKFLOW_TABS = [
+  { id: "manual", label: "Thủ công", icon: <FileEdit className="w-3.5 h-3.5" /> },
+  { id: "ai", label: "Tạo bằng AI (Sơ đồ)", icon: <Wand2 className="w-3.5 h-3.5" /> },
+];
+
 export default function CreateCoursePage() {
   const router = useRouter();
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitNotice, setSubmitNotice] = useState<{ type: "error" | "success"; message: string } | null>(null);
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [orgLoading, setOrgLoading] = useState(true);
   const [aiWorkflow, setAiWorkflow] = useState(false); // Manual creation by default
+  const [hasDraftRestored, setHasDraftRestored] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const { userId } = useCurrentUser();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -39,6 +51,58 @@ export default function CreateCoursePage() {
     org_id: undefined as number | undefined,
   });
 
+  // Check if form is modified/dirty
+  const isDirty = useMemo(() => {
+    return (
+      formData.title.trim() !== "" ||
+      formData.description.trim() !== "" ||
+      formData.category.trim() !== "" ||
+      formData.thumbnail_url !== ""
+    );
+  }, [formData]);
+
+  // Load saved draft on initial mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object") {
+          setFormData(prev => ({ ...prev, ...parsed }));
+          setHasDraftRestored(true);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to restore course draft:", e);
+    }
+  }, []);
+
+  // Autosave draft to localStorage when formData changes
+  useEffect(() => {
+    if (!isDirty) return;
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formData));
+      } catch (e) {
+        console.error("Failed to autosave course draft:", e);
+      }
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [formData, isDirty]);
+
+  // Warn user before closing/reloading window when form is dirty
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
   useEffect(() => {
     async function fetchOrgs() {
       try {
@@ -47,7 +111,7 @@ export default function CreateCoursePage() {
         setOrgs(list);
         if (list.length > 0) {
           const defaultOrg = list.find(o => o.slug === "bdc") || list[0];
-          setFormData(prev => ({ ...prev, org_id: defaultOrg.id }));
+          setFormData(prev => ({ ...prev, org_id: prev.org_id || defaultOrg.id }));
         }
       } catch (err) {
         console.error("Failed to load organizations:", err);
@@ -68,7 +132,7 @@ export default function CreateCoursePage() {
     }));
   }, [orgs]);
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
@@ -84,14 +148,26 @@ export default function CreateCoursePage() {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    // Auto-focus the first errored element for optimal accessibility & UX
+    if (newErrors.title && titleInputRef.current) {
+      titleInputRef.current.focus();
+    } else if (newErrors.description && descriptionInputRef.current) {
+      descriptionInputRef.current.focus();
+    }
+
+    return Object.keys(newErrors).length === 0;
+  }, [formData.title, formData.description]);
+
+  const handleSubmit = useCallback(async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setSubmitNotice(null);
     
     if (!validateForm()) {
+      setSubmitNotice({
+        type: "error",
+        message: "Vui lòng kiểm tra và sửa các thông tin bị lỗi bên dưới."
+      });
       return;
     }
 
@@ -107,6 +183,13 @@ export default function CreateCoursePage() {
         org_id: formData.org_id,
       });
       
+      // Clear draft on successful submission
+      try {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+      } catch (err) {
+        console.error(err);
+      }
+
       setSubmitNotice({ type: "success", message: "Tạo khóa học thành công! Đang chuyển hướng..." });
       setTimeout(() => {
         router.push(`/lms/teacher/courses/${result.data.id}`);
@@ -120,7 +203,46 @@ export default function CreateCoursePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, validateForm, router]);
+
+  // Keyboard shortcut Ctrl+S / Cmd+S to submit form quickly
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleSubmit();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleSubmit]);
+
+  const handleClearDraft = useCallback(() => {
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch (e) {
+      console.error(e);
+    }
+    setFormData({
+      title: "",
+      description: "",
+      category: "",
+      level: "BEGINNER",
+      thumbnail_url: "",
+      visibility: "PUBLIC",
+      org_id: orgs.length > 0 ? (orgs.find(o => o.slug === "bdc") || orgs[0]).id : undefined,
+    });
+    setErrors({});
+    setHasDraftRestored(false);
+  }, [orgs]);
+
+  const handleCancelClick = useCallback(() => {
+    if (isDirty) {
+      setShowCancelModal(true);
+    } else {
+      router.back();
+    }
+  }, [isDirty, router]);
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-slate-50 dark:bg-[#050B18]">
@@ -130,59 +252,49 @@ export default function CreateCoursePage() {
         title="Tạo khóa học mới"
         description="Điền các thông tin cơ bản để bắt đầu thiết kế khóa học của bạn. Bạn có thể bổ sung bài học và tài liệu sau."
         breadcrumbs={
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => router.back()}
-              className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-widest text-blue-600 dark:text-cyan-400 hover:text-blue-700 dark:hover:text-cyan-300 transition-colors group"
-            >
-              <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-              <span>Khóa học</span>
-            </button>
-            <span className="text-slate-300 dark:text-slate-700 font-light">/</span>
-            <span className="text-[11px] text-slate-400 dark:text-slate-400 font-extrabold uppercase tracking-widest">Tạo mới</span>
-          </div>
+          <BreadcrumbNav
+            items={[
+              { label: "Khóa học", href: "/lms/teacher/courses" },
+              { label: "Tạo khóa học mới" },
+            ]}
+          />
         }
         actions={
-          <div className="bg-white/80 dark:bg-[#0F1E35]/80 p-1.5 rounded-2xl border border-slate-200/85 dark:border-blue-500/15 backdrop-blur-xs shadow-xs">
-            <div role="tablist" className="flex items-center gap-1.5">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={!aiWorkflow}
-                onClick={() => { setAiWorkflow(false); setSubmitNotice(null); }}
-                className={`inline-flex items-center justify-center gap-2 py-2 px-4 text-xs font-bold rounded-xl transition-all duration-200 ${
-                  !aiWorkflow
-                    ? "bg-blue-600 dark:bg-cyan-500 text-white dark:text-slate-950 shadow-xs font-extrabold"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50"
-                }`}
-              >
-                <FileEdit className="w-3.5 h-3.5" />
-                <span>Thủ công</span>
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={aiWorkflow}
-                onClick={() => { setAiWorkflow(true); setSubmitNotice(null); }}
-                className={`inline-flex items-center justify-center gap-2 py-2 px-4 text-xs font-bold rounded-xl transition-all duration-200 ${
-                  aiWorkflow
-                    ? "bg-blue-600 dark:bg-cyan-500 text-white dark:text-slate-950 shadow-xs font-extrabold"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50"
-                }`}
-              >
-                <Wand2 className="w-3.5 h-3.5" />
-                <span>Tạo bằng AI (Sơ đồ)</span>
-              </button>
-            </div>
-          </div>
+          <TabBar
+            tabs={WORKFLOW_TABS}
+            active={aiWorkflow ? "ai" : "manual"}
+            onChange={(id) => {
+              setAiWorkflow(id === "ai");
+              setSubmitNotice(null);
+            }}
+            variant="pill"
+            size="sm"
+          />
         }
       />
 
       {/* Main Content Workspace */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-6">
+        {/* Draft Restoration Notice Banner */}
+        {hasDraftRestored && !aiWorkflow && (
+          <div className="p-4 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/40 rounded-2xl flex items-center justify-between gap-3 text-xs text-blue-800 dark:text-blue-200 animate-in fade-in duration-300">
+            <div className="flex items-center gap-2">
+              <Save className="w-4 h-4 text-blue-600 dark:text-cyan-400 flex-shrink-0" />
+              <span>Đã tự động khôi phục nội dung bản nháp đã lưu gần nhất của bạn.</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleClearDraft}
+              className="text-blue-600 dark:text-cyan-400 font-bold hover:underline underline-offset-2 flex-shrink-0"
+            >
+              Xóa nháp & Nhập mới
+            </button>
+          </div>
+        )}
+
         {/* Notice Banner */}
         {submitNotice && (
-          <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+          <div role="alert" aria-live="polite" className="animate-in fade-in slide-in-from-top-2 duration-300">
             <Alert type={submitNotice.type}>{submitNotice.message}</Alert>
           </div>
         )}
@@ -200,6 +312,9 @@ export default function CreateCoursePage() {
                 organizations={orgs}
                 onCancel={() => router.push("/lms/teacher/courses")}
                 onComplete={async (courseId) => {
+                  try {
+                    localStorage.removeItem(DRAFT_STORAGE_KEY);
+                  } catch (e) {}
                   router.push(`/lms/teacher/courses/${courseId}`);
                 }}
               />
@@ -215,7 +330,7 @@ export default function CreateCoursePage() {
                 {/* Section 1: Basic Info */}
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-400">
                   <div className="flex items-center gap-3 pb-3 border-b border-slate-200/60 dark:border-blue-500/15">
-                    <div className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-blue-950/40 text-slate-600 dark:text-cyan-400 flex items-center justify-center font-bold text-xs border border-slate-200/60 dark:border-blue-500/15 select-none">
+                    <div className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-blue-950/80 text-blue-700 dark:text-cyan-400 flex items-center justify-center font-bold text-xs border border-slate-200/60 dark:border-blue-500/30 select-none">
                       01
                     </div>
                     <div>
@@ -228,6 +343,7 @@ export default function CreateCoursePage() {
                   
                   <div className="space-y-5">
                     <Input
+                      ref={titleInputRef}
                       label="Tên khóa học"
                       required
                       value={formData.title}
@@ -237,6 +353,7 @@ export default function CreateCoursePage() {
                     />
 
                     <Textarea
+                      ref={descriptionInputRef}
                       label="Mô tả khóa học"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -250,7 +367,7 @@ export default function CreateCoursePage() {
                 {/* Section 2: Details & Config */}
                 <div className="space-y-6 pt-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="flex items-center gap-3 pb-3 border-b border-slate-200/60 dark:border-blue-500/15">
-                    <div className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-purple-950/40 text-slate-600 dark:text-purple-300 flex items-center justify-center font-bold text-xs border border-slate-200/60 dark:border-purple-500/15 select-none">
+                    <div className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-xs border border-slate-200/60 dark:border-purple-500/30 select-none">
                       02
                     </div>
                     <div>
@@ -271,57 +388,51 @@ export default function CreateCoursePage() {
                         placeholder="VD: Lập trình, Thiết kế..."
                       />
 
-                      <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                          Mức độ khó
-                        </label>
-                        <FilterDropdown
-                          value={formData.level}
-                          onValueChange={(val) => setFormData({ ...formData, level: val })}
-                          icon={<Award className="w-4 h-4 text-slate-400" />}
-                          placeholder="Chọn mức độ khó"
-                          options={COURSE_LEVELS}
-                        />
-                      </div>
+                      <Select
+                        label="Mức độ khó"
+                        value={formData.level}
+                        onValueChange={(val) => setFormData({ ...formData, level: val })}
+                        icon={<Award className="w-4 h-4 text-slate-400" />}
+                        placeholder="Chọn mức độ khó"
+                        options={COURSE_LEVELS}
+                      />
                     </div>
 
                     {/* Organization Select */}
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                        Tổ chức sở hữu <span className="text-red-500">*</span>
-                      </label>
                       {orgLoading ? (
                         <div className="text-sm text-slate-500 animate-pulse py-2.5">Đang tải danh sách tổ chức...</div>
                       ) : (
-                        <FilterDropdown
+                        <Select
+                          label="Tổ chức sở hữu"
                           value={formData.org_id ? String(formData.org_id) : ""}
                           onValueChange={(val) => setFormData({ ...formData, org_id: Number(val) })}
                           icon={<Building2 className="w-4 h-4 text-slate-400" />}
-                          placeholder="Chọn tổ chức sở hữu"
+                          placeholder="Chọn tổ chức quản lý"
                           options={orgOptions}
                         />
                       )}
                       <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 font-medium">
-                        Chọn tổ chức chịu trách nhiệm quản lý và sở hữu khóa học này.
+                        Tổ chức được chọn sẽ giữ quyền quản trị và cấp quyền phân công giảng viên cho khóa học này.
                       </p>
                     </div>
 
                     {/* Visibility Selector Tiles */}
                     <RadioTileGroup
-                      label="Khả năng hiển thị"
+                      label="Quyền truy cập & Hiển thị"
                       value={formData.visibility}
                       onChange={(val) => setFormData({ ...formData, visibility: val })}
                       options={[
                         {
                           value: "PUBLIC",
-                          title: "Public - Tự do",
-                          description: "Tất cả học viên đều tìm thấy",
+                          title: "Công khai (Public)",
+                          description: "Tất cả học viên trên hệ thống đều có thể tìm thấy và đăng ký học",
                           icon: <Globe className="w-4 h-4" />,
                         },
                         {
                           value: "ORG_ONLY",
-                          title: "Nội bộ - Org Only",
-                          description: "Chỉ thành viên tổ chức",
+                          title: "Nội bộ (Organization Only)",
+                          description: "Chỉ các thành viên thuộc cùng tổ chức mới có quyền truy cập",
                           icon: <Lock className="w-4 h-4" />,
                         },
                       ]}
@@ -359,22 +470,27 @@ export default function CreateCoursePage() {
                 </div>
 
                 {/* Action Buttons Bar */}
-                <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-200/80 dark:border-blue-500/15">
-                  <SecondaryBtn
-                    type="button"
-                    onClick={() => router.back()}
-                    className="px-6 py-2.5 text-xs font-semibold"
-                  >
-                    Hủy
-                  </SecondaryBtn>
-                  <PrimaryBtn
-                    type="submit"
-                    loading={loading}
-                    icon={<PlusCircle className="w-4 h-4" />}
-                    className="py-2.5 px-6 text-xs font-bold"
-                  >
-                    {loading ? "Đang tạo khóa học..." : "Tạo khóa học ngay"}
-                  </PrimaryBtn>
+                <div className="flex items-center justify-between gap-3 pt-6 border-t border-slate-200/80 dark:border-blue-500/15">
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-medium hidden sm:inline">
+                    Mẹo: Bấm <kbd className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 rounded text-xs font-mono">Cmd+S</kbd> để tạo nhanh
+                  </span>
+                  <div className="flex items-center gap-3 ml-auto">
+                    <SecondaryBtn
+                      type="button"
+                      onClick={handleCancelClick}
+                      className="px-6 py-2.5 text-xs font-semibold"
+                    >
+                      Hủy
+                    </SecondaryBtn>
+                    <PrimaryBtn
+                      type="submit"
+                      loading={loading}
+                      icon={<PlusCircle className="w-4 h-4" />}
+                      className="py-2.5 px-6 text-xs font-bold"
+                    >
+                      {loading ? "Đang tạo khóa học..." : "Tạo khóa học ngay"}
+                    </PrimaryBtn>
+                  </div>
                 </div>
 
               </div>
@@ -388,13 +504,13 @@ export default function CreateCoursePage() {
                     <span className="text-xs font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                       <span>Xem trước thẻ khóa học</span>
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold py-0.5 px-2.5 rounded-full bg-blue-50 text-blue-600 dark:bg-cyan-500/10 dark:text-cyan-400 border border-blue-200/50 dark:border-cyan-500/30 shadow-xs">
+                    <span className="inline-flex items-center gap-1 text-xs font-extrabold py-0.5 px-2.5 rounded-full bg-blue-50 text-blue-600 dark:bg-cyan-500/10 dark:text-cyan-400 border border-blue-200/50 dark:border-cyan-500/30 shadow-xs">
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-cyan-400 animate-pulse" />
                       Live Preview
                     </span>
                   </div>
 
-                  <div className="h-[380px] w-full">
+                  <div className="min-h-[360px] h-auto w-full">
                     <CourseCard
                       id={0}
                       title={formData.title.trim() || "Tên khóa học của bạn"}
@@ -429,6 +545,52 @@ export default function CreateCoursePage() {
           </form>
         )}
       </div>
+
+      {/* Unsaved Changes Warning Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5">
+            <div className="flex items-center gap-3 text-amber-500">
+              <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-800/30">
+                <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  Rời khỏi trang tạo khóa học?
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Dữ liệu bạn đang nhập đã được tự động lưu vào bản nháp cục bộ.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Bạn có thể quay lại bất cứ lúc nào để tiếp tục hoàn thiện nội dung khóa học.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <SecondaryBtn
+                type="button"
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 text-xs font-semibold"
+              >
+                Tiếp tục chỉnh sửa
+              </SecondaryBtn>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCancelModal(false);
+                  router.back();
+                }}
+                className="px-4 py-2 text-xs font-bold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 rounded-xl transition-all"
+              >
+                Rời khỏi trang
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

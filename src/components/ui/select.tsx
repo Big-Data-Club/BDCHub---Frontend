@@ -20,7 +20,7 @@ const SelectTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       // Base layout
-      "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border px-3 py-2 text-sm shadow-sm",
+      "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border px-3 py-2 text-sm shadow-xs",
       // Light mode - solid input background so it's never transparent
       "bg-slate-50 border-slate-300 text-slate-900",
       // Dark mode
@@ -30,16 +30,18 @@ const SelectTrigger = React.forwardRef<
       // Focus
       "focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500",
       "dark:focus:ring-cyan-400/20 dark:focus:border-cyan-400/50",
-      // States
+      // States & Animations
       "disabled:cursor-not-allowed disabled:opacity-50",
-      "[&>span]:line-clamp-1 transition-all duration-200",
+      "[&>span]:line-clamp-1 transition-all duration-200 group",
+      // Chevron rotation when open
+      "[&>svg]:transition-transform [&>svg]:duration-200 data-[state=open]:[&>svg]:rotate-180",
       className
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
+      <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500 transition-transform duration-200" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))
@@ -83,29 +85,32 @@ SelectScrollDownButton.displayName =
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", ...props }, ref) => (
+>(({ className, children, position = "popper", sideOffset = 4, onPointerDownOutside, ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
+      sideOffset={sideOffset}
+      onPointerDownOutside={(e) => {
+        if (onPointerDownOutside) {
+          onPointerDownOutside(e);
+        }
+      }}
       className={cn(
-        "relative z-[10050] min-w-[8rem] rounded-xl border",
+        "relative z-[10050] min-w-[8rem] rounded-xl border p-1",
         // Cap height to available viewport space (Radix provides this var); fallback to 384px.
-        // Use overflow-hidden - NOT overflow-y-auto - so Radix's own ScrollUpButton/ScrollDownButton
-        // handle scrolling correctly. overflow-y-auto on the Content breaks their logic.
         "max-h-[min(384px,var(--radix-select-content-available-height,384px))] overflow-hidden overflow-x-hidden",
         // Light mode
-        "bg-white border-slate-200 text-slate-900 shadow-lg",
-        // Dark mode - explicit BDC Design Rhythm tokens (bg-popover CSS variable unreliable in dark LMS)
-        "dark:bg-[#0F1E35] dark:border-blue-500/20 dark:text-slate-100 dark:shadow-none",
-        // Animations
+        "bg-white border-slate-200/90 text-slate-900 shadow-xl shadow-slate-900/10",
+        // Dark mode - explicit BDC Design Rhythm tokens
+        "dark:bg-[#0F1E35] dark:border-blue-500/25 dark:text-slate-100 dark:shadow-2xl dark:shadow-black/40",
+        // Micro Animations: 150ms springy ease-out scale & fade
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
-        "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        "data-[state=closed]:zoom-out-97 data-[state=open]:zoom-in-97",
+        "data-[side=bottom]:slide-in-from-top-1.5 data-[side=top]:slide-in-from-bottom-1.5",
+        "data-[side=left]:slide-in-from-right-1.5 data-[side=right]:slide-in-from-left-1.5",
+        "duration-150 ease-out",
         "origin-[--radix-select-content-transform-origin]",
-        position === "popper" &&
-          "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className
       )}
       position={position}
@@ -116,7 +121,6 @@ const SelectContent = React.forwardRef<
         className={cn(
           "p-1",
           position === "popper" &&
-            // min-h instead of h - prevents viewport from being locked to trigger height (scroll fix)
             "min-h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
       >
@@ -134,7 +138,7 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn("px-2 py-1.5 text-sm font-semibold", className)}
+    className={cn("px-2 py-1.5 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider", className)}
     {...props}
   />
 ))
@@ -147,15 +151,16 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-lg py-2 pl-3 pr-8 text-sm outline-none transition-colors",
+      "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-3 pr-8 text-sm outline-none transition-colors duration-150",
       "text-slate-800 dark:text-slate-200",
-      "focus:bg-blue-50 focus:text-blue-700 dark:focus:bg-blue-500/15 dark:focus:text-cyan-300",
+      "focus:bg-blue-50/90 focus:text-blue-700 dark:focus:bg-blue-500/20 dark:focus:text-cyan-300",
+      "hover:bg-slate-100/80 dark:hover:bg-slate-800/60",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
   >
-    <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span className="absolute right-2.5 flex h-4 w-4 items-center justify-center text-blue-600 dark:text-cyan-400">
       <SelectPrimitive.ItemIndicator>
         <Check className="h-4 w-4" />
       </SelectPrimitive.ItemIndicator>

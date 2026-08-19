@@ -10,13 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select } from "@/components/lms/shared/Select";
 import { Badge } from "@/components/ui/badge";
 import { Clock, ListTodo, ExternalLink, Users } from "lucide-react";
 import { EventItem, ModalMode, EVENT_STATUSES, STATUS_COLORS, PRIORITY_COLORS } from "@/types";
@@ -129,38 +123,26 @@ export function EventModal({ open, mode, event, onOpenChange, onChange, onSave }
                 }
               </div>
 
-              <div className="space-y-1.5">
-                <Label className={LABEL_BASE}>Trạng thái</Label>
+              <div>
                 {!isViewMode ? (
                   <Select
+                    label="Trạng thái"
                     value={event.statusEvent || "PENDING"}
                     onValueChange={(v) => onChange({ ...event, statusEvent: v as any })}
-                  >
-                    <SelectTrigger className="rounded-xl
-                                              border border-slate-300 dark:border-slate-700
-                                              bg-slate-50 dark:bg-slate-800
-                                              text-slate-900 dark:text-slate-100
-                                              focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-slate-900
-                                              border border-slate-200 dark:border-slate-800 rounded-xl">
-                      {EVENT_STATUSES.map((status) => (
-                        <SelectItem key={status} value={status}
-                                    className="focus:bg-slate-100 dark:focus:bg-slate-800">
-                          <span className={`px-2 py-0.5 rounded-md text-xs font-medium
-                                            ${STATUS_COLORS[status as keyof typeof STATUS_COLORS]}`}>
-                            {status}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={EVENT_STATUSES.map((status) => ({
+                      value: status,
+                      label: status,
+                    }))}
+                  />
                 ) : (
-                  <span className={`inline-block px-3 py-1 rounded-lg text-sm font-semibold
-                                    ${STATUS_COLORS[event.statusEvent as keyof typeof STATUS_COLORS]}`}>
-                    {event.statusEvent}
-                  </span>
+                  <div className="space-y-1.5">
+                    <Label className={LABEL_BASE}>Trạng thái</Label>
+                    <div>
+                      <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-semibold ${STATUS_COLORS[event.statusEvent as keyof typeof STATUS_COLORS] || ""}`}>
+                        {event.statusEvent || "Chưa chọn"}
+                      </span>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

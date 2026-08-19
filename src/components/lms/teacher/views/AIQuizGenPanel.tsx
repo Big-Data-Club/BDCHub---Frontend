@@ -10,6 +10,7 @@ import {
 import aiService, { GeneratedQuestion, KnowledgeNode, KnowledgeGraphEdge } from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
 import { TabBar } from "@/components/lms/shared/TabBar";
+import { SearchBar } from "@/components/lms/shared";
 
 // ─── Lazy-loaded heavy sub-components ─────────────────────────────────────────
 
@@ -515,15 +516,12 @@ export function AIQuizGenPanel({ courseId }: Props) {
 
           {/* Filter Bar */}
           <div className="space-y-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Tìm kiếm nội dung câu hỏi..."
-                className="w-full pl-9 pr-3.5 py-2.5 text-xs bg-slate-50 dark:bg-[#0D192E] border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all placeholder:text-slate-400 min-h-[44px]"
-              />
-            </div>
+            <SearchBar 
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Tìm kiếm nội dung câu hỏi..."
+              size="md"
+            />
             
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <div className="flex items-center gap-1.5 text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-xl min-h-[44px]">

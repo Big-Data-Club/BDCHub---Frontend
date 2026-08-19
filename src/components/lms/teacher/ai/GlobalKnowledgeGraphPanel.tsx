@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
+import { SearchBar } from "@/components/lms/shared";
 
 // ── Canvas graph (no SSR) ─────────────────────────────────────────────────────
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
@@ -233,15 +234,13 @@ export default function GlobalKnowledgeGraphPanel({
             </div>
 
           <div className="flex items-center gap-2 pointer-events-auto">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Tìm node..."
-                className="pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg w-40 focus:ring-2 focus:ring-blue-500 outline-none"
-              />
-            </div>
+            <SearchBar
+              value={search}
+              onChange={setSearch}
+              placeholder="Tìm node..."
+              size="sm"
+              containerClassName="w-40"
+            />
             <button onClick={() => setShowFilters(!showFilters)} className={cn("p-2 rounded-lg border transition-colors", showFilters ? "bg-blue-600 border-blue-500 text-white" : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500")}>
               <Filter size={16} />
             </button>

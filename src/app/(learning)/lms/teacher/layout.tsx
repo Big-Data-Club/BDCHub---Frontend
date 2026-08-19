@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LmsHeader } from "@/components/layout/LmsHeader";
 import lmsService from "@/services/lms/lmsService";
-import { activateLmsRole, hasLmsRole } from "@/lib/lms-navigation";
+import { activateLmsRole, clearLmsRoleSession, hasLmsRole } from "@/lib/lms-navigation";
 import { cn } from "@/lib/utils";
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
@@ -41,8 +41,8 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   }, [router]);
 
   const handleChangeRole = () => {
-    sessionStorage.removeItem("lms_selected_role");
-    router.push("/lms");
+    clearLmsRoleSession();
+    router.push("/lms?select=true");
   };
 
   const navItems = [

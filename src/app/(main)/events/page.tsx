@@ -1,13 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select } from "@/components/lms/shared/Select";
 import { EventCard } from "@/components/dashboard/event/EventCard";
 import { EventModal } from "@/components/dashboard/modals/EventModal";
 import { LoadingState } from "@/components/common/LoadingState";
@@ -178,40 +172,28 @@ export default function EventsPage() {
           </div>
 
           {/* Status Filter */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger
-              className="border border-slate-300 dark:border-slate-700 rounded-xl
-                         bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
-                         focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-            >
-              <SelectValue placeholder="Trạng thái" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Tất cả trạng thái</SelectItem>
-              {EVENT_STATUSES.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Select
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            placeholder="Trạng thái"
+            options={[
+              { value: "ALL", label: "Tất cả trạng thái" },
+              ...EVENT_STATUSES.map((status) => ({ value: status, label: status })),
+            ]}
+          />
 
           {/* Sort */}
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger
-              className="border border-slate-300 dark:border-slate-700 rounded-xl
-                         bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100
-                         focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-            >
-              <SelectValue placeholder="Sắp xếp" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="createdAt:desc">Mới nhất</SelectItem>
-              <SelectItem value="createdAt:asc">Cũ nhất</SelectItem>
-              <SelectItem value="title:asc">Tên A-Z</SelectItem>
-              <SelectItem value="title:desc">Tên Z-A</SelectItem>
-            </SelectContent>
-          </Select>
+          <Select
+            value={sortBy}
+            onValueChange={setSortBy}
+            placeholder="Sắp xếp"
+            options={[
+              { value: "createdAt:desc", label: "Mới nhất" },
+              { value: "createdAt:asc", label: "Cũ nhất" },
+              { value: "title:asc", label: "Tên A-Z" },
+              { value: "title:desc", label: "Tên Z-A" },
+            ]}
+          />
         </div>
       </div>
 

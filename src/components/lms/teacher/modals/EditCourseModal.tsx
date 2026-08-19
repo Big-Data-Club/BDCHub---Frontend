@@ -3,6 +3,7 @@ import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import BaseModal from "@/components/lms/shared/BaseModal";
+import { Select } from "@/components/lms/shared/Select";
 import lmsService from "@/services/lms/lmsService";
 import { organizationService } from "@/services/admin/organizationService";
 import { Course, FileInfo, Organization } from "@/types";
@@ -131,55 +132,46 @@ export function EditCourseModal({ course, onClose, onSuccess }: {
               className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-[#0A1628] focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm"
             />
           </div>
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">Mức độ</label>
-            <select
-              value={formData.level}
-              onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-              className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-[#0A1628] focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm font-medium"
-            >
-              <option value="BEGINNER">Cơ bản</option>
-              <option value="INTERMEDIATE">Trung cấp</option>
-              <option value="ADVANCED">Nâng cao</option>
-              <option value="ALL_LEVELS">Mọi cấp độ</option>
-            </select>
-          </div>
+          <Select
+            label="Mức độ"
+            value={formData.level}
+            onValueChange={(val) => setFormData({ ...formData, level: val })}
+            options={[
+              { value: "BEGINNER", label: "Cơ bản" },
+              { value: "INTERMEDIATE", label: "Trung cấp" },
+              { value: "ADVANCED", label: "Nâng cao" },
+              { value: "ALL_LEVELS", label: "Mọi cấp độ" },
+            ]}
+          />
         </div>
         {/* Organization Select */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">Tổ chức sở hữu <span className="text-red-500 dark:text-red-400">*</span></label>
+        <div>
           {orgLoading ? (
             <div className="text-xs text-slate-500 animate-pulse py-2">Đang tải danh sách tổ chức...</div>
           ) : (
-            <select
-              value={formData.org_id || ""}
-              onChange={(e) => setFormData({ ...formData, org_id: Number(e.target.value) })}
-              className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-[#0A1628] focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm font-medium"
-            >
-              {orgs.length === 0 ? (
-                <option value="">Không thuộc tổ chức nào (Mặc định: Big Data Club)</option>
-              ) : (
-                orgs.map((org) => (
-                  <option key={org.id} value={org.id}>
-                    {org.name} ({org.slug})
-                  </option>
-                ))
-              )}
-            </select>
+            <Select
+              label="Tổ chức sở hữu"
+              required
+              value={formData.org_id ? String(formData.org_id) : ""}
+              onValueChange={(val) => setFormData({ ...formData, org_id: val ? Number(val) : undefined })}
+              placeholder={orgs.length === 0 ? "Không thuộc tổ chức nào (Mặc định: Big Data Club)" : "Chọn tổ chức..."}
+              options={orgs.map((org) => ({
+                value: String(org.id),
+                label: `${org.name} (${org.slug})`,
+              }))}
+            />
           )}
         </div>
         {/* Visibility Select */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">Khả năng hiển thị</label>
-          <select
-            value={formData.visibility}
-            onChange={(e) => setFormData({ ...formData, visibility: e.target.value as "PUBLIC" | "ORG_ONLY" })}
-            className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-[#0A1628] focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm font-medium"
-          >
-            <option value="PUBLIC">Công khai - Tất cả học viên</option>
-            <option value="ORG_ONLY">Nội bộ - Chỉ thành viên tổ chức</option>
-          </select>
-        </div>
+        <Select
+          label="Khả năng hiển thị"
+          value={formData.visibility}
+          onValueChange={(val) => setFormData({ ...formData, visibility: val as "PUBLIC" | "ORG_ONLY" })}
+          options={[
+            { value: "PUBLIC", label: "Công khai - Tất cả học viên" },
+            { value: "ORG_ONLY", label: "Nội bộ - Chỉ thành viên tổ chức" },
+          ]}
+        />
         <div className="space-y-1.5">
           <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">Ảnh đại diện</label>
           <FileUpload

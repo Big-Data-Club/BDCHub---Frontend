@@ -10,6 +10,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import {
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 import { Course } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +49,7 @@ export function CourseTableRow({
   deleting: boolean;
 }) {
   return (
-    <tr
+    <TableRow
       className={cn(
         "group hover:bg-slate-50/60 dark:hover:bg-[#0D192E]/40 transition-all duration-200 border-b border-slate-100 dark:border-blue-500/5 cursor-pointer",
         course.status === "ARCHIVED" && "opacity-75"
@@ -53,7 +57,7 @@ export function CourseTableRow({
       onClick={course.status === "ARCHIVED" ? undefined : onOpen}
     >
       {/* Course Info & Thumbnail */}
-      <td className="px-6 py-4">
+      <TableCell className="px-6 py-4">
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-16 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-[#0D192E] dark:to-[#0F1E35] flex items-center justify-center flex-shrink-0 relative border border-slate-200/80 dark:border-blue-500/15 group-hover:border-blue-500/30 dark:group-hover:border-cyan-400/40 transition-all duration-300">
             {course.thumbnail_url ? (
@@ -72,7 +76,7 @@ export function CourseTableRow({
             </p>
           </div>
         </div>
-      </td>
+      </TableCell>
 
       {/* Levels & Categories */}
       {(() => {
@@ -114,7 +118,7 @@ export function CourseTableRow({
         ].filter(Boolean).join(" | ");
 
         return (
-          <td className="px-6 py-4" title={tooltipText}>
+          <TableCell className="px-6 py-4" title={tooltipText}>
             <div className="flex items-center gap-1.5 flex-wrap max-w-[200px]">
               {visibleItems}
               {remainingCount > 0 && (
@@ -123,32 +127,32 @@ export function CourseTableRow({
                 </Badge>
               )}
             </div>
-          </td>
+          </TableCell>
         );
       })()}
 
       {/* Learners */}
-      <td className="px-6 py-4 text-center">
+      <TableCell className="px-6 py-4 text-center">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-355 bg-slate-100/80 dark:bg-[#0D192E] border border-slate-200/60 dark:border-blue-500/10">
           <Users className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400" />
           {course.enrollment_count ?? 0}
         </span>
-      </td>
+      </TableCell>
 
       {/* Status */}
-      <td className="px-6 py-4">
+      <TableCell className="px-6 py-4">
         <Badge variant={course.status === "PUBLISHED" ? "green" : course.status === "ARCHIVED" ? "gray" : "yellow"}>
           {course.status === "PUBLISHED" ? "Đã xuất bản" : course.status === "ARCHIVED" ? "Đã lưu trữ" : "Nháp"}
         </Badge>
-      </td>
+      </TableCell>
 
       {/* Updated time */}
-      <td className="px-6 py-4 text-xs font-medium text-slate-600 dark:text-slate-400 whitespace-nowrap">
+      <TableCell className="px-6 py-4 text-xs font-medium text-slate-600 dark:text-slate-400 whitespace-nowrap">
         {formatDate(course.updated_at || course.created_at)}
-      </td>
+      </TableCell>
 
       {/* Actions */}
-      <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
+      <TableCell className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-end gap-1.5">
           {course.status !== "ARCHIVED" && (
             <button
@@ -220,8 +224,8 @@ export function CourseTableRow({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
 

@@ -1,13 +1,6 @@
 import { useEffect } from "react";
 import { Sparkles, Save, X, Plus } from "lucide-react";
-import { PrimaryBtn, SecondaryBtn, Input } from "@/components/lms/shared";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PrimaryBtn, SecondaryBtn, Input, Select } from "@/components/lms/shared";
 
 interface DiscoverPreferenceModalProps {
   open: boolean;
@@ -136,25 +129,21 @@ export function DiscoverPreferenceModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-              Trình độ hiện tại
-            </label>
             <Select
+              label="Trình độ hiện tại"
+              size="sm"
               value={preferenceLevel || "ALL"}
               onValueChange={(val) =>
                 onLevelChange(val === "ALL" ? "" : (val as "" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED"))
               }
-            >
-              <SelectTrigger className="w-full bg-slate-50 dark:bg-[#0D192E] border-slate-300 dark:border-blue-500/20 rounded-xl text-slate-900 dark:text-slate-100 text-xs">
-                <SelectValue placeholder="Chọn trình độ..." />
-              </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-[#0F1E35] border-slate-200 dark:border-blue-500/20">
-                <SelectItem value="ALL">Chưa xác định / Mọi trình độ</SelectItem>
-                <SelectItem value="BEGINNER">Cơ bản (Beginner)</SelectItem>
-                <SelectItem value="INTERMEDIATE">Trung cấp (Intermediate)</SelectItem>
-                <SelectItem value="ADVANCED">Nâng cao (Advanced)</SelectItem>
-              </SelectContent>
-            </Select>
+              options={[
+                { value: "ALL", label: "Chưa xác định / Mọi trình độ" },
+                { value: "BEGINNER", label: "Cơ bản (Beginner)" },
+                { value: "INTERMEDIATE", label: "Trung cấp (Intermediate)" },
+                { value: "ADVANCED", label: "Nâng cao (Advanced)" },
+              ]}
+              placeholder="Chọn trình độ..."
+            />
           </div>
         </div>
 

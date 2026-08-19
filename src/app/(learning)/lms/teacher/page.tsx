@@ -14,7 +14,7 @@ import {
   Card, SectionHeader,
   PrimaryBtn, SecondaryBtn, GhostBtn,
   EmptyState, PageLoader, Alert, ProgressBar, GridBackground,
-  QuickActionCard, TeacherSummaryCard, LmsPageHeader
+  QuickActionCard, TeacherSummaryCard, LmsPageHeader, DataTable
 } from "@/components/lms/shared";
 import { useSession } from "next-auth/react";
 import type { TeacherDashboardSummaryResponse } from "@/services/lms/analyticsService";
@@ -220,67 +220,101 @@ export default function TeacherDashboard() {
                   }
                 />
               ) : (
-                <div className="overflow-x-auto -mx-6">
-                  <div className="inline-block min-w-full align-middle px-6">
-                    <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
-                      <thead>
-                        <tr className="text-left text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                          <th className="pb-3 pt-2">Khóa học</th>
-                          <th className="pb-3 pt-2">Học viên</th>
-                          <th className="pb-3 pt-2 w-[180px]">Hoàn thành TB</th>
-                          <th className="pb-3 pt-2">Điểm Quiz TB</th>
-                          <th className="pb-3 pt-2 text-right">Chi tiết</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-150/60 dark:divide-slate-800/40">
-                        {filteredCourseStats.map((stat) => (
-                          <tr key={stat.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors group/row">
-                            <td className="py-4 pr-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-14 h-9 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-blue-500/10 flex-shrink-0 relative">
-                                  {stat.thumbnail_url ? (
-                                    <Image src={stat.thumbnail_url} alt={`Ảnh đại diện khóa học ${stat.title}`} fill sizes="56px" className="object-cover" />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800">
-                                      <BookOpen className="w-4 h-4 text-slate-400" />
-                                    </div>
-                                  )}
-                                </div>
-                                <span className="font-bold text-slate-800 dark:text-slate-200 line-clamp-1 group-hover/row:text-blue-600 dark:group-hover/row:text-cyan-400 transition-colors">{stat.title}</span>
+                <DataTable
+                  data={filteredCourseStats}
+                  keyExtractor={(stat) => stat.id}
+                  onRowClick={(stat) => router.push(`/lms/teacher/courses/${stat.id}`)}
+                  columns={[
+                    {
+                      key: "title",
+                      width: "35%",
+                      minWidth: "220px",
+                      header: "Khóa học",
+                      cell: (stat) => (
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-14 h-9 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-blue-500/10 flex-shrink-0 relative">
+                            {stat.thumbnail_url ? (
+                              <Image src={stat.thumbnail_url} alt={`Ảnh đại diện khóa học ${stat.title}`} fill sizes="56px" className="object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                                <BookOpen className="w-4 h-4 text-slate-400" />
                               </div>
-                            </td>
-                            <td className="py-4 whitespace-nowrap">
-                              <span className="font-semibold text-slate-700 dark:text-slate-300">{stat.studentCount} học viên</span>
-                            </td>
-                            <td className="py-4 pr-4 whitespace-nowrap">
-                              <ProgressBar
-                                value={stat.avgProgress}
-                                max={100}
-                                color={stat.avgProgress >= 70 ? "green" : stat.avgProgress >= 40 ? "blue" : "orange"}
-                                showPercent={true}
-                              />
-                            </td>
-                            <td className="py-4 whitespace-nowrap">
-                              {stat.avgQuiz !== null ? (
-                                <span className="font-bold text-slate-800 dark:text-slate-200">{Math.round(stat.avgQuiz)}%</span>
-                              ) : (
-                                <span className="text-xs text-slate-400 dark:text-slate-600 italic">Không có Quiz</span>
-                              )}
-                            </td>
-                            <td className="py-4 text-right whitespace-nowrap">
-                              <button
-                                onClick={() => router.push(`/lms/teacher/courses/${stat.id}`)}
-                                className="text-xs font-bold py-1.5 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-355 transition-all duration-200 active:scale-95 border border-transparent dark:border-blue-500/10 hover:border-slate-300 dark:hover:border-blue-500/25"
-                              >
-                                Xem lớp
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                            )}
+                          </div>
+                          <span className="font-bold text-slate-800 dark:text-slate-200 line-clamp-1 group-hover/row:text-blue-600 dark:group-hover/row:text-cyan-400 transition-colors">
+                            {stat.title}
+                          </span>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "studentCount",
+                      width: "18%",
+                      minWidth: "110px",
+                      header: "Học viên",
+                      cell: (stat) => (
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                          {stat.studentCount} học viên
+                        </span>
+                      ),
+                    },
+                    {
+                      key: "avgProgress",
+                      width: "25%",
+                      minWidth: "160px",
+                      header: (
+                        <div className="flex items-center gap-1.5" title="Tỷ lệ phần trăm hoàn thành trung bình của tất cả học viên trong khóa học này">
+                          <span>Hoàn thành TB</span>
+                          <HelpCircle className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 cursor-help transition-colors" />
+                        </div>
+                      ),
+                      cell: (stat) => (
+                        <ProgressBar
+                          value={stat.avgProgress}
+                          max={100}
+                          color={stat.avgProgress >= 70 ? "green" : stat.avgProgress >= 40 ? "blue" : "orange"}
+                          showPercent={true}
+                        />
+                      ),
+                    },
+                    {
+                      key: "avgQuiz",
+                      width: "14%",
+                      minWidth: "110px",
+                      header: (
+                        <div className="flex items-center gap-1.5" title="Điểm số bài kiểm tra trắc nghiệm trung bình của học viên">
+                          <span>Điểm Quiz TB</span>
+                          <HelpCircle className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 cursor-help transition-colors" />
+                        </div>
+                      ),
+                      cell: (stat) => (
+                        stat.avgQuiz !== null ? (
+                          <span className="font-bold text-slate-800 dark:text-slate-200">{Math.round(stat.avgQuiz)}%</span>
+                        ) : (
+                          <span className="text-xs text-slate-400 dark:text-slate-600 italic">Không có Quiz</span>
+                        )
+                      ),
+                    },
+                    {
+                      key: "actions",
+                      width: "10%",
+                      minWidth: "90px",
+                      align: "right",
+                      header: "Chi tiết",
+                      cell: (stat) => (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/lms/teacher/courses/${stat.id}`);
+                          }}
+                          className="text-xs font-bold py-1.5 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-355 transition-all duration-200 active:scale-95 border border-transparent dark:border-blue-500/10 hover:border-slate-300 dark:hover:border-blue-500/25"
+                        >
+                          Xem lớp
+                        </button>
+                      ),
+                    },
+                  ]}
+                />
               )}
             </Card>
           </div>

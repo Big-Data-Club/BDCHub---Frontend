@@ -31,3 +31,5 @@ export * from "./BreadcrumbNav";
 export * from "./QuestionImageUploader";
 export * from "./FillBlankDropdownEditor";
 export * from "./FillBlankTextEditor";
+export * from "./DataTable";
+export * from "./SearchBar";
