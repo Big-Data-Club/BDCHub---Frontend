@@ -36,7 +36,7 @@ export async function middleware(req: NextRequest) {
   // Preserve a deep LMS link across login. The client route guard will then
   // verify the user's actual LMS role before rendering the destination.
   if (pathname === "/lms" || pathname.startsWith("/lms/")) {
-    if (!token) {
+    if (!token || !token.accessToken || (token as any).error === "RefreshAccessTokenError") {
       const loginUrl = new URL("/login", req.url);
       loginUrl.searchParams.set("callbackUrl", `${pathname}${req.nextUrl.search}`);
       return NextResponse.redirect(loginUrl);

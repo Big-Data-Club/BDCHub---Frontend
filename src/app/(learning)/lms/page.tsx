@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import lmsService from "@/services/lms/lmsService";
 import { useSession } from "next-auth/react";
 import { Shield, BookOpen, GraduationCap, AlertCircle, ArrowLeft } from "lucide-react";
@@ -43,8 +43,10 @@ const ROLE_OPTIONS: Record<string, RoleOption> = {
   },
 };
 
-export default function LMSRoleSelection() {
+function LMSRoleSelectionContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isExplicitSelect = searchParams.get("select") === "true";
   const { data: session, status } = useSession();
 
   const [userRoles, setUserRoles] = useState<string[]>([]);
@@ -63,7 +65,7 @@ export default function LMSRoleSelection() {
 
   const fetchUserRoles = useCallback(async () => {
     try {
-      const cached = sessionStorage.getItem("lms_user_roles");
+      const cached = !isExplicitSelect ? sessionStorage.getItem("lms_user_roles") : null;
       let roles: string[] = [];
 
       if (cached) {
@@ -80,7 +82,7 @@ export default function LMSRoleSelection() {
         return;
       }
 
-      if (roles.length === 1) {
+      if (roles.length === 1 && !isExplicitSelect) {
         setRedirecting(true);
         setRedirectingRole(roles[0]);
         selectRole(roles[0]);
@@ -94,7 +96,7 @@ export default function LMSRoleSelection() {
       setError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải vai trò");
       setLoading(false);
     }
-  }, [selectRole]);
+  }, [selectRole, isExplicitSelect]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -270,5 +272,22 @@ export default function LMSRoleSelection() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function LMSRoleSelection() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-[#050B18]">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-blue-600 dark:border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">Đang tải vai trò...</p>
+          </div>
+        </div>
+      }
+    >
+      <LMSRoleSelectionContent />
+    </Suspense>
   );
 }

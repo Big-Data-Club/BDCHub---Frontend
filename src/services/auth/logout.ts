@@ -15,7 +15,12 @@ export async function logout() {
     try {
       sessionStorage.removeItem("lms_selected_role");
       sessionStorage.removeItem("lms_role_selected_at");
+      sessionStorage.removeItem("lms_user_roles");
       localStorage.removeItem("currentUser");
+      try {
+        const { lmsService } = await import("../lms/lmsService");
+        lmsService.clearRolesCache();
+      } catch {}
       await fetch("/api/session/logout", { method: "POST", credentials: "include" }).catch(() => undefined);
     } catch (e) {
       console.error("Failed clearing local session storage:", e);
