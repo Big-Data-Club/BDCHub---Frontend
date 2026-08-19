@@ -42,7 +42,14 @@ export interface DataTableProps<T> {
   renderMobileCard?: (item: T, index: number) => React.ReactNode;
   tableClassName?: string;
   wrapperClassName?: string;
+  variant?: "card" | "flat" | "bordered";
 }
+
+const variantWrapperStyles = {
+  card: "bg-white dark:bg-[#0F1E35] rounded-3xl border border-slate-200/80 dark:border-blue-500/15 shadow-xs overflow-hidden",
+  flat: "bg-transparent border-0 shadow-none overflow-hidden",
+  bordered: "bg-white dark:bg-[#0F1E35] rounded-2xl border border-slate-200 dark:border-blue-500/20 overflow-hidden",
+};
 
 export function DataTable<T>({
   data,
@@ -60,11 +67,12 @@ export function DataTable<T>({
   renderMobileCard,
   tableClassName,
   wrapperClassName,
+  variant = "card",
 }: DataTableProps<T>) {
   const hasColGroup = columns.some((col) => col.width || col.minWidth);
 
   return (
-    <div className={cn("w-full space-y-4", wrapperClassName)}>
+    <div className={cn("w-full space-y-4", variantWrapperStyles[variant], wrapperClassName)}>
       {/* Desktop Table View */}
       <div className={cn("hidden md:block overflow-x-auto", renderMobileCard ? "" : "block")}>
         <Table className={cn("w-full text-left border-collapse", hasColGroup && "table-fixed", tableClassName)}>
@@ -83,7 +91,14 @@ export function DataTable<T>({
           )}
 
           <TableHeader>
-            <TableRow className="border-b border-slate-200/80 dark:border-blue-500/10 text-xs font-bold text-slate-550 dark:text-slate-450 uppercase tracking-wider bg-slate-50/50 dark:bg-[#070e1c]/40 select-none hover:bg-transparent">
+            <TableRow
+              className={cn(
+                "border-b text-xs font-bold text-slate-550 dark:text-slate-450 uppercase tracking-wider select-none hover:bg-transparent",
+                variant === "flat"
+                  ? "border-slate-200/60 dark:border-blue-500/10 bg-slate-100/50 dark:bg-[#0D192E]/40"
+                  : "border-slate-200/80 dark:border-blue-500/10 bg-slate-50/50 dark:bg-[#070e1c]/40"
+              )}
+            >
               {columns.map((col) => {
                 const targetSortKey = col.sortKey || col.key;
                 const isSorted = sortBy === targetSortKey;

@@ -29,6 +29,7 @@ interface Props {
   selectedId: number | null;
   onSelect: (s: CourseStudentProgress) => void;
   courseId: number;
+  variant?: "card" | "flat" | "bordered";
 }
 
 function ProgressCell({ pct, completed, total }: {
@@ -74,7 +75,7 @@ function formatDate(d: string | null) {
 }
 
 export function StudentProgressTable({
-  students, sortBy, sortDir, onSort, selectedId, onSelect,
+  students, sortBy, sortDir, onSort, selectedId, onSelect, variant = "flat",
 }: Props) {
 
   const columns: ColumnDef<CourseStudentProgress>[] = [
@@ -191,6 +192,7 @@ export function StudentProgressTable({
 
   return (
     <DataTable<CourseStudentProgress>
+      variant={variant}
       data={students}
       columns={columns}
       keyExtractor={(student) => student.student_id}
