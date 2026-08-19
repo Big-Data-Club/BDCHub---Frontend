@@ -467,7 +467,7 @@ export default function TeacherQuizManagePage() {
           { label: "Tổng câu hỏi", value: questions.length,    color: "text-blue-700 dark:text-blue-400",   bg: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800" },
           { label: "Tổng điểm",    value: quiz?.total_points,   color: "text-purple-700 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800" },
           { label: "Thời gian",    value: quiz?.time_limit_minutes ? `${quiz.time_limit_minutes} phút` : "∞", color: "text-orange-700 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800" },
-          { label: "Trạng thái",   value: quiz?.is_published ? "Đã xuất bản" : "Nháp", color: quiz?.is_published ? "text-green-700 dark:text-green-400" : "text-slate-600 dark:text-slate-400", bg: quiz?.is_published ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800" : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" },
+          { label: "Trạng thái",   value: quiz?.is_published ? "Đã xuất bản" : "Nháp", color: quiz?.is_published ? "text-emerald-800 dark:text-emerald-300 font-bold" : "text-slate-700 dark:text-slate-300 font-bold", bg: quiz?.is_published ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800" : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700" },
         ].map(({ label, value, color, bg }) => (
           <div key={label} className={`rounded-2xl border p-4 ${bg}`}>
             <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">{label}</p>
@@ -521,7 +521,7 @@ export default function TeacherQuizManagePage() {
                           {q.points} điểm
                         </span>
                         {images.length > 0 && (
-                          <span className="text-xs px-2.5 py-0.5 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 rounded-lg border border-green-200 dark:border-green-800">
+                          <span className="text-xs px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-lg border border-emerald-300 dark:border-emerald-800 font-semibold">
                             🖼️ {images.length} ảnh
                           </span>
                         )}
@@ -550,7 +550,7 @@ export default function TeacherQuizManagePage() {
                       {q.answer_options?.length > 0 && (
                         <div className="mt-2 space-y-1">
                           {q.answer_options.map((opt: any, idx: number) => (
-                            <div key={idx} className={`text-xs px-2 py-1 rounded flex items-start gap-2 ${opt.is_correct ? "bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 font-medium" : "text-slate-500 dark:text-slate-400"}`}>
+                            <div key={idx} className={`text-xs px-2 py-1 rounded flex items-start gap-2 ${opt.is_correct ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-semibold" : "text-slate-600 dark:text-slate-400"}`}>
                               <span>{opt.is_correct ? "✓" : "○"}</span>
                               <div className="flex-1 min-w-0 prose-p:inline prose-p:m-0 truncate">
                                 <MarkdownRenderer content={opt.option_text} />

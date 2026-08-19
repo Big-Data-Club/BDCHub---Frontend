@@ -262,7 +262,12 @@ export default function TeacherDashboard() {
                       key: "avgProgress",
                       width: "25%",
                       minWidth: "160px",
-                      header: "Hoàn thành TB",
+                      header: (
+                        <div className="flex items-center gap-1.5" title="Tỷ lệ phần trăm hoàn thành trung bình của tất cả học viên trong khóa học này">
+                          <span>Hoàn thành TB</span>
+                          <HelpCircle className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 cursor-help transition-colors" />
+                        </div>
+                      ),
                       cell: (stat) => (
                         <ProgressBar
                           value={stat.avgProgress}
@@ -274,9 +279,14 @@ export default function TeacherDashboard() {
                     },
                     {
                       key: "avgQuiz",
-                      width: "12%",
-                      minWidth: "100px",
-                      header: "Điểm Quiz TB",
+                      width: "14%",
+                      minWidth: "110px",
+                      header: (
+                        <div className="flex items-center gap-1.5" title="Điểm số bài kiểm tra trắc nghiệm trung bình của học viên">
+                          <span>Điểm Quiz TB</span>
+                          <HelpCircle className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 cursor-help transition-colors" />
+                        </div>
+                      ),
                       cell: (stat) => (
                         stat.avgQuiz !== null ? (
                           <span className="font-bold text-slate-800 dark:text-slate-200">{Math.round(stat.avgQuiz)}%</span>

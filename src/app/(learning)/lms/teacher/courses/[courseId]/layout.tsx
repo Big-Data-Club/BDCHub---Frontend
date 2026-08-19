@@ -56,7 +56,7 @@ function renderCategoryBadges(catString?: string) {
           {/* Interactive Hover Popover Dropdown */}
           <div className="absolute left-0 top-full mt-1.5 z-50 invisible opacity-0 group-hover/tagpopover:visible group-hover/tagpopover:opacity-100 group-focus-within/tagpopover:visible group-focus-within/tagpopover:opacity-100 transition-all duration-200 ease-out transform -translate-y-1 group-hover/tagpopover:translate-y-0 pointer-events-none group-hover/tagpopover:pointer-events-auto min-w-[180px] max-w-xs">
             <div className="bg-white/95 dark:bg-[#0D192E]/95 backdrop-blur-md border border-slate-200 dark:border-blue-500/30 rounded-2xl p-2.5 shadow-xl space-y-1.5 ring-1 ring-slate-900/5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-cyan-400 block px-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-cyan-400 block px-1">
                 Danh mục bổ sung ({hiddenTags.length})
               </span>
               <div className="flex flex-wrap gap-1 max-h-36 overflow-y-auto scrollbar-none">

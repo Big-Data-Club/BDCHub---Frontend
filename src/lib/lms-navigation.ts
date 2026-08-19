@@ -1,3 +1,5 @@
+import lmsService from "@/services/lms/lmsService";
+
 /** Client-side helpers for secure LMS deep links. */
 
 export type LmsRole = "ADMIN" | "TEACHER" | "STUDENT";
@@ -17,7 +19,6 @@ export function clearLmsRoleSession(): void {
     sessionStorage.removeItem("lms_role_selected_at");
     sessionStorage.removeItem("lms_user_roles");
     try {
-      const { lmsService } = require("@/services/lms/lmsService");
       lmsService?.clearRolesCache?.();
     } catch {}
   }

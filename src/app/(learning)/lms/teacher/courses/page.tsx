@@ -6,7 +6,7 @@ import lmsService from "@/services/lms/lmsService";
 import {
   Plus, Search, BookOpen, Settings, Trash2, Archive, ArchiveRestore,
   Eye, EyeOff, ChevronRight, Users, RefreshCw, Home, X, ArrowUpDown,
-  SlidersHorizontal, Calendar, Tag, Award, ExternalLink, MoreVertical
+  SlidersHorizontal, Calendar, Tag, Award, ExternalLink, MoreVertical, CheckCircle2
 } from "lucide-react";
 import {
   Card, Badge, PrimaryBtn, GhostBtn,
@@ -41,6 +41,9 @@ export default function CoursesListPage() {
   const [publishing, setPublishing] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [archiving, setArchiving] = useState<number | null>(null);
+
+  // Bulk action state
+  const [selectedCourseIds, setSelectedCourseIds] = useState<number[]>([]);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -262,9 +265,67 @@ export default function CoursesListPage() {
 
   const totalEnrollments = courses.reduce((acc, c) => acc + (c.enrollment_count ?? 0), 0);
   const totalCoursesCount = courses.length;
-  const publishedPercent = totalCoursesCount > 0 ? (published / totalCoursesCount) * 100 : 0;
-  const draftPercent = totalCoursesCount > 0 ? (draft / totalCoursesCount) * 100 : 0;
-  const archivedPercent = totalCoursesCount > 0 ? (archived / totalCoursesCount) * 100 : 0;
+
+  // Bulk action handlers
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedCourseIds(sortedAndFilteredCourses.map(c => c.id));
+    } else {
+      setSelectedCourseIds([]);
+    }
+  };
+
+  const handleSelectOne = (id: number, checked: boolean) => {
+    if (checked) {
+      setSelectedCourseIds(prev => [...prev, id]);
+    } else {
+      setSelectedCourseIds(prev => prev.filter(item => item !== id));
+    }
+  };
+
+  const handleBulkPublish = () => {
+    if (selectedCourseIds.length === 0) return;
+    setConfirmConfig({
+      isOpen: true,
+      title: `Xuất bản ${selectedCourseIds.length} khóa học`,
+      description: `Bạn có chắc chắn muốn xuất bản ${selectedCourseIds.length} khóa học đã chọn?`,
+      confirmText: "Xuất bản tất cả",
+      variant: "info",
+      onConfirm: async () => {
+        try {
+          await Promise.all(selectedCourseIds.map(id => lmsService.publishCourse(id)));
+          setCourses(prev => prev.map(c => selectedCourseIds.includes(c.id) ? { ...c, status: "PUBLISHED" } : c));
+          setSelectedCourseIds([]);
+        } catch {
+          setError("Không thể xuất bản một số khóa học.");
+        } finally {
+          setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
+  };
+
+  const handleBulkArchive = () => {
+    if (selectedCourseIds.length === 0) return;
+    setConfirmConfig({
+      isOpen: true,
+      title: `Lưu trữ ${selectedCourseIds.length} khóa học`,
+      description: `Bạn có chắc chắn muốn chuyển ${selectedCourseIds.length} khóa học đã chọn sang lưu trữ?`,
+      confirmText: "Lưu trữ tất cả",
+      variant: "warning",
+      onConfirm: async () => {
+        try {
+          await Promise.all(selectedCourseIds.map(id => lmsService.archiveCourse(id)));
+          setCourses(prev => prev.map(c => selectedCourseIds.includes(c.id) ? { ...c, status: "ARCHIVED" } : c));
+          setSelectedCourseIds([]);
+        } catch {
+          setError("Không thể lưu trữ một số khóa học.");
+        } finally {
+          setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+        }
+      },
+    });
+  };
 
   // Clickable headers handler
   const handleHeaderSort = (field: string) => {
@@ -430,7 +491,36 @@ export default function CoursesListPage() {
             )
           ) : (
             <>
-            <>
+              {/* Bulk Action Toolbar Banner */}
+              {selectedCourseIds.length > 0 && (
+                <div className="bg-blue-50/90 dark:bg-blue-950/40 border-b border-blue-200 dark:border-blue-800/60 px-6 py-3 flex items-center justify-between transition-all animate-fadeIn">
+                  <div className="flex items-center gap-2 text-xs font-bold text-blue-700 dark:text-cyan-400">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Đã chọn {selectedCourseIds.length} khóa học</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleBulkPublish}
+                      className="px-3 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl active:scale-95 transition-all shadow-2xs flex items-center gap-1.5"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> Xuất bản chọn lựa
+                    </button>
+                    <button
+                      onClick={handleBulkArchive}
+                      className="px-3 py-1.5 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl active:scale-95 transition-all shadow-2xs flex items-center gap-1.5"
+                    >
+                      <Archive className="w-3.5 h-3.5" /> Lưu trữ chọn lựa
+                    </button>
+                    <button
+                      onClick={() => setSelectedCourseIds([])}
+                      className="px-2.5 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                    >
+                      Bỏ chọn
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <DataTable<Course>
                 data={sortedAndFilteredCourses}
                 keyExtractor={(course) => course.id}
@@ -442,6 +532,31 @@ export default function CoursesListPage() {
                   }
                 }}
                 columns={[
+                  {
+                    key: "select",
+                    width: "4%",
+                    minWidth: "40px",
+                    align: "center",
+                    header: () => (
+                      <input
+                        type="checkbox"
+                        checked={selectedCourseIds.length === sortedAndFilteredCourses.length && sortedAndFilteredCourses.length > 0}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                        className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        title="Chọn tất cả"
+                      />
+                    ),
+                    cell: (course) => (
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedCourseIds.includes(course.id)}
+                          onChange={(e) => handleSelectOne(course.id, e.target.checked)}
+                          className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                      </div>
+                    ),
+                  },
                   {
                     key: "title",
                     sortKey: "title",
@@ -630,7 +745,7 @@ export default function CoursesListPage() {
                           <DropdownMenuContent align="end" className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 shadow-xl rounded-2xl p-1.5 min-w-[170px] z-50">
                             <DropdownMenuItem
                               onClick={() => router.push(`/lms/teacher/courses/${course.id}`)}
-                              className="text-slate-700 dark:text-slate-200 focus:bg-slate-100 dark:focus:bg-blue-950/60 focus:text-blue-600 dark:focus:text-cyan-400 cursor-pointer flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl transition-colors"
+                              className="text-slate-800 dark:text-slate-100 focus:bg-slate-100 dark:focus:bg-blue-950/60 focus:text-blue-600 dark:focus:text-cyan-400 cursor-pointer flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl transition-colors"
                             >
                               <Settings className="w-4 h-4 text-slate-400 dark:text-slate-400" />
                               <span>Chỉnh sửa chi tiết</span>
@@ -683,7 +798,6 @@ export default function CoursesListPage() {
                   />
                 )}
               />
-            </>
 
               {/* Load More Pagination */}
               <InfiniteScrollTrigger
