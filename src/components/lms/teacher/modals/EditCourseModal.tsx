@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import BaseModal from "@/components/lms/shared/BaseModal";
@@ -69,8 +70,8 @@ export function EditCourseModal({ course, onClose, onSuccess }: {
       onClose={onClose}
       title={
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center shrink-0 text-blue-600 dark:text-cyan-400 font-bold text-sm">
-            LMS
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center shrink-0 text-blue-600 dark:text-cyan-400">
+            <BookOpen className="w-5 h-5" />
           </div>
           <div>
             <div className="text-lg font-bold text-slate-900 dark:text-white">Chỉnh sửa khóa học</div>

@@ -22,6 +22,7 @@
  *   ForumAnnouncementContentForm → info card (no upload needed)
  */
 
+import { FilePlus } from "lucide-react";
 import { Select } from "@/components/lms/shared";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -220,8 +221,8 @@ export default function ContentModal({
       onClose={onClose}
       title={
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center shrink-0 text-blue-600 dark:text-cyan-400 font-bold text-sm">
-            BDC
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center shrink-0 text-blue-600 dark:text-cyan-400">
+            <FilePlus className="w-5 h-5" />
           </div>
           <div>
             <div className="text-lg font-bold text-slate-900 dark:text-white">Thêm nội dung mới</div>
