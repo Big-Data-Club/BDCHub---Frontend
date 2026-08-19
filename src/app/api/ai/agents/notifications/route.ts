@@ -67,8 +67,8 @@ export async function GET(req: NextRequest) {
       });
 
       // B. Fetch course sections for top enrolled courses to detect quiz deadlines & new content
-      // Inspect first 3 enrolled courses to keep latency low
-      const coursesToInspect = myEnrollments.slice(0, 3);
+      // Inspect enrolled courses to detect quiz deadlines & new content
+      const coursesToInspect = myEnrollments.slice(0, 10);
       await Promise.all(coursesToInspect.map(async (en: any) => {
         try {
           const sectionsRes = await fetch(`${LMS_API_URL}/api/v1/courses/${en.course_id}/sections`, {
@@ -83,8 +83,10 @@ export async function GET(req: NextRequest) {
 
             const contents = contentRes?.data ?? [];
             for (const item of contents) {
+              const isPublished = item.is_published !== false;
+
               // Quiz Deadlines
-              if (item.type === "QUIZ" && item.is_published) {
+              if (item.type === "QUIZ" && isPublished) {
                 const metadata = item.metadata || {};
                 const availableUntil = metadata.available_until;
                 if (availableUntil) {
@@ -100,30 +102,33 @@ export async function GET(req: NextRequest) {
                       node_id: null,
                       quiz_id: metadata.quiz_id || item.id,
                       alert_type: "quiz_deadline",
-                      alert_message: `Hạn chót làm bài kiểm tra "${item.title}" trong khóa "${en.course_title}" còn ${daysLeft} ngày (Hạn: ${new Date(availableUntil).toLocaleDateString("vi-VN")})!`,
+                      alert_message: `Hạn chót làm bài kiểm tra "${item.title}" trong khóa "${en.course_title || 'Khóa học'}" còn ${daysLeft} ngày (Hạn: ${new Date(availableUntil).toLocaleDateString("vi-VN")})!`,
                       detected_at: item.created_at || new Date().toISOString()
                     });
                   }
                 }
               }
 
-              // New Content (added in the last 7 days)
-              const itemTime = new Date(item.created_at).getTime();
-              const isNewContent = itemTime > Date.now() - 7 * 24 * 60 * 60 * 1000;
-              if (isNewContent && item.is_published) {
+              // New Content (added in the last 14 days)
+              const createdAt = item.created_at || item.createdAt;
+              const itemTime = createdAt ? new Date(createdAt).getTime() : 0;
+              const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000;
+              const isNewContent = itemTime > (Date.now() - fourteenDaysMs);
+
+              if (isNewContent && isPublished) {
                 alerts.push({
                   user_id: userId,
                   course_id: en.course_id,
                   node_id: item.node_id || null,
                   alert_type: "new_content",
-                  alert_message: `Nội dung mới vừa được thêm vào bài "${sec.title}": "${item.title}". Hãy cập nhật bài học ngay!`,
-                  detected_at: item.created_at
+                  alert_message: `Bài học mới vừa được thêm vào "${sec.title || 'Bài học'}": "${item.title}". Mở để học ngay!`,
+                  detected_at: createdAt || new Date().toISOString()
                 });
               }
             }
           }
-        } catch (secErr: any) {
-          console.error(`[notifications] Failed to fetch sections for course ${en.course_id}:`, secErr.message);
+        } catch (err: any) {
+          console.error(`[notifications-proxy] failed inspecting course ${en.course_id}:`, err.message);
         }
       }));
 
