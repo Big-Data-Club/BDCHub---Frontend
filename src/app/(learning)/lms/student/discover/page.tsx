@@ -46,6 +46,23 @@ export default function DiscoverPage() {
   // Active filters counter
   const activeFiltersCount = (selectedTag !== "all" ? 1 : 0) + (selectedLevel !== "all" ? 1 : 0) + (search ? 1 : 0);
 
+  // Prevent browser auto scroll restoration and reset scroll position to top on initial page mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if ("scrollRestoration" in window.history) {
+        window.history.scrollRestoration = "manual";
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+  }, []);
+
+  // Ensure scroll position remains at top when recommendations load asynchronously (if user hasn't scrolled)
+  useEffect(() => {
+    if (recommendedCourses.length > 0 && typeof window !== "undefined" && window.scrollY < 50) {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+  }, [recommendedCourses]);
+
   // Keyboard shortcut '/' listener to focus search bar
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -91,12 +108,12 @@ export default function DiscoverPage() {
       />
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 flex-grow">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 flex-grow [overflow-anchor:none]">
         {error && <Alert type="error">{error}</Alert>}
 
         {/* AI Personalized Recommendations Section */}
         {recommendedCourses.length > 0 && !search && selectedTag === "all" && selectedLevel === "all" && (
-          <section className="space-y-4">
+          <section className="space-y-4 [overflow-anchor:none]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-cyan-400">
