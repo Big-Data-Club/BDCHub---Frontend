@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 import QuizSettingsForm, { QuizSettings } from "../quiz/QuizSettingsForm";
+import BaseModal from "@/components/lms/shared/BaseModal";
 
 import lmsService from "@/services/lms/lmsService";
 import quizService from "@/services/lms/quizService";
 import { Content, FileInfo } from "@/types";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface EditContentModalProps {
   content: Content;
@@ -42,26 +43,8 @@ export default function EditContentModal({
   );
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [removeFileConfirm, setRemoveFileConfirm] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    setMounted(true);
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !loading) {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [loading, onClose]);
 
   const loadQuizSettings = useCallback(async () => {
     try {
@@ -288,12 +271,14 @@ export default function EditContentModal({
         } catch (quizError: any) {
           console.error("Error updating quiz:", quizError);
           console.error("Error details:", quizError.response?.data);
-          alert("Nội dung đã được cập nhật nhưng có lỗi khi cập nhật quiz settings: " + 
-                (quizError.response?.data?.message || quizError.message));
+          toast.error(
+            "Nội dung đã được cập nhật nhưng có lỗi khi cập nhật quiz settings: " +
+              (quizError.response?.data?.message || quizError.message)
+          );
         }
       }
 
-      alert("Cập nhật nội dung thành công!");
+      toast.success("Cập nhật nội dung thành công!");
       onSuccess({
         ...content,
         ...formData,
@@ -301,7 +286,7 @@ export default function EditContentModal({
       });
     } catch (error: any) {
       console.error("Error updating content:", error);
-      alert(error.response?.data?.error || "Lỗi khi cập nhật nội dung");
+      toast.error(error.response?.data?.error || "Lỗi khi cập nhật nội dung");
     } finally {
       setLoading(false);
     }
@@ -326,233 +311,15 @@ export default function EditContentModal({
         }
       : null);
 
-  if (!mounted) return null;
-
-  return createPortal(
-    <div
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !loading) {
-          onClose();
-        }
-      }}
-      className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 overflow-y-auto animate-in fade-in duration-200"
-    >
-      <div className="bg-white dark:bg-[#0F1E35] border dark:border-blue-500/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100 shadow-2xl animate-in zoom-in-95 duration-200 my-auto">
-        <div className="p-6 border-b dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900 z-10">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Chỉnh sửa nội dung</h2>
-          <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
-            {getContentTypeLabel(content.type)} - {content.title}
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Type Info */}
-          <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-lg">
-            <p className="text-sm text-blue-700 dark:text-blue-400">
-              <strong>Loại nội dung:</strong> {getContentTypeLabel(content.type)}
-              <br />
-              <strong>Ngày tạo:</strong>{" "}
-              {new Date(content?.updated_at || "").toLocaleDateString(
-                "vi-VN"
-              )}
-            </p>
-          </div>
-
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tiêu đề *</label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              required
-              disabled={loading}
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Mô tả</label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => handleDescriptionChange(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              rows={3}
-              disabled={loading}
-            />
-          </div>
-
-          {/* QUIZ Settings */}
-          {content.type === "QUIZ" && quizSettings && (
-            <div className="border-t dark:border-slate-800 pt-4">
-              {loadingQuiz ? (
-                <div className="text-center py-4">
-                  <div className="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-sm text-gray-600 dark:text-slate-400 mt-2">Đang tải cài đặt quiz...</p>
-                </div>
-              ) : (
-                <QuizSettingsForm
-                  settings={quizSettings}
-                  onChange={setQuizSettings}
-                  disabled={loading}
-                />
-              )}
-            </div>
-          )}
-
-          {/* Text Content for TEXT type */}
-          {content.type === "TEXT" && (
-            <MarkdownEditor
-              label="Nội dung văn bản *"
-              value={textContent}
-              onChange={setTextContent}
-              placeholder="Nhập nội dung bài học..."
-            />
-          )}
-
-          {/* File Upload Section for File-based Content */}
-          {(content.type === "VIDEO" ||
-            content.type === "DOCUMENT" ||
-            content.type === "IMAGE") && (
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">File</label>
-                {currentFile && (
-                  <button
-                    type="button"
-                    onClick={() => setShowFileUpload(!showFileUpload)}
-                    className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-                  >
-                    {showFileUpload ? "Hủy" : "Đổi file"}
-                  </button>
-                )}
-              </div>
-
-              {currentFile && !showFileUpload && (
-                <div className="p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 rounded-lg mb-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-green-700 dark:text-green-400 mb-1">
-                        ✓ File hiện tại
-                      </p>
-                      <p className="text-sm text-green-600 dark:text-green-400">
-                        📁 {currentFile.file_name}
-                      </p>
-                      <p className="text-xs text-green-600 dark:text-green-400">
-                        📊 {formatFileSize(currentFile.file_size)}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 font-mono break-all">
-                        {currentFile.file_path}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setRemoveFileConfirm(true)}
-                      className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
-                    >
-                      Xóa
-                    </button>
-                  </div>
-
-                  {removeFileConfirm && (
-                    <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-lg text-sm">
-                      <p className="text-red-800 dark:text-red-300 font-medium mb-2">
-                        Bạn có chắc muốn xóa file này?
-                      </p>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={removeCurrentFile}
-                          className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
-                        >
-                          Xác nhận xóa
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setRemoveFileConfirm(false)}
-                          className="px-3 py-1 bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors"
-                        >
-                          Hủy
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {showFileUpload && (
-                <div className="mb-4">
-                  <FileUpload
-                    fileType={getFileUploadType(content.type)}
-                    onFileUploaded={handleFileUploaded}
-                  />
-                </div>
-              )}
-
-              {!currentFile && (
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900/40 rounded-lg">
-                  <p className="text-sm text-yellow-700 dark:text-yellow-400 mb-3">
-                    ⚠️ Chưa có file được tải lên
-                  </p>
-                  <FileUpload
-                    fileType={getFileUploadType(content.type)}
-                    onFileUploaded={handleFileUploaded}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Order Index */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Thứ tự</label>
-            <input
-              type="number"
-              value={formData.order_index}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  order_index: parseInt(e.target.value) || 0,
-                })
-              }
-              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              min="0"
-              disabled={loading}
-            />
-          </div>
-
-          {/* Mandatory Checkbox */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="is-mandatory"
-              checked={formData.is_mandatory}
-              onChange={(e) =>
-                setFormData({ ...formData, is_mandatory: e.target.checked })
-              }
-              className="w-4 h-4 text-blue-600 border-gray-300 dark:border-slate-700 rounded focus:ring-blue-500 bg-white dark:bg-slate-800"
-              disabled={loading}
-            />
-            <label htmlFor="is-mandatory" className="ml-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-              Nội dung bắt buộc
-            </label>
-          </div>
-
-          {/* Info */}
-          {content.type !== "QUIZ" && (
-            <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-lg">
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                <strong>💡 Lưu ý:</strong> Khi bạn cập nhật file, học viên sẽ nhận
-                được file mới khi họ truy cập lại nội dung. Tiêu đề và mô tả cũng sẽ
-                được cập nhật ngay lập tức.
-              </p>
-            </div>
-          )}
-        </form>
-
-        {/* Actions */}
-        <div className="flex gap-3 p-6 border-t dark:border-slate-800 sticky bottom-0 bg-white dark:bg-slate-900">
+  return (
+    <BaseModal
+      isOpen={true}
+      onClose={onClose}
+      title="Chỉnh sửa nội dung"
+      description={`${getContentTypeLabel(content.type)} - ${content.title}`}
+      size="xl"
+      footer={
+        <div className="flex gap-3 w-full">
           <Button
             type="submit"
             onClick={handleSubmit}
@@ -580,8 +347,225 @@ export default function EditContentModal({
             Hủy
           </Button>
         </div>
-      </div>
-    </div>,
-    document.body
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Type Info */}
+        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-lg">
+          <p className="text-sm text-blue-700 dark:text-blue-400">
+            <strong>Loại nội dung:</strong> {getContentTypeLabel(content.type)}
+            <br />
+            <strong>Ngày tạo:</strong>{" "}
+            {new Date(content?.updated_at || "").toLocaleDateString("vi-VN")}
+          </p>
+        </div>
+
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Tiêu đề *
+          </label>
+          <input
+            type="text"
+            value={formData.title}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            className="w-full px-4 py-2 border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            required
+            disabled={loading}
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Mô tả
+          </label>
+          <textarea
+            value={formData.description}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
+            className="w-full px-4 py-2 border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            rows={3}
+            disabled={loading}
+          />
+        </div>
+
+        {/* QUIZ Settings */}
+        {content.type === "QUIZ" && quizSettings && (
+          <div className="border-t dark:border-slate-800 pt-4">
+            {loadingQuiz ? (
+              <div className="text-center py-4">
+                <div className="inline-block w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm text-gray-600 dark:text-slate-400 mt-2">
+                  Đang tải cài đặt quiz...
+                </p>
+              </div>
+            ) : (
+              <QuizSettingsForm
+                settings={quizSettings}
+                onChange={setQuizSettings}
+                disabled={loading}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Text Content for TEXT type */}
+        {content.type === "TEXT" && (
+          <MarkdownEditor
+            label="Nội dung văn bản *"
+            value={textContent}
+            onChange={setTextContent}
+            placeholder="Nhập nội dung bài học..."
+          />
+        )}
+
+        {/* File Upload Section for File-based Content */}
+        {(content.type === "VIDEO" ||
+          content.type === "DOCUMENT" ||
+          content.type === "IMAGE") && (
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                File
+              </label>
+              {currentFile && (
+                <button
+                  type="button"
+                  onClick={() => setShowFileUpload(!showFileUpload)}
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                >
+                  {showFileUpload ? "Hủy" : "Đổi file"}
+                </button>
+              )}
+            </div>
+
+            {currentFile && !showFileUpload && (
+              <div className="p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 rounded-lg mb-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400 mb-1">
+                      ✓ File hiện tại
+                    </p>
+                    <p className="text-sm text-green-600 dark:text-green-400">
+                      📁 {currentFile.file_name}
+                    </p>
+                    <p className="text-xs text-green-600 dark:text-green-400">
+                      📊 {formatFileSize(currentFile.file_size)}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 font-mono break-all">
+                      {currentFile.file_path}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRemoveFileConfirm(true)}
+                    className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                  >
+                    Xóa
+                  </button>
+                </div>
+
+                {removeFileConfirm && (
+                  <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-lg text-sm">
+                    <p className="text-red-800 dark:text-red-300 font-medium mb-2">
+                      Bạn có chắc muốn xóa file này?
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={removeCurrentFile}
+                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors"
+                      >
+                        Xác nhận xóa
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRemoveFileConfirm(false)}
+                        className="px-3 py-1 bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors"
+                      >
+                        Hủy
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {showFileUpload && (
+              <div className="mb-4">
+                <FileUpload
+                  fileType={getFileUploadType(content.type)}
+                  onFileUploaded={handleFileUploaded}
+                />
+              </div>
+            )}
+
+            {!currentFile && (
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900/40 rounded-lg">
+                <p className="text-sm text-yellow-700 dark:text-yellow-400 mb-3">
+              Chưa có file được tải lên
+                </p>
+                <FileUpload
+                  fileType={getFileUploadType(content.type)}
+                  onFileUploaded={handleFileUploaded}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Order Index */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Thứ tự
+          </label>
+          <input
+            type="number"
+            value={formData.order_index}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                order_index: parseInt(e.target.value) || 0,
+              })
+            }
+            className="w-full px-4 py-2 border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            min="0"
+            disabled={loading}
+          />
+        </div>
+
+        {/* Mandatory Checkbox */}
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="is-mandatory"
+            checked={formData.is_mandatory}
+            onChange={(e) =>
+              setFormData({ ...formData, is_mandatory: e.target.checked })
+            }
+            className="w-4 h-4 text-blue-600 border-gray-300 dark:border-slate-700 rounded focus:ring-blue-500 bg-white dark:bg-slate-800"
+            disabled={loading}
+          />
+          <label
+            htmlFor="is-mandatory"
+            className="ml-2 text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
+            Nội dung bắt buộc
+          </label>
+        </div>
+
+        {/* Info */}
+        {content.type !== "QUIZ" && (
+          <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-lg">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              <strong>💡 Lưu ý:</strong> Khi bạn cập nhật file, học viên sẽ nhận
+              được file mới khi họ truy cập lại nội dung. Tiêu đề và mô tả cũng
+              sẽ được cập nhật ngay lập tức.
+            </p>
+          </div>
+        )}
+      </form>
+    </BaseModal>
   );
 }
+
