@@ -50,19 +50,23 @@ export async function GET(req: NextRequest) {
       const myEnrollments = enrollmentsRes?.data ?? [];
       const enrolledCourseIds = new Set(myEnrollments.map((e: any) => e.course_id));
 
-      // A. Recommend courses that the student has not enrolled in yet
-      const recommendedCourses = allCourses.filter((c: any) => !enrolledCourseIds.has(c.id) && c.status === "PUBLISHED");
+      // A. Recommend new & published courses that the student has not enrolled in yet
+      const recommendedCourses = allCourses.filter((c: any) => 
+        !enrolledCourseIds.has(c.id) && (c.status === "PUBLISHED" || c.status === "published" || c.is_published === true)
+      );
       recommendedCourses.forEach((course: any) => {
-        const isNew = new Date(course.created_at).getTime() > Date.now() - 30 * 24 * 60 * 60 * 1000;
+        const timeStr = course.published_at || course.created_at || course.createdAt;
+        const courseTime = timeStr ? new Date(timeStr).getTime() : 0;
+        const isNew = courseTime > (Date.now() - 30 * 24 * 60 * 60 * 1000);
         alerts.push({
           user_id: userId,
           course_id: course.id,
           node_id: null,
           alert_type: "recommendation",
           alert_message: isNew
-            ? `Khóa học mới ra mắt: "${course.title}". Rất phù hợp với định hướng học tập của bạn. Bấm để tham gia ngay!`
-            : `Gợi ý khóa học phù hợp: "${course.title}". Giúp củng cố và nâng cao kiến thức chuyên môn. Tham khảo ngay!`,
-          detected_at: course.created_at || new Date().toISOString()
+            ? `Khóa học mới vừa ra mắt: "${course.title}". Bấm để khám phá và tham gia học ngay!`
+            : `Gợi ý khóa học mới phù hợp: "${course.title}". Giúp nâng cao kỹ năng của bạn. Tham khảo ngay!`,
+          detected_at: timeStr || new Date().toISOString()
         });
       });
 
