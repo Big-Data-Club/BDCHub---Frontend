@@ -4,18 +4,12 @@ import React from "react";
 import { toast } from "react-hot-toast";
 import { BookOpen, Search } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   EmptyState,
   PageLoader,
   PrimaryBtn,
   ProgressCard,
   SearchBar,
+  Select,
 } from "@/components/lms/shared";
 import { Enrollment } from "@/types";
 import type { RecommendationItem } from "@/services/lms/recommendationService";
@@ -81,41 +75,31 @@ export function StudentCourseSidebar({
           {/* Filter Dropdowns Row */}
           <div className="grid grid-cols-2 gap-2">
             {/* Status Filter */}
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-0.5">Trạng thái</span>
-              <Select
-                value={courseStatusFilter}
-                onValueChange={(val: any) => setCourseStatusFilter(val)}
-              >
-                <SelectTrigger className="w-full h-8.5 px-3 border border-slate-200 dark:border-blue-500/15 rounded-xl text-[11px] bg-white dark:bg-[#070E1C] text-slate-700 dark:text-slate-350 focus:ring-2 focus:ring-blue-500/10 dark:focus:ring-cyan-400/10 transition-all font-semibold shadow-xs">
-                  <SelectValue placeholder="Trạng thái" />
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-[#0D192E] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs">
-                  <SelectItem value="ALL" className="text-xs cursor-pointer">Tất cả</SelectItem>
-                  <SelectItem value="NOT_STARTED" className="text-xs cursor-pointer">Chưa học</SelectItem>
-                  <SelectItem value="IN_PROGRESS" className="text-xs cursor-pointer">Đang học</SelectItem>
-                  <SelectItem value="COMPLETED" className="text-xs cursor-pointer">Đã xong</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Select
+              label="Trạng thái"
+              size="sm"
+              value={courseStatusFilter}
+              onValueChange={(val: any) => setCourseStatusFilter(val)}
+              options={[
+                { value: "ALL", label: "Tất cả" },
+                { value: "NOT_STARTED", label: "Chưa học" },
+                { value: "IN_PROGRESS", label: "Đang học" },
+                { value: "COMPLETED", label: "Đã xong" },
+              ]}
+            />
 
             {/* Date Sort Filter */}
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-0.5">Sắp xếp</span>
-              <Select
-                value={courseSortOrder}
-                onValueChange={(val: any) => setCourseSortOrder(val)}
-              >
-                <SelectTrigger className="w-full h-8.5 px-3 border border-slate-200 dark:border-blue-500/15 rounded-xl text-[11px] bg-white dark:bg-[#070E1C] text-slate-700 dark:text-slate-350 focus:ring-2 focus:ring-blue-500/10 dark:focus:ring-cyan-400/10 transition-all font-semibold shadow-xs">
-                  <SelectValue placeholder="Sắp xếp" />
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-[#0D192E] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs">
-                  <SelectItem value="recommended" className="text-xs cursor-pointer">Phù hợp nhất</SelectItem>
-                  <SelectItem value="desc" className="text-xs cursor-pointer">Mới nhất</SelectItem>
-                  <SelectItem value="asc" className="text-xs cursor-pointer">Cũ nhất</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Select
+              label="Sắp xếp"
+              size="sm"
+              value={courseSortOrder}
+              onValueChange={(val: any) => setCourseSortOrder(val)}
+              options={[
+                { value: "recommended", label: "Phù hợp nhất" },
+                { value: "desc", label: "Mới nhất" },
+                { value: "asc", label: "Cũ nhất" },
+              ]}
+            />
           </div>
         </div>
       )}

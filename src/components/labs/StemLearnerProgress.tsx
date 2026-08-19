@@ -17,6 +17,7 @@ import {
 import toast from "react-hot-toast";
 import { labService } from "@/services/labs/labService";
 import type { EvidenceEvent, ExperimentRunSummary, Lab } from "@/types";
+import { Select } from "@/components/lms/shared/Select";
 
 type Props = { lab: Lab };
 
@@ -119,12 +120,18 @@ export default function StemLearnerProgress({ lab }: Props) {
             <p className="mt-1 text-xs text-slate-500">Chọn một lượt làm để xem toàn bộ dự đoán, trial, số liệu và kết luận theo thứ tự thời gian.</p>
           </div>
           <div className="flex items-center gap-2">
-            <select value={filter} onChange={event => setFilter(event.target.value)} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
-              <option value="">Tất cả trạng thái</option>
-              <option value="ACTIVE">Đang thực hiện</option>
-              <option value="COMPLETED">Đã hoàn thành</option>
-              <option value="ABANDONED">Đã bỏ dở</option>
-            </select>
+            <Select
+              size="sm"
+              value={filter}
+              onValueChange={(val) => setFilter(val)}
+              options={[
+                { value: "", label: "Tất cả trạng thái" },
+                { value: "ACTIVE", label: "Đang thực hiện" },
+                { value: "COMPLETED", label: "Đã hoàn thành" },
+                { value: "ABANDONED", label: "Đã bỏ dở" },
+              ]}
+              containerClassName="w-44"
+            />
             <button type="button" onClick={loadRuns} className="rounded-xl border border-slate-300 p-2.5 text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800" aria-label="Làm mới danh sách">
               <RefreshCw className="h-4 w-4" />
             </button>
