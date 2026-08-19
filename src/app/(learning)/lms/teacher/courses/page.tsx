@@ -6,13 +6,20 @@ import lmsService from "@/services/lms/lmsService";
 import {
   Plus, Search, BookOpen, Settings, Trash2, Archive, ArchiveRestore,
   Eye, EyeOff, ChevronRight, Users, RefreshCw, Home, X, ArrowUpDown,
-  SlidersHorizontal, Calendar, Tag, Award, ExternalLink
+  SlidersHorizontal, Calendar, Tag, Award, ExternalLink, MoreVertical
 } from "lucide-react";
 import {
   Card, Badge, PrimaryBtn, GhostBtn,
   EmptyState, PageLoader, Alert, TabBar, Spinner,
-  InfiniteScrollTrigger, GridBackground, ConfirmModal, TeacherSummaryCard, FilterDropdown, LmsPageHeader
+  InfiniteScrollTrigger, GridBackground, ConfirmModal, TeacherSummaryCard, FilterDropdown, LmsPageHeader,
+  DataTable
 } from "@/components/lms/shared";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { Course } from "@/types";
 import { cn } from "@/lib/utils";
 import { CourseTableRow, CourseMobileCard, formatDate } from "@/components/lms/teacher/CourseRowComponents";
@@ -420,96 +427,246 @@ export default function CoursesListPage() {
             )
           ) : (
             <>
-              {/* Desktop Table View */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-left border-collapse table-fixed">
-                  <colgroup>
-                    <col className="w-[35%] min-w-[240px]" />
-                    <col className="w-[20%] min-w-[140px]" />
-                    <col className="w-[12%] min-w-[90px]" />
-                    <col className="w-[13%] min-w-[100px]" />
-                    <col className="w-[12%] min-w-[110px]" />
-                    <col className="w-[8%] min-w-[120px]" />
-                  </colgroup>
-                  <thead>
-                    <tr className="border-b border-slate-200/80 dark:border-blue-500/10 text-xs font-bold text-slate-550 dark:text-slate-450 uppercase tracking-wider bg-slate-50/50 dark:bg-[#070e1c]/40 select-none">
-                      <th
-                        className={cn(
-                          "px-6 py-4 cursor-pointer transition-colors group/th",
-                          sortBy.startsWith("title")
-                            ? "text-blue-600 dark:text-cyan-400 font-bold"
-                            : "hover:text-blue-600 dark:hover:text-cyan-400"
-                        )}
-                        onClick={() => handleHeaderSort("title")}
-                      >
-                        <div className="flex items-center gap-1">
-                          Khóa học
-                          <ArrowUpDown className={cn(
-                            "w-3 h-3 transition-opacity duration-200",
-                            sortBy.startsWith("title") ? "opacity-100 text-blue-600 dark:text-cyan-400" : "opacity-0 group-hover/th:opacity-60"
-                          )} />
+            <>
+              <DataTable<Course>
+                data={sortedAndFilteredCourses}
+                keyExtractor={(course) => course.id}
+                sortBy={sortBy}
+                onSort={(key) => handleHeaderSort(key as "title" | "enrollments" | "date")}
+                onRowClick={(course) => {
+                  if (course.status !== "ARCHIVED") {
+                    router.push(`/lms/teacher/courses/${course.id}`);
+                  }
+                }}
+                columns={[
+                  {
+                    key: "title",
+                    sortKey: "title",
+                    sortable: true,
+                    width: "35%",
+                    minWidth: "240px",
+                    header: ({ sortBy }) => (
+                      <div className="flex items-center gap-1">
+                        Khóa học
+                        <ArrowUpDown className={cn(
+                          "w-3 h-3 transition-opacity duration-200",
+                          sortBy?.startsWith("title") ? "opacity-100 text-blue-600 dark:text-cyan-400" : "opacity-0 group-hover/th:opacity-60"
+                        )} />
+                      </div>
+                    ),
+                    cell: (course) => (
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-16 h-10 rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-[#0D192E] dark:to-[#0F1E35] flex items-center justify-center flex-shrink-0 relative border border-slate-200/80 dark:border-blue-500/15 group-hover:border-blue-500/30 dark:group-hover:border-cyan-400/40 transition-all duration-300">
+                          {course.thumbnail_url ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img src={course.thumbnail_url} alt={course.title} className="object-cover w-full h-full" />
+                          ) : (
+                            <BookOpen className="w-5 h-5 text-slate-400 dark:text-slate-500 group-hover:scale-110 transition-transform duration-300" />
+                          )}
                         </div>
-                      </th>
-                      <th className="px-6 py-4">Phân loại</th>
-                      <th
-                        className={cn(
-                          "px-6 py-4 text-center cursor-pointer transition-colors group/th",
-                          sortBy === "enrollments-desc"
-                            ? "text-blue-600 dark:text-cyan-400 font-bold"
-                            : "hover:text-blue-600 dark:hover:text-cyan-400"
-                        )}
-                        onClick={() => handleHeaderSort("enrollments")}
-                      >
-                        <div className="flex items-center justify-center gap-1">
-                          Học viên
-                          <ArrowUpDown className={cn(
-                            "w-3 h-3 transition-opacity duration-200",
-                            sortBy === "enrollments-desc" ? "opacity-100 text-blue-600 dark:text-cyan-400" : "opacity-0 group-hover/th:opacity-60"
-                          )} />
+                        <div className="min-w-0">
+                          <p className="font-bold text-sm text-slate-900 dark:text-slate-50 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors truncate max-w-xs lg:max-w-md">
+                            {course.title}
+                          </p>
+                          <p className="text-xs text-slate-550 dark:text-slate-400 truncate max-w-xs lg:max-w-md mt-1 font-medium">
+                            {course.description || "Chưa có mô tả"}
+                          </p>
                         </div>
-                      </th>
-                      <th className="px-6 py-4">Trạng thái</th>
-                      <th
-                        className={cn(
-                          "px-6 py-4 cursor-pointer transition-colors group/th",
-                          sortBy === "newest" || sortBy === "oldest"
-                            ? "text-blue-600 dark:text-cyan-400 font-bold"
-                            : "hover:text-blue-600 dark:hover:text-cyan-400"
-                        )}
-                        onClick={() => handleHeaderSort("date")}
-                      >
-                        <div className="flex items-center gap-1">
-                          Cập nhật
-                          <ArrowUpDown className={cn(
-                            "w-3 h-3 transition-opacity duration-200",
-                            sortBy === "newest" || sortBy === "oldest" ? "opacity-100 text-blue-600 dark:text-cyan-400" : "opacity-0 group-hover/th:opacity-60"
-                          )} />
-                        </div>
-                      </th>
-                      <th className="px-6 py-4 text-right">Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-blue-500/5">
-                    {sortedAndFilteredCourses.map(course => (
-                      <CourseTableRow
-                        key={course.id}
-                        course={course}
-                        onOpen={() => router.push(`/lms/teacher/courses/${course.id}`)}
-                        onPublish={() => handlePublish(course)}
-                        onArchive={() => handleArchive(course)}
-                        onDelete={() => handleDelete(course)}
-                        publishing={publishing === course.id}
-                        archiving={archiving === course.id}
-                        deleting={deleting === course.id}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "category",
+                    width: "20%",
+                    minWidth: "140px",
+                    header: "Phân loại",
+                    cell: (course) => {
+                      const items: React.ReactNode[] = [];
+                      if (course.level) {
+                        items.push(
+                          <Badge key="level" variant={
+                            course.level === "BEGINNER" ? "green" :
+                            course.level === "INTERMEDIATE" ? "yellow" :
+                            course.level === "ADVANCED" ? "red" : "blue"
+                          }>
+                            {course.level === "BEGINNER" ? "Cơ bản" :
+                             course.level === "INTERMEDIATE" ? "Trung cấp" :
+                             course.level === "ADVANCED" ? "Nâng cao" : "Mọi cấp"}
+                          </Badge>
+                        );
+                      }
+                      const categories = course.category
+                        ? (course.category as string).split(",").map(c => c.trim()).filter(Boolean)
+                        : [];
+                      categories.forEach((cat, idx) => {
+                        items.push(
+                          <Badge key={`cat-${idx}`} variant="gray">
+                            {cat}
+                          </Badge>
+                        );
+                      });
 
-              {/* Mobile Card List View */}
-              <div className="block md:hidden divide-y divide-slate-100 dark:divide-blue-500/5">
-                {sortedAndFilteredCourses.map(course => (
+                      const maxVisible = 2;
+                      const visibleItems = items.slice(0, maxVisible);
+                      const remainingCount = items.length - maxVisible;
+                      const tooltipText = [
+                        course.level && `Cấp độ: ${
+                          course.level === "BEGINNER" ? "Cơ bản" :
+                          course.level === "INTERMEDIATE" ? "Trung cấp" :
+                          course.level === "ADVANCED" ? "Nâng cao" : "Mọi cấp"
+                        }`,
+                        categories.length > 0 && `Danh mục: ${categories.join(", ")}`
+                      ].filter(Boolean).join(" | ");
+
+                      return (
+                        <div title={tooltipText} className="flex items-center gap-1.5 flex-wrap max-w-[200px]">
+                          {visibleItems}
+                          {remainingCount > 0 && (
+                            <Badge variant="gray">
+                              +{remainingCount}
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    },
+                  },
+                  {
+                    key: "enrollments",
+                    sortKey: "enrollments-desc",
+                    sortable: true,
+                    width: "12%",
+                    minWidth: "90px",
+                    align: "center",
+                    header: ({ sortBy }) => (
+                      <div className="flex items-center justify-center gap-1">
+                        Học viên
+                        <ArrowUpDown className={cn(
+                          "w-3 h-3 transition-opacity duration-200",
+                          sortBy === "enrollments-desc" ? "opacity-100 text-blue-600 dark:text-cyan-400" : "opacity-0 group-hover/th:opacity-60"
+                        )} />
+                      </div>
+                    ),
+                    cell: (course) => (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-355 bg-slate-100/80 dark:bg-[#0D192E] border border-slate-200/60 dark:border-blue-500/10">
+                        <Users className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400" />
+                        {course.enrollment_count ?? 0}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "status",
+                    width: "13%",
+                    minWidth: "100px",
+                    header: "Trạng thái",
+                    cell: (course) => (
+                      <Badge variant={course.status === "PUBLISHED" ? "green" : course.status === "ARCHIVED" ? "gray" : "yellow"}>
+                        {course.status === "PUBLISHED" ? "Đã xuất bản" : course.status === "ARCHIVED" ? "Đã lưu trữ" : "Nháp"}
+                      </Badge>
+                    ),
+                  },
+                  {
+                    key: "updated_at",
+                    sortKey: "date",
+                    sortable: true,
+                    width: "12%",
+                    minWidth: "110px",
+                    header: ({ sortBy }) => (
+                      <div className="flex items-center gap-1">
+                        Cập nhật
+                        <ArrowUpDown className={cn(
+                          "w-3 h-3 transition-opacity duration-200",
+                          sortBy === "newest" || sortBy === "oldest" ? "opacity-100 text-blue-600 dark:text-cyan-400" : "opacity-0 group-hover/th:opacity-60"
+                        )} />
+                      </div>
+                    ),
+                    cell: (course) => (
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                        {formatDate(course.updated_at || course.created_at)}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "actions",
+                    width: "8%",
+                    minWidth: "120px",
+                    align: "right",
+                    header: "Thao tác",
+                    cell: (course) => (
+                      <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-end gap-1.5">
+                        {course.status !== "ARCHIVED" && (
+                          <button
+                            onClick={() => handlePublish(course)}
+                            disabled={publishing === course.id}
+                            className={cn(
+                              "p-2 rounded-xl transition-all duration-200 text-sm font-medium border focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:focus:ring-cyan-400/40",
+                              course.status === "PUBLISHED"
+                                ? "bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60"
+                                : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/50 dark:hover:bg-slate-800/80 text-slate-550 dark:text-slate-400 border-slate-200 dark:border-slate-800"
+                            )}
+                            title={course.status === "PUBLISHED" ? "Gỡ xuất bản (chuyển về nháp)" : "Xuất bản khóa học"}
+                          >
+                            {publishing === course.id ? (
+                              <Spinner className="w-4 h-4 border-2" />
+                            ) : course.status === "PUBLISHED" ? (
+                              <Eye className="w-4 h-4" />
+                            ) : (
+                              <EyeOff className="w-4 h-4" />
+                            )}
+                          </button>
+                        )}
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/50 dark:hover:bg-slate-800/80 text-slate-550 dark:text-slate-400 border border-slate-200 dark:border-slate-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                              title="Thao tác khác"
+                            >
+                              <MoreVertical className="w-4 h-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 shadow-xl rounded-2xl p-1.5 min-w-[170px] z-50">
+                            <DropdownMenuItem
+                              onClick={() => router.push(`/lms/teacher/courses/${course.id}`)}
+                              className="text-slate-700 dark:text-slate-200 focus:bg-slate-100 dark:focus:bg-blue-950/60 focus:text-blue-600 dark:focus:text-cyan-400 cursor-pointer flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl transition-colors"
+                            >
+                              <Settings className="w-4 h-4 text-slate-400 dark:text-slate-400" />
+                              <span>Chỉnh sửa chi tiết</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                              onClick={() => handleArchive(course)}
+                              disabled={archiving === course.id}
+                              className="text-amber-600 dark:text-amber-400 focus:bg-amber-50 dark:focus:bg-amber-950/40 cursor-pointer flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl transition-colors"
+                            >
+                              {archiving === course.id ? (
+                                <Spinner className="w-4 h-4" />
+                              ) : course.status === "ARCHIVED" ? (
+                                <ArchiveRestore className="w-4 h-4 text-amber-500" />
+                              ) : (
+                                <Archive className="w-4 h-4 text-amber-500" />
+                              )}
+                              <span>{course.status === "ARCHIVED" ? "Khôi phục" : "Lưu trữ"}</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(course)}
+                              disabled={deleting === course.id}
+                              className="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/40 cursor-pointer flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl transition-colors"
+                            >
+                              {deleting === course.id ? (
+                                <Spinner className="w-4 h-4" />
+                              ) : (
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              )}
+                              <span>Xóa khóa học</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    ),
+                  },
+                ]}
+                renderMobileCard={(course) => (
                   <CourseMobileCard
                     key={course.id}
                     course={course}
@@ -521,8 +678,9 @@ export default function CoursesListPage() {
                     archiving={archiving === course.id}
                     deleting={deleting === course.id}
                   />
-                ))}
-              </div>
+                )}
+              />
+            </>
 
               {/* Load More Pagination */}
               <InfiniteScrollTrigger
