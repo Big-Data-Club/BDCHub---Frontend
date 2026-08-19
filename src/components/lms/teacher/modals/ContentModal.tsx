@@ -22,7 +22,7 @@
  *   ForumAnnouncementContentForm → info card (no upload needed)
  */
 
-import { FilePlus } from "lucide-react";
+import { FilePlus, AlertCircle } from "lucide-react";
 import { Select } from "@/components/lms/shared";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -102,6 +102,7 @@ export default function ContentModal({
 
   const [quizSettings, setQuizSettings] = useState<QuizSettings>(DEFAULT_QUIZ_SETTINGS);
   const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState<string | null>(null);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -154,8 +155,13 @@ export default function ContentModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     const err = validate();
-    if (err) { toast.error(err); return; }
+    if (err) {
+      setError(err);
+      toast.error(err);
+      return;
+    }
 
     // Build final metadata
     const metadata = { ...formData.metadata };
@@ -181,7 +187,7 @@ export default function ContentModal({
       toast.success("Tạo nội dung thành công!");
       onSuccess(contentResponse.data as Content);
     } catch (err: any) {
-      toast.error(err?.response?.data?.error || err?.message || "Lỗi khi tạo nội dung.");
+      setError(err?.response?.data?.error || err?.message || "Lỗi khi tạo nội dung.");
     } finally {
       setLoading(false);
     }
@@ -216,127 +222,134 @@ export default function ContentModal({
   })();
 
   return (
-    <BaseModal
-      isOpen={true}
-      onClose={onClose}
-      title={
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center shrink-0 text-blue-600 dark:text-cyan-400">
-            <FilePlus className="w-5 h-5" />
+    <form onSubmit={handleSubmit}>
+      <BaseModal
+        isOpen={true}
+        onClose={onClose}
+        title={
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center shrink-0 text-blue-600 dark:text-cyan-400">
+              <FilePlus className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-lg font-bold text-slate-900 dark:text-white">Thêm nội dung mới</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Tạo tài liệu, bài giảng video, hoặc bài kiểm tra</div>
+            </div>
           </div>
-          <div>
-            <div className="text-lg font-bold text-slate-900 dark:text-white">Thêm nội dung mới</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">Tạo tài liệu, bài giảng video, hoặc bài kiểm tra</div>
-          </div>
-        </div>
-      }
-      size="xl"
-      footer={
-        <div className="flex gap-3 w-full justify-end">
-          <Button
-            type="button"
-            onClick={onClose}
-            disabled={loading}
-            className="px-5 py-2.5 border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl font-medium text-sm transition-all duration-200"
-          >
-            Hủy
-          </Button>
-          <Button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={loading}
-            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-semibold rounded-xl shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {loading ? "Đang tạo…" : "Tạo nội dung"}
-          </Button>
-        </div>
-      }
-    >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Content type selector */}
-        <div>
-          <Select
-            label="Loại nội dung *"
-            value={formData.type}
-            onValueChange={(val) => handleTypeChange(val as ContentType)}
-            disabled={loading}
-            options={CONTENT_TYPES.map((ct) => ({
-              value: ct.value,
-              label: ct.label,
-            }))}
-          />
-        </div>
-
-        {/* Title */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-            Tiêu đề <span className="text-red-500 dark:text-red-400">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => handleTitleChange(e.target.value)}
-            disabled={loading}
-            required
-            placeholder="Nhập tiêu đề nội dung…"
-            className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#0A1628] focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm"
-          />
-        </div>
-
-        {/* Description */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-            Mô tả
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => handleDescriptionChange(e.target.value)}
-            disabled={loading}
-            rows={3}
-            placeholder="Mô tả ngắn về nội dung…"
-            className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#0A1628] focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm resize-none"
-          />
-        </div>
-
-        {/* Type-specific form */}
-        <div className="border-t border-slate-200/80 dark:border-blue-500/10 pt-5">
-          {typeForm}
-        </div>
-
-        {/* Order + mandatory */}
-        <div className="grid grid-cols-2 gap-4 border-t border-slate-200/80 dark:border-blue-500/10 pt-5">
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Thứ tự xuất hiện
-            </label>
-            <input
-              type="number"
-              value={formData.order_index}
-              onChange={(e) =>
-                update({ order_index: parseInt(e.target.value) || 1 })
-              }
+        }
+        size="xl"
+        footer={
+          <div className="flex gap-3 w-full justify-end">
+            <Button
+              type="button"
+              onClick={onClose}
               disabled={loading}
-              min={1}
-              className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm"
+              className="px-5 py-2.5 border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl font-medium text-sm transition-all duration-200"
+            >
+              Hủy
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={loading}
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-semibold rounded-xl shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {loading ? "Đang tạo…" : "Tạo nội dung"}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-5">
+          {error && (
+            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-xl flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
+              <AlertCircle className="w-4 h-4" />
+              {error}
+            </div>
+          )}
+
+          {/* Content type selector */}
+          <div>
+            <Select
+              label="Loại nội dung *"
+              value={formData.type}
+              onValueChange={(val) => handleTypeChange(val as ContentType)}
+              disabled={loading}
+              options={CONTENT_TYPES.map((ct) => ({
+                value: ct.value,
+                label: ct.label,
+              }))}
             />
           </div>
-          <div className="flex items-end pb-2">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={formData.is_mandatory}
-                onChange={(e) => update({ is_mandatory: e.target.checked })}
-                disabled={loading}
-                className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-[#0D192E]"
-              />
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Nội dung bắt buộc
-              </span>
+
+          {/* Title */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              Tiêu đề <span className="text-red-500 dark:text-red-400">*</span>
             </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              disabled={loading}
+              placeholder="Nhập tiêu đề nội dung…"
+              className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#0A1628] focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm"
+            />
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              Mô tả
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => handleDescriptionChange(e.target.value)}
+              disabled={loading}
+              rows={3}
+              placeholder="Mô tả ngắn về nội dung…"
+              className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#0A1628] focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm resize-none"
+            />
+          </div>
+
+          {/* Type-specific form */}
+          <div className="border-t border-slate-200/80 dark:border-blue-500/10 pt-5">
+            {typeForm}
+          </div>
+
+          {/* Order + mandatory */}
+          <div className="grid grid-cols-2 gap-4 border-t border-slate-200/80 dark:border-blue-500/10 pt-5">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                Thứ tự xuất hiện
+              </label>
+              <input
+                type="number"
+                value={formData.order_index}
+                onChange={(e) =>
+                  update({ order_index: parseInt(e.target.value) || 1 })
+                }
+                disabled={loading}
+                min={1}
+                className="w-full px-4 py-2.5 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all text-sm"
+              />
+            </div>
+            <div className="flex items-end pb-2">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={formData.is_mandatory}
+                  onChange={(e) => update({ is_mandatory: e.target.checked })}
+                  disabled={loading}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-[#0D192E]"
+                />
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Nội dung bắt buộc
+                </span>
+              </label>
+            </div>
           </div>
         </div>
-      </form>
-    </BaseModal>
+      </BaseModal>
+    </form>
   );
 }
-
