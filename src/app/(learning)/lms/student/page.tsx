@@ -7,7 +7,7 @@ import { StudentCourseSidebar } from "@/components/lms/student/StudentCourseSide
 import { StudentCourseAnalytics } from "@/components/lms/student/StudentCourseAnalytics";
 import { StudentDashboardHeader } from "@/components/lms/student/StudentDashboardHeader";
 import { PersonalizedLearningDashboard } from "@/components/lms/student/PersonalizedLearningDashboard";
-import { SkillMasteryOverview } from "@/components/lms/student/SkillMasteryOverview";
+import { SkillMasteryOverview, StartLearningBanner } from "@/components/lms/student/SkillMasteryOverview";
 import { useScrollSnap } from "@/hooks/common/useScrollSnap";
 import { useStudentDashboard } from "@/hooks/lms/student/useStudentDashboard";
 import { trackRecommendationEvent } from "@/services/lms/recommendationService";
@@ -155,6 +155,9 @@ export default function StudentDashboard() {
             }}
           />
         )}
+
+        {/* Onboarding Banner moved to the bottom of Dashboard */}
+        <StartLearningBanner />
       </div>
     </div>
   );

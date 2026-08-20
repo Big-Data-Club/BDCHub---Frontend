@@ -6,12 +6,9 @@ import { useCourseDiscover } from "@/hooks/lms/student/useCourseDiscover";
 import { DiscoverHeader } from "@/components/lms/student/discover/DiscoverHeader";
 import { DiscoverCourseGrid } from "@/components/lms/student/discover/DiscoverCourseGrid";
 import { DiscoverPreferenceModal } from "@/components/lms/student/discover/DiscoverPreferenceModal";
-import { PersonalizedCourseDiscovery } from "@/components/lms/student/PersonalizedCourseDiscovery";
-import { CourseCard, Alert, Select } from "@/components/lms/shared";
-import { Sparkles, SlidersHorizontal, RotateCcw, CheckCircle2 } from "lucide-react";
-import { trackRecommendationEvent } from "@/services/lms/recommendationService";
+import { Alert, Select } from "@/components/lms/shared";
+import { SlidersHorizontal, RotateCcw } from "lucide-react";
 import { useAuth } from "@/hooks/auth/useAuth";
-import lmsService from "@/services/lms/lmsService";
 
 export default function DiscoverPage() {
   const router = useRouter();
@@ -21,6 +18,7 @@ export default function DiscoverPage() {
   const {
     publishedCourses,
     enrolledCourseIds,
+    recommendationsByCourseId,
     allTags,
     recommendedCourses,
     showPreferences,
@@ -175,82 +173,17 @@ export default function DiscoverPage() {
           </div>
         </div>
 
-        {/* Course Grid */}
+        {/* Course Grid - Integrated courses list */}
         <DiscoverCourseGrid
           courses={publishedCourses}
           enrolledCourseIds={enrolledCourseIds}
+          recommendationsByCourseId={recommendationsByCourseId}
           loading={loading}
           loadingMore={loadingMore}
           hasMore={hasMore}
           onLoadMore={loadMore}
           onNavigateToDetail={(courseId) => router.push(`/lms/student/discover/${courseId}`)}
         />
-
-        {/* Recommendations stay after the main course list so they do not displace browsing content. */}
-        {user && !search && selectedTag === "all" && selectedLevel === "all" && (
-          <PersonalizedCourseDiscovery
-            studentId={user.id}
-            onNavigateToCourse={(courseId) => router.push(`/lms/student/discover/${courseId}`)}
-            onEnrollCourse={async (courseId) => {
-              try {
-                await lmsService.enrollCourse(courseId);
-                window.location.reload();
-              } catch (error) {
-                console.error("Failed to enroll:", error);
-              }
-            }}
-          />
-        )}
-
-        {recommendedCourses.length > 0 && !search && selectedTag === "all" && selectedLevel === "all" && (
-          <section className="space-y-4 [overflow-anchor:none]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-cyan-400">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="text-base font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
-                    Gợi Ý Dành Cho Bạn
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Dựa trên mục tiêu học tập & lĩnh vực quan tâm đã thiết lập
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendedCourses.slice(0, 3).map(({ course, item, recommendationSetId }) => {
-                const matchPercentage = Math.round((item.score ?? 0.85) * 100);
-                return (
-                  <CourseCard
-                    key={`rec-${course.id}`}
-                    id={course.id}
-                    title={course.title}
-                    description={course.description}
-                    category={course.category ?? undefined}
-                    level={course.level ?? undefined}
-                    teacherName={course.creator_name ?? undefined}
-                    thumbnailUrl={course.thumbnail_url ?? undefined}
-                    enrollmentCount={course.enrollment_count ?? 0}
-                    createdAt={course.published_at ?? course.created_at ?? undefined}
-                    onClick={() => {
-                      trackRecommendationEvent(item, recommendationSetId, "click", "course_discovery");
-                      router.push(`/lms/student/discover/${course.id}`);
-                    }}
-                    actions={
-                      <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 dark:bg-slate-900/90 text-blue-700 dark:text-cyan-300 border border-blue-200 dark:border-blue-500/30 flex items-center gap-1.5 shadow-xs">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-                        <span>{matchPercentage}% Match</span>
-                      </span>
-                    }
-                  />
-                );
-              })}
-            </div>
-          </section>
-        )}
       </main>
 
       {/* AI Preferences Modal */}

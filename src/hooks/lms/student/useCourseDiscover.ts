@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { lmsService } from "@/services/lms/lmsService";
 import {
   getRecommendations,
@@ -111,7 +111,9 @@ export function useCourseDiscover() {
         const coursesById = new Map(allCoursesList.map((course) => [course.id, course]));
         const recommendations = recommendationSet.items.flatMap((item) => {
           const course = item.entity.course_id ? coursesById.get(item.entity.course_id) : undefined;
-          return course ? [{ course, item, recommendationSetId: recommendationSet.recommendation_set_id }] : [];
+          return course
+            ? [{ course, item, recommendationSetId: recommendationSet.recommendation_set_id }]
+            : [];
         });
         setRecommendedCourses(recommendations);
         recommendations.slice(0, 3).forEach(({ item, recommendationSetId }) => {
@@ -164,8 +166,6 @@ export function useCourseDiscover() {
   }, [PAGE_SIZE, checkHasMore]);
 
   const loadMore = useCallback(async () => {
-    // Use ref for the primary guard — it updates synchronously,
-    // unlike loadingMore state which is subject to React batching.
     if (isLoadingRef.current || !hasMore) return;
     isLoadingRef.current = true;
     try {
@@ -215,12 +215,60 @@ export function useCourseDiscover() {
 
   const enrolledCourseIds = new Set(enrollments.map((e) => e.course_id));
 
+  const recommendationsByCourseId = useMemo(
+    () => new Map(recommendedCourses.map((recommendation) => [recommendation.course.id, recommendation])),
+    [recommendedCourses],
+  );
+
+  const displayedCourses = useMemo(() => {
+    if (search || selectedTag !== "all" || selectedLevel !== "all") {
+      return publishedCourses;
+    }
+
+    const seenCourseIds = new Set<number>();
+    const allUniqueCourses = [...recommendedCourses.map(({ course }) => course), ...publishedCourses].filter((course) => {
+      if (seenCourseIds.has(course.id)) return false;
+      seenCourseIds.add(course.id);
+      return true;
+    });
+
+    return allUniqueCourses.sort((a, b) => {
+      const isEnrolledA = enrolledCourseIds.has(a.id);
+      const isEnrolledB = enrolledCourseIds.has(b.id);
+
+      // 1. Non-enrolled courses prioritized over enrolled courses
+      if (isEnrolledA !== isEnrolledB) {
+        return isEnrolledA ? 1 : -1;
+      }
+
+      // 2. High recommendation score prioritized
+      const recA = recommendationsByCourseId.get(a.id);
+      const recB = recommendationsByCourseId.get(b.id);
+      const scoreA = recA?.item?.score ?? 0;
+      const scoreB = recB?.item?.score ?? 0;
+
+      if (scoreA !== scoreB) {
+        return scoreB - scoreA;
+      }
+
+      // 3. Fallback: enrollment count or ID
+      const enrollCountA = a.enrollment_count ?? 0;
+      const enrollCountB = b.enrollment_count ?? 0;
+      if (enrollCountA !== enrollCountB) {
+        return enrollCountB - enrollCountA;
+      }
+
+      return b.id - a.id;
+    });
+  }, [publishedCourses, recommendedCourses, recommendationsByCourseId, enrolledCourseIds, search, selectedLevel, selectedTag]);
+
   return {
-    publishedCourses,
+    publishedCourses: displayedCourses,
     enrollments,
     enrolledCourseIds,
     allTags,
     recommendedCourses,
+    recommendationsByCourseId,
     showPreferences,
     setShowPreferences,
     savingPreferences,

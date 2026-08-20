@@ -1,9 +1,12 @@
 import { CourseCard, EmptyState, InfiniteScrollTrigger } from "@/components/lms/shared";
 import { Course } from "@/types";
+import { Sparkles } from "lucide-react";
+import type { RecommendationItem } from "@/services/lms/recommendationService";
 
 interface DiscoverCourseGridProps {
   courses: Course[];
   enrolledCourseIds: Set<number>;
+  recommendationsByCourseId?: Map<number, { item: RecommendationItem; recommendationSetId: string }>;
   loading: boolean;
   loadingMore?: boolean;
   hasMore: boolean;
@@ -30,6 +33,7 @@ function CourseCardSkeleton() {
 export function DiscoverCourseGrid({
   courses,
   enrolledCourseIds,
+  recommendationsByCourseId,
   loading,
   loadingMore = false,
   hasMore,
@@ -60,6 +64,10 @@ export function DiscoverCourseGrid({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => {
           const isEnrolled = enrolledCourseIds.has(course.id);
+          const recommendation = recommendationsByCourseId?.get(course.id);
+          const matchPercentage = recommendation?.item?.score ? Math.round(recommendation.item.score * 100) : null;
+          const badgeText = recommendation?.item?.badges?.[0]?.text;
+
           return (
             <CourseCard
               key={course.id}
@@ -77,6 +85,11 @@ export function DiscoverCourseGrid({
                 isEnrolled ? (
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
                     ✓ Đã đăng ký
+                  </span>
+                ) : recommendation ? (
+                  <span className="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 dark:bg-slate-900/90 text-blue-700 dark:text-cyan-300 border border-blue-200 dark:border-blue-500/30 flex items-center gap-1 shadow-xs">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
+                    <span>{matchPercentage ? `${matchPercentage}% Match` : (badgeText || "Phù hợp")}</span>
                   </span>
                 ) : undefined
               }
