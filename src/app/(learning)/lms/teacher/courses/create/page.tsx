@@ -39,7 +39,14 @@ export default function CreateCoursePage() {
   const [aiWorkflow, setAiWorkflow] = useState(false); // Manual creation by default
   const [hasDraftRestored, setHasDraftRestored] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
   const { userId } = useCurrentUser();
+
+  useEffect(() => {
+    lmsService.getCategories()
+      .then((cats) => setCategoryOptions(cats))
+      .catch((err) => console.error("Failed to fetch course categories:", err));
+  }, []);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -380,13 +387,21 @@ export default function CreateCoursePage() {
 
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <Input
-                        label="Danh mục"
-                        type="text"
-                        value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        placeholder="VD: Lập trình, Thiết kế..."
-                      />
+                      <div>
+                        <Input
+                          label="Danh mục"
+                          type="text"
+                          list="course-categories-list"
+                          value={formData.category}
+                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                          placeholder="Chọn hoặc nhập danh mục mới..."
+                        />
+                        <datalist id="course-categories-list">
+                          {categoryOptions.map((cat) => (
+                            <option key={cat} value={cat} />
+                          ))}
+                        </datalist>
+                      </div>
 
                       <Select
                         label="Mức độ khó"

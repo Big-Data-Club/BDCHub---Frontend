@@ -44,6 +44,11 @@ class LMSService {
 
   // ─── Course ───────────────────────────────────────────────────────────────
 
+  async getCategories(): Promise<string[]> {
+    const response = await lmsApiClient.get<{ categories: string[] }>("/courses/categories");
+    return response.data?.categories || [];
+  }
+
   async createCourse(courseData: {
     title: string;
     description?: string;
