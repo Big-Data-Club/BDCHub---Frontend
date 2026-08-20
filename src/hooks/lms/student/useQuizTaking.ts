@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import lmsService from "@/services/lms/lmsService";
 import quizService from "@/services/lms/quizService";
+import personalizedLearningTracker from "@/lib/personalized-learning-tracker";
 
 export interface QuestionImage {
   id: string;
@@ -46,7 +48,9 @@ export interface QuizTakingAttempt {
 
 export function useQuizTaking(quizId: number, courseId: number, shouldStart: boolean) {
   const router = useRouter();
+  const { user } = useAuth();
   const hasStartedRef = useRef(false);
+  const questionStartTimes = useRef<{ [key: number]: number }>({});
 
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -86,50 +90,106 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
     return newArray;
   };
 
-  const handleSubmit = useCallback(async (isAutoSubmit = false) => {
-    if (!attempt) return;
+  // Track question view time when switching questions
+  useEffect(() => {
+    const currentQ = questions[currentQuestion];
+    if (currentQ) {
+      questionStartTimes.current[currentQ.id] = Date.now();
+    }
+  }, [currentQuestion, questions]);
 
-    if (activeSaveRequestsRef.current > 0) {
-      if (!isAutoSubmit) {
-        alert("Hệ thống đang lưu các câu trả lời cuối cùng của bạn. Vui lòng đợi trong giây lát rồi thử lại.");
+  const handleAnswerChange = useCallback(
+    async (questionId: number, answerData: any) => {
+      if (!attempt || !user) return;
+
+      // Calculate time spent on this question
+      const startTime = questionStartTimes.current[questionId];
+      const timeSpent = startTime ? Math.floor((Date.now() - startTime) / 1000) : undefined;
+
+      // Track answer submission event for personalized learning
+      const question = questions.find((q) => q.id === questionId);
+      if (question) {
+        // Determine if answer is correct (for single/multiple choice)
+        let isCorrect = false;
+        if (question.question_type === "SINGLE_CHOICE" && answerData.selected_option_id) {
+          // We don't know correctness yet, will track on quiz submit
+          // For now just track the attempt
+        }
+
+        // Track the answer submission
+        personalizedLearningTracker.trackAnswerSubmitted(
+          user.id,
+          questionId,
+          answerData.selected_option_id || 0,
+          isCorrect, // Will be updated after grading
+          0, // hints used - can be tracked if you add hint feature
+          timeSpent,
+          question.settings?.difficulty_level
+        );
+      }
+
+      // Save answer
+      setAnswers((prev) => ({ ...prev, [questionId]: answerData }));
+
+      try {
+        updateActiveSaveRequests((prev) => prev + 1);
+        await quizService.submitAnswer(attempt.id, questionId, answerData);
+      } catch (error: any) {
+        console.error("Error saving answer:", error);
+      } finally {
+        updateActiveSaveRequests((prev) => prev - 1);
+      }
+    },
+    [attempt, user, questions]
+  );
+
+  const handleSubmit = useCallback(
+    async (isAutoSubmit = false) => {
+      if (!attempt) return;
+
+      if (activeSaveRequestsRef.current > 0) {
+        if (!isAutoSubmit) {
+          alert("Hệ thống đang lưu các câu trả lời cuối cùng của bạn. Vui lòng đợi trong giây lát rồi thử lại.");
+          return;
+        }
+        let retries = 30;
+        while (activeSaveRequestsRef.current > 0 && retries > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          retries--;
+        }
+      }
+
+      const unansweredRequired = questions.filter((q) => {
+        if (!q.is_required) return false;
+        const answer = answers[q.id];
+        if (!answer) return true;
+        if (q.question_type === "FILE_UPLOAD") return !answer.file_name;
+        return false;
+      });
+
+      if (unansweredRequired.length > 0 && !isAutoSubmit) {
+        if (!confirm(`Còn ${unansweredRequired.length} câu hỏi bắt buộc chưa trả lời. Bạn có chắc muốn nộp bài?`)) {
+          return;
+        }
+      }
+
+      if (!isAutoSubmit && !confirm("Bạn có chắc muốn nộp bài? Bạn sẽ không thể chỉnh sửa sau khi nộp.")) {
         return;
       }
-      let retries = 30;
-      while (activeSaveRequestsRef.current > 0 && retries > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        retries--;
+
+      try {
+        setSubmitting(true);
+        await quizService.submitQuiz(attempt.id);
+        alert("Đã nộp bài thành công!");
+        router.push(`/lms/student/courses/${courseId}/quiz/${quizId}/result/${attempt.id}`);
+      } catch (error: any) {
+        console.error("Error submitting quiz:", error);
+        alert(error.response?.data?.message || "Không thể nộp bài");
+        setSubmitting(false);
       }
-    }
-
-    const unansweredRequired = questions.filter((q) => {
-      if (!q.is_required) return false;
-      const answer = answers[q.id];
-      if (!answer) return true;
-      if (q.question_type === "FILE_UPLOAD") return !answer.file_name;
-      return false;
-    });
-
-    if (unansweredRequired.length > 0 && !isAutoSubmit) {
-      if (!confirm(`Còn ${unansweredRequired.length} câu hỏi bắt buộc chưa trả lời. Bạn có chắc muốn nộp bài?`)) {
-        return;
-      }
-    }
-
-    if (!isAutoSubmit && !confirm("Bạn có chắc muốn nộp bài? Bạn sẽ không thể chỉnh sửa sau khi nộp.")) {
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      await quizService.submitQuiz(attempt.id);
-      alert("Đã nộp bài thành công!");
-      router.push(`/lms/student/courses/${courseId}/quiz/${quizId}/result/${attempt.id}`);
-    } catch (error: any) {
-      console.error("Error submitting quiz:", error);
-      alert(error.response?.data?.message || "Không thể nộp bài");
-      setSubmitting(false);
-    }
-  }, [attempt, questions, answers, courseId, quizId, router]);
+    },
+    [attempt, questions, answers, courseId, quizId, router]
+  );
 
   const handleAutoSubmit = useCallback(async () => {
     if (submitting) return;
@@ -140,10 +200,7 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
   const startQuiz = useCallback(async () => {
     if (isNaN(quizId) || isNaN(courseId)) return;
     try {
-      const [quizData, courseRes] = await Promise.all([
-        quizService.getQuiz(quizId),
-        lmsService.getCourse(courseId),
-      ]);
+      const [quizData, courseRes] = await Promise.all([quizService.getQuiz(quizId), lmsService.getCourse(courseId)]);
       const quizInfo = quizData.data;
       setQuiz(quizInfo);
       setCourseTitle(courseRes?.data?.title || "Khóa học");
@@ -205,16 +262,11 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
       }
 
       setQuestions(questionList);
-
-      if (quizInfo.time_limit_minutes && !inProgressAttempt) {
-        setTimeLeft(quizInfo.time_limit_minutes * 60);
-      }
-
       setLoading(false);
     } catch (error: any) {
       console.error("Error starting quiz:", error);
-      alert(error.response?.data?.message || "Không thể bắt đầu quiz");
-      router.push(`/lms/student/courses/${courseId}/quiz/${quizId}/history`);
+      alert("Không thể tải quiz: " + (error.response?.data?.message || error.message));
+      router.push(`/lms/student/courses/${courseId}`);
     }
   }, [quizId, courseId, shouldStart, router]);
 
@@ -223,56 +275,37 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
   }, [startQuiz]);
 
   useEffect(() => {
-    if (!quiz?.time_limit_minutes || timeLeft === null) return;
-    const timer = setInterval(() => {
+    if (timeLeft === null || timeLeft < 0) return;
+
+    const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev === null || prev <= 0) {
-          handleAutoSubmit();
+          clearInterval(interval);
+          if (prev === 0) {
+            handleAutoSubmit();
+          }
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-    return () => clearInterval(timer);
-  }, [quiz, timeLeft, handleAutoSubmit]);
 
-  const handleAnswerChange = async (questionId: number, answerData: any) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: answerData }));
-    if (attempt) {
-      updateActiveSaveRequests((prev) => prev + 1);
-      try {
-        await quizService.submitAnswer(attempt.id, {
-          attempt_id: attempt.id,
-          question_id: questionId,
-          answer_data: answerData,
-        });
-      } catch (error) {
-        console.error("Error saving answer:", error);
-      } finally {
-        updateActiveSaveRequests((prev) => Math.max(0, prev - 1));
-      }
-    }
-  };
+    return () => clearInterval(interval);
+  }, [timeLeft, handleAutoSubmit]);
 
   const handleOpenReviewModal = async () => {
-    if (activeSaveRequestsRef.current > 0) {
-      alert("Hệ thống đang lưu các câu trả lời cuối cùng của bạn. Vui lòng đợi trong giây lát rồi thử lại.");
-      return;
-    }
+    if (!attempt) return;
     setShowReviewModal(true);
     setFetchingServerAnswers(true);
     try {
-      if (attempt) {
-        const response = await quizService.getAttemptAnswers(attempt.id);
-        const serverAnswersMap: { [key: number]: any } = {};
-        response.data?.forEach((answer: any) => {
-          serverAnswersMap[answer.question_id] = answer.answer_data;
-        });
-        setServerAnswers(serverAnswersMap);
-      }
+      const response = await quizService.getAttemptAnswers(attempt.id);
+      const fetchedAnswers: { [key: number]: any } = {};
+      response.data?.forEach((answer: any) => {
+        fetchedAnswers[answer.question_id] = answer.answer_data;
+      });
+      setServerAnswers(fetchedAnswers);
     } catch (error) {
       console.error("Error fetching server answers:", error);
-      setServerAnswers(answers);
     } finally {
       setFetchingServerAnswers(false);
     }

@@ -6,12 +6,16 @@ import { useCourseDiscover } from "@/hooks/lms/student/useCourseDiscover";
 import { DiscoverHeader } from "@/components/lms/student/discover/DiscoverHeader";
 import { DiscoverCourseGrid } from "@/components/lms/student/discover/DiscoverCourseGrid";
 import { DiscoverPreferenceModal } from "@/components/lms/student/discover/DiscoverPreferenceModal";
+import { PersonalizedCourseDiscovery } from "@/components/lms/student/PersonalizedCourseDiscovery";
 import { CourseCard, Alert, Select } from "@/components/lms/shared";
 import { Sparkles, SlidersHorizontal, RotateCcw, CheckCircle2 } from "lucide-react";
 import { trackRecommendationEvent } from "@/services/lms/recommendationService";
+import { useAuth } from "@/contexts/AuthContext";
+import enrollmentService from "@/services/lms/enrollmentService";
 
 export default function DiscoverPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -110,6 +114,23 @@ export default function DiscoverPage() {
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 flex-grow [overflow-anchor:none]">
         {error && <Alert type="error">{error}</Alert>}
+
+        {/* Skill-Based Personalized Course Discovery */}
+        {user && !search && selectedTag === "all" && selectedLevel === "all" && (
+          <PersonalizedCourseDiscovery
+            studentId={user.id}
+            onNavigateToCourse={(courseId) => router.push(`/lms/student/discover/${courseId}`)}
+            onEnrollCourse={async (courseId) => {
+              try {
+                await enrollmentService.enrollCourse(courseId);
+                // Reload page to update enrolled courses
+                window.location.reload();
+              } catch (error) {
+                console.error("Failed to enroll:", error);
+              }
+            }}
+          />
+        )}
 
         {/* AI Personalized Recommendations Section */}
         {recommendedCourses.length > 0 && !search && selectedTag === "all" && selectedLevel === "all" && (

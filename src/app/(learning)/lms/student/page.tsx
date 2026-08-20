@@ -6,12 +6,16 @@ import { Alert } from "@/components/lms/shared";
 import { StudentCourseSidebar } from "@/components/lms/student/StudentCourseSidebar";
 import { StudentCourseAnalytics } from "@/components/lms/student/StudentCourseAnalytics";
 import { StudentDashboardHeader } from "@/components/lms/student/StudentDashboardHeader";
+import { PersonalizedLearningDashboard } from "@/components/lms/student/PersonalizedLearningDashboard";
+import { SkillMasteryOverview } from "@/components/lms/student/SkillMasteryOverview";
 import { useScrollSnap } from "@/hooks/common/useScrollSnap";
 import { useStudentDashboard } from "@/hooks/lms/student/useStudentDashboard";
 import { trackRecommendationEvent } from "@/services/lms/recommendationService";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function StudentDashboard() {
   const router = useRouter();
+  const { user } = useAuth();
 
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -97,6 +101,21 @@ export default function StudentDashboard() {
           <Alert type="error">
             Khóa học &quot;{currentCourse.course_title}&quot; tạm thời bị vô hiệu hóa để xem xét lại nội dung vi phạm.
           </Alert>
+        )}
+
+        {/* ── Personalized Learning Section ── */}
+        {user && (
+          <div className="space-y-6">
+            <PersonalizedLearningDashboard
+              studentId={user.id}
+              onNavigateToLesson={(lessonId) => {
+                // Navigate to lesson - you may need to adjust this based on your routing
+                router.push(`/lms/student/lessons/${lessonId}`);
+              }}
+            />
+
+            <SkillMasteryOverview studentId={user.id} />
+          </div>
         )}
 
         {/* ── Dashboard Layout ── */}
