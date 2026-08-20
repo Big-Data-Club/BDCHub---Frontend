@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Alert } from "@/components/lms/shared";
 import { StudentCourseSidebar } from "@/components/lms/student/StudentCourseSidebar";
@@ -61,11 +61,6 @@ export default function StudentDashboard() {
     currentCourse,
   } = useStudentDashboard();
 
-  const archivedEnrollments = useMemo(
-    () => acceptedEnrollments.filter((enrollment) => enrollment.course_status === "ARCHIVED"),
-    [acceptedEnrollments],
-  );
-
   return (
     <div className="flex flex-col min-h-screen w-full">
       {/* ── Header with Grid Background (Full-width, tràn viền) ── */}
@@ -103,19 +98,9 @@ export default function StudentDashboard() {
           </Alert>
         )}
 
-        {/* ── Personalized Learning Section ── */}
+        {/* ── Skill progress belongs with the dashboard overview. ── */}
         {user && (
-          <div className="space-y-6">
-            <PersonalizedLearningDashboard
-              studentId={user.id}
-              onNavigateToLesson={(lessonId) => {
-                // Navigate to lesson - you may need to adjust this based on your routing
-                router.push(`/lms/student/lessons/${lessonId}`);
-              }}
-            />
-
-            <SkillMasteryOverview studentId={user.id} />
-          </div>
+          <SkillMasteryOverview studentId={user.id} />
         )}
 
         {/* ── Dashboard Layout ── */}
@@ -160,6 +145,16 @@ export default function StudentDashboard() {
             />
           </div>
         </div>
+
+        {/* Keep the daily recommendation panel below the primary dashboard content. */}
+        {user && (
+          <PersonalizedLearningDashboard
+            studentId={user.id}
+            onNavigateToLesson={(lessonId) => {
+              router.push(`/lms/student/lessons/${lessonId}`);
+            }}
+          />
+        )}
       </div>
     </div>
   );

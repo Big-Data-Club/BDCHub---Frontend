@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCourseDiscover } from "@/hooks/lms/student/useCourseDiscover";
 import { DiscoverHeader } from "@/components/lms/student/discover/DiscoverHeader";
@@ -60,13 +60,6 @@ export default function DiscoverPage() {
     }
   }, []);
 
-  // Ensure scroll position remains at top when recommendations load asynchronously (if user hasn't scrolled)
-  useEffect(() => {
-    if (recommendedCourses.length > 0 && typeof window !== "undefined" && window.scrollY < 50) {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    }
-  }, [recommendedCourses]);
-
   // Keyboard shortcut '/' listener to focus search bar
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -114,75 +107,6 @@ export default function DiscoverPage() {
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 flex-grow [overflow-anchor:none]">
         {error && <Alert type="error">{error}</Alert>}
-
-        {/* Skill-Based Personalized Course Discovery */}
-        {user && !search && selectedTag === "all" && selectedLevel === "all" && (
-          <PersonalizedCourseDiscovery
-            studentId={user.id}
-            onNavigateToCourse={(courseId) => router.push(`/lms/student/discover/${courseId}`)}
-            onEnrollCourse={async (courseId) => {
-              try {
-                await lmsService.enrollCourse(courseId);
-                // Reload page to update enrolled courses
-                window.location.reload();
-              } catch (error) {
-                console.error("Failed to enroll:", error);
-              }
-            }}
-          />
-        )}
-
-        {/* AI Personalized Recommendations Section */}
-        {recommendedCourses.length > 0 && !search && selectedTag === "all" && selectedLevel === "all" && (
-          <section className="space-y-4 [overflow-anchor:none]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-cyan-400">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="text-base font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
-                    Gợi Ý Dành Cho Bạn
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Dựa trên mục tiêu học tập & lĩnh vực quan tâm đã thiết lập
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendedCourses.slice(0, 3).map(({ course, item, recommendationSetId }, idx) => {
-                const matchPercentage = Math.round((item.score ?? 0.85) * 100);
-                const matchReason = preferenceGoal ? `Mục tiêu ${preferenceGoal.split(" ")[0] || "nghề nghiệp"}` : "Phù hợp học tập";
-                return (
-                  <CourseCard
-                    key={`rec-${course.id}`}
-                    id={course.id}
-                    title={course.title}
-                    description={course.description}
-                    category={course.category ?? undefined}
-                    level={course.level ?? undefined}
-                    teacherName={course.creator_name ?? undefined}
-                    thumbnailUrl={course.thumbnail_url ?? undefined}
-                    enrollmentCount={course.enrollment_count ?? 0}
-                    createdAt={course.published_at ?? course.created_at ?? undefined}
-                    onClick={() => {
-                      trackRecommendationEvent(item, recommendationSetId, "click", "course_discovery");
-                      router.push(`/lms/student/discover/${course.id}`);
-                    }}
-                    actions={
-                      <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 dark:bg-slate-900/90 text-blue-700 dark:text-cyan-300 border border-blue-200 dark:border-blue-500/30 flex items-center gap-1.5 shadow-xs">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-                        <span>{matchPercentage}% Match</span>
-                      </span>
-                    }
-                  />
-                );
-              })}
-            </div>
-          </section>
-        )}
 
         {/* Filter Controls Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 p-4 rounded-2xl shadow-xs">
@@ -261,6 +185,72 @@ export default function DiscoverPage() {
           onLoadMore={loadMore}
           onNavigateToDetail={(courseId) => router.push(`/lms/student/discover/${courseId}`)}
         />
+
+        {/* Recommendations stay after the main course list so they do not displace browsing content. */}
+        {user && !search && selectedTag === "all" && selectedLevel === "all" && (
+          <PersonalizedCourseDiscovery
+            studentId={user.id}
+            onNavigateToCourse={(courseId) => router.push(`/lms/student/discover/${courseId}`)}
+            onEnrollCourse={async (courseId) => {
+              try {
+                await lmsService.enrollCourse(courseId);
+                window.location.reload();
+              } catch (error) {
+                console.error("Failed to enroll:", error);
+              }
+            }}
+          />
+        )}
+
+        {recommendedCourses.length > 0 && !search && selectedTag === "all" && selectedLevel === "all" && (
+          <section className="space-y-4 [overflow-anchor:none]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-cyan-400">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-base font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
+                    Gợi Ý Dành Cho Bạn
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Dựa trên mục tiêu học tập & lĩnh vực quan tâm đã thiết lập
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recommendedCourses.slice(0, 3).map(({ course, item, recommendationSetId }) => {
+                const matchPercentage = Math.round((item.score ?? 0.85) * 100);
+                return (
+                  <CourseCard
+                    key={`rec-${course.id}`}
+                    id={course.id}
+                    title={course.title}
+                    description={course.description}
+                    category={course.category ?? undefined}
+                    level={course.level ?? undefined}
+                    teacherName={course.creator_name ?? undefined}
+                    thumbnailUrl={course.thumbnail_url ?? undefined}
+                    enrollmentCount={course.enrollment_count ?? 0}
+                    createdAt={course.published_at ?? course.created_at ?? undefined}
+                    onClick={() => {
+                      trackRecommendationEvent(item, recommendationSetId, "click", "course_discovery");
+                      router.push(`/lms/student/discover/${course.id}`);
+                    }}
+                    actions={
+                      <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 dark:bg-slate-900/90 text-blue-700 dark:text-cyan-300 border border-blue-200 dark:border-blue-500/30 flex items-center gap-1.5 shadow-xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
+                        <span>{matchPercentage}% Match</span>
+                      </span>
+                    }
+                  />
+                );
+              })}
+            </div>
+          </section>
+        )}
       </main>
 
       {/* AI Preferences Modal */}
@@ -279,4 +269,3 @@ export default function DiscoverPage() {
     </div>
   );
 }
-
