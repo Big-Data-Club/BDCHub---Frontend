@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
   Sparkles,
-  TrendingUp,
   Target,
   BookOpen,
   Clock,
@@ -12,7 +11,6 @@ import {
   Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PrimaryBtn } from "../shared/Button";
 
 interface CourseRecommendation {
   course_id: number;

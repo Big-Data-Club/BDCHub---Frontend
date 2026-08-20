@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
   Target,
-  TrendingUp,
   Brain,
   Clock,
   CheckCircle2,
@@ -13,13 +12,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PrimaryBtn } from "../shared/Button";
-import {
-  Tooltip as UITooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
 
 interface DailyRecommendation {
   lesson_id: number;
@@ -216,13 +208,13 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
 
               {/* Action */}
               <div className="flex-shrink-0">
-                <PrimaryBtn
+                <button
                   onClick={() => onNavigateToLesson?.(rec.lesson_id)}
                   className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border bg-blue-600 hover:bg-blue-700 text-white active:scale-95 duration-200 shadow-xs transition-all cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"
-                  icon={<ChevronRight className="w-4 h-4" />}
                 >
+                  <ChevronRight className="w-4 h-4" />
                   Học ngay
-                </PrimaryBtn>
+                </button>
               </div>
             </div>
           );

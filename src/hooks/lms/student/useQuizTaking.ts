@@ -109,12 +109,9 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
       // Track answer submission event for personalized learning
       const question = questions.find((q) => q.id === questionId);
       if (question) {
-        // Determine if answer is correct (for single/multiple choice)
-        let isCorrect = false;
-        if (question.question_type === "SINGLE_CHOICE" && answerData.selected_option_id) {
-          // We don't know correctness yet, will track on quiz submit
-          // For now just track the attempt
-        }
+        // We don't know correctness until grading, so track the attempt
+        // Will be updated after quiz is graded
+        const isCorrect = false; // Will be determined after grading
 
         // Track the answer submission
         personalizedLearningTracker.trackAnswerSubmitted(
