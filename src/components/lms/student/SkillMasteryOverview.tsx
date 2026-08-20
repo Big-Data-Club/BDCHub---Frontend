@@ -11,33 +11,13 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import personalizedLearningService, { SkillsOverviewResponse } from "@/services/lms/personalizedLearningService";
 import {
   Tooltip as UITooltip,
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-
-interface SkillState {
-  skill_id: number;
-  skill_name: string;
-  mastery_level: string;
-  mastery_percentage: number;
-  progress_indicator: string;
-  next_action: string;
-  last_practiced?: string;
-}
-
-interface SkillsOverviewResponse {
-  student_id: number;
-  total_skills: number;
-  struggling_count: number;
-  developing_count: number;
-  advancing_count: number;
-  mastered_count: number;
-  overall_progress_percentage: number;
-  skills: SkillState[];
-}
 
 interface Props {
   studentId: string | number;
@@ -80,13 +60,9 @@ export function SkillMasteryOverview({ studentId }: Props) {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/lms/personalized-learning/students/${studentId}/skills/overview`);
-      if (!response.ok) {
-        throw new Error("Không thể tải dữ liệu kỹ năng");
-      }
-      const result = await response.json();
+      const result = await personalizedLearningService.getStudentSkillsOverview(studentId);
       if (isMounted.current) {
-        setData(result.data);
+        setData(result.data.data);
         setError("");
       }
     } catch (e: any) {
@@ -169,7 +145,7 @@ export function SkillMasteryOverview({ studentId }: Props) {
           </div>
           <div className="text-right">
             <div className="text-2xl font-black text-slate-900 dark:text-slate-50 leading-none">
-              {Math.round(data.overall_progress_percentage)}%
+              {Math.round(data.overall_progress)}%
             </div>
             <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">
               Tổng thể
@@ -180,25 +156,25 @@ export function SkillMasteryOverview({ studentId }: Props) {
         {/* Summary Stats */}
         <div className="grid grid-cols-4 gap-2">
           <div className="text-center p-2 rounded-lg bg-red-50/50 dark:bg-red-950/20 border border-red-200/30 dark:border-red-500/10">
-            <div className="text-lg font-black text-red-600 dark:text-red-400">{data.struggling_count}</div>
+            <div className="text-lg font-black text-red-600 dark:text-red-400">{data.struggling_skills}</div>
             <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Cần cải thiện
             </div>
           </div>
           <div className="text-center p-2 rounded-lg bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/30 dark:border-amber-500/10">
-            <div className="text-lg font-black text-amber-600 dark:text-amber-400">{data.developing_count}</div>
+            <div className="text-lg font-black text-amber-600 dark:text-amber-400">{data.skills.filter((skill) => skill.mastery_level === "developing").length}</div>
             <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Đang PT
             </div>
           </div>
           <div className="text-center p-2 rounded-lg bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/30 dark:border-blue-500/10">
-            <div className="text-lg font-black text-blue-600 dark:text-blue-400">{data.advancing_count}</div>
+            <div className="text-lg font-black text-blue-600 dark:text-blue-400">{data.skills.filter((skill) => skill.mastery_level === "advancing").length}</div>
             <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Khá tốt
             </div>
           </div>
           <div className="text-center p-2 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/30 dark:border-emerald-500/10">
-            <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">{data.mastered_count}</div>
+            <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">{data.mastered_skills}</div>
             <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Thành thạo
             </div>

@@ -10,9 +10,8 @@ class PersonalizedLearningTracker {
   /**
    * Track when a student opens a lesson
    */
-  async trackLessonOpened(studentId: string | number, lessonId: number) {
+  async trackLessonOpened(_studentId: string | number, lessonId: number) {
     const event: LearningEvent = {
-      student_id: Number(studentId),
       event_type: "lesson_opened",
       lesson_id: lessonId,
     };
@@ -28,15 +27,14 @@ class PersonalizedLearningTracker {
    * Track when a student completes a lesson
    */
   async trackLessonCompleted(
-    studentId: string | number,
+    _studentId: string | number,
     lessonId: number,
     timeSpentSeconds: number
   ) {
     const event: LearningEvent = {
-      student_id: Number(studentId),
       event_type: "lesson_completed",
       lesson_id: lessonId,
-      time_spent_seconds: timeSpentSeconds,
+      response_time_ms: timeSpentSeconds * 1000,
     };
 
     try {
@@ -50,23 +48,21 @@ class PersonalizedLearningTracker {
    * Track when a student submits an answer to a question
    */
   async trackAnswerSubmitted(
-    studentId: string | number,
+    _studentId: string | number,
     questionId: number,
-    answerId: number,
+    _answerId: number,
     isCorrect: boolean,
     hintsUsed: number = 0,
     timeSpentSeconds?: number,
-    difficultyLevel?: string
+    difficulty?: number
   ) {
     const event: LearningEvent = {
-      student_id: Number(studentId),
       event_type: "answer_submitted",
       question_id: questionId,
-      answer_id: answerId,
-      is_correct: isCorrect,
-      hints_used: hintsUsed,
-      time_spent_seconds: timeSpentSeconds,
-      difficulty_level: difficultyLevel,
+      correct: isCorrect,
+      hint_count: hintsUsed,
+      response_time_ms: timeSpentSeconds ? timeSpentSeconds * 1000 : undefined,
+      difficulty,
     };
 
     try {
@@ -80,15 +76,14 @@ class PersonalizedLearningTracker {
    * Track when a student requests a hint
    */
   async trackHintRequested(
-    studentId: string | number,
+    _studentId: string | number,
     questionId: number,
     hintsUsed: number
   ) {
     const event: LearningEvent = {
-      student_id: Number(studentId),
       event_type: "hint_requested",
       question_id: questionId,
-      hints_used: hintsUsed,
+      hint_count: hintsUsed,
     };
 
     try {
@@ -102,15 +97,14 @@ class PersonalizedLearningTracker {
    * Track when a student reviews mastered content (spaced repetition)
    */
   async trackSkillReviewed(
-    studentId: string | number,
+    _studentId: string | number,
     lessonId: number,
     skillIds: number[]
   ) {
     const event: LearningEvent = {
-      student_id: Number(studentId),
-      event_type: "skill_reviewed",
+      event_type: "lesson_completed",
       lesson_id: lessonId,
-      skill_ids: skillIds,
+      metadata: { skill_ids: skillIds, review: true },
     };
 
     try {

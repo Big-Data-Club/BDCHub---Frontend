@@ -12,23 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface DailyRecommendation {
-  lesson_id: number;
-  lesson_name: string;
-  course_title: string;
-  reason: string;
-  priority: number;
-  estimated_minutes: number;
-  skills: string[];
-}
-
-interface DailyRecommendationsResponse {
-  today: string;
-  message: string;
-  recommendations: DailyRecommendation[];
-  total_estimated_minutes: number;
-}
+import personalizedLearningService, { DailyRecommendationsResponse } from "@/services/lms/personalizedLearningService";
 
 interface Props {
   studentId: string | number;
@@ -62,13 +46,9 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/lms/personalized-learning/students/${studentId}/recommendations/daily`);
-      if (!response.ok) {
-        throw new Error("Không thể tải gợi ý học tập hôm nay");
-      }
-      const result = await response.json();
+      const result = await personalizedLearningService.getDailyRecommendations(studentId);
       if (isMounted.current) {
-        setData(result.data);
+        setData(result.data.data);
         setError("");
       }
     } catch (e: any) {
@@ -106,7 +86,7 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
     return null;
   }
 
-  if (!data.recommendations || data.recommendations.length === 0) {
+  if (!data.priority_recommendations || data.priority_recommendations.length === 0) {
     return (
       <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-8 text-center shadow-sm">
         <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -132,12 +112,12 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
             Gợi ý học tập hôm nay
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
-            {data.message}
+            {data.motivational_message}
           </p>
         </div>
         <div className="text-right">
           <div className="text-2xl font-black text-slate-900 dark:text-slate-50 leading-none">
-            {data.total_estimated_minutes}
+            {data.priority_recommendations.reduce((total, recommendation) => total + recommendation.estimated_minutes, 0)}
           </div>
           <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1">
             <Clock className="w-3 h-3" />
@@ -148,13 +128,13 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
 
       {/* Recommendations list */}
       <div className="divide-y divide-slate-100 dark:divide-slate-450/10">
-        {data.recommendations.map((rec, index) => {
+        {data.priority_recommendations.map((rec, index) => {
           const priorityConfig = PRIORITY_CONFIG[rec.priority as keyof typeof PRIORITY_CONFIG] || PRIORITY_CONFIG[3];
           const PriorityIcon = priorityConfig.icon;
 
           return (
             <div
-              key={rec.lesson_id}
+              key={rec.content_id}
               className="p-5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-slate-50 dark:hover:bg-[#162644] transition-colors"
             >
               <div className="flex-1">
@@ -163,7 +143,7 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
                     {index + 1}
                   </div>
                   <h4 className="font-semibold text-slate-900 dark:text-slate-50 text-base flex-1">
-                    {rec.lesson_name}
+                    {rec.content_title}
                   </h4>
                   <span
                     className={cn(
@@ -177,7 +157,7 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
                 </div>
 
                 <p className="text-xs text-slate-600 dark:text-slate-300 font-medium mb-2">
-                  {rec.course_title}
+                  {rec.skill_name}
                 </p>
 
                 <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{rec.reason}</p>
@@ -187,29 +167,17 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
                     <strong>{rec.estimated_minutes}</strong> phút
                   </span>
-                  {rec.skills && rec.skills.length > 0 && (
-                    <div className="flex items-center gap-1 flex-wrap">
-                      <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                      {rec.skills.slice(0, 3).map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 font-semibold"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {rec.skills.length > 3 && (
-                        <span className="text-slate-400">+{rec.skills.length - 3}</span>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 font-semibold">{rec.skill_name}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Action */}
               <div className="flex-shrink-0">
                 <button
-                  onClick={() => onNavigateToLesson?.(rec.lesson_id)}
+                  onClick={() => onNavigateToLesson?.(rec.content_id)}
                   className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border bg-blue-600 hover:bg-blue-700 text-white active:scale-95 duration-200 shadow-xs transition-all cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"
                 >
                   <ChevronRight className="w-4 h-4" />

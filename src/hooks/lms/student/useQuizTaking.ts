@@ -1,9 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/auth/useAuth";
 import lmsService from "@/services/lms/lmsService";
 import quizService from "@/services/lms/quizService";
-import personalizedLearningTracker from "@/lib/personalized-learning-tracker";
 
 export interface QuestionImage {
   id: string;
@@ -48,9 +46,7 @@ export interface QuizTakingAttempt {
 
 export function useQuizTaking(quizId: number, courseId: number, shouldStart: boolean) {
   const router = useRouter();
-  const { user } = useAuth();
   const hasStartedRef = useRef(false);
-  const questionStartTimes = useRef<{ [key: number]: number }>({});
 
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -90,54 +86,23 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
     return newArray;
   };
 
-  // Track question view time when switching questions
-  useEffect(() => {
-    const currentQ = questions[currentQuestion];
-    if (currentQ) {
-      questionStartTimes.current[currentQ.id] = Date.now();
-    }
-  }, [currentQuestion, questions]);
-
   const handleAnswerChange = useCallback(
     async (questionId: number, answerData: any) => {
-      if (!attempt || !user) return;
-
-      // Calculate time spent on this question
-      const startTime = questionStartTimes.current[questionId];
-      const timeSpent = startTime ? Math.floor((Date.now() - startTime) / 1000) : undefined;
-
-      // Track answer submission event for personalized learning
-      const question = questions.find((q) => q.id === questionId);
-      if (question) {
-        // We don't know correctness until grading, so track the attempt
-        // Will be updated after quiz is graded
-        const isCorrect = false; // Will be determined after grading
-
-        // Track the answer submission
-        personalizedLearningTracker.trackAnswerSubmitted(
-          user.id,
-          questionId,
-          answerData.selected_option_id || 0,
-          isCorrect, // Will be updated after grading
-          0, // hints used - can be tracked if you add hint feature
-          timeSpent,
-          question.settings?.difficulty_level
-        );
-      }
+      if (!attempt) return;
 
       // Save answer
       setAnswers((prev) => ({ ...prev, [questionId]: answerData }));
 
       try {
         updateActiveSaveRequests((prev) => prev + 1);
-        await quizService.submitAnswer(attempt.id, questionId, answerData);
+        await quizService.submitAnswer(attempt.id, { ...answerData, question_id: questionId });
       } catch (error: any) {
         console.error("Error saving answer:", error);
       } finally {
         updateActiveSaveRequests((prev) => prev - 1);
       }
     },
-    [attempt, user, questions]
+    [attempt]
   );
 
   const handleSubmit = useCallback(

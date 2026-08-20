@@ -1,18 +1,18 @@
 import { lmsApiClient } from "./lmsApiClient";
 
 export interface LearningEvent {
-  event_id?: number;
-  student_id: number;
   event_type: string;
+  session_id?: string;
+  course_id?: number;
   lesson_id?: number;
   question_id?: number;
-  answer_id?: number;
-  is_correct?: boolean;
-  hints_used?: number;
-  time_spent_seconds?: number;
-  difficulty_level?: string;
-  skill_ids?: number[];
-  timestamp?: string;
+  skill_id?: number;
+  difficulty?: number;
+  correct?: boolean;
+  attempt_no?: number;
+  response_time_ms?: number;
+  hint_count?: number;
+  metadata?: Record<string, unknown>;
 }
 
 export interface SkillState {
@@ -28,46 +28,49 @@ export interface SkillState {
 export interface SkillsOverviewResponse {
   student_id: number;
   total_skills: number;
-  struggling_count: number;
-  developing_count: number;
-  advancing_count: number;
-  mastered_count: number;
-  overall_progress_percentage: number;
+  struggling_skills: number;
+  mastered_skills: number;
+  overall_progress: number;
   skills: SkillState[];
 }
 
 export interface DailyRecommendation {
-  lesson_id: number;
-  lesson_name: string;
-  course_title: string;
+  content_id: number;
+  content_title: string;
+  content_type: string;
+  skill_id: number;
+  skill_name: string;
+  difficulty: number;
+  current_mastery: number;
+  target_mastery: number;
   reason: string;
   priority: number;
   estimated_minutes: number;
-  skills: string[];
 }
 
 export interface DailyRecommendationsResponse {
-  today: string;
-  message: string;
-  recommendations: DailyRecommendation[];
-  total_estimated_minutes: number;
+  student_id: number;
+  greeting: string;
+  motivational_message: string;
+  priority_recommendations: DailyRecommendation[];
+  optional_recommendations: DailyRecommendation[];
+  today_goal: string;
 }
 
 export interface CourseRecommendation {
   course_id: number;
-  course_name: string;
-  reason: string;
-  match_percentage: number;
-  difficulty_level: string;
-  estimated_hours: number;
+  title: string;
+  match_reason: string;
+  match_score: number;
+  level: string;
+  estimated_duration: string;
   enrollment_count: number;
-  skills: string[];
-  badges: { text: string; color: string }[];
+  skills_you_will_learn: string[];
 }
 
 export interface DiscoverCoursesResponse {
-  message: string;
-  recommendations: CourseRecommendation[];
+  courses: CourseRecommendation[];
+  recommendation_reason: string;
 }
 
 export interface TrajectoryEvent {
@@ -97,7 +100,7 @@ class PersonalizedLearningService {
    * Track a learning event
    */
   async trackEvent(event: LearningEvent) {
-    return lmsApiClient.post("/api/v1/personalized-learning/events", event);
+    return lmsApiClient.post("/personalized-learning/events", event);
   }
 
   /**
@@ -105,7 +108,7 @@ class PersonalizedLearningService {
    */
   async getStudentSkillsOverview(studentId: string | number) {
     return lmsApiClient.get<{ data: SkillsOverviewResponse }>(
-      `/api/v1/personalized-learning/students/${studentId}/skills/overview`
+      `/personalized-learning/students/${studentId}/skills/overview`
     );
   }
 
@@ -114,7 +117,7 @@ class PersonalizedLearningService {
    */
   async getDailyRecommendations(studentId: string | number) {
     return lmsApiClient.get<{ data: DailyRecommendationsResponse }>(
-      `/api/v1/personalized-learning/students/${studentId}/recommendations/daily`
+      `/personalized-learning/students/${studentId}/recommendations/daily`
     );
   }
 
@@ -123,7 +126,7 @@ class PersonalizedLearningService {
    */
   async getDiscoverCoursesRecommendations(studentId: string | number) {
     return lmsApiClient.get<{ data: DiscoverCoursesResponse }>(
-      `/api/v1/personalized-learning/students/${studentId}/recommendations/discover-courses`
+      `/personalized-learning/students/${studentId}/recommendations/discover-courses`
     );
   }
 
@@ -131,9 +134,9 @@ class PersonalizedLearningService {
    * Get learning trajectory (event history)
    */
   async getLearningTrajectory(studentId: string | number, days?: number) {
-    const params = days ? { days } : {};
+    const params = days ? { limit: Math.min(Math.max(days, 1), 500) } : {};
     return lmsApiClient.get<{ data: LearningTrajectoryResponse }>(
-      `/api/v1/personalized-learning/students/${studentId}/trajectory`,
+      `/personalized-learning/students/${studentId}/trajectory`,
       { params }
     );
   }

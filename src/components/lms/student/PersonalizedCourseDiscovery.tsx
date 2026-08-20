@@ -11,23 +11,7 @@ import {
   Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface CourseRecommendation {
-  course_id: number;
-  course_name: string;
-  reason: string;
-  match_percentage: number;
-  difficulty_level: string;
-  estimated_hours: number;
-  enrollment_count: number;
-  skills: string[];
-  badges: { text: string; color: string }[];
-}
-
-interface DiscoverCoursesResponse {
-  message: string;
-  recommendations: CourseRecommendation[];
-}
+import personalizedLearningService, { DiscoverCoursesResponse } from "@/services/lms/personalizedLearningService";
 
 interface Props {
   studentId: string | number;
@@ -64,15 +48,9 @@ export function PersonalizedCourseDiscovery({
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `/api/lms/personalized-learning/students/${studentId}/recommendations/discover-courses`
-      );
-      if (!response.ok) {
-        throw new Error("Không thể tải gợi ý khóa học");
-      }
-      const result = await response.json();
+      const result = await personalizedLearningService.getDiscoverCoursesRecommendations(studentId);
       if (isMounted.current) {
-        setData(result.data);
+        setData(result.data.data);
         setError("");
       }
     } catch (e: any) {
@@ -121,7 +99,7 @@ export function PersonalizedCourseDiscovery({
     return null;
   }
 
-  if (!data.recommendations || data.recommendations.length === 0) {
+  if (!data.courses || data.courses.length === 0) {
     return (
       <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-8 text-center shadow-sm">
         <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -146,15 +124,15 @@ export function PersonalizedCourseDiscovery({
           Khóa học dành cho bạn
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
-          {data.message}
+          {data.recommendation_reason}
         </p>
       </div>
 
       {/* Courses grid */}
       <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {data.recommendations.map((course) => {
+        {data.courses.map((course) => {
           const difficultyConfig =
-            DIFFICULTY_CONFIG[course.difficulty_level as keyof typeof DIFFICULTY_CONFIG] ||
+            DIFFICULTY_CONFIG[course.level.toLowerCase() as keyof typeof DIFFICULTY_CONFIG] ||
             DIFFICULTY_CONFIG.intermediate;
 
           return (
@@ -166,7 +144,7 @@ export function PersonalizedCourseDiscovery({
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 dark:from-violet-600 dark:to-purple-700 flex items-center justify-center text-white font-black text-lg shadow-sm">
-                    {Math.round(course.match_percentage)}%
+                    {Math.round(course.match_score * 100)}%
                   </div>
                   <div>
                     <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -189,55 +167,33 @@ export function PersonalizedCourseDiscovery({
 
               {/* Course title */}
               <h4 className="font-bold text-slate-900 dark:text-slate-50 text-base mb-2 line-clamp-2 min-h-[3rem]">
-                {course.course_name}
+                {course.title}
               </h4>
 
               {/* Reason */}
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
-                {course.reason}
+                {course.match_reason}
               </p>
 
               {/* Badges */}
-              {course.badges && course.badges.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap mb-3">
-                  {course.badges.slice(0, 2).map((badge, idx) => (
-                    <span
-                      key={idx}
-                      className={cn(
-                        "text-[10px] px-2 py-0.5 rounded-full font-bold border",
-                        badge.color === "blue"
-                          ? "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/20"
-                          : badge.color === "green"
-                          ? "bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 border-green-200 dark:border-green-500/20"
-                          : badge.color === "amber"
-                          ? "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20"
-                          : "bg-slate-50 dark:bg-slate-800/30 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-500/20"
-                      )}
-                    >
-                      {badge.text}
-                    </span>
-                  ))}
-                </div>
-              )}
-
               {/* Skills */}
-              {course.skills && course.skills.length > 0 && (
+              {course.skills_you_will_learn && course.skills_you_will_learn.length > 0 && (
                 <div className="flex items-center gap-1 flex-wrap mb-3">
                   <Target className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Kỹ năng:
                   </span>
-                  {course.skills.slice(0, 3).map((skill, idx) => (
+                  {course.skills_you_will_learn.slice(0, 3).map((skill, idx) => (
                     <span
                       key={idx}
                       className="text-xs font-semibold text-violet-600 dark:text-violet-400"
                     >
                       {skill}
-                      {idx < Math.min(course.skills.length, 3) - 1 && ","}
+                      {idx < Math.min(course.skills_you_will_learn.length, 3) - 1 && ","}
                     </span>
                   ))}
-                  {course.skills.length > 3 && (
-                    <span className="text-xs text-slate-400">+{course.skills.length - 3}</span>
+                  {course.skills_you_will_learn.length > 3 && (
+                    <span className="text-xs text-slate-400">+{course.skills_you_will_learn.length - 3}</span>
                   )}
                 </div>
               )}
@@ -246,7 +202,7 @@ export function PersonalizedCourseDiscovery({
               <div className="flex items-center gap-4 mb-4 text-xs text-slate-500 dark:text-slate-400 font-medium">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5 text-slate-400" />
-                  <strong>{course.estimated_hours}h</strong>
+                  <strong>{course.estimated_duration}</strong>
                 </span>
                 <span className="flex items-center gap-1">
                   <Users className="w-3.5 h-3.5 text-slate-400" />
