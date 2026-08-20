@@ -40,7 +40,7 @@ interface SkillsOverviewResponse {
 }
 
 interface Props {
-  studentId: number;
+  studentId: string | number;
 }
 
 const MASTERY_CONFIG = {

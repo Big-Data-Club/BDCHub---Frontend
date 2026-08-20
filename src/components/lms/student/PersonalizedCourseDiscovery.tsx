@@ -30,7 +30,7 @@ interface DiscoverCoursesResponse {
 }
 
 interface Props {
-  studentId: number;
+  studentId: string | number;
   onNavigateToCourse?: (courseId: number) => void;
   onEnrollCourse?: (courseId: number) => void;
 }

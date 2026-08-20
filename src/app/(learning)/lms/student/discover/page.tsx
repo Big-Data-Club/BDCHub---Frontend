@@ -10,8 +10,8 @@ import { PersonalizedCourseDiscovery } from "@/components/lms/student/Personaliz
 import { CourseCard, Alert, Select } from "@/components/lms/shared";
 import { Sparkles, SlidersHorizontal, RotateCcw, CheckCircle2 } from "lucide-react";
 import { trackRecommendationEvent } from "@/services/lms/recommendationService";
-import { useAuth } from "@/contexts/AuthContext";
-import enrollmentService from "@/services/lms/enrollmentService";
+import { useAuth } from "@/hooks/auth/useAuth";
+import lmsService from "@/services/lms/lmsService";
 
 export default function DiscoverPage() {
   const router = useRouter();
@@ -122,7 +122,7 @@ export default function DiscoverPage() {
             onNavigateToCourse={(courseId) => router.push(`/lms/student/discover/${courseId}`)}
             onEnrollCourse={async (courseId) => {
               try {
-                await enrollmentService.enrollCourse(courseId);
+                await lmsService.enrollCourse(courseId);
                 // Reload page to update enrolled courses
                 window.location.reload();
               } catch (error) {

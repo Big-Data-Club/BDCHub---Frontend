@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api-client";
+import { lmsApiClient } from "./lmsApiClient";
 
 export interface LearningEvent {
   event_id?: number;
@@ -97,43 +97,43 @@ class PersonalizedLearningService {
    * Track a learning event
    */
   async trackEvent(event: LearningEvent) {
-    return apiClient.post("/lms/personalized-learning/events", event);
+    return lmsApiClient.post("/api/v1/personalized-learning/events", event);
   }
 
   /**
    * Get student's skill overview
    */
-  async getStudentSkillsOverview(studentId: number) {
-    return apiClient.get<SkillsOverviewResponse>(
-      `/lms/personalized-learning/students/${studentId}/skills/overview`
+  async getStudentSkillsOverview(studentId: string | number) {
+    return lmsApiClient.get<{ data: SkillsOverviewResponse }>(
+      `/api/v1/personalized-learning/students/${studentId}/skills/overview`
     );
   }
 
   /**
    * Get daily personalized recommendations
    */
-  async getDailyRecommendations(studentId: number) {
-    return apiClient.get<DailyRecommendationsResponse>(
-      `/lms/personalized-learning/students/${studentId}/recommendations/daily`
+  async getDailyRecommendations(studentId: string | number) {
+    return lmsApiClient.get<{ data: DailyRecommendationsResponse }>(
+      `/api/v1/personalized-learning/students/${studentId}/recommendations/daily`
     );
   }
 
   /**
    * Get personalized course discovery recommendations
    */
-  async getDiscoverCoursesRecommendations(studentId: number) {
-    return apiClient.get<DiscoverCoursesResponse>(
-      `/lms/personalized-learning/students/${studentId}/recommendations/discover-courses`
+  async getDiscoverCoursesRecommendations(studentId: string | number) {
+    return lmsApiClient.get<{ data: DiscoverCoursesResponse }>(
+      `/api/v1/personalized-learning/students/${studentId}/recommendations/discover-courses`
     );
   }
 
   /**
    * Get learning trajectory (event history)
    */
-  async getLearningTrajectory(studentId: number, days?: number) {
+  async getLearningTrajectory(studentId: string | number, days?: number) {
     const params = days ? { days } : {};
-    return apiClient.get<LearningTrajectoryResponse>(
-      `/lms/personalized-learning/students/${studentId}/trajectory`,
+    return lmsApiClient.get<{ data: LearningTrajectoryResponse }>(
+      `/api/v1/personalized-learning/students/${studentId}/trajectory`,
       { params }
     );
   }

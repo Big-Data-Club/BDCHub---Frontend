@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/auth/useAuth";
 import lmsService from "@/services/lms/lmsService";
 import quizService from "@/services/lms/quizService";
 import personalizedLearningTracker from "@/lib/personalized-learning-tracker";

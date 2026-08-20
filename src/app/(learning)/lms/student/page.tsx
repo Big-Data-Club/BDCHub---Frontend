@@ -11,7 +11,7 @@ import { SkillMasteryOverview } from "@/components/lms/student/SkillMasteryOverv
 import { useScrollSnap } from "@/hooks/common/useScrollSnap";
 import { useStudentDashboard } from "@/hooks/lms/student/useStudentDashboard";
 import { trackRecommendationEvent } from "@/services/lms/recommendationService";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 export default function StudentDashboard() {
   const router = useRouter();

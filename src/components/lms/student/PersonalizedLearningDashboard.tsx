@@ -31,7 +31,7 @@ interface DailyRecommendationsResponse {
 }
 
 interface Props {
-  studentId: number;
+  studentId: string | number;
   onNavigateToLesson?: (lessonId: number) => void;
 }
 
