@@ -22,6 +22,7 @@ import aiService, {
 } from "@/services/ai/aiService";
 import flashcardService from "@/services/lms/flashcardService";
 import analyticsService from "@/services/lms/analyticsService";
+import personalizedLearningTracker from "@/lib/personalized-learning-tracker";
 import type { MicroLessonContext } from "./types";
 
 interface QuickCheckProps {
@@ -127,7 +128,20 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
         node_id: ctx.nodeId ?? undefined,
         action_type: isCorrect ? "quick_check_correct" : "quick_check_incorrect",
       });
-  }, [ctx.courseId, ctx.lessonId, ctx.nodeId, questions, state]);
+
+      // Feed the personalized learning engine. AI-generated questions have no
+      // DB question_id, so mastery inference is skipped for now; the event
+      // still powers the trajectory/daily-activity views.
+      personalizedLearningTracker.trackAnswerSubmitted({
+        courseId: ctx.courseId,
+        correct: isCorrect,
+        metadata: {
+          source: "quick_check",
+          node_id: ctx.nodeId ?? null,
+          lesson_id: ctx.lessonId ?? null,
+        },
+      });
+    }, [ctx.courseId, ctx.lessonId, ctx.nodeId, questions, state]);
 
   const handleSave = useCallback(async () => {
     if (saving || saved || questions.length === 0) return;

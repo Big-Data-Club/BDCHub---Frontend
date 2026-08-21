@@ -3,6 +3,7 @@
 
 import { useState, useEffect, ReactNode } from "react";
 import quizService from "@/services/lms/quizService";
+import personalizedLearningTracker from "@/lib/personalized-learning-tracker";
 import FillBlankTextStudent from "@/components/lms/student/FillBlankTextStudent";
 import FillBlankDropdownStudent from "@/components/lms/student/FillBlankDropdownStudent";
 import AIDiagnosisModal from "./AIDiagnosisModal";
@@ -241,6 +242,7 @@ export default function QuizReviewPage({
         setLoading(true);
         const response = await quizService.reviewQuiz(attemptId);
         setReview(response.data);
+        trackAttemptEvents(response.data);
       } catch (err: any) {
         setError(err.response?.data?.error || "Không thể tải bài làm");
       } finally {
@@ -248,6 +250,44 @@ export default function QuizReviewPage({
       }
     })();
   }, [attemptId]);
+
+  /**
+   * Feed graded answers into the personalized learning engine so skill
+   * mastery updates with real correctness data. Guarded by a localStorage
+   * marker so re-opening the review never double-counts attempts.
+   */
+  const trackAttemptEvents = (data: QuizReview) => {
+    try {
+      const marker = `pl_tracked_attempt_${data.attempt.id}`;
+      if (typeof window !== "undefined" && window.localStorage.getItem(marker)) {
+        return;
+      }
+      const durationSec =
+        (new Date(data.attempt.submitted_at).getTime() -
+          new Date(data.attempt.started_at).getTime()) /
+        1000;
+      const questionCount = Math.max(data.questions_with_answers.length, 1);
+
+      data.questions_with_answers.forEach((qa) => {
+        const ans = qa.student_answer;
+        if (!ans || ans.is_correct === undefined) return;
+        personalizedLearningTracker.trackAnswerSubmitted({
+          questionId: qa.question.id,
+          courseId,
+          correct: ans.is_correct,
+          timeSpentSeconds: Math.max(0, durationSec / questionCount),
+          attemptNo: data.attempt.attempt_number,
+          metadata: { quiz_id: data.quiz.id, attempt_id: data.attempt.id },
+        });
+      });
+
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(marker, new Date().toISOString());
+      }
+    } catch (err) {
+      console.error("Failed to track quiz attempt events:", err);
+    }
+  };
 
   // ── helpers ──────────────────────────────────────────────────────────────────
 

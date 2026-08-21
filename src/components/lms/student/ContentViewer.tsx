@@ -12,6 +12,7 @@ import { ForumRenderer } from "./content-renderers/ForumRenderer";
 import { AnnouncementRenderer } from "./content-renderers/AnnouncementRenderer";
 import analyticsService from "@/services/lms/analyticsService";
 import aiService from "@/services/ai/aiService";
+import personalizedLearningTracker from "@/lib/personalized-learning-tracker";
 
 export type { ContentItem };
 
@@ -68,6 +69,7 @@ export default function ContentViewer({
     const currentKey = `${content.id}:${nodeId}`;
     if (hasTrackedView.current === currentKey) return;
     hasTrackedView.current = currentKey;
+    const openedAt = Date.now();
 
     // Track lesson view
     analyticsService.trackMicroInteraction({
@@ -76,6 +78,9 @@ export default function ContentViewer({
       node_id: nodeId,
       action_type: "lesson_view",
     });
+
+    // Feed the personalized learning engine (skill mastery, trajectory)
+    personalizedLearningTracker.trackLessonOpened(content.id, Number(courseId));
 
     // Set auto-completion timer (15 seconds of engagement)
     const timer = setTimeout(() => {
@@ -86,6 +91,11 @@ export default function ContentViewer({
         action_type: "lesson_complete",
         payload: { reason: "viewed_15s" },
       });
+      personalizedLearningTracker.trackLessonCompleted(
+        content.id,
+        (Date.now() - openedAt) / 1000,
+        Number(courseId)
+      );
     }, 15000);
 
     return () => {
@@ -106,6 +116,11 @@ export default function ContentViewer({
         action_type: "lesson_complete",
         payload: { reason: "explicit_completion" },
       });
+      personalizedLearningTracker.trackLessonCompleted(
+        content.id,
+        0,
+        Number(courseId)
+      );
     }
     prevCompleted.current = isCompleted;
   }, [isCompleted, content.type, courseId, isStudent, nodeId, loadingNode]);
