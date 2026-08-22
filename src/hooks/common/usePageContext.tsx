@@ -13,6 +13,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   type ReactNode,
 } from "react";
 
@@ -56,28 +57,84 @@ interface PageContextValue {
 
 const PageCtx = createContext<PageContextValue | null>(null);
 
+// ── Session persistence ─────────────────────────────────────────────────────
+//
+// The AI sidebar can be opened before the page finishes loading its data
+// (course fetch, content fetch...). Persisting the last declared context -
+// bound to the exact route that declared it - lets the agent keep working
+// with the right course across hard reloads and mount races instead of
+// asking "which course do you mean?".
+
+const PAGE_CONTEXT_STORAGE_KEY = "lms_page_context";
+
+function readStoredPageContext(): PageContext | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(PAGE_CONTEXT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PageContext;
+    // Context is only valid on the route that declared it. A different
+    // pathname means the user navigated elsewhere - never reuse it.
+    if (!parsed || (parsed.route && parsed.route !== window.location.pathname)) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function persistPageContext(ctx: PageContext | null): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (ctx) {
+      sessionStorage.setItem(PAGE_CONTEXT_STORAGE_KEY, JSON.stringify(ctx));
+    } else {
+      sessionStorage.removeItem(PAGE_CONTEXT_STORAGE_KEY);
+    }
+  } catch {
+    // Storage full / disabled - context still works in-memory.
+  }
+}
+
 // ── Provider ────────────────────────────────────────────────────────────────
 
 export function PageContextProvider({ children }: { children: ReactNode }) {
   const [pageContext, _setPageContext] = useState<PageContext | null>(null);
 
+  // Restore after mount (not during lazy init) so SSR HTML and the client
+  // hydration pass render identically.
+  useEffect(() => {
+    const stored = readStoredPageContext();
+    if (stored) {
+      _setPageContext(stored);
+    }
+  }, []);
+
   const setPageContext = useCallback((ctx: PageContext) => {
-    _setPageContext({
+    const next = {
       ...ctx,
       route: typeof window === "undefined" ? ctx.route : window.location.pathname,
-    });
+    };
+    _setPageContext(next);
+    persistPageContext(next);
   }, []);
 
   const patchPageContext = useCallback((patch: Partial<PageContext>) => {
-    _setPageContext((prev) => ({
-      ...(prev || {}),
-      ...patch,
-      route: typeof window === "undefined" ? patch.route || prev?.route : window.location.pathname,
-    } as PageContext));
+    _setPageContext((prev) => {
+      const next = {
+        ...(prev || {}),
+        ...patch,
+        route: typeof window === "undefined" ? patch.route || prev?.route : window.location.pathname,
+      } as PageContext;
+      persistPageContext(next);
+      return next;
+    });
   }, []);
 
   const clearPageContext = useCallback(() => {
     _setPageContext(null);
+    persistPageContext(null);
   }, []);
 
   return (

@@ -32,9 +32,18 @@ interface ChatSidebarProps {
   onClose: () => void;
 }
 
-/** Auto-detect agent type from the LMS role stored in sessionStorage. */
+/**
+ * Auto-detect agent type from the workspace the user is actually in.
+ * The current route is authoritative - a teacher/admin browsing the
+ * student area must still get the mentor, whose course list matches
+ * what they see. sessionStorage role is only a fallback for routes
+ * that are not student/teacher-specific.
+ */
 function detectAgentType(): "teacher" | "mentor" {
   if (typeof window === "undefined") return "mentor";
+  const path = window.location.pathname;
+  if (path.startsWith("/lms/student")) return "mentor";
+  if (path.startsWith("/lms/teacher") || path.startsWith("/lms/admin")) return "teacher";
   const role = sessionStorage.getItem("lms_selected_role");
   return role === "TEACHER" || role === "ADMIN" ? "teacher" : "mentor";
 }

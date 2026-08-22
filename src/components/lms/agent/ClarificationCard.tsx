@@ -20,7 +20,15 @@ export function ClarificationCard({
       <div className="flex flex-wrap gap-2">
         {options.map((opt, i) => {
           const label = typeof opt === "string" ? opt : opt.label;
-          const value = typeof opt === "string" ? opt : opt.label; // Send label so it matches title or chitchat naturally
+          // Structured options carry a machine value (e.g. course_id). Send
+          // "label (#value)" so the backend can resolve the exact entity by
+          // ID instead of re-running fuzzy title matching, while the text
+          // stays natural for chitchat-style replies.
+          const value = typeof opt === "string"
+            ? opt
+            : opt.value && /^\d+$/.test(opt.value) && opt.value !== opt.label
+              ? `${opt.label} (#${opt.value})`
+              : opt.label;
           return (
             <button
               key={i}

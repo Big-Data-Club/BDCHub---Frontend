@@ -7,7 +7,8 @@
  * and maintains the message list with streaming text, tool activities,
  * clarifications, and dynamic UI widgets.
  */
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { usePathname } from "next/navigation";
 import { agentService } from "@/services/ai/agentService";
 import type {
   AgentMessage,
@@ -57,6 +58,28 @@ function compactPageContext(context?: Record<string, any> | null): Record<string
   };
 }
 
+/**
+ * Deterministic last-resort context derived from the URL itself.
+ *
+ * Covers the window where a page has not declared its context yet
+ * (course data still loading) or simply forgot to call setPageContext:
+ * `/lms/student/courses/23/learn` already tells us course_id=23 without
+ * asking the backend to guess. Real pageContext always wins when present;
+ * this only fills the gaps.
+ */
+function deriveContextFromPath(pathname: string | null): Record<string, any> | undefined {
+  if (!pathname) return undefined;
+  const match = pathname.match(/^\/lms\/(student|teacher)\/courses\/(\d+)(?:\/([a-z-]+))?/);
+  if (!match) return undefined;
+  const [, area, courseId, sub] = match;
+  return {
+    pageType: sub === "learn" ? "lesson" : "course_detail",
+    route: pathname,
+    courseId: Number(courseId),
+    source: `url_fallback:${area}`,
+  };
+}
+
 interface UseAgentChatOptions {
   agentType: "teacher" | "mentor";
   courseId?: number;
@@ -79,6 +102,7 @@ interface UseAgentChatOptions {
 }
 
 export function useAgentChat({ agentType, courseId, initialSessionId, initialMessages, userId, pageContext, systemContext, onSessionUpdated }: UseAgentChatOptions) {
+  const pathname = usePathname();
   const [messages, setMessages] = useState<AgentMessage[]>(initialMessages || []);
   // Do not initialise from the URL directly.  The effect below owns the first
   // load and records the URL it consumed; otherwise clicking B while the URL
@@ -90,6 +114,17 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
   const abortRef = useRef<AbortController | null>(null);
   const processEventRef = useRef<any>(null);
   const consumedUrlSessionRef = useRef<string | undefined>(undefined);
+
+  // Page context declared by the page, gap-filled by the URL fallback so the
+  // agent always knows which course the user is standing in (e.g. while the
+  // course payload is still loading, or on pages that never declared one).
+  const urlFallbackContext = useMemo(() => deriveContextFromPath(pathname), [pathname]);
+  const effectivePageContext = useMemo(
+    () => (urlFallbackContext ? { ...urlFallbackContext, ...(pageContext || {}) } : pageContext || undefined),
+    [urlFallbackContext, pageContext],
+  );
+  const effectiveCourseId =
+    courseId ?? (effectivePageContext?.courseId != null ? Number(effectivePageContext.courseId) : undefined);
 
   const loadHistory = useCallback(async (sid: string) => {
     setIsLoadingHistory(true);
@@ -168,7 +203,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
     try {
       const res = await agentService.createNewSession({
         agent_type: agentType,
-        course_id: courseId,
+        course_id: effectiveCourseId,
       });
       setSessionId(res.session_id);
       setMessages([]);
@@ -181,7 +216,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
       setSessionId(null);
       setMessages([]);
     }
-  }, [agentType, courseId, userId, sessionId, messages.length, onSessionUpdated, stopStreaming]);
+  }, [agentType, effectiveCourseId, userId, sessionId, messages.length, onSessionUpdated, stopStreaming]);
 
   /**
    * Send a message and process the SSE stream.
@@ -219,7 +254,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
 
       try {
         abortRef.current = new AbortController();
-        const requestPageContext = compactPageContext(pageContext);
+        const requestPageContext = compactPageContext(effectivePageContext);
 
         const response = await fetch("/api/ai/agents/chat", {
           method: "POST",
@@ -227,7 +262,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
           body: JSON.stringify({
             message: text,
             agent_type: agentType,
-            course_id: courseId,
+            course_id: effectiveCourseId,
             session_id: sessionId,
             ...(requestPageContext ? { page_context: requestPageContext } : {}),
             ...(systemContext ? { system_context: systemContext } : {}),
@@ -300,7 +335,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         }));
       }
     },
-    [agentType, courseId, sessionId, isStreaming, pageContext, systemContext],
+    [agentType, effectiveCourseId, sessionId, isStreaming, effectivePageContext, systemContext],
   );
 
   /**
