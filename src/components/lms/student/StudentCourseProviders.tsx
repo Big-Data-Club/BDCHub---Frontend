@@ -211,6 +211,7 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
       courseName: course.title,
       contentId: activeContent?.id,
       contentTitle: activeContent?.title,
+      contentType: activeContent?.type,
     });
     return () => clearPageContext();
   }, [course, activeContent, id, setPageContext, clearPageContext]);

@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { ContentItem, EmptyState, extractYouTubeId, extractVimeoId, buildFileUrl, DownloadLink } from "./utils";
+import { useSetPageContext } from "@/hooks/common/usePageContext";
 
 interface VideoRendererProps {
   content: ContentItem;
@@ -8,6 +10,21 @@ interface VideoRendererProps {
 
 export function VideoRenderer({ content }: VideoRendererProps) {
   const videoUrl = content.metadata?.video_url || content.metadata?.url || "";
+  const { patchPageContext } = useSetPageContext();
+
+  const youtubeId = extractYouTubeId(videoUrl);
+  const vimeoId = youtubeId ? null : extractVimeoId(videoUrl);
+
+  // Declare the media kind so the agent knows the lesson is a video and
+  // should rely on its indexed transcript (search_course_materials).
+  useEffect(() => {
+    if (!videoUrl) return;
+    patchPageContext({
+      extra: {
+        mediaHost: youtubeId ? "youtube" : vimeoId ? "vimeo" : "file",
+      },
+    });
+  }, [youtubeId, vimeoId, videoUrl, patchPageContext]);
 
   if (!videoUrl) {
     return (
@@ -15,7 +32,6 @@ export function VideoRenderer({ content }: VideoRendererProps) {
     );
   }
 
-  const youtubeId = extractYouTubeId(videoUrl);
   if (youtubeId) {
     return (
       <div className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl shadow-sm bg-black">
@@ -30,7 +46,6 @@ export function VideoRenderer({ content }: VideoRendererProps) {
     );
   }
 
-  const vimeoId = extractVimeoId(videoUrl);
   if (vimeoId) {
     return (
       <div className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl shadow-sm bg-black">

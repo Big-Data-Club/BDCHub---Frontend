@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ContentItem, EmptyState, buildFileUrl, formatFileSize, DownloadLink } from "./utils";
 import { FileText, FileSpreadsheet, File } from "lucide-react";
+import { useSetPageContext } from "@/hooks/common/usePageContext";
 
 interface DocumentRendererProps {
   content: ContentItem;
@@ -10,15 +11,29 @@ interface DocumentRendererProps {
 
 export function DocumentRenderer({ content }: DocumentRendererProps) {
   const [iframeError, setIframeError] = useState(false);
+  const { patchPageContext } = useSetPageContext();
 
   const filePath = content.metadata?.file_path || content.file_path;
   const docUrl = filePath ? buildFileUrl(filePath) : (content.metadata?.file_url ?? "");
 
-  if (!docUrl) return <EmptyState message="Tài liệu chưa được tải lên." />;
-
   const isPdf = docUrl.toLowerCase().includes(".pdf");
   const isOfficeDoc = /\.(docx|pptx|xlsx|doc|ppt|xls)$/i.test(docUrl);
   const fileName = content.metadata?.file_name || content.title;
+
+  // Tell the AI agent what material is on screen: a named document of a
+  // known kind. The backend pairs this with the indexed lesson dossier.
+  useEffect(() => {
+    if (!docUrl || !fileName) return;
+    patchPageContext({
+      extra: {
+        fileName,
+        fileKind: isPdf ? "pdf" : isOfficeDoc ? "office" : "binary",
+      },
+    });
+  }, [docUrl, fileName, isPdf, isOfficeDoc, patchPageContext]);
+
+  if (!docUrl) return <EmptyState message="Tài liệu chưa được tải lên." />;
+
   const fileSize = content.metadata?.file_size ? formatFileSize(content.metadata.file_size) : null;
   const downloadUrl = docUrl.replace("/serve/", "/download/");
 

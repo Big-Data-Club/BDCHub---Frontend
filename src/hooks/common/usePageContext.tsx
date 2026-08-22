@@ -36,6 +36,8 @@ export interface PageContext {
   sectionName?: string;
   contentId?: number;
   contentTitle?: string;
+  /** Lesson material kind, e.g. TEXT / FILE / VIDEO / QUIZ. */
+  contentType?: string;
   /** Optional: the actual text content of the lesson/page. */
   contentBody?: string;
 

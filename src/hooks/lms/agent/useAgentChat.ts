@@ -53,6 +53,7 @@ function compactPageContext(context?: Record<string, any> | null): Record<string
     sectionName: context.sectionName,
     contentId: context.contentId,
     contentTitle: context.contentTitle,
+    contentType: context.contentType,
     ...(body ? { contentBody: body.slice(0, 12_000) } : {}),
     ...(extra && Object.keys(extra).length ? { extra } : {}),
   };
@@ -63,19 +64,31 @@ function compactPageContext(context?: Record<string, any> | null): Record<string
  *
  * Covers the window where a page has not declared its context yet
  * (course data still loading) or simply forgot to call setPageContext:
- * `/lms/student/courses/23/learn` already tells us course_id=23 without
- * asking the backend to guess. Real pageContext always wins when present;
- * this only fills the gaps.
+ * `/lms/student/courses/23/learn?contentId=2270` already tells us
+ * course_id=23 + content_id=2270 without asking the backend to guess.
+ * Real pageContext always wins when present; this only fills the gaps.
  */
 function deriveContextFromPath(pathname: string | null): Record<string, any> | undefined {
-  if (!pathname) return undefined;
+  if (!pathname || typeof window === "undefined") return undefined;
   const match = pathname.match(/^\/lms\/(student|teacher)\/courses\/(\d+)(?:\/([a-z-]+))?/);
   if (!match) return undefined;
   const [, area, courseId, sub] = match;
+
+  // Read deep-link params straight from the address bar. Avoids
+  // useSearchParams() so lazy chat UIs stay free of Suspense constraints.
+  let contentId: number | undefined;
+  try {
+    const param = new URLSearchParams(window.location.search).get("contentId");
+    contentId = param && /^\d+$/.test(param) ? Number(param) : undefined;
+  } catch {
+    contentId = undefined;
+  }
+
   return {
     pageType: sub === "learn" ? "lesson" : "course_detail",
     route: pathname,
     courseId: Number(courseId),
+    ...(contentId ? { contentId } : {}),
     source: `url_fallback:${area}`,
   };
 }
