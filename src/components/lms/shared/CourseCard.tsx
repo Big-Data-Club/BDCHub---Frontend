@@ -25,6 +25,8 @@ interface CourseCardProps {
   onClick?: () => void;
   actions?: ReactNode;
   className?: string;
+  /** Above-the-fold cards should load their thumbnail eagerly. */
+  priority?: boolean;
 }
 
 const LEVEL_BADGE: Record<string, BadgeVariant> = {
@@ -50,7 +52,8 @@ const formatDate = (dateStr?: string) => {
 
 export function CourseCard({
   title, category, level, status, teacherName, teacherAvatarUrl,
-  thumbnailUrl, enrollmentCount, progress, createdAt, onClick, actions, className
+  thumbnailUrl, enrollmentCount, progress, createdAt, onClick, actions, className,
+  priority = false,
 }: CourseCardProps) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
 
@@ -71,14 +74,15 @@ export function CourseCard({
       {/* Thumbnail Area with Overlay Badges */}
       <div className="h-44 bg-gradient-to-br from-blue-50 to-slate-100 dark:from-blue-950/20 dark:to-[#0D192E] overflow-hidden relative flex-shrink-0">
         {thumbnailUrl && !thumbnailFailed ? (
-          <Image 
-            src={thumbnailUrl} 
-            alt={title} 
-            fill 
+          <Image
+            src={thumbnailUrl}
+            alt={title}
+            fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            loading="lazy"
+            priority={priority}
+            loading={priority ? "eager" : "lazy"}
             onError={() => setThumbnailFailed(true)}
-            className="object-cover group-hover:scale-105 transition-transform duration-500" 
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="flex items-center justify-center h-full group-hover:scale-105 transition-transform duration-500">

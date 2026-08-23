@@ -34,6 +34,16 @@ export function useCourseDiscover() {
   const isLoadingRef = useRef(false);
   const [error, setError] = useState("");
 
+  // Monotonic request sequence: only the most recently started listing
+  // (initial / filter / load-more) may apply its results. Prevents an
+  // in-flight response for old filters from mutating the current list.
+  const requestSeqRef = useRef(0);
+  // Display-order freeze: once the user starts paging (loadMore), courses
+  // already on screen must never move. Before that, the list is freely
+  // curated (AI recommendations hoisted to top).
+  const orderFrozenRef = useRef(false);
+  const displayOrderRef = useRef<number[]>([]);
+
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState<string>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
@@ -61,6 +71,9 @@ export function useCourseDiscover() {
   }, []);
 
   const loadInitialData = useCallback(async () => {
+    const seq = ++requestSeqRef.current;
+    orderFrozenRef.current = false;
+    displayOrderRef.current = [];
     try {
       setLoading(true);
       const [allCourses, accepted, profile] = await Promise.all([
@@ -71,6 +84,7 @@ export function useCourseDiscover() {
           profile_available: false,
         })),
       ]);
+      if (seq !== requestSeqRef.current) return;
       setEnrollments(accepted || []);
       setPreferenceCategories(profile.interested_categories.join(", "));
       setPreferenceGoal(profile.target_career || "");
@@ -125,6 +139,7 @@ export function useCourseDiscover() {
       }
 
       const paginatedRes = await lmsService.listPublishedCourses({ page: 1, page_size: PAGE_SIZE });
+      if (seq !== requestSeqRef.current) return;
       const items = (paginatedRes?.items || []) as Course[];
       setPublishedCourses(items);
       setPage(1);
@@ -146,6 +161,9 @@ export function useCourseDiscover() {
     tag: string,
     level: string
   ) => {
+    const seq = ++requestSeqRef.current;
+    orderFrozenRef.current = false;
+    displayOrderRef.current = [];
     try {
       setLoading(true);
       const params: Record<string, any> = { page: 1, page_size: PAGE_SIZE };
@@ -154,20 +172,24 @@ export function useCourseDiscover() {
       if (level && level !== "all") params.level = level;
 
       const res = await lmsService.listPublishedCourses(params);
+      if (seq !== requestSeqRef.current) return;
       const items = (res?.items || []) as Course[];
       setPublishedCourses(items);
       setPage(1);
       setHasMore(checkHasMore(res, items.length, PAGE_SIZE));
     } catch (err: any) {
-      setError(err?.message || "Lỗi tìm kiếm khóa học");
+      if (seq === requestSeqRef.current) setError(err?.message || "Lỗi tìm kiếm khóa học");
     } finally {
-      setLoading(false);
+      if (seq === requestSeqRef.current) setLoading(false);
     }
   }, [PAGE_SIZE, checkHasMore]);
 
   const loadMore = useCallback(async () => {
     if (isLoadingRef.current || !hasMore) return;
     isLoadingRef.current = true;
+    // From this point on, whatever is on screen is frozen in place.
+    orderFrozenRef.current = true;
+    const seq = requestSeqRef.current;
     try {
       setLoadingMore(true);
       const nextPage = page + 1;
@@ -177,13 +199,22 @@ export function useCourseDiscover() {
       if (selectedLevel && selectedLevel !== "all") params.level = selectedLevel;
 
       const res = await lmsService.listPublishedCourses(params);
+      if (seq !== requestSeqRef.current) return;
       const items = (res?.items || []) as Course[];
+      // Offset pagination can overlap when the catalogue shifts between
+      // page fetches - drop anything already displayed instead of letting
+      // duplicate React keys corrupt the grid.
       setPublishedCourses(prev => {
-        const nextList = [...prev, ...items];
-        setHasMore(checkHasMore(res, nextList.length, PAGE_SIZE));
-        return nextList;
+        const seen = new Set(prev.map(c => c.id));
+        const fresh = items.filter(c => (seen.has(c.id) ? false : (seen.add(c.id), true)));
+        return [...prev, ...fresh];
       });
       setPage(nextPage);
+      setHasMore(
+        items.length >= PAGE_SIZE
+          ? checkHasMore(res, nextPage * PAGE_SIZE, PAGE_SIZE)
+          : false,
+      );
     } catch (err: any) {
       console.error("Failed to load more courses:", err);
     } finally {
@@ -213,26 +244,23 @@ export function useCourseDiscover() {
     }
   }, [preferenceCategories, preferenceGoal, preferenceLevel, loadInitialData]);
 
-  const enrolledCourseIds = new Set(enrollments.map((e) => e.course_id));
+  const enrolledCourseIds = useMemo(
+    () => new Set(enrollments.map((e) => e.course_id)),
+    [enrollments],
+  );
 
   const recommendationsByCourseId = useMemo(
     () => new Map(recommendedCourses.map((recommendation) => [recommendation.course.id, recommendation])),
     [recommendedCourses],
   );
 
-  const displayedCourses = useMemo(() => {
-    if (search || selectedTag !== "all" || selectedLevel !== "all") {
-      return publishedCourses;
-    }
-
-    const seenCourseIds = new Set<number>();
-    const allUniqueCourses = [...recommendedCourses.map(({ course }) => course), ...publishedCourses].filter((course) => {
-      if (seenCourseIds.has(course.id)) return false;
-      seenCourseIds.add(course.id);
-      return true;
-    });
-
-    return allUniqueCourses.sort((a, b) => {
+  /**
+   * Curated ranking: un-enrolled first, then AI recommendation score,
+   * then popularity. Used for the initial screen and, after paging
+   * starts, only to order NEW arrivals relative to each other.
+   */
+  const rankCourses = useCallback((courses: Course[]) => {
+    return [...courses].sort((a, b) => {
       const isEnrolledA = enrolledCourseIds.has(a.id);
       const isEnrolledB = enrolledCourseIds.has(b.id);
 
@@ -260,7 +288,43 @@ export function useCourseDiscover() {
 
       return b.id - a.id;
     });
-  }, [publishedCourses, recommendedCourses, recommendationsByCourseId, enrolledCourseIds, search, selectedLevel, selectedTag]);
+  }, [enrolledCourseIds, recommendationsByCourseId]);
+
+  const displayedCourses = useMemo(() => {
+    // Filtered view follows the API order exactly.
+    if (search || selectedTag !== "all" || selectedLevel !== "all") {
+      return publishedCourses;
+    }
+
+    const seenCourseIds = new Set<number>();
+    const pool = [...recommendedCourses.map(({ course }) => course), ...publishedCourses].filter((course) => {
+      if (seenCourseIds.has(course.id)) return false;
+      seenCourseIds.add(course.id);
+      return true;
+    });
+
+    // Before the first loadMore, curate freely (recommendations on top).
+    if (!orderFrozenRef.current) {
+      const ranked = rankCourses(pool);
+      displayOrderRef.current = ranked.map((c) => c.id);
+      return ranked;
+    }
+
+    // Once paging has started, courses already shown keep their exact
+    // positions - newcomers are appended after them in their own ranked
+    // order. Re-sorting the whole accumulated list here is what made the
+    // grid visibly jump around while scrolling.
+    const knownIds = new Set(pool.map((c) => c.id));
+    const keptOrder = displayOrderRef.current.filter((id) => knownIds.has(id));
+    const keptSet = new Set(keptOrder);
+    const newcomers = rankCourses(pool.filter((c) => !keptSet.has(c.id)));
+
+    displayOrderRef.current = [...keptOrder, ...newcomers.map((c) => c.id)];
+    const positionById = new Map(displayOrderRef.current.map((id, index) => [id, index]));
+    return [...pool].sort(
+      (a, b) => (positionById.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (positionById.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+    );
+  }, [publishedCourses, recommendedCourses, rankCourses, search, selectedLevel, selectedTag]);
 
   return {
     publishedCourses: displayedCourses,

@@ -62,7 +62,7 @@ export function DiscoverCourseGrid({
   return (
     <div className="space-y-8 [overflow-anchor:none]">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map((course) => {
+        {courses.map((course, index) => {
           const isEnrolled = enrolledCourseIds.has(course.id);
           const recommendation = recommendationsByCourseId?.get(course.id);
           const matchPercentage = recommendation?.item?.score ? Math.round(recommendation.item.score * 100) : null;
@@ -80,6 +80,7 @@ export function DiscoverCourseGrid({
               thumbnailUrl={course.thumbnail_url ?? undefined}
               enrollmentCount={course.enrollment_count ?? 0}
               createdAt={course.published_at ?? course.created_at ?? undefined}
+              priority={index < 3}
               onClick={() => onNavigateToDetail(course.id)}
               actions={
                 isEnrolled ? (
