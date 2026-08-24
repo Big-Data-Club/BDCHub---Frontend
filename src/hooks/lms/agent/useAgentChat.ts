@@ -145,6 +145,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
       const history: AgentHistoryMessage[] = await agentService.getSessionMessages(sid);
       const mappedMessages: AgentMessage[] = history.map((m) => ({
         id: m.id,
+        dbId: Number(m.id) || undefined,
         role: m.role as any,
         content: m.content || "",
         timestamp: new Date(m.created_at).getTime(),
@@ -154,6 +155,8 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         context: m.metadata?.context,
         thinking: m.metadata?.thinking || "",
         references: m.metadata?.references || [],
+        model: (m.metadata as any)?.model || undefined,
+        incomplete: Boolean((m.metadata as any)?.incomplete),
         multiAgentLogs: (m.metadata as any)?.multiAgentLogs || [],
         critiqueReport: (m.metadata as any)?.critiqueReport,
         consolidation: (m.metadata as any)?.consolidation,
@@ -506,6 +509,15 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         }));
         break;
 
+      case "text_reset":
+        // Multi-agent revision/fallback: discard the streamed draft so the
+        // corrected answer replaces it instead of appending.
+        updateAssistant(assistantId, (msg) => ({
+          ...msg,
+          content: "",
+        }));
+        break;
+
       case "tool_start":
         setIsThinking(false);
         updateAssistant(assistantId, (msg) => ({
@@ -568,6 +580,9 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
           ...msg,
           isStreaming: false,
           references: event.data.references || msg.references,
+          model: event.data.model || msg.model,
+          incomplete: Boolean(event.data.incomplete),
+          dbId: event.data.message_id ? Number(event.data.message_id) : msg.dbId,
         }));
         if (event.session_id) {
           onSessionUpdated?.({

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Trash2, BookOpen, Search, Calendar, Loader2, Plus } from "lucide-react";
-import { agentService } from "@/services/ai/agentService";
+import { Trash2, BookOpen, Search, Calendar, Loader2, Plus, AlertTriangle } from "lucide-react";
+import { agentService, notifyNotebookChanged } from "@/services/ai/agentService";
 import { PrimaryBtn, GhostBtn } from "@/components/lms/shared/Button";
 import { SearchBar } from "@/components/lms/shared";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,25 +30,40 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
   const [notes, setNotes] = useState<NotebookNote[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<NotebookNote | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  // When opened inside a course, let the user switch between that course's
+  // notes and everything they have ever saved (including global notes).
+  const [scope, setScope] = useState<"course" | "all">("course");
+  const effectiveCourseId = courseId && scope === "course" ? courseId : undefined;
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
-      const data = await agentService.listNotebook(courseId);
+      const data = await agentService.listNotebook(effectiveCourseId);
       setNotes(data || []);
     } catch (err) {
       console.error("Failed to load notebook entries:", err);
+      setLoadError("Không tải được ghi chú. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
-  }, [courseId]);
+  }, [effectiveCourseId]);
 
   useEffect(() => {
     fetchNotes();
+  }, [fetchNotes]);
+
+  // Stay in sync with saves made elsewhere (AI chat "Lưu ghi chú", widgets,
+  // other panels) - without this the list silently goes stale.
+  useEffect(() => {
+    const handler = () => fetchNotes();
+    window.addEventListener("bdc:notebook-changed", handler);
+    return () => window.removeEventListener("bdc:notebook-changed", handler);
   }, [fetchNotes]);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
@@ -61,6 +76,7 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
       if (selectedNote?.id === id) {
         setSelectedNote(null);
       }
+      notifyNotebookChanged();
     } catch (err) {
       console.error("Failed to delete notebook entry:", err);
     } finally {
@@ -73,8 +89,27 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
       const created = await agentService.saveNotebookEntry({ title, content, courseId });
       setNotes((current) => [created, ...current]);
       setSelectedNote(created);
+      notifyNotebookChanged();
     } catch (err) {
       console.error("Failed to save notebook entry", err);
+      throw err;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdateNote = async (title: string, content: string) => {
+    if (!selectedNote) return;
+    setSaving(true);
+    try {
+      const updated = await agentService.updateNotebookEntry(selectedNote.id, { title, content });
+      setNotes((current) =>
+        current.map((n) => (n.id === selectedNote.id ? { ...n, title, content, updated_at: updated?.updated_at || n.updated_at } : n))
+      );
+      setSelectedNote((prev) => (prev ? { ...prev, title, content } : prev));
+      notifyNotebookChanged();
+    } catch (err) {
+      console.error("Failed to update notebook entry", err);
       throw err;
     } finally {
       setSaving(false);
@@ -118,6 +153,30 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
           onChange={setSearchQuery}
           size="sm"
         />
+        {courseId && (
+          <div className="flex items-center gap-1 rounded-lg bg-slate-100 dark:bg-[#0D192E] p-0.5 text-xs font-medium">
+            <button
+              onClick={() => setScope("course")}
+              className={`px-2.5 py-1 rounded-md transition-all ${
+                scope === "course"
+                  ? "bg-white dark:bg-[#1B2C4E] text-blue-600 dark:text-cyan-400 shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
+              }`}
+            >
+              Khóa này
+            </button>
+            <button
+              onClick={() => setScope("all")}
+              className={`px-2.5 py-1 rounded-md transition-all ${
+                scope === "all"
+                  ? "bg-white dark:bg-[#1B2C4E] text-blue-600 dark:text-cyan-400 shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
+              }`}
+            >
+              Tất cả ghi chú
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Content Area */}
@@ -126,6 +185,13 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
           <div className="flex flex-col items-center justify-center py-20 space-y-3">
             <Loader2 className="w-8 h-8 text-blue-600 dark:text-cyan-400 animate-spin" />
             <p className="text-sm text-slate-500 dark:text-slate-400">Đang tải ghi chú của bạn...</p>
+          </div>
+        ) : loadError ? (
+          <div className="text-center py-20">
+            <AlertTriangle className="w-12 h-12 text-amber-400 mx-auto mb-4 stroke-[1.5]" />
+            <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300">Không tải được ghi chú</h3>
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-1 mb-4">{loadError}</p>
+            <PrimaryBtn size="sm" onClick={fetchNotes}>Thử lại</PrimaryBtn>
           </div>
         ) : filteredNotes.length === 0 ? (
           <div className="text-center py-20">
@@ -190,6 +256,7 @@ export function AgentNotebookPanel({ courseId, className }: AgentNotebookPanelPr
         note={selectedNote || undefined}
         saving={saving}
         onSave={handleSaveNote}
+        onUpdate={handleUpdateNote}
       />
     </div>
   );

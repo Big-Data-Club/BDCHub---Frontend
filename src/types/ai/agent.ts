@@ -10,6 +10,7 @@
 
 export type AgentEventType =
   | "text_delta"
+  | "text_reset"
   | "thinking"
   | "context"
   | "scope"
@@ -113,10 +114,13 @@ export interface AIReference {
   url?: string;
   page_number?: number;
   content_id?: number;
+  node_id?: number;
 }
 
 export interface AgentMessage {
   id: string;
+  /** Persisted DB id (available once the turn is saved / from history). */
+  dbId?: number;
   role: "user" | "assistant";
   content: string;
   isStreaming?: boolean;
@@ -148,6 +152,12 @@ export interface AgentMessage {
 
   /** Cumulative references retrieved during this turn. */
   references?: AIReference[];
+
+  /** Provider/model id that produced this answer (from DONE event). */
+  model?: string;
+
+  /** True when the turn hit the processing limit before completing. */
+  incomplete?: boolean;
 
   /** Multi-Agent execution steps & metrics */
   multiAgentLogs?: SubAgentLog[];
@@ -209,6 +219,8 @@ export interface AgentHistoryMessage {
     context?: AgentContextData;
     thinking?: string;
     references?: AIReference[];
+    model?: string;
+    incomplete?: boolean;
   };
   created_at: string;
 }

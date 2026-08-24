@@ -128,6 +128,46 @@ export async function saveNotebookEntry(entry: {
   return res.json();
 }
 
+export async function updateNotebookEntry(
+  id: string,
+  entry: { title: string; content: string }
+): Promise<any> {
+  const res = await fetch(`/api/ai/agents/notebook?id=${encodeURIComponent(id)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: entry.title,
+      content: entry.content,
+    }),
+  });
+  if (!res.ok) throw new Error("Failed to update notebook entry");
+  return res.json();
+}
+
+/** Notify every mounted Notebook panel that entries changed. */
+export function notifyNotebookChanged(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("bdc:notebook-changed"));
+  }
+}
+
+export async function sendFeedback(payload: {
+  messageId: string | number;
+  sessionId: string;
+  rating: "like" | "dislike";
+}): Promise<void> {
+  const res = await fetch("/api/ai/agents/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message_id: Number(payload.messageId),
+      session_id: payload.sessionId,
+      rating: payload.rating,
+    }),
+  });
+  if (!res.ok) throw new Error("Failed to send feedback");
+}
+
 export const agentService = {
   sendMessage: sendAgentMessage,
   listSessions: listAgentSessions,
@@ -138,4 +178,5 @@ export const agentService = {
   listNotebook: listNotebookEntries,
   deleteNotebookEntry: deleteNotebookEntry,
   saveNotebookEntry,
+  updateNotebookEntry,
 };

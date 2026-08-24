@@ -20,6 +20,8 @@ interface NotebookNoteDialogProps {
   mode: "view" | "create" | "edit";
   note?: NoteData;
   onSave?: (title: string, content: string) => Promise<void>;
+  /** Called instead of onSave when the user edits an existing note. */
+  onUpdate?: (title: string, content: string) => Promise<void>;
   saving?: boolean;
 }
 
@@ -29,6 +31,7 @@ export function NotebookNoteDialog({
   mode: initialMode,
   note,
   onSave,
+  onUpdate,
   saving = false,
 }: NotebookNoteDialogProps) {
   const [mode, setMode] = useState<"view" | "create" | "edit">(initialMode);
@@ -48,9 +51,11 @@ export function NotebookNoteDialog({
   }, [note, initialMode, isOpen]);
 
   const handleSave = async () => {
-    if (!title.trim() || !content.trim() || !onSave) return;
+    if (!title.trim() || !content.trim()) return;
+    const persist = mode === "edit" ? onUpdate : onSave;
+    if (!persist) return;
     try {
-      await onSave(title, content);
+      await persist(title, content);
       onOpenChange(false);
     } catch (err) {
       console.error("Lỗi khi lưu ghi chú:", err);
@@ -143,7 +148,7 @@ export function NotebookNoteDialog({
         <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800 flex-shrink-0 mt-auto">
           {mode === "view" ? (
             <>
-              {onSave && (
+              {(onSave || onUpdate) && (
                 <Button
                   onClick={() => setMode("edit")}
                   variant="outline"

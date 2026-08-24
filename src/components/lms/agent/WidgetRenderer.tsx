@@ -10,7 +10,7 @@ import dynamic from "next/dynamic";
 import { BookmarkPlus, Check, Loader2 } from "lucide-react";
 import { useState } from "react";
 import type { UIComponentData } from "@/types";
-import { saveNotebookEntry } from "@/services/ai/agentService";
+import { saveNotebookEntry, notifyNotebookChanged } from "@/services/ai/agentService";
 
 const WIDGET_MAP: Record<string, React.ComponentType<any>> = {
   QuizDraftPreview: dynamic(() =>
@@ -105,6 +105,7 @@ function SaveWidgetToNotebook({ data }: { data: UIComponentData }) {
         courseId: data.props?.course_id,
       });
       setSaved(true);
+      notifyNotebookChanged();
     } catch (error) {
       console.error("Failed to save widget to notebook", error);
     } finally {

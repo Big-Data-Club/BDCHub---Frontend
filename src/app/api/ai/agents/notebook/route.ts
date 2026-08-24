@@ -79,6 +79,39 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
+export async function PUT(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const userId = (session.user as any).id ?? (session.user as any).userId ?? 0;
+  const { searchParams } = new URL(req.url);
+  const entryId = searchParams.get("id");
+  if (!entryId) return NextResponse.json({ error: "id parameter is required" }, { status: 400 });
+
+  let body: { title?: string; content?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  const title = String(body.title || "").trim();
+  const content = String(body.content || "").trim();
+  if (!title || !content) return NextResponse.json({ error: "title and content are required" }, { status: 400 });
+
+  try {
+    const response = await fetch(`${AI_SERVICE_URL}/ai/agents/notebook/${entryId}?user_id=${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "X-AI-Secret": AI_SECRET },
+      body: JSON.stringify({ title, content }),
+    });
+    const data = await response.json().catch(() => ({ error: "AI service unavailable" }));
+    return NextResponse.json(data, { status: response.status });
+  } catch (err: any) {
+    console.error("[notebook-proxy] PUT failed:", err.message);
+    return NextResponse.json({ error: "AI service unavailable" }, { status: 502 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

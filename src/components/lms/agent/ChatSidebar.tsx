@@ -332,6 +332,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
                   <AgentMessageItem
                     key={msg.id}
                     message={msg}
+                    sessionId={sessionId}
                     onClarificationSelect={(option) => sendMessage(option)}
                     onActionApprove={handleActionApprove}
                   />

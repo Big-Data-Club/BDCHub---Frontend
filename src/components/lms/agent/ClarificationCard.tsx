@@ -9,7 +9,7 @@ interface ClarificationCardProps {
 }
 
 export function ClarificationCard({
-  question: _question,
+  question,
   options,
   onSelect,
 }: ClarificationCardProps) {
@@ -17,6 +17,11 @@ export function ClarificationCard({
 
   return (
     <div className="mt-3 space-y-2">
+      {question && (
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          {question}
+        </p>
+      )}
       <div className="flex flex-wrap gap-2">
         {options.map((opt, i) => {
           const label = typeof opt === "string" ? opt : opt.label;

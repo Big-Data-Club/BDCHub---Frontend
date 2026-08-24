@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Check, Pencil, Route, X } from "lucide-react";
 import type { HITLRequestData } from "@/types";
 import { cn } from "@/lib/utils";
@@ -16,8 +17,11 @@ interface ActionApprovalCardProps {
  * widget; this card makes navigation and future actions explicit by default.
  */
 export function ActionApprovalCard({ request, onApprove, onReject }: ActionApprovalCardProps) {
+  const [dismissed, setDismissed] = useState(false);
   const isNavigation = request.data?.action === "navigate";
   const label = request.data?.label || (isNavigation ? "Mở trang" : "Xác nhận thực hiện");
+
+  if (dismissed) return null;
 
   return (
     <section className="mt-3 w-full rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 dark:border-amber-900/70 dark:bg-amber-950/20">
@@ -43,7 +47,10 @@ export function ActionApprovalCard({ request, onApprove, onReject }: ActionAppro
         </button>
         <button
           type="button"
-          onClick={() => onReject?.(request)}
+          onClick={() => {
+            setDismissed(true);
+            onReject?.(request);
+          }}
           className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
         >
           <X className="h-3.5 w-3.5" /> Để sau

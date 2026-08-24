@@ -2,14 +2,14 @@
 
 import { useState, useEffect, memo } from "react";
 import { cn } from "@/lib/utils";
-import { Wrench, Check, AlertCircle, ChevronDown, ChevronRight, Cpu, Layers, Sparkles, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown, RefreshCw } from "lucide-react";
-import type { AgentMessage, HITLRequestData } from "@/types";
+import { Wrench, Check, AlertCircle, ChevronDown, ChevronRight, Cpu, Layers, Sparkles, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown, RefreshCw, BookOpen, ExternalLink, AlertTriangle } from "lucide-react";
+import type { AgentMessage, AIReference, HITLRequestData } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
 import { WidgetRenderer } from "./WidgetRenderer";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { ActionApprovalCard } from "./ActionApprovalCard";
-import { saveNotebookEntry } from "@/services/ai/agentService";
+import { saveNotebookEntry, notifyNotebookChanged, sendFeedback } from "@/services/ai/agentService";
 
 interface AgentMessageItemProps {
   message: AgentMessage;
@@ -18,6 +18,8 @@ interface AgentMessageItemProps {
   onSelectForLogs?: () => void;
   onActionApprove?: (request: HITLRequestData) => void;
   onActionReject?: (request: HITLRequestData) => void;
+  /** Active session id - required to persist thumbs feedback. */
+  sessionId?: string | null;
 }
 
 
@@ -28,6 +30,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
   onSelectForLogs,
   onActionApprove,
   onActionReject,
+  sessionId,
 }: AgentMessageItemProps) {
   const isUser = message.role === "user";
   const [showThinking, setShowThinking] = useState(false);
@@ -37,6 +40,17 @@ export const AgentMessageItem = memo(function AgentMessageItem({
   const [noteSaved, setNoteSaved] = useState(false);
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<"like" | "dislike" | null>(null);
+  const [showReferences, setShowReferences] = useState(false);
+
+  /** Persist thumbs feedback once the turn has a DB id + session. */
+  const rateMessage = (rating: "like" | "dislike") => {
+    const next = feedback === rating ? null : rating;
+    setFeedback(next);
+    if (!next || !sessionId || !message.dbId) return;
+    sendFeedback({ messageId: message.dbId, sessionId, rating: next }).catch((err) =>
+      console.error("Failed to persist feedback", err),
+    );
+  };
 
   const handleCopyContent = async () => {
     if (!message.content) return;
@@ -47,10 +61,6 @@ export const AgentMessageItem = memo(function AgentMessageItem({
     } catch (err) {
       console.error("Failed to copy message", err);
     }
-  };
-
-  const toggleFeedback = (type: "like" | "dislike") => {
-    setFeedback((prev) => (prev === type ? null : type));
   };
 
   const toggleLog = (id: string) => {
@@ -82,6 +92,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
         courseId: message.context?.course_id ?? undefined,
       });
       setNoteSaved(true);
+      notifyNotebookChanged();
     } catch (error) {
       console.error("Failed to save AI response to notebook", error);
     } finally {
@@ -192,6 +203,24 @@ export const AgentMessageItem = memo(function AgentMessageItem({
           </div>
         )}
 
+        {!isUser && message.incomplete && !message.isStreaming && (
+          <div className="mt-2 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-300">
+            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+            <span>
+              Câu trả lời có thể chưa hoàn tất do đạt giới hạn xử lý của lượt này.
+              Bạn có thể yêu cầu tiếp tục.
+            </span>
+          </div>
+        )}
+
+        {!isUser && !message.isStreaming && message.references && message.references.length > 0 && (
+          <ReferencesList
+            references={message.references}
+            expanded={showReferences}
+            onToggle={() => setShowReferences((v) => !v)}
+          />
+        )}
+
         {!isUser && message.content && !message.isStreaming && (
           <div className="flex flex-wrap items-center justify-between gap-2 ml-1 pt-1.5 mt-1.5">
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -219,7 +248,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
               <div className="flex items-center gap-0.5 border-l border-slate-200 dark:border-blue-500/15 pl-1.5 ml-0.5">
                 <button
                   type="button"
-                  onClick={() => toggleFeedback("like")}
+                  onClick={() => rateMessage("like")}
                   className={cn(
                     "p-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer active:scale-95",
                     feedback === "like" && "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40"
@@ -230,7 +259,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
                 </button>
                 <button
                   type="button"
-                  onClick={() => toggleFeedback("dislike")}
+                  onClick={() => rateMessage("dislike")}
                   className={cn(
                     "p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer active:scale-95",
                     feedback === "dislike" && "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40"
@@ -251,6 +280,15 @@ export const AgentMessageItem = memo(function AgentMessageItem({
                   <RefreshCw className="w-3 h-3 text-slate-400" />
                   <span>Thử lại</span>
                 </button>
+              )}
+
+              {message.model && (
+                <span
+                  className="ml-1 inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-slate-400 dark:bg-[#12223A] dark:text-slate-500 border-l border-slate-200 dark:border-blue-500/15"
+                  title="Model tạo ra câu trả lời này"
+                >
+                  {message.model}
+                </span>
               )}
             </div>
 
@@ -449,3 +487,95 @@ export const AgentMessageItem = memo(function AgentMessageItem({
     </div>
   );
 });
+
+
+/**
+ * Collapsible citation list for an assistant turn. Indices match the [n]
+ * markers the model was instructed to place inline, which map 1:1 to the
+ * backend's per-turn ReferenceLedger order.
+ */
+function ReferencesList({
+  references,
+  expanded,
+  onToggle,
+}: {
+  references: AIReference[];
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  if (!references.length) return null;
+
+  return (
+    <div className="mt-2 w-full">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-slate-400 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#162644] dark:hover:text-cyan-400 transition-colors cursor-pointer active:scale-95"
+        title="Nguồn đã được dùng để tạo câu trả lời"
+      >
+        <BookOpen className="h-3.5 w-3.5" />
+        <span>Nguồn tham chiếu ({references.length})</span>
+        {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+      </button>
+
+      {expanded && (
+        <ol className="mt-1.5 space-y-1.5 rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 dark:border-blue-500/15 dark:bg-[#0B1830]/60">
+          {references.map((ref, i) => {
+            const isWeb = ref.source_type === "web";
+            return (
+              <li key={`${i}-${ref.title}`} className="flex items-start gap-2 text-xs">
+                <span className="mt-0.5 inline-flex h-4.5 min-w-[18px] items-center justify-center rounded bg-blue-100 px-1 text-[10px] font-bold text-blue-700 dark:bg-cyan-500/15 dark:text-cyan-300">
+                  {i + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    {isWeb && ref.url ? (
+                      <a
+                        href={ref.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-blue-600 hover:underline dark:text-cyan-400 line-clamp-1"
+                      >
+                        {ref.title}
+                      </a>
+                    ) : (
+                      <span className="font-semibold text-slate-700 dark:text-slate-200 line-clamp-1">
+                        {ref.title}
+                      </span>
+                    )}
+                    {isWeb && ref.url && (
+                      <ExternalLink className="h-3 w-3 flex-shrink-0 text-slate-400" />
+                    )}
+                    <span
+                      className={cn(
+                        "rounded px-1 py-px text-[10px] font-semibold uppercase",
+                        isWeb
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                          : "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
+                      )}
+                    >
+                      {isWeb ? "Web" : "Tài liệu"}
+                    </span>
+                    {!isWeb && ref.page_number != null && (
+                      <span className="text-slate-400">tr.{ref.page_number}</span>
+                    )}
+                    {!isWeb && ref.relevance_score > 0 && (
+                      <span className="text-slate-400">
+                        {(ref.relevance_score * 100).toFixed(0)}% khớp
+                      </span>
+                    )}
+                  </div>
+                  {ref.content && (
+                    <p className="mt-0.5 text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                      {ref.content}
+                    </p>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+    </div>
+  );
+}

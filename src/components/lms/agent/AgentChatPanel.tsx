@@ -375,6 +375,7 @@ export function AgentChatPanel({
                   <AgentMessageItem
                     key={msg.id}
                     message={msg}
+                    sessionId={sessionId}
                     onClarificationSelect={handleClarificationSelect}
                     onActionApprove={handleActionApprove}
                     isSelectedForLogs={activeLogMessage?.id === msg.id}
