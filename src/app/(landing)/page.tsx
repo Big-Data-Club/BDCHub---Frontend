@@ -1,11 +1,6 @@
 import { Metadata } from "next";
-import Hero from "@/components/home/Hero";
-import About from "@/components/home/About";
-import Activities from "@/components/home/Activities";
-import Projects from "@/components/home/Projects";
-import Members from "@/components/home/Members";
+import { Hero, About, Activities, Projects, Members, HpcNotice } from "@/components/home";
 import ScrollReset from "@/components/common/ScrollReset";
-import HpcNotice from "@/components/home/HpcNotice";
 
 export const metadata: Metadata = {
   title: "BDC Hub | Big Data Club - HCMUT",
@@ -38,18 +33,38 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="w-full pb-12">
+    <div className="w-full">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
       <ScrollReset />
       <HpcNotice />
-      <Hero />
-      <About />
-      <Activities />
-      <Projects />
-      <Members />
+
+      {/* Chapter 1: The Gateway - Hero & Stats */}
+      <div className="relative bg-slate-50 dark:bg-gradient-to-b dark:from-[#030712] dark:via-[#050b18] dark:to-[#070e1c]">
+        <Hero />
+      </div>
+
+      {/* Chapter 2: The Foundation - About & Core Values */}
+      <div className="relative bg-white dark:bg-[#060c18]">
+        <About />
+      </div>
+
+      {/* Chapter 3: The Engine - Core Activities */}
+      <div className="relative bg-slate-50 dark:bg-[#0a1526]">
+        <Activities />
+      </div>
+
+      {/* Chapter 4: The Impact - Projects & Scientific Publications */}
+      <div className="relative bg-white dark:bg-[#050b18]">
+        <Projects />
+      </div>
+
+      {/* Chapter 5: The People - Advisory Board & Mentors */}
+      <div className="relative bg-slate-100/80 dark:bg-[#070e1c] pb-12">
+        <Members />
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Nunito_Sans, Roboto_Mono, Comfortaa } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/MainProvider";
+import ScrollToTop from "@/components/common/ScrollToTop";
 
 const comfortaa = Comfortaa({
   subsets: ["vietnamese"],
@@ -77,6 +78,7 @@ export default function RootLayout({
       <body className={`${comfortaa.variable} ${nunitoSans.variable} ${geistMono.variable} antialiased overflow-x-hidden no-scrollbar lms-fonts`}>
         <Providers>
           {children}
+          <ScrollToTop />
         </Providers>
       </body>
     </html>

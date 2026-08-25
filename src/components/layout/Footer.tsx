@@ -15,32 +15,38 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-white/80 dark:bg-[#070E1C]/85 backdrop-blur-xl
-                       border-t border-slate-200 dark:border-blue-500/8
-                       w-full flex-shrink-0">
-      {/* Cosmic glow line - dark mode only */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 dark:via-cyan-400/15 to-transparent" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+    <footer className="relative bg-white/90 dark:bg-[#070E1C]/90 backdrop-blur-xl border-t border-slate-200 dark:border-blue-500/15 w-full flex-shrink-0">
+      {/* Top Subtle Gradient Border */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 dark:via-cyan-400/20 to-transparent" />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
 
-          <Link href="/" className="flex items-center gap-2.5 group order-1">
-            <div className="relative w-7 h-7 rounded-lg overflow-hidden
-                            border border-slate-200 dark:border-blue-500/20
-                            group-hover:shadow-sm transition-shadow">
-              <SafeImage src={bdc} alt="Big Data Club" fill sizes="28px" className="object-cover" />
-            </div>
-            <span className="text-sm font-bold text-slate-900 dark:text-slate-100
-                             group-hover:text-blue-600 dark:group-hover:text-cyan-400
-                             transition-colors">
-              BDC System
-            </span>
-          </Link>
+          {/* Left Brand Identifier */}
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="relative w-8 h-8 rounded-xl overflow-hidden border border-slate-200 dark:border-blue-500/20 shadow-sm group-hover:scale-105 transition-transform duration-200">
+                <SafeImage src={bdc} alt="Big Data Club" fill sizes="32px" className="object-cover" />
+              </div>
+              <div>
+                <span className="text-sm font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors block leading-tight">
+                  Big Data Club
+                </span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold block">
+                  HCMUT • Computer Science & Engineering
+                </span>
+              </div>
+            </Link>
+          </div>
 
-          <span className="text-xs text-slate-400 dark:text-slate-500 order-3 sm:order-2 text-center">
-            © 2025–{currentYear} Big Data Club. All rights reserved.
-          </span>
+          {/* Center Copyright & Affiliation Text */}
+          <div className="text-center text-xs text-slate-600 dark:text-slate-400 font-medium space-y-1">
+            <p>© 2021–{currentYear} Big Data Club HCMUT. Under guidance of HPC Lab.</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">Think Big • Speak Data</p>
+          </div>
 
-          <div className="flex items-center gap-4 order-2 sm:order-3">
+          {/* Right Social & Web Links */}
+          <div className="flex items-center gap-4">
             {SOCIALS.map(({ Icon, href, label }) => (
               <a
                 key={label}
@@ -48,9 +54,8 @@ const Footer: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="text-slate-400 dark:text-slate-500
-                           hover:text-blue-600 dark:hover:text-cyan-400
-                           hover:-translate-y-0.5 transition-all duration-200"
+                title={label}
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-[#0F1E35] text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-slate-950 hover:bg-blue-600 dark:hover:bg-cyan-400 border border-slate-200/60 dark:border-blue-500/15 hover:scale-105 transition-all duration-200"
               >
                 <Icon size={16} />
               </a>

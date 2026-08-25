@@ -25,15 +25,19 @@ export function HeroTitle({ titleText = "Big Data Club" }: HeroTitleProps) {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 25 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full"
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full flex flex-col items-center lg:items-start"
     >
-      <h1 className="pb-4 pt-2 text-center text-5xl font-black leading-[1.15] tracking-tight sm:text-6xl md:text-7xl lg:text-left lg:text-8xl text-slate-900 dark:text-white">
+      <h1 className="pb-2 pt-1 text-center text-5xl font-black leading-[1.12] tracking-tight sm:text-6xl md:text-7xl lg:text-left lg:text-8xl text-slate-900 dark:text-white text-balance">
         {mainText ? `${mainText} ` : ""}
-        <span className="text-blue-600 dark:text-cyan-400">{accentText || titleText}</span>
+        <span className="text-blue-600 dark:text-cyan-400">
+          {accentText || titleText}
+        </span>
       </h1>
     </motion.div>
   );
 }
+
+
