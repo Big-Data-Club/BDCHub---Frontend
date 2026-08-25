@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import Projects from '../../components/home/Projects';
+import Projects from "@/components/home/projects/Projects";
 
 const meta: Meta<typeof Projects> = {
   title: 'Landing/Projects',

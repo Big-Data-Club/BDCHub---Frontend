@@ -1,11 +1,6 @@
 import { Metadata } from "next";
-import Hero from "@/components/home/Hero";
-import About from "@/components/home/About";
-import Activities from "@/components/home/Activities";
-import Projects from "@/components/home/Projects";
-import Members from "@/components/home/Members";
+import { Hero, About, Activities, Projects, Members, HpcNotice } from "@/components/home";
 import ScrollReset from "@/components/common/ScrollReset";
-import HpcNotice from "@/components/home/HpcNotice";
 
 export const metadata: Metadata = {
   title: "BDC Hub | Big Data Club - HCMUT",
@@ -38,18 +33,40 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="w-full pb-12">
+    <div className="w-full">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
       <ScrollReset />
       <HpcNotice />
-      <Hero />
-      <About />
-      <Activities />
-      <Projects />
-      <Members />
+
+      {/* Chapter 1: The Gateway - Hero & Stats */}
+      <div className="relative bg-slate-50 dark:bg-gradient-to-b dark:from-[#030712] dark:via-[#050b18] dark:to-[#070e1c]">
+        <Hero />
+      </div>
+
+      {/* Chapter 2: The Foundation - About & Core Values */}
+      <div className="relative bg-white dark:bg-[#060c18] border-t border-slate-200/80 dark:border-blue-500/10">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/5 dark:from-blue-900/10 via-transparent to-transparent pointer-events-none" />
+        <About />
+      </div>
+
+      {/* Chapter 3: The Engine - Core Activities */}
+      <div className="relative bg-slate-100/70 dark:bg-[#0a1526] border-t border-slate-200/80 dark:border-blue-500/10">
+        <Activities />
+      </div>
+
+      {/* Chapter 4: The Impact - Projects & Scientific Publications */}
+      <div className="relative bg-white dark:bg-[#050b18] border-t border-slate-200/80 dark:border-blue-500/10">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-cyan-500/5 dark:from-cyan-950/15 via-transparent to-transparent pointer-events-none" />
+        <Projects />
+      </div>
+
+      {/* Chapter 5: The People - Advisory Board & Mentors */}
+      <div className="relative bg-slate-100/80 dark:bg-[#070e1c] border-t border-slate-200/80 dark:border-blue-500/10 pb-12">
+        <Members />
+      </div>
     </div>
   );
 }

@@ -12,7 +12,7 @@ export default function SectionHeader({ icon: Icon, title, centered = false }: S
     <div className={`mb-12 ${centered ? "text-center flex flex-col items-center" : ""}`}>
       <div className={`flex items-center gap-4 mb-2 ${centered ? "justify-center" : ""}`}>
         <Icon className="text-blue-600 dark:text-cyan-400 w-8 h-8 shrink-0" />
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white">{title}</h2>
+        <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight text-balance">{title}</h2>
       </div>
       
       <div className={`flex items-center gap-4 mt-4 ${centered ? "w-full justify-center" : ""}`}>

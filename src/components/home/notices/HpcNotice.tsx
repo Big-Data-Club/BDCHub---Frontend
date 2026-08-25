@@ -31,12 +31,13 @@ export default function HpcNotice() {
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: -20, scale: 0.95 }}
+          initial={{ opacity: 0, y: -20, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.95 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
+          exit={{ opacity: 0, y: -16, scale: 0.96 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           className="fixed top-20 sm:top-24 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-xl bg-white/90 dark:bg-[#070E1C]/90 backdrop-blur-xl border border-blue-500/20 dark:border-cyan-500/20 rounded-2xl p-3.5 sm:p-4 shadow-[0_10px_30px_rgba(30,58,138,0.15)] dark:shadow-[0_10px_30px_rgba(6,182,212,0.1)] flex items-center justify-between gap-3 sm:gap-4 pointer-events-auto motion-reduce:transform-none motion-reduce:transition-none"
         >
+
           {/* Left Side: Logo & Info */}
           <div className="flex items-center gap-3.5 min-w-0">
             {/* HPC Logo Icon Container */}
