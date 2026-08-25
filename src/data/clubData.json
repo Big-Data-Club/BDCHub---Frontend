@@ -5,28 +5,24 @@
       "name": "PGS.TS Thoại Nam",
       "role": "Cố vấn hoạt động & chuyên môn",
       "imageUrl": "https://lh3.googleusercontent.com/uc?id=MENTOR_THOAI_NAM",
-      "description": "Bảo trợ chuyên môn, dự án và cơ sở vật chất"
+      "description": "Bảo trợ chuyên môn, hạ tầng HPC và định hướng nghiên cứu phát triển BDC",
+      "tags": ["HPC & Cloud", "Big Data Architecture", "AI & Optimization"]
     },
     {
       "id": "m2",
-      "name": "Diệp Thanh Đăng",
+      "name": "ThS. Diệp Thanh Đăng",
       "role": "Cố vấn chuyên môn",
       "imageUrl": "https://lh3.googleusercontent.com/uc?id=MENTOR_DIEP_THANH_DANG",
-      "description": "Giảng viên hướng dẫn nghiên cứu khoa học"
+      "description": "Giảng viên hướng dẫn nghiên cứu khoa học và phát triển mô hình Dữ liệu lớn",
+      "tags": ["Quantum Computing", "Super-Resolution", "Computer Vision"]
     },
     {
       "id": "m3",
-      "name": "Hoàng Lê Hải Thanh",
+      "name": "ThS. Hoàng Lê Hải Thanh",
       "role": "Founder, Cố vấn chuyên môn",
       "imageUrl": "https://lh3.googleusercontent.com/uc?id=MENTOR_HOANG_LE_HAI_THANH",
-      "description": "Giảng viên hướng dẫn nghiên cứu khoa học, founder CLB"
-    },
-    {
-      "id": "m4",
-      "name": "Nguyễn Mạnh Thìn",
-      "role": "Cố vấn chuyên môn",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=MENTOR_NGUYEN_MANH_THIN",
-      "description": "Giảng viên hướng dẫn nghiên cứu khoa học, founder CLB"
+      "description": "Giảng viên hướng dẫn nghiên cứu khoa học, founder định hướng chuyên môn CLB",
+      "tags": ["HPC Scheduling", "Deep Reinforcement Learning", "Sustainable Systems"]
     }
   ],
   "members": {
