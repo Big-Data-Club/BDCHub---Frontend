@@ -24,6 +24,7 @@ import {
 import { Badge, ContentTypeBadge } from "@/components/lms/shared";
 import { useStudentCourse } from "@/components/lms/student/StudentCourseContext";
 import { Content, Section } from "@/types";
+import { getSelectedLmsRole } from "@/lib/lms-navigation";
 
 import { PrevNextButtons } from "@/components/lms/student/learn/PrevNextButtons";
 
@@ -44,18 +45,25 @@ export default function LearnPage() {
   const { data: session } = useSession();
   const userId = session?.user ? Number((session.user as any).id || (session.user as any).userId) : undefined;
   const [userRoles, setUserRoles] = useState<string[]>([]);
+  // The role the user explicitly picked on the workspace screen. A user may
+  // hold both TEACHER and STUDENT roles - when they chose to enter as a
+  // STUDENT they must get the pure student experience (quiz taking, not
+  // quiz management).
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
   useEffect(() => {
     lmsService.getMyRoles().then(roles => setUserRoles(roles || [])).catch(() => {});
+    setSelectedRole(getSelectedLmsRole());
   }, []);
 
   const isCourseTeacher = useMemo(() => {
     if (!userId || !course) return false;
+    if (selectedRole === "STUDENT") return false;
     const isCreator = course.created_by === userId;
     const isCo = coTeachers?.some((ct: any) => ct.user_id === userId);
-    const isAdmin = userRoles.includes("ADMIN");
+    const isAdmin = selectedRole === "ADMIN" || (!selectedRole && userRoles.includes("ADMIN"));
     return isCreator || isCo || isAdmin;
-  }, [userId, course, coTeachers, userRoles]);
+  }, [userId, course, coTeachers, userRoles, selectedRole]);
 
   // Timer ref for auto-complete
   const autoCompleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

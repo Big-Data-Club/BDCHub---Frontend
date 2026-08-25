@@ -13,6 +13,13 @@ export function activateLmsRole(role: LmsRole): void {
   sessionStorage.setItem("lms_role_selected_at", new Date().toISOString());
 }
 
+/** The role the user explicitly picked on the LMS workspace screen, if any. */
+export function getSelectedLmsRole(): LmsRole | null {
+  if (typeof window === "undefined") return null;
+  const role = sessionStorage.getItem("lms_selected_role");
+  return role === "ADMIN" || role === "TEACHER" || role === "STUDENT" ? role : null;
+}
+
 export function clearLmsRoleSession(): void {
   if (typeof window !== "undefined") {
     sessionStorage.removeItem("lms_selected_role");

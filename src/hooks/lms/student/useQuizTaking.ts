@@ -63,6 +63,8 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [fetchingServerAnswers, setFetchingServerAnswers] = useState(false);
   const [serverAnswers, setServerAnswers] = useState<{ [key: number]: any }>({});
+  /** Questions whose last save to the server FAILED - shown as a banner. */
+  const [failedQuestionIds, setFailedQuestionIds] = useState<number[]>([]);
 
   const updateActiveSaveRequests = (val: number | ((prev: number) => number)) => {
     if (typeof val === "function") {
@@ -90,14 +92,28 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
     async (questionId: number, answerData: any) => {
       if (!attempt) return;
 
-      // Save answer
+      // Save answer locally
       setAnswers((prev) => ({ ...prev, [questionId]: answerData }));
 
       try {
         updateActiveSaveRequests((prev) => prev + 1);
-        await quizService.submitAnswer(attempt.id, { ...answerData, question_id: questionId });
+        await quizService.submitAnswer(attempt.id, {
+          attempt_id: attempt.id,
+          question_id: questionId,
+          // Backend contract (dto.SubmitAnswerRequest): answer_data is a
+          // REQUIRED nested object. Spreading answer fields at the top
+          // level fails binding -> 400 -> answers never reach the server.
+          answer_data: answerData,
+        });
+        setFailedQuestionIds((prev) => {
+          if (!prev.length) return prev;
+          return prev.filter((id) => id !== questionId);
+        });
       } catch (error: any) {
         console.error("Error saving answer:", error);
+        setFailedQuestionIds((prev) =>
+          prev.includes(questionId) ? prev : [...prev, questionId],
+        );
       } finally {
         updateActiveSaveRequests((prev) => prev - 1);
       }
@@ -291,6 +307,7 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
     setShowReviewModal,
     fetchingServerAnswers,
     serverAnswers,
+    failedQuestionIds,
     handleAnswerChange,
     handleSubmit,
     handleOpenReviewModal,

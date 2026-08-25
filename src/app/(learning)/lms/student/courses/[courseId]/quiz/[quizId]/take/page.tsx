@@ -33,6 +33,7 @@ export default function StudentQuizTakingPage() {
     setShowReviewModal,
     fetchingServerAnswers,
     serverAnswers,
+    failedQuestionIds,
     handleAnswerChange,
     handleSubmit,
     handleOpenReviewModal,
@@ -66,6 +67,11 @@ export default function StudentQuizTakingPage() {
 
       {/* Main Container */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1 space-y-8">
+        {failedQuestionIds.length > 0 && (
+          <div className="p-3 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 text-sm text-red-600 dark:text-red-400 font-medium">
+            ⚠️ Có {failedQuestionIds.length} câu trả lời chưa lưu được lên máy chủ (lỗi kết nối). Hãy chọn lại câu trả lời ở các câu đó để hệ thống lưu lại.
+          </div>
+        )}
         {activeQuestion && (
           <QuizQuestionCard
             question={activeQuestion}
