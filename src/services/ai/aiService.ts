@@ -487,6 +487,8 @@ export interface ParsedQuestion {
   settings: { blank_count: number; blanks: { blank_id: number; placeholder?: string }[] } | null;
   /** Client-only: for preview tracking */
   preview_id?: number;
+  /** File-import: illustrative figures auto-matched to this question. */
+  suggested_images?: { id: string; url?: string; caption?: string }[];
 }
 
 export interface ParseQuizTextResponse {
@@ -497,6 +499,32 @@ export interface ParseQuizTextResponse {
 
 // Extend AIService inline — kept as a class method via module augmentation is simpler:
 // This function is exported standalone so it can be imported directly.
+export interface ParseQuizFileResponse extends ParseQuizTextResponse {
+  source: { file_name?: string; file_type?: string; page_count?: number; ocr_pages?: number };
+  extracted_images: { id?: string; url?: string; caption?: string; page_number?: number }[];
+  unused_image_ids?: string[];
+}
+
+/**
+ * Smart quiz import from ANY document (PDF scan/text, Word, Excel, PPTX,
+ * Markdown, image photo) - multipart through the lms-service AI proxy.
+ */
+export async function parseQuizFile(
+  file: File,
+  pointsPerQuestion = 10,
+  language: "vi" | "en" = "vi"
+): Promise<ParseQuizFileResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("points_per_question", String(pointsPerQuestion));
+  formData.append("language", language);
+  const response = await lmsApiClient.post("/ai/quizzes/parse-file", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    timeout: 300_000, // OCR + multi-question parse can take a while
+  });
+  return response.data.data as ParseQuizFileResponse;
+}
+
 export async function parseQuizText(
   rawText: string,
   pointsPerQuestion = 10,

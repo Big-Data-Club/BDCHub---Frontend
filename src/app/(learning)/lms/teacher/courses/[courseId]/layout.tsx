@@ -24,8 +24,9 @@ const EditCourseModal = dynamic(
 const COURSE_TABS = [
   { id: "overview", label: "Tổng quan", path: "/overview" },
   { id: "content", label: "Nội dung bài học", path: "/content" },
+  { id: "question-bank", label: "Thư viện đề thi", path: "/question-bank" },
   { id: "students", label: "Học viên & Tiến độ", path: "/students" },
-  { id: "analytics", label: "Phân tích & AI", path: "/analytics" },
+  { id: "analytics", label: "Kiến thức & AI", path: "/analytics" },
 ];
 
 function renderCategoryBadges(catString?: string) {

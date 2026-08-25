@@ -178,6 +178,72 @@ class QuizService {
     const response = await lmsApiClient.get(`/attempts/${attemptId}/answers`);
     return response.data;
   }
+
+  // ─── Question Bank (Thư viện đề thi) ──────────────────────────────────────
+
+  /** List + filter + paginate the course question bank. */
+  async getQuestionBank(
+    courseId: number,
+    params: Record<string, string | number | boolean | undefined>
+  ) {
+    const search = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== "" && v !== false) search.append(k, String(v));
+    });
+    const response = await lmsApiClient.get(
+      `/courses/${courseId}/question-bank?${search.toString()}`
+    );
+    return response.data;
+  }
+
+  async getBankStats(courseId: number) {
+    const response = await lmsApiClient.get(`/courses/${courseId}/question-bank/stats`);
+    return response.data;
+  }
+
+  async addBankItems(courseId: number, payload: { items: any[] }) {
+    const response = await lmsApiClient.post(
+      `/courses/${courseId}/question-bank`,
+      payload
+    );
+    return response.data;
+  }
+
+  async updateBankItem(itemId: number, updates: Record<string, any>) {
+    const response = await lmsApiClient.patch(`/question-bank/${itemId}`, updates);
+    return response.data;
+  }
+
+  async deleteBankItem(itemId: number) {
+    const response = await lmsApiClient.delete(`/question-bank/${itemId}`);
+    return response.data;
+  }
+
+  /** AI auto-generation straight into the bank (nodes auto-selected). */
+  async generateBankQuestions(courseId: number, payload: { count?: number; bloom_levels?: string[]; language?: string }) {
+    const response = await lmsApiClient.post(
+      `/courses/${courseId}/question-bank/generate`,
+      payload
+    );
+    return response.data;
+  }
+
+  /** Assemble a new quiz from selected bank items (items are copied). */
+  async createQuizFromBank(payload: {
+    content_id: number;
+    title: string;
+    description?: string;
+    time_limit_minutes?: number | null;
+    max_attempts?: number;
+    passing_score?: number;
+    item_ids: number[];
+    shuffle_questions?: boolean;
+    shuffle_answers?: boolean;
+    auto_grade?: boolean;
+  }) {
+    const response = await lmsApiClient.post(`/quizzes/from-bank`, payload);
+    return response.data;
+  }
 }
 
 export const quizService = new QuizService();
