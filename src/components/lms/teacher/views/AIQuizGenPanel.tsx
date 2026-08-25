@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import dynamic from "next/dynamic";
 import {
-  Sparkles, RefreshCw, ChevronDown, ChevronUp,
-  CheckCircle2, XCircle, BookOpen, AlertCircle,
+  RefreshCw, ChevronDown, ChevronUp,
+  CheckCircle2, XCircle, AlertCircle,
   Layers, Search, Filter, ArrowUpDown
 } from "lucide-react";
 import aiService, { GeneratedQuestion, KnowledgeNode, KnowledgeGraphEdge } from "@/services/ai/aiService";
@@ -182,13 +182,11 @@ export function AIQuizGenPanel({ courseId }: Props) {
   const [nodes, setNodes] = useState<KnowledgeNode[]>([]);
   const [graphEdges, setGraphEdges] = useState<KnowledgeGraphEdge[]>([]);
   const [drafts, setDrafts] = useState<GeneratedQuestion[]>([]);
-  const [selectedNode, setSelectedNode] = useState<number | null>(null);
-  const [selectedBlooms, setSelectedBlooms] = useState<string[]>(["remember", "understand", "apply"]);
-  const [language, setLanguage] = useState("vi");
-  const [generating, setGenerating] = useState(false);
   const [loadingDrafts, setLoadingDrafts] = useState(false);
   const [error, setError] = useState("");
-  const [activeSection, setActiveSection] = useState<"nodes" | "generate" | "drafts">("nodes");
+  // Quiz authoring moved to the question-bank tab; this panel keeps the
+  // knowledge-tree manager and the draft review queue only.
+  const [activeSection, setActiveSection] = useState<"nodes" | "drafts">("nodes");
 
   // Quiz selector modal states
   const [isQuizSelectorOpen, setIsQuizSelectorOpen] = useState(false);
@@ -243,47 +241,6 @@ export function AIQuizGenPanel({ courseId }: Props) {
     loadGraph();
     loadDrafts();
   }, [loadNodes, loadGraph, loadDrafts]);
-
-  const handleGenerateQuiz = async () => {
-    if (!selectedNode) { alert("Vui lòng chọn chủ đề (Knowledge Node)."); return; }
-    if (selectedBlooms.length === 0) { alert("Vui lòng chọn ít nhất 1 cấp độ Bloom."); return; }
-    setGenerating(true);
-    setError("");
-    
-    try {
-      const response = await aiService.generateQuiz(courseId, selectedNode, {
-        bloom_levels: selectedBlooms,
-        language,
-        questions_per_level: 1,
-      });
-
-      if (!response || !response.job_id) {
-        throw new Error("Không nhận được Job ID từ server.");
-      }
-
-      let isDone = false;
-      while (!isDone) {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        
-        const statusCheck = await aiService.getJobStatus(response.job_id);
-        if (statusCheck.status === "completed") {
-          isDone = true;
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          setActiveSection("drafts");
-          await loadDrafts();
-          const { default: toast } = await import("react-hot-toast");
-          toast.success("Tạo câu hỏi hoàn tất!");
-        } else if (statusCheck.status === "failed") {
-          isDone = true;
-          throw new Error(statusCheck.error || "Quá trình tạo lỗi.");
-        }
-      }
-    } catch (e: any) {
-      setError(e?.response?.data?.error ?? e.message ?? "Không thể tạo quiz. Kiểm tra dịch vụ AI.");
-    } finally {
-      setGenerating(false);
-    }
-  };
 
   const handleApproveClick = (questionId: number) => {
     setPendingQuestionId(questionId);
@@ -362,7 +319,6 @@ export function AIQuizGenPanel({ courseId }: Props) {
         <TabBar
           tabs={[
             { id: "nodes", label: "Cây kiến thức (Nodes)", badge: nodes.length },
-            { id: "generate", label: "Tạo mới bằng AI" },
             { id: "drafts", label: "Chờ duyệt", badge: draftCount },
           ]}
           active={activeSection}
@@ -374,122 +330,6 @@ export function AIQuizGenPanel({ courseId }: Props) {
         <div className="flex items-start gap-2 p-3 bg-[#FFF1F2] dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-semibold text-rose-700 dark:text-rose-400">
           <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-500" />
           {error}
-        </div>
-      )}
-
-      {/* Generate tab */}
-      {activeSection === "generate" && (
-        <div className="space-y-5">
-          {/* Node selector */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
-              Chủ đề (Knowledge Node) *
-            </label>
-            {nodes.length === 0 ? (
-              <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-700 dark:text-amber-400">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                Chưa có Knowledge Node nào. Tạo node trong phần quản lý AI trước.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                {nodes.map((n) => (
-                  <button
-                    key={n.id}
-                    type="button"
-                    onClick={() => setSelectedNode(n.id)}
-                    className={cn(
-                      "flex items-center gap-2 p-3.5 rounded-xl border text-left text-xs font-semibold transition-all min-h-[44px] focus:ring-2 focus:ring-blue-500 focus:outline-none",
-                      selectedNode === n.id
-                        ? "border-blue-500 dark:border-cyan-500 bg-blue-50/80 dark:bg-cyan-950/40 text-blue-900 dark:text-cyan-200"
-                        : "border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0D192E] text-slate-700 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-600"
-                    )}
-                  >
-                    <BookOpen className="w-4 h-4 text-blue-600 dark:text-cyan-400 flex-shrink-0" />
-                    <span className="truncate">{n.name_vi ?? n.name}</span>
-                    {n.chunk_count > 0 && (
-                      <span className="ml-auto text-xs text-slate-400 font-mono flex-shrink-0">{n.chunk_count} chunks</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Bloom levels */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">
-              Cấp độ Bloom *
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {BLOOM_LEVELS.map((b) => {
-                const active = selectedBlooms.includes(b.id);
-                return (
-                  <button
-                    key={b.id}
-                    type="button"
-                    onClick={() => setSelectedBlooms((prev) =>
-                      active ? prev.filter((x) => x !== b.id) : [...prev, b.id]
-                    )}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl border text-xs font-semibold transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none",
-                      active
-                        ? "border-blue-500 dark:border-cyan-500 bg-blue-50 dark:bg-cyan-950/40 text-blue-900 dark:text-cyan-200"
-                        : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
-                    )}
-                  >
-                    <span>{b.emoji}</span>
-                    {b.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Language */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-2">Ngôn ngữ</label>
-            <div className="flex gap-2">
-              {[{ v: "vi", l: "🇻🇳 Tiếng Việt" }, { v: "en", l: "🇺🇸 English" }].map((lang) => (
-                <button
-                  key={lang.v}
-                  type="button"
-                  onClick={() => setLanguage(lang.v)}
-                  className={cn(
-                    "flex-1 py-2.5 min-h-[44px] rounded-xl border text-xs font-bold transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none",
-                    language === lang.v
-                      ? "border-blue-500 dark:border-cyan-500 bg-blue-50 dark:bg-cyan-950/40 text-blue-900 dark:text-cyan-200"
-                      : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
-                  )}
-                >
-                  {lang.l}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Generate button */}
-          <button
-            type="button"
-            onClick={handleGenerateQuiz}
-            disabled={generating || !selectedNode || selectedBlooms.length === 0}
-            className="w-full flex items-center justify-center gap-2 py-3.5 min-h-[44px] bg-blue-600 hover:bg-blue-700 dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white text-xs font-extrabold rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            {generating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                AI đang tạo câu hỏi…
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                Tạo {selectedBlooms.length} câu hỏi với AI
-              </>
-            )}
-          </button>
-
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 text-center">
-            Hệ thống AI sẽ trích xuất tài liệu thực tế của khóa học để khởi tạo tự động 1 câu hỏi tương ứng với từng cấp độ Bloom được chọn.
-          </p>
         </div>
       )}
 
@@ -584,7 +424,7 @@ export function AIQuizGenPanel({ courseId }: Props) {
               <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
                 {searchQuery || filterBloom !== "all" || filterNode !== "all" 
                   ? "Không tìm thấy câu hỏi phù hợp."
-                  : "Chưa có câu hỏi nào. Hãy tạo mới ở tab Tạo mới."}
+                  : "Chưa có câu hỏi nào chờ duyệt. Sinh đề bằng AI tại tab Thư viện đề thi."}
               </p>
             </div>
           ) : (
