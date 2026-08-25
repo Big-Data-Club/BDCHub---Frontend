@@ -37,7 +37,6 @@ export default function StudentDashboard() {
     selectedCourseId,
     setSelectedCourseId,
     loadingAnalytics,
-    heatmapData,
     flashcardStats,
     quizScores,
     lessonProgress,
@@ -115,7 +114,6 @@ export default function StudentDashboard() {
               loadingAnalytics={loadingAnalytics}
               analyticsTab={analyticsTab}
               setAnalyticsTab={setAnalyticsTab}
-              heatmapData={heatmapData}
               flashcardStats={flashcardStats}
               quizScores={quizScores}
               lessonProgress={lessonProgress}

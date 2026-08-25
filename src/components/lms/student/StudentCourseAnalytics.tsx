@@ -23,7 +23,6 @@ interface StudentCourseAnalyticsProps {
   loadingAnalytics: boolean;
   analyticsTab: "lessons" | "mastery" | "flashcards";
   setAnalyticsTab: (tab: "lessons" | "mastery" | "flashcards") => void;
-  heatmapData: any[];
   flashcardStats: any;
   quizScores: any[];
   lessonProgress: any;
@@ -40,7 +39,6 @@ export function StudentCourseAnalytics({
   loadingAnalytics,
   analyticsTab,
   setAnalyticsTab,
-  heatmapData,
   flashcardStats,
   quizScores,
   lessonProgress,
@@ -113,7 +111,6 @@ export function StudentCourseAnalytics({
 
           {analyticsTab === "mastery" && (
             <MasteryTab
-              heatmapData={heatmapData}
               quizScores={quizScores}
               microInteractions={microInteractions}
               spacedRepQuizzes={spacedRepQuizzes}

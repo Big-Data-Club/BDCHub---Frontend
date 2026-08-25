@@ -1,15 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Target, HelpCircle, Award, CheckSquare, TrendingUp } from "lucide-react";
+import { Award, CheckSquare, TrendingUp } from "lucide-react";
 
 import {
   ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
   BarChart,
   Bar,
   XAxis,
@@ -18,7 +12,6 @@ import {
 } from "recharts";
 
 interface MasteryTabProps {
-  heatmapData: any[];
   quizScores: any[];
   microInteractions: any;
   spacedRepQuizzes: any;
@@ -26,7 +19,6 @@ interface MasteryTabProps {
 }
 
 export function MasteryTab({
-  heatmapData,
   quizScores,
   microInteractions,
   spacedRepQuizzes,
@@ -34,133 +26,8 @@ export function MasteryTab({
 }: MasteryTabProps) {
   const showStatsRow = (microInteractions && microInteractions.total_interactions > 0) || (spacedRepQuizzes && spacedRepQuizzes.total_tracked > 0);
 
-  // Filter state for Radar Chart: "weakest" (lowest 8), "strongest" (highest 8), "all" (no limit)
-  const [radarFilter, setRadarFilter] = useState<"weakest" | "strongest" | "all">("weakest");
-
-  // Filter and sort the radar data
-  const radarData = useMemo(() => {
-    if (!heatmapData || heatmapData.length === 0) return [];
-    const cloned = [...heatmapData];
-    if (radarFilter === "weakest") {
-      return cloned.sort((a, b) => a["Độ thông thạo (%)"] - b["Độ thông thạo (%)"]).slice(0, 8);
-    } else if (radarFilter === "strongest") {
-      return cloned.sort((a, b) => b["Độ thông thạo (%)"] - a["Độ thông thạo (%)"]).slice(0, 8);
-    }
-    return cloned;
-  }, [heatmapData, radarFilter]);
-
-  // Trim long labels dynamically to prevent overlapping
-  const formatAngleLabel = (value: string) => {
-    const limit = radarFilter === "all" ? 10 : 15;
-    if (value && value.length > limit) {
-      return `${value.substring(0, limit)}...`;
-    }
-    return value;
-  };
-
   return (
     <div className="space-y-6" role="tabpanel">
-      {/* Hàng 1: Radar Chart & All Topics List (Split Panel Layout) */}
-      <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/12 rounded-2xl p-5 shadow-sm dark:shadow-none hover:shadow-md dark:hover:border-blue-500/25 transition-all duration-300">
-        <div className="flex flex-col h-[320px] justify-between">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-cyan-50 dark:bg-cyan-955/40 rounded-xl">
-                <Target className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">
-                  Độ thông thạo chủ đề (Heatmap)
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Đánh giá độ hiểu biết theo từng chuyên đề</p>
-              </div>
-            </div>
-
-            {/* Filter Toggle */}
-            {heatmapData.length > 0 && (
-              <div className="inline-flex p-0.5 bg-slate-100 dark:bg-[#0D192E] border border-slate-200 dark:border-blue-500/10 rounded-lg gap-0.5 self-start sm:self-auto shadow-xs">
-                {(["weakest", "strongest", "all"] as const).map((type) => {
-                  const labelMap = { weakest: "Yếu nhất", strongest: "Mạnh nhất", all: "Tất cả" };
-                  return (
-                    <button
-                      key={type}
-                      onClick={() => setRadarFilter(type)}
-                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all whitespace-nowrap active:scale-95 cursor-pointer ${
-                        radarFilter === type
-                          ? "bg-white text-cyan-600 shadow-xs dark:bg-cyan-500 dark:text-slate-950 font-extrabold"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-                      }`}
-                    >
-                      {labelMap[type]}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          <div className="flex-1 flex flex-col md:flex-row gap-6 items-stretch min-h-0">
-            {/* Left Column: Radar Chart */}
-            <div className="flex-1 min-h-0 relative">
-              {heatmapData.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-4">
-                  <HelpCircle className="w-10 h-10 text-slate-355 dark:text-slate-755 mb-2" />
-                  <p className="text-xs text-slate-500">Chưa có đủ dữ liệu tương tác để phân tích độ thông thạo chủ đề.</p>
-                </div>
-              ) : (
-                mounted && (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
-                      <PolarGrid stroke="#cbd5e1" className="dark:stroke-blue-500/25" strokeOpacity={0.5} />
-                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 8, fill: "#64748b" }} tickFormatter={formatAngleLabel} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 8 }} />
-                      <Radar
-                        name="Thông thạo"
-                        dataKey="Độ thông thạo (%)"
-                        stroke="#06b6d4"
-                        fill="#06b6d4"
-                        fillOpacity={0.15}
-                      />
-                      <Tooltip contentStyle={{ fontSize: "12px", borderRadius: "16px", background: "rgba(15, 30, 53, 0.95)", backdropFilter: "blur(12px)", border: "1px solid rgba(59,130,246,0.2)", color: "#fff" }} />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                )
-              )}
-            </div>
-
-            {/* Right Column: Borderless Topics List */}
-            {heatmapData.length > 0 && (
-              <div className="w-full md:w-[320px] flex flex-col justify-center border-t md:border-t-0 md:border-l border-slate-200/60 dark:border-blue-500/10 pt-3 md:pt-0 md:pl-4">
-                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 block uppercase tracking-wider">
-                  Chi tiết tất cả chủ đề ({heatmapData.length})
-                </span>
-                <div className="space-y-1.5 overflow-y-auto max-h-[210px] pr-1 scrollbar-thin">
-                  {heatmapData.map((h, idx) => (
-                    <div key={idx} className="group flex items-center justify-between text-xs py-1.5 px-2 border-b border-slate-200/40 dark:border-blue-500/5 transition-colors hover:bg-slate-100/30 dark:hover:bg-[#12223a]/25 rounded-lg">
-                      <span className="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[160px] group-hover:text-cyan-600 dark:group-hover:text-cyan-405 transition-colors" title={h.subject}>
-                        {h.subject}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                          <div
-                            className="bg-cyan-500 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${h["Độ thông thạo (%)"]}%` }}
-                          />
-                        </div>
-                        <span className="font-bold text-xs text-slate-500 dark:text-cyan-400 w-8 text-right">
-                          {h["Độ thông thạo (%)"]}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* Hàng 2: Concept check & SM-2 Quiz (Split Metrics Row) */}
       {showStatsRow && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/12 rounded-2xl p-5 shadow-sm dark:shadow-none hover:shadow-md dark:hover:border-blue-500/25 transition-all duration-300">

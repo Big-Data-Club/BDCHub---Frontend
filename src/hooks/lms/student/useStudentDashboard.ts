@@ -28,7 +28,6 @@ export function useStudentDashboard() {
   // Selected Course details for Analytics
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
-  const [heatmapData, setHeatmapData] = useState<any[]>([]);
   const [flashcardStats, setFlashcardStats] = useState<any>(null);
   const [quizScores, setQuizScores] = useState<any[]>([]);
   const [lessonProgress, setLessonProgress] = useState<any>(null);
@@ -132,12 +131,6 @@ export function useStudentDashboard() {
       const summary = result?.data;
 
       if (summary) {
-        // Format heatmap for radar chart
-        const formattedHeatmap = (summary.heatmap || []).map((n: any) => ({
-          subject: n.name_vi || n.node_name,
-          "Độ thông thạo (%)": Math.round((n.avg_mastery || n.mastery_level || 0) * 100),
-        }));
-        setHeatmapData(formattedHeatmap);
         setFlashcardStats(summary.flashcards);
         setQuizScores(summary.quiz_scores || []);
         setLessonProgress(summary.lesson_progress);
@@ -254,7 +247,6 @@ export function useStudentDashboard() {
     selectedCourseId,
     setSelectedCourseId,
     loadingAnalytics,
-    heatmapData,
     flashcardStats,
     quizScores,
     lessonProgress,
