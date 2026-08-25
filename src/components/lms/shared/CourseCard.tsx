@@ -8,6 +8,7 @@ import { ProgressBar } from "./ProgressBar";
 import { InteractiveGlowCard } from "./InteractiveGlowCard";
 import Image from "next/image";
 import { UserAvatar } from "@/components/user/UserAvatar";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 interface CourseCardProps {
   id: number;
@@ -56,10 +57,13 @@ export function CourseCard({
   priority = false,
 }: CourseCardProps) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
+  // Legacy rows may hold absolute URLs to internal hosts the browser can't
+  // reach - normalise to same-origin routes served by rewrites/proxies.
+  const resolvedThumbnail = resolveMediaUrl(thumbnailUrl);
 
   useEffect(() => {
     setThumbnailFailed(false);
-  }, [thumbnailUrl]);
+  }, [resolvedThumbnail]);
 
   return (
     <InteractiveGlowCard
@@ -73,9 +77,9 @@ export function CourseCard({
     >
       {/* Thumbnail Area with Overlay Badges */}
       <div className="h-44 bg-gradient-to-br from-blue-50 to-slate-100 dark:from-blue-950/20 dark:to-[#0D192E] overflow-hidden relative flex-shrink-0">
-        {thumbnailUrl && !thumbnailFailed ? (
+        {resolvedThumbnail && !thumbnailFailed ? (
           <Image
-            src={thumbnailUrl}
+            src={resolvedThumbnail}
             alt={title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

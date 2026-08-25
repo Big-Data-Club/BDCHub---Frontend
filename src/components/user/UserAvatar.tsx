@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { resolveMediaUrl } from "@/lib/media-url";
 import type { CSSProperties } from "react";
 
 type UserAvatarProps = {
@@ -21,7 +22,9 @@ function initial(name?: string | null) {
 
 /** Displays the user's uploaded photo, with a local text fallback and no network-generated avatar. */
 export function UserAvatar({ name, src, className, fallbackClassName, alt, style, title }: UserAvatarProps) {
-  const imageSrc = src?.trim();
+  // Legacy rows may store "uploads/..." (no leading slash) or absolute URLs
+  // to internal hosts - normalise so every surface resolves the same file.
+  const imageSrc = resolveMediaUrl(src);
   return (
     <Avatar className={cn("shrink-0 overflow-hidden", className)} style={style} title={title}>
       {imageSrc ? <AvatarImage src={imageSrc} alt={alt || name || "User"} className="object-cover" /> : null}
