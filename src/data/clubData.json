@@ -404,22 +404,22 @@
     {
       "id": "1",
       "title": "Big Data Day",
-      "type": "Sự kiện học thuật",
+      "type": "Hội thảo",
       "description": "Hội thảo thường niên về xu hướng Big Data và AI, mời các chuyên gia từ doanh nghiệp và học viện đến chia sẻ",
       "imageUrl": "https://lh3.googleusercontent.com/d/1f8pe4mHkPEHirZF2UFO7aH_6UekNg4gR=w1000?authuser=0",
       "frequency": "Hàng năm"
     },
     {
       "id": "2",
-      "title": "Tham luận tại Hội thảo khoa học sinh viên",
-      "type": "Tham gia sự kiện học thuật",
+      "title": "Hội thảo khoa học sinh viên",
+      "type": "Tham luận",
       "description": "Tham luận về chủ đề “Sinh viên dữ liệu Việt Nam: Từ câu lạc bộ học thuật đến mạng lưới điện toán đám mây, dữ liệu lớn và lượng tử.”",
       "imageUrl": "https://lh3.googleusercontent.com/d/1v8TFRbLDWbY_3qB1-M6P8kEKOUuqTCaH=w1000?authuser=0"
     },
     {
       "id": "6",
       "title": "Internal Seminar",
-      "type": "Chuyên đề học thuật",
+      "type": "Chuyên đề",
       "description": "Các buổi chuyên đề nội bộ để thành viên các nhóm trình bày các nội dung nghiên cứu theo định hướng của CLB",
       "imageUrl": "https://lh3.googleusercontent.com/d/1CFlhsYjLBqOx1gKvsWx5KSCkvtCOKeja=w1000?authuser=0",
       "frequency": "Hàng tháng"
@@ -427,7 +427,7 @@
     {
       "id": "4",
       "title": "BDC Data Hackathon",
-      "type": "Cuộc thi học thuật",
+      "type": "Cuộc thi",
       "description": "Chương trình kết nối thành viên mới với các thành viên có kinh nghiệm để hướng dẫn và chia sẻ kiến thức",
       "imageUrl": "https://lh3.googleusercontent.com/d/117tuhJMh0N3GQAUilDL30CLtunck-j94=w1000?authuser=0",
       "frequency": "Hàng năm"
@@ -435,7 +435,7 @@
     {
       "id": "5",
       "title": "BDC Kick-off and Bonding Day",
-      "type": "Sự kiện kết nối",
+      "type": "Kết nối",
       "description": "Các sự kiện chào đón thành viên mới của BDC",
       "imageUrl": "https://lh3.googleusercontent.com/d/1zahrcQ5f72zb5t_q7N5_YR2GcFS2gbDy=w1000?authuser=0",
       "frequency": "Hàng học kỳ"
@@ -443,7 +443,7 @@
     {
       "id": "3",
       "title": "BDC Year End Party",
-      "type": "Gắn kết tập thể",
+      "type": "Gắn kết",
       "description": "Hoạt động tập thể nhằm tăng cường tinh thần đồng đội và kết nối các thành viên",
       "imageUrl": "https://lh3.googleusercontent.com/d/1UYoo1bFp1rIS3aDTEH5lWY3-kzJfa_Zq=w1000?authuser=0",
       "frequency": "Hàng năm"
@@ -451,7 +451,7 @@
     {
       "id": "9",
       "title": "BDC Birthday Party",
-      "type": "Kỷ niệm thành lập",
+      "type": "Kỷ niệm",
       "description": "Buổi tiệc kỷ niệm thành lập CLB",
       "imageUrl": "https://lh3.googleusercontent.com/d/11EEKGmTISYIeNf0Ekb_vQJOcnaAHUMkN=w1000?authuser=0",
       "frequency": "Hàng năm"

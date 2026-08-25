@@ -27,8 +27,8 @@ export function HeroStatsCards({
   void _statsYOffset;
 
   return (
-    <div className="w-full pt-8 pb-4 border-t border-b border-slate-200/80 dark:border-blue-500/15">
-      <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-200/80 dark:divide-blue-500/15">
+    <div className="w-full pt-8 pb-4 border-t border-b border-slate-300 dark:border-blue-500/15">
+      <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-300 dark:divide-blue-500/15">
         {statsData.map((stat, i) => (
           <div
             key={i}

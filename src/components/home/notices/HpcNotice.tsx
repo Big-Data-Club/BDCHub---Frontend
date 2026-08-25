@@ -73,9 +73,10 @@ export default function HpcNotice() {
           <div className="flex items-center gap-2 flex-shrink-0">
             <Link
               href="/hpc-summer-school"
+              aria-label="Xem chi tiết thông báo HPC School 2026"
               className="group flex items-center justify-center gap-1 min-h-[44px] px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold rounded-xl shadow-sm transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
             >
-              Chi tiết
+              <span>Xem chi tiết</span>
               <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
 

@@ -1,9 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import TerminalCard from "../../common/TerminalCard";
 import SafeImage from "../../common/SafeImage";
-import CyberBadge from "../../common/CyberBadge";
 
 export interface ActivityItem {
   id: string;
@@ -11,6 +9,7 @@ export interface ActivityItem {
   type: string;
   description: string;
   imageUrl: string;
+  frequency?: string;
 }
 
 export interface ActivityCardProps {
@@ -19,45 +18,46 @@ export interface ActivityCardProps {
 }
 
 export function ActivityCard({ activity, idx }: ActivityCardProps) {
+  // Pad single digit numbers for editorial look (01, 02, etc.)
+  const formattedIndex = String(idx + 1).padStart(2, "0");
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.45, delay: 0.08 * idx, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.4, delay: 0.05 * idx, ease: [0.16, 1, 0.3, 1] }}
+      className="group flex flex-col h-full border-t border-slate-300 dark:border-slate-800 pt-6 pb-2"
     >
-      <TerminalCard className="overflow-hidden group flex flex-col h-full bg-white/90 dark:bg-[#0F1E35]/90 backdrop-blur-md">
-        <div className="h-52 bg-slate-200 dark:bg-[#0A1628] relative overflow-hidden">
-          <SafeImage 
-            src={activity.imageUrl} 
-            alt={activity.title} 
-            fill 
-            className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out" 
-          />
-          <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-blue-600/10 dark:group-hover:bg-cyan-400/10 transition-colors duration-300" />
-        </div>
-        <div className="p-6 flex-1 flex flex-col justify-between">
-          <div>
-            <div className="mb-3 flex items-center">
-              <CyberBadge 
-                variant={
-                  idx % 4 === 0 ? "cyan" :
-                  idx % 4 === 1 ? "emerald" :
-                  idx % 4 === 2 ? "violet" : "amber"
-                }
-              >
-                {activity.type}
-              </CyberBadge>
-            </div>
-            <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2.5 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-300 leading-snug">
-              {activity.title}
-            </h3>
-            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed line-clamp-3">
-              {activity.description}
-            </p>
-          </div>
-        </div>
-      </TerminalCard>
+      {/* Editorial Header Line: Number & Category tag */}
+      <div className="flex items-center justify-between mb-3.5">
+        <span className="font-mono text-xs font-bold text-blue-600 dark:text-cyan-400 tracking-wider">
+          {formattedIndex} /
+        </span>
+        <span className="text-xs font-mono font-medium text-slate-500 dark:text-slate-400 tracking-wider uppercase text-right">
+          {activity.type}
+        </span>
+      </div>
+
+      {/* Image container: Clean rectangular aspect ratio */}
+      <div className="w-full aspect-[16/9] relative overflow-hidden bg-slate-100 dark:bg-slate-900 mb-4">
+        <SafeImage
+          src={activity.imageUrl}
+          alt={activity.title}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+        />
+      </div>
+
+      {/* Content Block: Natural top-aligned flow without artificial min-height gaps */}
+      <div className="flex-1 flex flex-col justify-start">
+        <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-200 mb-2">
+          {activity.title}
+        </h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal line-clamp-3">
+          {activity.description}
+        </p>
+      </div>
     </motion.div>
   );
 }

@@ -1,7 +1,6 @@
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import Background from "@/components/layout/Background";
-import ScrollToTop from "@/components/common/ScrollToTop";
 
 type LandingLayoutProps = {
   children: React.ReactNode;
@@ -18,7 +17,6 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
         </main>
         <Footer />
       </div>
-      <ScrollToTop />
     </div>
   );
 }

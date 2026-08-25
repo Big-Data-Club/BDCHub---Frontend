@@ -47,24 +47,22 @@ export default function LandingPage() {
       </div>
 
       {/* Chapter 2: The Foundation - About & Core Values */}
-      <div className="relative bg-white dark:bg-[#060c18] border-t border-slate-200/80 dark:border-blue-500/10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/5 dark:from-blue-900/10 via-transparent to-transparent pointer-events-none" />
+      <div className="relative bg-white dark:bg-[#060c18]">
         <About />
       </div>
 
       {/* Chapter 3: The Engine - Core Activities */}
-      <div className="relative bg-slate-100/70 dark:bg-[#0a1526] border-t border-slate-200/80 dark:border-blue-500/10">
+      <div className="relative bg-slate-50 dark:bg-[#0a1526]">
         <Activities />
       </div>
 
       {/* Chapter 4: The Impact - Projects & Scientific Publications */}
-      <div className="relative bg-white dark:bg-[#050b18] border-t border-slate-200/80 dark:border-blue-500/10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-cyan-500/5 dark:from-cyan-950/15 via-transparent to-transparent pointer-events-none" />
+      <div className="relative bg-white dark:bg-[#050b18]">
         <Projects />
       </div>
 
       {/* Chapter 5: The People - Advisory Board & Mentors */}
-      <div className="relative bg-slate-100/80 dark:bg-[#070e1c] border-t border-slate-200/80 dark:border-blue-500/10 pb-12">
+      <div className="relative bg-slate-100/80 dark:bg-[#070e1c] pb-12">
         <Members />
       </div>
     </div>

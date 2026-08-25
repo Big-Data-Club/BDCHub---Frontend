@@ -6,7 +6,6 @@ import { HeroActions } from "./hero/HeroActions";
 import { HeroVisualCore } from "./hero/HeroVisualCore";
 import { HeroStatsCards } from "./hero/HeroStatsCards";
 import { HeroStatsMobile } from "./hero/HeroStatsMobile";
-import { ScrollIndicator } from "./hero/ScrollIndicator";
 
 export interface HeroProps {
   totalStagger?: number;
