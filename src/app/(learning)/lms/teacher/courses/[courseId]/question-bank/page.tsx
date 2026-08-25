@@ -252,7 +252,7 @@ export default function QuestionBankPage() {
       const contentId = contentRes?.data?.id;
       if (!contentId) throw new Error("Không tạo được nội dung quiz.");
 
-      const res = await quizService.createQuizFromBank({
+      const res = await quizService.createQuizFromBank(courseId, {
         content_id: contentId,
         title: quizTitle.trim(),
         item_ids: Array.from(selectedIds),

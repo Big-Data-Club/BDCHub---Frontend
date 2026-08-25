@@ -229,19 +229,25 @@ class QuizService {
   }
 
   /** Assemble a new quiz from selected bank items (items are copied). */
-  async createQuizFromBank(payload: {
-    content_id: number;
-    title: string;
-    description?: string;
-    time_limit_minutes?: number | null;
-    max_attempts?: number;
-    passing_score?: number;
-    item_ids: number[];
-    shuffle_questions?: boolean;
-    shuffle_answers?: boolean;
-    auto_grade?: boolean;
-  }) {
-    const response = await lmsApiClient.post(`/quizzes/from-bank`, payload);
+  async createQuizFromBank(
+    courseId: number,
+    payload: {
+      content_id: number;
+      title: string;
+      description?: string;
+      time_limit_minutes?: number | null;
+      max_attempts?: number;
+      passing_score?: number;
+      item_ids: number[];
+      shuffle_questions?: boolean;
+      shuffle_answers?: boolean;
+      auto_grade?: boolean;
+    }
+  ) {
+    const response = await lmsApiClient.post(
+      `/courses/${courseId}/question-bank/create-quiz`,
+      payload
+    );
     return response.data;
   }
 }
