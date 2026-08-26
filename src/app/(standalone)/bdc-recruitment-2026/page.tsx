@@ -10,7 +10,7 @@ import hcmutLogo from "@/assets/hcmut.png";
 import hpccLogo from "@/assets/hpcc-logo.png";
 import cseLogo from "@/assets/CSE_logo.png";
 
-import { FormData, Errors, Lang, T, ACADEMIC_STATUS_OPTIONS, DEPARTMENT_OPTIONS } from "./types";
+import { FormData, Errors, Lang, T, ACADEMIC_STATUS_OPTIONS, DEPARTMENT_OPTIONS, ENTRANCE_METHOD_OPTIONS, TIME_COMMITMENT_OPTIONS } from "./types";
 import { Step1Personal } from "./components/Step1Personal";
 import { Step2Academic } from "./components/Step2Academic";
 import { Step3Department } from "./components/Step3Department";
@@ -34,8 +34,11 @@ const INITIAL_FORM: FormData = {
   studentId: "",
   academicStatus: "freshman",
   academicStatusOther: "",
+  entranceMethod: "thpt",
+  entranceScoreDetail: "",
   gpaCumulative: "",
   gpaLatest: "",
+  gpaScale: "4.0",
   thptDgnlScores: "",
   thptScore: "",
   hasDgnl: "yes",
@@ -45,8 +48,11 @@ const INITIAL_FORM: FormData = {
   englishCertType: "none",
   englishCertScore: "",
   cvFile: null,
+  cvBioText: "",
   evidenceFiles: [],
   department: "",
+  allowDepartmentAdjustment: true,
+  weeklyTimeCommitment: "5_to_10h",
   motivation: "",
   sendCopy: true,
   agreePrivacy: false,
@@ -132,27 +138,29 @@ export default function BDCRecruitment2026Page() {
       if (!form.fullName.trim()) errs.fullName = t.errRequired;
       if (!form.phone.trim() || !phoneRegex.test(form.phone)) errs.phone = t.errPhone;
       if (!form.emailPersonal.trim() || !emailRegex.test(form.emailPersonal)) errs.emailPersonal = t.errEmail;
-      if (!form.emailSchool.trim() || !emailRegex.test(form.emailSchool)) errs.emailSchool = t.errEmail;
-      if (!form.facebookLink.trim() || !form.facebookLink.includes("facebook.com")) errs.facebookLink = t.errFacebook;
+      // emailSchool is optional now
+      if (form.emailSchool?.trim() && !emailRegex.test(form.emailSchool.trim())) errs.emailSchool = t.errEmail;
+      if (!form.facebookLink.trim()) errs.facebookLink = t.errFacebook;
       if (!form.university.trim()) errs.university = t.errRequired;
       if (!form.faculty.trim()) errs.faculty = t.errRequired;
       if (!form.academicStatus) errs.academicStatus = t.errRequired;
     }
     if (stepToValidate === 2) {
+      if (form.englishCertType !== "none" && !form.englishCertScore?.trim()) {
+        errs.englishCertScore = t.errRequired;
+      }
       if (form.academicStatus === "freshman") {
-        if (!form.thptScore?.trim()) errs.thptScore = t.errRequired;
-        if (!form.hasDgnl) errs.hasDgnl = t.errRequired;
-        if (form.hasDgnl === "yes" && !form.dgnlScore?.trim()) {
-          errs.dgnlScore = t.errDgnlRequired;
-        }
-        if (form.englishCertType !== "none" && !form.englishCertScore?.trim()) {
-          errs.englishCertScore = t.errRequired;
+        if (!form.entranceScoreDetail?.trim() && !form.thptScore?.trim()) errs.entranceScoreDetail = t.errRequired;
+        // CV is optional for freshers if cvBioText is filled out
+        if (!form.cvFile && !form.cvBioText?.trim()) {
+          errs.cvFile = t.errCvRequired;
+          errs.cvBioText = t.errRequired;
         }
       } else {
         if (!form.gpaCumulative.trim()) errs.gpaCumulative = t.errRequired;
         if (!form.gpaLatest.trim()) errs.gpaLatest = t.errRequired;
+        if (!form.cvFile) errs.cvFile = t.errCvRequired;
       }
-      if (!form.cvFile) errs.cvFile = t.errCvRequired;
     }
     if (stepToValidate === 3) {
       if (!form.department) errs.department = t.errDeptRequired;
@@ -183,13 +191,16 @@ export default function BDCRecruitment2026Page() {
     if (!validateStep(4)) { showToast(t.agreePrivacyErr); return; }
     setSubmitting(true);
     try {
+      const entranceLabel = ENTRANCE_METHOD_OPTIONS.find((e) => e.id === form.entranceMethod)?.labelVi || "THPT";
+      const timeCommitmentLabel = TIME_COMMITMENT_OPTIONS.find((tc) => tc.id === form.weeklyTimeCommitment)?.labelVi || "5 - 10h/tuần";
+
       // answers: snake_case id → value (used for mapping)
       const answersRecord: Record<string, string> = {
         full_name:                    form.fullName,
         email_confirmation:           form.emailConfirmation,
         phone:                        form.phone,
         email_personal:               form.emailPersonal,
-        email_school:                 form.emailSchool,
+        email_school:                 form.emailSchool || "Chưa cấp",
         facebook_link:                form.facebookLink,
         university:                   form.university,
         faculty:                      form.faculty,
@@ -197,18 +208,20 @@ export default function BDCRecruitment2026Page() {
         academic_status:              ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.labelVi
                                     ?? (form.academicStatusOther || form.academicStatus),
         thpt_dgnl_scores:             form.academicStatus === "freshman"
-                                      ? `THPT: ${form.thptScore || "N/A"}${form.hasDgnl === "yes" && form.dgnlScore?.trim() ? ` | ĐGNL: ${form.dgnlScore}` : " | ĐGNL: Không"}`
+                                      ? `[${entranceLabel}]: ${form.entranceScoreDetail || form.thptDgnlScores || "N/A"}`
                                       : (form.thptDgnlScores || "N/A"),
         gpa_cumulative:               form.gpaCumulative   || "N/A",
         gpa_latest:                   form.gpaLatest       || "N/A",
         achievements_extracurricular: form.achievementsExtracurricular || "Chưa có",
-        english_cert:                 form.academicStatus === "freshman"
-                                      ? (form.englishCertType === "none" || !form.englishCertType ? "Chưa có" : `${form.englishCertType.toUpperCase()}: ${form.englishCertScore || ""}`)
-                                      : (form.englishCert || "Chưa có"),
-        cv_url:                       form.cvFile?.url     || "",
-        cv_filename:                  form.cvFile?.filename || "",
-        evidence_files:               form.evidenceFiles.map((f) => `${f.filename}: ${f.url}`).join(" | "),
+        english_cert:                 form.englishCertType === "none" || !form.englishCertType
+                                      ? "Chưa có"
+                                      : `${form.englishCertType.toUpperCase()}: ${form.englishCertScore || ""}`,
+        cv_url:                       form.cvFile?.url     || (form.cvBioText ? `[Tóm tắt bản thân]: ${form.cvBioText}` : "Chưa nộp"),
+        cv_filename:                  form.cvFile?.filename || (form.cvBioText ? "Tóm tắt chữ (Chưa có PDF)" : "Không có"),
+        evidence_files:               form.evidenceFiles.map((f) => `${f.filename}: ${f.url}`).join(" | ") || "Không có",
         department:                   DEPARTMENT_OPTIONS.find((d) => d.id === form.department)?.nameVi ?? form.department,
+        allow_adjustment:             form.allowDepartmentAdjustment ? "Có" : "Không",
+        weekly_time_commitment:       timeCommitmentLabel,
         motivation:                   form.motivation,
         send_copy:                    form.sendCopy ? "Có" : "Không",
         form_language:                lang === "vi" ? "Tiếng Việt" : "English",
@@ -221,20 +234,22 @@ export default function BDCRecruitment2026Page() {
         { id: "phone",                        question: "Số điện thoại" },
         { id: "email_personal",               question: "Email cá nhân" },
         { id: "email_school",                 question: "Email trường" },
-        { id: "facebook_link",                question: "Facebook" },
+        { id: "facebook_link",                question: "Facebook / Zalo / LinkedIn" },
         { id: "university",                   question: "Trường đại học" },
         { id: "faculty",                      question: "Khoa / Ngành" },
         { id: "student_id",                   question: "Mã số sinh viên" },
         { id: "academic_status",              question: "Tình trạng học tập" },
-        { id: "thpt_dgnl_scores",             question: "Điểm THPT / ĐGNL" },
+        { id: "thpt_dgnl_scores",             question: "Phương thức & Điểm tuyển sinh" },
         { id: "gpa_cumulative",               question: "GPA tích lũy" },
         { id: "gpa_latest",                   question: "GPA học kỳ gần nhất" },
         { id: "achievements_extracurricular", question: "Thành tích & Hoạt động ngoại khóa" },
         { id: "english_cert",                 question: "Chứng chỉ tiếng Anh" },
-        { id: "cv_url",                       question: "Link CV (Cloudinary)" },
+        { id: "cv_url",                       question: "Link CV / Tóm tắt bản thân" },
         { id: "cv_filename",                  question: "Tên file CV" },
         { id: "evidence_files",               question: "File minh chứng" },
         { id: "department",                   question: "Ban đăng ký" },
+        { id: "allow_adjustment",             question: "Đồng ý điều phối" },
+        { id: "weekly_time_commitment",       question: "Thời gian cống hiến/tuần" },
         { id: "motivation",                   question: "Lý do & Động lực" },
         { id: "send_copy",                    question: "Gửi bản sao qua email" },
         { id: "form_language",                question: "Ngôn ngữ form" },
@@ -434,7 +449,7 @@ export default function BDCRecruitment2026Page() {
         </div>
 
         {/* Step Content Card */}
-        <div className="relative z-10 p-6 sm:p-8 bg-white dark:bg-[#0A1325] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm">
+        <div className="relative z-10 p-6 sm:p-10 bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm">
           {step === 1 && <Step1Personal form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 2 && <Step2Academic form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 3 && <Step3Department form={form} onChange={updateForm} errors={errors} lang={lang} />}

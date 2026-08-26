@@ -96,33 +96,18 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
   };
 
   return (
-    <div className="space-y-6">
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+    <div className="space-y-8">
+      {/* Header section with refined editorial divider */}
+      <div className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
+        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
           <User className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
           {t.step1Header}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{t.step1Desc}</p>
       </div>
 
-      {/* Confirmation Email */}
-      <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-          {renderLabel(t.emailConfirmation)}
-        </label>
-        <input
-          type="email"
-          value={form.emailConfirmation}
-          onChange={(e) => onChange({ emailConfirmation: e.target.value })}
-          placeholder={t.emailConfirmationPh}
-          className={`${inputBase} ${errors.emailConfirmation ? inputError : inputNormal}`}
-        />
-        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t.emailConfirmationHint}</p>
-        {errors.emailConfirmation && <p className="text-xs text-rose-500 mt-1">{errors.emailConfirmation}</p>}
-      </div>
-
       {/* Full Name & Phone */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
             {renderLabel(t.fullName)}
@@ -152,8 +137,23 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
         </div>
       </div>
 
-      {/* Emails */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Confirmation Email & Personal Email */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+            {renderLabel(t.emailConfirmation)}
+          </label>
+          <input
+            type="email"
+            value={form.emailConfirmation}
+            onChange={(e) => onChange({ emailConfirmation: e.target.value })}
+            placeholder={t.emailConfirmationPh}
+            className={`${inputBase} ${errors.emailConfirmation ? inputError : inputNormal}`}
+          />
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">{t.emailConfirmationHint}</p>
+          {errors.emailConfirmation && <p className="text-xs text-rose-500 mt-1">{errors.emailConfirmation}</p>}
+        </div>
+
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
             {renderLabel(t.emailPersonal)}
@@ -167,7 +167,10 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
           />
           {errors.emailPersonal && <p className="text-xs text-rose-500 mt-1">{errors.emailPersonal}</p>}
         </div>
+      </div>
 
+      {/* School Email & Facebook / Social */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
             {renderLabel(t.emailSchool)}
@@ -181,21 +184,20 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
           />
           {errors.emailSchool && <p className="text-xs text-rose-500 mt-1">{errors.emailSchool}</p>}
         </div>
-      </div>
 
-      {/* Facebook */}
-      <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-          {renderLabel(t.facebookLink)}
-        </label>
-        <input
-          type="url"
-          value={form.facebookLink}
-          onChange={(e) => onChange({ facebookLink: e.target.value })}
-          placeholder={t.facebookLinkPh}
-          className={`${inputBase} ${errors.facebookLink ? inputError : inputNormal}`}
-        />
-        {errors.facebookLink && <p className="text-xs text-rose-500 mt-1">{errors.facebookLink}</p>}
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+            {renderLabel(t.facebookLink)}
+          </label>
+          <input
+            type="url"
+            value={form.facebookLink}
+            onChange={(e) => onChange({ facebookLink: e.target.value })}
+            placeholder={t.facebookLinkPh}
+            className={`${inputBase} ${errors.facebookLink ? inputError : inputNormal}`}
+          />
+          {errors.facebookLink && <p className="text-xs text-rose-500 mt-1">{errors.facebookLink}</p>}
+        </div>
       </div>
 
       {/* University Selection */}
@@ -203,10 +205,8 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
           {renderLabel(t.university)}
         </label>
-        <div className={`relative transition-all duration-300 space-y-3.5 ${
-          showOtherInput
-            ? "pl-4.5 border-l-2 border-cyan-500/60 dark:border-cyan-500/40"
-            : "pl-0 border-l-0 border-transparent"
+        <div className={`transition-all duration-200 space-y-3.5 ${
+          showOtherInput ? "pl-3.5 border-l-2 border-blue-500 dark:border-blue-400" : ""
         }`}>
           <FSel
             value={currentDropdownValue}
@@ -236,7 +236,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       </div>
 
       {/* Faculty + MSSV */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
             {renderLabel(t.faculty)}
@@ -271,10 +271,8 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
           {renderLabel(t.academicStatus)}
         </label>
 
-        <div className={`relative transition-all duration-300 space-y-3.5 ${
-          form.academicStatus === "other"
-            ? "pl-4.5 border-l-2 border-cyan-500/60 dark:border-cyan-500/40"
-            : "pl-0 border-l-0 border-transparent"
+        <div className={`transition-all duration-200 space-y-3.5 ${
+          form.academicStatus === "other" ? "pl-3.5 border-l-2 border-slate-400 dark:border-slate-600" : ""
         }`}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {ACADEMIC_STATUS_OPTIONS.map((opt) => {
@@ -285,8 +283,8 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
                   onClick={() => onChange({ academicStatus: opt.id as AcademicStatus })}
                   className={`relative flex items-center p-3.5 rounded-xl border cursor-pointer transition-all duration-200 ${
                     isSelected
-                      ? "bg-blue-50 dark:bg-blue-500/15 border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-200 shadow-sm dark:shadow-[0_0_15px_rgba(59,130,246,0.2)]"
-                      : "bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+                      ? "bg-blue-50/70 dark:bg-blue-950/30 border-blue-600 dark:border-blue-500 text-blue-900 dark:text-blue-100 font-semibold"
+                      : "bg-slate-50/60 dark:bg-[#070E1B] border-slate-200 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
                   }`}
                 >
                   <input
@@ -297,11 +295,11 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
                     className="sr-only"
                   />
                   <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 flex-shrink-0 ${
-                    isSelected ? "border-blue-500 bg-blue-500" : "border-slate-300 dark:border-slate-600 bg-transparent"
+                    isSelected ? "border-blue-600 bg-blue-600" : "border-slate-300 dark:border-slate-600 bg-transparent"
                   }`}>
                     {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm">
                     {lang === "vi" ? opt.labelVi : opt.labelEn}
                   </span>
                 </label>

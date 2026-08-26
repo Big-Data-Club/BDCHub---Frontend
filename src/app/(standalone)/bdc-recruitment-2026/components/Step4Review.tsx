@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, User, BookOpen, Users, FileText, ExternalLink, ShieldCheck, AlertCircle } from "lucide-react";
-import { FormData, Errors, T, Lang, ACADEMIC_STATUS_OPTIONS, DEPARTMENT_OPTIONS } from "../types";
+import { CheckCircle2, User, BookOpen, Users, FileText, ExternalLink, ShieldCheck, AlertCircle, Clock, Check } from "lucide-react";
+import { FormData, Errors, T, Lang, ACADEMIC_STATUS_OPTIONS, DEPARTMENT_OPTIONS, ENTRANCE_METHOD_OPTIONS, TIME_COMMITMENT_OPTIONS } from "../types";
 
 interface Step4ReviewProps {
   form: FormData;
@@ -14,13 +14,20 @@ interface Step4ReviewProps {
 
 export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors, lang, onEditStep }) => {
   const t = T[lang];
+  const isVi = lang === "vi";
 
   const statusLabel =
-    ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.[lang === "vi" ? "labelVi" : "labelEn"] ||
+    ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.[isVi ? "labelVi" : "labelEn"] ||
     form.academicStatus;
 
   const deptObj = DEPARTMENT_OPTIONS.find((d) => d.id === form.department);
-  const deptName = deptObj ? (lang === "vi" ? deptObj.nameVi : deptObj.nameEn) : form.department;
+  const deptName = deptObj ? (isVi ? deptObj.nameVi : deptObj.nameEn) : form.department;
+
+  const entranceObj = ENTRANCE_METHOD_OPTIONS.find((e) => e.id === form.entranceMethod);
+  const entranceMethodLabel = entranceObj ? (isVi ? entranceObj.labelVi : entranceObj.labelEn) : (form.entranceMethod || "THPT");
+
+  const timeObj = TIME_COMMITMENT_OPTIONS.find((tc) => tc.id === form.weeklyTimeCommitment);
+  const timeLabel = timeObj ? (isVi ? timeObj.labelVi : timeObj.labelEn) : (form.weeklyTimeCommitment || "5 - 10h/tuần");
 
   const reviewCard =
     "bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3";
@@ -59,10 +66,10 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
             [t.phone, form.phone],
             [t.emailConfirmation, form.emailConfirmation],
             [t.emailPersonal, form.emailPersonal],
-            [t.emailSchool, form.emailSchool],
+            [t.emailSchool, form.emailSchool || (isVi ? "Chưa cấp (Bỏ qua)" : "Not issued")],
             [t.university, form.university],
             [t.faculty, form.faculty],
-            [t.studentId, form.studentId || "Chưa cập nhật"],
+            [t.studentId, form.studentId || (isVi ? "Chưa cập nhật" : "N/A")],
           ].map(([label, value]) => (
             <div key={label}>
               <span className={labelCls}>{label}:</span>
@@ -103,9 +110,15 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
 
         <div className="space-y-3 text-xs">
           {form.academicStatus === "freshman" ? (
-            <div>
-              <span className={labelCls}>{t.thptDgnlScores}:</span>
-              <span className={valueCls}>{form.thptDgnlScores || "—"}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <span className={labelCls}>Phương thức tuyển sinh:</span>
+                <span className={valueCls}>{entranceMethodLabel}</span>
+              </div>
+              <div>
+                <span className={labelCls}>Chi tiết điểm / Kết quả:</span>
+                <span className={valueCls}>{form.entranceScoreDetail || form.thptDgnlScores || "—"}</span>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
@@ -130,8 +143,8 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
             <span className={valueCls}>{form.englishCert || "Chưa có"}</span>
           </div>
 
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-            <span className={`${labelCls} mb-1`}>File CV đính kèm (Cloudinary):</span>
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <span className={`${labelCls} mb-1`}>Hồ sơ CV:</span>
             {form.cvFile ? (
               <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 p-2 rounded-lg">
                 <FileText className="w-4 h-4 shrink-0" />
@@ -144,6 +157,11 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
                 >
                   Xem <ExternalLink className="w-3 h-3" />
                 </a>
+              </div>
+            ) : form.cvBioText ? (
+              <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+                <span className="text-[11px] font-bold text-slate-500 block mb-1">Tóm tắt bản thân / Dự án thay thế CV:</span>
+                <p className="text-slate-700 dark:text-slate-300 text-xs whitespace-pre-wrap">{form.cvBioText}</p>
               </div>
             ) : (
               <span className="text-rose-500 font-medium">Chưa tải CV</span>
@@ -186,9 +204,21 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
         </div>
 
         <div className="space-y-3 text-xs">
-          <div>
-            <span className={labelCls}>{t.deptSelectLabel}:</span>
-            <span className="font-bold text-blue-600 dark:text-blue-300 text-sm">{deptName || "Chưa lựa chọn"}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <span className={labelCls}>Ban ứng tuyển:</span>
+              <span className="font-bold text-blue-600 dark:text-blue-300 text-sm">{deptName || "Chưa lựa chọn"}</span>
+            </div>
+            <div>
+              <span className={labelCls}>Đồng ý điều phối Ban:</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">
+                {form.allowDepartmentAdjustment ? (isVi ? "Có" : "Yes") : (isVi ? "Không" : "No")}
+              </span>
+            </div>
+            <div>
+              <span className={labelCls}>Thời gian cống hiến:</span>
+              <span className="font-medium text-slate-700 dark:text-slate-300">{timeLabel}</span>
+            </div>
           </div>
 
           <div>
@@ -228,3 +258,4 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
     </div>
   );
 };
+
