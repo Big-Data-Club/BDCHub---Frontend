@@ -200,28 +200,26 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
           onDragLeave={handleDrag}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all duration-300 ${
+          className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 ${
             dragActive
-              ? "border-cyan-400 bg-blue-50/80 dark:bg-cyan-500/10 shadow-[0_0_25px_rgba(34,211,238,0.2)]"
+              ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
               : error
-              ? "border-rose-400/80 dark:border-rose-500/80 bg-rose-50/50 dark:bg-rose-950/20"
-              : "border-slate-300 dark:border-blue-500/20 bg-slate-50/80 dark:bg-[#0D192E] hover:border-blue-500 dark:hover:border-cyan-400/50 hover:bg-white dark:hover:bg-[#0F1E35] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+              ? "border-rose-400 dark:border-rose-500/80 bg-rose-50/30 dark:bg-rose-950/20"
+              : "border-slate-300 dark:border-slate-800 bg-slate-50 dark:bg-[#070E1B] hover:border-blue-500 dark:hover:border-blue-400 hover:bg-white dark:hover:bg-[#0A1325]"
           }`}
         >
           {uploading ? (
             <div className="flex flex-col items-center justify-center py-4 space-y-3">
-              <Loader2 className="w-8 h-8 text-cyan-500 dark:text-cyan-400 animate-spin" />
-              <p className="text-sm text-blue-600 dark:text-cyan-300 font-semibold">Đang tải file lên hệ thống Cloudinary...</p>
+              <Loader2 className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin" />
+              <p className="text-sm text-slate-700 dark:text-slate-200 font-medium">Đang tải file lên hệ thống...</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center space-y-2.5">
-              <div className="p-3.5 bg-blue-100/70 dark:bg-cyan-500/10 rounded-2xl text-blue-600 dark:text-cyan-400 border border-blue-200 dark:border-cyan-500/20 shadow-sm">
-                <UploadCloud className="w-7 h-7" />
-              </div>
+            <div className="flex flex-col items-center justify-center space-y-2">
+              <UploadCloud className="w-7 h-7 text-blue-600 dark:text-blue-400" />
               <div className="text-sm text-slate-700 dark:text-slate-200">
-                <span className="font-bold text-blue-600 dark:text-cyan-400 hover:underline">Nhấp để chọn file</span> hoặc kéo thả file vào đây
+                <span className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">Nhấp để chọn file</span> hoặc kéo thả file vào đây
               </div>
-              <p className="text-xs text-slate-400 dark:text-slate-400 font-medium">Định dạng hỗ trợ: PDF, PNG, JPG, JPEG (Tối đa {maxSizeMB}MB)</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">Định dạng hỗ trợ: PDF, PNG, JPG, JPEG (Tối đa {maxSizeMB}MB)</p>
             </div>
           )}
         </div>

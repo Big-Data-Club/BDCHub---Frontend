@@ -23,24 +23,22 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
   const deptName = deptObj ? (lang === "vi" ? deptObj.nameVi : deptObj.nameEn) : form.department;
 
   const reviewCard =
-    "bg-white dark:bg-[#0F1E35] border border-slate-200/90 dark:border-blue-500/15 rounded-2xl p-5 shadow-sm space-y-3";
+    "bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3";
   const reviewHeader =
-    "flex justify-between items-center border-b border-slate-100 dark:border-blue-500/10 pb-3";
+    "flex justify-between items-center border-b border-slate-100 dark:border-slate-800/80 pb-3";
   const reviewTitle =
-    "text-sm font-bold text-blue-600 dark:text-cyan-400 flex items-center gap-2";
-  const labelCls = "text-slate-500 dark:text-slate-400 block";
-  const valueCls = "font-semibold text-slate-800 dark:text-slate-100";
+    "text-sm font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2";
+  const labelCls = "text-slate-500 dark:text-slate-400 block text-[11px] font-medium uppercase tracking-wider mb-0.5";
+  const valueCls = "font-semibold text-slate-800 dark:text-slate-200 text-xs";
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="border-b border-slate-200/80 dark:border-blue-500/15 pb-4">
-        <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-blue-50 dark:bg-cyan-500/10 text-blue-600 dark:text-cyan-400 border border-blue-100 dark:border-cyan-500/20">
-            <CheckCircle2 className="w-5 h-5" />
-          </div>
+    <div className="space-y-6">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
           {t.step4Header}
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">{t.step4Desc}</p>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{t.step4Desc}</p>
       </div>
 
       {/* Section 1: Personal Info */}

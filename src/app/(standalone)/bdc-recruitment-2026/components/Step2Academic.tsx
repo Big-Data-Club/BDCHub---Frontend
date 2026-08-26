@@ -14,9 +14,9 @@ interface Step2AcademicProps {
 }
 
 const inputBase =
-  "w-full bg-white dark:bg-[#091124] border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200";
+  "w-full bg-white dark:bg-[#070E1B] border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-all duration-200";
 const inputNormal =
-  "border-slate-300 dark:border-slate-800 focus:bg-white dark:focus:bg-[#0A1628] focus:border-blue-500 dark:focus:border-cyan-400/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20";
+  "border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-[#070E1B] focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
 const inputError =
   "border-rose-400 dark:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/30";
 
@@ -43,34 +43,37 @@ interface GpaInputProps {
 }
 
 const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, placeholder, isVi }) => {
-  const [isOpenScale, setIsOpenScale] = React.useState(false);
-  const scaleRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (scaleRef.current && !scaleRef.current.contains(event.target as Node)) {
-        setIsOpenScale(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const [gpaNumeric, gpaScale] = React.useMemo(() => {
+  // Parse value: format can be "3.65/4.0", "8.5/10.0", or custom "85/100"
+  const [gpaNumeric, gpaScaleStr] = React.useMemo(() => {
     const val = value || "";
     const index = val.indexOf("/");
     if (index !== -1) {
-      return [val.slice(0, index).trim(), val.slice(index).trim()];
+      return [val.slice(0, index).trim(), val.slice(index + 1).trim()];
     }
-    return [val.trim(), "/4.0"];
+    return [val.trim(), "4.0"];
   }, [value]);
 
-  const handleGpaNumericChange = (valStr: string) => {
-    const numVal = valStr.replace(/\/.*/g, "").trim();
-    onChange(`${numVal}${gpaScale}`);
+  const isStandard4 = gpaScaleStr === "4.0";
+  const isStandard10 = gpaScaleStr === "10.0";
+  const mode: "4.0" | "10.0" | "custom" = isStandard4 ? "4.0" : isStandard10 ? "10.0" : "custom";
+
+  const handleNumericChange = (newNum: string) => {
+    if (mode === "custom") {
+      const scalePart = gpaScaleStr ? `/${gpaScaleStr}` : "";
+      onChange(`${newNum}${scalePart}`);
+    } else {
+      const cleanNum = newNum.replace(/\/.*/g, "").trim();
+      onChange(`${cleanNum}/${mode}`);
+    }
   };
 
-  const handleGpaBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleCustomScaleChange = (newScale: string) => {
+    const cleanScale = newScale.replace(/^\//, "").trim();
+    onChange(`${gpaNumeric}/${cleanScale}`);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (mode === "custom") return;
     const val = e.target.value.trim().replace(/\/.*/g, "");
     if (!val) return;
 
@@ -84,114 +87,122 @@ const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, plac
     }
 
     if (formatted !== gpaNumeric) {
-      onChange(`${formatted}${gpaScale}`);
+      onChange(`${formatted}/${mode}`);
     }
   };
 
-  const isCustomScale = gpaScale !== "/4.0" && gpaScale !== "/10.0";
+  const handleModeChange = (newMode: "4.0" | "10.0" | "custom") => {
+    const cleanNum = gpaNumeric.replace(/[^0-9.,]/g, "");
+    if (newMode === "4.0") {
+      onChange(`${cleanNum}/4.0`);
+    } else if (newMode === "10.0") {
+      onChange(`${cleanNum}/10.0`);
+    } else {
+      onChange(`${gpaNumeric}/${gpaScaleStr !== "4.0" && gpaScaleStr !== "10.0" ? gpaScaleStr : "100"}`);
+    }
+  };
+
+  // Smart hint detection
+  const numVal = parseFloat(gpaNumeric);
+  const showWarning = mode === "4.0" && !isNaN(numVal) && numVal > 4.0;
 
   return (
     <div>
-      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-        {renderLabel(label)}
-      </label>
-      <div className="relative w-full">
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            placeholder={placeholder}
-            value={gpaNumeric}
-            onChange={(e) => handleGpaNumericChange(e.target.value)}
-            onBlur={handleGpaBlur}
-            className={`${inputBase} ${error ? inputError : inputNormal} ${isCustomScale ? "pr-28" : "pr-24"}`}
-          />
-          
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-            {isCustomScale ? (
-              <div className="flex items-center gap-1.5 animate-fadeIn">
-                <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/60 mr-1" />
-                <input
-                  type="text"
-                  placeholder="xx.xx"
-                  value={gpaScale.replace("/", "")}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
-                    onChange(`${gpaNumeric}/${val}`);
-                  }}
-                  className="w-10 text-center bg-transparent border-t-0 border-x-0 border-b border-dashed border-slate-350 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-slate-100 placeholder:text-slate-400/50 outline-none focus:border-solid focus:border-cyan-500 focus:ring-0 transition-all p-0 pb-0.5"
-                />
-                <button
-                  type="button"
-                  onClick={() => onChange(`${gpaNumeric}/4.0`)}
-                  className="text-slate-400 hover:text-red-500 transition-colors p-0.5 active:scale-90"
-                  title={isVi ? "Quay lại thang điểm chuẩn" : "Back to standard scales"}
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            ) : (
-              <div ref={scaleRef} className={`relative flex items-center gap-1.5 ${isOpenScale ? "z-30" : ""}`}>
-                <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/60 mr-0.5" />
-                <button
-                  type="button"
-                  onClick={() => setIsOpenScale(!isOpenScale)}
-                  className="flex items-center gap-0.5 text-slate-500 dark:text-slate-400 text-xs font-black outline-none cursor-pointer hover:text-cyan-500 transition-all py-1 pl-1 pr-1.5 rounded-lg active:scale-95"
-                >
-                  <span>{gpaScale === "/4.0" ? "4.0" : "10.0"}</span>
-                  <svg
-                    className={`w-3 h-3 text-slate-400 transition-transform duration-300 ${isOpenScale ? "rotate-180 text-cyan-500" : ""}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </button>
-                {isOpenScale && (
-                  <ul className="absolute right-0 top-full z-50 mt-2 py-1 w-24 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/85 dark:border-slate-800/85 shadow-2xl overflow-hidden animate-in fade-in duration-200">
-                    {[
-                      { value: "/4.0", label: "4.0" },
-                      { value: "/10.0", label: "10.0" },
-                      { value: "Other", label: isVi ? "Khác..." : "Other..." },
-                    ].map(opt => {
-                      const isSelected = opt.value === gpaScale;
-                      return (
-                        <li
-                          key={opt.value}
-                          onClick={() => {
-                            if (opt.value === "Other") {
-                              onChange(`${gpaNumeric}/`);
-                            } else {
-                              onChange(`${gpaNumeric}${opt.value}`);
-                            }
-                            setIsOpenScale(false);
-                          }}
-                          className={`px-3 py-1.5 text-xs font-bold cursor-pointer transition-all duration-200 flex items-center justify-between ${
-                            isSelected
-                              ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
-                              : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                          }`}
-                        >
-                          <span>{opt.label}</span>
-                          {isSelected && (
-                            <svg className="w-3 h-3 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                            </svg>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            )}
+      <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+        <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
+          {renderLabel(label)}
+        </label>
+
+        {/* Segmented Scale Switcher */}
+        <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800/90 rounded-lg border border-slate-200/80 dark:border-slate-700/60 text-[11px] font-semibold shrink-0">
+          <button
+            type="button"
+            onClick={() => handleModeChange("4.0")}
+            className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+              mode === "4.0"
+                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            }`}
+          >
+            Hệ 4.0
+          </button>
+          <button
+            type="button"
+            onClick={() => handleModeChange("10.0")}
+            className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+              mode === "10.0"
+                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            }`}
+          >
+            Hệ 10.0
+          </button>
+          <button
+            type="button"
+            onClick={() => handleModeChange("custom")}
+            className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+              mode === "custom"
+                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            }`}
+          >
+            Tùy chỉnh
+          </button>
+        </div>
+      </div>
+
+      {mode === "custom" ? (
+        /* Split 2 Input Fields for Custom Scale with zero layout jump */
+        <div className="grid grid-cols-5 gap-2">
+          <div className="col-span-3">
+            <input
+              type="text"
+              placeholder={isVi ? "Điểm (Ví dụ: 85, 3.8...)" : "Score (e.g. 85, 3.8...)"}
+              value={gpaNumeric}
+              onChange={(e) => handleNumericChange(e.target.value)}
+              className={`${inputBase} ${error ? inputError : inputNormal} font-mono tracking-tight`}
+            />
+          </div>
+          <div className="col-span-2">
+            <div className="relative flex items-center">
+              <span className="absolute left-3.5 text-slate-400 dark:text-slate-500 text-sm font-bold pointer-events-none select-none">/</span>
+              <input
+                type="text"
+                placeholder={isVi ? "Thang (100)" : "Scale (100)"}
+                value={gpaScaleStr}
+                onChange={(e) => handleCustomScaleChange(e.target.value)}
+                className={`${inputBase} ${error ? inputError : inputNormal} pl-7 font-mono tracking-tight`}
+              />
+            </div>
           </div>
         </div>
-        {error && <p className="text-xs text-rose-500 mt-1">{error}</p>}
-      </div>
+      ) : (
+        /* Standard Single Field with Fixed Suffix */
+        <div className="relative w-full">
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              placeholder={placeholder || (mode === "4.0" ? "Ví dụ: 3.65" : "Ví dụ: 8.5")}
+              value={gpaNumeric}
+              onChange={(e) => handleNumericChange(e.target.value)}
+              onBlur={handleBlur}
+              className={`${inputBase} ${error ? inputError : inputNormal} pr-16 font-mono tracking-tight`}
+            />
+            <span className="absolute right-4 text-xs font-bold text-slate-400 dark:text-slate-500 pointer-events-none select-none tracking-tight">
+              /{mode}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {showWarning && (
+        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 flex items-center gap-1.5 font-medium leading-tight">
+          <span>⚠️</span>
+          <span>{isVi ? "Điểm hệ 4.0 thường ≤ 4.0. Bạn có muốn chuyển sang Hệ 10.0 không?" : "GPA on 4.0 scale is usually ≤ 4.0. Switch to 10.0 scale?"}</span>
+        </p>
+      )}
+
+      {error && <p className="text-xs text-rose-500 mt-1">{error}</p>}
     </div>
   );
 };
@@ -202,31 +213,24 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
   const isFreshman = form.academicStatus === "freshman";
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="border-b border-slate-200/80 dark:border-blue-500/15 pb-4">
-        <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-blue-50 dark:bg-cyan-500/10 text-blue-600 dark:text-cyan-400 border border-blue-100 dark:border-cyan-500/20">
-            <BookOpen className="w-5 h-5" />
-          </div>
+    <div className="space-y-6">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
           {t.step2Header}
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">{t.step2Desc}</p>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{t.step2Desc}</p>
       </div>
 
       {/* Status Notice Banner */}
       {!isFreshman && (
-        <div className="p-4.5 rounded-2xl border bg-blue-50/70 dark:bg-[#0F1E35] border-blue-200 dark:border-blue-500/20 flex items-start space-x-3.5 shadow-sm">
-          <div className="p-2 bg-blue-100 dark:bg-cyan-500/10 rounded-xl text-blue-600 dark:text-cyan-400 shrink-0 border border-blue-200 dark:border-cyan-500/20">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-              {t.seniorNoticeTitle}
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-              {t.seniorNoticeDesc}
-            </p>
-          </div>
+        <div className="p-4 rounded-xl border bg-slate-50 dark:bg-[#070E1B] border-slate-200 dark:border-slate-800">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            {t.seniorNoticeTitle}
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+            {t.seniorNoticeDesc}
+          </p>
         </div>
       )}
 

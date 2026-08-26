@@ -307,7 +307,7 @@ export default function BDCRecruitment2026Page() {
             : "bg-white/60 dark:bg-transparent backdrop-blur-md py-3.5"
         }`}
       >
-        <div className="max-w-4xl mx-auto px-4 flex items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
           {/* Left: logo + title */}
           <div className="flex items-center gap-3 min-w-0">
             <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 bg-white dark:bg-[#0D192E] p-1.5 rounded-xl border border-slate-200 dark:border-blue-500/20 shadow-sm">
@@ -347,18 +347,14 @@ export default function BDCRecruitment2026Page() {
       </header>
 
       {/* ── Main Wizard ── */}
-      <main className="relative z-10 max-w-3xl mx-auto px-4 pt-8">
+      <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-8">
         {/* Compact Hero Info Header */}
-        <div className="text-center mb-6 space-y-2">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100/80 dark:bg-cyan-500/10 border border-blue-200 dark:border-cyan-500/20 text-blue-700 dark:text-cyan-400 text-xs font-bold uppercase tracking-widest shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{t.heroBadge}</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+        <div className="text-center mb-10 space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">
             {t.heroTitle}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed font-medium">
-            {t.heroSubtitle} · {t.heroDesc}
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-normal">
+            <span className="font-semibold text-slate-700 dark:text-slate-300">{t.heroSubtitle}</span> · {t.heroDesc}
           </p>
         </div>
 
@@ -405,10 +401,10 @@ export default function BDCRecruitment2026Page() {
                     className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all duration-300 relative z-10 hover:scale-105 active:scale-95 cursor-pointer
                       ${
                         isCurrent
-                          ? "border-blue-500 bg-white dark:bg-[#050B18] text-blue-600 dark:text-cyan-400 shadow-[0_0_15px_rgba(59,130,246,0.3)] scale-110"
+                          ? "border-blue-600 bg-blue-600 text-white shadow-sm scale-105"
                           : isCompleted
-                          ? "border-blue-500 bg-blue-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                          : "border-slate-300 dark:border-slate-800 bg-white dark:bg-[#050B18] text-slate-400 dark:text-slate-650 hover:border-blue-400 hover:text-blue-500"
+                          ? "border-blue-600 bg-blue-600 text-white"
+                          : "border-slate-300 dark:border-slate-700 bg-white dark:bg-[#050B18] text-slate-400 dark:text-slate-500 hover:border-slate-400"
                       }`}
                   >
                     {isCompleted ? (
@@ -420,12 +416,12 @@ export default function BDCRecruitment2026Page() {
                   {/* Text Label */}
                   <span
                     onClick={handleStepClick}
-                    className={`absolute top-11 left-1/2 -translate-x-1/2 text-xs font-bold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-blue-600 dark:hover:text-cyan-400
+                    className={`absolute top-11 left-1/2 -translate-x-1/2 text-xs font-semibold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400
                       ${
                         isCurrent
-                          ? "text-blue-600 dark:text-cyan-400"
+                          ? "text-blue-600 dark:text-blue-400 font-bold"
                           : isCompleted
-                          ? "text-slate-700 dark:text-slate-350"
+                          ? "text-slate-700 dark:text-slate-300"
                           : "text-slate-400 dark:text-slate-600"
                       }`}
                   >
@@ -438,7 +434,7 @@ export default function BDCRecruitment2026Page() {
         </div>
 
         {/* Step Content Card */}
-        <div className="relative z-10 p-6 sm:p-10 bg-white dark:bg-[#0F1E35] border border-slate-200/90 dark:border-blue-500/15 rounded-3xl shadow-xl dark:shadow-none">
+        <div className="relative z-10 p-6 sm:p-8 bg-white dark:bg-[#0A1325] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm">
           {step === 1 && <Step1Personal form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 2 && <Step2Academic form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 3 && <Step3Department form={form} onChange={updateForm} errors={errors} lang={lang} />}
