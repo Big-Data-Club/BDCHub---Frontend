@@ -24,11 +24,14 @@ import {
   Layers,
   PlusCircle,
   Loader2,
+  Eye,
 } from "lucide-react";
 import { DataTable } from "@/components/lms/shared/DataTable";
 import { SearchBar, FilterDropdown } from "@/components/lms/shared";
 import type { ColumnDef } from "@/components/lms/shared/DataTable";
 import { QuizSmartImportModal } from "@/components/lms/teacher/modals/QuizSmartImportModal";
+import BaseModal from "@/components/lms/shared/BaseModal";
+import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import quizService from "@/services/lms/quizService";
 import lmsService from "@/services/lms/lmsService";
 import aiService from "@/services/ai/aiService";
@@ -47,6 +50,9 @@ interface BankItem {
   source: string;
   status: string;
   created_at: string;
+  explanation?: string;
+  answer_options?: { option_text: string; is_correct: boolean; order_index: number }[];
+  correct_answers?: { answer_text?: string; blank_id?: number | null }[];
 }
 
 interface BankStats {
@@ -85,6 +91,16 @@ const DIFFICULTY_BADGE: Record<string, string> = {
   HARD: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300",
 };
 
+const QUESTION_TYPE_LABELS: Record<string, string> = {
+  SINGLE_CHOICE: "Trắc nghiệm 1 đáp án",
+  MULTIPLE_CHOICE: "Trắc nghiệm nhiều đáp án",
+  SHORT_ANSWER: "Tự luận ngắn",
+  ESSAY: "Tự luận dài",
+  FILE_UPLOAD: "Nộp file",
+  FILL_BLANK_TEXT: "Điền từ (text)",
+  FILL_BLANK_DROPDOWN: "Điền từ (dropdown)",
+};
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function QuestionBankPage() {
@@ -115,6 +131,7 @@ export default function QuestionBankPage() {
 
   // Selection & dialogs
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [previewItem, setPreviewItem] = useState<BankItem | null>(null);
   const [showImport, setShowImport] = useState(false);
   const [showGenDialog, setShowGenDialog] = useState(false);
   const [genCount, setGenCount] = useState(10);
@@ -228,7 +245,11 @@ export default function QuestionBankPage() {
   const toggleSelect = (id: number) =>
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
 
@@ -376,23 +397,35 @@ export default function QuestionBankPage() {
       {
         key: "actions",
         header: "",
-        width: "60px",
+        width: "84px",
         cell: (item) => (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(item.id);
-            }}
-            disabled={deletingId === item.id}
-            className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
-            title="Xóa"
-          >
-            {deletingId === item.id ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
-          </button>
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreviewItem(item);
+              }}
+              className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 dark:hover:text-cyan-400 transition-colors cursor-pointer"
+              title="Xem trước câu hỏi"
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(item.id);
+              }}
+              disabled={deletingId === item.id}
+              className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+              title="Xóa"
+            >
+              {deletingId === item.id ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         ),
       },
     ],
@@ -401,7 +434,7 @@ export default function QuestionBankPage() {
   );
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn pb-24 lg:pb-20">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -480,57 +513,69 @@ export default function QuestionBankPage() {
         </div>
       )}
 
-      {/* Filters */}
+      {/* Filters — responsive: search grows, dropdowns keep intrinsic width */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-        <SearchBar
-          value={q}
-          onChange={setQ}
-          placeholder="Tìm trong câu hỏi..."
-          size="sm"
-        />
-        <div className="flex flex-wrap gap-2">
-          <FilterDropdown
-            value={difficulty}
-            onValueChange={setDifficulty}
-            options={[{ value: "", label: "Mọi mức độ" }, ...DIFFICULTY_OPTIONS]}
+        <div className="flex-1 min-w-0">
+          <SearchBar
+            value={q}
+            onChange={setQ}
+            placeholder="Tìm trong câu hỏi...  (nhập để lọc tức thì)"
+            size="sm"
           />
-          <FilterDropdown
-            value={bloom}
-            onValueChange={setBloom}
-            options={[{ value: "", label: "Mọi cấp Bloom" }, ...BLOOM_OPTIONS]}
-          />
-          <FilterDropdown
-            value={source}
-            onValueChange={setSource}
-            options={[{ value: "", label: "Mọi nguồn" }, ...SOURCE_OPTIONS]}
-          />
-          <FilterDropdown
-            value={nodeFilter}
-            onValueChange={setNodeFilter}
-            options={[
-              { value: "", label: "Mọi node" },
-              { value: "dangling", label: "Chưa gắn node" },
-              ...nodes.map((n) => ({ value: String(n.id), label: n.name })),
-            ]}
-          />
-          <FilterDropdown
-            value={`${sort}:${order}`}
-            onValueChange={(v) => {
-              const [s, o] = v.split(":");
-              setSort(s);
-              setOrder(o as "asc" | "desc");
-            }}
-            options={[
-              { value: "created_at:desc", label: "Mới nhất" },
-              { value: "created_at:asc", label: "Cũ nhất" },
-              { value: "points:desc", label: "Điểm cao → thấp" },
-              { value: "difficulty:asc", label: "Dễ → khó" },
-              { value: "difficulty:desc", label: "Khó → dễ" },
-            ]}
-          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="w-[150px]">
+            <FilterDropdown
+              value={difficulty}
+              onValueChange={setDifficulty}
+              options={[{ value: "", label: "Mọi mức độ" }, ...DIFFICULTY_OPTIONS]}
+            />
+          </div>
+          <div className="w-[160px]">
+            <FilterDropdown
+              value={bloom}
+              onValueChange={setBloom}
+              options={[{ value: "", label: "Mọi cấp Bloom" }, ...BLOOM_OPTIONS]}
+            />
+          </div>
+          <div className="w-[160px]">
+            <FilterDropdown
+              value={source}
+              onValueChange={setSource}
+              options={[{ value: "", label: "Mọi nguồn" }, ...SOURCE_OPTIONS]}
+            />
+          </div>
+          <div className="w-[185px] max-w-full">
+            <FilterDropdown
+              value={nodeFilter}
+              onValueChange={setNodeFilter}
+              options={[
+                { value: "", label: "Mọi node" },
+                { value: "dangling", label: "Chưa gắn node" },
+                ...nodes.map((n) => ({ value: String(n.id), label: n.name })),
+              ]}
+            />
+          </div>
+          <div className="w-[170px]">
+            <FilterDropdown
+              value={`${sort}:${order}`}
+              onValueChange={(v) => {
+                const [s, o] = v.split(":");
+                setSort(s);
+                setOrder(o as "asc" | "desc");
+              }}
+              options={[
+                { value: "created_at:desc", label: "Mới nhất" },
+                { value: "created_at:asc", label: "Cũ nhất" },
+                { value: "points:desc", label: "Điểm cao → thấp" },
+                { value: "difficulty:asc", label: "Dễ → khó" },
+                { value: "difficulty:desc", label: "Khó → dễ" },
+              ]}
+            />
+          </div>
           <button
             onClick={refreshAll}
-            className="p-2 rounded-xl border border-slate-200 dark:border-blue-500/15 text-slate-500 hover:text-blue-600 transition-colors cursor-pointer"
+            className="p-2.5 rounded-xl border border-slate-200 dark:border-blue-500/15 text-slate-500 hover:text-blue-600 hover:border-blue-300 dark:hover:border-cyan-500/40 transition-colors cursor-pointer shrink-0"
             title="Làm mới"
           >
             <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
@@ -578,6 +623,27 @@ export default function QuestionBankPage() {
         columns={columns}
         keyExtractor={(it) => String(it.id)}
         loading={loading}
+        onRowClick={(it) => setPreviewItem(it)}
+        renderMobileCard={(item) => (
+          <button
+            type="button"
+            onClick={() => setPreviewItem(item)}
+            className="w-full text-left p-4 rounded-2xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] space-y-2 cursor-pointer hover:border-blue-400 dark:hover:border-cyan-500/40 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full", DIFFICULTY_BADGE[item.difficulty])}>
+                {DIFFICULTY_OPTIONS.find((d) => d.value === item.difficulty)?.label ?? item.difficulty}
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase">
+                {item.source === "AI_GENERATED" ? "AI" : item.source === "IMPORT" ? "Nhập" : item.source === "QUIZ" ? "Từ quiz" : "Thủ công"}
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono ml-auto">{item.points}đ</span>
+            </div>
+            <p className="text-sm font-medium text-slate-800 dark:text-slate-100 line-clamp-3">
+              {item.question_text.replace(/[#*`_[\]]/g, "")}
+            </p>
+          </button>
+        )}
         emptyState={
           <div className="py-12 text-center">
             <Layers className="w-10 h-10 mx-auto mb-3 text-slate-300 dark:text-slate-700 opacity-60" />
@@ -615,6 +681,110 @@ export default function QuestionBankPage() {
         </div>
       )}
 
+      {/* Question preview modal */}
+      <BaseModal
+        isOpen={!!previewItem}
+        onClose={() => setPreviewItem(null)}
+        title={
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/40 flex items-center justify-center shrink-0">
+              <Eye className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <span className="text-lg font-bold text-slate-900 dark:text-slate-50">
+              Xem trước câu hỏi
+            </span>
+          </div>
+        }
+        description="Toàn bộ nội dung sẽ được dùng nguyên vẹn khi đưa vào quiz."
+        size="xl"
+        footer={
+          <div className="flex gap-3 w-full justify-end">
+            <button
+              onClick={() => setPreviewItem(null)}
+              className="px-5 h-11 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold transition-all"
+            >
+              Đóng
+            </button>
+          </div>
+        }
+      >
+        {previewItem && (
+          <div className="space-y-5">
+            {/* Meta badges */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={cn("text-xs font-bold px-2.5 py-1 rounded-full", DIFFICULTY_BADGE[previewItem.difficulty])}>
+                {DIFFICULTY_OPTIONS.find((d) => d.value === previewItem.difficulty)?.label ?? previewItem.difficulty}
+              </span>
+              {previewItem.bloom_level && (
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-300">
+                  Bloom: {previewItem.bloom_level}
+                </span>
+              )}
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                {QUESTION_TYPE_LABELS[previewItem.question_type] ?? previewItem.question_type}
+              </span>
+              <span className="text-xs font-mono font-bold text-slate-500">{previewItem.points} điểm</span>
+              {!previewItem.node_id && (
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-orange-100 dark:bg-orange-950/30 text-orange-600 dark:text-orange-300">
+                  Chưa gắn node
+                </span>
+              )}
+            </div>
+
+            {/* Question body */}
+            <div className="rounded-xl border border-slate-200 dark:border-blue-500/15 p-4 bg-white dark:bg-[#0B1830]">
+              <MarkdownRenderer content={previewItem.question_text} />
+            </div>
+
+            {/* Options */}
+            {!!previewItem.answer_options?.length && (
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Các đáp án</p>
+                {previewItem.answer_options.map((opt, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "flex items-start gap-2.5 px-4 py-2.5 rounded-xl text-sm border",
+                      opt.is_correct
+                        ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 font-medium"
+                        : "border-slate-200 dark:border-blue-500/10 text-slate-700 dark:text-slate-300"
+                    )}
+                  >
+                    <span className="font-bold shrink-0 mt-0.5">
+                      {opt.is_correct ? "✓" : String.fromCharCode(65 + i) + "."}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <MarkdownRenderer content={opt.option_text} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Correct answers (fill-blank / short answer) */}
+            {!!previewItem.correct_answers?.length && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Đáp án đúng</p>
+                {previewItem.correct_answers.map((ans, i) => (
+                  <div key={i} className="px-4 py-2 rounded-xl text-sm bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
+                    {ans.blank_id != null && <span className="font-bold mr-2">Ô {ans.blank_id}:</span>}
+                    {ans.answer_text}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Explanation */}
+            {previewItem.explanation && (
+              <div className="rounded-xl bg-blue-50/80 dark:bg-cyan-950/20 border border-blue-200/70 dark:border-cyan-500/20 p-4 text-sm text-blue-900 dark:text-cyan-200">
+                <p className="font-bold text-xs uppercase tracking-wider mb-1.5 text-blue-600 dark:text-cyan-400">Giải thích</p>
+                <MarkdownRenderer content={previewItem.explanation} />
+              </div>
+            )}
+          </div>
+        )}
+      </BaseModal>
+
       {/* Import modal (target = bank) */}
       {showImport && (
         <QuizSmartImportModal
@@ -627,7 +797,7 @@ export default function QuestionBankPage() {
 
       {/* AI generation dialog */}
       {showGenDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[65] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="w-full max-w-md bg-white dark:bg-[#0F1E35] rounded-2xl shadow-2xl border border-slate-200 dark:border-blue-500/15 p-6 space-y-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center">
@@ -718,7 +888,7 @@ export default function QuestionBankPage() {
 
       {/* Create-quiz-from-selected dialog */}
       {showCreateQuiz && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[65] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="w-full max-w-md bg-white dark:bg-[#0F1E35] rounded-2xl shadow-2xl border border-slate-200 dark:border-blue-500/15 p-6 space-y-4">
             <h3 className="font-black text-slate-900 dark:text-white flex items-center gap-2">
               <PlusCircle className="w-5 h-5 text-blue-600" />
