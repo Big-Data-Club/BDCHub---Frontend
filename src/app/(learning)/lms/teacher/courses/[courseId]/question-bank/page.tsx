@@ -75,6 +75,7 @@ const BLOOM_OPTIONS = [
 const SOURCE_OPTIONS = [
   { value: "AI_GENERATED", label: "AI sinh" },
   { value: "IMPORT", label: "Nhập từ tài liệu" },
+  { value: "QUIZ", label: "Từ quiz" },
   { value: "MANUAL", label: "Thủ công" },
 ];
 
@@ -313,7 +314,7 @@ export default function QuestionBankPage() {
             </p>
             <div className="flex flex-wrap gap-1.5 mt-1">
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase">
-                {item.source === "AI_GENERATED" ? "AI" : item.source === "IMPORT" ? "Nhập" : "Thủ công"}
+                {item.source === "AI_GENERATED" ? "AI" : item.source === "IMPORT" ? "Nhập" : item.source === "QUIZ" ? "Từ quiz" : "Thủ công"}
               </span>
               {!item.node_id && (
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-100 dark:bg-orange-950/30 text-orange-600 dark:text-orange-300">
