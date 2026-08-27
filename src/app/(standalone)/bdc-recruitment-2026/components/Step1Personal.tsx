@@ -124,9 +124,9 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
   return (
     <div className="space-y-8">
       {/* Header section with refined editorial divider */}
-      <div className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
+      <div className="border-b border-slate-200 dark:border-blue-500/10 pb-4">
         <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-          <User className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+          <User className="w-5 h-5 text-blue-600 dark:text-cyan-400 shrink-0" />
           {t.step1Header}
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{t.step1Desc}</p>
@@ -211,7 +211,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       <div>
         <div className={`transition-all duration-300 space-y-3.5 ${
           showOtherInput
-            ? "p-4 bg-blue-50/70 dark:bg-blue-950/30 border-0 border-l-4 border-blue-600 dark:border-blue-500 rounded-none"
+            ? "p-4 bg-blue-50/70 dark:bg-cyan-950/20 border-0 border-l-4 border-blue-600 dark:border-cyan-400 rounded-r-xl"
             : ""
         }`}>
           <FSel
@@ -263,7 +263,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       <div>
         <div className={`transition-all duration-300 space-y-3.5 ${
           showOtherAcademicStatusInput
-            ? "p-4 bg-blue-50/70 dark:bg-blue-950/30 border-0 border-l-4 border-blue-600 dark:border-blue-500 rounded-none"
+            ? "p-4 bg-blue-50/70 dark:bg-cyan-950/20 border-0 border-l-4 border-blue-600 dark:border-cyan-400 rounded-r-xl"
             : ""
         }`}>
           <FSel

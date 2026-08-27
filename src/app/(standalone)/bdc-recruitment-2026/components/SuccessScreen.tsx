@@ -38,11 +38,11 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] flex items-center justify-center px-4 py-16 transition-colors duration-300">
-      <div className="w-full max-w-xl p-8 sm:p-10 bg-white dark:bg-[#0B1528] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm space-y-8 animate-in fade-in-50 duration-300">
+      <div className="w-full max-w-xl p-8 sm:p-10 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl shadow-xs space-y-8 animate-in fade-in-50 duration-300">
         
         {/* Header & Status */}
         <div className="text-center space-y-3">
-          <div className="mx-auto w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+          <div className="mx-auto w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <CheckCircle2 className="w-7 h-7 stroke-[2.25]" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
@@ -54,7 +54,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
         </div>
 
         {/* Candidate & Confirmation Details (Clean Border Layout, No Heavy Cards) */}
-        <div className="border-y border-slate-200/80 dark:border-slate-800/80 py-5 space-y-3 text-sm">
+        <div className="border-y border-slate-200 dark:border-blue-500/10 py-5 space-y-3 text-sm">
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span>{lang === "vi" ? "Ứng viên:" : "Applicant:"} <strong className="text-slate-900 dark:text-slate-100 font-semibold">{fullName}</strong></span>
             <span className="font-mono text-slate-400 dark:text-slate-500">{formattedTime}</span>
@@ -67,7 +67,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
           {confirmationEmailQueued && (
             <div className="pt-2 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-300">
               <div className="flex items-center gap-1.5 truncate">
-                <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <Mail className="w-4 h-4 text-blue-600 dark:text-cyan-400 shrink-0" />
                 <span className="truncate">{t.successEmailNote} <strong className="text-slate-900 dark:text-slate-100 font-medium">{email}</strong></span>
               </div>
               <button
@@ -115,7 +115,7 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
             href="https://facebook.com/bdchcmut"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+            className="inline-flex items-center gap-1 font-semibold text-blue-600 dark:text-cyan-400 hover:underline"
           >
             <span>Fanpage Big Data Club</span>
             <ExternalLink className="w-3 h-3" />

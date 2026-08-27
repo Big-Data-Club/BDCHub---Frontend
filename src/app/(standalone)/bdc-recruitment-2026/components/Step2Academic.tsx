@@ -88,39 +88,39 @@ const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, plac
       <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
         <FL>{label}</FL>
 
-        <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800/90 rounded-lg border border-slate-200/80 dark:border-slate-700/60 text-xs font-semibold shrink-0">
+        <div className="inline-flex p-0.5 bg-slate-100 dark:bg-[#0D192E] rounded-xl border border-slate-200 dark:border-blue-500/20 text-xs font-semibold shrink-0">
           <button
             type="button"
             onClick={() => handleModeChange("4.0")}
-            className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
               mode === "4.0"
-                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs font-bold"
+                ? "bg-white dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 shadow-xs font-bold"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             }`}
           >
-            Hệ 4.0
+            Thang 4.0
           </button>
           <button
             type="button"
             onClick={() => handleModeChange("10.0")}
-            className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
               mode === "10.0"
-                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs font-bold"
+                ? "bg-white dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 shadow-xs font-bold"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             }`}
           >
-            Hệ 10.0
+            Thang 10.0
           </button>
           <button
             type="button"
             onClick={() => handleModeChange("custom")}
-            className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
               mode === "custom"
-                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs font-bold"
+                ? "bg-white dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 shadow-xs font-bold"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             }`}
           >
-            Tùy chỉnh
+            {isVi ? "Khác" : "Custom"}
           </button>
         </div>
       </div>
@@ -315,8 +315,8 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
         </div>
 
         <div className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5 shrink-0">
-          <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <span>{isFreshman ? (isVi ? "Dành cho Tân sinh viên K26" : "Freshman Mode 2026") : (isVi ? "Dành cho Sinh viên Năm 1+" : "Senior Mode")}</span>
+          <GraduationCap className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
+          <span>{isFreshman ? (isVi ? "Dành cho Tân sinh viên" : "Freshman Mode") : (isVi ? "Dành cho Sinh viên Năm 1+" : "Senior Mode")}</span>
         </div>
       </div>
 
@@ -377,9 +377,9 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
           {/* Section 2: Điểm Đánh giá năng lực (ĐGNL) */}
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-bold text-sm">
+              <div className="flex items-center gap-1.5 text-blue-600 dark:text-cyan-400 font-bold text-sm">
                 <Award className="w-4 h-4 shrink-0" />
-                <span>{isVi ? "2. Kỳ thi Đánh giá năng lực (ĐGNL / HSA / TSA)" : "2. Competency Assessment Test (ĐGNL)"}</span>
+                <span>{isVi ? "2. Kết quả đánh giá năng lực" : "2. Competency Assessment Results"}</span>
                 <InfoTooltip
                   text={
                     isVi
@@ -546,7 +546,6 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
           <div>
             <FileUploadCloudinary
               label=""
-              hint={t.cvUploadHint}
               accept="application/pdf"
               maxSizeMB={10}
               folder="bdc_recruitment_2026_cv"

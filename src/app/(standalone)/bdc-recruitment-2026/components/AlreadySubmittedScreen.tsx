@@ -18,8 +18,8 @@ export const AlreadySubmittedScreen: React.FC<AlreadySubmittedScreenProps> = ({ 
 
   return (
     <div className="relative z-10 min-h-screen bg-slate-50 dark:bg-[#050B18] flex items-center justify-center px-4 py-16 transition-colors duration-300">
-      <div className="max-w-md w-full p-8 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm text-center space-y-6 animate-in zoom-in-95 duration-300">
-        <div className="mx-auto w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+      <div className="max-w-md w-full p-8 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl shadow-xs text-center space-y-6 animate-in zoom-in-95 duration-300">
+        <div className="mx-auto w-16 h-16 rounded-full bg-blue-50 dark:bg-cyan-950/40 border border-blue-200 dark:border-cyan-500/20 text-blue-600 dark:text-cyan-400 flex items-center justify-center">
           <CheckCircle className="w-8 h-8" />
         </div>
 
@@ -27,7 +27,7 @@ export const AlreadySubmittedScreen: React.FC<AlreadySubmittedScreenProps> = ({ 
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t.alreadySubmittedTitle}</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{t.alreadySubmittedDesc}</p>
           {savedName && (
-            <p className="text-sm font-semibold text-blue-600 dark:text-blue-300 pt-1">
+            <p className="text-sm font-semibold text-blue-600 dark:text-cyan-400 pt-1">
               Ứng viên: {savedName}
             </p>
           )}

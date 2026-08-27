@@ -54,45 +54,44 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
             const highlights = isVi ? dept.highlightsVi : dept.highlightsEn;
             const fitTitle = isVi ? dept.fitTitleVi : dept.fitTitleEn;
             const badge = isVi ? dept.badgeVi : dept.badgeEn;
-            const skills = isVi ? dept.skillsVi : dept.skillsEn;
 
             return (
               <div
                 key={dept.id}
                 onClick={() => onChange({ department: dept.id as DepartmentId })}
-                className={`group cursor-pointer transition-colors duration-150 flex flex-col justify-between p-5 rounded-lg border ${
+                className={`group cursor-pointer transition-all duration-200 flex flex-col justify-between p-6 rounded-2xl border active:scale-[0.99] ${
                   isSelected
-                    ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-600 dark:border-blue-500"
-                    : "bg-white dark:bg-[#070E1B] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                    ? "bg-blue-50/60 dark:bg-[#0D192E] border-blue-600 dark:border-cyan-400 shadow-sm ring-1 ring-blue-600/20 dark:ring-cyan-400/20"
+                    : "bg-white dark:bg-[#0D192E]/60 border-slate-200 dark:border-blue-500/10 hover:border-slate-300 dark:hover:border-blue-500/30 hover:shadow-xs"
                 }`}
               >
                 <div>
                   {/* Category Indicator & Radio check mark */}
-                  <div className="flex items-center justify-between gap-3 mb-2.5">
+                  <div className="flex items-center justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
-                      <IconComponent className={`w-4 h-4 ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500"}`} />
-                      <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400">
+                      <IconComponent className={`w-4 h-4 ${isSelected ? "text-blue-600 dark:text-cyan-400" : "text-slate-400 dark:text-slate-500"}`} />
+                      <span className="text-xs font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400">
                         {badge}
                       </span>
                     </div>
 
                     <div
-                      className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all shrink-0 ${
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all shrink-0 ${
                         isSelected
-                          ? "border-blue-600 bg-blue-600 text-white"
+                          ? "border-blue-600 dark:border-cyan-400 bg-blue-600 dark:bg-cyan-400 text-white dark:text-slate-950"
                           : "border-slate-300 dark:border-slate-700 bg-transparent group-hover:border-slate-400"
                       }`}
                     >
-                      {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                      {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                     </div>
                   </div>
 
                   {/* Title & Tagline */}
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug mb-1">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors leading-snug mb-1">
                     {isVi ? dept.nameVi : dept.nameEn}
                   </h3>
 
-                  <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-3 leading-snug">
+                  <p className="text-xs font-semibold text-blue-600 dark:text-cyan-400 mb-3 leading-snug">
                     {isVi ? dept.taglineVi : dept.taglineEn}
                   </p>
 
@@ -101,14 +100,14 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                   </p>
 
                   {/* Pure Editorial Left Divider for Fit Highlights */}
-                  <div className="border-l-2 border-slate-200 dark:border-slate-800 pl-3 py-0.5 space-y-1.5 mb-4">
+                  <div className="border-l-2 border-blue-500/40 dark:border-cyan-400/40 pl-3 py-0.5 space-y-1.5 mb-2">
                     <p className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                       {fitTitle}
                     </p>
                     <ul className="space-y-1">
                       {highlights.map((item, i) => (
                         <li key={i} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2 leading-relaxed">
-                          <span className="w-1 h-1 rounded-full bg-blue-500 shrink-0 mt-1.5" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-cyan-400 shrink-0 mt-1.5" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -122,12 +121,12 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
         {errors.department && <p className="text-xs font-semibold text-rose-500 mt-2">{errors.department}</p>}
       </div>
 
-      <hr className="border-slate-200 dark:border-slate-800" />
+      <hr className="border-slate-200 dark:border-blue-500/10" />
 
       {/* Time Commitment */}
       <div>
         <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center gap-2">
-          <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <Clock className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
           {t.weeklyTimeCommitmentLabel}
         </label>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
@@ -144,16 +143,16 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                 type="button"
                 key={opt.id}
                 onClick={() => onChange({ weeklyTimeCommitment: opt.id })}
-                className={`p-3 rounded-md border text-xs font-semibold cursor-pointer transition-all flex items-center justify-between ${
+                className={`p-3.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all active:scale-95 flex items-center justify-between min-h-[44px] ${
                   isSelected
-                    ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                    : "bg-white dark:bg-[#070E1B] border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
+                    ? "bg-blue-600 dark:bg-cyan-500 text-white dark:text-slate-950 border-blue-600 dark:border-cyan-500 shadow-sm font-bold"
+                    : "bg-white dark:bg-[#0D192E] border-slate-200 dark:border-blue-500/20 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-blue-500/40"
                 }`}
               >
                 <span>{isVi ? opt.labelVi : opt.labelEn}</span>
                 <span
-                  className={`w-2 h-2 rounded-full ${
-                    isSelected ? "bg-white animate-pulse" : "bg-slate-300 dark:bg-slate-700"
+                  className={`w-2.5 h-2.5 rounded-full ${
+                    isSelected ? "bg-white dark:bg-slate-950 animate-pulse" : "bg-slate-300 dark:bg-slate-700"
                   }`}
                 />
               </button>
