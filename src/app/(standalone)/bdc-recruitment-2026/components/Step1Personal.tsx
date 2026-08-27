@@ -211,7 +211,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       <div>
         <div className={`transition-all duration-300 space-y-3.5 ${
           showOtherInput
-            ? "p-4 bg-blue-50/70 dark:bg-cyan-950/20 border-0 border-l-4 border-blue-600 dark:border-cyan-400 rounded-r-xl"
+            ? "p-4 bg-blue-50/70 dark:bg-cyan-950/20 border-0 border-l-4 border-blue-600 dark:border-cyan-400 rounded-none"
             : ""
         }`}>
           <FSel
@@ -263,7 +263,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       <div>
         <div className={`transition-all duration-300 space-y-3.5 ${
           showOtherAcademicStatusInput
-            ? "p-4 bg-blue-50/70 dark:bg-cyan-950/20 border-0 border-l-4 border-blue-600 dark:border-cyan-400 rounded-r-xl"
+            ? "p-4 bg-blue-50/70 dark:bg-cyan-950/20 border-0 border-l-4 border-blue-600 dark:border-cyan-400 rounded-none"
             : ""
         }`}>
           <FSel

@@ -337,14 +337,13 @@ export default function BDCRecruitment2026Page() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
           {/* Left: logo + title */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 bg-white dark:bg-[#0D192E] p-1.5 rounded-xl border border-slate-200 dark:border-blue-500/20 shadow-sm">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 bg-white dark:bg-[#0D192E] p-1.5 rounded-md border border-slate-200 dark:border-blue-500/20 shadow-xs">
               <Image src={bdcLogo} alt="BDC" fill className="object-contain" />
             </div>
             <div className="min-w-0">
               <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
-                BIG DATA CLUB <span className="text-blue-600 dark:text-cyan-400 text-xs font-bold ml-1">2026</span>
+                BIG DATA CLUB
               </h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">HCMUT · Empowering Tomorrow&apos;s Tech Leaders</p>
             </div>
           </div>
 
