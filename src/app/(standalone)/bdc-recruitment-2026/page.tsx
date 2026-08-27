@@ -383,14 +383,21 @@ export default function BDCRecruitment2026Page() {
         </div>
 
         {/* Step Progress Bar (Integrated Overlay Stepper) */}
-        <div className="relative mb-14 mt-6 w-full px-8 sm:px-16 z-10">
+        <div className="relative mb-10 sm:mb-14 mt-4 sm:mt-6 w-full px-4 sm:px-16 z-10">
+          {/* Mobile Current Step Indicator Badge */}
+          <div className="sm:hidden text-center mb-4">
+            <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/20 px-3 py-1 rounded-full">
+              Bước {step}/4: {t.steps[step - 1]?.title}
+            </span>
+          </div>
+
           {/* Background Track Line */}
-          <div className="absolute top-[18px] left-[50px] right-[50px] sm:left-[82px] sm:right-[82px] h-1 bg-slate-200 dark:bg-slate-800/85 -translate-y-1/2 rounded-full" />
+          <div className="absolute top-[18px] sm:top-[18px] left-[36px] right-[36px] sm:left-[82px] sm:right-[82px] h-1 bg-slate-200 dark:bg-slate-800/85 -translate-y-1/2 rounded-full" />
 
           {/* Active Progress Line */}
-          <div className="absolute top-[18px] left-[50px] right-[50px] sm:left-[82px] sm:right-[82px] h-1 -translate-y-1/2 pointer-events-none">
+          <div className="absolute top-[18px] sm:top-[18px] left-[36px] right-[36px] sm:left-[82px] sm:right-[82px] h-1 -translate-y-1/2 pointer-events-none">
             <div
-              className="h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-500 rounded-full transition-all duration-500"
+              className="h-full bg-blue-600 dark:bg-blue-500 rounded-full transition-all duration-300"
               style={{ width: `${((step - 1) / 3) * 100}%` }}
             />
           </div>
@@ -422,10 +429,10 @@ export default function BDCRecruitment2026Page() {
                   <button
                     type="button"
                     onClick={handleStepClick}
-                    className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all duration-300 relative z-10 hover:scale-105 active:scale-95 cursor-pointer
+                    className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all duration-300 relative z-10 hover:scale-105 active:scale-95 cursor-pointer touch-manipulation min-h-[36px] min-w-[36px]
                       ${
                         isCurrent
-                          ? "border-blue-600 bg-blue-600 text-white shadow-sm scale-105"
+                          ? "border-blue-600 bg-blue-600 text-white shadow-xs scale-105"
                           : isCompleted
                           ? "border-blue-600 bg-blue-600 text-white"
                           : "border-slate-300 dark:border-slate-700 bg-white dark:bg-[#050B18] text-slate-400 dark:text-slate-500 hover:border-slate-400"
@@ -437,10 +444,10 @@ export default function BDCRecruitment2026Page() {
                       String(st.step).padStart(2, "0")
                     )}
                   </button>
-                  {/* Text Label */}
+                  {/* Text Label (Hidden on small screens to prevent overlap) */}
                   <span
                     onClick={handleStepClick}
-                    className={`absolute top-11 left-1/2 -translate-x-1/2 text-xs font-semibold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400
+                    className={`hidden sm:block absolute top-11 left-1/2 -translate-x-1/2 text-xs font-semibold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400
                       ${
                         isCurrent
                           ? "text-blue-600 dark:text-blue-400 font-bold"
@@ -458,19 +465,19 @@ export default function BDCRecruitment2026Page() {
         </div>
 
         {/* Step Content Card */}
-        <div className="relative z-10 p-6 sm:p-10 bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm">
+        <div className="relative z-10 p-5 sm:p-10 bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-xs">
           {step === 1 && <Step1Personal form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 2 && <Step2Academic form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 3 && <Step3Department form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 4 && <Step4Review form={form} onChange={updateForm} errors={errors} lang={lang} onEditStep={(st) => setStep(st)} />}
 
           {/* Navigation Controls */}
-          <div className="mt-10 pt-6 border-t border-slate-200/80 dark:border-blue-500/15 flex items-center justify-between">
+          <div className="mt-8 sm:mt-10 pt-6 border-t border-slate-200/80 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={handlePrev}
-                className="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0D192E] dark:hover:bg-[#162644] text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all active:scale-95 border border-slate-200 dark:border-blue-500/20"
+                className="inline-flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0D192E] dark:hover:bg-[#162644] text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all active:scale-95 border border-slate-200 dark:border-slate-800 min-h-[44px] cursor-pointer touch-manipulation"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>{t.btnPrev}</span>
@@ -483,7 +490,7 @@ export default function BDCRecruitment2026Page() {
               <button
                 type="button"
                 onClick={handleNext}
-                className="inline-flex items-center space-x-2 px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-all active:scale-95 shadow-md hover:shadow-blue-500/25 ml-auto"
+                className="inline-flex items-center justify-center space-x-2 px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-all active:scale-95 shadow-sm hover:shadow-blue-500/25 sm:ml-auto min-h-[44px] cursor-pointer touch-manipulation"
               >
                 <span>{t.btnNext}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -493,7 +500,7 @@ export default function BDCRecruitment2026Page() {
                 type="button"
                 disabled={submitting}
                 onClick={handleSubmit}
-                className="inline-flex items-center space-x-2 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-extrabold transition-all active:scale-95 shadow-lg hover:shadow-emerald-500/30 ml-auto cursor-pointer"
+                className="inline-flex items-center justify-center space-x-2 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-extrabold transition-all active:scale-95 shadow-sm hover:shadow-emerald-500/30 sm:ml-auto min-h-[44px] cursor-pointer touch-manipulation"
               >
                 {submitting ? (
                   <>

@@ -221,9 +221,9 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
                 <UploadCloud className="w-5 h-5" />
               </div>
               <div className="text-xs text-slate-700 dark:text-slate-200">
-                <span className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">Tải file lên</span> hoặc kéo thả file vào đây
+                <span className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">Chạm để chọn file</span> hoặc kéo thả vào đây
               </div>
-              <p className="text-[11px] text-slate-400 dark:text-slate-500">Hỗ trợ PDF, PNG, JPG (Tối đa {maxSizeMB}MB)</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">Hỗ trợ PDF, PNG, JPG (Tối đa {maxSizeMB}MB)</p>
             </div>
           )}
         </div>

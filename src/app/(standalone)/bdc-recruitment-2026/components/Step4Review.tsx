@@ -33,18 +33,18 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
   const timeObj = TIME_COMMITMENT_OPTIONS.find((tc) => tc.id === form.weeklyTimeCommitment);
   const timeLabel = timeObj ? (isVi ? timeObj.labelVi : timeObj.labelEn) : (form.weeklyTimeCommitment || "5 - 10h/tuần");
 
-  const reviewCard =
-    "bg-white dark:bg-[#070E1B] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3";
+  const reviewSection =
+    "space-y-3";
   const reviewHeader =
-    "flex justify-between items-center border-b border-slate-100 dark:border-slate-800/80 pb-3";
+    "flex justify-between items-center pb-1";
   const reviewTitle =
-    "text-sm font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2";
-  const labelCls = "text-slate-500 dark:text-slate-400 block text-[11px] font-medium uppercase tracking-wider mb-0.5";
-  const valueCls = "font-semibold text-slate-800 dark:text-slate-200 text-xs";
+    "text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2";
+  const labelCls = "text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5 block";
+  const valueCls = "font-semibold text-slate-900 dark:text-slate-100 text-xs tabular-nums";
 
   return (
-    <div className="space-y-6">
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+    <div className="space-y-8">
+      <div className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
           {t.step4Header}
@@ -53,18 +53,18 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
       </div>
 
       {/* Section 1: Personal Info */}
-      <div className={reviewCard}>
+      <div className={reviewSection}>
         <div className={reviewHeader}>
           <h3 className={reviewTitle}>
             <User className="w-4 h-4" />
             {t.reviewPersonal}
           </h3>
-          <button type="button" onClick={() => onEditStep(1)} className="text-xs text-blue-500 dark:text-blue-400 hover:underline font-medium">
+          <button type="button" onClick={() => onEditStep(1)} className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer">
             Chỉnh sửa
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
           {[
             [t.fullName, form.fullName],
             [t.phone, form.phone],
@@ -87,7 +87,7 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
               href={form.facebookLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-blue-500 dark:text-blue-400 hover:underline truncate block"
+              className="font-semibold text-blue-600 dark:text-blue-400 hover:underline truncate block"
             >
               {form.facebookLink || "—"}
             </a>
@@ -95,26 +95,28 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
 
           <div>
             <span className={labelCls}>{t.academicStatus}:</span>
-            <span className="font-semibold text-blue-600 dark:text-blue-300">{statusLabel}</span>
+            <span className="font-semibold text-blue-600 dark:text-blue-400">{statusLabel}</span>
           </div>
         </div>
       </div>
 
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
       {/* Section 2: Academic & Files */}
-      <div className={reviewCard}>
+      <div className={reviewSection}>
         <div className={reviewHeader}>
           <h3 className={reviewTitle}>
             <BookOpen className="w-4 h-4" />
             {t.reviewAcademic}
           </h3>
-          <button type="button" onClick={() => onEditStep(2)} className="text-xs text-blue-500 dark:text-blue-400 hover:underline font-medium">
+          <button type="button" onClick={() => onEditStep(2)} className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer">
             Chỉnh sửa
           </button>
         </div>
 
-        <div className="space-y-3 text-xs">
+        <div className="space-y-4 text-xs pt-1">
           {form.academicStatus === "freshman" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <span className={labelCls}>Tổ hợp xét tuyển:</span>
                 <span className={valueCls}>{blockLabel}</span>
@@ -131,7 +133,7 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <span className={labelCls}>{t.gpaCumulative}:</span>
                 <span className={valueCls}>{form.gpaCumulative || "—"}</span>
@@ -145,7 +147,7 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
 
           <div>
             <span className={labelCls}>{t.achievementsExtracurricular}:</span>
-            <p className="text-slate-700 dark:text-slate-200 mt-0.5 whitespace-pre-wrap">{form.achievementsExtracurricular || "Chưa có"}</p>
+            <p className="text-slate-800 dark:text-slate-200 mt-0.5 whitespace-pre-wrap leading-relaxed">{form.achievementsExtracurricular || "Chưa có"}</p>
           </div>
 
           <div>
@@ -153,43 +155,43 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
             <span className={valueCls}>{form.englishCert || "Chưa có"}</span>
           </div>
 
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
-            <span className={`${labelCls} mb-1`}>Hồ sơ CV:</span>
+          <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/60 space-y-2">
+            <span className={labelCls}>Hồ sơ CV:</span>
             {form.cvFile ? (
-              <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 p-2 rounded-lg">
+              <div className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-500/20 p-2.5 rounded-xl">
                 <FileText className="w-4 h-4 shrink-0" />
-                <span className="font-medium truncate">{form.cvFile.filename}</span>
+                <span className="font-semibold truncate">{form.cvFile.filename}</span>
                 <a
                   href={form.cvFile.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ml-auto text-blue-500 dark:text-blue-400 hover:underline flex items-center gap-1 shrink-0"
+                  className="ml-auto text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 shrink-0 font-semibold"
                 >
                   Xem <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
             ) : form.cvBioText ? (
-              <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
-                <span className="text-[11px] font-bold text-slate-500 block mb-1">Tóm tắt bản thân / Dự án thay thế CV:</span>
-                <p className="text-slate-700 dark:text-slate-300 text-xs whitespace-pre-wrap">{form.cvBioText}</p>
+              <div className="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                <span className="text-xs font-semibold text-slate-500 block mb-1">Tóm tắt bản thân / Dự án thay thế CV:</span>
+                <p className="text-slate-800 dark:text-slate-200 text-xs whitespace-pre-wrap leading-relaxed">{form.cvBioText}</p>
               </div>
             ) : (
-              <span className="text-rose-500 font-medium">Chưa tải CV</span>
+              <span className="text-rose-500 font-semibold">Chưa tải CV</span>
             )}
           </div>
 
           {form.evidenceFiles.length > 0 && (
             <div>
-              <span className={`${labelCls} mb-1`}>File minh chứng đính kèm ({form.evidenceFiles.length}):</span>
-              <div className="space-y-1">
+              <span className={labelCls}>File minh chứng đính kèm ({form.evidenceFiles.length}):</span>
+              <div className="space-y-1.5 pt-1">
                 {form.evidenceFiles.map((file, i) => (
-                  <div key={i} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/60 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-transparent">
+                  <div key={i} className="flex items-center justify-between bg-slate-50/70 dark:bg-slate-900/40 px-3 py-2 rounded-xl text-slate-800 dark:text-slate-200 border border-slate-200/60 dark:border-slate-800">
                     <span className="truncate">{file.filename}</span>
                     <a
                       href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 dark:text-blue-400 hover:underline flex items-center gap-1 shrink-0 ml-2"
+                      className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 shrink-0 ml-2 font-semibold"
                     >
                       Xem <ExternalLink className="w-3 h-3" />
                     </a>
@@ -201,55 +203,59 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
         </div>
       </div>
 
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
       {/* Section 3: Department & Motivation */}
-      <div className={reviewCard}>
+      <div className={reviewSection}>
         <div className={reviewHeader}>
           <h3 className={reviewTitle}>
             <Users className="w-4 h-4" />
             {t.reviewDepartment}
           </h3>
-          <button type="button" onClick={() => onEditStep(3)} className="text-xs text-blue-500 dark:text-blue-400 hover:underline font-medium">
+          <button type="button" onClick={() => onEditStep(3)} className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer">
             Chỉnh sửa
           </button>
         </div>
 
-        <div className="space-y-3 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="space-y-4 text-xs pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <span className={labelCls}>Ban ứng tuyển:</span>
-              <span className="font-bold text-blue-600 dark:text-blue-300 text-sm">{deptName || "Chưa lựa chọn"}</span>
+              <span className="font-bold text-blue-600 dark:text-blue-400 text-sm">{deptName || "Chưa lựa chọn"}</span>
             </div>
             <div>
               <span className={labelCls}>Đồng ý điều phối Ban:</span>
-              <span className="font-semibold text-slate-700 dark:text-slate-300">
+              <span className="font-semibold text-slate-800 dark:text-slate-200">
                 {form.allowDepartmentAdjustment ? (isVi ? "Có" : "Yes") : (isVi ? "Không" : "No")}
               </span>
             </div>
             <div>
               <span className={labelCls}>Thời gian cống hiến:</span>
-              <span className="font-medium text-slate-700 dark:text-slate-300">{timeLabel}</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200">{timeLabel}</span>
             </div>
           </div>
 
           <div>
-            <span className={`${labelCls} mb-1`}>{t.motivationLabel}:</span>
-            <p className="bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 text-slate-700 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
+            <span className={labelCls}>{t.motivationLabel}:</span>
+            <p className="bg-slate-50/70 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed mt-1">
               {form.motivation || "—"}
             </p>
           </div>
         </div>
       </div>
 
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
       {/* Privacy Checkbox */}
-      <div className="p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 rounded-2xl">
+      <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-500/20 rounded-xl">
         <FCb
           id="agreePrivacy"
           checked={form.agreePrivacy}
           onCheckedChange={(c) => onChange({ agreePrivacy: c })}
-          icon={<ShieldCheck className="w-4 h-4 text-blue-500 dark:text-blue-400 inline shrink-0" />}
+          icon={<ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 inline shrink-0" />}
           label={
             <span className="leading-relaxed">
-              <span className="font-bold text-blue-600 dark:text-blue-300">Cam kết thông tin: </span>
+              <span className="font-bold text-blue-600 dark:text-blue-400">Cam kết thông tin: </span>
               {t.agreePrivacyLabel}
             </span>
           }

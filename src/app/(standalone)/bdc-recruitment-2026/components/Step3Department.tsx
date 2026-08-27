@@ -77,7 +77,7 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                   </p>
 
                   <div className="pl-3 border-l-2 border-slate-300 dark:border-slate-700 space-y-1.5 mb-5">
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1.5">
+                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                       {lang === "vi" ? "Cơ hội chính:" : "Key Opportunities:"}
                     </p>
                     <ul className="space-y-1.5">
@@ -92,7 +92,7 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                 </div>
 
                 <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
-                  <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                  <p className="text-xs font-mono text-slate-500 dark:text-slate-400">
                     <span className="font-semibold uppercase text-slate-400 mr-1.5">Tech:</span>
                     {(lang === "vi" ? dept.skillsVi : dept.skillsEn).join(" · ")}
                   </p>

@@ -163,7 +163,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       <div>
         <div className={`transition-all duration-300 space-y-3.5 ${
           showOtherInput
-            ? "p-3.5 sm:p-4 rounded-2xl border-l-4 border-blue-500 dark:border-blue-400 bg-blue-50/60 dark:bg-blue-950/25"
+            ? "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30"
             : ""
         }`}>
           <FSel
@@ -177,7 +177,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
             isVi={isVi}
           />
           {showOtherInput && (
-            <div className="animate-dropdown-fade-in">
+            <div className="animate-dropdown-fade-in pt-1">
               <FIn
                 label={isVi ? "Nhập tên trường khác *" : "Specify your university *"}
                 type="text"
@@ -215,7 +215,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       <div>
         <div className={`transition-all duration-300 space-y-3.5 ${
           form.academicStatus === "other"
-            ? "p-3.5 sm:p-4 rounded-2xl border-l-4 border-blue-500 dark:border-blue-400 bg-blue-50/60 dark:bg-blue-950/25"
+            ? "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30"
             : ""
         }`}>
           <FSel
@@ -236,7 +236,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
           />
 
           {form.academicStatus === "other" && (
-            <div className="animate-dropdown-fade-in">
+            <div className="animate-dropdown-fade-in pt-1">
               <FIn
                 label={isVi ? "Nhập chi tiết năm học / trình độ *" : "Specify your academic status *"}
                 type="text"

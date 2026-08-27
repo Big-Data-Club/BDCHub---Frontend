@@ -88,7 +88,7 @@ const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, plac
       <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
         <FL>{label}</FL>
 
-        <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800/90 rounded-lg border border-slate-200/80 dark:border-slate-700/60 text-[11px] font-semibold shrink-0">
+        <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800/90 rounded-lg border border-slate-200/80 dark:border-slate-700/60 text-xs font-semibold shrink-0">
           <button
             type="button"
             onClick={() => handleModeChange("4.0")}
@@ -322,9 +322,9 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
 
       {/* Dynamic Academic Inputs */}
       {isFreshman ? (
-        <div className="space-y-5">
+        <div className="space-y-6">
           {/* Section 1: Block & Score selection */}
-          <div className="bg-slate-50/50 dark:bg-slate-900/40 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-4">
+          <div className="space-y-4">
             <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-sm">
               <GraduationCap className="w-4 h-4 shrink-0" />
               <span>{isVi ? "1. Tổ hợp xét tuyển & Điểm thi THPT / Đại học" : "1. Admission Block & Exam Score"}</span>
@@ -372,8 +372,10 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
             </div>
           </div>
 
-          {/* Section 2: Điểm Đánh giá năng lực (ĐGNL) with gentle encouraging tone */}
-          <div className="bg-slate-50/50 dark:bg-slate-900/40 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-4">
+          <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
+          {/* Section 2: Điểm Đánh giá năng lực (ĐGNL) */}
+          <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-bold text-sm">
                 <Award className="w-4 h-4 shrink-0" />
@@ -389,11 +391,11 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
               </div>
 
               {/* Gentle Option Selector */}
-              <div className="inline-flex p-1 bg-slate-200/70 dark:bg-slate-800 rounded-xl text-xs font-medium self-start sm:self-auto shrink-0">
+              <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-medium self-start sm:self-auto shrink-0 border border-slate-200/80 dark:border-slate-700/60">
                 <button
                   type="button"
                   onClick={() => handleEntranceUpdate({ hasDgnl: "yes" })}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer font-semibold border ${
+                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer font-semibold border ${
                     form.hasDgnl !== "no"
                       ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs border-white dark:border-slate-900"
                       : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent"
@@ -404,7 +406,7 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
                 <button
                   type="button"
                   onClick={() => handleEntranceUpdate({ hasDgnl: "no", dgnlScore: "" })}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer font-semibold border ${
+                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer font-semibold border ${
                     form.hasDgnl === "no"
                       ? "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-xs border-slate-200 dark:border-slate-700"
                       : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent"
@@ -437,6 +439,8 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
             />
           </div>
 
+          <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
           {renderEnglishCertFields()}
 
           <FTa
@@ -450,7 +454,7 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
       ) : (
         <div className="space-y-5">
           {t.seniorNoticeDesc && (
-            <div className="p-3.5 border-l-4 border-blue-500 bg-blue-50/60 dark:bg-blue-950/25 text-xs text-slate-600 dark:text-slate-400 leading-relaxed rounded-r-xl">
+            <div className="p-4 border border-blue-200 dark:border-blue-500/20 bg-blue-50/40 dark:bg-blue-950/20 text-xs text-blue-950 dark:text-blue-200 leading-relaxed rounded-xl font-medium">
               {t.seniorNoticeDesc}
             </div>
           )}
@@ -473,6 +477,8 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
               isVi={isVi}
             />
           </div>
+
+          <hr className="border-slate-200/80 dark:border-slate-800/80" />
 
           {renderEnglishCertFields()}
 
@@ -550,7 +556,7 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
               required={!isFreshman}
             />
             {isFreshman && !form.cvFile && (
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1.5">
                 <Info className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                 <span>{isVi ? "Tân sinh viên chưa có CV? Bạn có thể chuyển qua nút \"Giới thiệu bản thân\" phía trên." : "Don't have a CV yet? Switch to \"Write Bio\" above."}</span>
               </p>
