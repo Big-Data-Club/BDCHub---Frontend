@@ -11,13 +11,13 @@ export function ClosedForm({ lang }: ClosedFormProps) {
     en: {
       tag: "Form Closed",
       title: "Registration is Closed",
-      desc: "Please check your email in the next 24 hours. The organizing committee will send you an email.",
+      desc: "The organizing committee will update information as soon as possible.",
       contact: "For any inquiries, contact us at:",
     },
     vi: {
       tag: "Form đã đóng",
       title: "Đăng Ký Đã Đóng",
-      desc: "Vui lòng kiểm tra email của bạn trong 24h tới, ban tổ chức sẽ gửi email.",
+      desc: "Ban tổ chức sẽ cập nhật thông tin trong thời gian sớm nhất.",
       contact: "Mọi thắc mắc vui lòng liên hệ:",
     },
   }[lang];

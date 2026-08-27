@@ -159,8 +159,8 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
           label={t.emailConfirmation}
           tooltipText={
             isVi
-              ? "Kết quả vòng hồ sơ, xác nhận nộp đơn thành công và thông tin các vòng tiếp theo sẽ được gửi trực tiếp đến địa chỉ email này!"
-              : "Screening results, application confirmation, and info on upcoming rounds will be sent directly to this email address!"
+              ? "Địa chỉ email chính thức dùng để Ban Nhân sự BDC liên hệ với bạn."
+              : "Official contact email for BDC HR team communications."
           }
           fieldKey="emailConfirmation"
           type="email"

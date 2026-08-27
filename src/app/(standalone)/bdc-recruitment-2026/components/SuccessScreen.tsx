@@ -63,32 +63,6 @@ export const SuccessScreen: React.FC<SuccessScreenProps> = ({
           <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
             {t.successMsg}
           </p>
-
-          {confirmationEmailQueued && (
-            <div className="pt-2 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-300">
-              <div className="flex items-center gap-1.5 truncate">
-                <Mail className="w-4 h-4 text-blue-600 dark:text-cyan-400 shrink-0" />
-                <span className="truncate">{t.successEmailNote} <strong className="text-slate-900 dark:text-slate-100 font-medium">{email}</strong></span>
-              </div>
-              <button
-                type="button"
-                onClick={handleCopyEmail}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>{lang === "vi" ? "Đã chép" : "Copied"}</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>{lang === "vi" ? "Sao chép" : "Copy"}</span>
-                  </>
-                )}
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Next Steps List (Clean Editorial Typography) */}

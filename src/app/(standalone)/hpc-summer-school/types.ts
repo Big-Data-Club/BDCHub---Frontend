@@ -141,7 +141,7 @@ export const T = {
     back: "Back", next: "Continue", submit: "Submit Application", submitting: "Submitting…",
     successTag: "Application Submitted",
     successTitle1: "Thank you,", successTitle2: "for applying!",
-    successDesc: "Your application has been successfully submitted to the HCMUT HPC School 2026 selection committee. We will review all submissions and notify you of the outcome via email as soon as possible.",
+    successDesc: "Your application has been successfully submitted to the HCMUT HPC School 2026 selection committee. We will review all submissions and notify you of the outcome as soon as possible.",
     followUs: "Stay up to date at:",
     links: [
       { label: "HPCC HCMUT", href: "https://hpcc.hcmut.edu.vn/", color: "text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300" },
@@ -238,7 +238,7 @@ export const T = {
     back: "Quay lại", next: "Tiếp tục", submit: "Nộp Đơn Đăng Ký", submitting: "Đang gửi đơn…",
     successTag: "Đăng ký thành công",
     successTitle1: "Cảm ơn bạn,", successTitle2: "đã nộp đơn!",
-    successDesc: "Hồ sơ của bạn đã được gửi thành công đến ban tuyển sinh HCMUT HPC School 2026. Chúng tôi sẽ xét duyệt và thông báo kết quả qua email sớm nhất có thể.",
+    successDesc: "Hồ sơ của bạn đã được gửi thành công đến ban tuyển sinh HCMUT HPC School 2026. Chúng tôi sẽ xét duyệt và thông báo kết quả sớm nhất có thể.",
     followUs: "Theo dõi thông tin mới nhất tại:",
     links: [
       { label: "HPCC HCMUT", href: "https://hpcc.hcmut.edu.vn/", color: "text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300" },

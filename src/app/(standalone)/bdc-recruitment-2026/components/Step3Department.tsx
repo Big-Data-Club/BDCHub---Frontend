@@ -210,16 +210,6 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
           error={errors.motivation}
         />
       </div>
-
-      {/* Send Copy via Email Option */}
-      <div className="pt-1">
-        <FCb
-          id="sendCopy"
-          checked={form.sendCopy}
-          onCheckedChange={(c) => onChange({ sendCopy: c })}
-          label={`${t.sendCopyLabel} (${form.emailConfirmation || "email xác nhận"})`}
-        />
-      </div>
     </div>
   );
 };

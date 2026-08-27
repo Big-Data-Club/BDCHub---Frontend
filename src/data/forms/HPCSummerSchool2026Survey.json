@@ -52,7 +52,7 @@
     {
       "id": "pre_announcement",
       "type": "rating",
-      "question": "Quy trình thông báo kết quả tuyển chọn học viên (qua Email) và hướng dẫn chuẩn bị ban đầu (cài đặt VPN, SSH key, lưu ý laptop...) có rõ ràng và kịp thời không?",
+      "question": "Quy trình thông báo kết quả tuyển chọn học viên và hướng dẫn chuẩn bị ban đầu (cài đặt VPN, SSH key, lưu ý laptop...) có rõ ràng và kịp thời không?",
       "required": true,
       "note": "1 = Rất mơ hồ/Trễ, 5 = Rất rõ ràng & Kịp thời",
       "scale": {

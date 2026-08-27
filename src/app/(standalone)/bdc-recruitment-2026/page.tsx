@@ -235,7 +235,6 @@ export default function BDCRecruitment2026Page() {
         allow_adjustment:             form.allowDepartmentAdjustment ? "Có" : "Không",
         weekly_time_commitment:       timeCommitmentLabel,
         motivation:                   form.motivation,
-        send_copy:                    form.sendCopy ? "Có" : "Không",
         form_language:                lang === "vi" ? "Tiếng Việt" : "English",
       };
 
@@ -263,7 +262,6 @@ export default function BDCRecruitment2026Page() {
         { id: "allow_adjustment",             question: "Đồng ý điều phối" },
         { id: "weekly_time_commitment",       question: "Thời gian cống hiến/tuần" },
         { id: "motivation",                   question: "Lý do & Động lực" },
-        { id: "send_copy",                    question: "Gửi bản sao qua email" },
         { id: "form_language",                question: "Ngôn ngữ form" },
       ];
 

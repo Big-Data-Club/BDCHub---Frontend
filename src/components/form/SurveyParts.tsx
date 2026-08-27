@@ -76,7 +76,6 @@ export const SurveySuccess = ({
             {isRegistration ? (
               <>
                 <li>Ban tổ chức sẽ xem xét đơn đăng ký của bạn</li>
-                <li>Kết quả sẽ được thông báo qua email trong 3-5 ngày</li>
                 <li>Theo dõi fanpage Big Data Club để cập nhật thông tin</li>
               </>
             ) : (

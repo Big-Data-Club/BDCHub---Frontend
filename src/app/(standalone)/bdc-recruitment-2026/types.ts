@@ -194,10 +194,10 @@ export const T = {
 
     // Step 1
     step1Header: "Thông tin cá nhân & Liên hệ",
-    step1Desc: "Vui lòng điền chính xác thông tin để Ban Nhân sự BDC thuận tiện liên hệ và gửi kết quả.",
-    emailConfirmation: "Email nhận thông báo & xác nhận đơn *",
+    step1Desc: "Vui lòng điền chính xác thông tin để Ban Nhân sự BDC thuận tiện liên hệ.",
+    emailConfirmation: "Email liên hệ chính *",
     emailConfirmationPh: "Ví dụ: bdc@hcmut.edu.vn hoặc email cá nhân",
-    emailConfirmationHint: "Kết quả vòng hồ sơ và lịch phỏng vấn sẽ được gửi trực tiếp tới email này.",
+    emailConfirmationHint: "Địa chỉ email dùng để Ban Nhân sự liên hệ khi cần thiết.",
     fullName: "Họ và tên *",
     fullNamePh: "Ví dụ: Nguyễn Văn Ánh",
     phone: "Số điện thoại liên hệ *",
@@ -280,7 +280,6 @@ export const T = {
       "Kết nối với những người cùng đam mê",
       "Tích lũy kinh nghiệm làm đẹp CV",
     ],
-    sendCopyLabel: "Gửi bản sao đơn đăng ký qua Email xác nhận của tôi",
 
     // Step 4
     step4Header: "Xác nhận & Gửi đơn",
@@ -307,7 +306,6 @@ export const T = {
     successNextStepsTitle: "Quy trình xử lý tiếp theo:",
     successNextSteps: [
       "BDC sẽ đánh giá hồ sơ của bạn",
-      "Thông báo tiếp theo sẽ được gửi qua Email",
       "Theo dõi các kênh truyền thông chính thức của BDC để không bỏ lỡ thông báo mới.",
     ],
     btnReturnHome: "Trở về Trang chủ BDC",
@@ -340,9 +338,9 @@ export const T = {
     // Step 1
     step1Header: "Personal & Contact Information",
     step1Desc: "Please fill out accurate contact details so the BDC HR team can reach out to you.",
-    emailConfirmation: "Confirmation Email *",
+    emailConfirmation: "Primary Contact Email *",
     emailConfirmationPh: "e.g. bdc@hcmut.edu.vn or personal email",
-    emailConfirmationHint: "Screening results and interview invites will be sent to this email.",
+    emailConfirmationHint: "Official contact email for BDC HR team communications.",
     fullName: "Full Name *",
     fullNamePh: "e.g. Alex Nguyen",
     phone: "Phone Number *",
@@ -425,7 +423,6 @@ export const T = {
       "Connect with Like-Minded Peers",
       "Gain Experience for Resume/CV",
     ],
-    sendCopyLabel: "Send a copy of my application via confirmation email",
 
     // Step 4
     step4Header: "Review & Confirmation",
@@ -452,7 +449,6 @@ export const T = {
     successNextStepsTitle: "Next Steps:",
     successNextSteps: [
       "BDC will review your application.",
-      "Further updates will be sent via Email.",
       "Follow our Official Fanpage for real-time recruitment updates.",
     ],
     btnReturnHome: "Return to BDC Homepage",
