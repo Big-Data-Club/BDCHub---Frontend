@@ -223,7 +223,7 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
     { value: "PTE", label: "PTE Academic" },
     { value: "SAT", label: "SAT (Reading & Writing)" },
     { value: "Cambridge", label: "Cambridge Cert (FCE/CAE/CPE)" },
-    { value: "other", label: isVi ? "Khác (Bổ sung mới bên dưới...)" : "Other (Specify below...)" },
+    { value: "other", label: isVi ? "Khác (Bổ sung mới kế bên...)" : "Other (Specify next to...)" },
   ], [isVi]);
 
   const renderEnglishCertFields = () => {
@@ -260,7 +260,7 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
           searchable={true}
         />
 
-        <div key={isOtherCert ? "other-cert-mode" : "standard-cert-mode"} className="transition-all duration-300">
+        <div>
           <FIn
             label={
               isOtherCert

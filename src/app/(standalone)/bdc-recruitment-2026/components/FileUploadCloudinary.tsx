@@ -102,7 +102,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
 
 
   const handleFileSelect = async (filesToProcess: FileList | null) => {
-    if (!filesToProcess || filesToProcess.length === 0) return;
+    if (!filesToProcess || filesToProcess.length === 0 || uploading) return;
 
     if (!isMulti) {
       const fileObj = filesToProcess[0];
@@ -140,6 +140,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (uploading) return;
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
@@ -151,17 +152,20 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    if (uploading) return;
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files);
     }
   };
 
   const handleRemoveSingle = () => {
+    if (uploading) return;
     if (onChange) onChange(null);
     setUploadError(null);
   };
 
   const handleRemoveMulti = (index: number) => {
+    if (uploading) return;
     if (onMultiChange) {
       const next = values.filter((_, i) => i !== index);
       onMultiChange(next);
@@ -190,6 +194,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
         type="file"
         accept={accept}
         multiple={isMulti}
+        disabled={uploading}
         onChange={(e) => handleFileSelect(e.target.files)}
         className="hidden"
       />
@@ -201,13 +206,17 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          className={`relative border border-dashed rounded-xl p-5 text-center cursor-pointer transition-all duration-200 ${
-            dragActive
-              ? "border-blue-500 bg-blue-50/60 dark:bg-blue-950/30 ring-2 ring-blue-500/20"
+          onClick={() => {
+            if (!uploading) fileInputRef.current?.click();
+          }}
+          className={`relative border border-dashed rounded-xl p-5 text-center transition-all duration-200 ${
+            uploading
+              ? "border-blue-400 bg-blue-50/40 dark:bg-blue-950/20 cursor-not-allowed opacity-80"
+              : dragActive
+              ? "border-blue-500 bg-blue-50/60 dark:bg-blue-950/30 ring-2 ring-blue-500/20 cursor-pointer"
               : error
-              ? "border-rose-400 dark:border-rose-500/80 bg-rose-50/20 dark:bg-rose-950/20"
-              : "border-slate-300 dark:border-slate-800 bg-slate-50/70 dark:bg-[#070E1B] hover:border-blue-500 dark:hover:border-blue-400 hover:bg-white dark:hover:bg-[#091224]"
+              ? "border-rose-400 dark:border-rose-500/80 bg-rose-50/20 dark:bg-rose-950/20 cursor-pointer"
+              : "border-slate-300 dark:border-slate-800 bg-slate-50/70 dark:bg-[#070E1B] hover:border-blue-500 dark:hover:border-blue-400 hover:bg-white dark:hover:bg-[#091224] cursor-pointer"
           }`}
         >
           {uploading ? (
@@ -269,8 +278,9 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
             </a>
             <button
               type="button"
+              disabled={uploading}
               onClick={handleRemoveSingle}
-              className="p-2 text-slate-400 hover:text-rose-400 transition-colors"
+              className="p-2 text-slate-400 hover:text-rose-400 disabled:opacity-40 transition-colors"
               title="Xóa file"
             >
               <Trash2 className="w-4 h-4" />
@@ -303,8 +313,9 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
                 </a>
                 <button
                   type="button"
+                  disabled={uploading}
                   onClick={() => handleRemoveMulti(idx)}
-                  className="p-1.5 text-slate-400 hover:text-rose-400"
+                  className="p-1.5 text-slate-400 hover:text-rose-400 disabled:opacity-40"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

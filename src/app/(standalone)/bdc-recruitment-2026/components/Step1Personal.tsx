@@ -73,6 +73,54 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
     return found ? found.value : "";
   })();
 
+  const academicStatusOptions = React.useMemo(() => {
+    return ACADEMIC_STATUS_OPTIONS.map((opt) => ({
+      value: opt.id,
+      label: isVi ? opt.labelVi : opt.labelEn,
+    }));
+  }, [isVi]);
+
+  const isPredefinedAcademicStatus =
+    !form.academicStatus ||
+    ACADEMIC_STATUS_OPTIONS.some((opt) => opt.id === form.academicStatus && opt.id !== "other");
+  const [showOtherAcademicStatusInput, setShowOtherAcademicStatusInput] = React.useState(!isPredefinedAcademicStatus);
+
+  React.useEffect(() => {
+    if (form.academicStatus) {
+      const isPredefinedVal = ACADEMIC_STATUS_OPTIONS.some(
+        (opt) => opt.id === form.academicStatus && opt.id !== "other"
+      );
+      setShowOtherAcademicStatusInput(!isPredefinedVal);
+    }
+  }, [form.academicStatus]);
+
+  const handleAcademicStatusChange = (val: string) => {
+    if (val === "other") {
+      setShowOtherAcademicStatusInput(true);
+      onChange({ academicStatus: "other", academicStatusOther: form.academicStatusOther || "" });
+    } else if (val === "") {
+      setShowOtherAcademicStatusInput(false);
+      onChange({ academicStatus: "" as AcademicStatus, academicStatusOther: "" });
+    } else {
+      const option = academicStatusOptions.find((o) => o.value === val);
+      if (option) {
+        setShowOtherAcademicStatusInput(false);
+        onChange({ academicStatus: val as AcademicStatus, academicStatusOther: "" });
+      } else {
+        // Custom value from "Search & Auto-fill"
+        setShowOtherAcademicStatusInput(true);
+        onChange({ academicStatus: "other", academicStatusOther: val });
+      }
+    }
+  };
+
+  const currentAcademicStatusValue = (() => {
+    if (showOtherAcademicStatusInput) return "other";
+    if (!form.academicStatus) return "";
+    const found = ACADEMIC_STATUS_OPTIONS.find((opt) => opt.id === form.academicStatus && opt.id !== "other");
+    return found ? found.id : "";
+  })();
+
   return (
     <div className="space-y-8">
       {/* Header section with refined editorial divider */}
@@ -163,7 +211,7 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       <div>
         <div className={`transition-all duration-300 space-y-3.5 ${
           showOtherInput
-            ? "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30"
+            ? "p-4 bg-blue-50/70 dark:bg-blue-950/30 border-0 border-l-4 border-blue-600 dark:border-blue-500 rounded-none"
             : ""
         }`}>
           <FSel
@@ -214,28 +262,22 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       {/* Academic Status */}
       <div>
         <div className={`transition-all duration-300 space-y-3.5 ${
-          form.academicStatus === "other"
-            ? "p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30"
+          showOtherAcademicStatusInput
+            ? "p-4 bg-blue-50/70 dark:bg-blue-950/30 border-0 border-l-4 border-blue-600 dark:border-blue-500 rounded-none"
             : ""
         }`}>
           <FSel
             label={t.academicStatus}
-            value={form.academicStatus || "freshman"}
-            onChange={(val) => {
-              const statusVal = val as AcademicStatus;
-              onChange({ academicStatus: statusVal });
-            }}
-            options={ACADEMIC_STATUS_OPTIONS.map((opt) => ({
-              value: opt.id,
-              label: isVi ? opt.labelVi : opt.labelEn,
-            }))}
+            value={currentAcademicStatusValue}
+            onChange={handleAcademicStatusChange}
+            options={academicStatusOptions}
             placeholder={isVi ? "-- Chọn năm học hiện tại --" : "-- Select Academic Status --"}
-            error={form.academicStatus === "other" ? undefined : errors.academicStatus}
+            error={showOtherAcademicStatusInput ? undefined : errors.academicStatus}
             isVi={isVi}
             searchable={true}
           />
 
-          {form.academicStatus === "other" && (
+          {showOtherAcademicStatusInput && (
             <div className="animate-dropdown-fade-in pt-1">
               <FIn
                 label={isVi ? "Nhập chi tiết năm học / trình độ *" : "Specify your academic status *"}

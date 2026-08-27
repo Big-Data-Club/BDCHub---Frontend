@@ -115,16 +115,6 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                     </ul>
                   </div>
                 </div>
-
-                {/* Technical Stack / Skill Divider */}
-                <div className="pt-3 border-t border-slate-200/60 dark:border-slate-800/80">
-                  <p className="text-xs font-mono text-slate-500 dark:text-slate-400">
-                    <span className="font-semibold uppercase text-slate-400 dark:text-slate-500 mr-2">
-                      {isVi ? "Kỹ năng chính:" : "Key Skills:"}
-                    </span>
-                    {skills.join(" · ")}
-                  </p>
-                </div>
               </div>
             );
           })}
@@ -190,8 +180,8 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{t.motivationHint}</p>
 
-        {/* Prompt chips */}
-        {t.motivationChips && (
+        {/* Prompt chips (Temporarily hidden) */}
+        {/* {t.motivationChips && (
           <div className="mb-3 space-y-1.5">
             <p className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
               <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
@@ -210,7 +200,7 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
               ))}
             </div>
           </div>
-        )}
+        )} */}
 
         <FTa
           label=""

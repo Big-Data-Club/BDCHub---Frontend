@@ -139,9 +139,8 @@ export default function BDCRecruitment2026Page() {
       if (!form.emailConfirmation.trim() || !emailRegex.test(form.emailConfirmation)) errs.emailConfirmation = t.errEmail;
       if (!form.fullName.trim()) errs.fullName = t.errRequired;
       if (!form.phone.trim() || !phoneRegex.test(form.phone)) errs.phone = t.errPhone;
-      if (!form.emailPersonal.trim() || !emailRegex.test(form.emailPersonal)) errs.emailPersonal = t.errEmail;
-      // emailSchool is optional now
-      if (form.emailSchool?.trim() && !emailRegex.test(form.emailSchool.trim())) errs.emailSchool = t.errEmail;
+      if (form.emailPersonal?.trim() && !emailRegex.test(form.emailPersonal.trim())) errs.emailPersonal = t.errEmail;
+      if (!form.emailSchool?.trim() || !emailRegex.test(form.emailSchool.trim())) errs.emailSchool = t.errEmail;
       if (!form.facebookLink.trim()) errs.facebookLink = t.errFacebook;
       if (!form.university.trim()) errs.university = t.errRequired;
       if (!form.faculty.trim()) errs.faculty = t.errRequired;
@@ -207,8 +206,8 @@ export default function BDCRecruitment2026Page() {
         full_name:                    form.fullName,
         email_confirmation:           form.emailConfirmation,
         phone:                        form.phone,
-        email_personal:               form.emailPersonal,
-        email_school:                 form.emailSchool || "Chưa cấp",
+        email_personal:               form.emailPersonal || "Bỏ qua",
+        email_school:                 form.emailSchool || "",
         facebook_link:                form.facebookLink,
         university:                   form.university,
         faculty:                      form.faculty,
@@ -225,9 +224,13 @@ export default function BDCRecruitment2026Page() {
         english_cert:                 form.englishCertType === "none" || !form.englishCertType
                                       ? "Chưa có"
                                       : `${form.englishCertType.toUpperCase()}: ${form.englishCertScore || ""}`,
-        cv_url:                       form.cvFile?.url     || (form.cvBioText ? `[Tóm tắt bản thân]: ${form.cvBioText}` : "Chưa nộp"),
+        cv_url:                       form.cvFile?.url
+                                        ? form.cvFile.url
+                                        : (form.cvBioText ? `[Tóm tắt bản thân]: ${form.cvBioText}` : "Chưa nộp"),
         cv_filename:                  form.cvFile?.filename || (form.cvBioText ? "Tóm tắt chữ (Chưa có PDF)" : "Không có"),
-        evidence_files:               form.evidenceFiles.map((f) => `${f.filename}: ${f.url}`).join(" | ") || "Không có",
+        evidence_files:               form.evidenceFiles.length > 0
+                                        ? form.evidenceFiles.map((f, i) => `${i + 1}. ${f.filename}: ${f.url}`).join("\n")
+                                        : "Không có",
         department:                   DEPARTMENT_OPTIONS.find((d) => d.id === form.department)?.nameVi ?? form.department,
         allow_adjustment:             form.allowDepartmentAdjustment ? "Có" : "Không",
         weekly_time_commitment:       timeCommitmentLabel,
@@ -304,7 +307,7 @@ export default function BDCRecruitment2026Page() {
   };
 
   if (alreadySubmitted) return <AlreadySubmittedScreen savedName={savedName} lang={lang} onReset={handleResetForm} />;
-  if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} confirmationEmailQueued={confirmationEmailQueued} />;
+  if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} confirmationEmailQueued={confirmationEmailQueued} onReset={handleResetForm} />;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white font-sans pb-16 pt-16 sm:pt-20 transition-colors duration-300">
