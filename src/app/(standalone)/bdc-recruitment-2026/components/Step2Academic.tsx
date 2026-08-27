@@ -1,5 +1,5 @@
 import React from "react";
-import { BookOpen, Award, FileCheck, Info, GraduationCap } from "lucide-react";
+import { BookOpen, Award, FileCheck, Info, GraduationCap, AlertTriangle } from "lucide-react";
 import { FormData, Errors, T, Lang, THPT_BLOCK_OPTIONS } from "../types";
 import { FileUploadCloudinary } from "./FileUploadCloudinary";
 import { FIn, FTa, FSel, FL } from "@/components/form/FormFields";
@@ -36,17 +36,17 @@ const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, plac
   const mode: "4.0" | "10.0" | "custom" = isStandard4 ? "4.0" : isStandard10 ? "10.0" : "custom";
 
   const handleNumericChange = (newNum: string) => {
+    const sanitized = newNum.replace(/[^0-9.,]/g, "");
     if (mode === "custom") {
       const scalePart = gpaScaleStr ? `/${gpaScaleStr}` : "";
-      onChange(`${newNum}${scalePart}`);
+      onChange(`${sanitized}${scalePart}`);
     } else {
-      const cleanNum = newNum.replace(/\/.*/g, "").trim();
-      onChange(`${cleanNum}/${mode}`);
+      onChange(`${sanitized}/${mode}`);
     }
   };
 
   const handleCustomScaleChange = (newScale: string) => {
-    const cleanScale = newScale.replace(/^\//, "").trim();
+    const cleanScale = newScale.replace(/[^0-9.]/g, "").trim();
     onChange(`${gpaNumeric}/${cleanScale}`);
   };
 
@@ -81,7 +81,18 @@ const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, plac
   };
 
   const numVal = parseFloat(gpaNumeric);
-  const showWarning = mode === "4.0" && !isNaN(numVal) && numVal > 4.0;
+  const isNumber = !isNaN(numVal) && gpaNumeric !== "";
+
+  const showWarning4Over = mode === "4.0" && isNumber && numVal > 4.0;
+  const showWarning10Over = mode === "10.0" && isNumber && numVal > 10.0;
+
+  const dynamicPlaceholder = placeholder || (
+    mode === "4.0"
+      ? (isVi ? "Ví dụ: 3.65" : "e.g. 3.65")
+      : mode === "10.0"
+      ? (isVi ? "Ví dụ: 8.5" : "e.g. 8.5")
+      : (isVi ? "Ví dụ: 85" : "e.g. 85")
+  );
 
   return (
     <div>
@@ -151,7 +162,7 @@ const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, plac
       ) : (
         <FIn
           type="text"
-          placeholder={placeholder || (mode === "4.0" ? "Ví dụ: 3.65" : "Ví dụ: 8.5")}
+          placeholder={dynamicPlaceholder}
           value={gpaNumeric}
           onChange={(e) => handleNumericChange(e.target.value)}
           onBlur={handleBlur}
@@ -161,13 +172,27 @@ const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, plac
         />
       )}
 
-      {showWarning && (
-        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 flex items-center gap-1.5 font-medium leading-tight">
-          <svg className="w-3.5 h-3.5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-          </svg>
-          <span>{isVi ? "Điểm hệ 4.0 thường ≤ 4.0. Bạn có muốn chuyển sang Hệ 10.0 không?" : "GPA on 4.0 scale is usually ≤ 4.0. Switch to 10.0 scale?"}</span>
-        </p>
+      {showWarning4Over && (
+        <div className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 flex items-center justify-between gap-1.5 font-medium leading-tight flex-wrap bg-amber-50/50 dark:bg-amber-950/20 p-2 rounded-lg border border-amber-200/60 dark:border-amber-800/40">
+          <div className="flex items-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+            <span>{isVi ? "Điểm hệ 4.0 thường ≤ 4.0." : "GPA on 4.0 scale is usually ≤ 4.0."}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleModeChange("10.0")}
+            className="text-blue-600 dark:text-cyan-400 hover:underline font-bold text-xs cursor-pointer ml-auto"
+          >
+            {isVi ? "Chuyển sang Thang 10.0" : "Switch to 10.0 scale"}
+          </button>
+        </div>
+      )}
+
+      {showWarning10Over && (
+        <div className="text-xs text-rose-600 dark:text-rose-400 mt-1.5 flex items-center gap-1.5 font-medium leading-tight bg-rose-50/50 dark:bg-rose-950/20 p-2 rounded-lg border border-rose-200/60 dark:border-rose-800/40">
+          <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
+          <span>{isVi ? "Điểm hệ 10.0 không được vượt quá 10.0." : "GPA on 10.0 scale cannot exceed 10.0."}</span>
+        </div>
       )}
     </div>
   );
@@ -465,7 +490,6 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
               value={form.gpaCumulative}
               onChange={(val) => onChange({ gpaCumulative: val })}
               error={errors.gpaCumulative}
-              placeholder={isVi ? "Ví dụ: 3.52" : "e.g. 3.52"}
               isVi={isVi}
             />
             <GpaInput
@@ -473,7 +497,6 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
               value={form.gpaLatest}
               onChange={(val) => onChange({ gpaLatest: val })}
               error={errors.gpaLatest}
-              placeholder={isVi ? "Ví dụ: 3.52" : "e.g. 3.52"}
               isVi={isVi}
             />
           </div>

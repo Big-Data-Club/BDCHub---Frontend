@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { ArrowRight, ArrowLeft, Send, CheckCircle2, ShieldAlert } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -53,7 +53,6 @@ const INITIAL_FORM: FormData = {
   cvBioText: "",
   evidenceFiles: [],
   department: "",
-  allowDepartmentAdjustment: true,
   weeklyTimeCommitment: "5_to_10h",
   motivation: "",
   sendCopy: true,
@@ -69,16 +68,16 @@ export default function BDCRecruitment2026Page() {
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [confirmationEmailQueued, setConfirmationEmailQueued] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [savedName, setSavedName] = useState("");
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
+  const draftTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [step]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step, submitted, alreadySubmitted]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -107,10 +106,17 @@ export default function BDCRecruitment2026Page() {
 
   useEffect(() => {
     if (submitted || alreadySubmitted) return;
-    const timer = setTimeout(() => {
-      try { localStorage.setItem(LS_DRAFT, JSON.stringify({ ...form, _step: step })); } catch { /* ignore */ }
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(LS_DRAFT, JSON.stringify({ ...form, _step: step }));
+      } catch {
+        /* ignore */
+      }
     }, 600);
-    return () => clearTimeout(timer);
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
   }, [form, step, submitted, alreadySubmitted]);
 
   const updateForm = (fields: Partial<FormData>) => {
@@ -136,46 +142,106 @@ export default function BDCRecruitment2026Page() {
     const phoneRegex = /^[0-9+()\s-]{8,15}$/;
 
     if (stepToValidate === 1) {
-      if (!form.emailConfirmation.trim() || !emailRegex.test(form.emailConfirmation)) errs.emailConfirmation = t.errEmail;
+      if (!form.emailConfirmation.trim()) {
+        errs.emailConfirmation = t.errRequired;
+      } else if (!emailRegex.test(form.emailConfirmation.trim())) {
+        errs.emailConfirmation = t.errEmail;
+      }
+
       if (!form.fullName.trim()) errs.fullName = t.errRequired;
-      if (!form.phone.trim() || !phoneRegex.test(form.phone)) errs.phone = t.errPhone;
-      if (form.emailPersonal?.trim() && !emailRegex.test(form.emailPersonal.trim())) errs.emailPersonal = t.errEmail;
-      if (!form.emailSchool?.trim() || !emailRegex.test(form.emailSchool.trim())) errs.emailSchool = t.errEmail;
+
+      if (!form.phone.trim()) {
+        errs.phone = t.errRequired;
+      } else if (!phoneRegex.test(form.phone.trim())) {
+        errs.phone = t.errPhone;
+      }
+
+      if (form.emailPersonal?.trim() && !emailRegex.test(form.emailPersonal.trim())) {
+        errs.emailPersonal = t.errEmail;
+      }
+
+      if (!form.emailSchool?.trim()) {
+        errs.emailSchool = t.errRequired;
+      } else if (!emailRegex.test(form.emailSchool.trim())) {
+        errs.emailSchool = t.errEmail;
+      }
+
       if (!form.facebookLink.trim()) errs.facebookLink = t.errFacebook;
       if (!form.university.trim()) errs.university = t.errRequired;
       if (!form.faculty.trim()) errs.faculty = t.errRequired;
-      if (!form.academicStatus) errs.academicStatus = t.errRequired;
+      if (!form.academicStatus || (form.academicStatus === "other" && !form.academicStatusOther?.trim())) {
+        errs.academicStatus = t.errRequired;
+      }
     }
+
     if (stepToValidate === 2) {
       if (form.englishCertType !== "none" && !form.englishCertScore?.trim()) {
         errs.englishCertScore = t.errRequired;
       }
+
       if (form.academicStatus === "freshman") {
-        if (!form.thptScore?.trim() && !form.entranceScoreDetail?.trim()) {
+        if (!form.thptScore?.trim()) {
           errs.thptScore = t.errRequired;
-          errs.entranceScoreDetail = t.errRequired;
+        } else if (!/\d+/.test(form.thptScore.trim())) {
+          errs.thptScore = lang === "vi" ? "Vui lòng nhập điểm số hợp lệ (chứa chữ số)." : "Please enter a valid score with numbers.";
         }
-        if (form.hasDgnl !== "no" && !form.dgnlScore?.trim()) {
-          errs.dgnlScore = lang === "vi" ? "Vui lòng nhập điểm thi ĐGNL hoặc chọn 'Không thi ĐGNL'." : "Please enter your score or select 'Didn't take test'.";
+
+        if (form.hasDgnl !== "no") {
+          if (!form.dgnlScore?.trim()) {
+            errs.dgnlScore = lang === "vi" ? "Vui lòng nhập điểm thi ĐGNL hoặc chọn 'Không thi ĐGNL'." : "Please enter your score or select 'Didn't take test'.";
+          } else if (!/\d+/.test(form.dgnlScore.trim())) {
+            errs.dgnlScore = lang === "vi" ? "Vui lòng nhập điểm thi ĐGNL hợp lệ (chứa chữ số)." : "Please enter a valid numeric ĐGNL score.";
+          }
         }
+
         // CV is optional for freshers if cvBioText is filled out
         if (!form.cvFile && !form.cvBioText?.trim()) {
           errs.cvFile = t.errCvRequired;
           errs.cvBioText = t.errRequired;
         }
       } else {
-        if (!form.gpaCumulative.trim()) errs.gpaCumulative = t.errRequired;
-        if (!form.gpaLatest.trim()) errs.gpaLatest = t.errRequired;
+        const validateGpaValue = (val?: string): string | undefined => {
+          if (!val) return t.errRequired;
+          const parts = val.split("/");
+          const numStr = parts[0]?.trim().replace(",", ".");
+          if (!numStr) return t.errRequired;
+          const num = parseFloat(numStr);
+          if (isNaN(num) || !/^\d+(\.\d+)?$/.test(numStr)) {
+            return lang === "vi" ? "Vui lòng nhập điểm số hợp lệ (chỉ gồm chữ số và dấu chấm/phẩy)." : "Please enter a valid numeric score.";
+          }
+          if (num < 0) {
+            return lang === "vi" ? "Điểm số không được là số âm." : "Score cannot be negative.";
+          }
+          const scaleStr = parts[1]?.trim() || "4.0";
+          const scale = parseFloat(scaleStr);
+          if (!isNaN(scale) && scale > 0 && num > scale) {
+            return lang === "vi"
+              ? `Điểm số không được vượt quá thang điểm ${scale}.`
+              : `Score cannot exceed scale ${scale}.`;
+          }
+          return undefined;
+        };
+
+        const cumErr = validateGpaValue(form.gpaCumulative);
+        if (cumErr) errs.gpaCumulative = cumErr;
+
+        const latErr = validateGpaValue(form.gpaLatest);
+        if (latErr) errs.gpaLatest = latErr;
+
         if (!form.cvFile) errs.cvFile = t.errCvRequired;
       }
     }
+
     if (stepToValidate === 3) {
       if (!form.department) errs.department = t.errDeptRequired;
+      if (!form.weeklyTimeCommitment) errs.weeklyTimeCommitment = t.errRequired;
       if (!form.motivation.trim()) errs.motivation = t.errRequired;
     }
+
     if (stepToValidate === 4) {
       if (!form.agreePrivacy) errs.agreePrivacy = t.agreePrivacyErr;
     }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -195,7 +261,17 @@ export default function BDCRecruitment2026Page() {
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(4)) { showToast(t.agreePrivacyErr); return; }
+    for (let s = 1; s <= 4; s++) {
+      if (!validateStep(s)) {
+        setStep(s);
+        showToast(s === 4 ? t.agreePrivacyErr : "Vui lòng hoàn thành các trường thông tin bắt buộc.");
+        return;
+      }
+    }
+    if (draftTimerRef.current) {
+      clearTimeout(draftTimerRef.current);
+      draftTimerRef.current = null;
+    }
     setSubmitting(true);
     try {
       const entranceLabel = ENTRANCE_METHOD_OPTIONS.find((e) => e.id === form.entranceMethod)?.labelVi || "THPT";
@@ -232,7 +308,6 @@ export default function BDCRecruitment2026Page() {
                                         ? form.evidenceFiles.map((f, i) => `${i + 1}. ${f.filename}: ${f.url}`).join("\n")
                                         : "Không có",
         department:                   DEPARTMENT_OPTIONS.find((d) => d.id === form.department)?.nameVi ?? form.department,
-        allow_adjustment:             form.allowDepartmentAdjustment ? "Có" : "Không",
         weekly_time_commitment:       timeCommitmentLabel,
         motivation:                   form.motivation,
         form_language:                lang === "vi" ? "Tiếng Việt" : "English",
@@ -259,9 +334,8 @@ export default function BDCRecruitment2026Page() {
         { id: "cv_filename",                  question: "Tên file CV" },
         { id: "evidence_files",               question: "File minh chứng" },
         { id: "department",                   question: "Ban đăng ký" },
-        { id: "allow_adjustment",             question: "Đồng ý điều phối" },
-        { id: "weekly_time_commitment",       question: "Thời gian cống hiến/tuần" },
-        { id: "motivation",                   question: "Lý do & Động lực" },
+        { id: "weekly_time_commitment",       question: "Thời gian sẵn sàng hoạt động/tuần" },
+        { id: "motivation",                   question: "Lý do & Kỳ vọng" },
         { id: "form_language",                question: "Ngôn ngữ form" },
       ];
 
@@ -282,10 +356,10 @@ export default function BDCRecruitment2026Page() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Gửi đơn không thành công.");
-      setConfirmationEmailQueued(data.confirmationEmailQueued === true);
       localStorage.setItem(LS_DONE, JSON.stringify({ name: form.fullName, submittedAt: new Date().toISOString() }));
       localStorage.removeItem(LS_DRAFT);
       setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       console.error("Submission failed:", err);
       showToast(err instanceof Error ? err.message : "Đã xảy ra lỗi khi gửi đơn.");
@@ -295,17 +369,21 @@ export default function BDCRecruitment2026Page() {
   };
 
   const handleResetForm = () => {
+    if (draftTimerRef.current) {
+      clearTimeout(draftTimerRef.current);
+      draftTimerRef.current = null;
+    }
     localStorage.removeItem(LS_DONE);
     localStorage.removeItem(LS_DRAFT);
     setForm(INITIAL_FORM);
     setAlreadySubmitted(false);
     setSubmitted(false);
-    setConfirmationEmailQueued(false);
     setStep(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (alreadySubmitted) return <AlreadySubmittedScreen savedName={savedName} lang={lang} onReset={handleResetForm} />;
-  if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} confirmationEmailQueued={confirmationEmailQueued} onReset={handleResetForm} />;
+  if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} onReset={handleResetForm} />;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white font-sans pb-16 pt-16 sm:pt-20 transition-colors duration-300">
@@ -416,6 +494,7 @@ export default function BDCRecruitment2026Page() {
                   for (let temp = step; temp < st.step; temp++) {
                     if (!validateStep(temp)) {
                       if (temp !== step) setStep(temp);
+                      showToast("Vui lòng hoàn thành các trường thông tin bắt buộc.");
                       return;
                     }
                   }
