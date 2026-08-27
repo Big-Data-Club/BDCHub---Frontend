@@ -1,28 +1,65 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { InfoTooltip, triggerFieldTooltip } from "@/components/form/InfoTooltip";
+import { cn } from "@/lib/utils";
 
 export const inputCls =
   "w-full rounded-xl px-3.5 py-2.5 text-sm transition-all duration-200 outline-none " +
-  "bg-slate-50/70 dark:bg-slate-900/60 " +
+  "bg-white dark:bg-[#070E1B] " +
   "border border-slate-200 dark:border-slate-800 " +
   "text-slate-900 dark:text-slate-100 " +
   "placeholder:text-slate-400 dark:placeholder:text-slate-500 " +
   "focus:border-blue-600 dark:focus:border-blue-500 " +
   "focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20";
 
-export const errInputCls = "border-rose-400 dark:border-rose-500/70 bg-rose-50/40 dark:bg-rose-950/20";
+export const errInputCls = "border-rose-400 dark:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/30";
 
-export function FL({ children, req }: { children: React.ReactNode; req?: boolean }) {
+export interface FormLabelProps {
+  children?: React.ReactNode;
+  req?: boolean;
+  tooltipText?: string;
+  fieldKey?: string;
+  className?: string;
+}
+
+export function FL({ children, req, tooltipText, fieldKey, className }: FormLabelProps) {
+  let mainText: React.ReactNode = children;
+  let isRequired = req;
+
+  if (typeof children === "string") {
+    if (children.endsWith("*")) {
+      mainText = children.slice(0, -1).trim();
+      isRequired = true;
+    }
+  }
+
   return (
-    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5 transition-colors duration-200">
-      {children}{req && <span className="text-rose-500 ml-1 font-bold">*</span>}
-    </label>
+    <Label
+      className={cn(
+        "block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5 transition-colors duration-200 leading-normal",
+        className
+      )}
+    >
+      <span className="inline-flex items-center gap-1.5 flex-wrap">
+        <span>
+          {mainText}
+          {isRequired && <span className="text-rose-500 ml-1 font-bold">*</span>}
+        </span>
+        {tooltipText && fieldKey && (
+          <InfoTooltip text={tooltipText} fieldKey={fieldKey} />
+        )}
+      </span>
+    </Label>
   );
 }
 
 export function Err({ msg }: { msg?: string }) {
   if (!msg) return null;
   return (
-    <p className="mt-1.5 text-xs text-red-500 dark:text-red-400 flex items-center gap-1.5 animate-fadeIn">
+    <p className="mt-1 text-xs text-rose-500 dark:text-rose-400 flex items-center gap-1.5 animate-fadeIn">
       <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
       </svg>
@@ -31,13 +68,46 @@ export function Err({ msg }: { msg?: string }) {
   );
 }
 
-export function FIn({ error, suffix, ...p }: React.InputHTMLAttributes<HTMLInputElement> & { error?: string; suffix?: React.ReactNode }) {
+export interface FInProps extends React.ComponentProps<typeof Input> {
+  label?: string | React.ReactNode;
+  req?: boolean;
+  error?: string;
+  suffix?: React.ReactNode;
+  tooltipText?: string;
+  fieldKey?: string;
+}
+
+export function FIn({ label, req, error, suffix, tooltipText, fieldKey, onFocus, className, ...p }: FInProps) {
+  const focusedRef = useRef(false);
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (fieldKey && !focusedRef.current) {
+      focusedRef.current = true;
+      triggerFieldTooltip(fieldKey);
+    }
+    if (onFocus) onFocus(e);
+  };
+
   return (
     <div className="relative w-full">
+      {label && (
+        <FL req={req} tooltipText={tooltipText} fieldKey={fieldKey}>
+          {label}
+        </FL>
+      )}
       <div className="relative flex items-center">
-        <input {...p} className={`${inputCls} ${error ? errInputCls : ""} ${suffix ? "pr-24" : ""}`} />
+        <Input
+          {...p}
+          onFocus={handleFocus}
+          className={cn(
+            inputCls,
+            error ? errInputCls : "",
+            suffix ? "pr-20" : "",
+            className
+          )}
+        />
         {suffix && (
-          <div className="absolute right-4 text-sm font-bold text-slate-400 dark:text-slate-500">
+          <div className="absolute right-3.5 text-xs font-bold text-slate-400 dark:text-slate-500 pointer-events-none select-none">
             {suffix}
           </div>
         )}
@@ -47,24 +117,86 @@ export function FIn({ error, suffix, ...p }: React.InputHTMLAttributes<HTMLInput
   );
 }
 
-export function FTa({ error, rows = 4, ...p }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { error?: string }) {
+export interface FTaProps extends React.ComponentProps<typeof Textarea> {
+  label?: string | React.ReactNode;
+  req?: boolean;
+  error?: string;
+  tooltipText?: string;
+  fieldKey?: string;
+}
+
+export function FTa({ label, req, error, tooltipText, fieldKey, onFocus, rows = 4, className, ...p }: FTaProps) {
+  const focusedRef = useRef(false);
+
+  const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    if (fieldKey && !focusedRef.current) {
+      focusedRef.current = true;
+      triggerFieldTooltip(fieldKey);
+    }
+    if (onFocus) onFocus(e);
+  };
+
   return (
     <div className="relative w-full">
-      <textarea rows={rows} {...p} className={`${inputCls} resize-none ${error ? errInputCls : ""}`} />
+      {label && (
+        <FL req={req} tooltipText={tooltipText} fieldKey={fieldKey}>
+          {label}
+        </FL>
+      )}
+      <Textarea
+        rows={rows}
+        {...p}
+        onFocus={handleFocus}
+        className={cn(inputCls, "resize-none", error ? errInputCls : "", className)}
+      />
       <Err msg={error} />
     </div>
   );
 }
 
-export function FSel({
-  value,
-  onChange,
-  options,
-  placeholder,
-  error,
-  searchable = false,
-  isVi = false,
-}: {
+export interface FCbProps {
+  id?: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  label: React.ReactNode;
+  description?: React.ReactNode;
+  error?: string;
+  icon?: React.ReactNode;
+  className?: string;
+}
+
+export function FCb({ id, checked, onCheckedChange, label, description, error, icon, className }: FCbProps) {
+  return (
+    <div className={cn("space-y-1", className)}>
+      <label htmlFor={id} className="flex items-start space-x-3 cursor-pointer select-none">
+        <Checkbox
+          id={id}
+          checked={checked}
+          onCheckedChange={(c) => onCheckedChange(Boolean(c))}
+          className="mt-0.5 w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#070E1B] data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 text-white focus-visible:ring-blue-500/20 cursor-pointer shrink-0"
+        />
+        <div className="space-y-0.5 min-w-0">
+          <span className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 leading-snug">
+            {icon}
+            <span>{label}</span>
+          </span>
+          {description && (
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
+              {description}
+            </p>
+          )}
+        </div>
+      </label>
+      <Err msg={error} />
+    </div>
+  );
+}
+
+export interface FSelProps {
+  label?: string | React.ReactNode;
+  req?: boolean;
+  tooltipText?: string;
+  fieldKey?: string;
   value: string;
   onChange: (v: string) => void;
   options: { value: string; label: string; keywords?: string[] }[];
@@ -72,7 +204,21 @@ export function FSel({
   error?: string;
   searchable?: boolean;
   isVi?: boolean;
-}) {
+}
+
+export function FSel({
+  label,
+  req,
+  tooltipText,
+  fieldKey,
+  value,
+  onChange,
+  options,
+  placeholder,
+  error,
+  searchable = false,
+  isVi = false,
+}: FSelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const ref = useRef<HTMLDivElement>(null);
@@ -135,6 +281,12 @@ export function FSel({
 
   return (
     <div ref={ref} className="relative w-full">
+      {label && (
+        <FL req={req} tooltipText={tooltipText} fieldKey={fieldKey}>
+          {label}
+        </FL>
+      )}
+
       {/* Trigger Button */}
       <div
         onClick={() => setIsOpen(!isOpen)}
@@ -255,3 +407,4 @@ export function FSel({
     </div>
   );
 }
+

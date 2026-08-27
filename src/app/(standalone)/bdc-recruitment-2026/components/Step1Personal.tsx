@@ -1,8 +1,7 @@
 import React from "react";
-import { User, Mail, Phone, Globe, GraduationCap, Building, IdCard } from "lucide-react";
+import { User } from "lucide-react";
 import { FormData, Errors, T, Lang, ACADEMIC_STATUS_OPTIONS, AcademicStatus } from "../types";
-import { FSel } from "@/components/form/FormFields";
-import { InfoTooltip, triggerFieldTooltip } from "@/components/form/InfoTooltip";
+import { FIn, FSel } from "@/components/form/FormFields";
 import universitiesData from "../../hpc-summer-school/universities.json";
 
 interface Step1PersonalProps {
@@ -12,24 +11,9 @@ interface Step1PersonalProps {
   lang: Lang;
 }
 
-const inputBase =
-  "w-full bg-white dark:bg-[#070E1B] border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-all duration-200";
-const inputNormal =
-  "border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-[#070E1B] focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
-const inputError =
-  "border-rose-400 dark:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/30";
-
 export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, errors, lang }) => {
   const t = T[lang];
   const isVi = lang === "vi";
-  const focusedFieldsRef = React.useRef<Set<string>>(new Set());
-
-  const handleFieldFocus = (fieldKey: string) => {
-    if (!focusedFieldsRef.current.has(fieldKey)) {
-      focusedFieldsRef.current.add(fieldKey);
-      triggerFieldTooltip(fieldKey);
-    }
-  };
 
   const uniOptions = React.useMemo(() => {
     return universitiesData.map(uni => ({
@@ -89,23 +73,6 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
     return found ? found.value : "";
   })();
 
-  const renderLabel = (labelStr: string, tooltipText?: string, fieldKey?: string) => {
-    const isRequired = labelStr.endsWith("*");
-    const mainText = isRequired ? labelStr.slice(0, -1).trim() : labelStr;
-
-    return (
-      <span className="inline-flex items-center gap-1.5 flex-wrap">
-        <span>
-          {mainText}
-          {isRequired && <span className="text-rose-500 ml-1 font-bold">*</span>}
-        </span>
-        {tooltipText && fieldKey && (
-          <InfoTooltip text={tooltipText} fieldKey={fieldKey} />
-        )}
-      </span>
-    );
-  };
-
   return (
     <div className="space-y-8">
       {/* Header section with refined editorial divider */}
@@ -119,126 +86,88 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
 
       {/* Full Name & Phone */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.fullName)}
-          </label>
-          <input
-            type="text"
-            value={form.fullName}
-            onChange={(e) => onChange({ fullName: e.target.value })}
-            placeholder={t.fullNamePh}
-            className={`${inputBase} ${errors.fullName ? inputError : inputNormal}`}
-          />
-          {errors.fullName && <p className="text-xs text-rose-500 mt-1">{errors.fullName}</p>}
-        </div>
+        <FIn
+          label={t.fullName}
+          type="text"
+          value={form.fullName}
+          onChange={(e) => onChange({ fullName: e.target.value })}
+          placeholder={t.fullNamePh}
+          error={errors.fullName}
+        />
 
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.phone)}
-          </label>
-          <input
-            type="tel"
-            value={form.phone}
-            onChange={(e) => onChange({ phone: e.target.value })}
-            placeholder={t.phonePh}
-            className={`${inputBase} ${errors.phone ? inputError : inputNormal}`}
-          />
-          {errors.phone && <p className="text-xs text-rose-500 mt-1">{errors.phone}</p>}
-        </div>
+        <FIn
+          label={t.phone}
+          type="tel"
+          value={form.phone}
+          onChange={(e) => onChange({ phone: e.target.value })}
+          placeholder={t.phonePh}
+          error={errors.phone}
+        />
       </div>
 
       {/* Confirmation Email & Personal Email */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(
-              t.emailConfirmation,
-              isVi
-                ? "Kết quả vòng hồ sơ, xác nhận nộp đơn thành công và thông tin các vòng tiếp theo sẽ được gửi trực tiếp đến địa chỉ email này!"
-                : "Screening results, application confirmation, and info on upcoming rounds will be sent directly to this email address!",
-              "emailConfirmation"
-            )}
-          </label>
-          <input
-            type="email"
-            value={form.emailConfirmation}
-            onFocus={() => handleFieldFocus("emailConfirmation")}
-            onChange={(e) => {
-              handleFieldFocus("emailConfirmation");
-              onChange({ emailConfirmation: e.target.value });
-            }}
-            placeholder={t.emailConfirmationPh}
-            className={`${inputBase} ${errors.emailConfirmation ? inputError : inputNormal}`}
-          />
-          {errors.emailConfirmation && <p className="text-xs text-rose-500 mt-1">{errors.emailConfirmation}</p>}
-        </div>
+        <FIn
+          label={t.emailConfirmation}
+          tooltipText={
+            isVi
+              ? "Kết quả vòng hồ sơ, xác nhận nộp đơn thành công và thông tin các vòng tiếp theo sẽ được gửi trực tiếp đến địa chỉ email này!"
+              : "Screening results, application confirmation, and info on upcoming rounds will be sent directly to this email address!"
+          }
+          fieldKey="emailConfirmation"
+          type="email"
+          value={form.emailConfirmation}
+          onChange={(e) => onChange({ emailConfirmation: e.target.value })}
+          placeholder={t.emailConfirmationPh}
+          error={errors.emailConfirmation}
+        />
 
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.emailPersonal)}
-          </label>
-          <input
-            type="email"
-            value={form.emailPersonal}
-            onChange={(e) => onChange({ emailPersonal: e.target.value })}
-            placeholder={t.emailPersonalPh}
-            className={`${inputBase} ${errors.emailPersonal ? inputError : inputNormal}`}
-          />
-          {errors.emailPersonal && <p className="text-xs text-rose-500 mt-1">{errors.emailPersonal}</p>}
-        </div>
+        <FIn
+          label={t.emailPersonal}
+          type="email"
+          value={form.emailPersonal}
+          onChange={(e) => onChange({ emailPersonal: e.target.value })}
+          placeholder={t.emailPersonalPh}
+          error={errors.emailPersonal}
+        />
       </div>
 
       {/* School Email & Facebook / Social */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.emailSchool)}
-          </label>
-          <input
-            type="email"
-            value={form.emailSchool}
-            onChange={(e) => onChange({ emailSchool: e.target.value })}
-            placeholder={t.emailSchoolPh}
-            className={`${inputBase} ${errors.emailSchool ? inputError : inputNormal}`}
-          />
-          {errors.emailSchool && <p className="text-xs text-rose-500 mt-1">{errors.emailSchool}</p>}
-        </div>
+        <FIn
+          label={t.emailSchool}
+          type="email"
+          value={form.emailSchool}
+          onChange={(e) => onChange({ emailSchool: e.target.value })}
+          placeholder={t.emailSchoolPh}
+          error={errors.emailSchool}
+        />
 
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(
-              t.facebookLink,
-              isVi
-                ? "BDC sẽ chủ động liên hệ với bạn qua tài khoản này khi cần thiết!"
-                : "BDC will contact you directly via this account when necessary!",
-              "facebookLink"
-            )}
-          </label>
-          <input
-            type="url"
-            value={form.facebookLink}
-            onFocus={() => handleFieldFocus("facebookLink")}
-            onChange={(e) => {
-              handleFieldFocus("facebookLink");
-              onChange({ facebookLink: e.target.value });
-            }}
-            placeholder={t.facebookLinkPh}
-            className={`${inputBase} ${errors.facebookLink ? inputError : inputNormal}`}
-          />
-          {errors.facebookLink && <p className="text-xs text-rose-500 mt-1">{errors.facebookLink}</p>}
-        </div>
+        <FIn
+          label={t.facebookLink}
+          tooltipText={
+            isVi
+              ? "BDC sẽ chủ động liên hệ với bạn qua tài khoản này khi cần thiết!"
+              : "BDC will contact you directly via this account when necessary!"
+          }
+          fieldKey="facebookLink"
+          type="url"
+          value={form.facebookLink}
+          onChange={(e) => onChange({ facebookLink: e.target.value })}
+          placeholder={t.facebookLinkPh}
+          error={errors.facebookLink}
+        />
       </div>
 
       {/* University Selection */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-          {renderLabel(t.university)}
-        </label>
-        <div className={`transition-all duration-200 space-y-3.5 ${
-          showOtherInput ? "pl-3.5 border-l-2 border-blue-500 dark:border-blue-400" : ""
+        <div className={`transition-all duration-300 space-y-3.5 ${
+          showOtherInput
+            ? "p-3.5 sm:p-4 rounded-2xl border-l-4 border-blue-500 dark:border-blue-400 bg-blue-50/60 dark:bg-blue-950/25"
+            : ""
         }`}>
           <FSel
+            label={t.university}
             value={currentDropdownValue}
             onChange={handleDropdownChange}
             options={uniOptions}
@@ -248,18 +177,15 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
             isVi={isVi}
           />
           {showOtherInput && (
-            <div className="animate-fadeIn">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                {renderLabel(isVi ? "Nhập tên trường khác *" : "Specify your university *")}
-              </label>
-              <input
+            <div className="animate-dropdown-fade-in">
+              <FIn
+                label={isVi ? "Nhập tên trường khác *" : "Specify your university *"}
                 type="text"
                 placeholder={isVi ? "Ví dụ: Trường Đại học Bách khoa, ĐHQG TP.HCM" : "e.g. HCMC University of Technology"}
                 value={form.university}
                 onChange={(e) => onChange({ university: e.target.value })}
-                className={`${inputBase} ${errors.university ? inputError : inputNormal}`}
+                error={errors.university}
               />
-              {errors.university && <p className="text-xs text-rose-500 mt-1">{errors.university}</p>}
             </div>
           )}
         </div>
@@ -267,45 +193,33 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
 
       {/* Faculty + MSSV */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.faculty)}
-          </label>
-          <input
-            type="text"
-            value={form.faculty}
-            onChange={(e) => onChange({ faculty: e.target.value })}
-            placeholder={t.facultyPh}
-            className={`${inputBase} ${errors.faculty ? inputError : inputNormal}`}
-          />
-          {errors.faculty && <p className="text-xs text-rose-500 mt-1">{errors.faculty}</p>}
-        </div>
+        <FIn
+          label={t.faculty}
+          type="text"
+          value={form.faculty}
+          onChange={(e) => onChange({ faculty: e.target.value })}
+          placeholder={t.facultyPh}
+          error={errors.faculty}
+        />
 
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.studentId)}
-          </label>
-          <input
-            type="text"
-            value={form.studentId}
-            onChange={(e) => onChange({ studentId: e.target.value })}
-            placeholder={t.studentIdPh}
-            className={`${inputBase} ${inputNormal}`}
-          />
-        </div>
+        <FIn
+          label={t.studentId}
+          type="text"
+          value={form.studentId}
+          onChange={(e) => onChange({ studentId: e.target.value })}
+          placeholder={t.studentIdPh}
+        />
       </div>
 
       {/* Academic Status */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-          {renderLabel(t.academicStatus)}
-        </label>
-        <div
-          className={`transition-all duration-200 space-y-3.5 ${
-            form.academicStatus === "other" ? "pl-3.5 border-l-2 border-blue-500 dark:border-blue-400" : ""
-          }`}
-        >
+        <div className={`transition-all duration-300 space-y-3.5 ${
+          form.academicStatus === "other"
+            ? "p-3.5 sm:p-4 rounded-2xl border-l-4 border-blue-500 dark:border-blue-400 bg-blue-50/60 dark:bg-blue-950/25"
+            : ""
+        }`}>
           <FSel
+            label={t.academicStatus}
             value={form.academicStatus || "freshman"}
             onChange={(val) => {
               const statusVal = val as AcademicStatus;
@@ -322,18 +236,15 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
           />
 
           {form.academicStatus === "other" && (
-            <div className="animate-fadeIn">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                {renderLabel(isVi ? "Nhập chi tiết năm học / trình độ *" : "Specify your academic status *")}
-              </label>
-              <input
+            <div className="animate-dropdown-fade-in">
+              <FIn
+                label={isVi ? "Nhập chi tiết năm học / trình độ *" : "Specify your academic status *"}
                 type="text"
                 value={form.academicStatusOther}
                 onChange={(e) => onChange({ academicStatusOther: e.target.value })}
                 placeholder={t.academicStatusOtherPh}
-                className={`${inputBase} ${errors.academicStatus ? inputError : inputNormal}`}
+                error={errors.academicStatus}
               />
-              {errors.academicStatus && <p className="text-xs text-rose-500 mt-1">{errors.academicStatus}</p>}
             </div>
           )}
         </div>
@@ -341,3 +252,4 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
     </div>
   );
 };
+

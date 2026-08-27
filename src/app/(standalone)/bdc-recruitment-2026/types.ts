@@ -37,6 +37,8 @@ export interface FormData {
 
   // Step 2: Academic & Achievements
   entranceMethod?: EntranceMethod;
+  thptBlock?: string;
+  thptBlockOther?: string;
   entranceScoreDetail?: string;
   gpaCumulative: string;
   gpaLatest: string;
@@ -74,7 +76,19 @@ export const ACADEMIC_STATUS_OPTIONS: { id: AcademicStatus; labelVi: string; lab
   { id: "year2", labelVi: "Năm 2", labelEn: "2nd Year" },
   { id: "year3", labelVi: "Năm 3", labelEn: "3rd Year" },
   { id: "year4", labelVi: "Năm 4", labelEn: "4th Year" },
-  { id: "other", labelVi: "Khác", labelEn: "Other" },
+  { id: "other", labelVi: "Khác (Vui lòng điền bên dưới)", labelEn: "Other (Please specify below)" },
+];
+
+export const THPT_BLOCK_OPTIONS = [
+  { id: "A00", labelVi: "Khối A00 (Toán, Vật lý, Hóa học)", labelEn: "Block A00 (Math, Phys, Chem)" },
+  { id: "A01", labelVi: "Khối A01 (Toán, Vật lý, Tiếng Anh)", labelEn: "Block A01 (Math, Phys, Eng)" },
+  { id: "B00", labelVi: "Khối B00 (Toán, Hóa học, Sinh học)", labelEn: "Block B00 (Math, Chem, Bio)" },
+  { id: "C00", labelVi: "Khối C00 (Ngữ văn, Lịch sử, Địa lý)", labelEn: "Block C00 (Lit, Hist, Geo)" },
+  { id: "D01", labelVi: "Khối D01 (Toán, Ngữ văn, Tiếng Anh)", labelEn: "Block D01 (Math, Lit, Eng)" },
+  { id: "D07", labelVi: "Khối D07 (Toán, Hóa học, Tiếng Anh)", labelEn: "Block D07 (Math, Chem, Eng)" },
+  { id: "D08", labelVi: "Khối D08 (Toán, Sinh học, Tiếng Anh)", labelEn: "Block D08 (Math, Bio, Eng)" },
+  { id: "hocba", labelVi: "Xét tuyển Học bạ THPT", labelEn: "High School Academic Transcript" },
+  { id: "other", labelVi: "Tổ hợp / Phương thức khác", labelEn: "Other Combination / Method" },
 ];
 
 export const ENTRANCE_METHOD_OPTIONS = [

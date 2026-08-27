@@ -5,6 +5,8 @@ import Link from "next/link";
 import { CheckCircle, ArrowRight, RefreshCw } from "lucide-react";
 import { T, Lang } from "../types";
 
+import { Button } from "@/components/ui/button";
+
 interface AlreadySubmittedScreenProps {
   savedName: string;
   lang: Lang;
@@ -32,22 +34,22 @@ export const AlreadySubmittedScreen: React.FC<AlreadySubmittedScreenProps> = ({ 
         </div>
 
         <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onReset}
-            className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl transition-all border border-slate-200 dark:border-slate-700"
+            className="rounded-xl px-4 py-2.5 text-xs font-semibold active:scale-95 transition-all duration-200"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Điền lại đơn mới</span>
-          </button>
+          </Button>
 
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition-all shadow-md"
-          >
-            <span>Về trang chủ</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          <Button asChild className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl px-5 py-2.5 shadow-md active:scale-95 transition-all duration-200">
+            <Link href="/">
+              <span>Về trang chủ</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

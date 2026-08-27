@@ -116,12 +116,12 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
 
   const handleMouseLeaveTooltip = () => {
     if (isOpen) {
-      startTimer(3000);
+      startTimer(autoDismissMs);
     }
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={handleOpenChange}>
+    <Popover open={isOpen} onOpenChange={handleOpenChange} modal={false}>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -140,6 +140,8 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
         side={side}
         align={align}
         sideOffset={6}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
         onMouseEnter={handleMouseEnterTooltip}
         onMouseLeave={handleMouseLeaveTooltip}
         onMouseDown={(e) => {

@@ -35,6 +35,8 @@ const INITIAL_FORM: FormData = {
   academicStatus: "freshman",
   academicStatusOther: "",
   entranceMethod: "thpt",
+  thptBlock: "A00",
+  thptBlockOther: "",
   entranceScoreDetail: "",
   gpaCumulative: "",
   gpaLatest: "",
@@ -150,7 +152,13 @@ export default function BDCRecruitment2026Page() {
         errs.englishCertScore = t.errRequired;
       }
       if (form.academicStatus === "freshman") {
-        if (!form.entranceScoreDetail?.trim() && !form.thptScore?.trim()) errs.entranceScoreDetail = t.errRequired;
+        if (!form.thptScore?.trim() && !form.entranceScoreDetail?.trim()) {
+          errs.thptScore = t.errRequired;
+          errs.entranceScoreDetail = t.errRequired;
+        }
+        if (form.hasDgnl !== "no" && !form.dgnlScore?.trim()) {
+          errs.dgnlScore = lang === "vi" ? "Vui lòng nhập điểm thi ĐGNL hoặc chọn 'Không thi ĐGNL'." : "Please enter your score or select 'Didn't take test'.";
+        }
         // CV is optional for freshers if cvBioText is filled out
         if (!form.cvFile && !form.cvBioText?.trim()) {
           errs.cvFile = t.errCvRequired;
@@ -205,8 +213,9 @@ export default function BDCRecruitment2026Page() {
         university:                   form.university,
         faculty:                      form.faculty,
         student_id:                   form.studentId || "N/A",
-        academic_status:              ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.labelVi
-                                    ?? (form.academicStatusOther || form.academicStatus),
+        academic_status:              form.academicStatus === "other"
+                                        ? (form.academicStatusOther || "Khác")
+                                        : (ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.labelVi || form.academicStatus),
         thpt_dgnl_scores:             form.academicStatus === "freshman"
                                       ? `[${entranceLabel}]: ${form.entranceScoreDetail || form.thptDgnlScores || "N/A"}`
                                       : (form.thptDgnlScores || "N/A"),

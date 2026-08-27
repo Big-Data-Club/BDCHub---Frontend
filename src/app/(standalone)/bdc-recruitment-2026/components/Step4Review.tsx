@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, User, BookOpen, Users, FileText, ExternalLink, ShieldCheck, AlertCircle, Clock, Check } from "lucide-react";
-import { FormData, Errors, T, Lang, ACADEMIC_STATUS_OPTIONS, DEPARTMENT_OPTIONS, ENTRANCE_METHOD_OPTIONS, TIME_COMMITMENT_OPTIONS } from "../types";
+import { CheckCircle2, User, BookOpen, Users, FileText, ExternalLink, ShieldCheck } from "lucide-react";
+import { FormData, Errors, T, Lang, ACADEMIC_STATUS_OPTIONS, DEPARTMENT_OPTIONS, THPT_BLOCK_OPTIONS, TIME_COMMITMENT_OPTIONS } from "../types";
+import { FCb } from "@/components/form/FormFields";
 
 interface Step4ReviewProps {
   form: FormData;
@@ -17,14 +18,17 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
   const isVi = lang === "vi";
 
   const statusLabel =
-    ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.[isVi ? "labelVi" : "labelEn"] ||
-    form.academicStatus;
+    form.academicStatus === "other"
+      ? (form.academicStatusOther || (isVi ? "Khác" : "Other"))
+      : (ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.[isVi ? "labelVi" : "labelEn"] || form.academicStatus);
 
   const deptObj = DEPARTMENT_OPTIONS.find((d) => d.id === form.department);
   const deptName = deptObj ? (isVi ? deptObj.nameVi : deptObj.nameEn) : form.department;
 
-  const entranceObj = ENTRANCE_METHOD_OPTIONS.find((e) => e.id === form.entranceMethod);
-  const entranceMethodLabel = entranceObj ? (isVi ? entranceObj.labelVi : entranceObj.labelEn) : (form.entranceMethod || "THPT");
+  const blockObj = THPT_BLOCK_OPTIONS.find((b) => b.id === form.thptBlock);
+  const blockLabel = form.thptBlock === "other"
+    ? (form.thptBlockOther || (isVi ? "Khác" : "Other"))
+    : (blockObj ? (isVi ? blockObj.labelVi : blockObj.labelEn) : (form.thptBlock || "A00"));
 
   const timeObj = TIME_COMMITMENT_OPTIONS.find((tc) => tc.id === form.weeklyTimeCommitment);
   const timeLabel = timeObj ? (isVi ? timeObj.labelVi : timeObj.labelEn) : (form.weeklyTimeCommitment || "5 - 10h/tuần");
@@ -110,14 +114,20 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
 
         <div className="space-y-3 text-xs">
           {form.academicStatus === "freshman" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <span className={labelCls}>Phương thức tuyển sinh:</span>
-                <span className={valueCls}>{entranceMethodLabel}</span>
+                <span className={labelCls}>Tổ hợp xét tuyển:</span>
+                <span className={valueCls}>{blockLabel}</span>
               </div>
               <div>
-                <span className={labelCls}>Chi tiết điểm / Kết quả:</span>
-                <span className={valueCls}>{form.entranceScoreDetail || form.thptDgnlScores || "—"}</span>
+                <span className={labelCls}>Điểm THPT / Xét tuyển:</span>
+                <span className={valueCls}>{form.thptScore || "—"}</span>
+              </div>
+              <div>
+                <span className={labelCls}>Điểm thi ĐGNL:</span>
+                <span className={valueCls}>
+                  {form.hasDgnl === "no" ? (isVi ? "Không thi ĐGNL" : "No ĐGNL") : (form.dgnlScore || "—")}
+                </span>
               </div>
             </div>
           ) : (
@@ -231,31 +241,23 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
       </div>
 
       {/* Privacy Checkbox */}
-      <div className="p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 rounded-2xl space-y-2">
-        <div className="flex items-start space-x-3">
-          <input
-            type="checkbox"
-            id="agreePrivacy"
-            checked={form.agreePrivacy}
-            onChange={(e) => onChange({ agreePrivacy: e.target.checked })}
-            className="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-500 focus:ring-blue-500/30 cursor-pointer"
-          />
-          <label htmlFor="agreePrivacy" className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed font-medium cursor-pointer">
-            <span className="font-bold text-blue-600 dark:text-blue-300 flex items-center gap-1.5 inline-flex mb-1">
-              <ShieldCheck className="w-4 h-4 text-blue-500 dark:text-blue-400 inline" /> Cam kết thông tin:
-            </span>{" "}
-            {t.agreePrivacyLabel}
-          </label>
-        </div>
-
-        {errors.agreePrivacy && (
-          <div className="flex items-center space-x-2 text-xs text-rose-500 pt-1">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{errors.agreePrivacy}</span>
-          </div>
-        )}
+      <div className="p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 rounded-2xl">
+        <FCb
+          id="agreePrivacy"
+          checked={form.agreePrivacy}
+          onCheckedChange={(c) => onChange({ agreePrivacy: c })}
+          icon={<ShieldCheck className="w-4 h-4 text-blue-500 dark:text-blue-400 inline shrink-0" />}
+          label={
+            <span className="leading-relaxed">
+              <span className="font-bold text-blue-600 dark:text-blue-300">Cam kết thông tin: </span>
+              {t.agreePrivacyLabel}
+            </span>
+          }
+          error={errors.agreePrivacy}
+        />
       </div>
     </div>
   );
 };
+
 

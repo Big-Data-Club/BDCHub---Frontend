@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { Users, Code, MessageSquare, Check, Send, Clock, Shuffle } from "lucide-react";
+import { Users, Code, Check, Clock, Shuffle } from "lucide-react";
 import { FormData, Errors, T, Lang, DEPARTMENT_OPTIONS, DepartmentId, TIME_COMMITMENT_OPTIONS } from "../types";
-import { FSel } from "@/components/form/FormFields";
+import { FTa, FCb } from "@/components/form/FormFields";
 
 interface Step3DepartmentProps {
   form: FormData;
@@ -11,19 +11,6 @@ interface Step3DepartmentProps {
   errors: Errors;
   lang: Lang;
 }
-
-const renderLabel = (labelStr: string) => {
-  if (labelStr.endsWith("*")) {
-    const mainText = labelStr.slice(0, -1).trim();
-    return (
-      <>
-        {mainText}
-        <span className="text-rose-500 ml-1 font-bold">*</span>
-      </>
-    );
-  }
-  return labelStr;
-};
 
 export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange, errors, lang }) => {
   const t = T[lang];
@@ -43,7 +30,7 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
       {/* Department Selection Cards (NV1) */}
       <div>
         <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
-          {renderLabel(t.deptSelectLabel)}
+          {t.deptSelectLabel}
         </label>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">{t.deptSelectHint}</p>
 
@@ -119,26 +106,18 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
 
       {/* HR Adjustment Consent */}
       <div className="pt-2">
-        <label htmlFor="allowAdjustment" className="flex items-start space-x-3 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            id="allowAdjustment"
-            checked={form.allowDepartmentAdjustment ?? true}
-            onChange={(e) => onChange({ allowDepartmentAdjustment: e.target.checked })}
-            className="mt-0.5 w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500/20 cursor-pointer shrink-0"
-          />
-          <div className="space-y-0.5 min-w-0">
-            <span className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 leading-snug">
-              <Shuffle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-              <span>{t.allowDeptAdjustmentLabel}</span>
-            </span>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
-              {isVi
-                ? "Nếu Ban ứng tuyển ban đầu của bạn đã đủ chỉ tiêu hoặc Ban Nhân sự nhận thấy hồ sơ của bạn phù hợp hơn với Ban còn lại, BDC sẽ chủ động cân nhắc trao cơ hội cho bạn ở Ban đó."
-                : "If your primary department choice reaches capacity, BDC HR may consider evaluating your application for the other department."}
-            </p>
-          </div>
-        </label>
+        <FCb
+          id="allowAdjustment"
+          checked={form.allowDepartmentAdjustment ?? true}
+          onCheckedChange={(c) => onChange({ allowDepartmentAdjustment: c })}
+          icon={<Shuffle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />}
+          label={t.allowDeptAdjustmentLabel}
+          description={
+            isVi
+              ? "Nếu Ban ứng tuyển ban đầu của bạn đã đủ chỉ tiêu hoặc Ban Nhân sự nhận thấy hồ sơ của bạn phù hợp hơn với Ban còn lại, BDC sẽ chủ động cân nhắc trao cơ hội cho bạn ở Ban đó."
+              : "If your primary department choice reaches capacity, BDC HR may consider evaluating your application for the other department."
+          }
+        />
       </div>
 
       <hr className="border-slate-200 dark:border-slate-800" />
@@ -147,7 +126,7 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
       <div>
         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-1.5">
           <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          {renderLabel(t.weeklyTimeCommitmentLabel)}
+          {t.weeklyTimeCommitmentLabel}
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {TIME_COMMITMENT_OPTIONS.map((opt) => {
@@ -175,42 +154,32 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
       {/* Motivation Statement */}
       <div>
         <div className="flex justify-between items-baseline mb-1">
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
-            {renderLabel(t.motivationLabel)}
-          </label>
-          <span className={`text-xs font-medium ${form.motivation.length > 500 ? "text-amber-500 font-bold" : "text-slate-400 dark:text-slate-500"}`}>
+          <span className={`text-xs font-medium ml-auto ${form.motivation.length > 500 ? "text-amber-500 font-bold" : "text-slate-400 dark:text-slate-500"}`}>
             {form.motivation.length} ký tự
           </span>
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">{t.motivationHint}</p>
-        <textarea
+        <FTa
+          label={t.motivationLabel}
           rows={5}
           value={form.motivation}
           onChange={(e) => onChange({ motivation: e.target.value })}
           placeholder={t.motivationPh}
-          className={`w-full bg-white dark:bg-[#070E1B] border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all ${
-            errors.motivation
-              ? "border-rose-400 dark:border-rose-500/80 focus:ring-2 focus:ring-rose-500/30"
-              : "border-slate-200 dark:border-slate-800 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-          }`}
+          error={errors.motivation}
         />
-        {errors.motivation && <p className="text-xs text-rose-500 mt-1">{errors.motivation}</p>}
       </div>
 
       {/* Send Copy via Email Option */}
       <div className="pt-2">
-        <label htmlFor="sendCopy" className="flex items-center space-x-2.5 text-xs text-slate-600 dark:text-slate-300 font-medium cursor-pointer select-none">
-          <input
-            type="checkbox"
-            id="sendCopy"
-            checked={form.sendCopy}
-            onChange={(e) => onChange({ sendCopy: e.target.checked })}
-            className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500/20 cursor-pointer"
-          />
-          <span>{t.sendCopyLabel} ({form.emailConfirmation || "email xác nhận"})</span>
-        </label>
+        <FCb
+          id="sendCopy"
+          checked={form.sendCopy}
+          onCheckedChange={(c) => onChange({ sendCopy: c })}
+          label={`${t.sendCopyLabel} (${form.emailConfirmation || "email xác nhận"})`}
+        />
       </div>
     </div>
   );
 };
+
 
