@@ -29,7 +29,13 @@ async function forward(req: NextRequest, path: string[]) {
     (session.user as any).id ?? (session.user as any).userId ?? 0
   );
 
-  const url = `${AI_SERVICE_URL}/ai/studio/${path.join("/")}${req.nextUrl.search}`;
+  const searchParams = new URLSearchParams(req.nextUrl.search);
+  if (userId && !searchParams.has("user_id")) {
+    searchParams.set("user_id", String(userId));
+  }
+  const queryString = searchParams.toString() ? `?${searchParams.toString()}` : "";
+
+  const url = `${AI_SERVICE_URL}/ai/studio/${path.join("/")}${queryString}`;
   const headers: Record<string, string> = { "X-AI-Secret": AI_SECRET };
   let body: string | undefined;
 
