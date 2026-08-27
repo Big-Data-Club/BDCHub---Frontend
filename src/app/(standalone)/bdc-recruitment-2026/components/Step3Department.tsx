@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Users, Code, Check, Clock, Shuffle } from "lucide-react";
+import { Users, Code, Check, Clock, Lightbulb } from "lucide-react";
 import { FormData, Errors, T, Lang, DEPARTMENT_OPTIONS, DepartmentId, TIME_COMMITMENT_OPTIONS } from "../types";
 import { FTa, FCb } from "@/components/form/FormFields";
 
@@ -16,10 +16,20 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
   const t = T[lang];
   const isVi = lang === "vi";
 
+  const handleInsertChip = (chipText: string) => {
+    const current = form.motivation.trim();
+    if (!current) {
+      onChange({ motivation: `- ${chipText}: ` });
+      return;
+    }
+    if (current.includes(chipText)) return;
+    onChange({ motivation: `${current}\n- ${chipText}: ` });
+  };
+
   return (
     <div className="space-y-8">
       {/* Header section with refined editorial divider */}
-      <div className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
         <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
           <Users className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
           {t.step3Header}
@@ -27,38 +37,47 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{t.step3Desc}</p>
       </div>
 
-      {/* Department Selection Cards (NV1) */}
+      {/* Department Selection - Minimalist Editorial Grid */}
       <div>
-        <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
-          {t.deptSelectLabel}
-        </label>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">{t.deptSelectHint}</p>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">
+            {t.deptSelectLabel}
+          </label>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">{t.deptSelectHint}</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {DEPARTMENT_OPTIONS.map((dept) => {
             const isSelected = form.department === dept.id;
             const isRd = dept.id === "rd";
             const IconComponent = isRd ? Code : Users;
-            const highlights = lang === "vi" ? dept.highlightsVi : dept.highlightsEn;
+            const highlights = isVi ? dept.highlightsVi : dept.highlightsEn;
+            const fitTitle = isVi ? dept.fitTitleVi : dept.fitTitleEn;
+            const badge = isVi ? dept.badgeVi : dept.badgeEn;
+            const skills = isVi ? dept.skillsVi : dept.skillsEn;
 
             return (
               <div
                 key={dept.id}
                 onClick={() => onChange({ department: dept.id as DepartmentId })}
-                className={`group relative p-6 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col justify-between ${
+                className={`group cursor-pointer transition-colors duration-150 flex flex-col justify-between p-5 rounded-lg border ${
                   isSelected
-                    ? "bg-blue-50/60 dark:bg-blue-950/25 border-blue-600 dark:border-blue-500"
+                    ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-600 dark:border-blue-500"
                     : "bg-white dark:bg-[#070E1B] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
                 }`}
               >
                 <div>
-                  <div className="flex items-start justify-between gap-3 mb-1.5">
-                    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-2 leading-snug">
-                      <IconComponent className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                      <span>{lang === "vi" ? dept.nameVi : dept.nameEn}</span>
-                    </h3>
+                  {/* Category Indicator & Radio check mark */}
+                  <div className="flex items-center justify-between gap-3 mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <IconComponent className={`w-4 h-4 ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500"}`} />
+                      <span className="text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400">
+                        {badge}
+                      </span>
+                    </div>
+
                     <div
-                      className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all shrink-0 mt-1 ${
+                      className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all shrink-0 ${
                         isSelected
                           ? "border-blue-600 bg-blue-600 text-white"
                           : "border-slate-300 dark:border-slate-700 bg-transparent group-hover:border-slate-400"
@@ -68,22 +87,28 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                     </div>
                   </div>
 
-                  <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-3 leading-snug">
-                    {lang === "vi" ? dept.taglineVi : dept.taglineEn}
+                  {/* Title & Tagline */}
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug mb-1">
+                    {isVi ? dept.nameVi : dept.nameEn}
+                  </h3>
+
+                  <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-3 leading-snug">
+                    {isVi ? dept.taglineVi : dept.taglineEn}
                   </p>
 
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-normal mb-4">
-                    {lang === "vi" ? dept.descriptionVi : dept.descriptionEn}
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                    {isVi ? dept.descriptionVi : dept.descriptionEn}
                   </p>
 
-                  <div className="pl-3 border-l-2 border-slate-300 dark:border-slate-700 space-y-1.5 mb-5">
-                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                      {lang === "vi" ? "Cơ hội chính:" : "Key Opportunities:"}
+                  {/* Pure Editorial Left Divider for Fit Highlights */}
+                  <div className="border-l-2 border-slate-200 dark:border-slate-800 pl-3 py-0.5 space-y-1.5 mb-4">
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                      {fitTitle}
                     </p>
-                    <ul className="space-y-1.5">
+                    <ul className="space-y-1">
                       {highlights.map((item, i) => (
-                        <li key={i} className="text-xs text-slate-700 dark:text-slate-300 flex items-start gap-2 leading-snug">
-                          <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                        <li key={i} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2 leading-relaxed">
+                          <span className="w-1 h-1 rounded-full bg-blue-500 shrink-0 mt-1.5" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -91,43 +116,36 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                {/* Technical Stack / Skill Divider */}
+                <div className="pt-3 border-t border-slate-200/60 dark:border-slate-800/80">
                   <p className="text-xs font-mono text-slate-500 dark:text-slate-400">
-                    <span className="font-semibold uppercase text-slate-400 mr-1.5">Tech:</span>
-                    {(lang === "vi" ? dept.skillsVi : dept.skillsEn).join(" · ")}
+                    <span className="font-semibold uppercase text-slate-400 dark:text-slate-500 mr-2">
+                      {isVi ? "Kỹ năng chính:" : "Key Skills:"}
+                    </span>
+                    {skills.join(" · ")}
                   </p>
                 </div>
               </div>
             );
           })}
         </div>
-        {errors.department && <p className="text-xs text-rose-500 mt-2">{errors.department}</p>}
-      </div>
-
-      {/* HR Adjustment Consent */}
-      <div className="pt-2">
-        <FCb
-          id="allowAdjustment"
-          checked={form.allowDepartmentAdjustment ?? true}
-          onCheckedChange={(c) => onChange({ allowDepartmentAdjustment: c })}
-          icon={<Shuffle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />}
-          label={t.allowDeptAdjustmentLabel}
-          description={
-            isVi
-              ? "Nếu Ban ứng tuyển ban đầu của bạn đã đủ chỉ tiêu hoặc Ban Nhân sự nhận thấy hồ sơ của bạn phù hợp hơn với Ban còn lại, BDC sẽ chủ động cân nhắc trao cơ hội cho bạn ở Ban đó."
-              : "If your primary department choice reaches capacity, BDC HR may consider evaluating your application for the other department."
-          }
-        />
+        {errors.department && <p className="text-xs font-semibold text-rose-500 mt-2">{errors.department}</p>}
       </div>
 
       <hr className="border-slate-200 dark:border-slate-800" />
 
       {/* Time Commitment */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-1.5">
+        <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center gap-2">
           <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           {t.weeklyTimeCommitmentLabel}
         </label>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+          {isVi
+            ? "Đảm bảo thời gian sinh hoạt CLB không ảnh hưởng đến việc học chính khóa tại Đại học."
+            : "Ensure club participation fits around your university study schedule."}
+        </p>
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {TIME_COMMITMENT_OPTIONS.map((opt) => {
             const isSelected = (form.weeklyTimeCommitment || "5_to_10h") === opt.id;
@@ -136,13 +154,18 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                 type="button"
                 key={opt.id}
                 onClick={() => onChange({ weeklyTimeCommitment: opt.id })}
-                className={`p-3 rounded-lg border text-xs font-semibold cursor-pointer transition-all ${
+                className={`p-3 rounded-md border text-xs font-semibold cursor-pointer transition-all flex items-center justify-between ${
                   isSelected
-                    ? "bg-blue-50/70 dark:bg-blue-950/30 border-blue-600 dark:border-blue-500 text-blue-900 dark:text-blue-100"
-                    : "bg-white dark:bg-[#070E1B] border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300"
+                    ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                    : "bg-white dark:bg-[#070E1B] border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
                 }`}
               >
-                {isVi ? opt.labelVi : opt.labelEn}
+                <span>{isVi ? opt.labelVi : opt.labelEn}</span>
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    isSelected ? "bg-white animate-pulse" : "bg-slate-300 dark:bg-slate-700"
+                  }`}
+                />
               </button>
             );
           })}
@@ -151,16 +174,46 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
 
       <hr className="border-slate-200 dark:border-slate-800" />
 
-      {/* Motivation Statement */}
+      {/* Motivation Statement with Prompt Chips */}
       <div>
-        <div className="flex justify-between items-baseline mb-1">
-          <span className={`text-xs font-medium ml-auto ${form.motivation.length > 500 ? "text-amber-500 font-bold" : "text-slate-400 dark:text-slate-500"}`}>
+        <div className="flex justify-between items-baseline mb-2">
+          <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">
+            {t.motivationLabel}
+          </label>
+          <span
+            className={`text-xs font-mono font-medium ${
+              form.motivation.length > 500 ? "text-amber-500 font-bold" : "text-slate-400 dark:text-slate-500"
+            }`}
+          >
             {form.motivation.length} ký tự
           </span>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">{t.motivationHint}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{t.motivationHint}</p>
+
+        {/* Prompt chips */}
+        {t.motivationChips && (
+          <div className="mb-3 space-y-1.5">
+            <p className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+              {t.motivationChipsLabel}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {t.motivationChips.map((chip, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleInsertChip(chip)}
+                  className="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700/80 transition-colors cursor-pointer"
+                >
+                  + {chip}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <FTa
-          label={t.motivationLabel}
+          label=""
           rows={5}
           value={form.motivation}
           onChange={(e) => onChange({ motivation: e.target.value })}
@@ -170,7 +223,7 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
       </div>
 
       {/* Send Copy via Email Option */}
-      <div className="pt-2">
+      <div className="pt-1">
         <FCb
           id="sendCopy"
           checked={form.sendCopy}
@@ -181,5 +234,3 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
     </div>
   );
 };
-
-
