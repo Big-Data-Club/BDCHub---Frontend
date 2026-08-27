@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Users, Code, MessageSquare, Check, Sparkles, Send, Clock, Shuffle } from "lucide-react";
+import { Users, Code, MessageSquare, Check, Send, Clock, Shuffle } from "lucide-react";
 import { FormData, Errors, T, Lang, DEPARTMENT_OPTIONS, DepartmentId, TIME_COMMITMENT_OPTIONS } from "../types";
 import { FSel } from "@/components/form/FormFields";
 
@@ -117,18 +117,18 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
         {errors.department && <p className="text-xs text-rose-500 mt-2">{errors.department}</p>}
       </div>
 
-      {/* HR Adjustment Consent Card */}
-      <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-[#070E1B]">
+      {/* HR Adjustment Consent */}
+      <div className="pt-2">
         <label htmlFor="allowAdjustment" className="flex items-start space-x-3 cursor-pointer select-none">
           <input
             type="checkbox"
             id="allowAdjustment"
             checked={form.allowDepartmentAdjustment ?? true}
             onChange={(e) => onChange({ allowDepartmentAdjustment: e.target.checked })}
-            className="mt-0.5 w-4.5 h-4.5 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500/20 cursor-pointer shrink-0"
+            className="mt-0.5 w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500/20 cursor-pointer shrink-0"
           />
           <div className="space-y-0.5 min-w-0">
-            <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 leading-snug">
+            <span className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 leading-snug">
               <Shuffle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
               <span>{t.allowDeptAdjustmentLabel}</span>
             </span>
@@ -140,6 +140,8 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
           </div>
         </label>
       </div>
+
+      <hr className="border-slate-200 dark:border-slate-800" />
 
       {/* Time Commitment */}
       <div>
@@ -155,7 +157,7 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
                 type="button"
                 key={opt.id}
                 onClick={() => onChange({ weeklyTimeCommitment: opt.id })}
-                className={`p-3.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                className={`p-3 rounded-lg border text-xs font-semibold cursor-pointer transition-all ${
                   isSelected
                     ? "bg-blue-50/70 dark:bg-blue-950/30 border-blue-600 dark:border-blue-500 text-blue-900 dark:text-blue-100"
                     : "bg-white dark:bg-[#070E1B] border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300"
@@ -167,6 +169,8 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
           })}
         </div>
       </div>
+
+      <hr className="border-slate-200 dark:border-slate-800" />
 
       {/* Motivation Statement */}
       <div>
@@ -194,16 +198,16 @@ export const Step3Department: React.FC<Step3DepartmentProps> = ({ form, onChange
       </div>
 
       {/* Send Copy via Email Option */}
-      <div className="p-3.5 bg-slate-50/60 dark:bg-[#070E1B] border border-slate-200 dark:border-slate-800 rounded-xl flex items-center space-x-3">
-        <input
-          type="checkbox"
-          id="sendCopy"
-          checked={form.sendCopy}
-          onChange={(e) => onChange({ sendCopy: e.target.checked })}
-          className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500/20 cursor-pointer"
-        />
-        <label htmlFor="sendCopy" className="text-xs text-slate-600 dark:text-slate-300 font-medium cursor-pointer select-none">
-          {t.sendCopyLabel} ({form.emailConfirmation || "email xác nhận"})
+      <div className="pt-2">
+        <label htmlFor="sendCopy" className="flex items-center space-x-2.5 text-xs text-slate-600 dark:text-slate-300 font-medium cursor-pointer select-none">
+          <input
+            type="checkbox"
+            id="sendCopy"
+            checked={form.sendCopy}
+            onChange={(e) => onChange({ sendCopy: e.target.checked })}
+            className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500/20 cursor-pointer"
+          />
+          <span>{t.sendCopyLabel} ({form.emailConfirmation || "email xác nhận"})</span>
         </label>
       </div>
     </div>

@@ -1,10 +1,11 @@
 export type Lang = "vi" | "en";
 
-export type AcademicStatus = "freshman" | "year1" | "year2" | "year3" | "other";
+export type AcademicStatus = "freshman" | "year1" | "year2" | "year3" | "year4" | "other";
 
 export type DepartmentId = "rd" | "community";
 
 export type EntranceMethod =
+  | "combo_thpt_dgnl"
   | "thpt"
   | "dgnl_hcm"
   | "dgnl_hn"
@@ -68,20 +69,20 @@ export interface Errors {
 }
 
 export const ACADEMIC_STATUS_OPTIONS: { id: AcademicStatus; labelVi: string; labelEn: string }[] = [
-  { id: "freshman", labelVi: "Tân sinh viên (Khóa 2026)", labelEn: "Freshman (Entry 2026)" },
-  { id: "year1", labelVi: "Sinh viên Năm 1 (Vừa hoàn thành năm 1)", labelEn: "1st Year Student (Completed Year 1)" },
-  { id: "year2", labelVi: "Sinh viên Năm 2 (Vừa hoàn thành năm 2)", labelEn: "2nd Year Student (Completed Year 2)" },
-  { id: "year3", labelVi: "Sinh viên Năm 3 trở đi", labelEn: "3rd Year+ Student" },
+  { id: "freshman", labelVi: "Tân sinh viên (Năm 1)", labelEn: "Freshman (1st Year)" },
+  { id: "year1", labelVi: "Năm 1", labelEn: "1st Year" },
+  { id: "year2", labelVi: "Năm 2", labelEn: "2nd Year" },
+  { id: "year3", labelVi: "Năm 3", labelEn: "3rd Year" },
+  { id: "year4", labelVi: "Năm 4", labelEn: "4th Year" },
   { id: "other", labelVi: "Khác", labelEn: "Other" },
 ];
 
 export const ENTRANCE_METHOD_OPTIONS = [
-  { id: "thpt" as EntranceMethod, labelVi: "Điểm thi Tốt nghiệp THPT QG", labelEn: "National High School Exam Scores" },
-  { id: "dgnl_hcm" as EntranceMethod, labelVi: "Kỳ thi ĐGNL ĐHQG TP.HCM", labelEn: "VNU-HCM Competency Test (ĐGNL)" },
-  { id: "dgnl_hn" as EntranceMethod, labelVi: "Kỳ thi ĐGNL ĐHQG Hà Nội (HSA)", labelEn: "VNU-HN Competency Test (HSA)" },
-  { id: "tsa" as EntranceMethod, labelVi: "Đánh giá tư duy Bách Khoa Hà Nội (TSA)", labelEn: "HUST Thinking Skills Assessment (TSA)" },
+  { id: "combo_thpt_dgnl" as EntranceMethod, labelVi: "Có cả Điểm THPT & Đánh giá năng lực (Khuyên dùng)", labelEn: "Both High School Exam & Competency Test (Recommended)" },
+  { id: "thpt" as EntranceMethod, labelVi: "Chỉ dùng Điểm thi Tốt nghiệp THPT QG", labelEn: "High School Exam Scores Only" },
+  { id: "dgnl_hcm" as EntranceMethod, labelVi: "Chỉ dùng Kỳ thi Đánh giá năng lực (ĐHQG TP.HCM / Hà Nội / TSA)", labelEn: "Competency Test Scores Only (VNU-HCM / VNU-HN / TSA)" },
   { id: "hocba" as EntranceMethod, labelVi: "Xét tuyển Học bạ THPT", labelEn: "High School Academic Transcript Review" },
-  { id: "direct_international" as EntranceMethod, labelVi: "Xét tuyển thẳng / Chứng chỉ Quốc tế (SAT/IB/IELTS...)", labelEn: "Direct Admission / International Certs (SAT/IB/IELTS...)" },
+  { id: "direct_international" as EntranceMethod, labelVi: "Xét tuyển thẳng / Chứng chỉ Quốc tế (SAT, IB, HSG...)", labelEn: "Direct Admission / International Certs (SAT/IB/IELTS...)" },
   { id: "other" as EntranceMethod, labelVi: "Phương thức tuyển sinh khác", labelEn: "Other Entrance Method" },
 ];
 
@@ -150,9 +151,9 @@ export const T = {
   vi: {
     heroBadge: "TUYỂN THÀNH VIÊN 2026",
     heroTitle: "BIG DATA CLUB RECRUITMENT 2026",
-    heroSubtitle: "Chào Đón Thế Hệ Mới · Empowering Tomorrow's Tech Leaders",
+    heroSubtitle: "THINK BIG. SPEAK DATA.",
     heroDesc:
-      "Tham gia Big Data Club (BDC) để cùng học hỏi, thực chiến các dự án dữ liệu lớn, AI, công nghệ tiên tiến và phát triển bản thân trong môi trường trẻ trung, năng động. Chào đón sinh viên TẤT CẢ các trường Đại học!",
+      "Trở thành một phần của BDC để cùng thực hành dự án AI & Big Data thực tế, tiếp cận hạ tầng server GPU riêng và phát triển bản thân cùng cộng đồng đam mê công nghệ. Mở đơn cho sinh viên TẤT CẢ các trường Đại học!",
     langToggle: "English",
 
     // Steps
@@ -183,8 +184,9 @@ export const T = {
     emailPersonalPh: "Ví dụ: nguyenvana@gmail.com",
     emailSchool: "Email sinh viên / Trường học (Tùy chọn)",
     emailSchoolPh: "Ví dụ: anh.nguyen26@st.hcmut.edu.vn (Bỏ qua nếu chưa được cấp)",
-    facebookLink: "Link Facebook / Zalo / LinkedIn cá nhân *",
-    facebookLinkPh: "Ví dụ: https://facebook.com/nguyenvana hoặc link profile cá nhân",
+    facebookLink: "Link Facebook cá nhân (hoặc Zalo/LinkedIn) *",
+    facebookLinkPh: "facebook.com/username hoặc link trang cá nhân của bạn",
+    facebookLinkHint: "Ưu tiên Facebook cá nhân để Ban Nhân sự dễ dàng liên hệ phỏng vấn.",
     university: "Trường Đại học đang theo học *",
     universityPh: "Ví dụ: Trường Đại học Bách Khoa, UTE, FPT, KHTN...",
     faculty: "Khoa / Ngành học *",
@@ -198,7 +200,7 @@ export const T = {
     step2Header: "Hồ sơ Học tập & Minh chứng",
     step2Desc: "Cung cấp kết quả học tập và minh chứng để BDC đánh giá đúng năng lực của bạn.",
     freshmanNoticeTitle: "Dành cho Tân Sinh viên (Khóa 2026)",
-    freshmanNoticeDesc: "Chào mừng bạn! Vui lòng chọn Phương thức trúng tuyển Đại học và cập nhật điểm số tương ứng.",
+    freshmanNoticeDesc: "",
     seniorNoticeTitle: "Dành cho Sinh viên từ Năm 1 trở đi",
     seniorNoticeDesc: "Vui lòng cập nhật điểm GPA tích lũy và điểm học kỳ gần nhất của bạn.",
     entranceMethodLabel: "Phương thức xét tuyển / trúng tuyển Đại học của bạn *",
@@ -229,7 +231,7 @@ export const T = {
     englishCertScorePh: "Ví dụ: 7.5 (hoặc 850, B2...)",
     cvUploadLabel: "CV ứng tuyển (Định dạng PDF, tối đa 10MB) *",
     cvUploadLabelFreshman: "CV ứng tuyển (PDF, tối đa 10MB - Tùy chọn cho Tân sinh viên)",
-    cvUploadHint: "Bản CV chi tiết giúp Ban Nhân sự hiểu rõ hành trình và kỹ năng của bạn.",
+    cvUploadHint: "Một bản CV chỉn chu sẽ giúp bạn tạo ấn tượng tốt hơn với BDC!",
     cvBioTextLabel: "Tóm tắt kinh nghiệm, kỹ năng & dự án cá nhân (Nếu chưa có file CV) *",
     cvBioTextPh: "Ví dụ: Em có nền tảng về Python, C++, từng tham gia cuộc thi HSG Tin học cấp trường...",
     cvBioTextHint: "Nếu bạn là Tân sinh viên và chưa có file CV sẵn, hãy viết tóm tắt ngắn gọn ở đây.",
@@ -285,9 +287,9 @@ export const T = {
   en: {
     heroBadge: "RECRUITMENT 2026",
     heroTitle: "BIG DATA CLUB RECRUITMENT 2026",
-    heroSubtitle: "Welcome New Generation · Empowering Tomorrow's Tech Leaders",
+    heroSubtitle: "THINK BIG. SPEAK DATA.",
     heroDesc:
-      "Join Big Data Club (BDC) to build real-world AI & Big Data projects, master cloud technologies, and accelerate your growth in a dynamic tech community. Open to students from ALL universities!",
+      "Join BDC to build real-world AI & Big Data projects, gain hands-on access to private GPU server clusters, and grow alongside a passionate tech community. Open to students from ALL universities!",
     langToggle: "Tiếng Việt",
 
     // Steps
@@ -318,8 +320,9 @@ export const T = {
     emailPersonalPh: "e.g. alex.nguyen@gmail.com",
     emailSchool: "University Email (Optional)",
     emailSchoolPh: "e.g. alex.nguyen26@st.hcmut.edu.vn (Leave blank if not issued yet)",
-    facebookLink: "Facebook / Zalo / LinkedIn Profile Link *",
-    facebookLinkPh: "e.g. https://facebook.com/alexnguyen or social profile URL",
+    facebookLink: "Facebook Profile Link (or Zalo/LinkedIn) *",
+    facebookLinkPh: "facebook.com/username or your social profile URL",
+    facebookLinkHint: "Facebook profile is preferred for HR contact and interview scheduling.",
     university: "University *",
     universityPh: "e.g. HCMUT, UIT, UTE, FPT, International University...",
     faculty: "Faculty / Major *",
@@ -333,7 +336,7 @@ export const T = {
     step2Header: "Academic Profile & Credentials",
     step2Desc: "Share your academic achievements, language certificates, and upload your CV.",
     freshmanNoticeTitle: "For Freshmen (Entry 2026)",
-    freshmanNoticeDesc: "Welcome! Please select your University Entrance Method and specify your scores.",
+    freshmanNoticeDesc: "",
     seniorNoticeTitle: "For 1st, 2nd & 3rd Year Students",
     seniorNoticeDesc: "Please update your cumulative GPA and latest semester GPA.",
     entranceMethodLabel: "University Entrance Admission Method *",
@@ -364,7 +367,7 @@ export const T = {
     englishCertScorePh: "e.g. 7.5 (or 850, B2...)",
     cvUploadLabel: "Upload Your CV (PDF, max 10MB) *",
     cvUploadLabelFreshman: "Upload Your CV (PDF, max 10MB - Optional for Freshmen)",
-    cvUploadHint: "A strong CV will make your application stand out!",
+    cvUploadHint: "A well-crafted CV will make a stronger impression on BDC!",
     cvBioTextLabel: "Summary of Experience, Skills & Projects (If CV file is not available) *",
     cvBioTextPh: "e.g. I have basic knowledge in Python, C++, participated in high school coding contests...",
     cvBioTextHint: "If you are a freshman without a ready CV file, please write a brief summary here.",

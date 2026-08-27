@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Sparkles, ArrowRight, ArrowLeft, Send, CheckCircle2, ShieldAlert } from "lucide-react";
+import { ArrowRight, ArrowLeft, Send, CheckCircle2, ShieldAlert } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 import bdcLogo from "@/assets/bdclogo.png";

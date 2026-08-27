@@ -1,9 +1,8 @@
-"use client";
-
 import React from "react";
-import { User, Mail, Phone, Globe, GraduationCap, Building, IdCard, Sparkles } from "lucide-react";
+import { User, Mail, Phone, Globe, GraduationCap, Building, IdCard } from "lucide-react";
 import { FormData, Errors, T, Lang, ACADEMIC_STATUS_OPTIONS, AcademicStatus } from "../types";
 import { FSel } from "@/components/form/FormFields";
+import { InfoTooltip, triggerFieldTooltip } from "@/components/form/InfoTooltip";
 import universitiesData from "../../hpc-summer-school/universities.json";
 
 interface Step1PersonalProps {
@@ -23,6 +22,14 @@ const inputError =
 export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, errors, lang }) => {
   const t = T[lang];
   const isVi = lang === "vi";
+  const focusedFieldsRef = React.useRef<Set<string>>(new Set());
+
+  const handleFieldFocus = (fieldKey: string) => {
+    if (!focusedFieldsRef.current.has(fieldKey)) {
+      focusedFieldsRef.current.add(fieldKey);
+      triggerFieldTooltip(fieldKey);
+    }
+  };
 
   const uniOptions = React.useMemo(() => {
     return universitiesData.map(uni => ({
@@ -82,17 +89,21 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
     return found ? found.value : "";
   })();
 
-  const renderLabel = (labelStr: string) => {
-    if (labelStr.endsWith("*")) {
-      const mainText = labelStr.slice(0, -1).trim();
-      return (
-        <>
+  const renderLabel = (labelStr: string, tooltipText?: string, fieldKey?: string) => {
+    const isRequired = labelStr.endsWith("*");
+    const mainText = isRequired ? labelStr.slice(0, -1).trim() : labelStr;
+
+    return (
+      <span className="inline-flex items-center gap-1.5 flex-wrap">
+        <span>
           {mainText}
-          <span className="text-rose-500 ml-1 font-bold">*</span>
-        </>
-      );
-    }
-    return labelStr;
+          {isRequired && <span className="text-rose-500 ml-1 font-bold">*</span>}
+        </span>
+        {tooltipText && fieldKey && (
+          <InfoTooltip text={tooltipText} fieldKey={fieldKey} />
+        )}
+      </span>
+    );
   };
 
   return (
@@ -141,16 +152,25 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.emailConfirmation)}
+            {renderLabel(
+              t.emailConfirmation,
+              isVi
+                ? "Kết quả vòng hồ sơ, xác nhận nộp đơn thành công và thông tin các vòng tiếp theo sẽ được gửi trực tiếp đến địa chỉ email này!"
+                : "Screening results, application confirmation, and info on upcoming rounds will be sent directly to this email address!",
+              "emailConfirmation"
+            )}
           </label>
           <input
             type="email"
             value={form.emailConfirmation}
-            onChange={(e) => onChange({ emailConfirmation: e.target.value })}
+            onFocus={() => handleFieldFocus("emailConfirmation")}
+            onChange={(e) => {
+              handleFieldFocus("emailConfirmation");
+              onChange({ emailConfirmation: e.target.value });
+            }}
             placeholder={t.emailConfirmationPh}
             className={`${inputBase} ${errors.emailConfirmation ? inputError : inputNormal}`}
           />
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">{t.emailConfirmationHint}</p>
           {errors.emailConfirmation && <p className="text-xs text-rose-500 mt-1">{errors.emailConfirmation}</p>}
         </div>
 
@@ -187,12 +207,22 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
 
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.facebookLink)}
+            {renderLabel(
+              t.facebookLink,
+              isVi
+                ? "BDC sẽ chủ động liên hệ với bạn qua tài khoản này khi cần thiết!"
+                : "BDC will contact you directly via this account when necessary!",
+              "facebookLink"
+            )}
           </label>
           <input
             type="url"
             value={form.facebookLink}
-            onChange={(e) => onChange({ facebookLink: e.target.value })}
+            onFocus={() => handleFieldFocus("facebookLink")}
+            onChange={(e) => {
+              handleFieldFocus("facebookLink");
+              onChange({ facebookLink: e.target.value });
+            }}
             placeholder={t.facebookLinkPh}
             className={`${inputBase} ${errors.facebookLink ? inputError : inputNormal}`}
           />
@@ -267,63 +297,46 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
 
       {/* Academic Status */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
           {renderLabel(t.academicStatus)}
         </label>
-
-        <div className={`transition-all duration-200 space-y-3.5 ${
-          form.academicStatus === "other" ? "pl-3.5 border-l-2 border-slate-400 dark:border-slate-600" : ""
-        }`}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {ACADEMIC_STATUS_OPTIONS.map((opt) => {
-              const isSelected = form.academicStatus === opt.id;
-              return (
-                <label
-                  key={opt.id}
-                  onClick={() => onChange({ academicStatus: opt.id as AcademicStatus })}
-                  className={`relative flex items-center p-3.5 rounded-xl border cursor-pointer transition-all duration-200 ${
-                    isSelected
-                      ? "bg-blue-50/70 dark:bg-blue-950/30 border-blue-600 dark:border-blue-500 text-blue-900 dark:text-blue-100 font-semibold"
-                      : "bg-slate-50/60 dark:bg-[#070E1B] border-slate-200 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="academicStatus"
-                    checked={isSelected}
-                    onChange={() => onChange({ academicStatus: opt.id as AcademicStatus })}
-                    className="sr-only"
-                  />
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 flex-shrink-0 ${
-                    isSelected ? "border-blue-600 bg-blue-600" : "border-slate-300 dark:border-slate-600 bg-transparent"
-                  }`}>
-                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                  </div>
-                  <span className="text-sm">
-                    {lang === "vi" ? opt.labelVi : opt.labelEn}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
+        <div
+          className={`transition-all duration-200 space-y-3.5 ${
+            form.academicStatus === "other" ? "pl-3.5 border-l-2 border-blue-500 dark:border-blue-400" : ""
+          }`}
+        >
+          <FSel
+            value={form.academicStatus || "freshman"}
+            onChange={(val) => {
+              const statusVal = val as AcademicStatus;
+              onChange({ academicStatus: statusVal });
+            }}
+            options={ACADEMIC_STATUS_OPTIONS.map((opt) => ({
+              value: opt.id,
+              label: isVi ? opt.labelVi : opt.labelEn,
+            }))}
+            placeholder={isVi ? "-- Chọn năm học hiện tại --" : "-- Select Academic Status --"}
+            error={form.academicStatus === "other" ? undefined : errors.academicStatus}
+            isVi={isVi}
+            searchable={true}
+          />
 
           {form.academicStatus === "other" && (
-            <div className="animate-fadeIn mt-3">
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
-                {renderLabel(isVi ? "Vui lòng ghi rõ trạng thái khác của bạn *" : "Please specify your status *")}
+            <div className="animate-fadeIn">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                {renderLabel(isVi ? "Nhập chi tiết năm học / trình độ *" : "Specify your academic status *")}
               </label>
               <input
                 type="text"
                 value={form.academicStatusOther}
                 onChange={(e) => onChange({ academicStatusOther: e.target.value })}
                 placeholder={t.academicStatusOtherPh}
-                className={`${inputBase} ${inputNormal}`}
+                className={`${inputBase} ${errors.academicStatus ? inputError : inputNormal}`}
               />
+              {errors.academicStatus && <p className="text-xs text-rose-500 mt-1">{errors.academicStatus}</p>}
             </div>
           )}
         </div>
-
-        {errors.academicStatus && <p className="text-xs text-rose-500 mt-1.5">{errors.academicStatus}</p>}
       </div>
     </div>
   );

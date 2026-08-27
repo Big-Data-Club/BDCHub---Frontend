@@ -1,8 +1,9 @@
 import React from "react";
-import { BookOpen, Award, Sparkles, FileCheck, Info, GraduationCap } from "lucide-react";
+import { BookOpen, Award, FileCheck, Info, GraduationCap } from "lucide-react";
 import { FormData, Errors, T, Lang, ENTRANCE_METHOD_OPTIONS, EntranceMethod } from "../types";
 import { FileUploadCloudinary } from "./FileUploadCloudinary";
 import { FSel } from "@/components/form/FormFields";
+import { InfoTooltip } from "@/components/form/InfoTooltip";
 
 interface Step2AcademicProps {
   form: FormData;
@@ -289,49 +290,47 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
     );
   };
 
-  return (
-    <div className="space-y-8">
-      {/* Header section with refined editorial divider */}
-      <div className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
-        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
-          {t.step2Header}
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{t.step2Desc}</p>
-      </div>
+  const [freshmanCvTab, setFreshmanCvTab] = React.useState<"file" | "text">(
+    form.cvBioText && !form.cvFile ? "text" : "file"
+  );
 
-      {/* Status Notice Banner */}
-      <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-[#070E1B]">
-        <div className="flex items-start gap-3.5 relative z-10">
-          <div className="w-10 h-10 rounded-xl bg-blue-600/10 dark:bg-blue-500/20 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-cyan-400 shrink-0 shadow-inner">
-            {isFreshman ? <Sparkles className="w-5 h-5" /> : <GraduationCap className="w-5 h-5" />}
-          </div>
-          <div className="space-y-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
-                {isFreshman ? t.freshmanNoticeTitle : t.seniorNoticeTitle}
-              </h3>
-              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-cyan-300 border border-blue-300/60 dark:border-blue-500/30 tracking-wider">
-                {isFreshman ? (isVi ? "Tân sinh viên K26" : "Freshman 2026") : (isVi ? "Sinh viên Năm 1+" : "Senior Student")}
-              </span>
-            </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-              {isFreshman ? t.freshmanNoticeDesc : t.seniorNoticeDesc}
-            </p>
-          </div>
+  return (
+    <div className="space-y-7">
+      {/* Section 1: Header & Mode context */}
+      <div className="pb-2 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+            {t.step2Header}
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">{t.step2Desc}</p>
+        </div>
+
+        <div className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5 shrink-0">
+          <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <span>{isFreshman ? (isVi ? "Dành cho Tân sinh viên K26" : "Freshman Mode 2026") : (isVi ? "Dành cho Sinh viên Năm 1+" : "Senior Mode")}</span>
         </div>
       </div>
 
       {/* Dynamic Academic Inputs */}
       {isFreshman ? (
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {t.freshmanNoticeDesc && (
+            <div className="pl-3 border-l-2 border-blue-500 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              {t.freshmanNoticeDesc}
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               {renderLabel(t.entranceMethodLabel)}
             </label>
             <FSel
-              value={form.entranceMethod || "thpt"}
-              onChange={(val) => onChange({ entranceMethod: val as EntranceMethod })}
+              value={form.entranceMethod || "combo_thpt_dgnl"}
+              onChange={(val) => {
+                const nextMethod = val as EntranceMethod;
+                onChange({ entranceMethod: nextMethod });
+              }}
               options={entranceOptions}
               placeholder={t.entranceMethodPh}
               isVi={isVi}
@@ -339,37 +338,205 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-              {renderLabel(t.entranceScoreDetailLabel)}
-            </label>
-            <input
-              type="text"
-              value={form.entranceScoreDetail || ""}
-              onChange={(e) => {
-                const val = e.target.value;
-                onChange({
-                  entranceScoreDetail: val,
-                  thptDgnlScores: `${form.entranceMethod || "thpt"}: ${val}`,
-                });
-              }}
-              placeholder={
-                form.entranceMethod === "dgnl_hcm"
-                  ? (isVi ? "Ví dụ: 920 / 1200 điểm" : "e.g. 920 / 1200 pts")
-                  : form.entranceMethod === "dgnl_hn"
-                  ? (isVi ? "Ví dụ: 110 / 150 điểm" : "e.g. 110 / 150 pts")
-                  : form.entranceMethod === "tsa"
-                  ? (isVi ? "Ví dụ: 78.5 / 100 điểm" : "e.g. 78.5 / 100 pts")
-                  : form.entranceMethod === "hocba"
-                  ? (isVi ? "Ví dụ: ĐTB 3 năm 8.8 (hoặc Học bạ 5 HK 27.5)" : "e.g. GPA 8.8/10.0")
-                  : form.entranceMethod === "direct_international"
-                  ? (isVi ? "Ví dụ: SAT 1420/1600 hoặc Tuyển thẳng HSG Quốc gia" : "e.g. SAT 1420/1600")
-                  : t.entranceScoreDetailPh
-              }
-              className={`${inputBase} ${errors.entranceScoreDetail ? inputError : inputNormal}`}
-            />
-            {errors.entranceScoreDetail && <p className="text-xs text-rose-500 mt-1">{errors.entranceScoreDetail}</p>}
-          </div>
+          {/* Dynamic Score Inputs based on Entrance Method */}
+          {(!form.entranceMethod || form.entranceMethod === "combo_thpt_dgnl") && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fadeIn">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                  {renderLabel(isVi ? "Điểm thi Tốt nghiệp THPT QG *" : "National High School Exam Score *")}
+                </label>
+                <input
+                  type="text"
+                  value={form.thptScore || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const combined = [
+                      val ? `THPT: ${val}` : "",
+                      form.dgnlScore ? `ĐGNL: ${form.dgnlScore}` : "",
+                    ].filter(Boolean).join(" | ");
+
+                    onChange({
+                      thptScore: val,
+                      entranceScoreDetail: combined || val,
+                      thptDgnlScores: combined || val,
+                    });
+                  }}
+                  placeholder={isVi ? "Ví dụ: Tổ hợp A00: 27.5 (Toán 9.2, Lý 9.0, Hóa 9.3)" : "e.g. A00: 27.5 (Math 9.2, Phys 9.0, Chem 9.3)"}
+                  className={`${inputBase} ${errors.entranceScoreDetail ? inputError : inputNormal}`}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                  {renderLabel(isVi ? "Điểm thi Đánh giá năng lực (ĐGNL) *" : "Competency Test (ĐGNL) Score *")}
+                </label>
+                <input
+                  type="text"
+                  value={form.dgnlScore || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const combined = [
+                      form.thptScore ? `THPT: ${form.thptScore}` : "",
+                      val ? `ĐGNL: ${val}` : "",
+                    ].filter(Boolean).join(" | ");
+
+                    onChange({
+                      dgnlScore: val,
+                      entranceScoreDetail: combined || val,
+                      thptDgnlScores: combined || val,
+                    });
+                  }}
+                  placeholder={isVi ? "Ví dụ: ĐGNL HCM: 920/1200 điểm (hoặc HSA: 110/150)" : "e.g. ĐGNL HCM: 920/1200 or HSA: 110/150"}
+                  className={`${inputBase} ${errors.entranceScoreDetail ? inputError : inputNormal}`}
+                />
+              </div>
+              {errors.entranceScoreDetail && (
+                <p className="col-span-full text-xs text-rose-500 mt-1">{errors.entranceScoreDetail}</p>
+              )}
+            </div>
+          )}
+
+          {form.entranceMethod === "thpt" && (
+            <div className="space-y-4 animate-fadeIn">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                  {renderLabel(isVi ? "Chi tiết Điểm thi Tốt nghiệp THPT QG *" : "National High School Exam Score Details *")}
+                </label>
+                <input
+                  type="text"
+                  value={form.thptScore || form.entranceScoreDetail || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const combined = [
+                      `THPT: ${val}`,
+                      form.dgnlScore ? `ĐGNL: ${form.dgnlScore}` : "",
+                    ].filter(Boolean).join(" | ");
+                    onChange({
+                      thptScore: val,
+                      entranceScoreDetail: combined,
+                      thptDgnlScores: combined,
+                    });
+                  }}
+                  placeholder={isVi ? "Ví dụ: Khối A00: 27.5 (Toán 9.2, Lý 9.0, Hóa 9.3)" : "e.g. A00: 27.5 (Math 9.2, Phys 9.0, Chem 9.3)"}
+                  className={`${inputBase} ${errors.entranceScoreDetail ? inputError : inputNormal}`}
+                />
+                {errors.entranceScoreDetail && <p className="text-xs text-rose-500 mt-1">{errors.entranceScoreDetail}</p>}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
+                  {isVi ? "Điểm thi ĐGNL (nếu có thi nhưng không dùng xét tuyển - Tùy chọn)" : "Competency Test Score (if taken - Optional)"}
+                </label>
+                <input
+                  type="text"
+                  value={form.dgnlScore || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const mainThpt = form.thptScore || form.entranceScoreDetail || "";
+                    const combined = [
+                      mainThpt ? `THPT: ${mainThpt}` : "",
+                      val ? `ĐGNL: ${val}` : "",
+                    ].filter(Boolean).join(" | ");
+                    onChange({
+                      dgnlScore: val,
+                      entranceScoreDetail: combined || mainThpt,
+                      thptDgnlScores: combined || mainThpt,
+                    });
+                  }}
+                  placeholder={isVi ? "Ví dụ: ĐGNL HCM 920/1200 (Bỏ qua nếu không thi)" : "e.g. 920/1200 (Optional)"}
+                  className={`${inputBase} ${inputNormal}`}
+                />
+              </div>
+            </div>
+          )}
+
+          {form.entranceMethod === "dgnl_hcm" && (
+            <div className="space-y-4 animate-fadeIn">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                  {renderLabel(isVi ? "Chi tiết Điểm thi Đánh giá năng lực (ĐGNL / HSA / TSA) *" : "Competency Test Score Details *")}
+                </label>
+                <input
+                  type="text"
+                  value={form.dgnlScore || form.entranceScoreDetail || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const combined = [
+                      form.thptScore ? `THPT: ${form.thptScore}` : "",
+                      `ĐGNL: ${val}`,
+                    ].filter(Boolean).join(" | ");
+                    onChange({
+                      dgnlScore: val,
+                      entranceScoreDetail: combined,
+                      thptDgnlScores: combined,
+                    });
+                  }}
+                  placeholder={isVi ? "Ví dụ: ĐGNL HCM 920/1200 điểm (hoặc HSA 110/150)" : "e.g. ĐGNL HCM 920/1200 or HSA 110/150"}
+                  className={`${inputBase} ${errors.entranceScoreDetail ? inputError : inputNormal}`}
+                />
+                {errors.entranceScoreDetail && <p className="text-xs text-rose-500 mt-1">{errors.entranceScoreDetail}</p>}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
+                  {isVi ? "Điểm thi THPT Tốt nghiệp (Tùy chọn)" : "High School Graduation Exam Score (Optional)"}
+                </label>
+                <input
+                  type="text"
+                  value={form.thptScore || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const mainDgnl = form.dgnlScore || form.entranceScoreDetail || "";
+                    const combined = [
+                      val ? `THPT: ${val}` : "",
+                      mainDgnl ? `ĐGNL: ${mainDgnl}` : "",
+                    ].filter(Boolean).join(" | ");
+                    onChange({
+                      thptScore: val,
+                      entranceScoreDetail: combined || mainDgnl,
+                      thptDgnlScores: combined || mainDgnl,
+                    });
+                  }}
+                  placeholder={isVi ? "Ví dụ: Khối A01: 27.0 điểm (Bỏ qua nếu muốn)" : "e.g. Block A01: 27.0 pts"}
+                  className={`${inputBase} ${inputNormal}`}
+                />
+              </div>
+            </div>
+          )}
+
+          {(form.entranceMethod === "hocba" || form.entranceMethod === "direct_international" || form.entranceMethod === "other") && (
+            <div className="animate-fadeIn">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                {renderLabel(
+                  form.entranceMethod === "hocba"
+                    ? (isVi ? "Chi tiết Điểm Học bạ THPT *" : "High School Transcript Scores *")
+                    : form.entranceMethod === "direct_international"
+                    ? (isVi ? "Chi tiết Phương thức & Điểm số / Thành tích *" : "Admission Method & Achievement Details *")
+                    : (isVi ? "Mô tả phương thức & kết quả trúng tuyển *" : "Method & Result Details *")
+                )}
+              </label>
+              <input
+                type="text"
+                value={form.entranceScoreDetail || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  onChange({
+                    entranceScoreDetail: val,
+                    thptDgnlScores: `${form.entranceMethod}: ${val}`,
+                  });
+                }}
+                placeholder={
+                  form.entranceMethod === "hocba"
+                    ? (isVi ? "Ví dụ: ĐTB 3 năm 8.8 (hoặc Học bạ 5 HK 27.5)" : "e.g. GPA 3 years 8.8/10.0")
+                    : form.entranceMethod === "direct_international"
+                    ? (isVi ? "Ví dụ: SAT 1420/1600 hoặc Tuyển thẳng HSG Quốc gia" : "e.g. SAT 1420/1600 or National Olympiad Winner")
+                    : (isVi ? "Ví dụ: Điểm xét tuyển riêng của trường..." : "e.g. University specific admission test score...")
+                }
+                className={`${inputBase} ${errors.entranceScoreDetail ? inputError : inputNormal}`}
+              />
+              {errors.entranceScoreDetail && <p className="text-xs text-rose-500 mt-1">{errors.entranceScoreDetail}</p>}
+            </div>
+          )}
 
           {renderEnglishCertFields()}
 
@@ -387,7 +554,13 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {t.seniorNoticeDesc && (
+            <div className="pl-3 border-l-2 border-blue-500 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              {t.seniorNoticeDesc}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <GpaInput
               label={t.gpaCumulative}
@@ -424,34 +597,83 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
         </div>
       )}
 
-      <hr className="border-slate-100 dark:border-slate-800" />
+      {/* Divider */}
+      <hr className="border-slate-200 dark:border-slate-800" />
 
-      {/* CV Section */}
+      {/* Section 2: CV Ứng tuyển */}
       <div className="space-y-4">
-        <FileUploadCloudinary
-          label={isFreshman ? t.cvUploadLabelFreshman : t.cvUploadLabel}
-          hint={t.cvUploadHint}
-          accept="application/pdf"
-          maxSizeMB={10}
-          folder="bdc_recruitment_2026_cv"
-          value={form.cvFile}
-          onChange={(file) => onChange({ cvFile: file })}
-          error={errors.cvFile}
-          required={!isFreshman}
-        />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+              <FileCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+              <span>{isVi ? "CV ứng tuyển (PDF)" : "Curriculum Vitae (PDF)"}</span>
+              <InfoTooltip text={t.cvUploadHint} fieldKey="cvFile" />
+              <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                {!isFreshman ? (isVi ? "(Bắt buộc)" : "(Required)") : (isVi ? "(Tùy chọn cho K26)" : "(Optional for K26)")}
+              </span>
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              {isVi ? "Dung lượng tối đa 10MB" : "Max size 10MB"}
+            </p>
+          </div>
 
-        {/* Text alternative for Freshmen who don't have a CV PDF */}
-        {isFreshman && !form.cvFile && (
-          <div className="p-4 rounded-xl border border-blue-200/80 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 space-y-2">
-            <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 dark:text-blue-300">
-              <Info className="w-4 h-4 shrink-0" />
-              <span>{t.cvBioTextHint}</span>
+          {/* Freshman Toggle Option */}
+          {isFreshman && (
+            <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800/90 rounded-lg border border-slate-200/80 dark:border-slate-700/60 text-xs font-medium shrink-0 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setFreshmanCvTab("file")}
+                className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                  freshmanCvTab === "file"
+                    ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs font-semibold"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+              >
+                {isVi ? "File CV (PDF)" : "Upload PDF"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFreshmanCvTab("text")}
+                className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                  freshmanCvTab === "text"
+                    ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs font-semibold"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+              >
+                {isVi ? "Giới thiệu bản thân" : "Write Bio"}
+              </button>
             </div>
+          )}
+        </div>
+
+        {/* Content depending on Freshman tab selection or default standard upload */}
+        {(!isFreshman || freshmanCvTab === "file") ? (
+          <div>
+            <FileUploadCloudinary
+              label=""
+              hint={t.cvUploadHint}
+              accept="application/pdf"
+              maxSizeMB={10}
+              folder="bdc_recruitment_2026_cv"
+              value={form.cvFile}
+              onChange={(file) => onChange({ cvFile: file })}
+              error={errors.cvFile}
+              required={!isFreshman}
+            />
+            {isFreshman && !form.cvFile && (
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                <span>{isVi ? "Tân sinh viên chưa có CV? Bạn có thể chuyển qua nút \"Giới thiệu bản thân\" phía trên." : "Don't have a CV yet? Switch to \"Write Bio\" above."}</span>
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2 animate-fadeIn pt-1">
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
               {renderLabel(t.cvBioTextLabel)}
             </label>
             <textarea
-              rows={3}
+              rows={4}
               value={form.cvBioText || ""}
               onChange={(e) => onChange({ cvBioText: e.target.value })}
               placeholder={t.cvBioTextPh}
@@ -462,17 +684,36 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
         )}
       </div>
 
-      <FileUploadCloudinary
-        label={t.evidenceUploadLabel}
-        hint={t.evidenceUploadHint}
-        accept="application/pdf,image/png,image/jpeg,image/webp"
-        maxSizeMB={10}
-        folder="bdc_recruitment_2026_certs"
-        isMulti
-        maxFiles={5}
-        values={form.evidenceFiles}
-        onMultiChange={(files) => onChange({ evidenceFiles: files })}
-      />
+      {/* Divider */}
+      <hr className="border-slate-200 dark:border-slate-800" />
+
+      {/* Section 3: Minh chứng & Bằng cấp bổ sung */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Award className="w-4 h-4 text-amber-500 shrink-0" />
+            <span>{isVi ? "Minh chứng & Chứng chỉ bổ sung" : "Supporting Certificates & Evidence"}</span>
+            <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+              {isVi ? "(Tùy chọn, tối đa 5 file)" : "(Optional, max 5 files)"}
+            </span>
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            {isVi ? "Bảng điểm, Học bạ, Chứng chỉ Tiếng Anh, Bằng khen..." : "Transcripts, English Certs, Awards..."}
+          </p>
+        </div>
+
+        <FileUploadCloudinary
+          label=""
+          hint={t.evidenceUploadHint}
+          accept="application/pdf,image/png,image/jpeg,image/webp"
+          maxSizeMB={10}
+          folder="bdc_recruitment_2026_certs"
+          isMulti
+          maxFiles={5}
+          values={form.evidenceFiles}
+          onMultiChange={(files) => onChange({ evidenceFiles: files })}
+        />
+      </div>
     </div>
   );
 };
