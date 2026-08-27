@@ -110,6 +110,53 @@ class LMSService {
     return response.data;
   }
 
+  private normalizePaginatedResponse<T = any>(data: any, page = 1, pageSize = 15): PaginatedList<T> {
+    if (Array.isArray(data)) {
+      return {
+        items: data,
+        pagination: {
+          page,
+          page_size: pageSize,
+          total: data.length,
+          total_pages: Math.ceil(data.length / pageSize) || 1,
+        },
+      };
+    }
+    if (data && typeof data === "object") {
+      if (Array.isArray(data.items)) {
+        return {
+          items: data.items,
+          pagination: data.pagination || {
+            page,
+            page_size: pageSize,
+            total: data.items.length,
+            total_pages: Math.ceil(data.items.length / pageSize) || 1,
+          },
+        };
+      }
+      if (Array.isArray(data.data)) {
+        return {
+          items: data.data,
+          pagination: data.pagination || {
+            page,
+            page_size: pageSize,
+            total: data.data.length,
+            total_pages: Math.ceil(data.data.length / pageSize) || 1,
+          },
+        };
+      }
+    }
+    return {
+      items: [],
+      pagination: {
+        page,
+        page_size: pageSize,
+        total: 0,
+        total_pages: 0,
+      },
+    };
+  }
+
   async listMyCourses(params?: {
     status?: string;
     category?: string;
@@ -119,7 +166,7 @@ class LMSService {
     page_size?: number;
   }) {
     const response = await lmsApiClient.get("/courses/my", { params });
-    return response.data?.data as PaginatedList;
+    return this.normalizePaginatedResponse(response.data?.data, params?.page, params?.page_size);
   }
 
   async listPublishedCourses(params?: {
@@ -130,7 +177,7 @@ class LMSService {
     page_size?: number;
   }) {
     const response = await lmsApiClient.get("/courses", { params });
-    return response.data?.data as PaginatedList;
+    return this.normalizePaginatedResponse(response.data?.data, params?.page, params?.page_size);
   }
 
   async listAllCoursesForAdmin(params?: {
@@ -142,7 +189,7 @@ class LMSService {
     page_size?: number;
   }) {
     const response = await lmsApiClient.get("/admin/courses", { params });
-    return response.data?.data as PaginatedList;
+    return this.normalizePaginatedResponse(response.data?.data, params?.page, params?.page_size);
   }
 
   // ─── Section ──────────────────────────────────────────────────────────────
