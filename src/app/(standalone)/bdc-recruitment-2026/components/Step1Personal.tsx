@@ -1,9 +1,7 @@
-"use client";
-
 import React from "react";
-import { User, Mail, Phone, Globe, GraduationCap, Building, IdCard, Sparkles } from "lucide-react";
+import { User } from "lucide-react";
 import { FormData, Errors, T, Lang, ACADEMIC_STATUS_OPTIONS, AcademicStatus } from "../types";
-import { FSel } from "@/components/form/FormFields";
+import { FIn, FSel } from "@/components/form/FormFields";
 import universitiesData from "../../hpc-summer-school/universities.json";
 
 interface Step1PersonalProps {
@@ -12,13 +10,6 @@ interface Step1PersonalProps {
   errors: Errors;
   lang: Lang;
 }
-
-const inputBase =
-  "w-full bg-slate-50 dark:bg-[#0D192E] border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200";
-const inputNormal =
-  "border-slate-300 dark:border-blue-500/20 focus:bg-white dark:focus:bg-[#0A1628] focus:border-blue-500 dark:focus:border-cyan-400/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20";
-const inputError =
-  "border-rose-400 dark:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/30";
 
 export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, errors, lang }) => {
   const t = T[lang];
@@ -82,135 +73,149 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
     return found ? found.value : "";
   })();
 
-  const renderLabel = (labelStr: string) => {
-    if (labelStr.endsWith("*")) {
-      const mainText = labelStr.slice(0, -1).trim();
-      return (
-        <>
-          {mainText}
-          <span className="text-rose-500 ml-1 font-bold">*</span>
-        </>
+  const academicStatusOptions = React.useMemo(() => {
+    return ACADEMIC_STATUS_OPTIONS.map((opt) => ({
+      value: opt.id,
+      label: isVi ? opt.labelVi : opt.labelEn,
+    }));
+  }, [isVi]);
+
+  const isPredefinedAcademicStatus =
+    !form.academicStatus ||
+    ACADEMIC_STATUS_OPTIONS.some((opt) => opt.id === form.academicStatus && opt.id !== "other");
+  const [showOtherAcademicStatusInput, setShowOtherAcademicStatusInput] = React.useState(!isPredefinedAcademicStatus);
+
+  React.useEffect(() => {
+    if (form.academicStatus) {
+      const isPredefinedVal = ACADEMIC_STATUS_OPTIONS.some(
+        (opt) => opt.id === form.academicStatus && opt.id !== "other"
       );
+      setShowOtherAcademicStatusInput(!isPredefinedVal);
     }
-    return labelStr;
+  }, [form.academicStatus]);
+
+  const handleAcademicStatusChange = (val: string) => {
+    if (val === "other") {
+      setShowOtherAcademicStatusInput(true);
+      onChange({ academicStatus: "other", academicStatusOther: form.academicStatusOther || "" });
+    } else if (val === "") {
+      setShowOtherAcademicStatusInput(false);
+      onChange({ academicStatus: "" as AcademicStatus, academicStatusOther: "" });
+    } else {
+      const option = academicStatusOptions.find((o) => o.value === val);
+      if (option) {
+        setShowOtherAcademicStatusInput(false);
+        onChange({ academicStatus: val as AcademicStatus, academicStatusOther: "" });
+      } else {
+        // Custom value from "Search & Auto-fill"
+        setShowOtherAcademicStatusInput(true);
+        onChange({ academicStatus: "other", academicStatusOther: val });
+      }
+    }
   };
 
+  const currentAcademicStatusValue = (() => {
+    if (showOtherAcademicStatusInput) return "other";
+    if (!form.academicStatus) return "";
+    const found = ACADEMIC_STATUS_OPTIONS.find((opt) => opt.id === form.academicStatus && opt.id !== "other");
+    return found ? found.id : "";
+  })();
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="border-b border-slate-200/80 dark:border-blue-500/15 pb-4">
-        <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-blue-50 dark:bg-cyan-500/10 text-blue-600 dark:text-cyan-400 border border-blue-100 dark:border-cyan-500/20">
-            <User className="w-5 h-5" />
-          </div>
+    <div className="space-y-8">
+      {/* Header section with refined editorial divider */}
+      <div className="border-b border-slate-200 dark:border-blue-500/10 pb-4">
+        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+          <User className="w-5 h-5 text-blue-600 dark:text-cyan-400 shrink-0" />
           {t.step1Header}
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">{t.step1Desc}</p>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{t.step1Desc}</p>
       </div>
 
-      {/* Confirmation Email */}
-      <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-          {renderLabel(t.emailConfirmation)}
-        </label>
-        <input
+      {/* Full Name & Phone */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FIn
+          label={t.fullName}
+          type="text"
+          value={form.fullName}
+          onChange={(e) => onChange({ fullName: e.target.value })}
+          placeholder={t.fullNamePh}
+          error={errors.fullName}
+        />
+
+        <FIn
+          label={t.phone}
+          type="tel"
+          value={form.phone}
+          onChange={(e) => onChange({ phone: e.target.value })}
+          placeholder={t.phonePh}
+          error={errors.phone}
+        />
+      </div>
+
+      {/* Confirmation Email & Personal Email */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FIn
+          label={t.emailConfirmation}
+          tooltipText={
+            isVi
+              ? "Địa chỉ email chính thức dùng để Ban Nhân sự BDC liên hệ với bạn."
+              : "Official contact email for BDC HR team communications."
+          }
+          fieldKey="emailConfirmation"
           type="email"
           value={form.emailConfirmation}
           onChange={(e) => onChange({ emailConfirmation: e.target.value })}
           placeholder={t.emailConfirmationPh}
-          className={`${inputBase} ${errors.emailConfirmation ? inputError : inputNormal}`}
+          error={errors.emailConfirmation}
         />
-        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t.emailConfirmationHint}</p>
-        {errors.emailConfirmation && <p className="text-xs text-rose-500 mt-1">{errors.emailConfirmation}</p>}
+
+        <FIn
+          label={t.emailPersonal}
+          type="email"
+          value={form.emailPersonal}
+          onChange={(e) => onChange({ emailPersonal: e.target.value })}
+          placeholder={t.emailPersonalPh}
+          error={errors.emailPersonal}
+        />
       </div>
 
-      {/* Full Name & Phone */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.fullName)}
-          </label>
-          <input
-            type="text"
-            value={form.fullName}
-            onChange={(e) => onChange({ fullName: e.target.value })}
-            placeholder={t.fullNamePh}
-            className={`${inputBase} ${errors.fullName ? inputError : inputNormal}`}
-          />
-          {errors.fullName && <p className="text-xs text-rose-500 mt-1">{errors.fullName}</p>}
-        </div>
+      {/* School Email & Facebook / Social */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FIn
+          label={t.emailSchool}
+          type="email"
+          value={form.emailSchool}
+          onChange={(e) => onChange({ emailSchool: e.target.value })}
+          placeholder={t.emailSchoolPh}
+          error={errors.emailSchool}
+        />
 
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.phone)}
-          </label>
-          <input
-            type="tel"
-            value={form.phone}
-            onChange={(e) => onChange({ phone: e.target.value })}
-            placeholder={t.phonePh}
-            className={`${inputBase} ${errors.phone ? inputError : inputNormal}`}
-          />
-          {errors.phone && <p className="text-xs text-rose-500 mt-1">{errors.phone}</p>}
-        </div>
-      </div>
-
-      {/* Emails */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.emailPersonal)}
-          </label>
-          <input
-            type="email"
-            value={form.emailPersonal}
-            onChange={(e) => onChange({ emailPersonal: e.target.value })}
-            placeholder={t.emailPersonalPh}
-            className={`${inputBase} ${errors.emailPersonal ? inputError : inputNormal}`}
-          />
-          {errors.emailPersonal && <p className="text-xs text-rose-500 mt-1">{errors.emailPersonal}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.emailSchool)}
-          </label>
-          <input
-            type="email"
-            value={form.emailSchool}
-            onChange={(e) => onChange({ emailSchool: e.target.value })}
-            placeholder={t.emailSchoolPh}
-            className={`${inputBase} ${errors.emailSchool ? inputError : inputNormal}`}
-          />
-          {errors.emailSchool && <p className="text-xs text-rose-500 mt-1">{errors.emailSchool}</p>}
-        </div>
-      </div>
-
-      {/* Facebook */}
-      <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-          {renderLabel(t.facebookLink)}
-        </label>
-        <input
+        <FIn
+          label={t.facebookLink}
+          tooltipText={
+            isVi
+              ? "BDC sẽ chủ động liên hệ với bạn qua tài khoản này khi cần thiết!"
+              : "BDC will contact you directly via this account when necessary!"
+          }
+          fieldKey="facebookLink"
           type="url"
           value={form.facebookLink}
           onChange={(e) => onChange({ facebookLink: e.target.value })}
           placeholder={t.facebookLinkPh}
-          className={`${inputBase} ${errors.facebookLink ? inputError : inputNormal}`}
+          error={errors.facebookLink}
         />
-        {errors.facebookLink && <p className="text-xs text-rose-500 mt-1">{errors.facebookLink}</p>}
       </div>
 
       {/* University Selection */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-          {renderLabel(t.university)}
-        </label>
-        <div className={`relative transition-all duration-300 space-y-3.5 ${
+        <div className={`transition-all duration-300 space-y-3.5 ${
           showOtherInput
-            ? "pl-4.5 border-l-2 border-cyan-500/60 dark:border-cyan-500/40"
-            : "pl-0 border-l-0 border-transparent"
+            ? "p-4 bg-blue-50/70 dark:bg-cyan-950/20 border-0 border-l-4 border-blue-600 dark:border-cyan-400 rounded-none"
+            : ""
         }`}>
           <FSel
+            label={t.university}
             value={currentDropdownValue}
             onChange={handleDropdownChange}
             options={uniOptions}
@@ -220,115 +225,73 @@ export const Step1Personal: React.FC<Step1PersonalProps> = ({ form, onChange, er
             isVi={isVi}
           />
           {showOtherInput && (
-            <div className="animate-fadeIn">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                {renderLabel(isVi ? "Nhập tên trường khác *" : "Specify your university *")}
-              </label>
-              <input
+            <div className="animate-dropdown-fade-in pt-1">
+              <FIn
+                label={isVi ? "Nhập tên trường khác *" : "Specify your university *"}
                 type="text"
                 placeholder={isVi ? "Ví dụ: Trường Đại học Bách khoa, ĐHQG TP.HCM" : "e.g. HCMC University of Technology"}
                 value={form.university}
                 onChange={(e) => onChange({ university: e.target.value })}
-                className={`${inputBase} ${errors.university ? inputError : inputNormal}`}
+                error={errors.university}
               />
-              {errors.university && <p className="text-xs text-rose-500 mt-1">{errors.university}</p>}
             </div>
           )}
         </div>
       </div>
 
       {/* Faculty + MSSV */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.faculty)}
-          </label>
-          <input
-            type="text"
-            value={form.faculty}
-            onChange={(e) => onChange({ faculty: e.target.value })}
-            placeholder={t.facultyPh}
-            className={`${inputBase} ${errors.faculty ? inputError : inputNormal}`}
-          />
-          {errors.faculty && <p className="text-xs text-rose-500 mt-1">{errors.faculty}</p>}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FIn
+          label={t.faculty}
+          type="text"
+          value={form.faculty}
+          onChange={(e) => onChange({ faculty: e.target.value })}
+          placeholder={t.facultyPh}
+          error={errors.faculty}
+        />
 
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            {renderLabel(t.studentId)}
-          </label>
-          <input
-            type="text"
-            value={form.studentId}
-            onChange={(e) => onChange({ studentId: e.target.value })}
-            placeholder={t.studentIdPh}
-            className={`${inputBase} ${inputNormal}`}
-          />
-        </div>
+        <FIn
+          label={t.studentId}
+          type="text"
+          value={form.studentId}
+          onChange={(e) => onChange({ studentId: e.target.value })}
+          placeholder={t.studentIdPh}
+        />
       </div>
 
       {/* Academic Status */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
-          {renderLabel(t.academicStatus)}
-        </label>
-
-        <div className={`relative transition-all duration-300 space-y-3.5 ${
-          form.academicStatus === "other"
-            ? "pl-4.5 border-l-2 border-cyan-500/60 dark:border-cyan-500/40"
-            : "pl-0 border-l-0 border-transparent"
+        <div className={`transition-all duration-300 space-y-3.5 ${
+          showOtherAcademicStatusInput
+            ? "p-4 bg-blue-50/70 dark:bg-cyan-950/20 border-0 border-l-4 border-blue-600 dark:border-cyan-400 rounded-none"
+            : ""
         }`}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {ACADEMIC_STATUS_OPTIONS.map((opt) => {
-              const isSelected = form.academicStatus === opt.id;
-              return (
-                <label
-                  key={opt.id}
-                  onClick={() => onChange({ academicStatus: opt.id as AcademicStatus })}
-                  className={`relative flex items-center p-3.5 rounded-xl border cursor-pointer transition-all duration-200 ${
-                    isSelected
-                      ? "bg-blue-50 dark:bg-blue-500/15 border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-200 shadow-sm dark:shadow-[0_0_15px_rgba(59,130,246,0.2)]"
-                      : "bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800/50"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="academicStatus"
-                    checked={isSelected}
-                    onChange={() => onChange({ academicStatus: opt.id as AcademicStatus })}
-                    className="sr-only"
-                  />
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-3 flex-shrink-0 ${
-                    isSelected ? "border-blue-500 bg-blue-500" : "border-slate-300 dark:border-slate-600 bg-transparent"
-                  }`}>
-                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                  </div>
-                  <span className="text-sm font-medium">
-                    {lang === "vi" ? opt.labelVi : opt.labelEn}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
+          <FSel
+            label={t.academicStatus}
+            value={currentAcademicStatusValue}
+            onChange={handleAcademicStatusChange}
+            options={academicStatusOptions}
+            placeholder={isVi ? "-- Chọn năm học hiện tại --" : "-- Select Academic Status --"}
+            error={showOtherAcademicStatusInput ? undefined : errors.academicStatus}
+            isVi={isVi}
+            searchable={true}
+          />
 
-          {form.academicStatus === "other" && (
-            <div className="animate-fadeIn mt-3">
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
-                {renderLabel(isVi ? "Vui lòng ghi rõ trạng thái khác của bạn *" : "Please specify your status *")}
-              </label>
-              <input
+          {showOtherAcademicStatusInput && (
+            <div className="animate-dropdown-fade-in pt-1">
+              <FIn
+                label={isVi ? "Nhập chi tiết năm học / trình độ *" : "Specify your academic status *"}
                 type="text"
                 value={form.academicStatusOther}
                 onChange={(e) => onChange({ academicStatusOther: e.target.value })}
                 placeholder={t.academicStatusOtherPh}
-                className={`${inputBase} ${inputNormal}`}
+                error={errors.academicStatus}
               />
             </div>
           )}
         </div>
-
-        {errors.academicStatus && <p className="text-xs text-rose-500 mt-1.5">{errors.academicStatus}</p>}
       </div>
     </div>
   );
 };
+

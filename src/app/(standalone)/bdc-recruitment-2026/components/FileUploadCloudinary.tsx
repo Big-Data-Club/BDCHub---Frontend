@@ -102,7 +102,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
 
 
   const handleFileSelect = async (filesToProcess: FileList | null) => {
-    if (!filesToProcess || filesToProcess.length === 0) return;
+    if (!filesToProcess || filesToProcess.length === 0 || uploading) return;
 
     if (!isMulti) {
       const fileObj = filesToProcess[0];
@@ -140,6 +140,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (uploading) return;
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
@@ -151,17 +152,20 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    if (uploading) return;
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files);
     }
   };
 
   const handleRemoveSingle = () => {
+    if (uploading) return;
     if (onChange) onChange(null);
     setUploadError(null);
   };
 
   const handleRemoveMulti = (index: number) => {
+    if (uploading) return;
     if (onMultiChange) {
       const next = values.filter((_, i) => i !== index);
       onMultiChange(next);
@@ -169,17 +173,19 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-baseline">
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
-          {label} {required && <span className="text-rose-500">*</span>}
-        </label>
-        {isMulti && (
-          <span className="text-xs text-slate-500 dark:text-slate-400">
-            {values.length}/{maxFiles} file
-          </span>
-        )}
-      </div>
+    <div className="space-y-2.5">
+      {label && (
+        <div className="flex justify-between items-baseline">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            {label} {required && <span className="text-rose-500">*</span>}
+          </label>
+          {isMulti && (
+            <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
+              {values.length}/{maxFiles} file
+            </span>
+          )}
+        </div>
+      )}
 
       {hint && <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{hint}</p>}
 
@@ -188,6 +194,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
         type="file"
         accept={accept}
         multiple={isMulti}
+        disabled={uploading}
         onChange={(e) => handleFileSelect(e.target.files)}
         className="hidden"
       />
@@ -199,29 +206,33 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all duration-300 ${
-            dragActive
-              ? "border-cyan-400 bg-blue-50/80 dark:bg-cyan-500/10 shadow-[0_0_25px_rgba(34,211,238,0.2)]"
+          onClick={() => {
+            if (!uploading) fileInputRef.current?.click();
+          }}
+          className={`relative border border-dashed rounded-xl p-5 text-center transition-all duration-200 ${
+            uploading
+              ? "border-blue-400 bg-blue-50/40 dark:bg-blue-950/20 cursor-not-allowed opacity-80"
+              : dragActive
+              ? "border-blue-500 bg-blue-50/60 dark:bg-blue-950/30 ring-2 ring-blue-500/20 cursor-pointer"
               : error
-              ? "border-rose-400/80 dark:border-rose-500/80 bg-rose-50/50 dark:bg-rose-950/20"
-              : "border-slate-300 dark:border-blue-500/20 bg-slate-50/80 dark:bg-[#0D192E] hover:border-blue-500 dark:hover:border-cyan-400/50 hover:bg-white dark:hover:bg-[#0F1E35] hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+              ? "border-rose-400 dark:border-rose-500/80 bg-rose-50/20 dark:bg-rose-950/20 cursor-pointer"
+              : "border-slate-300 dark:border-slate-800 bg-slate-50/70 dark:bg-[#070E1B] hover:border-blue-500 dark:hover:border-blue-400 hover:bg-white dark:hover:bg-[#091224] cursor-pointer"
           }`}
         >
           {uploading ? (
-            <div className="flex flex-col items-center justify-center py-4 space-y-3">
-              <Loader2 className="w-8 h-8 text-cyan-500 dark:text-cyan-400 animate-spin" />
-              <p className="text-sm text-blue-600 dark:text-cyan-300 font-semibold">Đang tải file lên hệ thống Cloudinary...</p>
+            <div className="flex flex-col items-center justify-center py-3 space-y-2.5">
+              <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
+              <p className="text-xs text-slate-700 dark:text-slate-200 font-medium">Đang tải file lên Cloudinary...</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center space-y-2.5">
-              <div className="p-3.5 bg-blue-100/70 dark:bg-cyan-500/10 rounded-2xl text-blue-600 dark:text-cyan-400 border border-blue-200 dark:border-cyan-500/20 shadow-sm">
-                <UploadCloud className="w-7 h-7" />
+            <div className="flex flex-col items-center justify-center space-y-1.5">
+              <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <UploadCloud className="w-5 h-5" />
               </div>
-              <div className="text-sm text-slate-700 dark:text-slate-200">
-                <span className="font-bold text-blue-600 dark:text-cyan-400 hover:underline">Nhấp để chọn file</span> hoặc kéo thả file vào đây
+              <div className="text-xs text-slate-700 dark:text-slate-200">
+                <span className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">Chạm để chọn file</span> hoặc kéo thả vào đây
               </div>
-              <p className="text-xs text-slate-400 dark:text-slate-400 font-medium">Định dạng hỗ trợ: PDF, PNG, JPG, JPEG (Tối đa {maxSizeMB}MB)</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">Hỗ trợ PDF, PNG, JPG (Tối đa {maxSizeMB}MB)</p>
             </div>
           )}
         </div>
@@ -229,7 +240,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
 
       {/* Upload error display */}
       {(uploadError || error) && (
-        <div className="flex items-center space-x-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-lg">
+        <div className="flex items-center space-x-2 text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 p-2.5 rounded-lg">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{uploadError || error}</span>
         </div>
@@ -244,11 +255,11 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
             </div>
             <div className="min-w-0">
               <div className="flex items-center space-x-2">
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{value.filename}</p>
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{value?.filename}</p>
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
               </div>
               <div className="flex items-center space-x-3 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                <span>{formatBytes(value.size)}</span>
+                <span>{formatBytes(value?.size)}</span>
                 <span className="text-blue-500 dark:text-blue-400 flex items-center gap-1">
                   Cloudinary Hosted <ExternalLink className="w-3 h-3" />
                 </span>
@@ -257,7 +268,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
           </div>
           <div className="flex items-center space-x-2">
             <a
-              href={value.url}
+              href={value?.url || "#"}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-slate-400 hover:text-blue-400 transition-colors"
@@ -267,8 +278,9 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
             </a>
             <button
               type="button"
+              disabled={uploading}
               onClick={handleRemoveSingle}
-              className="p-2 text-slate-400 hover:text-rose-400 transition-colors"
+              className="p-2 text-slate-400 hover:text-rose-400 disabled:opacity-40 transition-colors"
               title="Xóa file"
             >
               <Trash2 className="w-4 h-4" />
@@ -301,8 +313,9 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
                 </a>
                 <button
                   type="button"
+                  disabled={uploading}
                   onClick={() => handleRemoveMulti(idx)}
-                  className="p-1.5 text-slate-400 hover:text-rose-400"
+                  className="p-1.5 text-slate-400 hover:text-rose-400 disabled:opacity-40"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

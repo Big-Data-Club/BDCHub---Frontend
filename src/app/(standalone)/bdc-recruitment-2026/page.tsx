@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Sparkles, ArrowRight, ArrowLeft, Send, CheckCircle2, ShieldAlert } from "lucide-react";
+import { ArrowRight, ArrowLeft, Send, CheckCircle2, ShieldAlert } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 import bdcLogo from "@/assets/bdclogo.png";
@@ -10,7 +10,7 @@ import hcmutLogo from "@/assets/hcmut.png";
 import hpccLogo from "@/assets/hpcc-logo.png";
 import cseLogo from "@/assets/CSE_logo.png";
 
-import { FormData, Errors, Lang, T, ACADEMIC_STATUS_OPTIONS, DEPARTMENT_OPTIONS } from "./types";
+import { FormData, Errors, Lang, T, ACADEMIC_STATUS_OPTIONS, DEPARTMENT_OPTIONS, ENTRANCE_METHOD_OPTIONS, TIME_COMMITMENT_OPTIONS } from "./types";
 import { Step1Personal } from "./components/Step1Personal";
 import { Step2Academic } from "./components/Step2Academic";
 import { Step3Department } from "./components/Step3Department";
@@ -34,8 +34,13 @@ const INITIAL_FORM: FormData = {
   studentId: "",
   academicStatus: "freshman",
   academicStatusOther: "",
+  entranceMethod: "thpt",
+  thptBlock: "A00",
+  thptBlockOther: "",
+  entranceScoreDetail: "",
   gpaCumulative: "",
   gpaLatest: "",
+  gpaScale: "4.0",
   thptDgnlScores: "",
   thptScore: "",
   hasDgnl: "yes",
@@ -45,8 +50,11 @@ const INITIAL_FORM: FormData = {
   englishCertType: "none",
   englishCertScore: "",
   cvFile: null,
+  cvBioText: "",
   evidenceFiles: [],
   department: "",
+  allowDepartmentAdjustment: true,
+  weeklyTimeCommitment: "5_to_10h",
   motivation: "",
   sendCopy: true,
   agreePrivacy: false,
@@ -131,28 +139,35 @@ export default function BDCRecruitment2026Page() {
       if (!form.emailConfirmation.trim() || !emailRegex.test(form.emailConfirmation)) errs.emailConfirmation = t.errEmail;
       if (!form.fullName.trim()) errs.fullName = t.errRequired;
       if (!form.phone.trim() || !phoneRegex.test(form.phone)) errs.phone = t.errPhone;
-      if (!form.emailPersonal.trim() || !emailRegex.test(form.emailPersonal)) errs.emailPersonal = t.errEmail;
-      if (!form.emailSchool.trim() || !emailRegex.test(form.emailSchool)) errs.emailSchool = t.errEmail;
-      if (!form.facebookLink.trim() || !form.facebookLink.includes("facebook.com")) errs.facebookLink = t.errFacebook;
+      if (form.emailPersonal?.trim() && !emailRegex.test(form.emailPersonal.trim())) errs.emailPersonal = t.errEmail;
+      if (!form.emailSchool?.trim() || !emailRegex.test(form.emailSchool.trim())) errs.emailSchool = t.errEmail;
+      if (!form.facebookLink.trim()) errs.facebookLink = t.errFacebook;
       if (!form.university.trim()) errs.university = t.errRequired;
       if (!form.faculty.trim()) errs.faculty = t.errRequired;
       if (!form.academicStatus) errs.academicStatus = t.errRequired;
     }
     if (stepToValidate === 2) {
+      if (form.englishCertType !== "none" && !form.englishCertScore?.trim()) {
+        errs.englishCertScore = t.errRequired;
+      }
       if (form.academicStatus === "freshman") {
-        if (!form.thptScore?.trim()) errs.thptScore = t.errRequired;
-        if (!form.hasDgnl) errs.hasDgnl = t.errRequired;
-        if (form.hasDgnl === "yes" && !form.dgnlScore?.trim()) {
-          errs.dgnlScore = t.errDgnlRequired;
+        if (!form.thptScore?.trim() && !form.entranceScoreDetail?.trim()) {
+          errs.thptScore = t.errRequired;
+          errs.entranceScoreDetail = t.errRequired;
         }
-        if (form.englishCertType !== "none" && !form.englishCertScore?.trim()) {
-          errs.englishCertScore = t.errRequired;
+        if (form.hasDgnl !== "no" && !form.dgnlScore?.trim()) {
+          errs.dgnlScore = lang === "vi" ? "Vui lòng nhập điểm thi ĐGNL hoặc chọn 'Không thi ĐGNL'." : "Please enter your score or select 'Didn't take test'.";
+        }
+        // CV is optional for freshers if cvBioText is filled out
+        if (!form.cvFile && !form.cvBioText?.trim()) {
+          errs.cvFile = t.errCvRequired;
+          errs.cvBioText = t.errRequired;
         }
       } else {
         if (!form.gpaCumulative.trim()) errs.gpaCumulative = t.errRequired;
         if (!form.gpaLatest.trim()) errs.gpaLatest = t.errRequired;
+        if (!form.cvFile) errs.cvFile = t.errCvRequired;
       }
-      if (!form.cvFile) errs.cvFile = t.errCvRequired;
     }
     if (stepToValidate === 3) {
       if (!form.department) errs.department = t.errDeptRequired;
@@ -183,34 +198,43 @@ export default function BDCRecruitment2026Page() {
     if (!validateStep(4)) { showToast(t.agreePrivacyErr); return; }
     setSubmitting(true);
     try {
+      const entranceLabel = ENTRANCE_METHOD_OPTIONS.find((e) => e.id === form.entranceMethod)?.labelVi || "THPT";
+      const timeCommitmentLabel = TIME_COMMITMENT_OPTIONS.find((tc) => tc.id === form.weeklyTimeCommitment)?.labelVi || "5 - 10h/tuần";
+
       // answers: snake_case id → value (used for mapping)
       const answersRecord: Record<string, string> = {
         full_name:                    form.fullName,
         email_confirmation:           form.emailConfirmation,
         phone:                        form.phone,
-        email_personal:               form.emailPersonal,
-        email_school:                 form.emailSchool,
+        email_personal:               form.emailPersonal || "Bỏ qua",
+        email_school:                 form.emailSchool || "",
         facebook_link:                form.facebookLink,
         university:                   form.university,
         faculty:                      form.faculty,
         student_id:                   form.studentId || "N/A",
-        academic_status:              ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.labelVi
-                                    ?? (form.academicStatusOther || form.academicStatus),
+        academic_status:              form.academicStatus === "other"
+                                        ? (form.academicStatusOther || "Khác")
+                                        : (ACADEMIC_STATUS_OPTIONS.find((s) => s.id === form.academicStatus)?.labelVi || form.academicStatus),
         thpt_dgnl_scores:             form.academicStatus === "freshman"
-                                      ? `THPT: ${form.thptScore || "N/A"}${form.hasDgnl === "yes" && form.dgnlScore?.trim() ? ` | ĐGNL: ${form.dgnlScore}` : " | ĐGNL: Không"}`
+                                      ? `[${entranceLabel}]: ${form.entranceScoreDetail || form.thptDgnlScores || "N/A"}`
                                       : (form.thptDgnlScores || "N/A"),
         gpa_cumulative:               form.gpaCumulative   || "N/A",
         gpa_latest:                   form.gpaLatest       || "N/A",
         achievements_extracurricular: form.achievementsExtracurricular || "Chưa có",
-        english_cert:                 form.academicStatus === "freshman"
-                                      ? (form.englishCertType === "none" || !form.englishCertType ? "Chưa có" : `${form.englishCertType.toUpperCase()}: ${form.englishCertScore || ""}`)
-                                      : (form.englishCert || "Chưa có"),
-        cv_url:                       form.cvFile?.url     || "",
-        cv_filename:                  form.cvFile?.filename || "",
-        evidence_files:               form.evidenceFiles.map((f) => `${f.filename}: ${f.url}`).join(" | "),
+        english_cert:                 form.englishCertType === "none" || !form.englishCertType
+                                      ? "Chưa có"
+                                      : `${form.englishCertType.toUpperCase()}: ${form.englishCertScore || ""}`,
+        cv_url:                       form.cvFile?.url
+                                        ? form.cvFile.url
+                                        : (form.cvBioText ? `[Tóm tắt bản thân]: ${form.cvBioText}` : "Chưa nộp"),
+        cv_filename:                  form.cvFile?.filename || (form.cvBioText ? "Tóm tắt chữ (Chưa có PDF)" : "Không có"),
+        evidence_files:               form.evidenceFiles.length > 0
+                                        ? form.evidenceFiles.map((f, i) => `${i + 1}. ${f.filename}: ${f.url}`).join("\n")
+                                        : "Không có",
         department:                   DEPARTMENT_OPTIONS.find((d) => d.id === form.department)?.nameVi ?? form.department,
+        allow_adjustment:             form.allowDepartmentAdjustment ? "Có" : "Không",
+        weekly_time_commitment:       timeCommitmentLabel,
         motivation:                   form.motivation,
-        send_copy:                    form.sendCopy ? "Có" : "Không",
         form_language:                lang === "vi" ? "Tiếng Việt" : "English",
       };
 
@@ -221,22 +245,23 @@ export default function BDCRecruitment2026Page() {
         { id: "phone",                        question: "Số điện thoại" },
         { id: "email_personal",               question: "Email cá nhân" },
         { id: "email_school",                 question: "Email trường" },
-        { id: "facebook_link",                question: "Facebook" },
+        { id: "facebook_link",                question: "Link Facebook cá nhân" },
         { id: "university",                   question: "Trường đại học" },
         { id: "faculty",                      question: "Khoa / Ngành" },
         { id: "student_id",                   question: "Mã số sinh viên" },
         { id: "academic_status",              question: "Tình trạng học tập" },
-        { id: "thpt_dgnl_scores",             question: "Điểm THPT / ĐGNL" },
+        { id: "thpt_dgnl_scores",             question: "Phương thức & Điểm tuyển sinh" },
         { id: "gpa_cumulative",               question: "GPA tích lũy" },
         { id: "gpa_latest",                   question: "GPA học kỳ gần nhất" },
         { id: "achievements_extracurricular", question: "Thành tích & Hoạt động ngoại khóa" },
         { id: "english_cert",                 question: "Chứng chỉ tiếng Anh" },
-        { id: "cv_url",                       question: "Link CV (Cloudinary)" },
+        { id: "cv_url",                       question: "Link CV / Tóm tắt bản thân" },
         { id: "cv_filename",                  question: "Tên file CV" },
         { id: "evidence_files",               question: "File minh chứng" },
         { id: "department",                   question: "Ban đăng ký" },
+        { id: "allow_adjustment",             question: "Đồng ý điều phối" },
+        { id: "weekly_time_commitment",       question: "Thời gian cống hiến/tuần" },
         { id: "motivation",                   question: "Lý do & Động lực" },
-        { id: "send_copy",                    question: "Gửi bản sao qua email" },
         { id: "form_language",                question: "Ngôn ngữ form" },
       ];
 
@@ -280,7 +305,7 @@ export default function BDCRecruitment2026Page() {
   };
 
   if (alreadySubmitted) return <AlreadySubmittedScreen savedName={savedName} lang={lang} onReset={handleResetForm} />;
-  if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} confirmationEmailQueued={confirmationEmailQueued} />;
+  if (submitted) return <SuccessScreen fullName={form.fullName} email={form.emailConfirmation} lang={lang} confirmationEmailQueued={confirmationEmailQueued} onReset={handleResetForm} />;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white font-sans pb-16 pt-16 sm:pt-20 transition-colors duration-300">
@@ -307,17 +332,16 @@ export default function BDCRecruitment2026Page() {
             : "bg-white/60 dark:bg-transparent backdrop-blur-md py-3.5"
         }`}
       >
-        <div className="max-w-4xl mx-auto px-4 flex items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
           {/* Left: logo + title */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 bg-white dark:bg-[#0D192E] p-1.5 rounded-xl border border-slate-200 dark:border-blue-500/20 shadow-sm">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 bg-white dark:bg-[#0D192E] p-1.5 rounded-md border border-slate-200 dark:border-blue-500/20 shadow-xs">
               <Image src={bdcLogo} alt="BDC" fill className="object-contain" />
             </div>
             <div className="min-w-0">
               <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
-                BIG DATA CLUB <span className="text-blue-600 dark:text-cyan-400 text-xs font-bold ml-1">2026</span>
+                BIG DATA CLUB
               </h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">HCMUT · Empowering Tomorrow&apos;s Tech Leaders</p>
             </div>
           </div>
 
@@ -347,30 +371,33 @@ export default function BDCRecruitment2026Page() {
       </header>
 
       {/* ── Main Wizard ── */}
-      <main className="relative z-10 max-w-3xl mx-auto px-4 pt-8">
+      <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-8">
         {/* Compact Hero Info Header */}
-        <div className="text-center mb-6 space-y-2">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100/80 dark:bg-cyan-500/10 border border-blue-200 dark:border-cyan-500/20 text-blue-700 dark:text-cyan-400 text-xs font-bold uppercase tracking-widest shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{t.heroBadge}</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+        <div className="text-center mb-10 space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white uppercase">
             {t.heroTitle}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed font-medium">
-            {t.heroSubtitle} · {t.heroDesc}
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed font-normal">
+            <span className="font-semibold text-slate-700 dark:text-slate-300">{t.heroSubtitle}</span> · {t.heroDesc}
           </p>
         </div>
 
         {/* Step Progress Bar (Integrated Overlay Stepper) */}
-        <div className="relative mb-14 mt-6 w-full px-8 sm:px-16 z-10">
+        <div className="relative mb-10 sm:mb-14 mt-4 sm:mt-6 w-full px-4 sm:px-16 z-10">
+          {/* Mobile Current Step Indicator Badge */}
+          <div className="sm:hidden text-center mb-4">
+            <span className="text-xs font-bold text-blue-600 dark:text-cyan-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/20 px-3.5 py-1.5 rounded-full shadow-xs">
+              Bước {step}/4: {t.steps[step - 1]?.title}
+            </span>
+          </div>
+
           {/* Background Track Line */}
-          <div className="absolute top-[18px] left-[50px] right-[50px] sm:left-[82px] sm:right-[82px] h-1 bg-slate-200 dark:bg-slate-800/85 -translate-y-1/2 rounded-full" />
+          <div className="absolute top-[18px] sm:top-[18px] left-[36px] right-[36px] sm:left-[82px] sm:right-[82px] h-1 bg-slate-200 dark:bg-slate-800 -translate-y-1/2 rounded-full" />
 
           {/* Active Progress Line */}
-          <div className="absolute top-[18px] left-[50px] right-[50px] sm:left-[82px] sm:right-[82px] h-1 -translate-y-1/2 pointer-events-none">
+          <div className="absolute top-[18px] sm:top-[18px] left-[36px] right-[36px] sm:left-[82px] sm:right-[82px] h-1 -translate-y-1/2 pointer-events-none">
             <div
-              className="h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-500 rounded-full transition-all duration-500"
+              className="h-full bg-blue-600 dark:bg-cyan-400 rounded-full transition-all duration-300 shadow-xs"
               style={{ width: `${((step - 1) / 3) * 100}%` }}
             />
           </div>
@@ -402,13 +429,13 @@ export default function BDCRecruitment2026Page() {
                   <button
                     type="button"
                     onClick={handleStepClick}
-                    className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all duration-300 relative z-10 hover:scale-105 active:scale-95 cursor-pointer
+                    className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all duration-300 relative z-10 hover:scale-105 active:scale-95 cursor-pointer touch-manipulation min-h-[36px] min-w-[36px]
                       ${
                         isCurrent
-                          ? "border-blue-500 bg-white dark:bg-[#050B18] text-blue-600 dark:text-cyan-400 shadow-[0_0_15px_rgba(59,130,246,0.3)] scale-110"
+                          ? "border-blue-600 dark:border-cyan-400 bg-blue-600 dark:bg-cyan-400 text-white dark:text-slate-950 shadow-md scale-105"
                           : isCompleted
-                          ? "border-blue-500 bg-blue-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                          : "border-slate-300 dark:border-slate-800 bg-white dark:bg-[#050B18] text-slate-400 dark:text-slate-650 hover:border-blue-400 hover:text-blue-500"
+                          ? "border-blue-600 dark:border-cyan-400 bg-blue-600 dark:bg-cyan-400 text-white dark:text-slate-950"
+                          : "border-slate-300 dark:border-blue-500/20 bg-white dark:bg-[#0D192E] text-slate-400 dark:text-slate-500 hover:border-slate-400 dark:hover:border-blue-500/40"
                       }`}
                   >
                     {isCompleted ? (
@@ -420,12 +447,12 @@ export default function BDCRecruitment2026Page() {
                   {/* Text Label */}
                   <span
                     onClick={handleStepClick}
-                    className={`absolute top-11 left-1/2 -translate-x-1/2 text-xs font-bold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-blue-600 dark:hover:text-cyan-400
+                    className={`hidden sm:block absolute top-11 left-1/2 -translate-x-1/2 text-xs font-semibold text-center w-[120px] sm:w-[150px] leading-tight transition-colors duration-300 cursor-pointer hover:text-blue-600 dark:hover:text-cyan-400
                       ${
                         isCurrent
-                          ? "text-blue-600 dark:text-cyan-400"
+                          ? "text-blue-600 dark:text-cyan-400 font-bold"
                           : isCompleted
-                          ? "text-slate-700 dark:text-slate-350"
+                          ? "text-slate-700 dark:text-slate-300"
                           : "text-slate-400 dark:text-slate-600"
                       }`}
                   >
@@ -438,19 +465,19 @@ export default function BDCRecruitment2026Page() {
         </div>
 
         {/* Step Content Card */}
-        <div className="relative z-10 p-6 sm:p-10 bg-white dark:bg-[#0F1E35] border border-slate-200/90 dark:border-blue-500/15 rounded-3xl shadow-xl dark:shadow-none">
+        <div className="relative z-10 p-6 sm:p-10 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl shadow-xs">
           {step === 1 && <Step1Personal form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 2 && <Step2Academic form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 3 && <Step3Department form={form} onChange={updateForm} errors={errors} lang={lang} />}
           {step === 4 && <Step4Review form={form} onChange={updateForm} errors={errors} lang={lang} onEditStep={(st) => setStep(st)} />}
 
           {/* Navigation Controls */}
-          <div className="mt-10 pt-6 border-t border-slate-200/80 dark:border-blue-500/15 flex items-center justify-between">
+          <div className="mt-8 sm:mt-10 pt-6 border-t border-slate-200 dark:border-blue-500/10 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={handlePrev}
-                className="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0D192E] dark:hover:bg-[#162644] text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all active:scale-95 border border-slate-200 dark:border-blue-500/20"
+                className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0D192E] dark:hover:bg-[#162644] text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all active:scale-95 border border-slate-200 dark:border-blue-500/20 min-h-[44px] cursor-pointer touch-manipulation"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>{t.btnPrev}</span>
@@ -463,7 +490,7 @@ export default function BDCRecruitment2026Page() {
               <button
                 type="button"
                 onClick={handleNext}
-                className="inline-flex items-center space-x-2 px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-all active:scale-95 shadow-md hover:shadow-blue-500/25 ml-auto"
+                className="inline-flex items-center justify-center space-x-2 px-7 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-all active:scale-95 shadow-sm hover:shadow-blue-500/20 sm:ml-auto min-h-[44px] cursor-pointer touch-manipulation"
               >
                 <span>{t.btnNext}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -473,7 +500,7 @@ export default function BDCRecruitment2026Page() {
                 type="button"
                 disabled={submitting}
                 onClick={handleSubmit}
-                className="inline-flex items-center space-x-2 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-extrabold transition-all active:scale-95 shadow-lg hover:shadow-emerald-500/30 ml-auto cursor-pointer"
+                className="inline-flex items-center justify-center space-x-2 px-8 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-extrabold transition-all active:scale-95 shadow-sm hover:shadow-emerald-500/30 sm:ml-auto min-h-[44px] cursor-pointer touch-manipulation"
               >
                 {submitting ? (
                   <>

@@ -12,52 +12,45 @@ Next.js 15 (App Router), TypeScript, React 19, Framer Motion, Tailwind CSS v4, L
 
 ## Users
 
-Primary users are HCMUT (Ho Chi Minh City University of Technology) Computer Science & Engineering students, researchers, alumni, and prospective applicants interested in Big Data, AI, Machine Learning, and Cloud Computing.
+Primary users are HCMUT (Ho Chi Minh City University of Technology) Computer Science & Engineering students, researchers, alumni, and prospective applicants seeking to join Big Data Club (BDC) HCMUT as core members for the 2026 cohort.
 
 ## Product Purpose
 
-To showcase Big Data Club (BDC) HCMUT as a premier academic and research club, present core activities, high-impact projects, scientific publications, mentors, and ongoing flagship events (e.g., HPC School), providing a seamless, awe-inspiring gateway into the BDC ecosystem.
+To provide a sleek, cybernetic, multi-step recruitment portal for prospective 2026 members of Big Data Club (BDC) HCMUT. The form guides applicants seamlessly through personal/academic profiling, sub-team selection (AI/ML, Data Engineering, Software Engineering, HPC, Media & Events), short technical/essay prompts, portfolio/GitHub submission, and real-time confirmation.
 
 ## Positioning
 
-"Think Big • Speak Data" - An elite academic hub combining high-performance computing, cutting-edge AI/ML research, and practical hands-on engineering under the guidance of HPC Lab HCMUT.
+"Think Big • Speak Data" - An elite academic hub combining high-performance computing, cutting-edge AI/ML research, and practical hands-on engineering under the guidance of HPC Lab HCMUT. The 2026 Recruitment Form embodies high technological sophistication, transparency, and academic prestige.
 
 ## Operating Context
 
-Visitors access the landing page on desktop and mobile devices. They expect rapid visual impact, smooth dark/light mode transitions, intuitive navigation across sections (About, Core Activities, Featured Projects, Scientific Publications, Mentors, HPC School), and fast action conversion (Apply / Login / Explore).
+Applicants visit the recruitment form on desktop and mobile devices during active recruitment cycles. They demand quick loading, zero input loss, step-by-step progress tracking, auto-saving draft capability (localStorage), clear guidance on sub-team requirements, and interactive feedback upon submission.
 
 ## Capabilities and Constraints
 
-- Dynamic responsive layout (Navbar, Floating Notice, Hero, About, Activities, Projects & Publications, Mentors, Footer).
-- Integrated dark/light theme switching with glassmorphism visual rhythm.
-- Animated hero visual core & telemetry metrics.
-- Modal & dropdown links for HPC School and recruitment notices.
-- High accessibility (WCAG AA target), smooth scrolling, and zero layout shifts.
+- Interactive multi-step form flow (Step 1: Academic & Personal Info -> Step 2: Sub-team Domain & Skills -> Step 3: Tech Essay / Task & Links -> Step 4: Review & Submit -> Step 5: Confirmation / Application Ticket).
+- Dynamic dark glassmorphic cybernetic theme consistent with BDC visual identity.
+- Client-side validation with real-time feedback and state persistence.
+- High accessibility (WCAG AA target), smooth step transitions, and responsive layout.
 
 ## Brand Commitments
 
-- Official BDC HCMUT branding, CSE (Computer Science & Engineering) HCMUT, and HPCC (High Performance Computing Center) identity.
+- Official BDC HCMUT branding, CSE (Computer Science & Engineering) HCMUT, and HPCC identity.
 - Cybernetic dark theme (#050B18 main backdrop, #0F1E35 containers, #2563EB tech blue, #06B6D4 cyan accent).
-- Formal yet high-tech academic feel.
+- Professional, inspiring academic cyber visual tone.
 
 ## Evidence on Hand
 
 - [page.tsx](file:///home/thanh/BDCHub---Frontend/src/app/(landing)/page.tsx) - Landing Page entry point.
-- [layout.tsx](file:///home/thanh/BDCHub---Frontend/src/app/(landing)/layout.tsx) - Landing layout shell.
-- [Navbar.tsx](file:///home/thanh/BDCHub---Frontend/src/components/layout/Navbar.tsx) - Navigation header component.
-- [Footer.tsx](file:///home/thanh/BDCHub---Frontend/src/components/layout/Footer.tsx) - Footer component.
-- [Hero.tsx](file:///home/thanh/BDCHub---Frontend/src/components/home/Hero.tsx) - Hero banner component.
-- [About.tsx](file:///home/thanh/BDCHub---Frontend/src/components/home/About.tsx) - About section component.
-- [Activities.tsx](file:///home/thanh/BDCHub---Frontend/src/components/home/Activities.tsx) - Core activities section.
-- [Projects.tsx](file:///home/thanh/BDCHub---Frontend/src/components/home/Projects.tsx) - Projects & publications section.
-- [Members.tsx](file:///home/thanh/BDCHub---Frontend/src/components/home/Members.tsx) - Mentors banner component.
+- [PRODUCT.md](file:///home/thanh/BDCHub---Frontend/PRODUCT.md) - Project product specification.
+- [DESIGN.md](file:///home/thanh/BDCHub---Frontend/DESIGN.md) - Project design system specification.
 
 ## Product Principles
 
-- **Out-of-Distribution Visual Craft:** Elevate the UI with striking cybernetic aesthetics, rich micro-interactions, dark glassmorphism, and dynamic lighting effects.
-- **Academic Rigor Meets Cyber Tech:** Balance academic prestige (HCMUT CSE & HPC Lab heritage) with modern high-tech visual language.
-- **Zero Friction Navigation:** Instant smooth transitions, responsive layout across mobile and desktop, and zero clutter.
+- **Zero Friction Application Flow:** Multi-step navigation with visual progress bar, interactive sub-team selectors, and instant validation.
+- **Cybernetic Academic Aesthetic:** Dark mode glassmorphism with glowing cyan/blue accents and subtle telemetry metrics.
+- **Uncompromised Form Usability:** Auto-save drafts in localStorage, clear error messaging, and step previews.
 
 ## Accessibility & Inclusion
 
-- Responsive layout, accessible aria labels, high color contrast across both dark and light modes, keyboard navigable dropdowns and menus.
+- Keyboard navigable form inputs, clear focus states, screen-reader friendly field labels, and WCAG AA contrast compliance.

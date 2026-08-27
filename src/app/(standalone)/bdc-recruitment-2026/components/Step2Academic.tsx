@@ -1,10 +1,9 @@
-"use client";
-
 import React from "react";
-import { BookOpen, Award, Sparkles, FileCheck } from "lucide-react";
-import { FormData, Errors, T, Lang } from "../types";
+import { BookOpen, Award, FileCheck, Info, GraduationCap } from "lucide-react";
+import { FormData, Errors, T, Lang, THPT_BLOCK_OPTIONS } from "../types";
 import { FileUploadCloudinary } from "./FileUploadCloudinary";
-import { FSel } from "@/components/form/FormFields";
+import { FIn, FTa, FSel, FL } from "@/components/form/FormFields";
+import { InfoTooltip } from "@/components/form/InfoTooltip";
 
 interface Step2AcademicProps {
   form: FormData;
@@ -12,26 +11,6 @@ interface Step2AcademicProps {
   errors: Errors;
   lang: Lang;
 }
-
-const inputBase =
-  "w-full bg-white dark:bg-[#091124] border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-all duration-200";
-const inputNormal =
-  "border-slate-300 dark:border-slate-800 focus:bg-white dark:focus:bg-[#0A1628] focus:border-blue-500 dark:focus:border-cyan-400/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20";
-const inputError =
-  "border-rose-400 dark:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/30";
-
-const renderLabel = (labelStr: string) => {
-  if (labelStr.endsWith("*")) {
-    const mainText = labelStr.slice(0, -1).trim();
-    return (
-      <>
-        {mainText}
-        <span className="text-rose-500 ml-1 font-bold">*</span>
-      </>
-    );
-  }
-  return labelStr;
-};
 
 interface GpaInputProps {
   label: string;
@@ -43,34 +22,36 @@ interface GpaInputProps {
 }
 
 const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, placeholder, isVi }) => {
-  const [isOpenScale, setIsOpenScale] = React.useState(false);
-  const scaleRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (scaleRef.current && !scaleRef.current.contains(event.target as Node)) {
-        setIsOpenScale(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const [gpaNumeric, gpaScale] = React.useMemo(() => {
+  const [gpaNumeric, gpaScaleStr] = React.useMemo(() => {
     const val = value || "";
     const index = val.indexOf("/");
     if (index !== -1) {
-      return [val.slice(0, index).trim(), val.slice(index).trim()];
+      return [val.slice(0, index).trim(), val.slice(index + 1).trim()];
     }
-    return [val.trim(), "/4.0"];
+    return [val.trim(), "4.0"];
   }, [value]);
 
-  const handleGpaNumericChange = (valStr: string) => {
-    const numVal = valStr.replace(/\/.*/g, "").trim();
-    onChange(`${numVal}${gpaScale}`);
+  const isStandard4 = gpaScaleStr === "4.0";
+  const isStandard10 = gpaScaleStr === "10.0";
+  const mode: "4.0" | "10.0" | "custom" = isStandard4 ? "4.0" : isStandard10 ? "10.0" : "custom";
+
+  const handleNumericChange = (newNum: string) => {
+    if (mode === "custom") {
+      const scalePart = gpaScaleStr ? `/${gpaScaleStr}` : "";
+      onChange(`${newNum}${scalePart}`);
+    } else {
+      const cleanNum = newNum.replace(/\/.*/g, "").trim();
+      onChange(`${cleanNum}/${mode}`);
+    }
   };
 
-  const handleGpaBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleCustomScaleChange = (newScale: string) => {
+    const cleanScale = newScale.replace(/^\//, "").trim();
+    onChange(`${gpaNumeric}/${cleanScale}`);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (mode === "custom") return;
     const val = e.target.value.trim().replace(/\/.*/g, "");
     if (!val) return;
 
@@ -84,114 +65,110 @@ const GpaInput: React.FC<GpaInputProps> = ({ label, value, onChange, error, plac
     }
 
     if (formatted !== gpaNumeric) {
-      onChange(`${formatted}${gpaScale}`);
+      onChange(`${formatted}/${mode}`);
     }
   };
 
-  const isCustomScale = gpaScale !== "/4.0" && gpaScale !== "/10.0";
+  const handleModeChange = (newMode: "4.0" | "10.0" | "custom") => {
+    const cleanNum = gpaNumeric.replace(/[^0-9.,]/g, "");
+    if (newMode === "4.0") {
+      onChange(`${cleanNum}/4.0`);
+    } else if (newMode === "10.0") {
+      onChange(`${cleanNum}/10.0`);
+    } else {
+      onChange(`${gpaNumeric}/${gpaScaleStr !== "4.0" && gpaScaleStr !== "10.0" ? gpaScaleStr : "100"}`);
+    }
+  };
+
+  const numVal = parseFloat(gpaNumeric);
+  const showWarning = mode === "4.0" && !isNaN(numVal) && numVal > 4.0;
 
   return (
     <div>
-      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-        {renderLabel(label)}
-      </label>
-      <div className="relative w-full">
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            placeholder={placeholder}
-            value={gpaNumeric}
-            onChange={(e) => handleGpaNumericChange(e.target.value)}
-            onBlur={handleGpaBlur}
-            className={`${inputBase} ${error ? inputError : inputNormal} ${isCustomScale ? "pr-28" : "pr-24"}`}
-          />
-          
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-            {isCustomScale ? (
-              <div className="flex items-center gap-1.5 animate-fadeIn">
-                <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/60 mr-1" />
-                <input
-                  type="text"
-                  placeholder="xx.xx"
-                  value={gpaScale.replace("/", "")}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
-                    onChange(`${gpaNumeric}/${val}`);
-                  }}
-                  className="w-10 text-center bg-transparent border-t-0 border-x-0 border-b border-dashed border-slate-350 dark:border-slate-700 text-sm font-black text-slate-900 dark:text-slate-100 placeholder:text-slate-400/50 outline-none focus:border-solid focus:border-cyan-500 focus:ring-0 transition-all p-0 pb-0.5"
-                />
-                <button
-                  type="button"
-                  onClick={() => onChange(`${gpaNumeric}/4.0`)}
-                  className="text-slate-400 hover:text-red-500 transition-colors p-0.5 active:scale-90"
-                  title={isVi ? "Quay lại thang điểm chuẩn" : "Back to standard scales"}
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            ) : (
-              <div ref={scaleRef} className={`relative flex items-center gap-1.5 ${isOpenScale ? "z-30" : ""}`}>
-                <div className="w-px h-5 bg-slate-200 dark:bg-slate-700/60 mr-0.5" />
-                <button
-                  type="button"
-                  onClick={() => setIsOpenScale(!isOpenScale)}
-                  className="flex items-center gap-0.5 text-slate-500 dark:text-slate-400 text-xs font-black outline-none cursor-pointer hover:text-cyan-500 transition-all py-1 pl-1 pr-1.5 rounded-lg active:scale-95"
-                >
-                  <span>{gpaScale === "/4.0" ? "4.0" : "10.0"}</span>
-                  <svg
-                    className={`w-3 h-3 text-slate-400 transition-transform duration-300 ${isOpenScale ? "rotate-180 text-cyan-500" : ""}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </button>
-                {isOpenScale && (
-                  <ul className="absolute right-0 top-full z-50 mt-2 py-1 w-24 rounded-xl bg-white dark:bg-slate-950 border border-slate-200/85 dark:border-slate-800/85 shadow-2xl overflow-hidden animate-in fade-in duration-200">
-                    {[
-                      { value: "/4.0", label: "4.0" },
-                      { value: "/10.0", label: "10.0" },
-                      { value: "Other", label: isVi ? "Khác..." : "Other..." },
-                    ].map(opt => {
-                      const isSelected = opt.value === gpaScale;
-                      return (
-                        <li
-                          key={opt.value}
-                          onClick={() => {
-                            if (opt.value === "Other") {
-                              onChange(`${gpaNumeric}/`);
-                            } else {
-                              onChange(`${gpaNumeric}${opt.value}`);
-                            }
-                            setIsOpenScale(false);
-                          }}
-                          className={`px-3 py-1.5 text-xs font-bold cursor-pointer transition-all duration-200 flex items-center justify-between ${
-                            isSelected
-                              ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
-                              : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                          }`}
-                        >
-                          <span>{opt.label}</span>
-                          {isSelected && (
-                            <svg className="w-3 h-3 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                            </svg>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            )}
+      <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+        <FL>{label}</FL>
+
+        <div className="inline-flex p-0.5 bg-slate-100 dark:bg-[#0D192E] rounded-xl border border-slate-200 dark:border-blue-500/20 text-xs font-semibold shrink-0">
+          <button
+            type="button"
+            onClick={() => handleModeChange("4.0")}
+            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+              mode === "4.0"
+                ? "bg-white dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 shadow-xs font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            }`}
+          >
+            Thang 4.0
+          </button>
+          <button
+            type="button"
+            onClick={() => handleModeChange("10.0")}
+            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+              mode === "10.0"
+                ? "bg-white dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 shadow-xs font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            }`}
+          >
+            Thang 10.0
+          </button>
+          <button
+            type="button"
+            onClick={() => handleModeChange("custom")}
+            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+              mode === "custom"
+                ? "bg-white dark:bg-[#0F1E35] text-blue-600 dark:text-cyan-400 shadow-xs font-bold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            }`}
+          >
+            {isVi ? "Khác" : "Custom"}
+          </button>
+        </div>
+      </div>
+
+      {mode === "custom" ? (
+        <div className="grid grid-cols-5 gap-2">
+          <div className="col-span-3">
+            <FIn
+              type="text"
+              placeholder={isVi ? "Điểm (Ví dụ: 85, 3.8...)" : "Score (e.g. 85, 3.8...)"}
+              value={gpaNumeric}
+              onChange={(e) => handleNumericChange(e.target.value)}
+              error={error}
+              className="font-mono tracking-tight"
+            />
+          </div>
+          <div className="col-span-2">
+            <FIn
+              type="text"
+              placeholder={isVi ? "Thang (100)" : "Scale (100)"}
+              value={gpaScaleStr}
+              onChange={(e) => handleCustomScaleChange(e.target.value)}
+              error={error}
+              className="font-mono tracking-tight"
+            />
           </div>
         </div>
-        {error && <p className="text-xs text-rose-500 mt-1">{error}</p>}
-      </div>
+      ) : (
+        <FIn
+          type="text"
+          placeholder={placeholder || (mode === "4.0" ? "Ví dụ: 3.65" : "Ví dụ: 8.5")}
+          value={gpaNumeric}
+          onChange={(e) => handleNumericChange(e.target.value)}
+          onBlur={handleBlur}
+          suffix={`/${mode}`}
+          error={error}
+          className="font-mono tracking-tight"
+        />
+      )}
+
+      {showWarning && (
+        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 flex items-center gap-1.5 font-medium leading-tight">
+          <svg className="w-3.5 h-3.5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          <span>{isVi ? "Điểm hệ 4.0 thường ≤ 4.0. Bạn có muốn chuyển sang Hệ 10.0 không?" : "GPA on 4.0 scale is usually ≤ 4.0. Switch to 10.0 scale?"}</span>
+        </p>
+      )}
     </div>
   );
 };
@@ -201,192 +178,287 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
   const isVi = lang === "vi";
   const isFreshman = form.academicStatus === "freshman";
 
-  return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="border-b border-slate-200/80 dark:border-blue-500/15 pb-4">
-        <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-blue-50 dark:bg-cyan-500/10 text-blue-600 dark:text-cyan-400 border border-blue-100 dark:border-cyan-500/20">
-            <BookOpen className="w-5 h-5" />
-          </div>
-          {t.step2Header}
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">{t.step2Desc}</p>
-      </div>
+  const thptBlockOptions = React.useMemo(() => {
+    return THPT_BLOCK_OPTIONS.map((opt) => ({
+      value: opt.id,
+      label: isVi ? opt.labelVi : opt.labelEn,
+    }));
+  }, [isVi]);
 
-      {/* Status Notice Banner */}
-      {!isFreshman && (
-        <div className="p-4.5 rounded-2xl border bg-blue-50/70 dark:bg-[#0F1E35] border-blue-200 dark:border-blue-500/20 flex items-start space-x-3.5 shadow-sm">
-          <div className="p-2 bg-blue-100 dark:bg-cyan-500/10 rounded-xl text-blue-600 dark:text-cyan-400 shrink-0 border border-blue-200 dark:border-cyan-500/20">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-              {t.seniorNoticeTitle}
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-              {t.seniorNoticeDesc}
-            </p>
-          </div>
+  const handleEntranceUpdate = (updates: Partial<FormData>) => {
+    const nextForm = { ...form, ...updates };
+
+    const currentBlockId = nextForm.thptBlock || "A00";
+    const blockObj = THPT_BLOCK_OPTIONS.find((b) => b.id === currentBlockId);
+    const isOtherBlock = currentBlockId === "other";
+
+    const blockLabel = isOtherBlock
+      ? (isVi ? "Phương thức khác" : "Custom Method")
+      : (blockObj ? (isVi ? blockObj.labelVi.split(" (")[0] : blockObj.labelEn.split(" (")[0]) : currentBlockId);
+
+    const scoreText = nextForm.thptScore?.trim() || "";
+    const thptPart = isOtherBlock
+      ? (scoreText ? `Phương thức khác: ${scoreText}` : "Phương thức khác")
+      : (scoreText ? `${blockLabel}: ${scoreText}` : blockLabel);
+
+    const dgnlPart = nextForm.hasDgnl === "no"
+      ? (isVi ? "ĐGNL: Chưa thi / Không thi" : "ĐGNL: Not taken")
+      : (nextForm.dgnlScore?.trim() ? `ĐGNL: ${nextForm.dgnlScore.trim()}` : "");
+
+    const combined = [thptPart, dgnlPart].filter(Boolean).join(" | ");
+
+    onChange({
+      ...updates,
+      entranceScoreDetail: combined,
+      thptDgnlScores: combined,
+    });
+  };
+
+  const englishCertOptions = React.useMemo(() => [
+    { value: "none", label: isVi ? "Chưa có" : "None" },
+    { value: "IELTS", label: "IELTS" },
+    { value: "TOEIC", label: "TOEIC" },
+    { value: "TOEFL", label: "TOEFL" },
+    { value: "VSTEP", label: "VSTEP" },
+    { value: "PTE", label: "PTE Academic" },
+    { value: "SAT", label: "SAT (Reading & Writing)" },
+    { value: "Cambridge", label: "Cambridge Cert (FCE/CAE/CPE)" },
+    { value: "other", label: isVi ? "Khác (Bổ sung mới kế bên...)" : "Other (Specify next to...)" },
+  ], [isVi]);
+
+  const renderEnglishCertFields = () => {
+    const isNone = !form.englishCertType || form.englishCertType === "none";
+    const isOtherCert = form.englishCertType === "other";
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FSel
+          label={t.englishCertType}
+          value={form.englishCertType || "none"}
+          onChange={(val) => {
+            const isPredefined = englishCertOptions.some(o => o.value === val);
+            if (isPredefined) {
+              const nextIsNone = val === "none";
+              const nextScore = nextIsNone ? "" : (form.englishCertScore || "");
+              onChange({
+                englishCertType: val,
+                englishCertScore: val === "other" ? (form.englishCertScore || "") : nextScore,
+                englishCert: nextIsNone ? "Chưa có" : `${val.toUpperCase()}: ${nextScore}`
+              });
+            } else {
+              // User entered a custom text from search bar: auto-set to 'other' and fill the custom text into score/detail input
+              onChange({
+                englishCertType: "other",
+                englishCertScore: val,
+                englishCert: `OTHER: ${val}`
+              });
+            }
+          }}
+          options={englishCertOptions}
+          placeholder={isVi ? "Tìm hoặc nhập bổ sung chứng chỉ..." : "Search or enter custom certificate..."}
+          isVi={isVi}
+          searchable={true}
+        />
+
+        <div>
+          <FIn
+            label={
+              isOtherCert
+                ? (isVi ? "Tên chứng chỉ khác & Điểm số *" : "Custom Certificate & Score *")
+                : t.englishCertScore
+            }
+            type="text"
+            disabled={isNone}
+            value={!isNone ? (form.englishCertScore || "") : ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              onChange({
+                englishCertScore: val,
+                englishCert: `${(form.englishCertType || "other").toUpperCase()}: ${val}`
+              });
+            }}
+            placeholder={
+              isNone
+                ? (isVi ? "Không có" : "N/A")
+                : isOtherCert
+                ? (isVi ? "Ví dụ: Duolingo English Test 120/160" : "e.g. Duolingo English Test 120/160")
+                : t.englishCertScorePh
+            }
+            error={!isNone ? errors.englishCertScore : undefined}
+            className={
+              isNone
+                ? "bg-slate-100/80 dark:bg-slate-950/40 text-slate-400/80 dark:text-slate-600 border-slate-200/50 dark:border-slate-800/30 cursor-not-allowed opacity-50"
+                : ""
+            }
+          />
         </div>
-      )}
+      </div>
+    );
+  };
+
+  const [freshmanCvTab, setFreshmanCvTab] = React.useState<"file" | "text">(
+    form.cvBioText && !form.cvFile ? "text" : "file"
+  );
+
+  const isOtherBlock = form.thptBlock === "other";
+
+  return (
+    <div className="space-y-7">
+      {/* Section 1: Header & Mode context */}
+      <div className="pb-2 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+            {t.step2Header}
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">{t.step2Desc}</p>
+        </div>
+
+        <div className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5 shrink-0">
+          <GraduationCap className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
+          <span>{isFreshman ? (isVi ? "Dành cho Tân sinh viên" : "Freshman Mode") : (isVi ? "Dành cho Sinh viên Năm 1+" : "Senior Mode")}</span>
+        </div>
+      </div>
 
       {/* Dynamic Academic Inputs */}
       {isFreshman ? (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                {renderLabel(t.thptScore)}
-              </label>
-              <input
-                type="text"
-                value={form.thptScore || ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  onChange({
-                    thptScore: val,
-                    thptDgnlScores: `THPT: ${val || "N/A"}${form.hasDgnl === "yes" && form.dgnlScore?.trim() ? ` | ĐGNL: ${form.dgnlScore}` : " | ĐGNL: Không"}`
-                  });
-                }}
-                placeholder={t.thptScorePh}
-                className={`${inputBase} ${errors.thptScore ? inputError : inputNormal}`}
-              />
-              {errors.thptScore && <p className="text-xs text-rose-500 mt-1">{errors.thptScore}</p>}
+        <div className="space-y-6">
+          {/* Section 1: Block & Score selection */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-sm">
+              <GraduationCap className="w-4 h-4 shrink-0" />
+              <span>{isVi ? "1. Tổ hợp xét tuyển & Điểm thi THPT / Đại học" : "1. Admission Block & Exam Score"}</span>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                {renderLabel(t.dgnlScore)}
-              </label>
-              <div className="flex items-center gap-3">
-                {/* Segemented control style radio buttons */}
-                <div className="flex bg-slate-100 dark:bg-slate-900/60 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0">
-                  {[
-                    { value: "yes", label: isVi ? "Có" : "Yes" },
-                    { value: "no", label: isVi ? "Không" : "No" }
-                  ].map((opt) => {
-                    const isSelected = form.hasDgnl === opt.value;
-                    return (
-                      <button
-                        type="button"
-                        key={opt.value}
-                        onClick={() => {
-                          const scoreVal = opt.value === "yes" ? (form.dgnlScore || "") : "";
-                          onChange({
-                            hasDgnl: opt.value,
-                            dgnlScore: scoreVal,
-                            thptDgnlScores: `THPT: ${form.thptScore || "N/A"}${opt.value === "yes" && scoreVal.trim() ? ` | ĐGNL: ${scoreVal}` : " | ĐGNL: Không"}`
-                          });
-                        }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                          isSelected
-                            ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-cyan-400 shadow-sm border border-slate-200/80 dark:border-slate-700"
-                            : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 border border-transparent"
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    disabled={form.hasDgnl === "no"}
-                    value={form.hasDgnl === "yes" ? (form.dgnlScore || "") : ""}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      onChange({
-                        dgnlScore: val,
-                        thptDgnlScores: `THPT: ${form.thptScore || "N/A"}${val.trim() ? ` | ĐGNL: ${val}` : ""}`
-                      });
-                    }}
-                    placeholder={form.hasDgnl === "yes" ? t.dgnlScorePh : (isVi ? "Không thi" : "N/A")}
-                    className={`${inputBase} ${
-                      form.hasDgnl === "no"
-                        ? "bg-slate-100/80 dark:bg-slate-950/40 text-slate-400/80 dark:text-slate-650 border-slate-200/50 dark:border-slate-800/30 cursor-not-allowed opacity-50"
-                        : errors.dgnlScore ? inputError : inputNormal
-                    }`}
-                  />
-                </div>
-              </div>
-              {form.hasDgnl === "yes" && errors.dgnlScore && <p className="text-xs text-rose-500 mt-1">{errors.dgnlScore}</p>}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                {renderLabel(t.englishCertType)}
-              </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Select Combo Box cho Tổ hợp */}
               <FSel
-                value={form.englishCertType || "none"}
+                label={isVi ? "Tổ hợp xét tuyển Đại học *" : "Admission Subject Block *"}
+                value={form.thptBlock || "A00"}
                 onChange={(val) => {
-                  const nextScore = val === "none" ? "" : (form.englishCertScore || "");
-                  onChange({
-                    englishCertType: val,
-                    englishCertScore: nextScore,
-                    englishCert: val === "none" ? "Chưa có" : `${val.toUpperCase()}: ${nextScore}`
-                  });
+                  const isPredefined = thptBlockOptions.some(o => o.value === val);
+                  if (isPredefined) {
+                    handleEntranceUpdate({ thptBlock: val });
+                  } else {
+                    // Custom typed value from search: auto-set to 'other' and fill the typed string into thptScore
+                    handleEntranceUpdate({ thptBlock: "other", thptScore: val });
+                  }
                 }}
-                options={[
-                  { value: "none", label: isVi ? "Chưa có" : "None" },
-                  { value: "ielts", label: "IELTS" },
-                  { value: "toeic", label: "TOEIC" },
-                  { value: "toefl", label: "TOEFL" },
-                  { value: "vstep", label: "VSTEP" },
-                  { value: "other", label: isVi ? "Khác" : "Other" },
-                ]}
-                placeholder={t.englishCertTypePh}
+                options={thptBlockOptions}
+                placeholder={isVi ? "Chọn tổ hợp xét tuyển..." : "Select block..."}
                 isVi={isVi}
-                searchable={false}
+                searchable={true}
               />
-            </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-                {renderLabel(t.englishCertScore)}
-              </label>
-              <input
-                type="text"
-                disabled={form.englishCertType === "none" || !form.englishCertType}
-                value={form.englishCertType !== "none" ? (form.englishCertScore || "") : ""}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  onChange({
-                    englishCertScore: val,
-                    englishCert: `${(form.englishCertType || "other").toUpperCase()}: ${val}`
-                  });
-                }}
-                placeholder={form.englishCertType !== "none" && form.englishCertType ? t.englishCertScorePh : (isVi ? "Không có" : "N/A")}
-                className={`${inputBase} ${
-                  form.englishCertType === "none" || !form.englishCertType
-                    ? "bg-slate-100/80 dark:bg-slate-950/40 text-slate-400/80 dark:text-slate-650 border-slate-200/50 dark:border-slate-800/30 cursor-not-allowed opacity-50"
-                    : errors.englishCertScore ? inputError : inputNormal
-                }`}
-              />
-              {form.englishCertType !== "none" && errors.englishCertScore && (
-                <p className="text-xs text-rose-500 mt-1">{errors.englishCertScore}</p>
-              )}
+              {/* Dynamic Input: Nhập điểm hoặc Nhập tên tổ hợp/phương thức khác */}
+              <div key={isOtherBlock ? "other-mode" : "standard-mode"} className="transition-all duration-300">
+                <FIn
+                  label={
+                    isOtherBlock
+                      ? (isVi ? "Tên tổ hợp / Phương thức khác & Kết quả *" : "Custom Block & Score Details *")
+                      : (isVi ? "Điểm thi / Điểm xét tuyển THPT *" : "THPT / Admission Score *")
+                  }
+                  type="text"
+                  value={form.thptScore || ""}
+                  onChange={(e) => handleEntranceUpdate({ thptScore: e.target.value })}
+                  placeholder={
+                    isOtherBlock
+                      ? (isVi ? "Ví dụ: Khối A02: 27.0 điểm (hoặc Xét tuyển thẳng SAT, Xét tuyển riêng...)" : "e.g. Block A02: 27.0 pts or Special Admission Test...")
+                      : (isVi ? "Ví dụ: 27.5 (Toán 9.2, Lý 9.0, Hóa 9.3)" : "e.g. 27.5 (Math 9.2, Phys 9.0, Chem 9.3)")
+                  }
+                  error={errors.thptScore || errors.entranceScoreDetail}
+                />
+              </div>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-              {renderLabel(t.achievementsExtracurricular)}
-            </label>
-            <textarea
-              rows={3}
-              value={form.achievementsExtracurricular}
-              onChange={(e) => onChange({ achievementsExtracurricular: e.target.value })}
-              placeholder={t.achievementsExtracurricularPh}
-              className={`${inputBase} ${inputNormal}`}
+          <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
+          {/* Section 2: Điểm Đánh giá năng lực (ĐGNL) */}
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-blue-600 dark:text-cyan-400 font-bold text-sm">
+                <Award className="w-4 h-4 shrink-0" />
+                <span>{isVi ? "2. Kết quả đánh giá năng lực" : "2. Competency Assessment Results"}</span>
+                <InfoTooltip
+                  text={
+                    isVi
+                      ? "Nếu bạn xét tuyển không sử dụng kết quả Kỳ thi ĐGNL, vui lòng chọn 'Không thi ĐGNL'."
+                      : "If your admission method does not use Competency Test (ĐGNL) scores, please select 'No ĐGNL'."
+                  }
+                  fieldKey="dgnlScore"
+                />
+              </div>
+
+              {/* Gentle Option Selector */}
+              <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-medium self-start sm:self-auto shrink-0 border border-slate-200/80 dark:border-slate-700/60">
+                <button
+                  type="button"
+                  onClick={() => handleEntranceUpdate({ hasDgnl: "yes" })}
+                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer font-semibold border ${
+                    form.hasDgnl !== "no"
+                      ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs border-white dark:border-slate-900"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent"
+                  }`}
+                >
+                  {isVi ? "Có thi ĐGNL" : "Took test"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleEntranceUpdate({ hasDgnl: "no", dgnlScore: "" })}
+                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer font-semibold border ${
+                    form.hasDgnl === "no"
+                      ? "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-xs border-slate-200 dark:border-slate-700"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent"
+                  }`}
+                >
+                  {isVi ? "Không thi ĐGNL" : "No ĐGNL"}
+                </button>
+              </div>
+            </div>
+
+            <FIn
+              label={isVi ? "Điểm thi Đánh giá năng lực" : "Competency Test Score"}
+              req={form.hasDgnl !== "no"}
+              fieldKey="dgnlScore"
+              type="text"
+              disabled={form.hasDgnl === "no"}
+              value={form.hasDgnl === "no" ? "" : (form.dgnlScore || "")}
+              onChange={(e) => handleEntranceUpdate({ dgnlScore: e.target.value })}
+              placeholder={
+                form.hasDgnl === "no"
+                  ? (isVi ? "Không yêu cầu nhập (đã chọn Không thi ĐGNL)" : "Disabled (Selected No ĐGNL)")
+                  : (isVi ? "Ví dụ: ĐGNL HCM 920/1200 điểm (hoặc HSA 110/150, TSA 75/100)" : "e.g. ĐGNL HCM 920/1200 or HSA 110/150")
+              }
+              error={form.hasDgnl !== "no" ? errors.dgnlScore : undefined}
+              className={
+                form.hasDgnl === "no"
+                  ? "bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500 cursor-not-allowed border-slate-200 dark:border-slate-800"
+                  : ""
+              }
             />
           </div>
+
+          <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
+          {renderEnglishCertFields()}
+
+          <FTa
+            label={t.achievementsExtracurricular}
+            rows={3}
+            value={form.achievementsExtracurricular}
+            onChange={(e) => onChange({ achievementsExtracurricular: e.target.value })}
+            placeholder={t.achievementsExtracurricularPh}
+          />
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {t.seniorNoticeDesc && (
+            <div className="p-4 border border-blue-200 dark:border-blue-500/20 bg-blue-50/40 dark:bg-blue-950/20 text-xs text-blue-950 dark:text-blue-200 leading-relaxed rounded-xl font-medium">
+              {t.seniorNoticeDesc}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <GpaInput
               label={t.gpaCumulative}
@@ -406,59 +478,135 @@ export const Step2Academic: React.FC<Step2AcademicProps> = ({ form, onChange, er
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-              {renderLabel(t.achievementsExtracurricular)}
-            </label>
-            <textarea
-              rows={3}
-              value={form.achievementsExtracurricular}
-              onChange={(e) => onChange({ achievementsExtracurricular: e.target.value })}
-              placeholder={t.achievementsExtracurricularPh}
-              className={`${inputBase} ${inputNormal}`}
-            />
-          </div>
+          <hr className="border-slate-200/80 dark:border-slate-800/80" />
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-              {renderLabel(t.englishCert)}
-            </label>
-            <input
-              type="text"
-              value={form.englishCert}
-              onChange={(e) => onChange({ englishCert: e.target.value })}
-              placeholder={t.englishCertPh}
-              className={`${inputBase} ${inputNormal}`}
-            />
-          </div>
+          {renderEnglishCertFields()}
+
+          <FTa
+            label={t.achievementsExtracurricular}
+            rows={3}
+            value={form.achievementsExtracurricular}
+            onChange={(e) => onChange({ achievementsExtracurricular: e.target.value })}
+            placeholder={t.achievementsExtracurricularPh}
+          />
         </div>
       )}
 
-      <hr className="border-slate-100 dark:border-slate-800" />
+      {/* Divider */}
+      <hr className="border-slate-200 dark:border-slate-800" />
 
-      <FileUploadCloudinary
-        label={t.cvUploadLabel}
-        hint={t.cvUploadHint}
-        accept="application/pdf"
-        maxSizeMB={10}
-        folder="bdc_recruitment_2026_cv"
-        value={form.cvFile}
-        onChange={(file) => onChange({ cvFile: file })}
-        error={errors.cvFile}
-        required
-      />
+      {/* Section 2: CV Ứng tuyển */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+              <FileCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+              <span>{isVi ? "CV ứng tuyển (PDF)" : "Curriculum Vitae (PDF)"}</span>
+              <InfoTooltip text={t.cvUploadHint} fieldKey="cvFile" />
+              <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                {!isFreshman ? (isVi ? "(Bắt buộc)" : "(Required)") : (isVi ? "(Tùy chọn)" : "(Optional)")}
+              </span>
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              {isVi ? "Dung lượng tối đa 10MB" : "Max size 10MB"}
+            </p>
+          </div>
 
-      <FileUploadCloudinary
-        label={t.evidenceUploadLabel}
-        hint={t.evidenceUploadHint}
-        accept="application/pdf,image/png,image/jpeg,image/webp"
-        maxSizeMB={10}
-        folder="bdc_recruitment_2026_certs"
-        isMulti
-        maxFiles={5}
-        values={form.evidenceFiles}
-        onMultiChange={(files) => onChange({ evidenceFiles: files })}
-      />
+          {/* Freshman Toggle Option */}
+          {isFreshman && (
+            <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800/90 rounded-lg border border-slate-200/80 dark:border-slate-700/60 text-xs font-medium shrink-0 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setFreshmanCvTab("file")}
+                className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                  freshmanCvTab === "file"
+                    ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs font-semibold"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+              >
+                {isVi ? "File CV (PDF)" : "Upload PDF"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFreshmanCvTab("text")}
+                className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                  freshmanCvTab === "text"
+                    ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs font-semibold"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+              >
+                {isVi ? "Giới thiệu bản thân" : "Write Bio"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Content depending on Freshman tab selection or default standard upload */}
+        {(!isFreshman || freshmanCvTab === "file") ? (
+          <div>
+            <FileUploadCloudinary
+              label=""
+              accept="application/pdf"
+              maxSizeMB={10}
+              folder="bdc_recruitment_2026_cv"
+              value={form.cvFile}
+              onChange={(file) => onChange({ cvFile: file })}
+              error={errors.cvFile}
+              required={!isFreshman}
+            />
+            {isFreshman && !form.cvFile && (
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                <span>{isVi ? "Tân sinh viên chưa có CV? Bạn có thể chuyển qua nút \"Giới thiệu bản thân\" phía trên." : "Don't have a CV yet? Switch to \"Write Bio\" above."}</span>
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2 animate-dropdown-fade-in pt-1">
+            <FTa
+              label={t.cvBioTextLabel}
+              rows={4}
+              value={form.cvBioText || ""}
+              onChange={(e) => onChange({ cvBioText: e.target.value })}
+              placeholder={t.cvBioTextPh}
+              error={errors.cvBioText}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Divider */}
+      <hr className="border-slate-200 dark:border-slate-800" />
+
+      {/* Section 3: Minh chứng & Bằng cấp bổ sung */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Award className="w-4 h-4 text-amber-500 shrink-0" />
+            <span>{isVi ? "Minh chứng & Chứng chỉ bổ sung" : "Supporting Certificates & Evidence"}</span>
+            <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+              {isVi ? "(Tùy chọn, tối đa 5 file)" : "(Optional, max 5 files)"}
+            </span>
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            {isVi ? "Bảng điểm, Học bạ, Chứng chỉ Tiếng Anh, Bằng khen..." : "Transcripts, English Certs, Awards..."}
+          </p>
+        </div>
+
+        <FileUploadCloudinary
+          label=""
+          hint={t.evidenceUploadHint}
+          accept="application/pdf,image/png,image/jpeg,image/webp"
+          maxSizeMB={10}
+          folder="bdc_recruitment_2026_certs"
+          isMulti
+          maxFiles={5}
+          values={form.evidenceFiles}
+          onMultiChange={(files) => onChange({ evidenceFiles: files })}
+        />
+      </div>
     </div>
   );
 };
+
+
