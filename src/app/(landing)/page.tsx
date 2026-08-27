@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Hero, About, Activities, Projects, Members, HpcNotice } from "@/components/home";
+import { Hero, About, Activities, Projects, Members } from "@/components/home";
 import ScrollReset from "@/components/common/ScrollReset";
 
 export const metadata: Metadata = {
@@ -39,7 +39,6 @@ export default function LandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
       <ScrollReset />
-      <HpcNotice />
 
       {/* Chapter 1: The Gateway - Hero & Stats */}
       <div className="relative bg-slate-50 dark:bg-gradient-to-b dark:from-[#030712] dark:via-[#050b18] dark:to-[#070e1c]">
