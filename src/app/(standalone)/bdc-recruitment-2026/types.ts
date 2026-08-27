@@ -57,7 +57,6 @@ export interface FormData {
 
   // Step 3: Department & Expectations
   department: DepartmentId | "";
-  allowDepartmentAdjustment?: boolean;
   weeklyTimeCommitment?: string;
   motivation: string;
   sendCopy: boolean;
@@ -72,7 +71,6 @@ export interface Errors {
 
 export const ACADEMIC_STATUS_OPTIONS: { id: AcademicStatus; labelVi: string; labelEn: string }[] = [
   { id: "freshman", labelVi: "Tân sinh viên (Năm 1)", labelEn: "Freshman (1st Year)" },
-  { id: "year1", labelVi: "Năm 1", labelEn: "1st Year" },
   { id: "year2", labelVi: "Năm 2", labelEn: "2nd Year" },
   { id: "year3", labelVi: "Năm 3", labelEn: "3rd Year" },
   { id: "year4", labelVi: "Năm 4", labelEn: "4th Year" },
@@ -175,14 +173,14 @@ export const T = {
     heroTitle: "BIG DATA CLUB RECRUITMENT 2026",
     heroSubtitle: "THINK BIG. SPEAK DATA.",
     heroDesc:
-      "Gia nhập BDC để trực tiếp tham gia các dự án AI & Dữ liệu lớn thực tế, trải nghiệm cụm máy chủ GPU riêng và phát triển cùng cộng đồng sinh viên đam mê công nghệ. Tuyển sinh mở rộng cho sinh viên tất cả các trường Đại học!",
+      "Cộng đồng sinh viên đam mê Dữ liệu & Công nghệ. BDC đồng hành cùng các thành viên thông qua nghiên cứu thực hành, học hỏi cộng tác và triển khai các dự án thực tế tạo nên tác động thực sự. Tuyển sinh mở rộng cho sinh viên tất cả các trường Đại học!",
     langToggle: "English",
 
     // Steps
     steps: [
       { step: 1, title: "Thông tin cá nhân", sub: "Liên hệ & Trường học" },
       { step: 2, title: "Học tập & CV", sub: "Thành tích & Minh chứng" },
-      { step: 3, title: "Ban & Kỳ vọng", sub: "Nguyện vọng & Động lực" },
+      { step: 3, title: "Ban & Kỳ vọng", sub: "Nguyện vọng & Kỳ vọng" },
       { step: 4, title: "Xác nhận & Gửi", sub: "Rà soát thông tin" },
     ],
 
@@ -269,8 +267,8 @@ export const T = {
     secondDeptSelectHint: "Nếu NV1 đã đủ chỉ tiêu, bạn có muốn BDC xem xét hồ sơ của bạn ở Ban còn lại?",
     allowDeptAdjustmentLabel: "Tôi sẵn sàng chuyển sang Ban còn lại nếu Ban Nhân sự thấy hồ sơ phù hợp hơn",
     weeklyTimeCommitmentLabel: "Thời gian bạn có thể dành cho BDC hàng tuần *",
-    motivationLabel: "Kỳ vọng & Động lực gia nhập BDC *",
-    motivationHint: "Hãy chia sẻ chân thành về điều bạn muốn nhận được hoặc giá trị bạn mong muốn đóng góp cho CLB:",
+    motivationLabel: "Kỳ vọng gia nhập BDC *",
+    motivationHint: "Hãy chia sẻ về điều bạn muốn nhận được khi tham gia CLB:",
     motivationPh: "Ví dụ: Em mong muốn được làm các sản phẩm thực tế để học hỏi kinh nghiệm, làm đẹp CV và tìm kiếm những người bạn cùng định hướng...",
     motivationChipsLabel: "Gợi ý chủ đề nhanh (Bấm để chọn):",
     motivationChips: [
@@ -286,7 +284,7 @@ export const T = {
     step4Desc: "Rà soát lại toàn bộ thông tin đã điền trước khi hoàn tất nộp đơn đăng ký.",
     reviewPersonal: "Thông tin cá nhân & Liên hệ",
     reviewAcademic: "Hồ sơ Học tập & Minh chứng",
-    reviewDepartment: "Nguyện vọng & Động lực",
+    reviewDepartment: "Nguyện vọng & Kỳ vọng",
     agreePrivacyLabel: "Tôi cam kết toàn bộ thông tin đã khai báo là hoàn toàn chính xác và trung thực.",
     agreePrivacyErr: "Vui lòng tích chọn xác nhận cam kết thông tin trước khi gửi đơn.",
 
@@ -302,7 +300,6 @@ export const T = {
     successTitle: "Nộp Đơn Ứng Tuyển Thành Công!",
     successSubtitle: "Cảm ơn bạn đã nộp đơn gia nhập Big Data Club - Recruitment 2026.",
     successMsg: "Hồ sơ của bạn đã được lưu trữ an toàn trên hệ thống.",
-    successEmailNote: "Email xác nhận đơn đăng ký đã được gửi tới:",
     successNextStepsTitle: "Quy trình xử lý tiếp theo:",
     successNextSteps: [
       "BDC sẽ đánh giá hồ sơ của bạn",
@@ -318,7 +315,7 @@ export const T = {
     heroTitle: "BIG DATA CLUB RECRUITMENT 2026",
     heroSubtitle: "THINK BIG. SPEAK DATA.",
     heroDesc:
-      "Join BDC to build real-world AI & Big Data projects, gain hands-on access to private GPU server clusters, and grow alongside a passionate tech community. Open to students from ALL universities!",
+      "A student-led community dedicated to data and technology. We empower members through hands-on research, collaborative learning, and practical projects that drive real-world impact. Open to students from ALL universities!",
     langToggle: "Tiếng Việt",
 
     // Steps
@@ -445,7 +442,6 @@ export const T = {
     successTitle: "Application Submitted Successfully!",
     successSubtitle: "Thank you for applying to Big Data Club Recruitment 2026.",
     successMsg: "Your application and uploaded documents have been securely processed on BDC & Cloudinary.",
-    successEmailNote: "A confirmation email is being sent to:",
     successNextStepsTitle: "Next Steps:",
     successNextSteps: [
       "BDC will review your application.",

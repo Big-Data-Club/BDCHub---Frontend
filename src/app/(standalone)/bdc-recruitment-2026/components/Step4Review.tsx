@@ -214,19 +214,13 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
         </div>
 
         <div className="space-y-4 text-xs pt-1">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <span className={labelCls}>Ban ứng tuyển:</span>
               <span className="font-bold text-blue-600 dark:text-cyan-400 text-sm">{deptName || "Chưa lựa chọn"}</span>
             </div>
             <div>
-              <span className={labelCls}>Đồng ý điều phối Ban:</span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200">
-                {form.allowDepartmentAdjustment ? (isVi ? "Có" : "Yes") : (isVi ? "Không" : "No")}
-              </span>
-            </div>
-            <div>
-              <span className={labelCls}>Thời gian cống hiến:</span>
+              <span className={labelCls}>{isVi ? "Thời gian sẵn sàng hoạt động:" : "Available time:"}</span>
               <span className="font-semibold text-slate-800 dark:text-slate-200">{timeLabel}</span>
             </div>
           </div>

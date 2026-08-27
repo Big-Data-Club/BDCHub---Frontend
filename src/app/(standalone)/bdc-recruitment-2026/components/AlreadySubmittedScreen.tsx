@@ -1,10 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
-import { CheckCircle, ArrowRight, RefreshCw } from "lucide-react";
+import { CheckCircle, ArrowRight, RotateCcw } from "lucide-react";
 import { T, Lang } from "../types";
-
 import { Button } from "@/components/ui/button";
 
 interface AlreadySubmittedScreenProps {
@@ -16,10 +15,14 @@ interface AlreadySubmittedScreenProps {
 export const AlreadySubmittedScreen: React.FC<AlreadySubmittedScreenProps> = ({ savedName, lang, onReset }) => {
   const t = T[lang];
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   return (
-    <div className="relative z-10 min-h-screen bg-slate-50 dark:bg-[#050B18] flex items-center justify-center px-4 py-16 transition-colors duration-300">
-      <div className="max-w-md w-full p-8 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl shadow-xs text-center space-y-6 animate-in zoom-in-95 duration-300">
-        <div className="mx-auto w-16 h-16 rounded-full bg-blue-50 dark:bg-cyan-950/40 border border-blue-200 dark:border-cyan-500/20 text-blue-600 dark:text-cyan-400 flex items-center justify-center">
+    <div className="relative z-10 min-h-screen bg-transparent flex items-center justify-center px-4 py-16 transition-colors duration-300">
+      <div className="max-w-md w-full p-8 bg-white dark:bg-[#0A1325] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm text-center space-y-6 animate-fade-in-delayed">
+        <div className="mx-auto w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
           <CheckCircle className="w-8 h-8" />
         </div>
 
@@ -27,8 +30,8 @@ export const AlreadySubmittedScreen: React.FC<AlreadySubmittedScreenProps> = ({ 
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t.alreadySubmittedTitle}</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{t.alreadySubmittedDesc}</p>
           {savedName && (
-            <p className="text-sm font-semibold text-blue-600 dark:text-cyan-400 pt-1">
-              Ứng viên: {savedName}
+            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 pt-1">
+              {lang === "vi" ? "Ứng viên: " : "Applicant: "}{savedName}
             </p>
           )}
         </div>
@@ -38,15 +41,15 @@ export const AlreadySubmittedScreen: React.FC<AlreadySubmittedScreenProps> = ({ 
             type="button"
             variant="outline"
             onClick={onReset}
-            className="rounded-xl px-4 py-2.5 text-xs font-semibold active:scale-95 transition-all duration-200"
+            className="rounded-xl px-4 py-2.5 text-xs font-semibold active:scale-95 transition-all duration-200 cursor-pointer"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Điền lại đơn mới</span>
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{t.btnFillNewForm}</span>
           </Button>
 
-          <Button asChild className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl px-5 py-2.5 shadow-md active:scale-95 transition-all duration-200">
-            <Link href="/">
-              <span>Về trang chủ</span>
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl px-5 py-2.5 shadow-xs active:scale-95 transition-all duration-200">
+            <Link href="/" className="inline-flex items-center gap-1.5">
+              <span>{t.btnReturnHome}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </Button>
