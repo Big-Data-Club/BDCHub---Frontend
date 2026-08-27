@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { studioService, type StudioProject } from "@/services/ai/studioService";
 import lmsService from "@/services/lms/lmsService";
+import { aiService } from "@/services/ai/aiService";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { cn } from "@/lib/utils";
 
@@ -67,11 +68,8 @@ export default function StudioPage() {
 
   const aiListNodes = async () => {
     try {
-      const res = await fetch(`/api/lms/courses/${courseId}/ai/nodes`, { cache: "no-store" });
-      if (res.ok) {
-        const list = await res.json();
-        setNodes((list?.data ?? list ?? []).map((n: any) => ({ id: n.id, name: n.name_vi ?? n.name })));
-      }
+      const list = await aiService.listKnowledgeNodes(courseId);
+      setNodes((list ?? []).map((n: any) => ({ id: n.id, name: n.name_vi ?? n.name })));
     } catch {}
   };
 
@@ -302,7 +300,17 @@ export default function StudioPage() {
           </div>
 
           <div className="lg:col-span-2 flex justify-end">
-            <NextBtn disabled={!project || (project.context_pack ?? []).length === 0} onClick={() => setStep(1)}>
+            <NextBtn
+              disabled={busy === "plan" || !project || (project.context_pack ?? []).length === 0}
+              onClick={() => {
+                if (!project?.plan) {
+                  doPlan();
+                } else {
+                  setStep(1);
+                }
+              }}
+            >
+              {busy === "plan" ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               Chuyển sang lập kế hoạch
             </NextBtn>
           </div>
@@ -318,14 +326,20 @@ export default function StudioPage() {
             </div>
           )}
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-500">{plan?.sections.length} mục · chỉnh sửa trực tiếp bên dưới rồi bấm Lưu.</p>
-            <button onClick={savePlanEdits} disabled={busy === "savePlan"}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold disabled:opacity-50 cursor-pointer">
-              {busy === "savePlan" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Lưu kế hoạch
-            </button>
+            <p className="text-sm text-slate-500">{plan?.sections?.length ?? 0} mục · chỉnh sửa trực tiếp bên dưới rồi bấm Lưu.</p>
+            <div className="flex items-center gap-2">
+              <button onClick={doPlan} disabled={busy === "plan"}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-[#12223a] text-xs font-semibold cursor-pointer">
+                {busy === "plan" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />} Tạo lại kế hoạch
+              </button>
+              <button onClick={savePlanEdits} disabled={busy === "savePlan"}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold disabled:opacity-50 cursor-pointer">
+                {busy === "savePlan" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Lưu kế hoạch
+              </button>
+            </div>
           </div>
           <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
-            {plan?.sections.map((sec, i) => (
+            {plan?.sections?.map((sec, i) => (
               <div key={i} className="rounded-xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] p-4 space-y-2">
                 <input value={sec.title} onChange={(e) => mutateSection(i, "title", e.target.value)}
                   className="w-full text-sm font-bold bg-transparent outline-none text-slate-900 dark:text-white" />
@@ -342,7 +356,7 @@ export default function StudioPage() {
               </div>
             ))}
           </div>
-          <StepperNav onBack={() => setStep(0)} onNext={doPlan} nextLabel={busy === "plan" ? undefined : "🪄 Tạo nội dung"} busy={busy === "plan"} />
+          <StepperNav onBack={() => setStep(0)} onNext={startGenerate} nextLabel={busy === "generate" ? undefined : "🪄 Bắt đầu tạo Slide / Bài viết"} busy={busy === "generate"} />
         </div>
       )}
 
