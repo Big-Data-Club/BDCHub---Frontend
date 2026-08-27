@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
-    unoptimized: process.env.NODE_ENV === 'development',
+    unoptimized: true,
   },
 
   output: 'standalone',
@@ -100,8 +100,8 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
-    const lmsUrl = process.env.LMS_API_URL || 'http://localhost:8081';
+    const backendUrl = process.env.BACKEND_URL || 'http://auth-service:8080';
+    const lmsUrl = process.env.LMS_API_URL || 'http://lms-service:8081';
     const aiUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
     const labUrl = process.env.LAB_API_URL || 'http://localhost:8082';
     const chatUrl = process.env.CHAT_API_URL || 'http://localhost:8083';
