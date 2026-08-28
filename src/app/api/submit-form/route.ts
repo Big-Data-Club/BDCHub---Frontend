@@ -8,11 +8,8 @@ async function queueRecruitmentConfirmation(body: Record<string, unknown>) {
   const email = typeof answers?.email_confirmation === 'string' ? answers.email_confirmation.trim() : '';
   const fullName = typeof answers?.full_name === 'string' ? answers.full_name.trim() : '';
   const department = typeof answers?.department === 'string' ? answers.department.trim() : '';
-  const wantsConfirmation = answers?.send_copy === 'Có';
   const backendUrl = process.env.BACKEND_URL;
   const internalSecret = process.env.AI_SERVICE_SECRET;
-
-  if (!wantsConfirmation) return false;
 
   if (!email || !fullName || !backendUrl || !internalSecret) {
     console.warn('Recruitment confirmation was not queued: required mail configuration or applicant fields are missing.');

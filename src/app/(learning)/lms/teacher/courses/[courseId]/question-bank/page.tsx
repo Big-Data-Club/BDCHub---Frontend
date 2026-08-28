@@ -109,11 +109,16 @@ export default function QuestionBankPage() {
   const courseId = Number(params.courseId);
 
   // Data state
+  const [mounted, setMounted] = useState(false);
   const [items, setItems] = useState<BankItem[]>([]);
   const [stats, setStats] = useState<BankStats | null>(null);
   const [nodes, setNodes] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Filters + pagination (server-side)
   const [q, setQ] = useState("");
@@ -432,6 +437,15 @@ export default function QuestionBankPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [items, selectedIds, allVisibleSelected, deletingId, loadItems]
   );
+
+  if (!mounted) {
+    return (
+      <div className="p-12 text-center flex items-center justify-center gap-2 text-slate-500">
+        <Loader2 className="w-5 h-5 animate-spin" />
+        <span className="text-sm font-medium">Đang tải thư viện đề thi...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fadeIn pb-24 lg:pb-20">
