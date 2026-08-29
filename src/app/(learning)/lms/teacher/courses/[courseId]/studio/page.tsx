@@ -347,6 +347,24 @@ export default function StudioPage() {
                   onChange={(e) => mutateSection(i, "slide_bullets", e.target.value.split("\n").filter(Boolean))}
                   placeholder="Gạch đầu dòng hiển thị trên slide (mỗi dòng 1 ý)"
                   className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] text-xs resize-y" />
+                <div className="grid gap-2 md:grid-cols-[150px_1fr]">
+                  <select value={sec.visual_type ?? "auto"} onChange={(e) => mutateSection(i, "visual_type", e.target.value)}
+                    className="px-3 py-2 rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950/20 text-xs font-semibold">
+                    <option value="auto">✨ Sơ đồ tự động</option>
+                    <option value="flow">→ Quy trình</option>
+                    <option value="cycle">↻ Chu trình</option>
+                    <option value="comparison">⇄ So sánh</option>
+                    <option value="hierarchy">⌘ Phân cấp</option>
+                    <option value="timeline">•• Dòng thời gian</option>
+                  </select>
+                  <input value={(sec.visual_labels ?? []).join(" → ")}
+                    onChange={(e) => mutateSection(i, "visual_labels", e.target.value.split(/\s*(?:→|\||;)\s*/).filter(Boolean).slice(0, 6))}
+                    placeholder="Các nhãn trong hình, ngăn bằng → (2–6 nhãn)"
+                    className="px-3 py-2 rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/10 text-xs" />
+                </div>
+                <input value={sec.visual_suggestion ?? ""} onChange={(e) => mutateSection(i, "visual_suggestion", e.target.value)}
+                  placeholder="Chú thích hình minh họa"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] text-xs" />
                 <details className="text-xs">
                   <summary className="cursor-pointer text-blue-600 dark:text-cyan-400 font-semibold">Kịch bản thuyết trình</summary>
                   <textarea value={sec.narration} rows={4}
@@ -424,6 +442,9 @@ export default function StudioPage() {
                             className="opacity-0 group-hover:opacity-100 text-xs text-blue-600 dark:text-cyan-400 font-semibold flex items-center gap-1 cursor-pointer transition-opacity">
                             <RefreshCw className="w-3 h-3" /> Sửa mục này
                           </button>
+                        </div>
+                        <div className="mt-2 inline-flex rounded-full bg-violet-50 px-2 py-1 text-[10px] font-bold uppercase text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
+                          Visual: {sec.visual_type ?? "auto"} · {(sec.visual_labels ?? []).length} nhãn
                         </div>
                         {(sec.slide_bullets ?? []).length > 0 && (
                           <ul className="mt-2 space-y-1">

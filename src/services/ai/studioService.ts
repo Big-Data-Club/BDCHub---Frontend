@@ -15,6 +15,8 @@ export interface StudioSection {
   slide_bullets: string[];
   narration: string;
   visual_suggestion: string;
+  visual_type: "auto" | "flow" | "cycle" | "comparison" | "hierarchy" | "timeline";
+  visual_labels: string[];
   duration_est_sec: number;
 }
 
@@ -86,7 +88,7 @@ export const studioService = {
   updateSection: (
     id: string,
     index: number,
-    patch: Partial<Pick<StudioSection, "title" | "key_points" | "slide_bullets" | "narration">>
+    patch: Partial<Pick<StudioSection, "title" | "key_points" | "slide_bullets" | "narration" | "visual_suggestion" | "visual_type" | "visual_labels">>
   ) =>
     call<{ project: StudioProject }>(`projects/${id}/sections`, {
       method: "PATCH",
