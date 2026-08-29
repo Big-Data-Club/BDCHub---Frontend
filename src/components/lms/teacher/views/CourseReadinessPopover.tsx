@@ -61,8 +61,8 @@ export function CourseReadinessPopover({ course, sections }: CourseReadinessPopo
         </div>
       </div>
 
-      {/* Hover Dropdown / Popover Content */}
-      <div className="absolute right-0 top-full mt-2 z-50 invisible opacity-0 group-hover/readinesspopover:visible group-hover/readinesspopover:opacity-100 group-focus-within/readinesspopover:visible group-focus-within/readinesspopover:opacity-100 transition-all duration-200 ease-out transform -translate-y-1 group-hover/readinesspopover:translate-y-0 pointer-events-none group-hover/readinesspopover:pointer-events-auto w-72 sm:w-80">
+      {/* Hover Dropdown / Popover Content - Opens upwards to prevent clipping */}
+      <div className="absolute right-0 bottom-full mb-2 z-50 invisible opacity-0 group-hover/readinesspopover:visible group-hover/readinesspopover:opacity-100 group-focus-within/readinesspopover:visible group-focus-within/readinesspopover:opacity-100 transition-all duration-200 ease-out transform translate-y-1 group-hover/readinesspopover:translate-y-0 pointer-events-none group-hover/readinesspopover:pointer-events-auto w-72 sm:w-80">
         <div className="bg-white/95 dark:bg-[#0D192E]/95 backdrop-blur-md border border-slate-200/90 dark:border-blue-500/30 rounded-2xl p-4 shadow-xl space-y-3 ring-1 ring-slate-900/5">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-blue-500/10 pb-2.5">

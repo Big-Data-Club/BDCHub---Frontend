@@ -44,7 +44,7 @@ export function LmsPageHeader({
   return (
     <header
       className={cn(
-        "relative w-full overflow-hidden border-b border-slate-200/80 dark:border-blue-500/15 bg-white/40 dark:bg-[#070E1C]/60 backdrop-blur-xl pt-7 pb-6 md:pt-9 md:pb-8 z-20 flex-shrink-0",
+        "relative w-full overflow-visible border-b border-slate-200/80 dark:border-blue-500/15 bg-white/40 dark:bg-[#070E1C]/60 backdrop-blur-xl pt-7 pb-6 md:pt-9 md:pb-8 z-20 flex-shrink-0",
         className
       )}
     >
