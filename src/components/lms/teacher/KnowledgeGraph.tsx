@@ -419,8 +419,8 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
 
         {/* Side panel */}
         {selectedNode && (
-          <div className="w-1/3 min-w-[320px] bg-white dark:bg-slate-900 flex flex-col relative z-30 shadow-2xl overflow-hidden border-l border-slate-200 dark:border-slate-800">
-            <div className="flex items-start justify-between p-5 border-b border-slate-100 dark:border-slate-800">
+          <div className="w-1/3 min-w-[320px] bg-white dark:bg-slate-900 flex flex-col min-h-0 relative z-30 shadow-2xl overflow-hidden border-l border-slate-200 dark:border-slate-800">
+            <div className="flex items-start justify-between p-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
               <div>
                 <Badge className="mb-2 bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400 font-medium">VERIFIED CONCEPT</Badge>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 leading-tight">{selectedNode.name}</h3>
@@ -430,8 +430,8 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
                 <button onClick={() => { setSelectedNode(null); if (graphRef.current) graphRef.current.zoomToFit(800, 50); }} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"><X size={18} /></button>
               </div>
             </div>
-            <ScrollArea className="flex-1">
-              <div className="p-5 space-y-6">
+            <ScrollArea className="flex-1 min-h-0">
+              <div className="p-5 pb-12 space-y-6">
                 {selectedNode.description && (
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl">
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mô tả khái niệm</p>

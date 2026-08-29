@@ -332,8 +332,8 @@ export default function GlobalKnowledgeGraphPanel({
 
       {/* ── Area: Sidebar Panel ── */}
       {selectedNode && (
-        <div className="w-1/3 min-w-[380px] bg-white dark:bg-slate-900 flex flex-col relative z-30 overflow-hidden border-l border-slate-200 dark:border-slate-800 animate-in slide-in-from-right duration-500 shadow-2xl">
-          <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+        <div className="w-1/3 min-w-[380px] bg-white dark:bg-slate-900 flex flex-col min-h-0 relative z-30 overflow-hidden border-l border-slate-200 dark:border-slate-800 animate-in slide-in-from-right duration-500 shadow-2xl">
+          <div className="p-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
             <div className="flex items-start justify-between mb-4">
               <Badge className="bg-blue-50 text-blue-600 dark:bg-blue-900/30 border-blue-100 font-bold px-3 py-1">
                 CHI TIẾT KIẾN THỨC
@@ -351,8 +351,8 @@ export default function GlobalKnowledgeGraphPanel({
             </div>
           </div>
 
-          <ScrollArea className="flex-1">
-            <div className="p-6 space-y-8">
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="p-6 pb-12 space-y-8">
               {selectedNode.description && (
                 <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/60 shadow-inner">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Mô tả định nghĩa</p>
