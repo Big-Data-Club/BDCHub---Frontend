@@ -70,6 +70,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   const [connectSrc, setConnectSrc] = useState<any>(null);
   const [edgeModal, setEdgeModal] = useState<EdgeModal | null>(null);
   const [edgeSubmitting, setEdgeSubmitting] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<any>(null);
@@ -208,6 +209,32 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
     } catch (e: any) { toast.error(e.response?.data?.message || "Không thể xóa node."); }
   };
 
+  const handleDeleteAllNodes = async () => {
+    if (isDeletingAll || graphData.nodes.length === 0) return;
+    const confirmed = confirm(
+      `Xóa toàn bộ ${graphData.nodes.length} node của khóa học?\n\n` +
+      "Tất cả bài giảng sẽ trở về trạng thái chưa index và cần index lại."
+    );
+    if (!confirmed) return;
+
+    setIsDeletingAll(true);
+    try {
+      const result = await aiService.deleteAllKnowledgeNodes(courseId);
+      stopPolling();
+      setGraphData({ nodes: [], links: [] });
+      setSelectedNode(null);
+      setHoveredNode(null);
+      setHoveredLink(null);
+      setNodeChunks([]);
+      setLinkJob("idle");
+      toast.success(`Đã xóa toàn bộ node. ${result.contents_reset ?? 0} bài giảng đã chuyển về chưa index.`);
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || "Không thể xóa toàn bộ node.");
+    } finally {
+      setIsDeletingAll(false);
+    }
+  };
+
   const handleLinkClick = useCallback((link: any) => {
     if (connectMode) return;
     const srcId = link.source?.id ?? link.source, tgtId = link.target?.id ?? link.target;
@@ -295,6 +322,12 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${connectMode ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 text-emerald-700 dark:text-emerald-400" : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
           <Plus size={14} />
           {connectMode ? (connectSrc ? "Chọn đích..." : "Chọn Node A") : "Thêm liên kết"}
+        </button>
+        <button id="btn-delete-all-nodes" onClick={handleDeleteAllNodes}
+          disabled={isDeletingAll || graphData.nodes.length === 0}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-40 disabled:cursor-not-allowed">
+          {isDeletingAll ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+          {isDeletingAll ? "Đang xóa..." : "Xóa tất cả node"}
         </button>
         <div className="ml-auto text-[11px] text-slate-400">
           {graphData.nodes.length} nodes · {graphData.links.length} edges

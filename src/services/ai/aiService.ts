@@ -346,6 +346,12 @@ class AIService {
     await lmsApiClient.delete(`/courses/${courseId}/ai/nodes/${nodeId}`);
   }
 
+  /** Delete the complete course graph and make every lecture indexable again. */
+  async deleteAllKnowledgeNodes(courseId: number): Promise<{ contents_reset: number }> {
+    const res = await lmsApiClient.delete(`/courses/${courseId}/ai/nodes`);
+    return res.data?.data ?? res.data;
+  }
+
   /**
    * Trigger an async Kafka job that scans zero-edge (isolated) nodes in a
    * course and connects them via LLM-enriched similarity matching.
