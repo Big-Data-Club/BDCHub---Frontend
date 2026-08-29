@@ -81,10 +81,16 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   const activeTypes = useMemo(() => [...new Set(graphData.links.map((l: GraphLink) => l.type))] as string[], [graphData.links]);
 
   useEffect(() => {
-    if (containerRef.current) {
-      const { width, height } = containerRef.current.getBoundingClientRect();
-      setDims({ width, height });
-    }
+    if (!containerRef.current) return;
+    const obs = new ResizeObserver((entries) => {
+      if (!entries[0]) return;
+      const { width, height } = entries[0].contentRect;
+      if (width > 0 && height > 0) {
+        setDims({ width, height });
+      }
+    });
+    obs.observe(containerRef.current);
+    return () => obs.disconnect();
   }, []);
   useEffect(() => { if (initialData) setGraphData(initialData); }, [initialData]);
   useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
@@ -336,8 +342,8 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
       </div>
 
       {/* Graph + panel */}
-      <div className="flex flex-1 min-h-0 border border-slate-200 dark:border-slate-800 rounded-b-xl overflow-hidden bg-slate-50 dark:bg-slate-950 shadow-sm">
-        <div ref={containerRef} className={`relative h-full ${selectedNode ? "w-2/3 border-r border-slate-200 dark:border-slate-800" : "w-full"}`}>
+      <div className="flex flex-1 min-h-0 border border-slate-200 dark:border-slate-800 rounded-b-xl overflow-hidden bg-slate-50 dark:bg-slate-950 shadow-sm relative">
+        <div ref={containerRef} className={`relative h-full overflow-hidden z-0 transition-all duration-300 ${selectedNode ? "w-2/3 border-r border-slate-200 dark:border-slate-800" : "w-full"}`}>
           <div className="absolute top-4 left-4 z-10 pointer-events-none">
             <Badge variant="outline" className="bg-white/80 dark:bg-slate-900/80 border-blue-200 dark:border-blue-900 text-blue-600 dark:text-blue-400">
               <BrainCircuit size={14} className="mr-2" /> AI Knowledge Network
@@ -413,7 +419,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
 
         {/* Side panel */}
         {selectedNode && (
-          <div className="w-1/3 min-w-[320px] bg-white dark:bg-slate-900 flex flex-col">
+          <div className="w-1/3 min-w-[320px] bg-white dark:bg-slate-900 flex flex-col relative z-30 shadow-2xl overflow-hidden border-l border-slate-200 dark:border-slate-800">
             <div className="flex items-start justify-between p-5 border-b border-slate-100 dark:border-slate-800">
               <div>
                 <Badge className="mb-2 bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400 font-medium">VERIFIED CONCEPT</Badge>

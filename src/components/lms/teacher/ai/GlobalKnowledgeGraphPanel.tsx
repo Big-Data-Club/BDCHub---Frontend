@@ -207,7 +207,7 @@ export default function GlobalKnowledgeGraphPanel({
         {/* ── Area: Graph Canvas ── */}
         <div
           ref={containerRef}
-          className={cn("relative h-full transition-all duration-500", selectedNode ? "w-2/3 border-r border-slate-200 dark:border-slate-800" : "w-full")}
+          className={cn("relative h-full overflow-hidden z-0 transition-all duration-500", selectedNode ? "w-2/3 border-r border-slate-200 dark:border-slate-800" : "w-full")}
         >
           {/* Floating Controls */}
           <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
@@ -332,7 +332,7 @@ export default function GlobalKnowledgeGraphPanel({
 
       {/* ── Area: Sidebar Panel ── */}
       {selectedNode && (
-        <div className="w-1/3 min-w-[380px] bg-white dark:bg-slate-900 flex flex-col z-10 animate-in slide-in-from-right duration-500 shadow-2xl">
+        <div className="w-1/3 min-w-[380px] bg-white dark:bg-slate-900 flex flex-col relative z-30 overflow-hidden border-l border-slate-200 dark:border-slate-800 animate-in slide-in-from-right duration-500 shadow-2xl">
           <div className="p-6 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-start justify-between mb-4">
               <Badge className="bg-blue-50 text-blue-600 dark:bg-blue-900/30 border-blue-100 font-bold px-3 py-1">
