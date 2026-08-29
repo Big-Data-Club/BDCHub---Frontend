@@ -141,12 +141,25 @@ export default function QuestionBankPage() {
   const [showGenDialog, setShowGenDialog] = useState(false);
   const [genCount, setGenCount] = useState(10);
   const [genBlooms, setGenBlooms] = useState<string[]>(["remember", "understand", "apply"]);
+  const [genNodeIds, setGenNodeIds] = useState<number[]>([]);
   const [generating, setGenerating] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // Create-from-selected dialog
   const [showCreateQuiz, setShowCreateQuiz] = useState(false);
   const [quizTitle, setQuizTitle] = useState("");
+  const [quizDescription, setQuizDescription] = useState("");
+  const [quizInstructions, setQuizInstructions] = useState("");
+  const [quizTimeLimit, setQuizTimeLimit] = useState(30);
+  const [quizMaxAttempts, setQuizMaxAttempts] = useState(3);
+  const [quizPassingScore, setQuizPassingScore] = useState(80);
+  const [quizAvailableFrom, setQuizAvailableFrom] = useState("");
+  const [quizAvailableUntil, setQuizAvailableUntil] = useState("");
+  const [quizShuffleQuestions, setQuizShuffleQuestions] = useState(true);
+  const [quizShuffleAnswers, setQuizShuffleAnswers] = useState(true);
+  const [quizPublished, setQuizPublished] = useState(false);
+  const [quizWizardStep, setQuizWizardStep] = useState<"preview" | "settings">("preview");
+  const [suggestingQuiz, setSuggestingQuiz] = useState(false);
   const [sections, setSections] = useState<{ id: number; title: string }[]>([]);
   const [sectionId, setSectionId] = useState<number | null>(null);
   const [creating, setCreating] = useState(false);
@@ -223,6 +236,7 @@ export default function QuestionBankPage() {
       await quizService.generateBankQuestions(courseId, {
         count: genCount,
         bloom_levels: genBlooms.length > 0 ? genBlooms : undefined,
+        node_ids: genNodeIds.length > 0 ? genNodeIds : undefined,
         language: "vi",
       });
       setShowGenDialog(false);
@@ -261,30 +275,64 @@ export default function QuestionBankPage() {
   const allVisibleSelected =
     items.length > 0 && items.every((it) => selectedIds.has(it.id));
 
+  const selectedBankItems = useMemo(
+    () => items.filter((item) => selectedIds.has(item.id)),
+    [items, selectedIds]
+  );
+
+  const openQuizWizard = async () => {
+    const itemIds = Array.from(selectedIds);
+    if (itemIds.length === 0) return;
+    setQuizWizardStep("preview");
+    setQuizTitle(`Bài kiểm tra kiến thức (${itemIds.length} câu)`);
+    setQuizDescription("Bài kiểm tra được tổng hợp từ ngân hàng câu hỏi của khóa học.");
+    setQuizInstructions("Đọc kỹ từng câu hỏi và chọn đáp án phù hợp nhất.");
+    setQuizTimeLimit(30);
+    setQuizMaxAttempts(3);
+    setQuizPassingScore(80);
+    setQuizAvailableFrom("");
+    setQuizAvailableUntil("");
+    setQuizShuffleQuestions(true);
+    setQuizShuffleAnswers(true);
+    setQuizPublished(false);
+    setShowCreateQuiz(true);
+    setSuggestingQuiz(true);
+    try {
+      const response = await quizService.suggestQuizFromBank(courseId, itemIds);
+      const suggestion = response?.data;
+      if (suggestion?.title) setQuizTitle(suggestion.title);
+      if (suggestion?.description) setQuizDescription(suggestion.description);
+      if (suggestion?.instructions) setQuizInstructions(suggestion.instructions);
+    } catch {
+      // Deterministic defaults above keep the wizard usable if AI is busy.
+    } finally {
+      setSuggestingQuiz(false);
+    }
+  };
+
   const handleCreateQuiz = async () => {
     if (!sectionId || !quizTitle.trim() || creating || selectedIds.size === 0) return;
+    if (quizAvailableFrom && quizAvailableUntil && new Date(quizAvailableUntil) <= new Date(quizAvailableFrom)) {
+      alert("Thời gian đóng phải sau thời gian mở.");
+      return;
+    }
     setCreating(true);
     try {
-      // Mirror the QuizCreationWizard finalize sequence:
-      // content (QUIZ) inside the chosen section -> quiz from bank items.
-      const existing = await lmsService.listContent(sectionId);
-      const nextOrder = ((existing?.data ?? []).length ?? 0) + 1;
-      const contentRes = await lmsService.createContent(sectionId, {
-        type: "QUIZ",
-        title: quizTitle.trim(),
-        description: `Từ Thư viện đề thi — ${selectedIds.size} câu hỏi`,
-        order_index: nextOrder,
-        is_mandatory: true,
-      });
-      const contentId = contentRes?.data?.id;
-      if (!contentId) throw new Error("Không tạo được nội dung quiz.");
-
       const res = await quizService.createQuizFromBank(courseId, {
-        content_id: contentId,
+        section_id: sectionId,
         title: quizTitle.trim(),
+        description: quizDescription.trim(),
+        instructions: quizInstructions.trim(),
         item_ids: Array.from(selectedIds),
-        max_attempts: 3,
+        time_limit_minutes: quizTimeLimit > 0 ? quizTimeLimit : null,
+        max_attempts: quizMaxAttempts,
+        passing_score: quizPassingScore,
+        available_from: quizAvailableFrom ? new Date(quizAvailableFrom).toISOString() : null,
+        available_until: quizAvailableUntil ? new Date(quizAvailableUntil).toISOString() : null,
+        shuffle_questions: quizShuffleQuestions,
+        shuffle_answers: quizShuffleAnswers,
         auto_grade: true,
+        is_published: quizPublished,
       });
       const quizId = res?.data?.quiz_id;
       setShowCreateQuiz(false);
@@ -605,14 +653,11 @@ export default function QuestionBankPage() {
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => {
-                setQuizTitle(`Quiz từ ngân hàng (${new Date().toLocaleDateString("vi-VN")})`);
-                setShowCreateQuiz(true);
-              }}
+              onClick={openQuizWizard}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold active:scale-95 transition-all cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
-              Tạo quiz từ mục đã chọn
+              Tổng hợp thành quiz
             </button>
             <button
               onClick={() => setSelectedIds(new Set())}
@@ -812,15 +857,63 @@ export default function QuestionBankPage() {
       {/* AI generation dialog */}
       {showGenDialog && (
         <div className="fixed inset-0 z-[65] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="w-full max-w-md bg-white dark:bg-[#0F1E35] rounded-2xl shadow-2xl border border-slate-200 dark:border-blue-500/15 p-6 space-y-5">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-[#0F1E35] rounded-2xl shadow-2xl border border-slate-200 dark:border-blue-500/15 p-6 space-y-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
                 <h3 className="font-black text-slate-900 dark:text-white">Sinh đề vào Thư viện</h3>
-                <p className="text-xs text-slate-500">AI tự quét knowledge graph + tránh trùng câu đã có.</p>
+                <p className="text-xs text-slate-500">Chọn phần kiến thức cần kiểm tra hoặc để AI quét toàn khóa.</p>
               </div>
+            </div>
+
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Node kiến thức
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setGenNodeIds([])}
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
+                >
+                  Toàn khóa
+                </button>
+              </div>
+              <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 p-2 space-y-1">
+                {nodes.length === 0 ? (
+                  <p className="px-2 py-3 text-xs text-slate-500">Khóa học chưa có node kiến thức.</p>
+                ) : nodes.map((node) => {
+                  const checked = genNodeIds.includes(node.id);
+                  return (
+                    <label
+                      key={node.id}
+                      className={cn(
+                        "flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm cursor-pointer transition-colors",
+                        checked
+                          ? "bg-blue-50 text-blue-800 dark:bg-cyan-950/40 dark:text-cyan-200"
+                          : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => setGenNodeIds((current) =>
+                          checked ? current.filter((id) => id !== node.id) : [...current, node.id]
+                        )}
+                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="min-w-0 truncate">{node.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+              <p className="mt-1.5 text-xs text-slate-400">
+                {genNodeIds.length > 0
+                  ? `Đã chọn ${genNodeIds.length} node. AI chỉ dùng nội dung thuộc các node này.`
+                  : "Chưa chọn node: AI phân bổ câu hỏi trên toàn bộ knowledge graph."}
+              </p>
             </div>
 
             <div>
@@ -903,57 +996,92 @@ export default function QuestionBankPage() {
       {/* Create-quiz-from-selected dialog */}
       {showCreateQuiz && (
         <div className="fixed inset-0 z-[65] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="w-full max-w-md bg-white dark:bg-[#0F1E35] rounded-2xl shadow-2xl border border-slate-200 dark:border-blue-500/15 p-6 space-y-4">
-            <h3 className="font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-blue-600" />
-              Tạo quiz từ {selectedIds.size} câu đã chọn
-            </h3>
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5 block">
-                Tiêu đề quiz
-              </label>
-              <input
-                autoFocus
-                value={quizTitle}
-                onChange={(e) => setQuizTitle(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
-                placeholder="VD: Giữa kỳ - Đề 1"
-              />
+          <div className="w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-white dark:bg-[#0F1E35] rounded-2xl shadow-2xl border border-slate-200 dark:border-blue-500/15 p-6 space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <PlusCircle className="w-5 h-5 text-blue-600" />
+                  Tổng hợp {selectedIds.size} câu thành quiz
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
+                  {quizWizardStep === "preview" ? "Bước 1/2 · Kiểm tra câu hỏi" : "Bước 2/2 · Cấu hình và xuất bản"}
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <span className={cn("h-1.5 w-10 rounded-full", quizWizardStep === "preview" ? "bg-blue-600" : "bg-blue-200 dark:bg-blue-900")} />
+                <span className={cn("h-1.5 w-10 rounded-full", quizWizardStep === "settings" ? "bg-blue-600" : "bg-slate-200 dark:bg-slate-700")} />
+              </div>
             </div>
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5 block">
-                Đặt vào chương
-              </label>
-              <select
-                value={sectionId ?? ""}
-                onChange={(e) => setSectionId(Number(e.target.value))}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] text-sm focus:outline-none"
-              >
-                {sections.map((s) => (
-                  <option key={s.id} value={s.id}>{s.title}</option>
-                ))}
-              </select>
-              {sections.length === 0 && (
-                <p className="text-xs text-amber-600 mt-1">Khóa học chưa có chương nào.</p>
-              )}
-            </div>
-            <p className="text-xs text-slate-400">
-              Câu hỏi được <strong>sao chép</strong> vào quiz — bản gốc vẫn giữ nguyên trong thư viện.
-            </p>
+
+            {quizWizardStep === "preview" ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between rounded-xl bg-blue-50 dark:bg-blue-950/25 px-4 py-3 text-sm">
+                  <span className="font-semibold text-blue-800 dark:text-cyan-200">Preview đề · {selectedBankItems.length} câu · {selectedBankItems.reduce((sum, item) => sum + item.points, 0)} điểm</span>
+                  {suggestingQuiz && <span className="flex items-center gap-1.5 text-xs text-blue-600"><Loader2 className="h-3.5 w-3.5 animate-spin" /> AI đang đề xuất tên</span>}
+                </div>
+                <div className="max-h-[52vh] space-y-2 overflow-y-auto pr-1">
+                  {selectedBankItems.map((item, index) => (
+                    <div key={item.id} className="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                      <div className="mb-2 flex items-center gap-2 text-xs text-slate-500">
+                        <span className="font-bold text-blue-600">Câu {index + 1}</span>
+                        <span>·</span><span>{QUESTION_TYPE_LABELS[item.question_type] ?? item.question_type}</span>
+                        <span>·</span><span>{item.points} điểm</span>
+                      </div>
+                      <MarkdownRenderer content={item.question_text} />
+                      {(item.answer_options?.length ?? 0) > 0 && (
+                        <div className="mt-3 grid gap-1.5 sm:grid-cols-2">
+                          {item.answer_options!.map((option, optionIndex) => (
+                            <div key={optionIndex} className={cn("rounded-lg border px-3 py-2 text-xs", option.is_correct ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/25 dark:text-emerald-200" : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300")}>
+                              {String.fromCharCode(65 + optionIndex)}. {option.option_text}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-slate-400">Câu hỏi được sao chép; bản gốc luôn còn trong ngân hàng để tái sử dụng.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-violet-200 bg-violet-50/60 dark:border-violet-900 dark:bg-violet-950/20 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-violet-300">
+                    <Sparkles className="h-4 w-4" /> AI đề xuất · giảng viên có thể sửa
+                  </div>
+                  <input autoFocus maxLength={255} value={quizTitle} onChange={(e) => setQuizTitle(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-[#0D192E] text-sm font-semibold outline-none" placeholder="Tên bài kiểm tra" />
+                  <textarea value={quizDescription} onChange={(e) => setQuizDescription(e.target.value)} className="mt-2 min-h-20 w-full resize-y px-4 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-[#0D192E] text-sm outline-none" placeholder="Mô tả ngắn" />
+                  <textarea value={quizInstructions} onChange={(e) => setQuizInstructions(e.target.value)} className="mt-2 min-h-20 w-full resize-y px-4 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-[#0D192E] text-sm outline-none" placeholder="Hướng dẫn làm bài" />
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <label className="text-xs font-bold text-slate-500">THỜI GIAN (PHÚT)<input type="number" min={0} value={quizTimeLimit} onChange={(e) => setQuizTimeLimit(Math.max(0, Number(e.target.value)))} className="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] px-3 py-2.5 text-sm" /></label>
+                  <label className="text-xs font-bold text-slate-500">SỐ LẦN LÀM<input type="number" min={1} value={quizMaxAttempts} onChange={(e) => setQuizMaxAttempts(Math.max(1, Number(e.target.value)))} className="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] px-3 py-2.5 text-sm" /></label>
+                  <label className="text-xs font-bold text-slate-500">ĐIỂM ĐẠT (%)<input type="number" min={0} max={100} value={quizPassingScore} onChange={(e) => setQuizPassingScore(Math.min(100, Math.max(0, Number(e.target.value))))} className="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] px-3 py-2.5 text-sm" /></label>
+                  <label className="text-xs font-bold text-slate-500">MỞ TỪ<input type="datetime-local" value={quizAvailableFrom} onChange={(e) => setQuizAvailableFrom(e.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] px-3 py-2.5 text-sm" /></label>
+                  <label className="text-xs font-bold text-slate-500">ĐÓNG LÚC<input type="datetime-local" value={quizAvailableUntil} onChange={(e) => setQuizAvailableUntil(e.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] px-3 py-2.5 text-sm" /></label>
+                  <label className="text-xs font-bold text-slate-500">CHƯƠNG<select value={sectionId ?? ""} onChange={(e) => setSectionId(Number(e.target.value))} className="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] px-3 py-2.5 text-sm"><option value="" disabled>Chọn chương</option>{sections.map((section) => <option key={section.id} value={section.id}>{section.title}</option>)}</select></label>
+                </div>
+                {sections.length === 0 && <p className="text-xs text-amber-600">Khóa học chưa có chương; hãy tạo chương trước khi lưu quiz.</p>}
+
+                <div className="grid gap-2 sm:grid-cols-3">
+                  <label className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 p-3 text-sm"><input type="checkbox" checked={quizShuffleQuestions} onChange={(e) => setQuizShuffleQuestions(e.target.checked)} /> Trộn câu hỏi</label>
+                  <label className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 p-3 text-sm"><input type="checkbox" checked={quizShuffleAnswers} onChange={(e) => setQuizShuffleAnswers(e.target.checked)} /> Trộn đáp án</label>
+                  <label className={cn("flex items-center gap-2 rounded-xl border p-3 text-sm font-semibold", quizPublished ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/25 dark:text-emerald-200" : "border-amber-300 bg-amber-50 text-amber-800 dark:bg-amber-950/20 dark:text-amber-200")}><input type="checkbox" checked={quizPublished} onChange={(e) => setQuizPublished(e.target.checked)} /> {quizPublished ? "Xuất bản ngay" : "Lưu bản nháp"}</label>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-2">
-              <button
-                onClick={handleCreateQuiz}
-                disabled={creating || !quizTitle.trim() || !sectionId || sections.length === 0}
-                className="flex-1 h-11 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer"
-              >
-                {creating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Đang tạo...
-                  </>
-                ) : (
-                  "Tạo quiz & mở quản lý"
-                )}
-              </button>
+              {quizWizardStep === "preview" ? (
+                <button onClick={() => setQuizWizardStep("settings")} className="flex-1 h-11 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2 cursor-pointer"><Eye className="h-4 w-4" /> Tiếp tục cấu hình</button>
+              ) : (
+                <>
+                  <button onClick={() => setQuizWizardStep("preview")} disabled={creating} className="px-4 h-11 rounded-xl border border-slate-300 dark:border-slate-700 text-sm font-semibold cursor-pointer">Xem lại</button>
+                  <button onClick={handleCreateQuiz} disabled={creating || !quizTitle.trim() || !sectionId || sections.length === 0} className="flex-1 h-11 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer">
+                    {creating ? <><Loader2 className="w-4 h-4 animate-spin" /> Đang tạo...</> : quizPublished ? "Tạo và xuất bản ngay" : "Tạo quiz bản nháp"}
+                  </button>
+                </>
+              )}
               <button
                 onClick={() => setShowCreateQuiz(false)}
                 disabled={creating}

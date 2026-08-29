@@ -219,11 +219,19 @@ class QuizService {
     return response.data;
   }
 
-  /** AI auto-generation straight into the bank (nodes auto-selected). */
-  async generateBankQuestions(courseId: number, payload: { count?: number; bloom_levels?: string[]; language?: string }) {
+  /** AI generation straight into the bank, optionally scoped to selected nodes. */
+  async generateBankQuestions(courseId: number, payload: { count?: number; bloom_levels?: string[]; node_ids?: number[]; language?: string }) {
     const response = await lmsApiClient.post(
       `/courses/${courseId}/question-bank/generate`,
       payload
+    );
+    return response.data;
+  }
+
+  async suggestQuizFromBank(courseId: number, itemIds: number[]) {
+    const response = await lmsApiClient.post(
+      `/courses/${courseId}/question-bank/suggest-quiz`,
+      { item_ids: itemIds }
     );
     return response.data;
   }
@@ -232,16 +240,21 @@ class QuizService {
   async createQuizFromBank(
     courseId: number,
     payload: {
-      content_id: number;
+      content_id?: number;
+      section_id?: number;
       title: string;
       description?: string;
+      instructions?: string;
       time_limit_minutes?: number | null;
+      available_from?: string | null;
+      available_until?: string | null;
       max_attempts?: number;
       passing_score?: number;
       item_ids: number[];
       shuffle_questions?: boolean;
       shuffle_answers?: boolean;
       auto_grade?: boolean;
+      is_published?: boolean;
     }
   ) {
     const response = await lmsApiClient.post(
