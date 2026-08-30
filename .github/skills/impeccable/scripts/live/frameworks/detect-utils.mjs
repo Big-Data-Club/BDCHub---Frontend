@@ -58,7 +58,7 @@ export function firstExistingFile(cwd, candidates) {
 /**
  * Literal (non-glob) entries of `config.files` that exist on disk. Several
  * detectors read the configured injection target as a signal, which is how the
- * bare fixtures — a tree of `.astro` files with no astro.config — still resolve
+ * bare fixtures - a tree of `.astro` files with no astro.config - still resolve
  * to the framework that authored them.
  */
 export function literalConfigFiles(cwd, config) {

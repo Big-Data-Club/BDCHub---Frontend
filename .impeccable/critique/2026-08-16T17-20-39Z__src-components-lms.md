@@ -29,7 +29,7 @@ slug: src-components-lms
 ### Design Specificity Verdict
 
 **LLM Assessment**:
-The overall LMS design system is functionally structured, but suffers from **"AI Feature Bloat & Aesthetic Slop"**. Rather than feeling like a cohesive, enterprise-grade LMS (like Canvas or Coursera), the UI frequently lapses into generic AI wrapper aesthetics — heavy use of violet/cyan gradients (`from-violet-950`, `from-violet-400`), arbitrary `text-[10px]` micro-typography, and decorative sparkle icons (`✨`, `🤖`) attached to standard forms.
+The overall LMS design system is functionally structured, but suffers from **"AI Feature Bloat & Aesthetic Slop"**. Rather than feeling like a cohesive, enterprise-grade LMS (like Canvas or Coursera), the UI frequently lapses into generic AI wrapper aesthetics - heavy use of violet/cyan gradients (`from-violet-950`, `from-violet-400`), arbitrary `text-[10px]` micro-typography, and decorative sparkle icons (`✨`, `🤖`) attached to standard forms.
 
 **Deterministic Scan Findings**:
 The automated scanner scanned `src/components/lms` and flagged **multiple AI Anti-patterns (Slop)** and Quality Issues:

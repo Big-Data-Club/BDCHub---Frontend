@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Impeccable design hook — PostToolUse + Stop entry point.
+ * Impeccable design hook - PostToolUse + Stop entry point.
  *
  * Reads the Claude Code / Codex / Cursor hook event from stdin and routes by
  * `hook_event_name`:

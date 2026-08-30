@@ -66,7 +66,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
         body: formData,
       });
 
-      // Read as text first — avoids crashing when server returns HTML (e.g. 502/504 nginx page)
+      // Read as text first - avoids crashing when server returns HTML (e.g. 502/504 nginx page)
       const rawText = await res.text();
       let data: { success?: boolean; message?: string; url?: string; publicId?: string; filename?: string; size?: number } = {};
       try {
@@ -76,7 +76,7 @@ export const FileUploadCloudinary: React.FC<FileUploadCloudinaryProps> = ({
         console.error("Upload: server returned non-JSON response:", res.status, rawText.slice(0, 300));
         throw new Error(
           res.status === 413
-            ? "File quá lớn — server từ chối nhận (413)."
+            ? "File quá lớn - server từ chối nhận (413)."
             : `Lỗi server (${res.status}): không nhận được phản hồi hợp lệ. Vui lòng thử lại.`
         );
       }

@@ -154,7 +154,7 @@ export function AdminCourseList({
                   <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                     {course.creator_name || "Không rõ người tạo"}
                   </p>
-                  <p className="text-xs text-zinc-400">{course.creator_email || `User ID: ${course.created_by ?? "—"}`}</p>
+                  <p className="text-xs text-zinc-400">{course.creator_email || `User ID: ${course.created_by ?? "-"}`}</p>
                   <button
                     type="button"
                     onClick={() => toggleTeacherTeam(course.id)}

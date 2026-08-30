@@ -69,7 +69,7 @@ export function insertTag(content, config, port, token, scriptAttrs = '') {
     if (idx === -1) return content;
     return content.slice(0, idx) + block + content.slice(idx);
   }
-  // insertAfter: match the FIRST occurrence — typical anchors like `<head>` or
+  // insertAfter: match the FIRST occurrence - typical anchors like `<head>` or
   // `<body>` open near the top of the document.
   const idx = content.indexOf(config.insertAfter);
   if (idx === -1) return content;
@@ -132,7 +132,7 @@ export function removeTag(content, _syntax) {
 // content value verbatim, drop the marker.
 //
 // Header-based CSP (Next.js headers, Nuxt routeRules, SvelteKit kit.csp,
-// shared helpers) is NOT patched here — those need framework-specific config
+// shared helpers) is NOT patched here - those need framework-specific config
 // edits and are handled via the existing detect-csp.mjs reference output.
 // Only the in-source meta-tag form gets the auto-patch.
 // ---------------------------------------------------------------------------
@@ -165,7 +165,7 @@ function appendOriginToDirective(csp, directive, origin) {
     if (tokens.includes(origin)) return csp;
     return csp.replace(re, `${m[1]}${m[2]}${m[3]} ${[...tokens, origin].join(' ')}`);
   }
-  // Directive missing — add it. Use 'self' + origin so we don't inadvertently
+  // Directive missing - add it. Use 'self' + origin so we don't inadvertently
   // narrow the policy compared to the default-src fallback (most users with
   // an explicit CSP have 'self' there).
   return csp.trim().replace(/;?\s*$/, '') + `; ${directive} 'self' ${origin}`;
@@ -190,7 +190,7 @@ export function patchCspMeta(content, port) {
     patched = appendOriginToDirective(patched, 'script-src', origin);
     patched = appendOriginToDirective(patched, 'connect-src', origin);
     // The shader overlay during 'generating' creates a screenshot via
-    // URL.createObjectURL, producing a `blob:` URL — img-src 'self' rejects
+    // URL.createObjectURL, producing a `blob:` URL - img-src 'self' rejects
     // those. Add `blob:` so the overlay doesn't throw a CSP violation.
     patched = appendOriginToDirective(patched, 'img-src', 'blob:');
     if (patched === original) continue;

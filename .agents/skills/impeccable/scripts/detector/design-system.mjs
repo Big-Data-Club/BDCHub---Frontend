@@ -554,12 +554,12 @@ function designSystemStartDir(targetPath, cwd = process.cwd()) {
 // system, mirroring skill/scripts/context.mjs's project-boundary semantics:
 //
 //   - A directory carrying a DESIGN.md (directly or in a fallback dir) IS the
-//     design root — that's where the rules live.
+//     design root - that's where the rules live.
 //   - A directory carrying a project marker (.git / package.json / .impeccable)
 //     but no DESIGN.md is a project BOUNDARY: the walk stops with no design
 //     system, so a sibling project never inherits a parent's or cwd's rules.
 //   - Reaching the home directory / filesystem root with neither means no
-//     design system at all — never process.cwd()'s.
+//     design system at all - never process.cwd()'s.
 //
 // Returns { dir, hasDesign } for the stopping directory, or null when the walk
 // runs out. This is the fix for cross-project contamination.
@@ -579,7 +579,7 @@ export function findDesignRoot(startDir) {
 }
 
 // Resolve the design system that governs a specific scan target, by walking up
-// from the target's own location — never process.cwd(). Scanning project B's
+// from the target's own location - never process.cwd(). Scanning project B's
 // files from inside project A applies B's DESIGN.md (or none), not A's.
 //
 // Pass a `cache` Map to memoize by resolved design root across a multi-file

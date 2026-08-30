@@ -32,7 +32,7 @@ export const LIVE_TEMPLATE_EXTENSIONS = Object.freeze([
 /**
  * Normalize `detector.extensions` entries to `{ ext, engine }`.
  *
- * Accepts `{ ext, engine }` objects (engine 'html' | 'text', default 'html' —
+ * Accepts `{ ext, engine }` objects (engine 'html' | 'text', default 'html' -
  * the common case for server-side templates) or bare strings as shorthand.
  */
 export function normalizeExtensionEntries(entries) {

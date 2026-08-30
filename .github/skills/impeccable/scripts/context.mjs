@@ -18,7 +18,7 @@
  *      whenever the active project is nested below it (a repo counts as a
  *      monorepo when a package manager declares workspaces, or
  *      `.impeccable/config.json` declares `projectRoots`)
- *   4. $IMPECCABLE_CONTEXT_DIR (absolute or cwd-relative) — power-user
+ *   4. $IMPECCABLE_CONTEXT_DIR (absolute or cwd-relative) - power-user
  *      escape hatch, only consulted when defaults are empty
  *   5. Active project root as a "nothing found" default
  *
@@ -267,7 +267,7 @@ function findMonorepoRoot(startDir) {
     if (dir === homeDir) return null;
     // isMonorepoRoot is checked before hasGitBoundary on purpose: a workspace
     // root that also carries its own .git is still recognized. The trade-off is
-    // deliberate — a directory with a monorepo *marker* but no workspace patterns
+    // deliberate - a directory with a monorepo *marker* but no workspace patterns
     // and no apps/packages children is not a monorepo root, so its .git stops
     // traversal and a further-up root is not searched. The nested .git is treated
     // as an independent project boundary, which is the intended isolation.
@@ -534,7 +534,7 @@ function isExcludedByWorkspacePattern(relSegments, patterns) {
 
 // An explicit --target in an ordinary (non-monorepo) repository must still
 // select a nested product's own context (issue #376). Walk from the target up
-// to — but not including — the invocation root and return the nearest
+// to - but not including - the invocation root and return the nearest
 // directory carrying context files, in the canonical spot or a fallback dir
 // (resolveLocalContextDir covers both). Context files only, not package.json:
 // without the monorepo root-context fallback, a package.json marker would
@@ -614,8 +614,8 @@ function workspacePatternMatchesRel(pattern, relSegments) {
 
 // Project boundaries come from two sources, in precedence order: explicit
 // `projectRoots` globs in .impeccable config, then package-manager workspace
-// declarations. A path matched by any Impeccable pattern — positive or
-// negated — is governed by the Impeccable group alone; package-manager
+// declarations. A path matched by any Impeccable pattern - positive or
+// negated - is governed by the Impeccable group alone; package-manager
 // patterns only apply to paths the Impeccable group does not match. Within a
 // group, negations win over positives.
 function readProjectPatternGroups(repoRoot) {
@@ -1101,7 +1101,7 @@ async function cli() {
 
   if (!ctx.hasProduct) {
     // Direct stdout message instead of relying on empty output as a signal
-    // — cheap models miss the empty case more often than the explicit one.
+    // - cheap models miss the empty case more often than the explicit one.
     const parts = ctx.hasVisualImplementation
       ? [
           'NO_PRODUCT_MD: This project has no PRODUCT.md yet, but it does have an incumbent visual implementation. ' +
@@ -1187,7 +1187,7 @@ async function cli() {
   if (!ctx.platform) {
     // A `## Platform` section that names something we don't recognize (a
     // toolchain like `flutter`, a typo) would otherwise silently fall back to
-    // web — the wrong default exactly when the user tried to say "native".
+    // web - the wrong default exactly when the user tried to say "native".
     const rawPlatform = extractSectionValue(ctx.product, 'Platform');
     if (rawPlatform) {
       parts.push(

@@ -358,7 +358,7 @@ function RenderProfileItem({ item }: { item: ProfileItem }) {
           <div>
             <p className="text-xs font-medium text-slate-400">{item.label}</p>
             <p className="text-sm font-semibold text-slate-200">
-              {dateVal.start} {dateVal.end ? `— ${dateVal.end}` : dateVal.is_present ? "— Hiện tại" : ""}
+              {dateVal.start} {dateVal.end ? `- ${dateVal.end}` : dateVal.is_present ? "- Hiện tại" : ""}
             </p>
           </div>
         </div>

@@ -9,7 +9,7 @@
  *   5. Print a single JSON blob with everything the agent needs
  *
  * After this, the agent's only remaining steps are:
- *   - Open the project's live dev/preview URL in the browser (optional, if browser automation exists)—not `serverPort`; that port is the Impeccable helper for /live.js and /poll
+ *   - Open the project's live dev/preview URL in the browser (optional, if browser automation exists)-not `serverPort`; that port is the Impeccable helper for /live.js and /poll
  *   - Enter the harness-native poll loop: `node live-poll.mjs`
  *
  * Usage:
@@ -58,7 +58,7 @@ On config_missing, prints:
 The agent should then:
   1. If target_selection_required, ask which app to use and rerun from that child cwd
   2. If config_missing, create the config and re-run this script
-  3. Optionally open the project's dev/preview URL in the browser (see reference/live.md—not serverPort)
+  3. Optionally open the project's dev/preview URL in the browser (see reference/live.md-not serverPort)
   4. Enter the poll loop: node live-poll.mjs`);
     process.exit(0);
   }
@@ -120,7 +120,7 @@ The agent should then:
   // agent runs later (from any cwd inside the repo) lands on the same roots.
   writeRootsManifest(roots);
 
-  // 1. Check config (fail fast if missing — no point starting anything else)
+  // 1. Check config (fail fast if missing - no point starting anything else)
   const checkOut = runScript('live-inject.mjs', ['--check'], { cwd: activeCwd });
   const checkResult = safeParse(checkOut);
   if (!checkResult || !checkResult.ok) {
@@ -159,7 +159,7 @@ The agent should then:
 
   // 4. Compute drift-heal: compare resolved inject targets against the
   //    project's HTML files. Orphans are HTML files not covered by config.
-  //    Warning only — the agent decides whether to act.
+  //    Warning only - the agent decides whether to act.
   const resolvedFiles = resolveFiles(activeCwd, checkResult.config);
   const drift = scanForDrift(activeCwd, resolvedFiles, checkResult.config);
 
@@ -222,7 +222,7 @@ function relOrNull(base, p) {
  * Drift-heal scan. Walks the project for HTML files under common
  * page-source directories (public/, src/, app/, pages/) and reports any
  * that aren't covered by the resolved inject targets. This is purely
- * advisory — the agent can ignore it, or suggest the user add the
+ * advisory - the agent can ignore it, or suggest the user add the
  * orphans to config.files.
  *
  * Skipped if config.files already contains at least one glob pattern
@@ -340,7 +340,7 @@ function ensureServerRunning(cwd = process.cwd()) {
       try {
         process.kill(existing.pid, 0); // throws if dead
         return existing;
-      } catch { /* stale PID file — the server script will clean it up */ }
+      } catch { /* stale PID file - the server script will clean it up */ }
     }
   } catch { /* no PID file */ }
 

@@ -77,7 +77,7 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
           ].map(([label, value]) => (
             <div key={label}>
               <span className={labelCls}>{label}:</span>
-              <span className={valueCls}>{value || "—"}</span>
+              <span className={valueCls}>{value || "-"}</span>
             </div>
           ))}
 
@@ -89,7 +89,7 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
               rel="noopener noreferrer"
               className="font-semibold text-blue-600 dark:text-cyan-400 hover:underline truncate block"
             >
-              {form.facebookLink || "—"}
+              {form.facebookLink || "-"}
             </a>
           </div>
 
@@ -121,12 +121,12 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
               </div>
               <div>
                 <span className={labelCls}>Điểm THPT / Xét tuyển:</span>
-                <span className={valueCls}>{form.thptScore || "—"}</span>
+                <span className={valueCls}>{form.thptScore || "-"}</span>
               </div>
               <div>
                 <span className={labelCls}>Điểm thi ĐGNL:</span>
                 <span className={valueCls}>
-                  {form.hasDgnl === "no" ? (isVi ? "Không thi ĐGNL" : "No ĐGNL") : (form.dgnlScore || "—")}
+                  {form.hasDgnl === "no" ? (isVi ? "Không thi ĐGNL" : "No ĐGNL") : (form.dgnlScore || "-")}
                 </span>
               </div>
             </div>
@@ -134,11 +134,11 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <span className={labelCls}>{t.gpaCumulative}:</span>
-                <span className={valueCls}>{form.gpaCumulative || "—"}</span>
+                <span className={valueCls}>{form.gpaCumulative || "-"}</span>
               </div>
               <div>
                 <span className={labelCls}>{t.gpaLatest}:</span>
-                <span className={valueCls}>{form.gpaLatest || "—"}</span>
+                <span className={valueCls}>{form.gpaLatest || "-"}</span>
               </div>
             </div>
           )}
@@ -228,7 +228,7 @@ export const Step4Review: React.FC<Step4ReviewProps> = ({ form, onChange, errors
           <div>
             <span className={labelCls}>{t.motivationLabel}:</span>
             <p className="bg-white dark:bg-[#0D192E] p-3.5 rounded-xl border border-slate-200 dark:border-blue-500/10 text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed mt-1">
-              {form.motivation || "—"}
+              {form.motivation || "-"}
             </p>
           </div>
         </div>

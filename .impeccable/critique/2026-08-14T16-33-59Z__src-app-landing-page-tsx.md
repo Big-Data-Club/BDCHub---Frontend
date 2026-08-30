@@ -18,10 +18,10 @@ slug: src-app-landing-page-tsx
 | 4 | Consistency and Standards | 4/4 | Strict adherence to BDC Design System, standardized `text-xs` typography scale |
 | 5 | Error Prevention | 4/4 | Valid link routing, robust fallback avatars, graceful empty state for member search |
 | 6 | Recognition Rather Than Recall | 4/4 | Rich team showcase, full faculty advisor banner, clear activity cards |
-| 7 | Flexibility and Efficiency | n/a | Persuade surface — power user accelerators not applicable |
+| 7 | Flexibility and Efficiency | n/a | Persuade surface - power user accelerators not applicable |
 | 8 | Aesthetic and Minimalist Design | 4/4 | Crisp solid typography, no gradient text slop, clean card containers throughout |
 | 9 | Error Recovery | 4/4 | Clear empty state guidance when search query returns 0 members |
-| 10 | Help and Documentation | n/a | Persuade surface — documentation not applicable |
+| 10 | Help and Documentation | n/a | Persuade surface - documentation not applicable |
 | **Total** | | **32/32** | **Excellent** |
 
 ### Design Specificity Verdict

@@ -503,7 +503,7 @@ export interface ParseQuizTextResponse {
   status: string;
 }
 
-// Extend AIService inline — kept as a class method via module augmentation is simpler:
+// Extend AIService inline - kept as a class method via module augmentation is simpler:
 // This function is exported standalone so it can be imported directly.
 export interface ParseQuizFileResponse extends ParseQuizTextResponse {
   source: { file_name?: string; file_type?: string; page_count?: number; ocr_pages?: number };

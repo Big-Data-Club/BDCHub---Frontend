@@ -75,8 +75,8 @@ Tài liệu này ghi nhận quá trình nghiên cứu, triển khai và thử ng
 - **Browser-native optimization** → hiệu suất cao.
 
 ### Files liên quan:
-- `src/hooks/useScrollSnap.ts` — Custom hook chứa toàn bộ logic.
-- `src/app/(learning)/lms/student/page.tsx` — Sử dụng hook với `sentinelRef` và `contentRef`.
+- `src/hooks/useScrollSnap.ts` - Custom hook chứa toàn bộ logic.
+- `src/app/(learning)/lms/student/page.tsx` - Sử dụng hook với `sentinelRef` và `contentRef`.
 
 ### Kết quả: ✅ Hoạt động ổn định.
 
@@ -86,7 +86,7 @@ Tài liệu này ghi nhận quá trình nghiên cứu, triển khai và thử ng
 
 - **Theo dõi hướng cuộn** (`scrollDirectionRef`): So sánh `scrollTop` hiện tại với giá trị trước đó, chỉ cập nhật khi delta > 2px (lọc noise).
 - **Chỉ snap khi cuộn XUỐNG:** `checkAndSnap()` bỏ qua hoàn toàn nếu `scrollDirectionRef !== "down"`.
-- **Loại bỏ snap-to-top:** Không còn behavior snap ngược về đầu trang — khi cuộn lên, người dùng có toàn quyền điều khiển thủ công.
+- **Loại bỏ snap-to-top:** Không còn behavior snap ngược về đầu trang - khi cuộn lên, người dùng có toàn quyền điều khiển thủ công.
 - **Ngưỡng kích hoạt 40%:** Chỉ snap khi header đã bị ẩn ≥ 40% (`visibleBelowNav > totalHeight * 0.6` → return).
 
 ### Kết quả: ✅ Snap chỉ xảy ra một chiều (xuống), UX tự nhiên hơn.

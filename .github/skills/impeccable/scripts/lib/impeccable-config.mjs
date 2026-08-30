@@ -3,7 +3,7 @@
  *
  * The CLI (published to npm) and the skill scripts (bundled into the install)
  * live in separate trees and cannot share runtime code, so this duplicates a
- * small slice of skill/scripts/hook-lib.mjs — the config-path layout, detector
+ * small slice of skill/scripts/hook-lib.mjs - the config-path layout, detector
  * ignore semantics, and the `.git/info/exclude` handling. Keep the schema,
  * ignore filtering, and exclude marker in sync if either side changes.
  *

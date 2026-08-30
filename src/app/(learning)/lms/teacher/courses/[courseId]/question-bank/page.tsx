@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Question Bank (Thư viện đề thi) — /lms/teacher/courses/[courseId]/question-bank
+ * Question Bank (Thư viện đề thi) - /lms/teacher/courses/[courseId]/question-bank
  *
  * Per-course reusable question library:
  *  - Facet stats (difficulty / bloom / source / dangling / month clusters)
@@ -508,7 +508,7 @@ export default function QuestionBankPage() {
               Thư viện đề thi
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Ngân hàng câu hỏi của khóa học — nhập bằng AI, sinh đề tự động, ghép thành quiz nhanh.
+              Ngân hàng câu hỏi của khóa học - nhập bằng AI, sinh đề tự động, ghép thành quiz nhanh.
             </p>
           </div>
         </div>
@@ -575,7 +575,7 @@ export default function QuestionBankPage() {
         </div>
       )}
 
-      {/* Filters — responsive: search grows, dropdowns keep intrinsic width */}
+      {/* Filters - responsive: search grows, dropdowns keep intrinsic width */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-3">
         <div className="flex-1 min-w-0">
           <SearchBar
@@ -709,7 +709,7 @@ export default function QuestionBankPage() {
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
               {q || difficulty || bloom || source || nodeFilter
                 ? "Không có câu hỏi nào khớp bộ lọc."
-                : "Ngân hàng còn trống — hãy Nhập từ tệp hoặc Sinh đề bằng AI."}
+                : "Ngân hàng còn trống - hãy Nhập từ tệp hoặc Sinh đề bằng AI."}
             </p>
           </div>
         }
@@ -960,7 +960,7 @@ export default function QuestionBankPage() {
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              Mức độ (Dễ/Trung/Khó) được suy ra chuẩn từ cấp độ Bloom — không phụ thuộc model AI.
+              Mức độ (Dễ/Trung/Khó) được suy ra chuẩn từ cấp độ Bloom - không phụ thuộc model AI.
               Câu trùng với ngân hàng hiện có sẽ bị loại tự động.
             </p>
 

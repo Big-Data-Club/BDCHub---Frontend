@@ -134,7 +134,7 @@ export default function McpApiKeyTab() {
                 <span className="rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">MCP ready</span>
               </div>
               <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
-                Dùng model và tài khoản Claude, Codex hoặc OpenCode của bạn để suy luận. BDC Hub chỉ cung cấp dữ liệu được cấp quyền và thực hiện thao tác bạn duyệt — không chuyển chi phí model sang gateway hệ thống.
+                Dùng model và tài khoản Claude, Codex hoặc OpenCode của bạn để suy luận. BDC Hub chỉ cung cấp dữ liệu được cấp quyền và thực hiện thao tác bạn duyệt - không chuyển chi phí model sang gateway hệ thống.
               </p>
             </div>
           </div>

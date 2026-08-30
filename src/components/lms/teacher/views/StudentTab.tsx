@@ -262,7 +262,7 @@ function InlineStudentDetail({
           <div className="flex items-start gap-2.5 p-3.5 bg-amber-50/90 dark:bg-amber-950/30 rounded-2xl border border-amber-200 dark:border-amber-500/30">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <p className="text-xs font-semibold text-amber-800 dark:text-amber-300 leading-relaxed">
-              Tiến độ dưới 20% — Khuyến nghị gửi nhắc nhở hoặc hỗ trợ học viên.
+              Tiến độ dưới 20% - Khuyến nghị gửi nhắc nhở hoặc hỗ trợ học viên.
             </p>
           </div>
         )}

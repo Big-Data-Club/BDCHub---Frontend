@@ -282,7 +282,7 @@ export default function ChatPanel() {
   );
 }
 
-// helper — focuses the hidden textarea inside ChatInput
+// helper - focuses the hidden textarea inside ChatInput
 function textareaFocus() {
   setTimeout(() => {
     const ta = document.querySelector<HTMLTextAreaElement>("textarea");

@@ -368,7 +368,7 @@ export function QuizSmartImportModal({
                   <>
                     <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">{selectedFile.name}</p>
                     <p className="text-xs text-slate-500 mt-1">
-                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB — bấm để chọn tệp khác
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB - bấm để chọn tệp khác
                     </p>
                   </>
                 ) : (
@@ -377,7 +377,7 @@ export function QuizSmartImportModal({
                       Kéo thả hoặc bấm để chọn tệp đề thi
                     </p>
                     <p className="text-xs text-slate-500 mt-1">
-                      PDF (kể cả scan), Word, Excel, PowerPoint, Markdown, ảnh chụp đề — tối đa 30MB
+                      PDF (kể cả scan), Word, Excel, PowerPoint, Markdown, ảnh chụp đề - tối đa 30MB
                     </p>
                   </>
                 )}

@@ -65,7 +65,7 @@ export function applyTanStackLiveAdapter({ cwd = process.cwd(), port, token, pro
   const componentBody = buildTanStackLiveRootComponent(Number(port), token);
   const componentExisted = fs.existsSync(componentAbs);
   if (componentExisted && !isManagedComponent(fs.readFileSync(componentAbs, 'utf-8'))) {
-    // A non-Impeccable file already sits at our managed path — refuse to clobber.
+    // A non-Impeccable file already sits at our managed path - refuse to clobber.
     return {
       file: project.componentFile,
       error: 'tanstack_component_conflict',
@@ -163,7 +163,7 @@ export function unpatchTanStackRoot(content) {
     'g',
   );
   out = out.replace(blockRe, '');
-  // Remove only the managed import line — not any following blank line.
+  // Remove only the managed import line - not any following blank line.
   out = out.replace(
     new RegExp("^import ImpeccableLiveRoot from '[^']*';[ \\t]*\\r?\\n", 'gm'),
     '',

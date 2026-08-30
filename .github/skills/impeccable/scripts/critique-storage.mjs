@@ -38,7 +38,7 @@ export { slugFromTarget } from './lib/target-slug.mjs';
  * input doesn't look like a stable identifier (empty, project root, etc).
  *
  * Accepts file paths and URLs. The model resolves "the homepage" to a
- * concrete artifact before calling this — we never slug a natural-language
+ * concrete artifact before calling this - we never slug a natural-language
  * phrase.
  */
 /**

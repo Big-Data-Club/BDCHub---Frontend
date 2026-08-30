@@ -72,11 +72,11 @@ function notebookContent(data: UIComponentData): { title: string; content: strin
   const props = data.props || {};
   if (data.component === "MiniChallengeWidget" && props.question) {
     const options = (props.options || []).map((option: { text: string; is_correct?: boolean; explanation?: string }, index: number) =>
-      `${String.fromCharCode(65 + index)}. ${option.text}${option.is_correct ? " ✓" : ""}${option.explanation ? ` — ${option.explanation}` : ""}`,
+      `${String.fromCharCode(65 + index)}. ${option.text}${option.is_correct ? " ✓" : ""}${option.explanation ? ` - ${option.explanation}` : ""}`,
     );
     return {
       title: `Mini challenge: ${props.concept || "Ôn tập"}`,
-      content: `# Mini challenge${props.concept ? ` — ${props.concept}` : ""}\n\n${props.question}\n\n${options.join("\n")}`,
+      content: `# Mini challenge${props.concept ? ` - ${props.concept}` : ""}\n\n${props.question}\n\n${options.join("\n")}`,
     };
   }
   if ((data.component === "FlashcardDeck" || data.component === "FlashcardPreview") && (props.cards || props.flashcards)) {

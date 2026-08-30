@@ -132,7 +132,7 @@ Output (JSON):
           // mode: 'error' is what marks this a real failure rather than a manual
           // handoff. Without it, live/completion.mjs classifies the reply as
           // agent_done and reference/live.md tells the agent to "read file, find
-          // markers, edit" by hand — which would apply a second, conflicting
+          // markers, edit" by hand - which would apply a second, conflicting
           // accept on top of the one the receipt already recorded.
           handled: false,
           mode: 'error',
@@ -394,7 +394,7 @@ function handleDiscardUnlocked(id, lines, targetFile) {
 
 /**
  * Build carbonize stitch-in lines. JSX targets occupy a single child slot
- * (ternary branch, return value, etc.) — the same constraint as live-wrap.
+ * (ternary branch, return value, etc.) - the same constraint as live-wrap.
  * When isJsx, tuck markers + <style> + variant wrapper inside one outer
  * <div data-impeccable-carbonize> so the slot keeps a single root node.
  */
@@ -481,7 +481,7 @@ function buildAcceptedWrappedSource(id, variantNum, lines, targetFile, paramValu
   const commentSyntax = detectCommentSyntax(targetFile);
   const isJsx = commentSyntax.open === '{/*';
   // Anchor indent on the line we're replacing FROM (the outer wrapper),
-  // not on `block.start` — for JSX that's the marker comment 2 spaces
+  // not on `block.start` - for JSX that's the marker comment 2 spaces
   // deeper than the original element. See handleDiscard for the full
   // rationale.
   const replaceRange = expandReplaceRange(block, lines, isJsx);
@@ -581,7 +581,7 @@ function findMarkerBlock(id, lines) {
  * Compute the line range to REPLACE (vs. just the marker range to extract
  * from). For JSX/TSX wrappers, live-wrap places the marker comments INSIDE
  * the `<div data-impeccable-variants="ID">` outer wrapper so the picked
- * element's JSX slot keeps a single child — a Fragment `<></>` would have
+ * element's JSX slot keeps a single child - a Fragment `<></>` would have
  * solved the multi-sibling case but failed inside `asChild` / cloneElement
  * parents with "Invalid prop supplied to React.Fragment".
  *
@@ -767,9 +767,9 @@ function extractVariant(lines, block, variantNum) {
  * Returns an array of CSS lines, or null if no style block found.
  *
  * Handles three shapes of `<style data-impeccable-css="ID" ...>`:
- *   1. Self-closing: `<style ... />` — no body; return null (nothing to carbonize).
- *   2. Same-line open+close: `<style>...</style>` — return the inner content.
- *   3. Multi-line: `<style>` on one line, `</style>` on a later line — return
+ *   1. Self-closing: `<style ... />` - no body; return null (nothing to carbonize).
+ *   2. Same-line open+close: `<style>...</style>` - return the inner content.
+ *   3. Multi-line: `<style>` on one line, `</style>` on a later line - return
  *      the lines between them.
  */
 function extractCss(lines, block, id) {
@@ -794,7 +794,7 @@ function extractCss(lines, block, id) {
     }
 
     if (inStyle) {
-      // Detect </style> anywhere on the line — JSX template-literal closes
+      // Detect </style> anywhere on the line - JSX template-literal closes
       // (`}</style>`) put the close mid-line, and we don't want to absorb the
       // template-literal punctuation as CSS content.
       const closeIdx = line.indexOf('</style>');
@@ -811,7 +811,7 @@ function extractCss(lines, block, id) {
  * Strip a JSX template-literal wrap (`{` … `}`) from CSS extracted out of a
  * `<style>` element in a JSX/TSX file. The agent may write the wrap with
  * `{` and `}` directly attached to the `<style>` tags, on their own lines,
- * or attached to the first/last CSS lines — all three are JSX-legal.
+ * or attached to the first/last CSS lines - all three are JSX-legal.
  *
  * Stripping is required because handleAccept re-wraps the CSS itself when
  * carbonizing. Without this, two consecutive accepts (or a previously-

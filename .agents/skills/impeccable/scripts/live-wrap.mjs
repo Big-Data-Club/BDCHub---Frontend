@@ -154,7 +154,7 @@ The agent should insert variant HTML at insertLine.`);
         }
       }
       // Once a more-specific query (ID, full className combo) yielded a unique
-      // result, stop — falling through to the loose tag+single-class query
+      // result, stop - falling through to the loose tag+single-class query
       // would readmit the siblings we just disambiguated past.
       if (candidates.length === 1) break;
     }
@@ -193,7 +193,7 @@ The agent should insert variant HTML at insertLine.`);
           process.exit(1);
         }
       } else {
-        // Multiple candidates ALSO match the text. Truly ambiguous — refuse
+        // Multiple candidates ALSO match the text. Truly ambiguous - refuse
         // rather than pick wrong, and hand the agent the candidate locations
         // so it can disambiguate by reading the file.
         console.error(JSON.stringify({
@@ -227,7 +227,7 @@ The agent should insert variant HTML at insertLine.`);
   const indent = lines[startLine].match(/^(\s*)/)[1];
 
   // Extract the original element. Reindent under the wrapper while preserving
-  // the relative depth between lines — `l.trimStart()` would strip ALL leading
+  // the relative depth between lines - `l.trimStart()` would strip ALL leading
   // whitespace and collapse e.g. `<aside>`/`  <h1>`/`</aside>` (6/8/6 spaces)
   // to a single uniform indent, so on accept/discard the round-trip restores
   // the inner element at its parent's depth instead of nested inside it.
@@ -239,7 +239,7 @@ The agent should insert variant HTML at insertLine.`);
   // this page whose originalText appears in the picked source range, apply
   // them so the wrap block's "original" variant reflects what the user was
   // looking at (their edited DOM), not the raw source. Source itself stays
-  // untouched here — only the wrap block's embedded "original" copy is
+  // untouched here - only the wrap block's embedded "original" copy is
   // adjusted. The pending edits remain in the buffer until committed.
   //
   // Apply buffered edits only when the browser provided the current page URL.
@@ -308,7 +308,7 @@ The agent should insert variant HTML at insertLine.`);
   // JSX/TSX guard: the picked element occupies a single JSX child slot
   // (inside `return (...)`, an array `.map(...)`, an `asChild` branch, or
   // any other expression position). Replacing it with `comment + <div> +
-  // comment` yields three adjacent siblings — invalid JSX. We can't use a
+  // comment` yields three adjacent siblings - invalid JSX. We can't use a
   // Fragment `<></>` either: parents that clone children (Radix `asChild`,
   // Headless UI, etc.) hit "Invalid prop supplied to React.Fragment" when
   // they try to pass an `id` through.
@@ -768,7 +768,7 @@ function minLeadingSpaces(lines) {
 }
 
 function findElement(lines, query, tag = null) {
-  // Iterate all matches — the first substring hit isn't always the right one.
+  // Iterate all matches - the first substring hit isn't always the right one.
   for (let i = 0; i < lines.length; i++) {
     if (!lines[i].includes(query)) continue;
 
@@ -824,13 +824,13 @@ function findAllElements(lines, query, tag = null) {
  * inserting whitespace (e.g. `<h1>Hero Two</h1><p>Second…</p>` reads as
  * `"Hero TwoSecond…"`), while the source has whitespace between tags. If
  * EITHER normalization matches, the candidate keeps. A snippet shorter than
- * 8 chars after stripping is too weak to disambiguate — the caller falls
+ * 8 chars after stripping is too weak to disambiguate - the caller falls
  * back to first-match.
  */
 function filterByText(candidates, lines, text) {
   const trimmed = text.replace(/\s+/g, ' ').trim().toLowerCase().slice(0, 80);
   // Too short to disambiguate. Return [] so the caller's `filtered.length
-  // === 0` branch fires (fall back to first-match) — the previous
+  // === 0` branch fires (fall back to first-match) - the previous
   // `candidates.slice()` return forced `filtered.length > 1` and surfaced
   // a spurious `element_ambiguous` error on every short-text picker event
   // with multiple candidates.
@@ -870,7 +870,7 @@ function findOpenerLine(lines, matchLine, tag) {
     const opener = lines[i].match(OPENER_RE);
     if (!opener) continue;
     if (!tag || opener[1] === tag) return i;
-    // Different tag name than requested — abort; we're inside a non-target opener.
+    // Different tag name than requested - abort; we're inside a non-target opener.
     return -1;
   }
   return -1;

@@ -26,7 +26,7 @@ slug: src-app-learning-lms-student-discover-page-tsx
 
 #### Design Specificity Verdict
 
-**LLM assessment**: The surface is functional but relies on generic AI aesthetics ("AI slop") — throwing `<Sparkles />` icons and generic `from-blue-600 to-cyan-600` gradients onto standard card grids without deep UX value. It lacks the sharp structural polish, tactile feedback, and high-contrast terminal styling defined in the project's "Tech-Academic Terminal" design system (`DESIGN.md`).
+**LLM assessment**: The surface is functional but relies on generic AI aesthetics ("AI slop") - throwing `<Sparkles />` icons and generic `from-blue-600 to-cyan-600` gradients onto standard card grids without deep UX value. It lacks the sharp structural polish, tactile feedback, and high-contrast terminal styling defined in the project's "Tech-Academic Terminal" design system (`DESIGN.md`).
 
 **Deterministic scan**: 3 findings detected across `page.tsx` and `CourseCard.tsx`:
 - `design-system-font-size` (advisory): `text-[10px]` on line 93 of `page.tsx` violates `No-Literal-Scale Rule`.
@@ -49,7 +49,7 @@ The LMS Student Discover surface provides core searching and recommendation feat
   - *Suggested command*: `$impeccable bolder`
 
 - **[P1] Unstructured Filter Bar & Inconsistent UI Controls**: Filter tags use raw tailwind inline buttons (`page.tsx`) with hardcoded colors instead of design system button components or unified tab filters. No sort control (e.g., Popular, Newest, Rating) or quick "Clear Filters" action.
-  - *Why it matters*: Scalability issue—as tags grow, raw wrap buttons overflow clumsily without horizontal scrolling or categorical grouping.
+  - *Why it matters*: Scalability issue-as tags grow, raw wrap buttons overflow clumsily without horizontal scrolling or categorical grouping.
   - *Fix*: Redesign filter bar with scrollable tag chips, active filter counter, search input integration, and sort dropdown.
   - *Suggested command*: `$impeccable layout`
 

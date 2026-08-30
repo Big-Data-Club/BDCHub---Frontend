@@ -1,7 +1,7 @@
 /**
  * Generic Vite registry entry: a bundled app with a real `index.html` entry
  * and no framework-specific document ownership. React, Vue, Solid, Preact and
- * a plain TanStack Router SPA all land here — the marker-wrapped script block
+ * a plain TanStack Router SPA all land here - the marker-wrapped script block
  * goes straight into the HTML entry.
  *
  * This is the entry that catches everything with a bundler config; only

@@ -1,15 +1,15 @@
 /**
- * Inline, in-file ignore directives — eslint-disable-style waivers that live at
+ * Inline, in-file ignore directives - eslint-disable-style waivers that live at
  * the point they apply and travel with the artifact instead of (or alongside)
  * an ignore in `.impeccable/config.json`.
  *
  * A config ignore is the right default for repo-wide policy. This complements it
  * for the one case config can't cover: a waiver that belongs to a single file and
- * needs to follow that file when it leaves the repo — a generated/exported
+ * needs to follow that file when it leaves the repo - a generated/exported
  * standalone document, an emailed HTML file, a snippet scanned out of context.
  *
  * Comment-syntax-agnostic: the directive is a raw token matched anywhere on a
- * line, so the same marker works across every comment style impeccable scans —
+ * line, so the same marker works across every comment style impeccable scans -
  * `//`, `/* *\/`, `<!-- -->`, `#`, `{/* *\/}`, `{# #}`. Trailing comment closers
  * are stripped before the rule list is parsed.
  *
@@ -135,7 +135,7 @@ function hasDirectives(directives) {
 /**
  * Drop findings waived by an inline directive in the same file's source text.
  * Findings without a usable line number (e.g. static-HTML page-level findings)
- * are only matched by whole-file directives — which is the standalone-document
+ * are only matched by whole-file directives - which is the standalone-document
  * case this primitive exists for.
  */
 function applyInlineIgnores(findings, content) {

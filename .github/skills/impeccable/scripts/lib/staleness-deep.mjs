@@ -260,7 +260,7 @@ function hookScriptTokenFrom(command) {
 }
 
 // Resolve a script token to an absolute path the doctor can existsSync, or null
-// when the doctor cannot know where it points — in which case the caller must
+// when the doctor cannot know where it points - in which case the caller must
 // NOT report it missing (a doctor never asserts a negative it cannot verify).
 //
 // Per-placeholder policy, mirroring what each runtime actually expands:

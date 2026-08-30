@@ -7,7 +7,7 @@
  * every subsequent run, this script handles insert/remove deterministically
  * with zero LLM involvement.
  *
- * Framework knowledge lives in `live/frameworks/` — detection order, adapters,
+ * Framework knowledge lives in `live/frameworks/` - detection order, adapters,
  * the generic tag strategy, and the per-extension authoring traits live-wrap
  * reads. This file is the CLI around it: resolve config, resolve the
  * framework, heal orphaned artifacts, apply or remove, record the journal.
@@ -97,7 +97,7 @@ export const LIVE_IGNORE_PATTERNS = Object.freeze([
 /**
  * Hard-excluded directory patterns. These are NEVER user-facing pages and
  * matching them would silently inject tracking scripts into third-party
- * code. The user cannot turn these off via config — they are the floor.
+ * code. The user cannot turn these off via config - they are the floor.
  */
 const HARD_EXCLUDES = [
   '**/node_modules/**',
@@ -197,7 +197,7 @@ Output (JSON):
     return;
   }
 
-  // Insert mode — need --port
+  // Insert mode - need --port
   const portIdx = args.indexOf('--port');
   const port = portIdx !== -1 ? parseInt(args[portIdx + 1], 10) : NaN;
   if (!Number.isFinite(port)) {
@@ -373,7 +373,7 @@ export function resolveFiles(rootDir, config) {
   const out = [];
   for (const pat of patterns) {
     if (!isGlob(pat)) {
-      // Literal path — include even if it doesn't exist yet; the caller
+      // Literal path - include even if it doesn't exist yet; the caller
       // reports file_not_found per-entry. Exclude list doesn't apply to
       // explicit literal entries (user named it on purpose).
       if (!seen.has(pat)) {
@@ -415,7 +415,7 @@ function globToRegex(pattern) {
     const c = pattern[i];
     if (c === '*') {
       if (pattern[i + 1] === '*') {
-        // ** — any number of segments, including zero. Handle the common
+        // ** - any number of segments, including zero. Handle the common
         // **/ and /** forms so `a/**/b` matches `a/b` as well as `a/x/y/b`.
         if (pattern[i + 2] === '/') {
           re += '(?:.*/)?';

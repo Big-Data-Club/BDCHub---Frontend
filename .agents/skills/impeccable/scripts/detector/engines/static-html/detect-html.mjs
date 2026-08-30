@@ -219,7 +219,7 @@ async function detectHtml(filePath, options = {}) {
     }
     // Scoped corpora for the pattern checks (see buildHtmlPatternCorpora in
     // rules/checks.mjs): CSS-property regexes must not fire on prose ABOUT
-    // css — `<code>background-clip: text</code>` in a changelog is
+    // css - `<code>background-clip: text</code>` in a changelog is
     // documentation, not styling. cssText already carries the <style>
     // blocks and any linked local stylesheets; style/class attributes come
     // from the parsed document, so escaped code samples never contribute.
@@ -256,7 +256,7 @@ async function detectHtml(filePath, options = {}) {
   }
 
   // Static-HTML findings carry no line number, so only whole-file
-  // `impeccable-disable` directives apply here — exactly the standalone-document
+  // `impeccable-disable` directives apply here - exactly the standalone-document
   // waiver this primitive targets. Bypassed by `--no-config` / `--no-inline-ignores`.
   return options?.inlineIgnores === false ? findings : applyInlineIgnores(findings, html);
 }

@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
     console.error('Cloudinary env vars not set (CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET)');
     return NextResponse.json(
-      { success: false, message: 'Cấu hình upload chưa sẵn sàng — vui lòng liên hệ admin.' },
+      { success: false, message: 'Cấu hình upload chưa sẵn sàng - vui lòng liên hệ admin.' },
       { status: 503 }
     );
   }

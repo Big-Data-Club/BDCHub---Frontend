@@ -288,7 +288,7 @@ async function detectCli() {
     allFindings = await handleStdin(scanOptionsFor);
   } else {
     const paths = targets.length > 0 ? targets : [process.cwd()];
-    // file:// URLs get the same Puppeteer-rendered pass as http(s) — the
+    // file:// URLs get the same Puppeteer-rendered pass as http(s) - the
     // real cascade, real computed styles, real layout. Callers that want a
     // browser-grade scan of a local artifact can pass file:///abs/path.html
     // instead of the bare path (which stays on the static engine).
@@ -301,7 +301,7 @@ async function detectCli() {
         if (urlRe.test(target)) {
           // A file:// URL points at a local artifact, so its design system
           // resolves from that file's project. A remote http(s) URL has no
-          // local project — it gets base options (no design system), never
+          // local project - it gets base options (no design system), never
           // process.cwd()'s.
           const urlOptions = /^file:/i.test(target)
             ? scanOptionsFor(fileUrlToLocalPath(target))

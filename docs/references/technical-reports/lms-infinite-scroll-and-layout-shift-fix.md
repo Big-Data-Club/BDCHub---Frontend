@@ -242,7 +242,7 @@ useEffect(() => {
 
 ## 5. Danh sách Tệp tin Liên quan (Affected Files)
 
-- [`src/styles/base/reset.css`](file:///home/thanh/BDCHub---Frontend/src/styles/base/reset.css) — Khóa scroll anchoring cấp hệ thống.
-- [`src/components/lms/shared/InfiniteScrollTrigger.tsx`](file:///home/thanh/BDCHub---Frontend/src/components/lms/shared/InfiniteScrollTrigger.tsx) — Component sentinel xử lý lazy loading kép.
-- [`src/app/(learning)/lms/student/discover/page.tsx`](file:///home/thanh/BDCHub---Frontend/src/app/(learning)/lms/student/discover/page.tsx) — Khóa scroll restoration và xử lý layout shift.
-- [`src/components/lms/student/discover/DiscoverCourseGrid.tsx`](file:///home/thanh/BDCHub---Frontend/src/components/lms/student/discover/DiscoverCourseGrid.tsx) — Container chứa lưới các thẻ khóa học.
+- [`src/styles/base/reset.css`](file:///home/thanh/BDCHub---Frontend/src/styles/base/reset.css) - Khóa scroll anchoring cấp hệ thống.
+- [`src/components/lms/shared/InfiniteScrollTrigger.tsx`](file:///home/thanh/BDCHub---Frontend/src/components/lms/shared/InfiniteScrollTrigger.tsx) - Component sentinel xử lý lazy loading kép.
+- [`src/app/(learning)/lms/student/discover/page.tsx`](file:///home/thanh/BDCHub---Frontend/src/app/(learning)/lms/student/discover/page.tsx) - Khóa scroll restoration và xử lý layout shift.
+- [`src/components/lms/student/discover/DiscoverCourseGrid.tsx`](file:///home/thanh/BDCHub---Frontend/src/components/lms/student/discover/DiscoverCourseGrid.tsx) - Container chứa lưới các thẻ khóa học.

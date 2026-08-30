@@ -1,5 +1,5 @@
 /**
- * studioService — client for the Content Studio (slide/document authoring).
+ * studioService - client for the Content Studio (slide/document authoring).
  * Goes through the Next proxy /api/ai/studio/* which injects auth + secret.
  */
 export interface StudioContextSource {

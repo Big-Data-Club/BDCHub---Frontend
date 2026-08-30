@@ -18,7 +18,7 @@ const hasBorderRadius = (line) => /border-radius/i.test(line);
 const isSafeElement = (line) => /<(?:blockquote|nav[\s>]|pre[\s>]|code[\s>]|a\s|input[\s>]|span[\s>])/i.test(line);
 
 
-/** Strip HTML to plain text — drops script/style/comments/tags so
+/** Strip HTML to plain text - drops script/style/comments/tags so
  *  content-text analyzers don't false-positive on code or CSS. */
 function stripHtmlToText(html) {
   return html
@@ -328,7 +328,7 @@ function isNeutralAuthoredColor(rawColor) {
   if (NEUTRAL_COLOR_KEYWORDS.has(c)) return true;
   // Modern rgb() takes space-separated channels (`rgb(0 0 0)`). shared/color.mjs
   // parses only the comma form a browser's getComputedStyle emits, so authored
-  // space-separated neutrals fell through it and reported as chromatic — the
+  // space-separated neutrals fell through it and reported as chromatic - the
   // exemption this function exists for, missed. Normalize before delegating.
   if (/^rgba?\(/i.test(c)) {
     const channels = c.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
@@ -509,7 +509,7 @@ const REGEX_ANALYZERS = [
   // not the occasional dash. Humans use em-dashes legitimately, so this rule is
   // advisory (surfaced separately, never a failure, hook-skipped by default) and
   // its threshold is deliberately conservative. Two gates must both hold:
-  //   1. Absolute floor of EM_DASH_FLOOR (8) dashes — a page with a handful
+  //   1. Absolute floor of EM_DASH_FLOOR (8) dashes - a page with a handful
   //      never fires, no matter how short.
   //   2. Density: at least one dash per EM_DASH_CHARS_PER_DASH (500) characters
   //      of body text, so a long article that uses eight across several thousand
@@ -524,9 +524,9 @@ const REGEX_ANALYZERS = [
   // was never counted either.
   (content, filePath) => {
     const text = stripHtmlToText(content)
-      .replace(/&mdash;|&#0*8212;|&#x0*2014;/gi, '—');
+      .replace(/&mdash;|&#0*8212;|&#x0*2014;/gi, '-');
     let count = 0;
-    const re = /[—]|--(?=\S)/g;
+    const re = /[-]|--(?=\S)/g;
     while (re.exec(text) !== null) count++;
     if (count < EM_DASH_FLOOR) return [];
     // Saturation gate: dashes must be dense in the prose, not sprinkled through
@@ -676,7 +676,7 @@ function scanInsetStripeCss(rawContent, filePath, lineOffset = 0) {
     // `!important` qualifies the declaration, not the shadow value, so strip it
     // before the layers are read. Tokenizing split it into its own token, which
     // made the color count wrong and silently stopped flagging stripes declared
-    // with it — a shape the previous regex handled.
+    // with it - a shape the previous regex handled.
     const shadowValue = declaration[1].replace(/\s*!\s*important\s*$/i, '').trim();
 
     for (const rawLayer of shadowValue.split(/,(?![^(]*\))/)) {
@@ -712,7 +712,7 @@ function scanInsetStripeCss(rawContent, filePath, lineOffset = 0) {
       if (!insetStripeColorIsChromatic(colors[0])) continue;
       const edge = ay === 0 ? (x.n > 0 ? 'left' : 'right') : (y.n > 0 ? 'top' : 'bottom');
       const line = lineOffset + lineAtOffset(selectorStart);
-      findings.push(finding('side-tab', filePath, `${selector} — inset box-shadow ${ay === 0 ? ax : ay}px stripe (${edge})`, line));
+      findings.push(finding('side-tab', filePath, `${selector} - inset box-shadow ${ay === 0 ? ax : ay}px stripe (${edge})`, line));
       break;
     }
   }
@@ -991,7 +991,7 @@ function runRegexMatchers(lines, filePath, lineOffset = 0, blockContext = null, 
 
 /** Page-level analyzers that scan rendered text content (em-dash use,
  *  buzzword phrases, aphoristic cadence).
- *  These are detector-agnostic — they work on any HTML/text source
+ *  These are detector-agnostic - they work on any HTML/text source
  *  and don't need a parsed DOM. Exported so detectHtml can call them
  *  for `.html` files (which otherwise skip the regex engine). */
 const TEXT_CONTENT_ANALYZER_IDS = [
@@ -1081,7 +1081,7 @@ function detectText(content, filePath, options = {}) {
       phase: 'style-block',
     }));
     // block.startLine is the first line *after* the <style> tag, but block.content
-    // begins at the character right after that tag — so its own line 1 sits on the
+    // begins at the character right after that tag - so its own line 1 sits on the
     // tag's line, whether or not a newline follows immediately. lineAtOffset is
     // 1-based, so the offset is startLine - 2; startLine - 1 double-counted and
     // reported every selector one line low. runRegexMatchers keeps startLine - 1

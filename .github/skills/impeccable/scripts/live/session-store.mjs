@@ -9,7 +9,7 @@ export const GENERATION_FENCED_PHASES = new Set(GENERATION_FENCED_SESSION_PHASES
 // The snapshot file carries two bookkeeping fields the snapshot itself does not
 // own: how large the journal was when the snapshot was written, and the next
 // sequence number. Both are stripped before a snapshot is handed to a caller.
-// The byte count is what makes a cached snapshot verifiable — the journal is
+// The byte count is what makes a cached snapshot verifiable - the journal is
 // append-only, so a matching size means no event has landed since.
 const META_JOURNAL_BYTES = '__journalBytes';
 const META_NEXT_SEQ = '__nextSeq';
@@ -123,7 +123,7 @@ export function createLiveSessionStore({ cwd = process.cwd(), sessionId } = {}) 
      * True when a journal exists for the id in either root. appendEvent
      * CREATES a journal for any id it is handed, so callers that should only
      * ever touch existing sessions (browser checkpoints, mount acks) check
-     * here first — otherwise a stale id from another project's browser
+     * here first - otherwise a stale id from another project's browser
      * storage materializes a ghost session in this store.
      */
     has(id) {
@@ -376,7 +376,7 @@ function applyEvent(snapshot, entry) {
       next.phase = event.carbonize === true ? 'carbonize_required' : 'variants_ready';
       // Durable completion marker: later browser checkpoints (a resumed page
       // reporting phase "generating") regress `phase`, but generation staying
-      // finished is monotone — the live server keys missed-`done` redelivery
+      // finished is monotone - the live server keys missed-`done` redelivery
       // on this field.
       next.generationCompletedAt = event.at ?? (Date.parse(entry.ts || '') || Date.now());
       next.sourceFile = event.sourceFile ?? event.file ?? next.sourceFile;

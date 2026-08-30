@@ -89,7 +89,7 @@ function resolveProjectContext() {
       || (designPath ? path.dirname(designPath) : null),
   };
 }
-const DEFAULT_POLL_TIMEOUT = 600_000;   // 10 min — agent re-polls on timeout anyway
+const DEFAULT_POLL_TIMEOUT = 600_000;   // 10 min - agent re-polls on timeout anyway
 const SSE_HEARTBEAT_INTERVAL = 30_000;  // keepalive ping every 30s
 
 // The browser events allowed to mint a NEW session journal. `generate` starts
@@ -210,7 +210,7 @@ function findAvailablePendingEvent(now = Date.now(), types = null) {
 async function leaseEvent(entry, leaseMs) {
   // Claim the entry before awaiting anything. prepareGenerateEventForLease
   // yields to the event loop, and selectAvailablePendingEvent only skips
-  // entries whose lease is in the future — an unclaimed entry would be handed
+  // entries whose lease is in the future - an unclaimed entry would be handed
   // to a second poll in that window and generated twice.
   entry.leaseUntil = Date.now() + leaseMs;
   await prepareGenerateEventForLease(entry);
@@ -288,7 +288,7 @@ function recordAgentPhase(id, phase, details = {}) {
  * caller can re-broadcast it; the browser's done handler is idempotent and
  * falls back to injecting variants from source.
  *
- * Keys on the store's monotone `generationCompletedAt`, not `phase` — the
+ * Keys on the store's monotone `generationCompletedAt`, not `phase` - the
  * behind checkpoint itself regresses `phase` to `generating`, and a browser
  * that misses the redelivered `done` too (another reload) must still trigger
  * redelivery from its next checkpoint.
@@ -634,7 +634,7 @@ function getManualEditStatus() {
 function loadBrowserScripts() {
   // Detection script: prefer the skill-bundled detector, then fall back to
   // source/npm package locations for local development and older installs.
-  // This one IS cached — detect.js rarely changes during a session.
+  // This one IS cached - detect.js rarely changes during a session.
   const detectPaths = [
     path.join(__dirname, 'detector', 'detect-antipatterns-browser.js'),
     path.join(__dirname, '..', '..', 'cli', 'engine', 'detect-antipatterns-browser.js'),
@@ -661,7 +661,7 @@ function loadBrowserScripts() {
 }
 
 function hasProjectContext() {
-  // PRODUCT.md carries brand voice / anti-references — that's what determines
+  // PRODUCT.md carries brand voice / anti-references - that's what determines
   // whether variants are brand-aware. DESIGN.md (visual tokens) is a separate
   // concern, surfaced by the design panel's own empty state.
   return !!resolveProjectContext().hasProduct;
@@ -701,7 +701,7 @@ function createRequestHandler({ detectScript, liveScriptParts }) {
     // delivers the token to the page regardless of origin, every overlay
     // request carries it in the query string (preflights included, since
     // OPTIONS hits the same URL), and a token bearer is already fully
-    // authorized on every route — the token is the security boundary, not the
+    // authorized on every route - the token is the security boundary, not the
     // origin. Requests with no Origin header (script tags, curl, the agent's
     // own fetches) are not subject to CORS and keep working; no ACAO header
     // is needed for them.
@@ -729,7 +729,7 @@ function createRequestHandler({ detectScript, liveScriptParts }) {
       }
       // Re-read from disk each request so edits to live-browser.js land on
       // the next tab reload. No-store headers prevent browser caching across
-      // sessions — during iteration, a cached old script silently breaks
+      // sessions - during iteration, a cached old script silently breaks
       // every subsequent session.
       let parts;
       try {
@@ -1242,7 +1242,7 @@ function inferSourceEventType(msg = {}, pendingEvents = state.pendingEvents) {
   // match *any* event for this id: a stale generate worker's failure silently
   // consumed the user's queued Accept, which was then never delivered to any
   // agent and left the browser in SAVING forever. Attribute the failure to the
-  // event this agent actually holds a lease on, and otherwise to `generate` —
+  // event this agent actually holds a lease on, and otherwise to `generate` -
   // never to a wildcard. If that generate was already retired by an Accept, the
   // ack simply finds no match, which is the correct outcome for a stale reply.
   if (msg.type === 'error') {

@@ -18,10 +18,10 @@ slug: src-app-landing-page-tsx
 | 4 | Consistency and Standards | 3/4 | Consistent cosmic navy aesthetic, but off-ramp 10px text sizes violate DESIGN.md |
 | 5 | Error Prevention | 4/4 | Static landing page; clean internal & external links |
 | 6 | Recognition Rather Than Recall | 3/4 | Strong icon header language, but Members section is commented out |
-| 7 | Flexibility and Efficiency | n/a | Persuade surface — power user accelerators not applicable |
+| 7 | Flexibility and Efficiency | n/a | Persuade surface - power user accelerators not applicable |
 | 8 | Aesthetic and Minimalist Design | 2/4 | Decorative gradient text slop on Hero title, commented-out dead code in page |
 | 9 | Error Recovery | 4/4 | No form submission or error-prone state on landing page |
-| 10 | Help and Documentation | n/a | Persuade surface — documentation not applicable |
+| 10 | Help and Documentation | n/a | Persuade surface - documentation not applicable |
 | **Total** | | **25/32** | **Good** |
 
 ### Design Specificity Verdict

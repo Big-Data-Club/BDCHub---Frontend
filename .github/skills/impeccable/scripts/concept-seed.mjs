@@ -5,7 +5,7 @@
  *
  * Before this script runs, the model retrieves cultural material and derives
  * a grounded shortlist of complete candidate directions from it (see
- * reference/new-work.md). Left alone, it then always builds its #1 —
+ * reference/new-work.md). Left alone, it then always builds its #1 -
  * and a single model's resonance ranking is deterministic, so every run
  * in a category ships the same one or two concepts. Measured: 30/35
  * identical concepts across 16 prompt framings; the model cannot roll
@@ -66,10 +66,10 @@
  * DO_NOT_TRACK or IMPECCABLE_NO_TELEMETRY disables it.
  *
  * Env vars:
- *   IMPECCABLE_CONCEPT_SEED — same as --from; for reproducible eval runs.
- *   IMPECCABLE_CATALOG_DIR  — directory holding the four catalog JSON files.
- *   IMPECCABLE_API_URL      — roll API base (default https://impeccable.style/api).
- *   IMPECCABLE_NO_TELEMETRY — disables the choice ping (DO_NOT_TRACK also honored).
+ *   IMPECCABLE_CONCEPT_SEED - same as --from; for reproducible eval runs.
+ *   IMPECCABLE_CATALOG_DIR  - directory holding the four catalog JSON files.
+ *   IMPECCABLE_API_URL      - roll API base (default https://impeccable.style/api).
+ *   IMPECCABLE_NO_TELEMETRY - disables the choice ping (DO_NOT_TRACK also honored).
  */
 
 import crypto from 'node:crypto';

@@ -220,7 +220,7 @@ export default function LabManagePage() {
                       <td className="px-6 py-5">
                         <div className="text-xs">
                           <p className="font-semibold text-slate-700 dark:text-slate-300">{lab.creatorName || `User #${lab.createdBy}`}</p>
-                          <p className="mt-1 text-slate-400">{lab.creatorEmail || "—"}</p>
+                          <p className="mt-1 text-slate-400">{lab.creatorEmail || "-"}</p>
                         </div>
                       </td>
                       <td className="px-6 py-5">

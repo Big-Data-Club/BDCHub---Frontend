@@ -669,7 +669,7 @@ export default function LabDetailPage() {
                                   }`}
                                 >
                                   {tr.status === "PASSED" ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
-                                  <span>Test {idx + 1}{tr.testName ? ` — ${tr.testName}` : ""}: {tr.status} ({tr.runtimeMs}ms)</span>
+                                  <span>Test {idx + 1}{tr.testName ? ` - ${tr.testName}` : ""}: {tr.status} ({tr.runtimeMs}ms)</span>
                                 </div>
                                 {tr.isSample && (
                                   <details open={tr.status !== "PASSED"} className="max-w-full rounded border border-slate-700 bg-slate-950 p-2 text-slate-300">
@@ -739,7 +739,7 @@ export default function LabDetailPage() {
                                   }`}
                                 >
                                   {tr.status === "PASSED" ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
-                                  <span>Test {idx + 1}{tr.testName ? ` — ${tr.testName}` : ""}: {tr.status} ({tr.runtimeMs}ms)</span>
+                                  <span>Test {idx + 1}{tr.testName ? ` - ${tr.testName}` : ""}: {tr.status} ({tr.runtimeMs}ms)</span>
                                 </div>
                                 {tr.isSample && (
                                   <details open={tr.status !== "PASSED"} className="max-w-full rounded border border-slate-700 bg-slate-950 p-2 text-slate-300">

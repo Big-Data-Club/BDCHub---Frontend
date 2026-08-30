@@ -28,7 +28,7 @@ const DETECTOR_IS_BROWSER = typeof window !== 'undefined';
 
 function checkBorders(tag, widths, colors, radius, opts = {}) {
   // Badge-shaped <span>s (own visible background) are a real stripe target
-  // for the top/bottom variant — the inline-tag exemption exists to quiet
+  // for the top/bottom variant - the inline-tag exemption exists to quiet
   // text-level borders, not chips. They skip the left/right arms below.
   const spanBadge = tag === 'span' && !!opts.badgeLike;
   if (BORDER_SAFE_TAGS.has(tag) && !spanBadge) return [];
@@ -112,12 +112,12 @@ function checkColors(opts) {
     // Gradient-clipped text (`background-clip: text`, typically with a
     // transparent text-fill) paints its glyphs *with* the element's own
     // gradient. The `color` value the cascade still reports is never painted,
-    // and the gradient is the fill, not a backdrop — so measuring `color`
+    // and the gradient is the fill, not a backdrop - so measuring `color`
     // against that gradient (which resolveGradientStops picks up as the
     // element's own background-image) is a guaranteed false positive
     // (issue #409 Case A). Skip the backdrop-contrast checks; the gradient-text
     // rule below still flags the pattern itself. Skipping a rule beats a false
-    // positive here — the true painted contrast can't be measured from `color`.
+    // positive here - the true painted contrast can't be measured from `color`.
     const isGradientClippedText = bgClip === 'text';
     // Run background-dependent checks against either a solid bg or, if the
     // ancestor is a gradient, against every gradient stop (use the worst case).
@@ -125,7 +125,7 @@ function checkColors(opts) {
       ? null
       : (effectiveBg ? [effectiveBg] : (effectiveBgStops && effectiveBgStops.length ? effectiveBgStops : null));
     if (bgs) {
-      // Gray on colored background — flag if every stop is chromatic
+      // Gray on colored background - flag if every stop is chromatic
       const textLum = relativeLuminance(textColor);
       const isGray = !hasChroma(textColor, 20) && textLum > 0.05 && textLum < 0.85;
       if (isGray && bgs.every(b => hasChroma(b, 40))) {
@@ -133,7 +133,7 @@ function checkColors(opts) {
         findings.push({ id: 'gray-on-color', snippet: `text ${colorToHex(textColor)} on bg ${bgLabel}` });
       }
 
-      // Low contrast (WCAG AA) — worst case across all bg stops
+      // Low contrast (WCAG AA) - worst case across all bg stops
       const ratios = bgs.map(b => contrastRatio(textColor, b));
       let worstIdx = 0;
       for (let i = 1; i < ratios.length; i++) if (ratios[i] < ratios[worstIdx]) worstIdx = i;
@@ -146,7 +146,7 @@ function checkColors(opts) {
         // comparing against gradient-stop fallback). In jsdom mode the
         // detector can't resolve `var(--X)` color tokens, so a dark
         // section sitting between the text and the body's decorative
-        // gradient is invisible to us — we end up measuring contrast
+        // gradient is invisible to us - we end up measuring contrast
         // against the body's paper-grain noise instead of the real
         // local bg. Real low-contrast bugs use alpha=1 and have a
         // resolvable opaque ancestor; semi-transparent Tailwind tokens
@@ -154,10 +154,10 @@ function checkColors(opts) {
         const isAlphaFallbackFP = !DETECTOR_IS_BROWSER && !effectiveBg && (textColor.a != null && textColor.a < 1);
         if (!isAlphaFallbackFP) {
           // Near-threshold ratios (e.g. 4.497) would round to the threshold
-          // itself at one decimal and read as "4.5 needs 4.5" — show two
+          // itself at one decimal and read as "4.5 needs 4.5" - show two
           // decimals there so the finding stays legible.
           const ratioLabel = ratio.toFixed(1) === threshold.toFixed(1) ? ratio.toFixed(2) : ratio.toFixed(1);
-          findings.push({ id: 'low-contrast', snippet: `${ratioLabel}:1 (need ${threshold}:1) — text ${colorToHex(textColor)} on ${colorToHex(bgs[worstIdx])}` });
+          findings.push({ id: 'low-contrast', snippet: `${ratioLabel}:1 (need ${threshold}:1) - text ${colorToHex(textColor)} on ${colorToHex(bgs[worstIdx])}` });
         }
       }
     }
@@ -207,8 +207,8 @@ function checkColors(opts) {
 // its text color and/or background. The classic miss: a nav CTA whose
 // author-intended hover pair passes AA, but a broader selector (e.g.
 // `.nav-links a:hover`) wins the specificity fight and swaps in a color
-// that fails. Only fires on elements that present as styled controls —
-// direct text plus an opaque-ish own background in either state — so plain
+// that fails. Only fires on elements that present as styled controls -
+// direct text plus an opaque-ish own background in either state - so plain
 // inline links keep the same suppression they get in checkColors.
 function checkHoverContrast(opts) {
   const { tag, textColor, bg, ownBgAlpha, fontSize, fontWeight, hasDirectText, isEmojiOnly } = opts;
@@ -220,7 +220,7 @@ function checkHoverContrast(opts) {
   if (ratio >= threshold) return [];
   return [{
     id: 'low-contrast',
-    snippet: `:hover state ${ratio.toFixed(1)}:1 (need ${threshold}:1) — text ${colorToHex(textColor)} on ${colorToHex(bg)}`,
+    snippet: `:hover state ${ratio.toFixed(1)}:1 (need ${threshold}:1) - text ${colorToHex(textColor)} on ${colorToHex(bg)}`,
   }];
 }
 
@@ -236,9 +236,9 @@ const HEADING_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 //
 // Triggers when ALL of the following hold for the sibling:
 //   • size 32–128px on both axes (not too small, not a hero image)
-//   • aspect ratio 0.7–1.4 (squarish — excludes wide thumbnails / pill badges)
+//   • aspect ratio 0.7–1.4 (squarish - excludes wide thumbnails / pill badges)
 //   • has a non-transparent background-color, background-image, OR a visible border
-//     (covers solid colors, white-with-border, gradients — anything that visually
+//     (covers solid colors, white-with-border, gradients - anything that visually
 //      defines a tile)
 //   • border-radius < width/2 (excludes round avatars; rounded squares pass)
 //   • contains an <svg> or icon-class <i> element that's smaller than the tile
@@ -275,7 +275,7 @@ function checkIconTile(opts) {
   if (iconChildWidth && iconChildWidth >= siblingWidth * 0.95) return [];
 
   // Vertical stacking: tile must end above where the heading starts.
-  // (Allow the check to skip when both top/bottom are 0 — jsdom layout case.)
+  // (Allow the check to skip when both top/bottom are 0 - jsdom layout case.)
   if (headingTop && siblingBottom && siblingBottom > headingTop + 4) return [];
 
   const text = (headingText || '').trim().slice(0, 60);
@@ -322,20 +322,20 @@ function checkItalicSerif(opts) {
 }
 
 // Color saturation check. Returns true when the color has visible
-// chroma — i.e., it's an "accent color" rather than near-neutral.
+// chroma - i.e., it's an "accent color" rather than near-neutral.
 // Handles rgb()/rgba(), #hex, oklch(), and hsl(). var() refs are
 // expected to be pre-resolved by the caller.
 function isAccentColor(cssColor) {
   if (!cssColor) return false;
   const s = String(cssColor).trim();
-  // rgb / rgba — direct channel-distance check.
+  // rgb / rgba - direct channel-distance check.
   const rgbM = /rgba?\(\s*(\d+)\s*,?\s+|\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(s.replace(/rgba?\(\s*/, 'rgb(').replace(/,/g, ', '));
   const rgbStrict = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(s);
   if (rgbStrict) {
     const r = +rgbStrict[1], g = +rgbStrict[2], b = +rgbStrict[3];
     return (Math.max(r, g, b) - Math.min(r, g, b)) >= 40;
   }
-  // #hex — 3, 4, 6, or 8 digit.
+  // #hex - 3, 4, 6, or 8 digit.
   const hexM = /^#([0-9a-f]{3,8})\b/i.exec(s);
   if (hexM) {
     let h = hexM[1];
@@ -348,7 +348,7 @@ function isAccentColor(cssColor) {
       return (Math.max(r, g, b) - Math.min(r, g, b)) >= 40;
     }
   }
-  // oklch(L C H) — chroma C is what matters. Typical neutral grays
+  // oklch(L C H) - chroma C is what matters. Typical neutral grays
   // have C < 0.02; visible accents are 0.05+. CSS minification can
   // collapse spaces between L% and C ("oklch(43%.15 34)"), so we
   // extract all numbers and take the second rather than matching a
@@ -360,7 +360,7 @@ function isAccentColor(cssColor) {
       return !Number.isNaN(c) && c >= 0.05;
     }
   }
-  // hsl(H, S%, L%) — saturation > 20% reads as accent.
+  // hsl(H, S%, L%) - saturation > 20% reads as accent.
   const hslM = /hsla?\(\s*[\d.]+\s*,\s*([\d.]+)%/i.exec(s);
   if (hslM) {
     const sat = parseFloat(hslM[1]);
@@ -422,7 +422,7 @@ function checkHeroEyebrow(opts) {
   if (!(headingFontSize >= 48)) return [];
   if (!siblingTag) return [];
   // An h2 above an h1 is a different anti-pattern (heading hierarchy / dual
-  // headings) — never an eyebrow.
+  // headings) - never an eyebrow.
   if (HEADING_TAGS.has(siblingTag)) return [];
 
   const text = (siblingText || '').trim();
@@ -434,13 +434,13 @@ function checkHeroEyebrow(opts) {
     || (/[A-Z]/.test(text) && !/[a-z]/.test(text));
   const isClassicTracked = isUppercased && siblingLetterSpacing >= 1.6;
 
-  // Branch B: modern accent-bold eyebrow — sentence case, low
+  // Branch B: modern accent-bold eyebrow - sentence case, low
   // tracking, but bold + accent-colored. The style choices changed;
   // the pattern is the same kicker-above-headline anti-pattern.
   const weight = Number(siblingFontWeight) || 400;
   const isAccentBold = weight >= 700 && isAccentColor(siblingColor || '');
 
-  // Branch C: dash-prefix eyebrow — sentence case, low tracking, regular
+  // Branch C: dash-prefix eyebrow - sentence case, low tracking, regular
   // weight, but announced by a short chromatic ::before/::after bar
   // (the kicker dash). Same label-above-headline pattern, third styling.
   const isDashPrefixed = !!siblingHasAccentDashPseudo;
@@ -515,7 +515,7 @@ function checkMotion(opts) {
 
 // Locate the color token in a single shadow layer. Returns
 // { color, start, end } where color is the parsed {r,g,b,a} (null when the
-// token exists but can't be parsed — e.g. an unresolved var() or an exotic
+// token exists but can't be parsed - e.g. an unresolved var() or an exotic
 // color space), or null when no color token is present at all. Handles both
 // serialization orders: computed style puts the color first
 // ("rgb(…) 0px 0px 20px"), authored CSS usually puts it last
@@ -558,11 +558,11 @@ function checkGlow(opts) {
   const onDarkBg = effectiveBg ? relativeLuminance(effectiveBg) < 0.1 : false;
 
   // Scan one shadow list. Two glow tells, in any color format:
-  //  1. Zero-offset chromatic halo (0 0 Npx <color>) — slop on ANY
+  //  1. Zero-offset chromatic halo (0 0 Npx <color>) - slop on ANY
   //     background; the light radiates evenly outward, which is never how
   //     real elevation shadows behave. Achromatic zero-offset shadows stay
   //     legal (soft ambient elevation), as do focus rings (blur 0).
-  //  2. Any chromatic shadow with real blur on a dark background — the
+  //  2. Any chromatic shadow with real blur on a dark background - the
   //     classic dark-mode glow accent.
   const scan = (value, prop) => {
     if (!value || value === 'none') return null;
@@ -570,7 +570,7 @@ function checkGlow(opts) {
     for (const layer of value.split(/,(?![^(]*\))/)) {
       const colorInfo = findShadowColor(layer);
       // No color token, or one we can't resolve (unresolved var(), exotic
-      // color space): don't guess — skip rather than false-positive.
+      // color space): don't guess - skip rather than false-positive.
       if (!colorInfo || !colorInfo.color) continue;
       const color = colorInfo.color;
       if (!hasChroma(color, 30)) continue;
@@ -609,10 +609,10 @@ function collectCssCustomProps(content) {
 // collected from the same text, then applies the same two glow tells as
 // checkGlow: zero-offset chromatic halo (any background) and chromatic
 // blurred shadow when the page has a dark background. Returns
-// [{ index, snippet }] — index is the offset of the shadow declaration.
+// [{ index, snippet }] - index is the offset of the shadow declaration.
 // Dark-page heuristic for raw CSS/HTML text: dark hex/rgb literals, Tailwind
 // dark bg utilities, or a ROOT-scoped (body/html/:root or <body style>)
-// background that resolves — via var() — to a dark color. The var/modern-
+// background that resolves - via var() - to a dark color. The var/modern-
 // color extension is deliberately root-scoped: a light page with one dark
 // accent chip must not turn every tinted drop shadow into a "dark page"
 // signal. Shared by the glow and radial-halo text scanners.
@@ -715,7 +715,7 @@ function scanCssTextForGridBackground(content) {
 //   * page has a dark root background (shared heuristic with the glow scan)
 //   * declaration has no url() layer (photographic imagery is exempt)
 //   * the gradient's first color stop is chromatic (RGB spread >= 24) and
-//     visible (alpha >= 0.7 — deliberately translucent light-scene washes
+//     visible (alpha >= 0.7 - deliberately translucent light-scene washes
 //     composite with content instead of painting a flat halo, and stay legal)
 //   * the gradient's last stop is transparent / near-zero alpha
 //   * no small pixel-sized stop positions (<= 24px = dot/texture patterns)
@@ -791,7 +791,7 @@ function scanCssTextForRadialHalo(content) {
 // Iterate `selector { declarations }` pairs in raw CSS/HTML text. The block
 // body excludes braces, so nested structures (@media, @keyframes) naturally
 // yield their innermost rules with the innermost selector text. Callers
-// create the regex locally — a shared /g instance is not re-entrant.
+// create the regex locally - a shared /g instance is not re-entrant.
 const CSS_RULE_BLOCK_SOURCE = String.raw`([^{};]+)\{([^{}]*)\}`;
 
 // Parse a declaration block into a prop → value map (last declaration wins,
@@ -823,7 +823,7 @@ function isZeroOffset(value) {
 // Side-tab variant: the accent stripe drawn as an absolutely-positioned
 // ::before/::after pseudo-element (narrow colored box hugging a vertical
 // edge) instead of a border-left/right. The element-level border checks
-// never see it — pseudo-elements aren't part of the DOM the cascade walks —
+// never see it - pseudo-elements aren't part of the DOM the cascade walks -
 // so this scans stylesheet text directly, mirroring the border rule's
 // gates: >= 3px thick, chromatic fill, full height against a side edge.
 function scanCssTextForPseudoStripe(rawContent) {
@@ -857,7 +857,7 @@ function scanCssTextForPseudoStripe(rawContent) {
     // (aria-selected="true", aria-current, active/current/selected class
     // hints), and state-conditional (:hover/:focus/...) affordances are
     // not stripes. Tab-strip membership alone ([role=tab], .tabs, bare
-    // [aria-selected]) is NOT exempt — a stripe on every tab in the
+    // [aria-selected]) is NOT exempt - a stripe on every tab in the
     // group is decoration; only the selected item's underline stays.
     const horizontalCandidate = heightPx != null && heightPx >= 3 && heightPx <= 12
       && !/(?:^|[\s>+~,(])(?:a|button|summary|tr|td|th|table|li)(?![\w-])/i.test(selector)
@@ -898,7 +898,7 @@ function scanCssTextForPseudoStripe(rawContent) {
     if (verticalCandidate) {
       // Full-height stripes hug both corners; the "floating" variant backs
       // off each end by a small inset (top/bottom a few px) so the bar
-      // clears the card's corners. Both read as the same side-tab accent —
+      // clears the card's corners. Both read as the same side-tab accent -
       // corner treatment is styling, not a different pattern.
       const topPx = cssLengthToPx(resolveVarRefs(String(offsets.top ?? ''), customProps));
       const bottomPx = cssLengthToPx(resolveVarRefs(String(offsets.bottom ?? ''), customProps));
@@ -923,7 +923,7 @@ function scanCssTextForPseudoStripe(rawContent) {
     }
     if (!edge) continue;
 
-    // Chromatic fill only — a neutral hairline divider is not an accent
+    // Chromatic fill only - a neutral hairline divider is not an accent
     // stripe. Unresolvable colors err toward detection, matching the
     // border rule's unknown-format default.
     const bg = String(resolveVarRefs(
@@ -946,7 +946,7 @@ function scanCssTextForPseudoStripe(rawContent) {
     const selectorStart = m.index + (m[1].length - m[1].trimStart().length);
     findings.push({
       id: 'side-tab',
-      snippet: `${selector} — absolute ${thicknessPx}px pseudo-element stripe (${edge}: 0)`,
+      snippet: `${selector} - absolute ${thicknessPx}px pseudo-element stripe (${edge}: 0)`,
       index: selectorStart,
     });
   }
@@ -957,7 +957,7 @@ function scanCssTextForPseudoStripe(rawContent) {
 // (x or y offset 3-12px, other axis 0, no blur/spread, chromatic color):
 // paints a bar along one edge with no border property involved, so the
 // element-level border checks never see it. Selection-state indicators
-// are exempt — an inset stripe on [aria-current] / .active / [role=tab]
+// are exempt - an inset stripe on [aria-current] / .active / [role=tab]
 // marks the selected item; the same stripe unconditionally on every item
 // is decoration and flags.
 function scanCssTextForInsetStripe(content) {
@@ -970,7 +970,7 @@ function scanCssTextForInsetStripe(content) {
     const selector = m[1].trim();
     // Selection-state contexts: current-item markers and interaction
     // states. Tab-strip membership alone ([role=tab], .tabs, bare
-    // [aria-selected]) is NOT exempt — a stripe on every tab in the
+    // [aria-selected]) is NOT exempt - a stripe on every tab in the
     // group is decoration; only the selected item's indicator stays.
     if (/:(?:hover|focus|focus-visible|focus-within|active|checked|target)\b/i.test(selector)) continue;
     if (/\[aria-selected\s*[*^$|~]?=\s*["']?true/i.test(selector)) continue;
@@ -984,8 +984,8 @@ function scanCssTextForInsetStripe(content) {
     const shadow = decls.get('box-shadow');
     if (!shadow || !/\binset\b/i.test(shadow)) continue;
     // Narrow fixed-width elements (logo marks, icon glyphs) use inset
-    // fills as artwork, not edge stripes. Stripe targets — cards, badges,
-    // menu items — are wider or leave width to layout.
+    // fills as artwork, not edge stripes. Stripe targets - cards, badges,
+    // menu items - are wider or leave width to layout.
     const declaredWidth = cssLengthToPx(resolveVarRefs(decls.get('width') || decls.get('inline-size') || '', customProps));
     if (declaredWidth != null && declaredWidth <= 40) continue;
     const value = resolveVarRefs(shadow, customProps);
@@ -1009,7 +1009,7 @@ function scanCssTextForInsetStripe(content) {
       const edge = ay === 0 ? (x > 0 ? 'left' : 'right') : (y > 0 ? 'top' : 'bottom');
       findings.push({
         id: 'side-tab',
-        snippet: `${selector} — inset box-shadow ${ay === 0 ? ax : ay}px stripe (${edge})`,
+        snippet: `${selector} - inset box-shadow ${ay === 0 ? ax : ay}px stripe (${edge})`,
       });
       break;
     }
@@ -1017,7 +1017,7 @@ function scanCssTextForInsetStripe(content) {
   return findings;
 }
 
-// Collect @keyframes names whose body travels horizontally — the marquee
+// Collect @keyframes names whose body travels horizontally - the marquee
 // loop. X travel is measured across every translateX/translate/translate3d
 // X component in the body: a centered element animating something else
 // keeps a constant -50% X (zero travel) and never qualifies, while a
@@ -1042,8 +1042,8 @@ function collectMarqueeKeyframes(content) {
 
     // Only percentage travel qualifies: a content marquee translates by a
     // fraction of its own (unknown) track width, so generated tickers use
-    // -50% / -100%. Pixel-travel loops are bespoke product animations —
-    // sweeping playheads, progress indicators — not marquees.
+    // -50% / -100%. Pixel-travel loops are bespoke product animations -
+    // sweeping playheads, progress indicators - not marquees.
     const pct = [];
     const xRe = /\btranslate(?:X|3d)?\(\s*(-?[\d.]+)%/gi;
     let xm;
@@ -1082,13 +1082,13 @@ function scanCssTextForMarquee(content, markup = content) {
       const key = `${selector} ${name}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      findings.push({ id: 'marquee', snippet: `${selector} — infinite horizontal loop animation "${name}"` });
+      findings.push({ id: 'marquee', snippet: `${selector} - infinite horizontal loop animation "${name}"` });
     }
   }
   return findings;
 }
 
-// Collect @keyframes names and whether each one reads as a "pulse" —
+// Collect @keyframes names and whether each one reads as a "pulse" -
 // i.e. it varies opacity, scale, or box-shadow. Rotation-only keyframes
 // (spinners) are explicitly not pulses.
 function collectPulseKeyframes(content) {
@@ -1156,7 +1156,7 @@ function isRoundDotRadius(radiusValue, w, h) {
 
 // Remove @media blocks whose condition is prefers-reduced-motion: reduce.
 // Those blocks describe the accessibility fallback, not the default
-// experience that ships — an `animation: none` reset inside one must not
+// experience that ships - an `animation: none` reset inside one must not
 // mask the resting-state animation the page plays for everyone else.
 function stripReducedMotionBlocks(content) {
   const re = /@media[^{]*prefers-reduced-motion\s*:\s*reduce[^{]*\{/gi;
@@ -1230,7 +1230,7 @@ function selectorHitsLandmark(content, selector, ranges) {
   return false;
 }
 
-// Small circular indicator bound to an infinite pulse animation — the
+// Small circular indicator bound to an infinite pulse animation - the
 // decorative "live" dot. Gates: tiny (<= 16px square-ish), round
 // (border-radius >= 40% or pill values), and an infinite animation whose
 // keyframes vary opacity/scale/box-shadow (or a pulse/blink/ping name when
@@ -1246,9 +1246,9 @@ function selectorHitsLandmark(content, selector, ranges) {
 // and is promoted to error severity; occurrences elsewhere keep the
 // registry default severity.
 //
-// `content` is CSS-bearing text (rules and keyframes); `markup` — defaulting
+// `content` is CSS-bearing text (rules and keyframes); `markup` - defaulting
 // to the same string for single-corpus callers like the regex source
-// engine — is where landmark ranges and Tailwind class attributes live.
+// engine - is where landmark ranges and Tailwind class attributes live.
 function scanCssTextForPulsingDot(content, markup = content) {
   const customProps = collectCssCustomProps(content);
   const keyframes = collectPulseKeyframes(content);
@@ -1304,7 +1304,7 @@ function scanCssTextForPulsingDot(content, markup = content) {
     const inLandmark = selectorHitsLandmark(markup, selector, heroRanges);
     findings.push({
       id: 'pulsing-dot',
-      snippet: `${selector} — ${w}x${h}px dot with infinite "${pulseName}" animation${inLandmark ? ' in header/nav' : ''}`,
+      snippet: `${selector} - ${w}x${h}px dot with infinite "${pulseName}" animation${inLandmark ? ' in header/nav' : ''}`,
       selector,
       ...(inLandmark ? { severity: 'error' } : {}),
     });
@@ -1337,7 +1337,7 @@ function scanCssTextForPulsingDot(content, markup = content) {
 
 // Shape-assembled illustration: a large inline SVG composing a pictorial
 // scene from many primitive shapes (rect / circle / ellipse / polygon) in
-// several fill colors — the clip-art hero mascot. Gates keep the legitimate
+// several fill colors - the clip-art hero mascot. Gates keep the legitimate
 // SVG population out:
 //   • icons and logos: intrinsic size gate (>= 200px on both axes, from
 //     width/height attributes or the viewBox when no explicit size is set)
@@ -1398,15 +1398,15 @@ function scanHtmlForShapeAssembledIllustration(html) {
 
 // Scoped scan corpora for the page-level pattern checks. CSS-property
 // regexes run over the whole source string fire on documentation ABOUT
-// css — `<code>background-clip: text</code>` prose, <pre> samples, HTML
-// comments — so the checks scan only the strings that actually style the
+// css - `<code>background-clip: text</code>` prose, <pre> samples, HTML
+// comments - so the checks scan only the strings that actually style the
 // page:
-//   styleText — <style> block contents plus style="…" attribute values.
+//   styleText - <style> block contents plus style="…" attribute values.
 //     Attribute values keep their `style="…"` form so block-scoped
 //     scanners (grid background) keep treating each attribute as one
 //     declaration block, exactly as they did against raw source. Engines
 //     that already read more CSS (linked stylesheets) prepend it.
-//   classText — class attribute values, for utility-class scans.
+//   classText - class attribute values, for utility-class scans.
 // Markup-shaped checks (inline <svg> scenes, <img> tags, <marquee>,
 // landmark ranges) and rendered-text checks (theater phrases) keep the
 // full source. This extraction serves callers without a parsed document
@@ -1439,7 +1439,7 @@ function buildHtmlPatternCorpora(html) {
 /**
  * Regex-on-HTML checks shared between browser and Node page-level detection.
  * These don't need DOM access, just the raw HTML string. CSS-property and
- * utility-class patterns scan the scoped corpora (styleText / classText —
+ * utility-class patterns scan the scoped corpora (styleText / classText -
  * see buildHtmlPatternCorpora) so prose about css never flags; only the
  * markup-shaped and rendered-text checks read the full source.
  */
@@ -1648,7 +1648,7 @@ function checkHtmlPatterns(html, corpora) {
 function readOwnBackgroundColor(el, computedStyle) {
   // Real browsers keep wide-gamut/computed color functions (oklch(), oklab(),
   // color-mix() results) in getComputedStyle output, which plain parseRgb
-  // misses — a flat oklch button background would silently skip every
+  // misses - a flat oklch button background would silently skip every
   // contrast check without the parseAnyColor fallback.
   const bg = parseRgb(computedStyle.backgroundColor) || parseAnyColor(computedStyle.backgroundColor);
   if (DETECTOR_IS_BROWSER || (bg && bg.a >= 0.1)) return bg;
@@ -1726,7 +1726,7 @@ function resolveBackground(el, win, customPropMap) {
     //   • on body/html: assume white. Body-level gradients are almost
     //     always decorative texture (paper grain, noise) on top of a
     //     solid bg-color the page set via `background: var(--paper)`
-    //     shorthand — which jsdom can't decompose into bg-color. The
+    //     shorthand - which jsdom can't decompose into bg-color. The
     //     downstream gradient-stops fallback path produces catastrophic
     //     false positives in this case (gradient noise stops have
     //     accidental browns/blacks that look like card backgrounds).
@@ -1758,7 +1758,7 @@ function resolveGradientStops(el, win, customPropMap) {
       if (parsed.length > 0) stops = parsed;
     }
     if (!stops && !DETECTOR_IS_BROWSER) {
-      // jsdom doesn't decompose `background:` shorthand — peek at the raw inline style
+      // jsdom doesn't decompose `background:` shorthand - peek at the raw inline style
       const rawStyle = current.getAttribute?.('style') || '';
       const bgMatch = rawStyle.match(/background(?:-image)?\s*:\s*([^;]+)/i);
       if (bgMatch && /gradient/i.test(bgMatch[1])) {
@@ -1773,7 +1773,7 @@ function resolveGradientStops(el, win, customPropMap) {
 }
 
 // A translucent gradient stop (e.g. a faint `rgba(52,192,168,0.09)` accent
-// glow) paints over whatever surface sits beneath the gradient — the browser
+// glow) paints over whatever surface sits beneath the gradient - the browser
 // composites it, so its effective color is far closer to the base than to the
 // full-opacity accent. Treating the stop as opaque flags every text child of a
 // softly-glowing section as low-contrast (issue #409 Case B). Composite each
@@ -1790,7 +1790,7 @@ function compositeGradientStops(stops, gradientEl, win, customPropMap) {
     const a = s.a ?? 1;
     if (a >= 0.99) { out.push(s); continue; }
     if (base) out.push(compositeColorOver(s, base));
-    // else: unresolvable base — drop the translucent stop (skip, don't guess).
+    // else: unresolvable base - drop the translucent stop (skip, don't guess).
   }
   return out.length ? out : null;
 }
@@ -1826,21 +1826,21 @@ function resolveBorderRadiusPx(el, style, widthPx, win) {
 
 // ─── Section 5: Element Adapters ────────────────────────────────────────────
 
-// Browser adapters — call getComputedStyle/getBoundingClientRect on live DOM
+// Browser adapters - call getComputedStyle/getBoundingClientRect on live DOM
 
 // Selected-state context for accent stripes. Only an actual selection
 // marker exempts the stripe as the standard active-item indicator:
 // aria-selected="true", aria-current (any non-false value), or an
 // active/current/selected class hint. Tab-strip MEMBERSHIP alone
 // ([role=tablist]/[role=tab]/.tabs ancestry, aria-selected="false")
-// deliberately does not — a chromatic stripe repeated on every tab in
+// deliberately does not - a chromatic stripe repeated on every tab in
 // the group, or on every menu item, is decoration, not state; the
 // selected item's own underline stays legal.
 function isTabContextElement(el) {
   if (!el) return false;
   try {
     if (el.closest?.('[aria-selected="true"], [aria-current]:not([aria-current="false"])')) return true;
-  } catch { /* selector engine differences — fall through to class scan */ }
+  } catch { /* selector engine differences - fall through to class scan */ }
   let cur = el, depth = 0;
   while (cur && cur.nodeType === 1 && depth < 6) {
     const cls = String(cur.getAttribute?.('class') || cur.className || '');
@@ -1853,15 +1853,15 @@ function isTabContextElement(el) {
 
 // Status-surface context for accent borders. On a live status/alert region
 // (role=status|alert|alertdialog|log, or aria-live=polite|assertive) a colored
-// single-edge border is the established severity-accent convention — a toast,
-// snackbar, or callout bar — not the decorative side-tab tell. The element
+// single-edge border is the established severity-accent convention - a toast,
+// snackbar, or callout bar - not the decorative side-tab tell. The element
 // itself or a wrapping live region qualifies. This never fires from the
 // CSS-only / regex scanners, which have no role information.
 function isStatusContextElement(el) {
   if (!el) return false;
   try {
     if (el.closest?.('[role="status"], [role="alert"], [role="alertdialog"], [role="log"], [aria-live="polite"], [aria-live="assertive"]')) return true;
-  } catch { /* selector engine differences — fall through */ }
+  } catch { /* selector engine differences - fall through */ }
   return false;
 }
 
@@ -1889,7 +1889,7 @@ function checkElementBordersDOM(el) {
 // stylesheet source, so a stripe whose color only exists at runtime (an
 // inline per-card custom property, a JS-assigned var) or whose geometry
 // resolves in layout never matches it. In a real browser the pseudo-element's
-// computed style carries the actual used color and px geometry — check those
+// computed style carries the actual used color and px geometry - check those
 // directly. Gates mirror the text scanner: 3-12px thick, chromatic fill,
 // spanning (nearly) the full edge; corner rounding on the host card is
 // irrelevant. Exemptions stay narrow: structural/prose tags, real selection
@@ -1950,7 +1950,7 @@ function checkElementPseudoStripeDOM(el) {
 
     findings.push({
       id: 'side-tab',
-      snippet: `${classSelector(el)}${which} — absolute ${thickness}px pseudo-element stripe (${edge})`,
+      snippet: `${classSelector(el)}${which} - absolute ${thickness}px pseudo-element stripe (${edge})`,
     });
   }
   return findings;
@@ -1959,7 +1959,7 @@ function checkElementPseudoStripeDOM(el) {
 // Full-cover surface pseudo (browser): a ::before/::after positioned
 // absolute/fixed whose box covers (nearly) the whole host and carries an
 // opaque background. That pseudo is the element's visible surface even
-// though the element's own background-color reads transparent — the nav-CTA
+// though the element's own background-color reads transparent - the nav-CTA
 // construction that otherwise escapes every own-background contrast gate.
 function readPseudoSurfaceDOM(el, rect) {
   for (const which of ['::before', '::after']) {
@@ -1980,7 +1980,7 @@ function readPseudoSurfaceDOM(el, rect) {
 
 function checkElementColorsDOM(el) {
   const tag = el.tagName.toLowerCase();
-  // No early SAFE_TAGS bail here — checkColors() does its own gating that
+  // No early SAFE_TAGS bail here - checkColors() does its own gating that
   // includes the styled-button exception for <a> / <button> with their own
   // opaque background. Bailing here would prevent that exception from firing.
   const rect = el.getBoundingClientRect();
@@ -2110,7 +2110,7 @@ function checkElementHeroEyebrowDOM(el) {
 // CSS vars (font-weight: var(--font-weight-bold), font-size:
 // var(--text-xs), letter-spacing: var(--tracking-widest)), so without
 // resolution every style-based check silently fails on Tailwind v4
-// builds — the values come back as literal "var(--font-weight-bold)"
+// builds - the values come back as literal "var(--font-weight-bold)"
 // strings and parseFloat returns NaN.
 function buildCustomPropMap(document) {
   const map = new Map();
@@ -2159,7 +2159,7 @@ function resolveVarRefs(raw, customPropMap, depth = 0) {
 
 // OKLCH → sRGB conversion (Björn Ottosson's matrices). L in 0..1 (or %),
 // C in 0..~0.4 typical, H in degrees. Returns clamped {r,g,b,a:1} in 0..255.
-// Needed because jsdom doesn't compute oklch() values — getComputedStyle
+// Needed because jsdom doesn't compute oklch() values - getComputedStyle
 // returns the literal "oklch(...)" string. Without this, the entire
 // Tailwind v4 color palette (which is OKLCH-based) is invisible to the
 // detector's contrast / color checks.
@@ -2217,7 +2217,7 @@ function hwbToRgb(h, w, bl) {
   return { r: mix(base.r), g: mix(base.g), b: mix(base.b), a: 1 };
 }
 
-// Common CSS named colors — the handful that actually show up in generated
+// Common CSS named colors - the handful that actually show up in generated
 // UIs, not the full 148-name spec list. Includes the achromatic names so a
 // named gray parses (and correctly reads as no-chroma) instead of being
 // treated as an unknown color.
@@ -2286,7 +2286,7 @@ function splitTopLevelCommas(str) {
 //
 // Mixing is done with premultiplied alpha in sRGB regardless of the
 // declared interpolation space. That is exact for the dominant generated-UI
-// pattern — `color-mix(in oklab, <color> N%, transparent)` — where the
+// pattern - `color-mix(in oklab, <color> N%, transparent)` - where the
 // result is simply <color> at alpha N% in ANY rectangular space, and a
 // close-enough approximation for opaque-opaque mixes (the detector only
 // consumes these values for contrast/chroma thresholds, not for display).
@@ -2397,7 +2397,7 @@ function parseAnyColor(s) {
     }
     return rgb;
   }
-  // OKLAB — a/b are signed axes; percentages map 100% → 0.4.
+  // OKLAB - a/b are signed axes; percentages map 100% → 0.4.
   m = str.match(/oklab\(\s*([\d.]+)(%?)\s+(-?[\d.]+)(%?)\s+(-?[\d.]+)(%?)(?:\s*\/\s*([\d.]+)(%)?)?\s*\)/i);
   if (m) {
     const L = m[2] === '%' ? parseFloat(m[1]) / 100 : parseFloat(m[1]);
@@ -2410,7 +2410,7 @@ function parseAnyColor(s) {
     }
     return rgb;
   }
-  // HSL/HSLA — comma or space syntax, optional deg on hue.
+  // HSL/HSLA - comma or space syntax, optional deg on hue.
   m = str.match(/hsla?\(\s*(-?[\d.]+)(?:deg)?\s*[,\s]\s*([\d.]+)%\s*[,\s]\s*([\d.]+)%(?:\s*[,/]\s*([\d.]+)(%)?)?\s*\)/i);
   if (m) {
     const rgb = hslToRgb(parseFloat(m[1]), parseFloat(m[2]) / 100, parseFloat(m[3]) / 100);
@@ -2420,7 +2420,7 @@ function parseAnyColor(s) {
     }
     return rgb;
   }
-  // HWB — hue whiteness% blackness%.
+  // HWB - hue whiteness% blackness%.
   m = str.match(/hwb\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)%\s+([\d.]+)%(?:\s*\/\s*([\d.]+)(%)?)?\s*\)/i);
   if (m) {
     const rgb = hwbToRgb(parseFloat(m[1]), parseFloat(m[2]) / 100, parseFloat(m[3]) / 100);
@@ -2609,7 +2609,7 @@ function checkKickerAboveHeadingDOM() {
 // ── Numbered section labels ─────────────────────────────────────────────────
 // Sibling of the kicker-above-heading rule: instead of a tracked uppercase word,
 // the section scaffold is a tiny numeric index riding beside each section
-// heading — bare and zero-padded, or an index joined to a short micro-label
+// heading - bare and zero-padded, or an index joined to a short micro-label
 // by a separator glyph. The kicker rule deliberately excludes bare 1-2 digit
 // labels; this rule owns that shape.
 
@@ -2640,11 +2640,11 @@ function isNumberedSectionLabelCandidate(opts) {
   if (!headingText || headingText.length < 3) return false;
   if (!labelTag || !NUMBERED_LABEL_TAGS.has(labelTag)) return false;
   if (labelIndex == null || !labelText) return false;
-  // Tiny rendered size is the tell — a display-scale section number is a
+  // Tiny rendered size is the tell - a display-scale section number is a
   // different (deliberate) device and stays legal.
   if (!(labelFontSize > 0 && labelFontSize <= 13)) return false;
   // The heading must be visibly larger where we can resolve its size.
-  // clamp()/var() sizes come back unparseable (0) in the static engine —
+  // clamp()/var() sizes come back unparseable (0) in the static engine -
   // the remaining gates carry the check there.
   if (headingFontSize > 0 && headingFontSize < labelFontSize * 1.3) return false;
   // Deliberate micro-label styling separates the scaffold from incidental
@@ -2743,7 +2743,7 @@ function checkNumberedSectionLabelsDOM() {
   return checkNumberedSectionLabels({ candidates });
 }
 
-// Em-dash overuse (ADVISORY) — pure logic shared by the browser DOM check.
+// Em-dash overuse (ADVISORY) - pure logic shared by the browser DOM check.
 // Mirrors the regex/static-HTML analyzer in engines/regex/detect-text.mjs:
 // two gates (absolute floor + density) so a long article using a few dashes is
 // left alone while a short, dash-per-clause page is flagged. Operates on
@@ -2752,7 +2752,7 @@ function checkNumberedSectionLabelsDOM() {
 function checkEmDashOveruse(text) {
   const body = typeof text === 'string' ? text.replace(/\s+/g, ' ') : '';
   let count = 0;
-  const re = /[—]|--(?=\S)/g;
+  const re = /[-]|--(?=\S)/g;
   while (re.exec(body) !== null) count++;
   if (count < EM_DASH_FLOOR) return [];
   if (body.length > count * EM_DASH_CHARS_PER_DASH) return [];
@@ -2794,11 +2794,11 @@ function checkElementGlowDOM(el) {
     textShadow = '';
   }
   if (!boxShadow && !textShadow) return [];
-  // Use parent's background — glow radiates outward, so the surrounding context matters
+  // Use parent's background - glow radiates outward, so the surrounding context matters
   // If resolveBackground returns null (gradient), try to infer from the gradient colors
   let parentBg = el.parentElement ? resolveBackground(el.parentElement) : resolveBackground(el);
   if (!parentBg) {
-    // Gradient background — sample its colors to determine if it's dark
+    // Gradient background - sample its colors to determine if it's dark
     let cur = el.parentElement;
     while (cur && cur.nodeType === 1) {
       const bgImage = getComputedStyle(cur).backgroundImage || '';
@@ -2992,7 +2992,7 @@ function checkElementRadialSpotlightDOM(el) {
 function checkElementRadialSpotlight(el, style, tag, window) {
   const gradientValue = elementGradientValue(style, el);
   if (!gradientValue) return [];
-  // Static engine does no layout — read explicit pixel dimensions from CSS.
+  // Static engine does no layout - read explicit pixel dimensions from CSS.
   return checkRadialSpotlight({
     gradientValue,
     width: parseFloat(style.width) || 0,
@@ -3005,7 +3005,7 @@ const QUALITY_TEXT_TAGS = new Set(['p', 'li', 'td', 'th', 'dd', 'blockquote', 'f
 
 // Resolve a CSS font-size value to pixels by walking up the parent chain.
 // Browsers resolve em/rem/% to px in getComputedStyle, but jsdom returns the
-// specified value verbatim — so for the Node path we walk parents ourselves.
+// specified value verbatim - so for the Node path we walk parents ourselves.
 function resolveFontSizePx(el, win) {
   const chain = []; // raw font-size strings, leaf → root
   let cur = el;
@@ -3025,7 +3025,7 @@ function resolveFontSizePx(el, win) {
     else if (v.endsWith('rem')) px = num * 16;
     else if (v.endsWith('em')) px = num * px;
     else if (v.endsWith('%')) px = (num / 100) * px;
-    else px = num; // unitless — already resolved
+    else px = num; // unitless - already resolved
   }
   return px;
 }
@@ -3124,7 +3124,7 @@ function textDescendantsFlushSides(el, rect) {
 
 // Screen-reader-only ("visually hidden") text is exempt from the tiny-text
 // floors: it is never rendered, so its size is irrelevant. Detect the two
-// standard idioms — a known sr-only class on the element or an ancestor, and
+// standard idioms - a known sr-only class on the element or an ancestor, and
 // the clip / 1px-box pattern. Works in both jsdom (declared styles) and the
 // browser (computed styles).
 const SR_ONLY_SELECTOR = '.sr-only, .visually-hidden, .visuallyhidden, .screen-reader, .screen-reader-only, .screenreader, .a11y-hidden, .hidden-visually, [class*="sr-only" i], [class*="visually-hidden" i], [class*="visuallyhidden" i], [class*="screen-reader" i], [class*="screenreader" i]';
@@ -3146,7 +3146,7 @@ function isVisuallyHidden(el, style) {
 // Elements whose text is never painted: document metadata and script/style
 // payloads. Their JS / CSS / JSON-LD text satisfies `hasDirectText`, and on
 // sites that set `html { font-size: 62.5% }` their inherited computed size is
-// 10px — so the text-size floors flag them as tiny body copy even though
+// 10px - so the text-size floors flag them as tiny body copy even though
 // nothing renders (issue #408: dozens of phantom "10px body text" findings on
 // every Shopify page). Exclude them, plus anything the cascade resolves to
 // display:none / visibility:hidden. The jsdom path can't lay out, so the
@@ -3173,7 +3173,7 @@ function isNonRenderedText(el, tag, style) {
 
 // Pure quality checks. Most run on computed CSS and DOM-only inputs (work in
 // jsdom and the browser). Two checks (line-length, cramped-padding) gate on
-// element rect dimensions, which jsdom can't compute — pass `rect: null` from
+// element rect dimensions, which jsdom can't compute - pass `rect: null` from
 // the Node adapter to skip those.
 //
 // Both adapters resolve font-size, line-height and letter-spacing to pixels
@@ -3185,7 +3185,7 @@ function checkQuality(opts) {
   // whenever `el.id` is not a string: on a <form> (and other
   // [LegacyOverrideBuiltIns] hosts) a named control like <input name="id">
   // shadows the builtin `id` getter and returns the control element, whose
-  // `.startsWith` is undefined and throws (issue #407 — every Shopify product
+  // `.startsWith` is undefined and throws (issue #407 - every Shopify product
   // form ships an <input name="id">).
   const elId = typeof el.id === 'string' ? el.id : (el.getAttribute?.('id') || '');
   if (elId.startsWith('claude-') || elId.startsWith('cic-')) return findings;
@@ -3202,7 +3202,7 @@ function checkQuality(opts) {
   // Vertical and horizontal thresholds are independent because line-height
   // already provides built-in vertical breathing room (the line box is taller
   // than the cap height), but horizontal has no equivalent. Both scale with
-  // font-size — bigger text demands proportionally more padding.
+  // font-size - bigger text demands proportionally more padding.
   //   vertical:   max(4px, fontSize × 0.3)
   //   horizontal: max(8px, fontSize × 0.5)
   const isInlineCode = tag === 'code' && !(el.closest && el.closest('pre'));
@@ -3227,7 +3227,7 @@ function checkQuality(opts) {
       const vThresh = Math.max(4, fontSize * 0.3);
       const hThresh = Math.max(8, fontSize * 0.5);
 
-      // Emit at most one finding per element — pick whichever axis is worse.
+      // Emit at most one finding per element - pick whichever axis is worse.
       if (vMin < vThresh) {
         findings.push({ id: 'cramped-padding', snippet: `${vMin}px vertical padding (need ≥${vThresh.toFixed(1)}px for ${fontSize}px text)` });
       } else if (hMin < hThresh) {
@@ -3243,7 +3243,7 @@ function checkQuality(opts) {
   //
   // Distinct from cramped-padding: that rule needs the element itself to
   // have direct text (hasDirectText). This rule targets the OPPOSITE
-  // shape — a container with NO direct text, only children — which is
+  // shape - a container with NO direct text, only children - which is
   // exactly what cramped-padding misses (a section wrapping a label +
   // list lands a free pass).
   //
@@ -3275,7 +3275,7 @@ function checkQuality(opts) {
         left:   borderW.left   > 0 && !cssColorIsTransparent(style.borderLeftColor),
       };
       // Outline detection. jsdom decomposes `border` shorthand into
-      // border{Top,…}Width/Color but does NOT decompose `outline` —
+      // border{Top,…}Width/Color but does NOT decompose `outline` -
       // the longhands come back empty when the value was set via the
       // shorthand. Fall back to parsing `style.outline` ourselves.
       let outlineW = parseFloat(style.outlineWidth) || 0;
@@ -3314,7 +3314,7 @@ function checkQuality(opts) {
         // them has its own padding, the visual flush is broken on that
         // side. Classic example: a column-flow card frame where the
         // top child (header) has padding-top:12 and the bottom child
-        // (footer) has padding-bottom:8 — the parent's padding:0 doesn't
+        // (footer) has padding-bottom:8 - the parent's padding:0 doesn't
         // matter; nothing is actually flush. The `any-child-insulates`
         // heuristic accepts some false negatives (a card with one heavily
         // padded middle child won't flag) for far fewer false positives.
@@ -3399,7 +3399,7 @@ function checkQuality(opts) {
 
   // --- Body text touching viewport edge --- (browser-only: needs rect)
   // Catches the failure mode where the agent ships body paragraphs
-  // with NO container providing horizontal padding — text bleeds
+  // with NO container providing horizontal padding - text bleeds
   // directly to the viewport edge. Different from cramped-padding,
   // which requires a colored/bordered container. Here the failure
   // is the absence of the container entirely.
@@ -3464,19 +3464,19 @@ function checkQuality(opts) {
   // Complements `tiny-text` above, which owns long body copy and deliberately
   // EXEMPTS the UI furniture layer (nav, footer, links, buttons, labels,
   // uppercase micro-labels). This rule targets exactly that blind spot: the
-  // interactive and short content-bearing text — nav items, buttons, labels,
-  // table cells, meta rows, timecodes — shipped below an 11px floor.
+  // interactive and short content-bearing text - nav items, buttons, labels,
+  // table cells, meta rows, timecodes - shipped below an 11px floor.
   //
   // The live failure it closes: a build shipped its entire furniture layer at
   // 8px, and the design hook waved it through because 8px had been added to
   // the DESIGN.md size ramp. Being on the ramp is a token argument, not a
-  // legibility one, so this rule ignores the design system entirely — a value
+  // legibility one, so this rule ignores the design system entirely - a value
   // on the ramp is still flagged.
   //
   // Floors: 11px for anything functional. The floor holds inside a footer;
   // only NON-interactive legal smallprint gets the softer 10px floor. Exempts
   // sup/sub, visually-hidden (sr-only) text, and code/terminal contexts.
-  // Uppercase letterspaced micro-labels are still functional — not exempt.
+  // Uppercase letterspaced micro-labels are still functional - not exempt.
   {
     const directText = [...el.childNodes]
       .filter(n => n.nodeType === 3)
@@ -3505,7 +3505,7 @@ function checkQuality(opts) {
         const isSmallprint = (el.matches && el.matches(SMALLPRINT)) || (el.closest && el.closest(SMALLPRINT));
         const floor = (!isInteractive && isSmallprint) ? 10 : 11;
         // Fire on functional text only: interactive, structural furniture, or
-        // any short (<=20-char) run — the label / meta / timecode shape. Long
+        // any short (<=20-char) run - the label / meta / timecode shape. Long
         // non-furniture body copy stays with `tiny-text`, so the two rules
         // never double-flag the same element.
         if (fontSize < floor && (isInteractive || isFurniture || dtLen <= 20)) {
@@ -3542,7 +3542,7 @@ function checkQuality(opts) {
       const trackingEm = letterSpacingPx / fontSize;
       if (trackingEm <= -0.05) {
         const excerpt = (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40);
-        findings.push({ id: 'extreme-negative-tracking', snippet: `letter-spacing: ${trackingEm.toFixed(2)}em — "${excerpt}"` });
+        findings.push({ id: 'extreme-negative-tracking', snippet: `letter-spacing: ${trackingEm.toFixed(2)}em - "${excerpt}"` });
       }
     }
   }
@@ -3555,7 +3555,7 @@ function checkElementQualityDOM(el) {
   const style = getComputedStyle(el);
   const hasDirectText = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim().length > 10);
   const textLen = el.textContent?.trim().length || 0;
-  // Browser getComputedStyle resolves everything to px — direct parseFloat
+  // Browser getComputedStyle resolves everything to px - direct parseFloat
   // works.
   const fontSize = parseFloat(style.fontSize) || 16;
   const lineHeightPx = resolveLengthPx(style.lineHeight, fontSize);
@@ -3593,9 +3593,9 @@ function checkPageQualityDOM() {
   return checkPageQualityFromDoc(document).map(f => ({ type: f.id, detail: f.snippet }));
 }
 
-// Node adapters — take pre-extracted jsdom computed style
+// Node adapters - take pre-extracted jsdom computed style
 
-// jsdom doesn't lay out OR resolve em/rem/% to px — so we pre-resolve every
+// jsdom doesn't lay out OR resolve em/rem/% to px - so we pre-resolve every
 // CSS length the rule needs ourselves (walking the parent chain for
 // font-size inheritance), and pass `rect: null` to skip the two rules that
 // genuinely need element rects (line-length, cramped-padding).
@@ -3657,7 +3657,7 @@ function checkElementColors(el, style, tag, window, customPropMap, hasAnchorInhe
   // Anchor-inherit FP workaround: jsdom's UA stylesheet has `:link { color:
   // blue }` at high specificity. The page's `a { color: inherit }` rule
   // (Tailwind v4 preflight) loses to jsdom even though it WINS in real
-  // browsers (Chrome's UA wraps :link in :where() — zero specificity).
+  // browsers (Chrome's UA wraps :link in :where() - zero specificity).
   // When the page declares the inherit rule AND we see jsdom's default
   // link blue on an anchor, walk to the nearest non-anchor ancestor and
   // use its color instead.
@@ -3719,7 +3719,7 @@ function checkElementColors(el, style, tag, window, customPropMap, hasAnchorInhe
 
 // Static-engine adapter for hover-state contrast. Relies on the static
 // cascade's hover pass (css-cascade.mjs) exposing a per-element hover style
-// via window.getHoverStyle — present only when a :hover rule changed the
+// via window.getHoverStyle - present only when a :hover rule changed the
 // element's color or background-color relative to its resting state.
 function checkElementHoverContrast(el, style, tag, window) {
   if (typeof window.getHoverStyle !== 'function') return [];
@@ -3738,7 +3738,7 @@ function checkElementHoverContrast(el, style, tag, window) {
 
   // Effective hover background: the element's own hover bg composited over
   // whatever sits underneath. Bail when the surface can't be resolved to a
-  // solid color — gradient ancestors are handled (as at rest) by the
+  // solid color - gradient ancestors are handled (as at rest) by the
   // resting-state check, not duplicated here.
   let bg = null;
   if (ownBg && ownBg.a >= 0.99) {
@@ -3767,7 +3767,7 @@ function checkElementIconTile(el, tag, window) {
   if (!sibling) return [];
 
   const sibStyle = window.getComputedStyle(sibling);
-  // jsdom doesn't lay out — read explicit pixel dimensions from CSS instead.
+  // jsdom doesn't lay out - read explicit pixel dimensions from CSS instead.
   const sibWidth = parseFloat(sibStyle.width) || 0;
   const sibHeight = parseFloat(sibStyle.height) || 0;
 
@@ -3874,13 +3874,13 @@ function checkElementGlow(tag, style, effectiveBg) {
 
 // ─── Section 6: Page-Level Checks ───────────────────────────────────────────
 
-// Browser page-level checks — use document/getComputedStyle globals
+// Browser page-level checks - use document/getComputedStyle globals
 
 function checkTypography() {
   const findings = [];
 
   // Walk actual text-bearing elements and tally font usage by *computed style*.
-  // This is much more accurate than scanning CSS rules — it ignores rules that
+  // This is much more accurate than scanning CSS rules - it ignores rules that
   // exist in the stylesheet but apply to nothing (e.g. demo classes showing
   // anti-patterns), and counts what the user actually sees.
   const fontUsage = new Map(); // primary font name → count of elements
@@ -3978,7 +3978,7 @@ function checkLayout() {
 // Margins alone can't be trusted (collapsing, flex rows, section padding),
 // so this measures actual getBoundingClientRect gaps between the heading
 // and the nearest content genuinely above / below it. Fires only when two
-// or more headings violate the principle — a single occurrence is noise.
+// or more headings violate the principle - a single occurrence is noise.
 function checkHeadingRhythmDOM() {
   const MIN_VIOLATIONS = 2;
   const CARD_EXEMPT_HEIGHT = 200;
@@ -3994,7 +3994,7 @@ function checkHeadingRhythmDOM() {
     return rect.width >= 1 && rect.height >= 1;
   }
 
-  // Edges only count when they share the heading's column — grid layouts
+  // Edges only count when they share the heading's column - grid layouts
   // put content beside a heading, and a far-away element in another column
   // says nothing about the heading's vertical rhythm.
   function overlapsX(sr, rect) {
@@ -4003,7 +4003,7 @@ function checkHeadingRhythmDOM() {
 
   // Does this container draw its own top boundary (background, top border,
   // shadow)? Crossing out of such a container means the container edge is
-  // the separator above the heading, not raw whitespace — exempt.
+  // the separator above the heading, not raw whitespace - exempt.
   function hasOwnTopBoundary(el) {
     const style = getComputedStyle(el);
     const bg = parseAnyColor(style.backgroundColor || '');
@@ -4014,7 +4014,7 @@ function checkHeadingRhythmDOM() {
   }
 
   // Eyebrows, kickers, and index labels sitting directly on top of a
-  // heading belong to the heading's own cluster — space above is measured
+  // heading belong to the heading's own cluster - space above is measured
   // from the top of the cluster, not from the label to the heading.
   function clusterTop(h, rect) {
     const headingFontSize = parseFloat(getComputedStyle(h).fontSize) || 16;
@@ -4040,7 +4040,7 @@ function checkHeadingRhythmDOM() {
   // Nearest content edge strictly above the heading cluster. Walks
   // previous siblings, then out through ancestors. Skips elements that
   // vertically overlap (flex-row companions, sticky rails) or sit in
-  // another column. Returns null when nothing qualifies — first content
+  // another column. Returns null when nothing qualifies - first content
   // on the page, or the top of a visually bounded container.
   function edgeAbove(startEl, top, rect) {
     let node = startEl;
@@ -4063,7 +4063,7 @@ function checkHeadingRhythmDOM() {
     return null;
   }
 
-  // Nearest content edge strictly below the heading — the block the
+  // Nearest content edge strictly below the heading - the block the
   // heading introduces. Crosses wrappers freely (headings often share a
   // row wrapper with an eyebrow or index label).
   function edgeBelow(h, rect) {
@@ -4119,12 +4119,12 @@ function checkHeadingRhythmDOM() {
   if (candidates.length < MIN_VIOLATIONS) return [];
   return candidates.map(c => ({
     type: 'heading-rhythm',
-    detail: `${c.tag} "${c.text}" has ${Math.round(c.above)}px above vs ${Math.round(c.below)}px below — it reads as bound to the block above (${candidates.length} headings on page)`,
+    detail: `${c.tag} "${c.text}" has ${Math.round(c.above)}px above vs ${Math.round(c.below)}px below - it reads as bound to the block above (${candidates.length} headings on page)`,
     el: c.el,
   }));
 }
 
-// Node page-level checks — take document/window as parameters
+// Node page-level checks - take document/window as parameters
 
 function checkPageTypography(doc, win) {
   const findings = [];
@@ -4260,7 +4260,7 @@ function checkPageLayout(doc, win) {
 
 // ── Repeated text inside one container ──────────────────────────────────────
 // The same literal string rendered 3+ times in structurally different spots
-// inside one bordered/elevated container — typically a status word wired
+// inside one bordered/elevated container - typically a status word wired
 // into every slot of a card template. Legitimate repetition is structural:
 // table columns, calendar grids, nav/menu lists, and templated sibling rows
 // all repeat text in *parallel* positions, so occurrences whose element
@@ -4388,7 +4388,7 @@ function checkRepeatedContainerTextDOM() {
 }
 
 // ─── Cream / beige palette (the default "tasteful" AI surface) ────────────────
-// A warm, lightly-tinted off-white page background — light, with R≥G≥B and a
+// A warm, lightly-tinted off-white page background - light, with R≥G≥B and a
 // small warm tint (not white, not a strong color). The current reflex surface.
 function isCreamColor(rgb) {
   if (!rgb) return false;
@@ -4401,7 +4401,7 @@ function isCreamColor(rgb) {
 
 // Tailwind background utilities that render as a warm off-white surface. The
 // static engine doesn't fetch Tailwind's CSS, so a `bg-amber-50` on <body>
-// resolves to nothing in computed style — catch it from the class list
+// resolves to nothing in computed style - catch it from the class list
 // instead. Candidate tokens map to their actual Tailwind hex and are still
 // filtered through isCreamColor, so neutral grays (stone) and over-saturated
 // shades drop out on their own.
@@ -4431,7 +4431,7 @@ function checkCreamPalette(doc, win) {
   const html = doc.documentElement;
   const getCS = (el) => (win ? win.getComputedStyle(el) : getComputedStyle(el));
 
-  // 1. Computed background — covers inline / <style> / linked CSS, and Tailwind
+  // 1. Computed background - covers inline / <style> / linked CSS, and Tailwind
   //    once it's actually rendered (browser path).
   let bg = readOwnBackgroundColor(body, getCS(body));
   if (!bg || bg.a === 0) {
@@ -4442,7 +4442,7 @@ function checkCreamPalette(doc, win) {
     return findings;
   }
 
-  // 2. Tailwind class fallback — for the static path, where utility classes
+  // 2. Tailwind class fallback - for the static path, where utility classes
   //    never resolve to computed CSS.
   for (const el of [body, html]) {
     const tok = creamFromClassList(el && el.getAttribute ? el.getAttribute('class') : '');
@@ -4458,7 +4458,7 @@ function checkCreamPalette(doc, win) {
 // Fires when a *long* headline is set at display size and actually dominates
 // the viewport. A punchy one- or two-word headline at the same size is a
 // legitimate stylistic choice, and a large-but-contained two-line hero should
-// pass too — length and viewport share together are the tell.
+// pass too - length and viewport share together are the tell.
 const OVERSIZED_H1_FONT_PX = 72;
 const OVERSIZED_H1_MIN_CHARS = 40;
 const OVERSIZED_H1_MIN_VIEWPORT_HEIGHT_RATIO = 0.28;
@@ -4520,7 +4520,7 @@ function shadowMaxBlurPx(boxShadow, { minAlpha = 0 } = {}) {
     if (shadowLayerAlpha(layer) < minAlpha) continue;
     // Strip colors and keywords (rgba()/hsl()/hex/named/inset/px), leaving the
     // ordered length tokens: offsetX offsetY blur [spread]. Static jsdom keeps
-    // unitless zeros ("0 0 24px"); browsers normalize to px ("0px 0px 24px") —
+    // unitless zeros ("0 0 24px"); browsers normalize to px ("0px 0px 24px") -
     // both reduce to the same numbers here.
     const cleaned = layer.replace(CSS_COLOR_TOKEN_RE, ' ').replace(/\b[a-z]+\b/gi, ' ');
     const nums = [...cleaned.matchAll(/-?\d*\.?\d+/g)].map(m => parseFloat(m[0]));
@@ -4803,7 +4803,7 @@ function checkElementTextOverflowDOM(el) {
   const tag = el.tagName.toLowerCase();
   if (TEXT_OVERFLOW_SKIP_TAGS.has(tag)) return [];
   if (!isRenderedForBrowserRule(el)) return [];
-  // Only the element that actually owns overflowing text — not its ancestors,
+  // Only the element that actually owns overflowing text - not its ancestors,
   // which inherit a wider scrollWidth from the spilling descendant.
   const hasDirectText = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim().length > 0);
   if (!hasDirectText) return [];
@@ -4888,7 +4888,7 @@ function keyframesToggleVisibilityDOM(name) {
           } else if (prop === 'visibility') {
             if (/hidden/i.test(fs.getPropertyValue('visibility'))) togglesOut = true;
           } else if (prop !== 'animation-timing-function') {
-            return false; // keyframes animate something else — not a blink
+            return false; // keyframes animate something else - not a blink
           }
         }
       }
@@ -4957,7 +4957,7 @@ function checkElementBlinkingCursorDOM(el) {
     || !!(el.closest && el.closest('header, nav, [role="banner"], [role="navigation"]'));
   return [{
     id: 'blinking-cursor',
-    snippet: `${classSelector(el)} — ${Math.round(rect.width)}x${Math.round(rect.height)}px blinking cursor (animation "${blinkName}") in the first viewport`,
+    snippet: `${classSelector(el)} - ${Math.round(rect.width)}x${Math.round(rect.height)}px blinking cursor (animation "${blinkName}") in the first viewport`,
     ...(inHeroRegion ? { severity: 'warning' } : {}),
   }];
 }
@@ -5123,7 +5123,7 @@ function checkEdgeFlushCardsDOM() {
 
 // An opaque decorated box: a near-solid background fill or two-plus visible
 // borders make it hide whatever sits behind it. Gradient / image fills are
-// deliberately excluded — a scrim gradient over hero imagery is a contrast
+// deliberately excluded - a scrim gradient over hero imagery is a contrast
 // layer, not an occluder, and belongs to the pixel low-contrast rule.
 function isOpaqueDecoratedBox(cs) {
   if (!cs) return false;
@@ -5139,7 +5139,7 @@ function isOpaqueDecoratedBox(cs) {
 
 // Is this element lifted out of normal flow into a layer that can cover
 // siblings? Two normal-flow blocks stacked vertically cannot truly hide each
-// other's ink — an overlap between their rects is line-box bleed from tight
+// other's ink - an overlap between their rects is line-box bleed from tight
 // leading (a display headline reaching up over the line before it), not
 // occlusion. Only out-of-flow positioning (absolute / fixed / sticky) moves an
 // element off its own row onto the pixels of another; an in-place transform or
@@ -5204,7 +5204,7 @@ function checkTextOcclusionDOM() {
     return /marquee|ticker|scroll/.test(anim);
   };
   // A fixed or sticky overlay (status bar, toolbar, sticky header) floats above
-  // scrolling content by design — whatever sits under it at rest scrolls clear,
+  // scrolling content by design - whatever sits under it at rest scrolls clear,
   // so it is not occluding the page.
   const isPinnedOverlay = (el) => {
     for (let cur = el; cur && cur.nodeType === 1 && cur !== document.body; cur = cur.parentElement) {
@@ -5277,7 +5277,7 @@ function checkTextOcclusionDOM() {
     // A solid box's paint fills its rect, so box coverage is real at a lower
     // bar. Text coverage rides on elementFromPoint returning the occluder's box
     // (line box / container), which can exceed its actual glyph ink, so the
-    // text bar is higher — partial overlaps below it are crowding, not burial.
+    // text bar is higher - partial overlaps below it are crowding, not burial.
     if (occFrac < (occluderKind === 'text' ? 0.45 : 0.3)) continue;
 
     // (i) Substantial occlusion: a real slab of the text is behind something.
@@ -5303,7 +5303,7 @@ function checkTextOcclusionDOM() {
   // (ii) Headline overhanging an opaque card: a display-scale line whose bulk
   // sits outside a bounded content card but whose edge clips into it. The text
   // may still paint on top and stay readable, but the two layers were dropped
-  // on the same pixels — a placement collision, not a composition.
+  // on the same pixels - a placement collision, not a composition.
   const cards = [];
   for (const el of document.querySelectorAll('body *')) {
     if (el.closest('svg')) continue;
@@ -5334,14 +5334,14 @@ function checkTextOcclusionDOM() {
       const ix = Math.max(0, Math.min(rect.right, card.rect.right) - Math.max(rect.left, card.rect.left));
       const iy = Math.max(0, Math.min(rect.bottom, card.rect.bottom) - Math.max(rect.top, card.rect.top));
       if (ix < 8 || iy < 0.5 * lineHeight) continue;
-      // The headline's bulk must sit outside the card — only its edge clips in.
+      // The headline's bulk must sit outside the card - only its edge clips in.
       if (centerX >= card.rect.left && centerX <= card.rect.right) continue;
       if (ix > 0.5 * rect.width) continue;
       seenVictims.add(el);
       findings.push({
         el,
         type: 'text-occlusion',
-        detail: `${classSelector(el)} "${text.slice(0, 24)}" overhangs ${classSelector(card.el)} by ${Math.round(ix)}px — the headline and the card collide`,
+        detail: `${classSelector(el)} "${text.slice(0, 24)}" overhangs ${classSelector(card.el)} by ${Math.round(ix)}px - the headline and the card collide`,
       });
       break;
     }
@@ -5369,7 +5369,7 @@ function checkTextOcclusionDOM() {
     const fontSize = parseFloat(cs.fontSize) || 16;
     let lineHeight = parseFloat(cs.lineHeight);
     if (!Number.isFinite(lineHeight)) lineHeight = fontSize * 1.4;
-    // The padding box has to overflow the line by a clear margin — a padded
+    // The padding box has to overflow the line by a clear margin - a padded
     // inline highlight sits at roughly one line height, the leak at several.
     if (rect.height < 2.2 * lineHeight) continue;
     if (seenVictims.has(el)) continue;
@@ -5396,7 +5396,7 @@ function checkTextOcclusionDOM() {
 }
 
 // ---------------------------------------------------------------------------
-// First-viewport column overflow — the stretched-hero signature (browser-only)
+// First-viewport column overflow - the stretched-hero signature (browser-only)
 // ---------------------------------------------------------------------------
 
 // A multi-column composition that opens the page (grid/flex with two or more
@@ -5458,7 +5458,7 @@ function checkFirstViewportColumnOverflowDOM() {
     findings.push({
       el,
       type: 'first-viewport-column-overflow',
-      detail: `${classSelector(el)} opens the page with one column running ${Math.round(tall.contentH / vh * 100)}% of the viewport tall while a sibling fits in ${Math.round(shortest.contentH / vh * 100)}% — the fold falls deep inside the section`,
+      detail: `${classSelector(el)} opens the page with one column running ${Math.round(tall.contentH / vh * 100)}% of the viewport tall while a sibling fits in ${Math.round(shortest.contentH / vh * 100)}% - the fold falls deep inside the section`,
     });
   }
   return findings;

@@ -7,7 +7,7 @@ interface UseScrollSnapOptions {
   stickyHeaderHeight?: number;
   /** Cooldown period after a snap animation in ms (default: 800) */
   cooldownMs?: number;
-  /** Debounce delay — snap fires this many ms after user stops scrolling (default: 150) */
+  /** Debounce delay - snap fires this many ms after user stops scrolling (default: 150) */
   debounceMs?: number;
   /** Enable/disable the snap behavior (default: true) */
   enabled?: boolean;

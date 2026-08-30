@@ -157,7 +157,7 @@ function healArtifact(cwd, artifact, undoers) {
 /**
  * Reconcile the journal against the tree.
  *
- * `keep` is the set of paths the current operation legitimately owns — the
+ * `keep` is the set of paths the current operation legitimately owns - the
  * artifacts an inject is about to (re)write. Everything else in the journal is
  * an orphan of a session that is gone, and gets healed. This keeps a repeat
  * inject byte-idempotent: the artifacts it is about to rewrite are kept, not

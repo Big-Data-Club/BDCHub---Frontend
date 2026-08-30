@@ -92,13 +92,13 @@ export const TRUTHY = /^(1|true|yes|on)$/i;
 
 // ── Two-tier rule surfacing ──────────────────────────────────────────────
 // The per-edit PostToolUse pass surfaces only this "immediate" tier: rules
-// that are mechanical, unambiguous, and worth interrupting an edit for —
+// that are mechanical, unambiguous, and worth interrupting an edit for -
 // broken output the user would see (broken images, overflow, clipped
 // popovers, text on the viewport edge), objective contrast/legibility
 // failures, single-property slop that is trivial to fix in place (gradient
 // text, glow shadows), and design-system drift (which compounds with every
-// further edit if left uncorrected). Everything else — copy-cadence rules,
-// palette/typography taste, layout rhythm — is deferred to the Stop-event
+// further edit if left uncorrected). Everything else - copy-cadence rules,
+// palette/typography taste, layout rhythm - is deferred to the Stop-event
 // deep pass (`runStopHook`), which runs the FULL rule set over every file
 // touched this session and surfaces the remainder once.
 //
@@ -130,7 +130,7 @@ export const IMMEDIATE_TIER_RULES = new Set([
 // ── Advisory rules ────────────────────────────────────────────────────────
 // Advisory rules are opt-in noise: the CLI reports them in a separate section
 // and they never count as failures. The design hook skips them entirely by
-// default — in both the per-edit PostToolUse pass and the Stop deep pass — so
+// default - in both the per-edit PostToolUse pass and the Stop deep pass - so
 // the agent is never nagged about a taste call a human might make on purpose.
 // A project opts back in with `.impeccable/config.json`:
 //   { "detector": { "advisoryRules": "include" } }
@@ -1336,11 +1336,11 @@ function isInsideProject(filePath, projectCwd) {
 }
 
 // Resolve a path to its canonical (symlink-free) form. When the path does
-// not exist yet — the before-edit hook gates proposed Writes — canonicalize
+// not exist yet - the before-edit hook gates proposed Writes - canonicalize
 // the nearest existing ancestor and re-append the remainder, so a new file
 // under a symlinked root still compares equal to its canonical project.
 // Memoized: the hook runs as a fresh process per tool event, so the cache
-// amounts to once-per-event work — the scan loops re-check the same project
+// amounts to once-per-event work - the scan loops re-check the same project
 // root for every target file. The cap only matters to long-lived importers
 // like the test runner.
 const canonicalPathCache = new Map();
@@ -1369,8 +1369,8 @@ function canonicalPath(p) {
 
 // Containment gate shared by the before-edit hook and both scan passes. A
 // session routinely touches files that belong to no project or to a
-// different one — harness scratchpad dirs under the system temp root,
-// sibling checkouts, one-off throwaway HTML — and findings against those are
+// different one - harness scratchpad dirs under the system temp root,
+// sibling checkouts, one-off throwaway HTML - and findings against those are
 // judged with THIS project's config and DESIGN.md palette, which is never
 // right. Skip them (audit reason: outside-project). Paths are canonicalized
 // first so a symlinked root (macOS /tmp -> /private/tmp) doesn't split the
@@ -1547,7 +1547,7 @@ export function setDetectorForTesting(impl) {
 //
 // All three are short (≤ ~40 tokens each) so the cumulative cost stays
 // bounded across a long active editing session. Users who explicitly want
-// silence-on-clean can set `IMPECCABLE_HOOK_QUIET=1` — runHook checks that
+// silence-on-clean can set `IMPECCABLE_HOOK_QUIET=1` - runHook checks that
 // env before emitting #2 or #3.
 //
 // Why not stay silent on dedup-clean? Earlier versions did. The model
@@ -1572,7 +1572,7 @@ export function renderPendingAck(filePath, knownFindings, opts = {}) {
   // `knownFindings` here are the cache strings like "side-tab:3".
   const sample = knownFindings.slice(0, 3).join(', ');
   const more = count > 3 ? `, +${count - 3} more` : '';
-  return `${ENVELOPE_PREFIX} Design hook scanned ${display}. Still has ${count} finding(s) flagged earlier this session (${sample}${more}). Handle them before finalizing — the previous reminder still applies.`;
+  return `${ENVELOPE_PREFIX} Design hook scanned ${display}. Still has ${count} finding(s) flagged earlier this session (${sample}${more}). Handle them before finalizing - the previous reminder still applies.`;
 }
 
 export function shouldEmitAckForFile(filePath, config = null) {

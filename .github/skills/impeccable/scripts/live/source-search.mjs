@@ -4,7 +4,7 @@
  * Both scripts need the same thing: find the one project file containing a
  * string (wrap looks for the element's class/id/text, accept looks for the
  * session's `impeccable-variants-start` marker). They had two near-identical
- * copies of the walk, and the copies drifted — same `EXTENSIONS` array declared
+ * copies of the walk, and the copies drifted - same `EXTENSIONS` array declared
  * twice, same `searchDirs` array declared twice, one `realpathSync` guarded by
  * try/catch and the other not. That drift is what #374 had to patch in two
  * places at once.

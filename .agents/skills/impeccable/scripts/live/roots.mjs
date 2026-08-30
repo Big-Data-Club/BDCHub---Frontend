@@ -11,7 +11,7 @@
  *   repoRoot    the git boundary (falls back to appRoot outside git).
  *   contextRoot the nearest directory from appRoot up to repoRoot carrying
  *               PRODUCT.md / DESIGN.md (canonical spot or a fallback dir).
- *   sessionRoot <appRoot>/.impeccable/live — durable live state.
+ *   sessionRoot <appRoot>/.impeccable/live - durable live state.
  *
  * appRoot detection keys on dev-server config presence (vite/svelte/next/
  * astro/nuxt/... config files), not on monorepo brand markers. A nested

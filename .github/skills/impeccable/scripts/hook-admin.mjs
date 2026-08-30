@@ -319,7 +319,7 @@ function mergeIgnoreValueEntries(existing, incoming) {
 function ignoreValueEntryKey(entry) {
   // Sorted: a file scope is a set. Comparing stored order made an on-disk scope
   // miss the sorted argv form, so a re-add duplicated the entry and a remove
-  // silently failed. Every key that hashes `files` must sort — there are four.
+  // silently failed. Every key that hashes `files` must sort - there are four.
   const files = Array.isArray(entry.files) && entry.files.length > 0 ? [...entry.files].sort().join('\x1f') : '';
   return `${entry.rule}\0${entry.value}\0${files}`;
 }
@@ -340,7 +340,7 @@ function statusReport(cwd) {
   };
   // Show the file scope. Dropping it rendered a file-scoped entry as
   // `design-system-font-size=*`, which reads as the project-wide wildcard this
-  // command refuses — the opposite of what is on disk. Matches the
+  // command refuses - the opposite of what is on disk. Matches the
   // `rule=value [files]` shape `impeccable ignores list` already prints.
   const ignoreValues = cfg.ignoreValues.map((entry) => {
     const scope = Array.isArray(entry.files) && entry.files.length ? ` [${entry.files.join(', ')}]` : '';
@@ -703,7 +703,7 @@ function addIgnoreValue(cwd, args) {
 
   // A bare `*` would suppress the rule everywhere, which is ignore-rule's job and
   // not what a finding in one file justifies. detector.ignoreValues honours a
-  // `files` scope, so require one — matching `impeccable ignores add-value`.
+  // `files` scope, so require one - matching `impeccable ignores add-value`.
   if (parsed.value === '*' && parsed.files.length === 0) {
     // `ignore-rule overused-font` refuses on its own without --all-values, so
     // naming the bare form here would hand the user a second error.

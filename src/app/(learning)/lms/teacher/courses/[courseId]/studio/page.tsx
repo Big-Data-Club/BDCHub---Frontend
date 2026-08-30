@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Content Studio (Trạm sáng tác) — P0: Slides + Document.
+ * Content Studio (Trạm sáng tác) - P0: Slides + Document.
  * Flow: Collect → Plan (LLM, editable) → Generate → Review & Publish.
  */
 import { useCallback, useEffect, useState } from "react";
@@ -234,7 +234,7 @@ export default function StudioPage() {
         ))}
       </div>
 
-      {/* STEP 0 — COLLECT */}
+      {/* STEP 0 - COLLECT */}
       {step === 0 && (
         <div className="grid lg:grid-cols-2 gap-5">
           <div className="rounded-2xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] p-5 space-y-4">
@@ -286,7 +286,7 @@ export default function StudioPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-slate-400">Chưa có knowledge node — có thể dùng nguồn văn bản bên dưới.</p>
+              <p className="text-xs text-slate-400">Chưa có knowledge node - có thể dùng nguồn văn bản bên dưới.</p>
             )}
             <textarea value={pasteText} onChange={(e) => setPasteText(e.target.value)} rows={3}
               placeholder="Hoặc dán thêm nội dung/giáo trình..."
@@ -317,7 +317,7 @@ export default function StudioPage() {
         </div>
       )}
 
-      {/* STEP 1 — PLAN */}
+      {/* STEP 1 - PLAN */}
       {step === 1 && (
         <div className="space-y-4">
           {warnings.length > 0 && (
@@ -378,7 +378,7 @@ export default function StudioPage() {
         </div>
       )}
 
-      {/* STEP 2 — GENERATING */}
+      {/* STEP 2 - GENERATING */}
       {step === 2 && (
         <div className="py-16 flex flex-col items-center gap-4 text-center">
           <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
@@ -396,7 +396,7 @@ export default function StudioPage() {
         </div>
       )}
 
-      {/* STEP 3 — REVIEW & PUBLISH */}
+      {/* STEP 3 - REVIEW & PUBLISH */}
       {step === 3 && (
         <div className="space-y-5">
           {project?.status === "ready" ? (
@@ -474,7 +474,7 @@ export default function StudioPage() {
                 <Rocket className="w-5 h-5 text-emerald-600 shrink-0" />
                 <select value={sectionId ?? ""} onChange={(e) => setSectionId(Number(e.target.value))}
                   className="flex-1 px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0D192E] text-sm">
-                  {sections.length === 0 && <option value="">— Chưa có chương —</option>}
+                  {sections.length === 0 && <option value="">- Chưa có chương -</option>}
                   {sections.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
                 </select>
                 <div className="flex gap-2">
