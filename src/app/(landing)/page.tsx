@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Hero, About, Activities, Projects, Members } from "@/components/home";
+import { Hero, About, Activities, Projects } from "@/components/home";
 import ScrollReset from "@/components/common/ScrollReset";
 
 export const metadata: Metadata = {
@@ -58,11 +58,6 @@ export default function LandingPage() {
       {/* Chapter 4: The Impact - Projects & Scientific Publications */}
       <div className="relative bg-white dark:bg-[#050b18]">
         <Projects />
-      </div>
-
-      {/* Chapter 5: The People - Advisory Board & Mentors */}
-      <div className="relative bg-slate-100/80 dark:bg-[#070e1c] pb-12">
-        <Members />
       </div>
     </div>
   );

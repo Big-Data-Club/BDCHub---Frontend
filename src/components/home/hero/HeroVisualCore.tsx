@@ -32,7 +32,7 @@ export function HeroVisualCore({
             <div className="h-4 w-px bg-slate-300 dark:bg-slate-700" />
             <div className="flex items-center gap-2 text-xs font-mono text-slate-600 dark:text-slate-400">
               <Terminal className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-              <span>bdc-hub // hpc-cluster-node</span>
+              <span>bdc-hub // supernode-xp</span>
             </div>
           </div>
 
@@ -70,7 +70,7 @@ export function HeroVisualCore({
 
             <div className="hidden sm:flex items-center gap-1.5 text-xs font-mono text-slate-500 dark:text-slate-400">
               <Server className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-              <span>HPC Lab Node</span>
+              <span>SuperNode-XP</span>
             </div>
           </div>
 
@@ -87,7 +87,7 @@ export function HeroVisualCore({
               <span className="text-slate-500"># Learning by Doing & Academic Excellence</span>
             </div>
             <div>
-              <span className="text-blue-400">cluster</span> = BigData.Cluster(name=<span className="text-amber-300">&quot;HCMUT-HPC&quot;</span>)
+              <span className="text-blue-400">cluster</span> = BigData.Cluster(name=<span className="text-amber-300">&quot;HPCLab-SuperNode-XP&quot;</span>)
             </div>
             <div>
               <span className="text-blue-400">cluster</span>.deploy_model(AI.LLM, status=<span className="text-emerald-400">&quot;READY&quot;</span>)

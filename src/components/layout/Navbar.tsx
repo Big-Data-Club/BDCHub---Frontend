@@ -48,7 +48,6 @@ export default function Navbar() {
     { href: "/#about", label: "Về CLB" },
     { href: "/#activities", label: "Hoạt Động" },
     { href: "/#projects", label: "Dự Án" },
-    { href: "/#members", label: "Thành Viên" },
     { href: "/instructions/student", label: "Hướng dẫn" },
   ];
 
