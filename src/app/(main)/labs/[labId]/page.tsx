@@ -53,6 +53,7 @@ export default function LabDetailPage() {
 
   // Virtual terminal workspace states
   const [terminalSessionActive, setTerminalSessionActive] = useState(false);
+  const [terminalSessionId, setTerminalSessionId] = useState<string | null>(null);
   const [terminalProvisioning, setTerminalProvisioning] = useState(false);
   const [provisionStep, setProvisionStep] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
@@ -216,12 +217,14 @@ export default function LabDetailPage() {
   };
 
   // Connect to real WebSocket terminal
-  const connectWebSocket = async () => {
+  const connectWebSocket = async (provisionedSessionId?: string) => {
     try {
       const token = await getAccessToken();
       const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsHost = window.location.host;
-      const wsUrl = `${wsProtocol}//${wsHost}/labapiv1/labs/${labId}/session/terminal/ws?token=${encodeURIComponent(token || "")}`;
+      const activeSessionId = provisionedSessionId || terminalSessionId;
+      if (!activeSessionId) throw new Error("Sandbox session is missing");
+      const wsUrl = `${wsProtocol}//${wsHost}/labapiv1/labs/${labId}/session/terminal/ws?token=${encodeURIComponent(token || "")}&session_id=${encodeURIComponent(activeSessionId)}`;
       
       const socket = new WebSocket(wsUrl);
       socket.binaryType = "arraybuffer";
@@ -285,13 +288,16 @@ export default function LabDetailPage() {
     
     try {
       // Call actual backend start session API
-      await labService.startSession(labId);
+      const sessionResponse = await labService.startSession(labId);
+      const sessionId = sessionResponse.data?.session_id;
+      if (!sessionId) throw new Error("Backend did not return a sandbox session");
+      setTerminalSessionId(sessionId);
       
       setProvisionStep(1); // "Spawning container..."
       setTimeout(() => {
         setProvisionStep(2); // "Connecting terminal..."
         setTimeout(() => {
-          connectWebSocket();
+          connectWebSocket(sessionId);
         }, 800);
       }, 800);
     } catch (err: any) {
