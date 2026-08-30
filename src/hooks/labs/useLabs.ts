@@ -6,6 +6,7 @@ export function useLabs() {
   const [labs, setLabs] = useState<Lab[]>([]);
   const [myEnrollments, setMyEnrollments] = useState<LabEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [enrollingMap, setEnrollingMap] = useState<Record<number, boolean>>({});
 
   const [filters, setFilters] = useState({
@@ -19,6 +20,7 @@ export function useLabs() {
 
   const loadLabs = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const labsRes = await labService.getPublishedLabs(filters);
       setLabs(labsRes.items || []);
@@ -27,6 +29,8 @@ export function useLabs() {
       setMyEnrollments(enrollmentsRes.data || []);
     } catch (err) {
       console.error("useLabs: fetch failed", err);
+      setLabs([]);
+      setError(err instanceof Error ? err.message : "Không thể tải danh sách lab.");
     } finally {
       setLoading(false);
     }
@@ -63,6 +67,7 @@ export function useLabs() {
     labs,
     myEnrollments,
     loading,
+    error,
     enrollingMap,
     filters,
     setFilters,

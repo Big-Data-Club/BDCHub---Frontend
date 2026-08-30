@@ -12,7 +12,6 @@ import {
   Loader2, 
   RefreshCw,
   CheckCircle2,
-  Lock,
   Sprout,
   Bot
 } from "lucide-react";
@@ -32,6 +31,7 @@ export default function LabsPage() {
   const {
     labs,
     loading,
+    error,
     enrollingMap,
     filters,
     setFilters,
@@ -228,6 +228,13 @@ export default function LabsPage() {
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-3" />
             <p className="text-slate-500 dark:text-slate-400 text-sm">Loading labs catalog...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-16 bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900 rounded-2xl">
+            <FlaskConical className="w-12 h-12 text-rose-400 mx-auto mb-3" />
+            <h3 className="text-rose-900 dark:text-rose-100 font-bold mb-1">Không thể tải danh sách Lab</h3>
+            <p className="mx-auto max-w-2xl text-rose-700 dark:text-rose-300 text-sm">{error}</p>
+            <button onClick={loadLabs} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"><RefreshCw className="h-4 w-4" /> Thử lại</button>
           </div>
         ) : labs.length === 0 ? (
           <div className="text-center py-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
