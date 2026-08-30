@@ -49,6 +49,8 @@ export default function LabDetailPage() {
   const [runResult, setRunResult] = useState<any | null>(null);
   const [submitResult, setSubmitResult] = useState<any | null>(null);
   const [submissions, setSubmissions] = useState<LabSubmission[]>([]);
+  const [taskProgress, setTaskProgress] = useState<any | null>(null);
+  const [checkingTasks, setCheckingTasks] = useState(false);
   const [activeTab, setActiveTab] = useState<"instructions" | "submissions">("instructions");
 
   // Virtual terminal workspace states
@@ -73,6 +75,10 @@ export default function LabDetailPage() {
     try {
       const labRes = await labService.getLabById(labId);
       setLab(labRes.data);
+      if (labRes.data.labType === "WORKSPACE" || labRes.data.labType === "HPC") {
+        const progress = await labService.getRuntimeTaskProgress(labId);
+        setTaskProgress(progress.data);
+      }
 
       // Set starter code if configured in runtimeConfig
       const runtimeConfig = labRes.data.runtimeConfig || {};
@@ -307,6 +313,20 @@ export default function LabDetailPage() {
     }
   };
 
+  const checkRuntimeTasks = async () => {
+    setCheckingTasks(true);
+    try {
+      const response = await labService.checkRuntimeTasks(labId, terminalSessionId);
+      setTaskProgress(response.data);
+      if (response.data?.completed) toast.success(`Lab hoàn thành · ${Math.round(response.data.score)} điểm`);
+      else toast.success(`Đã kiểm tra · ${Math.round(response.data?.score || 0)} điểm`);
+    } catch (err: any) {
+      toast.error(err?.message || "Không thể kiểm tra nhiệm vụ.");
+    } finally {
+      setCheckingTasks(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -314,6 +334,7 @@ export default function LabDetailPage() {
           <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-3" />
           <p className="text-slate-500 dark:text-slate-400 text-sm">Loading lab workspace...</p>
         </div>
+
       </div>
     );
   }
@@ -388,6 +409,28 @@ export default function LabDetailPage() {
             </button>
           </div>}
         </div>
+
+        {(lab.labType === "WORKSPACE" || lab.labType === "HPC") && (taskProgress?.tasks?.length || 0) > 0 && (
+          <div className="rounded-2xl border border-blue-200 bg-blue-50/70 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-bold text-slate-900 dark:text-white">
+                  Nhiệm vụ thực hành · {Math.round(taskProgress.score || 0)} điểm
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {taskProgress.tasks.map((task: any) => (
+                    <span key={task.id} title={task.last_message || task.description} className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${task.passed ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300" : "border-slate-300 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"}`}>
+                      {task.passed ? "✓" : "○"} {task.title} · {task.weight}đ{task.is_required ? " · bắt buộc" : ""}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <button onClick={checkRuntimeTasks} disabled={checkingTasks || (lab.labType === "WORKSPACE" && !terminalSessionActive)} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+                {checkingTasks && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Kiểm tra tiến độ
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Dynamic Split Layout */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0 overflow-hidden">

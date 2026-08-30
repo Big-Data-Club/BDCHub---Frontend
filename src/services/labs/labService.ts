@@ -688,6 +688,18 @@ export const labService = {
     return labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/session/start`, {});
   },
 
+  getRuntimeTaskProgress: async (labId: number): Promise<SuccessResponse<any>> =>
+    labApiClient.get<SuccessResponse<any>>(`/labs/${labId}/runtime-tasks/progress`),
+
+  checkRuntimeTasks: async (labId: number, sessionId?: string | null): Promise<SuccessResponse<any>> =>
+    labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/runtime-tasks/check`, { session_id: sessionId || "" }),
+
+  createRuntimeTask: async (labId: number, data: any): Promise<SuccessResponse<any>> =>
+    labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/runtime-tasks`, data),
+
+  deleteRuntimeTask: async (taskId: number): Promise<void> =>
+    labApiClient.delete(`/runtime-tasks/${taskId}`),
+
   stopSession: async (labId: number): Promise<SuccessResponse<any>> => {
     return labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/session/stop`, {});
   },
