@@ -265,13 +265,19 @@ export default function MarkdownRenderer({
             const match = /language-([\w+#-]+)/.exec(className ?? '');
             const lang = match ? match[1] : '';
 
-            // Fenced code block — has a language- className
-            if (match) {
-              const raw = (
-                Array.isArray(children)
-                  ? (children as unknown[]).map(String).join('')
-                  : String(children ?? '')
-              ).replace(/\n$/, '');
+            // Normalise children to a plain string for block-detection.
+            const rawChildren = Array.isArray(children)
+              ? (children as unknown[]).map(String).join('')
+              : String(children ?? '');
+
+            // react-markdown always appends a '\n' to fenced block children
+            // (with or without a language tag) but never to inline code.
+            // We use this to detect no-language fenced blocks.
+            const isFencedBlock = Boolean(match) || rawChildren.endsWith('\n');
+
+            // Fenced code block — has a language- className OR trailing newline
+            if (isFencedBlock) {
+              const raw = rawChildren.replace(/\n$/, '');
 
               if (lang === 'mermaid') {
                 return <MermaidBlock chart={raw} compact={isChat} />;
