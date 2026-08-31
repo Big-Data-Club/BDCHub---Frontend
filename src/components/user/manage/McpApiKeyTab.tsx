@@ -85,7 +85,10 @@ export default function McpApiKeyTab() {
           expires_in_days: 90,
         }),
       });
-      if (!response.ok) throw new Error("Không thể tạo key. Bạn có thể đã đạt giới hạn 5 key.");
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody.detail || errorBody.error || "Không thể tạo API key.");
+      }
       const data = await response.json();
       setRawKey(data.api_key);
       setName("");

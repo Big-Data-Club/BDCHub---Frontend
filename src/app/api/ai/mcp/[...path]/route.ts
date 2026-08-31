@@ -9,6 +9,27 @@ import { NextRequest, NextResponse } from "next/server";
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://ai-service:8000";
 const AI_SECRET = process.env.AI_SERVICE_SECRET || "";
 
+function isSameOriginRequest(req: NextRequest): boolean {
+  const origin = req.headers.get("origin");
+  if (!origin) return true;
+
+  try {
+    const originURL = new URL(origin);
+    // Behind Traefik, nextUrl can describe the internal frontend service while
+    // Origin contains the public HTTPS host. Compare hosts supplied by the
+    // proxy instead of rejecting legitimate same-site POST requests.
+    const forwardedHost = req.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+    const hosts = new Set([
+      req.nextUrl.host,
+      req.headers.get("host") || "",
+      forwardedHost || "",
+    ]);
+    return hosts.has(originURL.host);
+  } catch {
+    return false;
+  }
+}
+
 async function forward(req: NextRequest, path: string[]) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
@@ -29,8 +50,7 @@ async function forward(req: NextRequest, path: string[]) {
   }
 
   if (req.method !== "GET") {
-    const origin = req.headers.get("origin");
-    if (origin && origin !== req.nextUrl.origin) {
+    if (!isSameOriginRequest(req)) {
       return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
     }
   }
