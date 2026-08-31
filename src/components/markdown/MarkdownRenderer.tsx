@@ -251,58 +251,49 @@ export default function MarkdownRenderer({
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
-          // ── Code fence (block) ──────────────────────────────────────────
-          // react-markdown v10 passes fenced code as <code className="language-xxx">
-          // nested inside a <pre>. We intercept at the <pre> level.
-          pre: ({ children }: React.HTMLAttributes<HTMLPreElement>) => {
-            // Find the <code> child element
-            const childArray = React.Children.toArray(children);
-            const codeChild = childArray.find(
-              (c): c is React.ReactElement<{ className?: string; children?: React.ReactNode }> =>
-                React.isValidElement(c) && c.type === 'code'
-            );
+          // ── Code fence (block) + Inline code ──────────────────────────
+          // react-markdown v10: when a custom `code` renderer is registered,
+          // the children of the custom `pre` renderer will have type ===
+          // [Function] (the custom renderer), not the string 'code'.
+          // The reliable pattern is therefore to handle EVERYTHING in the
+          // `code` renderer: if className contains 'language-*' it is a
+          // fenced block; otherwise it is inline.
+          // `pre` becomes a bare passthrough so it doesn't add an extra box.
+          pre: ({ children }: React.HTMLAttributes<HTMLPreElement>) => <>{children}</>,
 
-            if (!codeChild) {
-              // Fallback: render as plain pre
-              return <pre>{children}</pre>;
-            }
-
-            const className = (codeChild.props.className as string) ?? '';
-            const match = /language-([\w+#-]+)/.exec(className);
+          code: ({ className, children, ...props }: React.HTMLAttributes<HTMLElement>) => {
+            const match = /language-([\w+#-]+)/.exec(className ?? '');
             const lang = match ? match[1] : '';
 
-            // Extract raw text — children is either a string or an array of strings
-            const rawChildren = codeChild.props.children;
-            const raw = (
-              Array.isArray(rawChildren)
-                ? rawChildren.join('')
-                : String(rawChildren ?? '')
-            ).replace(/\n$/, '');
+            // Fenced code block — has a language- className
+            if (match) {
+              const raw = (
+                Array.isArray(children)
+                  ? (children as unknown[]).map(String).join('')
+                  : String(children ?? '')
+              ).replace(/\n$/, '');
 
-            // Render mermaid diagrams with the dedicated component
-            if (lang === 'mermaid') {
-              return <MermaidBlock chart={raw} compact={isChat} />;
+              if (lang === 'mermaid') {
+                return <MermaidBlock chart={raw} compact={isChat} />;
+              }
+              return <CodeBlock code={raw} language={lang} compact={isChat} />;
             }
 
-            return <CodeBlock code={raw} language={lang} compact={isChat} />;
+            // Inline code
+            return (
+              <code
+                className={cn(
+                  "rounded px-1.5 py-0.5 text-sm font-mono font-medium",
+                  isUserChat
+                    ? "bg-white/15 text-white"
+                    : "bg-gray-100 text-red-500 dark:bg-gray-800/50 dark:text-red-400"
+                )}
+                {...props}
+              >
+                {children}
+              </code>
+            );
           },
-
-          // ── Inline code ────────────────────────────────────────────────
-          // In react-markdown v10 the <code> renderer is only called for
-          // *inline* code (fenced blocks are handled by <pre> above).
-          code: ({ children, ...props }: React.HTMLAttributes<HTMLElement>) => (
-            <code
-              className={cn(
-                "rounded px-1.5 py-0.5 text-sm font-mono font-medium",
-                isUserChat
-                  ? "bg-white/15 text-white"
-                  : "bg-gray-100 text-red-500 dark:bg-gray-800/50 dark:text-red-400"
-              )}
-              {...props}
-            >
-              {children}
-            </code>
-          ),
 
           // ── Headings ───────────────────────────────────────────────────
           h1: ({ ...props }) => (
