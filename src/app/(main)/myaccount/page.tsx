@@ -16,6 +16,8 @@ import AccountStats from "@/components/user/manage/AccountStats";
 import { ActiveTab, MessageState, PasswordForm, ShowPasswords } from '@/types'
 import { validateOnlyPassword } from '@/utils/common/utils'
 
+const MAX_PROFILE_PICTURE_BYTES = 1024 * 1024;
+
 const MyAccountPage: React.FC = () => {
   const { user: currentUser, saveUser } = useCurrentUser();
   const { user } = useUser();
@@ -84,6 +86,12 @@ const MyAccountPage: React.FC = () => {
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_PROFILE_PICTURE_BYTES) {
+      setProfilePictureFile(null);
+      e.target.value = "";
+      setMessage({ type: "error", text: "Ảnh đại diện phải nhỏ hơn hoặc bằng 1 MB." });
+      return;
+    }
     setProfilePictureFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setPreviewUrl(reader.result as string);

@@ -31,7 +31,7 @@ export default function AvatarUpload({ previewUrl, fullUserData, onFileChange }:
         <label
           htmlFor="profilePicture"
           className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full cursor-pointer transition-all active:scale-95 shadow-sm"
-          title="Change profile picture"
+          title="Đổi ảnh đại diện (tối đa 1 MB)"
         >
           <Camera className="w-4 h-4" />
           <input
@@ -51,6 +51,9 @@ export default function AvatarUpload({ previewUrl, fullUserData, onFileChange }:
         </h3>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
           {fullUserData?.email}
+        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Ảnh đại diện tối đa 1 MB.
         </p>
         <span className="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-blue-600 uppercase tracking-wider">
           <Shield className="w-3 h-3" />
