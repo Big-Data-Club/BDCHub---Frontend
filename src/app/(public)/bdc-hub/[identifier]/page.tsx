@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { userProfileHubService, PublicUserProfile, ProfileSection, ProfileItem } from "@/services/admin/userProfileHubService";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { resolveMediaUrl } from "@/lib/media-url";
 import {
-  ArrowLeft, Award, BookOpen, BriefcaseBusiness, Building2, CalendarDays,
-  CheckCircle2, ChevronRight, ExternalLink, Globe2, GraduationCap, Layers3,
+  ArrowLeft, Building2, CalendarDays, CheckCircle2, ChevronRight, ExternalLink, Globe2, Layers3,
   Link2, LockKeyhole, MessageSquare, ShieldAlert, Sparkles, UserRoundCheck,
 } from "lucide-react";
 
@@ -47,18 +47,6 @@ function PublicHeader() {
   </header>;
 }
 
-function StatCard({ icon: Icon, label, value, tone }: { icon: typeof BookOpen; label: string; value: React.ReactNode; tone: "blue" | "cyan" | "amber" | "violet" }) {
-  const tones = {
-    blue: "bg-blue-500/10 text-blue-600 ring-blue-500/15 dark:text-blue-300",
-    cyan: "bg-cyan-500/10 text-cyan-700 ring-cyan-500/15 dark:text-cyan-300",
-    amber: "bg-amber-500/10 text-amber-700 ring-amber-500/15 dark:text-amber-300",
-    violet: "bg-violet-500/10 text-violet-700 ring-violet-500/15 dark:text-violet-300",
-  } as const;
-  return <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 shadow-sm backdrop-blur-xl transition-colors dark:border-blue-500/15 dark:bg-[#0f1e35]/75 dark:shadow-none">
-    <div className="flex items-center gap-3"><div className={`rounded-xl p-2.5 ring-1 ${tones[tone]}`}><Icon className="h-5 w-5" /></div><div className="min-w-0"><p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">{label}</p><p className="mt-0.5 text-xl font-extrabold tracking-tight text-slate-950 dark:text-slate-50">{value}</p></div></div>
-  </div>;
-}
-
 export default function BdcHubUserProfilePage() {
   const params = useParams();
   const router = useRouter();
@@ -66,12 +54,15 @@ export default function BdcHubUserProfilePage() {
   const [profile, setProfile] = useState<PublicUserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [avatarFailed, setAvatarFailed] = useState(false);
 
   useEffect(() => {
     if (!identifier) return;
     setLoading(true); setError(null);
     userProfileHubService.getPublicProfile(identifier).then(setProfile).catch(() => setError("Không tìm thấy người dùng hoặc có lỗi hệ thống.")).finally(() => setLoading(false));
   }, [identifier]);
+
+  useEffect(() => setAvatarFailed(false), [profile?.avatarUrl]);
 
   const handleStartChat = () => { if (profile?.userId) router.push(`/chat?user_id=${profile.userId}`); };
 
@@ -81,16 +72,15 @@ export default function BdcHubUserProfilePage() {
 
   if (!profile.published) return <PortfolioShell><PublicHeader /><div className="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] max-w-md items-center px-4 py-10"><div className="w-full rounded-3xl border border-slate-200 bg-white/85 p-8 text-center shadow-xl shadow-slate-950/5 backdrop-blur-xl dark:border-blue-500/15 dark:bg-[#0f1e35]/90 dark:shadow-none"><div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/20 dark:text-amber-300"><LockKeyhole className="h-8 w-8" /></div><p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-600 dark:text-amber-300">Private portfolio</p><h1 className="mt-2 text-2xl font-extrabold tracking-tight">Trang cá nhân được bảo vệ</h1><p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">{profile.message || "Người dùng chưa chia sẻ portfolio này công khai."}</p>{profile.allowDirectChat && <button onClick={handleStartChat} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-500 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400"><MessageSquare className="h-4 w-4" />Gửi tin nhắn</button>}</div></div></PortfolioShell>;
 
-  const stats = profile.stats || {};
   const sections = (profile.sections || []).filter((section) => section.visible !== false).sort((left, right) => (left.order ?? 0) - (right.order ?? 0));
+  const avatarSrc = resolveMediaUrl(profile.avatarUrl);
   return <PortfolioShell><PublicHeader /><main className="relative z-10 mx-auto max-w-6xl px-4 pb-14 pt-7 sm:px-6 lg:px-8">
     <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/80 shadow-xl shadow-slate-950/[0.06] backdrop-blur-xl dark:border-blue-500/15 dark:bg-[#0f1e35]/80 dark:shadow-none"><div className="h-1.5 bg-gradient-to-r from-blue-600 via-cyan-500 to-violet-500 dark:from-cyan-400 dark:via-blue-500 dark:to-violet-500" /><div className="p-6 sm:p-8"><div className="flex flex-col gap-6 md:flex-row md:items-start">
-      <div className="relative shrink-0 self-center md:self-start"><div className="rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-500 to-violet-500 p-1 dark:from-cyan-400 dark:via-blue-500"><div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-[1.3rem] bg-white text-2xl font-black text-blue-700 dark:bg-[#0b1730] dark:text-cyan-300 sm:h-32 sm:w-32">{profile.avatarUrl ? <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" /* eslint-disable-line @next/next/no-img-element -- avatar hosts are user-configured */ /> : initials(profile.fullName)}</div></div><span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-4 border-white bg-emerald-500 text-white dark:border-[#0f1e35]" title="BDC member"><CheckCircle2 className="h-3.5 w-3.5" /></span></div>
+      <div className="relative shrink-0 self-center md:self-start"><div className="rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-500 to-violet-500 p-1 dark:from-cyan-400 dark:via-blue-500"><div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-[1.3rem] bg-white text-2xl font-black text-blue-700 dark:bg-[#0b1730] dark:text-cyan-300 sm:h-32 sm:w-32">{avatarSrc && !avatarFailed ? <img src={avatarSrc} alt={profile.fullName || "BDC member"} className="h-full w-full object-cover" onError={() => setAvatarFailed(true)} /* eslint-disable-line @next/next/no-img-element -- avatar hosts are user-configured */ /> : initials(profile.fullName)}</div></div><span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-4 border-white bg-emerald-500 text-white dark:border-[#0f1e35]" title="BDC member"><CheckCircle2 className="h-3.5 w-3.5" /></span></div>
       <div className="min-w-0 flex-1 text-center md:text-left"><div className="flex flex-wrap items-center justify-center gap-2 md:justify-start"><h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">{profile.fullName || "BDC Member"}</h1><span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-500/15 dark:text-cyan-300 dark:ring-cyan-400/20"><UserRoundCheck className="h-3.5 w-3.5" />@{profile.alias || profile.userId}</span></div><p className="mt-3 text-base font-bold text-blue-700 dark:text-cyan-300 sm:text-lg">{profile.title || "Thành viên Big Data Club"}</p>{profile.bio && <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 md:mx-0">{profile.bio}</p>}<div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-slate-500 dark:text-slate-400 md:justify-start">{profile.organization && <span className="inline-flex items-center gap-1.5"><Building2 className="h-4 w-4 text-blue-500 dark:text-cyan-400" />{profile.organization}</span>}{profile.userType && <span className="inline-flex items-center gap-1.5"><Layers3 className="h-4 w-4 text-violet-500" />{profile.userType}</span>}</div></div>
       {profile.allowDirectChat && <button onClick={handleStartChat} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-blue-500 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400"><MessageSquare className="h-4 w-4" />Gửi tin nhắn</button>}
     </div></div></section>
     {profile.message && <div className="mt-5 flex items-start gap-2 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"><Sparkles className="mt-0.5 h-4 w-4 shrink-0" />{profile.message}</div>}
-    <section aria-label="Portfolio statistics" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4"><StatCard icon={BookOpen} label="Đã đăng ký" value={stats.courses_enrolled ?? 0} tone="blue" /><StatCard icon={Award} label="Hoàn thành" value={stats.courses_completed ?? 0} tone="cyan" /><StatCard icon={GraduationCap} label="Đã tạo" value={stats.courses_created ?? 0} tone="amber" /><StatCard icon={BriefcaseBusiness} label="Giờ học" value={`${stats.total_learning_hours ?? 0}h`} tone="violet" /></section>
     {sections.length > 0 && <section className="mt-8 space-y-5" aria-label="Portfolio sections"><div className="flex items-center gap-3"><div className="h-px flex-1 bg-slate-200 dark:bg-blue-500/15" /><span className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Portfolio</span><div className="h-px flex-1 bg-slate-200 dark:bg-blue-500/15" /></div>{sections.map((section) => <RenderProfileSection key={section.id} section={section} />)}</section>}
   </main></PortfolioShell>;
 }

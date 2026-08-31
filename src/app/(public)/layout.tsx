@@ -11,7 +11,7 @@ type PublicLayoutProps = {
 export default function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <div className="relative min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans transition-colors dark:bg-[#050b18] dark:text-slate-100">
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col">
+      <main className="flex-1 w-full flex flex-col">
         {children}
       </main>
 
