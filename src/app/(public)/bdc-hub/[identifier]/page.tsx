@@ -1,403 +1,118 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { userProfileHubService, PublicUserProfile, ProfileSection, ProfileItem } from "@/services/admin/userProfileHubService";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import {
-  userProfileHubService,
-  PublicUserProfile,
-  ProfileSection,
-  ProfileItem,
-} from "@/services/admin/userProfileHubService";
-import {
-  MessageSquare,
-  ShieldAlert,
-  GraduationCap,
-  Briefcase,
-  BookOpen,
-  Award,
-  ExternalLink,
-  Calendar,
-  UserCheck,
-  Globe,
-  Mail,
-  Building,
-  Sparkles,
+  ArrowLeft, Award, BookOpen, BriefcaseBusiness, Building2, CalendarDays,
+  CheckCircle2, ChevronRight, ExternalLink, Globe2, GraduationCap, Layers3,
+  Link2, LockKeyhole, MessageSquare, ShieldAlert, Sparkles, UserRoundCheck,
 } from "lucide-react";
+
+function initials(name?: string) {
+  return (name || "BDC Member").split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+}
+
+function safeExternalUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+  } catch { return null; }
+}
+
+function PortfolioShell({ children }: { children: React.ReactNode }) {
+  return <div className="min-h-screen bg-slate-50 text-slate-900 transition-colors dark:bg-[#050b18] dark:text-slate-100">
+    <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+      <div className="absolute left-[-14rem] top-[-12rem] h-[34rem] w-[34rem] rounded-full bg-blue-400/20 blur-3xl dark:bg-cyan-500/10" />
+      <div className="absolute right-[-13rem] top-[18rem] h-[30rem] w-[30rem] rounded-full bg-violet-400/15 blur-3xl dark:bg-blue-600/10" />
+      <div className="absolute inset-0 opacity-[0.035] dark:opacity-[0.055] [background-image:linear-gradient(rgba(30,64,175,.55)_1px,transparent_1px),linear-gradient(90deg,rgba(30,64,175,.55)_1px,transparent_1px)] [background-size:40px_40px]" />
+    </div>
+    {children}
+  </div>;
+}
+
+function PublicHeader() {
+  return <header className="relative z-10 border-b border-slate-200/80 bg-white/60 backdrop-blur-xl dark:border-blue-500/10 dark:bg-[#050b18]/65">
+    <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <Link href="/" className="group inline-flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-sm dark:from-cyan-400 dark:to-blue-600"><Globe2 className="h-4 w-4" /></span>
+        <span><span className="block text-sm font-black tracking-tight text-slate-950 dark:text-white">BDC Hub</span><span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Public portfolio</span></span>
+        <ChevronRight className="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-0.5" />
+      </Link>
+      <ThemeToggle size={16} className="border border-slate-200 bg-white/80 dark:border-blue-500/15 dark:bg-[#0f1e35]/80" />
+    </div>
+  </header>;
+}
+
+function StatCard({ icon: Icon, label, value, tone }: { icon: typeof BookOpen; label: string; value: React.ReactNode; tone: "blue" | "cyan" | "amber" | "violet" }) {
+  const tones = {
+    blue: "bg-blue-500/10 text-blue-600 ring-blue-500/15 dark:text-blue-300",
+    cyan: "bg-cyan-500/10 text-cyan-700 ring-cyan-500/15 dark:text-cyan-300",
+    amber: "bg-amber-500/10 text-amber-700 ring-amber-500/15 dark:text-amber-300",
+    violet: "bg-violet-500/10 text-violet-700 ring-violet-500/15 dark:text-violet-300",
+  } as const;
+  return <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 shadow-sm backdrop-blur-xl transition-colors dark:border-blue-500/15 dark:bg-[#0f1e35]/75 dark:shadow-none">
+    <div className="flex items-center gap-3"><div className={`rounded-xl p-2.5 ring-1 ${tones[tone]}`}><Icon className="h-5 w-5" /></div><div className="min-w-0"><p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">{label}</p><p className="mt-0.5 text-xl font-extrabold tracking-tight text-slate-950 dark:text-slate-50">{value}</p></div></div>
+  </div>;
+}
 
 export default function BdcHubUserProfilePage() {
   const params = useParams();
   const router = useRouter();
   const identifier = (params?.identifier as string) || "";
-
   const [profile, setProfile] = useState<PublicUserProfile | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!identifier) return;
-
-    setLoading(true);
-    setError(null);
-    userProfileHubService
-      .getPublicProfile(identifier)
-      .then((res) => {
-        setProfile(res);
-      })
-      .catch((err) => {
-        console.error("Failed to load profile:", err);
-        setError("Không tìm thấy người dùng hoặc có lỗi hệ thống.");
-      })
-      .finally(() => setLoading(false));
+    setLoading(true); setError(null);
+    userProfileHubService.getPublicProfile(identifier).then(setProfile).catch(() => setError("Không tìm thấy người dùng hoặc có lỗi hệ thống.")).finally(() => setLoading(false));
   }, [identifier]);
 
-  const handleStartChat = () => {
-    if (profile?.userId) {
-      router.push(`/chat?user_id=${profile.userId}`);
-    }
-  };
+  const handleStartChat = () => { if (profile?.userId) router.push(`/chat?user_id=${profile.userId}`); };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-400 text-sm animate-pulse">Đang tải trang cá nhân BDC Hub...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <PortfolioShell><div className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-4 px-4"><div className="h-11 w-11 animate-spin rounded-full border-[3px] border-blue-500/20 border-t-cyan-500" /><p className="text-sm font-medium text-slate-500 dark:text-slate-400">Đang mở BDC Hub Portfolio…</p></div></PortfolioShell>;
 
-  if (error || !profile) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-900/80 border border-slate-800 rounded-2xl p-8 text-center backdrop-blur-md shadow-2xl">
-          <ShieldAlert className="w-16 h-16 text-rose-500 mx-auto mb-4 animate-bounce" />
-          <h2 className="text-xl font-bold text-slate-100 mb-2">Không tìm thấy thông tin</h2>
-          <p className="text-slate-400 text-sm mb-6">{error || "Hồ sơ không tồn tại hoặc đã bị xóa."}</p>
-          <button
-            onClick={() => router.push("/")}
-            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-indigo-600/30"
-          >
-            Quay lại trang chủ
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (error || !profile) return <PortfolioShell><div className="relative z-10 mx-auto flex min-h-screen max-w-md items-center px-4 py-10"><div className="w-full rounded-3xl border border-slate-200 bg-white/85 p-8 text-center shadow-xl shadow-slate-950/5 backdrop-blur-xl dark:border-blue-500/15 dark:bg-[#0f1e35]/90 dark:shadow-none"><ShieldAlert className="mx-auto mb-5 h-12 w-12 text-rose-500" /><h1 className="text-2xl font-extrabold tracking-tight">Không tìm thấy portfolio</h1><p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{error || "Hồ sơ không tồn tại hoặc không thể xem công khai."}</p><button onClick={() => router.push("/")} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-blue-500 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400"><ArrowLeft className="h-4 w-4" />Về BDC Hub</button></div></div></PortfolioShell>;
 
-  // PROTECTED / UNPUBLISHED STATE
-  if (!profile.published) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-900/90 border border-slate-800 rounded-2xl p-8 text-center backdrop-blur-xl shadow-2xl relative overflow-hidden">
-          <div className="absolute -top-12 -right-12 w-36 h-36 bg-amber-500/10 rounded-full blur-3xl"></div>
-          
-          <div className="w-20 h-20 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <ShieldAlert className="w-10 h-10 text-amber-400" />
-          </div>
+  if (!profile.published) return <PortfolioShell><PublicHeader /><div className="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] max-w-md items-center px-4 py-10"><div className="w-full rounded-3xl border border-slate-200 bg-white/85 p-8 text-center shadow-xl shadow-slate-950/5 backdrop-blur-xl dark:border-blue-500/15 dark:bg-[#0f1e35]/90 dark:shadow-none"><div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/20 dark:text-amber-300"><LockKeyhole className="h-8 w-8" /></div><p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-600 dark:text-amber-300">Private portfolio</p><h1 className="mt-2 text-2xl font-extrabold tracking-tight">Trang cá nhân được bảo vệ</h1><p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">{profile.message || "Người dùng chưa chia sẻ portfolio này công khai."}</p>{profile.allowDirectChat && <button onClick={handleStartChat} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-500 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400"><MessageSquare className="h-4 w-4" />Gửi tin nhắn</button>}</div></div></PortfolioShell>;
 
-          <h2 className="text-2xl font-bold text-slate-100 mb-2">Trang cá nhân được bảo vệ</h2>
-          <p className="text-amber-400/90 text-sm font-medium mb-4">{profile.message || "Người dùng đã bảo vệ thông tin cá nhân."}</p>
-          
-          <div className="p-4 bg-slate-850/60 rounded-xl border border-slate-800/80 mb-6 text-left space-y-2">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-lg border border-indigo-500/30">
-                {profile.fullName?.charAt(0) || "U"}
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-200">{profile.fullName || "BDC Member"}</h3>
-                <p className="text-xs text-slate-400">@{profile.alias || profile.userId}</p>
-              </div>
-            </div>
-          </div>
-
-          {profile.allowDirectChat && (
-            <button
-              onClick={handleStartChat}
-              className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition-all duration-200"
-            >
-              <MessageSquare className="w-5 h-5" />
-              <span>Gửi tin nhắn trực tiếp</span>
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // PUBLIC PUBLISHED PROFILE
   const stats = profile.stats || {};
-
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white">
-      {/* Background Decorator */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[140px]"></div>
-        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[120px]"></div>
-      </div>
-
-      <div className="relative z-10 max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-        {/* Banner Preview Note */}
-        {profile.message && (
-          <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-4 py-3 rounded-xl flex items-center justify-between text-sm shadow-md">
-            <span className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              {profile.message}
-            </span>
-            <button
-              onClick={() => router.push("/myaccount")}
-              className="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 px-3 py-1 rounded-lg font-medium transition"
-            >
-              Chỉnh sửa trong MyAccount
-            </button>
-          </div>
-        )}
-
-        {/* HERO USER PROFILE HEADER */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-            {/* Avatar */}
-            <div className="relative">
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 p-1 shadow-xl">
-                <div className="w-full h-full rounded-[14px] bg-slate-900 flex items-center justify-center overflow-hidden">
-                  {profile.avatarUrl ? (
-                    <img
-                      src={profile.avatarUrl}
-                      alt={profile.fullName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-4xl font-extrabold text-indigo-400">
-                      {profile.fullName?.charAt(0) || "B"}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <span className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 border-4 border-slate-900 rounded-full" title="Active Member"></span>
-            </div>
-
-            {/* Info */}
-            <div className="flex-1 text-center sm:text-left space-y-2">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
-                  {profile.fullName}
-                </h1>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center gap-1">
-                  <UserCheck className="w-3.5 h-3.5" />
-                  @{profile.alias || profile.userId}
-                </span>
-                {profile.userType && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
-                    {profile.userType}
-                  </span>
-                )}
-              </div>
-
-              <p className="text-indigo-400 font-medium text-base sm:text-lg">
-                {profile.title || "Thành viên BDC Core"}
-              </p>
-
-              {profile.bio && (
-                <p className="text-slate-300 text-sm max-w-2xl leading-relaxed pt-1">
-                  {profile.bio}
-                </p>
-              )}
-
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-400 pt-2">
-                {profile.organization && (
-                  <div className="flex items-center gap-1.5">
-                    <Building className="w-4 h-4 text-slate-500" />
-                    <span>{profile.organization}</span>
-                  </div>
-                )}
-                {profile.email && (
-                  <div className="flex items-center gap-1.5">
-                    <Mail className="w-4 h-4 text-slate-500" />
-                    <span>{profile.email}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            {profile.allowDirectChat && (
-              <div className="sm:self-start">
-                <button
-                  onClick={handleStartChat}
-                  className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium text-sm rounded-xl shadow-lg shadow-indigo-600/30 transition-all duration-200 hover:scale-105 active:scale-95"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Gửi tin nhắn</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* SYSTEM STATS GRID */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 backdrop-blur-md flex items-center space-x-3 shadow-lg">
-            <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
-              <BookOpen className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-slate-400">Môn đã đăng ký</p>
-              <p className="text-xl font-bold text-slate-100">{stats.courses_enrolled ?? 0}</p>
-            </div>
-          </div>
-
-          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 backdrop-blur-md flex items-center space-x-3 shadow-lg">
-            <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-              <Award className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-slate-400">Môn hoàn thành</p>
-              <p className="text-xl font-bold text-slate-100">{stats.courses_completed ?? 0}</p>
-            </div>
-          </div>
-
-          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 backdrop-blur-md flex items-center space-x-3 shadow-lg">
-            <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
-              <GraduationCap className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-slate-400">Khóa học đã tạo</p>
-              <p className="text-xl font-bold text-slate-100">{stats.courses_created ?? 0}</p>
-            </div>
-          </div>
-
-          <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 backdrop-blur-md flex items-center space-x-3 shadow-lg">
-            <div className="p-3 bg-violet-500/10 text-violet-400 rounded-xl border border-violet-500/20">
-              <Briefcase className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-slate-400">Thời gian học tập</p>
-              <p className="text-xl font-bold text-slate-100">{stats.total_learning_hours ?? 0}h</p>
-            </div>
-          </div>
-        </div>
-
-        {/* CUSTOM SECTIONS RENDERER */}
-        <div className="space-y-6">
-          {profile.sections &&
-            profile.sections
-              .filter((sec) => sec.visible !== false)
-              .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-              .map((section) => (
-                <RenderProfileSection key={section.id} section={section} />
-              ))}
-        </div>
-      </div>
-    </div>
-  );
+  const sections = (profile.sections || []).filter((section) => section.visible !== false).sort((left, right) => (left.order ?? 0) - (right.order ?? 0));
+  return <PortfolioShell><PublicHeader /><main className="relative z-10 mx-auto max-w-6xl px-4 pb-14 pt-7 sm:px-6 lg:px-8">
+    <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white/80 shadow-xl shadow-slate-950/[0.06] backdrop-blur-xl dark:border-blue-500/15 dark:bg-[#0f1e35]/80 dark:shadow-none"><div className="h-1.5 bg-gradient-to-r from-blue-600 via-cyan-500 to-violet-500 dark:from-cyan-400 dark:via-blue-500 dark:to-violet-500" /><div className="p-6 sm:p-8"><div className="flex flex-col gap-6 md:flex-row md:items-start">
+      <div className="relative shrink-0 self-center md:self-start"><div className="rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-500 to-violet-500 p-1 dark:from-cyan-400 dark:via-blue-500"><div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-[1.3rem] bg-white text-2xl font-black text-blue-700 dark:bg-[#0b1730] dark:text-cyan-300 sm:h-32 sm:w-32">{profile.avatarUrl ? <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" /* eslint-disable-line @next/next/no-img-element -- avatar hosts are user-configured */ /> : initials(profile.fullName)}</div></div><span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-4 border-white bg-emerald-500 text-white dark:border-[#0f1e35]" title="BDC member"><CheckCircle2 className="h-3.5 w-3.5" /></span></div>
+      <div className="min-w-0 flex-1 text-center md:text-left"><div className="flex flex-wrap items-center justify-center gap-2 md:justify-start"><h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">{profile.fullName || "BDC Member"}</h1><span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-500/15 dark:text-cyan-300 dark:ring-cyan-400/20"><UserRoundCheck className="h-3.5 w-3.5" />@{profile.alias || profile.userId}</span></div><p className="mt-3 text-base font-bold text-blue-700 dark:text-cyan-300 sm:text-lg">{profile.title || "Thành viên Big Data Club"}</p>{profile.bio && <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 md:mx-0">{profile.bio}</p>}<div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-slate-500 dark:text-slate-400 md:justify-start">{profile.organization && <span className="inline-flex items-center gap-1.5"><Building2 className="h-4 w-4 text-blue-500 dark:text-cyan-400" />{profile.organization}</span>}{profile.userType && <span className="inline-flex items-center gap-1.5"><Layers3 className="h-4 w-4 text-violet-500" />{profile.userType}</span>}</div></div>
+      {profile.allowDirectChat && <button onClick={handleStartChat} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-blue-500 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400"><MessageSquare className="h-4 w-4" />Gửi tin nhắn</button>}
+    </div></div></section>
+    {profile.message && <div className="mt-5 flex items-start gap-2 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"><Sparkles className="mt-0.5 h-4 w-4 shrink-0" />{profile.message}</div>}
+    <section aria-label="Portfolio statistics" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4"><StatCard icon={BookOpen} label="Đã đăng ký" value={stats.courses_enrolled ?? 0} tone="blue" /><StatCard icon={Award} label="Hoàn thành" value={stats.courses_completed ?? 0} tone="cyan" /><StatCard icon={GraduationCap} label="Đã tạo" value={stats.courses_created ?? 0} tone="amber" /><StatCard icon={BriefcaseBusiness} label="Giờ học" value={`${stats.total_learning_hours ?? 0}h`} tone="violet" /></section>
+    {sections.length > 0 && <section className="mt-8 space-y-5" aria-label="Portfolio sections"><div className="flex items-center gap-3"><div className="h-px flex-1 bg-slate-200 dark:bg-blue-500/15" /><span className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Portfolio</span><div className="h-px flex-1 bg-slate-200 dark:bg-blue-500/15" /></div>{sections.map((section) => <RenderProfileSection key={section.id} section={section} />)}</section>}
+  </main></PortfolioShell>;
 }
 
 function RenderProfileSection({ section }: { section: ProfileSection }) {
-  return (
-    <div className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-xl shadow-xl space-y-4">
-      <div className="flex items-center space-x-3 border-b border-slate-800 pb-3">
-        <div className="w-2.5 h-6 bg-gradient-to-b from-indigo-500 to-violet-500 rounded-full"></div>
-        <h2 className="text-lg font-bold text-slate-100 tracking-wide">{section.title}</h2>
-      </div>
-
-      <div className="space-y-4 pt-1">
-        {section.items && section.items.length > 0 ? (
-          section.items.map((item) => <RenderProfileItem key={item.id} item={item} />)
-        ) : (
-          <p className="text-xs text-slate-500 italic">Chưa có thông tin cập nhật.</p>
-        )}
-      </div>
-    </div>
-  );
+  return <article className="rounded-3xl border border-slate-200 bg-white/75 p-5 shadow-sm backdrop-blur-xl dark:border-blue-500/15 dark:bg-[#0f1e35]/75 dark:shadow-none sm:p-6"><div className="mb-5 flex items-center gap-3 border-b border-slate-200 pb-4 dark:border-blue-500/10"><span className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-cyan-500 dark:from-cyan-400 dark:to-blue-500" /><h2 className="text-lg font-extrabold tracking-tight text-slate-950 dark:text-white">{section.title}</h2></div>{section.items?.length ? <div className="space-y-4">{section.items.map((item) => <RenderProfileItem key={item.id} item={item} />)}</div> : <p className="text-sm italic text-slate-500 dark:text-slate-400">Chưa có thông tin cập nhật.</p>}</article>;
 }
 
 function RenderProfileItem({ item }: { item: ProfileItem }) {
-  switch (item.type) {
-    case "TEXT":
-      return (
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">{item.label}</p>
-          <p className="text-sm text-slate-200 font-medium">{String(item.value || "")}</p>
-        </div>
-      );
-
-    case "MARKDOWN":
-      return (
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">{item.label}</p>
-          <div className="text-sm text-slate-300 leading-relaxed bg-slate-950/40 p-4 rounded-xl border border-slate-800/60 whitespace-pre-wrap">
-            {String(item.value || "")}
-          </div>
-        </div>
-      );
-
-    case "LINK": {
-      const linkVal = typeof item.value === "object" ? item.value : { url: item.value, title: item.label };
-      return (
-        <div className="flex items-center justify-between p-3 bg-slate-950/40 rounded-xl border border-slate-800/60 hover:border-indigo-500/40 transition">
-          <span className="text-sm font-medium text-slate-300">{item.label}</span>
-          <a
-            href={linkVal.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center space-x-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20 transition"
-          >
-            <span>{linkVal.title || "Truy cập liên kết"}</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        </div>
-      );
-    }
-
-    case "DATE":
-    case "DATE_RANGE": {
-      const dateVal = typeof item.value === "object" ? item.value : { start: item.value, end: "" };
-      return (
-        <div className="flex items-center space-x-3 p-3 bg-slate-950/40 rounded-xl border border-slate-800/60">
-          <Calendar className="w-4 h-4 text-indigo-400" />
-          <div>
-            <p className="text-xs font-medium text-slate-400">{item.label}</p>
-            <p className="text-sm font-semibold text-slate-200">
-              {dateVal.start} {dateVal.end ? `- ${dateVal.end}` : dateVal.is_present ? "- Hiện tại" : ""}
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    case "KEY_VALUE":
-      return (
-        <div className="grid grid-cols-2 gap-2 p-3 bg-slate-950/40 rounded-xl border border-slate-800/60">
-          <span className="text-sm font-medium text-slate-400">{item.label}</span>
-          <span className="text-sm font-bold text-right text-indigo-400">{String(item.value || "")}</span>
-        </div>
-      );
-
-    case "TAG_LIST": {
-      const tags: string[] = Array.isArray(item.value) ? item.value : String(item.value || "").split(",");
-      return (
-        <div className="space-y-1.5">
-          <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">{item.label}</p>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className="px-3 py-1 bg-slate-800/80 hover:bg-slate-800 text-slate-200 border border-slate-700/80 rounded-lg text-xs font-medium transition"
-              >
-                {tag.trim()}
-              </span>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    default:
-      return (
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-slate-400">{item.label}</p>
-          <p className="text-sm text-slate-300">{JSON.stringify(item.value)}</p>
-        </div>
-      );
+  const label = <p className="text-[11px] font-extrabold uppercase tracking-[0.13em] text-blue-700 dark:text-cyan-300">{item.label}</p>;
+  if (item.type === "TEXT") return <div className="space-y-1.5">{label}<p className="text-sm font-medium leading-6 text-slate-700 dark:text-slate-200">{String(item.value || "")}</p></div>;
+  if (item.type === "MARKDOWN") return <div className="space-y-2">{label}<div className="whitespace-pre-wrap rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm leading-7 text-slate-700 dark:border-blue-500/10 dark:bg-[#09152b]/75 dark:text-slate-300">{String(item.value || "")}</div></div>;
+  if (item.type === "LINK") {
+    const link = typeof item.value === "object" && item.value ? item.value as { url?: unknown; title?: unknown } : { url: item.value, title: item.label };
+    const href = safeExternalUrl(link.url);
+    return <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50/75 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-blue-500/10 dark:bg-[#09152b]/60"><div className="min-w-0"><div className="flex items-center gap-2">{label}<Link2 className="h-3.5 w-3.5 text-slate-400" /></div><p className="mt-1 truncate text-sm text-slate-600 dark:text-slate-300">{typeof link.title === "string" ? link.title : "Liên kết bên ngoài"}</p></div>{href ? <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-500 dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400">Mở liên kết<ExternalLink className="h-3.5 w-3.5" /></a> : <span className="text-xs font-semibold text-slate-400">Liên kết không hợp lệ</span>}</div>;
   }
+  if (item.type === "DATE" || item.type === "DATE_RANGE") {
+    const value: { start?: unknown; end?: unknown; is_present?: boolean } = typeof item.value === "object" && item.value ? item.value as { start?: unknown; end?: unknown; is_present?: boolean } : { start: item.value };
+    return <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/75 p-4 dark:border-blue-500/10 dark:bg-[#09152b]/60"><CalendarDays className="h-4 w-4 shrink-0 text-blue-600 dark:text-cyan-300" /><div>{label}<p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{String(value.start || "")} {value.end ? `– ${String(value.end)}` : value.is_present ? "– Hiện tại" : ""}</p></div></div>;
+  }
+  if (item.type === "KEY_VALUE") return <div className="grid grid-cols-1 gap-1 rounded-2xl border border-slate-200 bg-slate-50/75 p-4 sm:grid-cols-2 sm:items-center dark:border-blue-500/10 dark:bg-[#09152b]/60">{label}<p className="text-sm font-bold text-slate-800 sm:text-right dark:text-cyan-200">{String(item.value || "")}</p></div>;
+  if (item.type === "TAG_LIST") { const tags = Array.isArray(item.value) ? item.value : String(item.value || "").split(","); return <div className="space-y-2">{label}<div className="flex flex-wrap gap-2">{tags.filter(Boolean).map((tag, index) => <span key={`${String(tag)}-${index}`} className="rounded-full border border-blue-500/15 bg-blue-500/10 px-3 py-1 text-xs font-bold text-blue-700 dark:border-cyan-400/15 dark:bg-cyan-400/10 dark:text-cyan-200">{String(tag).trim()}</span>)}</div></div>; }
+  return <div className="space-y-1.5">{label}<p className="text-sm text-slate-600 dark:text-slate-300">{typeof item.value === "string" ? item.value : JSON.stringify(item.value)}</p></div>;
 }
