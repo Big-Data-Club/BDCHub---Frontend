@@ -36,6 +36,8 @@ import quizService from "@/services/lms/quizService";
 import lmsService from "@/services/lms/lmsService";
 import aiService from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
+import AIRevisionPanel from "@/components/lms/teacher/AIRevisionPanel";
+import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -258,6 +260,18 @@ export default function QuestionBankPage() {
       alert(err?.response?.data?.message ?? "Xóa thất bại.");
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const applyQuestionRevision = async (proposal: Record<string, unknown>) => {
+    if (!previewItem) return;
+    try {
+      await quizService.updateBankItem(previewItem.id, proposal);
+      setPreviewItem({ ...previewItem, ...proposal } as BankItem);
+      await loadItems();
+      toast.success("Đã áp dụng bản chỉnh sửa AI vào câu hỏi.");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message ?? "Không thể lưu bản chỉnh sửa câu hỏi.");
     }
   };
 
@@ -769,6 +783,16 @@ export default function QuestionBankPage() {
       >
         {previewItem && (
           <div className="space-y-5">
+            <AIRevisionPanel
+              kind="question"
+              label="AI chỉnh sửa câu hỏi"
+              source={{
+                question_text: previewItem.question_text, explanation: previewItem.explanation ?? "",
+                answer_options: previewItem.answer_options ?? [], correct_answers: previewItem.correct_answers ?? [],
+                difficulty: previewItem.difficulty, bloom_level: previewItem.bloom_level ?? "", points: previewItem.points,
+              }}
+              onApply={applyQuestionRevision}
+            />
             {/* Meta badges */}
             <div className="flex flex-wrap items-center gap-2">
               <span className={cn("text-xs font-bold px-2.5 py-1 rounded-full", DIFFICULTY_BADGE[previewItem.difficulty])}>

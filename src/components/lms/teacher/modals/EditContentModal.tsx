@@ -6,6 +6,7 @@ import FileUpload from "@/components/lms/teacher/upload/FileUpload";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 import QuizSettingsForm, { QuizSettings } from "../quiz/QuizSettingsForm";
 import BaseModal from "@/components/lms/shared/BaseModal";
+import AIRevisionPanel from "@/components/lms/teacher/AIRevisionPanel";
 
 import lmsService from "@/services/lms/lmsService";
 import quizService from "@/services/lms/quizService";
@@ -400,23 +401,46 @@ export default function EditContentModal({
                 </p>
               </div>
             ) : (
-              <QuizSettingsForm
-                settings={quizSettings}
-                onChange={setQuizSettings}
-                disabled={loading}
-              />
+              <>
+                <AIRevisionPanel
+                  kind="quiz"
+                  label="AI chỉnh sửa cài đặt quiz"
+                  source={{
+                    title: quizSettings.title, description: quizSettings.description,
+                    instructions: quizSettings.instructions,
+                    time_limit_minutes: quizSettings.time_limit_minutes,
+                    max_attempts: quizSettings.max_attempts,
+                    passing_score: quizSettings.passing_score,
+                    shuffle_questions: quizSettings.shuffle_questions,
+                    shuffle_answers: quizSettings.shuffle_answers,
+                    auto_grade: quizSettings.auto_grade,
+                  }}
+                  onApply={(proposal) => {
+                    setQuizSettings({ ...quizSettings, ...proposal } as QuizSettings);
+                    if (typeof proposal.title === "string") setFormData((current) => ({ ...current, title: proposal.title as string }));
+                    if (typeof proposal.description === "string") setFormData((current) => ({ ...current, description: proposal.description as string }));
+                  }}
+                />
+                <div className="mt-4"><QuizSettingsForm settings={quizSettings} onChange={setQuizSettings} disabled={loading} /></div>
+              </>
             )}
           </div>
         )}
 
         {/* Text Content for TEXT type */}
         {content.type === "TEXT" && (
-          <MarkdownEditor
-            label="Nội dung văn bản *"
-            value={textContent}
-            onChange={setTextContent}
-            placeholder="Nhập nội dung bài học..."
-          />
+          <div className="space-y-4">
+            <AIRevisionPanel
+              kind="lesson"
+              label="AI chỉnh sửa bài học"
+              source={{ title: formData.title, description: formData.description, markdown: textContent }}
+              onApply={(proposal) => {
+                setFormData((current) => ({ ...current, title: String(proposal.title ?? current.title), description: String(proposal.description ?? current.description) }));
+                if (typeof proposal.markdown === "string") setTextContent(proposal.markdown);
+              }}
+            />
+            <MarkdownEditor label="Nội dung văn bản *" value={textContent} onChange={setTextContent} placeholder="Nhập nội dung bài học..." />
+          </div>
         )}
 
         {/* File Upload Section for File-based Content */}
@@ -568,4 +592,3 @@ export default function EditContentModal({
     </BaseModal>
   );
 }
-

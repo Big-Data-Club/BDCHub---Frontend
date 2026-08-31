@@ -15,6 +15,7 @@ import { studioService, type StudioProject } from "@/services/ai/studioService";
 import lmsService from "@/services/lms/lmsService";
 import { aiService } from "@/services/ai/aiService";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import AIRevisionPanel from "@/components/lms/teacher/AIRevisionPanel";
 import { cn } from "@/lib/utils";
 
 const THEMES = [
@@ -420,6 +421,22 @@ export default function StudioPage() {
                   <div key={i} className="rounded-2xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] p-4">
                     {editIdx === i ? (
                       <div className="space-y-2">
+                        <AIRevisionPanel
+                          kind="slide_section"
+                          label="AI chỉnh sửa mục slide"
+                          source={{
+                            title: dirtyDraft!.title, key_points: dirtyDraft!.key_points,
+                            slide_bullets: dirtyDraft!.slide_bullets, narration: dirtyDraft!.narration,
+                            visual_suggestion: sec.visual_suggestion ?? "", visual_type: sec.visual_type ?? "auto",
+                            visual_labels: sec.visual_labels ?? [],
+                          }}
+                          onApply={(proposal) => setDirtyDraft({
+                            title: String(proposal.title ?? dirtyDraft!.title),
+                            key_points: Array.isArray(proposal.key_points) ? proposal.key_points.map(String) : dirtyDraft!.key_points,
+                            slide_bullets: Array.isArray(proposal.slide_bullets) ? proposal.slide_bullets.map(String) : dirtyDraft!.slide_bullets,
+                            narration: String(proposal.narration ?? dirtyDraft!.narration),
+                          })}
+                        />
                         <input value={dirtyDraft!.title} onChange={(e) => setDirtyDraft({ ...dirtyDraft!, title: e.target.value })}
                           className="w-full text-sm font-bold bg-transparent outline-none border-b border-blue-300 pb-1 text-slate-900 dark:text-white" />
                         <textarea value={(dirtyDraft!.slide_bullets ?? []).join("\n")} rows={3}

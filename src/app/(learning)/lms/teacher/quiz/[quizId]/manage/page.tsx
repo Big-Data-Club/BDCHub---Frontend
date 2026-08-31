@@ -12,6 +12,7 @@ import FillBlankTextEditor from "@/components/lms/shared/FillBlankTextEditor";
 import FillBlankDropdownEditor from "@/components/lms/shared/FillBlankDropdownEditor";
 import MarkdownEditor from "@/components/markdown/MarkdownEditor";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import AIRevisionPanel from "@/components/lms/teacher/AIRevisionPanel";
 import { useQuizCourse } from "@/hooks/lms/student/useQuizCourse";
 import { useMarkdownImage } from "@/hooks/common/useMarkdownImage";
 import { useSetPageContext } from "@/hooks/common/usePageContext";
@@ -606,6 +607,25 @@ export default function TeacherQuizManagePage() {
             </div>
 
             <form onSubmit={handleCreateQuestion} className="flex-1 overflow-y-auto p-6 space-y-6">
+              <AIRevisionPanel
+                kind="question"
+                label={editingQuestion ? "AI chỉnh sửa câu hỏi này" : "AI hỗ trợ chỉnh sửa bản nháp câu hỏi"}
+                source={{
+                  question_text: questionForm.question_text,
+                  explanation: questionForm.explanation,
+                  answer_options: questionForm.answer_options,
+                  correct_answers: questionForm.correct_answers,
+                  points: questionForm.points,
+                }}
+                onApply={(proposal) => setQuestionForm((form) => ({
+                  ...form,
+                  question_text: typeof proposal.question_text === "string" ? proposal.question_text : form.question_text,
+                  explanation: typeof proposal.explanation === "string" ? proposal.explanation : form.explanation,
+                  answer_options: Array.isArray(proposal.answer_options) ? proposal.answer_options as AnswerOption[] : form.answer_options,
+                  correct_answers: Array.isArray(proposal.correct_answers) ? proposal.correct_answers as CorrectAnswer[] : form.correct_answers,
+                  points: typeof proposal.points === "number" ? proposal.points : form.points,
+                }))}
+              />
               {/* Type selector */}
               <div>
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Loại câu hỏi *</label>
