@@ -17,6 +17,9 @@ export interface StudioSection {
   visual_suggestion: string;
   visual_type: "auto" | "flow" | "cycle" | "comparison" | "hierarchy" | "timeline";
   visual_labels: string[];
+  illustration_prompt: string;
+  alt_text: string;
+  source_refs: string[];
   duration_est_sec: number;
 }
 
@@ -31,7 +34,7 @@ export interface StudioPlan {
 export interface StudioProject {
   id: string;
   course_id: number;
-  kind: "slides" | "document" | "video";
+  kind: "slides" | "document" | "report" | "video";
   title: string;
   status: "collecting" | "planned" | "generating" | "ready" | "failed";
   error_detail?: string | null;
@@ -88,7 +91,7 @@ export const studioService = {
   updateSection: (
     id: string,
     index: number,
-    patch: Partial<Pick<StudioSection, "title" | "key_points" | "slide_bullets" | "narration" | "visual_suggestion" | "visual_type" | "visual_labels">>
+    patch: Partial<Pick<StudioSection, "title" | "key_points" | "slide_bullets" | "narration" | "visual_suggestion" | "visual_type" | "visual_labels" | "illustration_prompt" | "alt_text" | "source_refs">>
   ) =>
     call<{ project: StudioProject }>(`projects/${id}/sections`, {
       method: "PATCH",

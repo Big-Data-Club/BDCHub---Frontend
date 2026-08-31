@@ -33,7 +33,7 @@ export default function StudioPage() {
 
   const [step, setStep] = useState(0);
   const [project, setProject] = useState<StudioProject | null>(null);
-  const [kind, setKind] = useState<"slides" | "document">("slides");
+  const [kind, setKind] = useState<"slides" | "document" | "report">("slides");
   const [title, setTitle] = useState("");
   const [theme, setTheme] = useState("academic");
   const [slideCount, setSlideCount] = useState(8);
@@ -242,10 +242,11 @@ export default function StudioPage() {
             <h3 className="font-bold text-sm flex items-center gap-2"><Layers className="w-4 h-4 text-violet-500" /> Thông tin chung</h3>
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Tiêu đề bài giảng"
               className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] text-sm outline-none focus:ring-2 focus:ring-blue-500/20" />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid sm:grid-cols-3 gap-2">
               {([
                 { v: "slides", label: "Slide bài giảng", icon: Presentation },
                 { v: "document", label: "Tài liệu học tập", icon: BookOpen },
+                { v: "report", label: "Báo cáo chuyên sâu", icon: FileText },
               ] as const).map((k) => (
                 <button key={k.v} onClick={() => setKind(k.v)}
                   className={cn("p-3.5 rounded-xl border text-left transition-all cursor-pointer",
@@ -255,7 +256,7 @@ export default function StudioPage() {
                 </button>
               ))}
             </div>
-            {kind === "slides" && (
+            {(kind === "slides" || kind === "report") && (
               <>
                 <div className="flex items-center gap-2">
                   <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Theme</label>
@@ -266,7 +267,7 @@ export default function StudioPage() {
                   ))}
                 </div>
                 <div className="flex items-center gap-3">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Số mục</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500">{kind === "report" ? "Số phần" : "Số mục"}</label>
                   <input type="number" min={4} max={20} value={slideCount} onChange={(e) => setSlideCount(Number(e.target.value))}
                     className="w-20 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] text-sm" />
                 </div>
@@ -321,6 +322,13 @@ export default function StudioPage() {
       {/* STEP 1 - PLAN */}
       {step === 1 && (
         <div className="space-y-4">
+          {project?.settings?.context_metrics && (
+            <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+              <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1">Nguồn: ~{project.settings.context_metrics.raw_estimated_tokens} tokens</span>
+              <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 px-2.5 py-1">Đã dùng: ~{project.settings.context_metrics.used_estimated_tokens}/{project.settings.context_metrics.input_token_budget}</span>
+              {project.settings.context_metrics.hierarchical_reduction && <span className="rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 px-2.5 py-1">Evidence map-reduce · giữ đủ nguồn</span>}
+            </div>
+          )}
           {warnings.length > 0 && (
             <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-700 dark:text-amber-300 font-medium">
               {warnings.join(" · ")}
@@ -366,6 +374,16 @@ export default function StudioPage() {
                 <input value={sec.visual_suggestion ?? ""} onChange={(e) => mutateSection(i, "visual_suggestion", e.target.value)}
                   placeholder="Chú thích hình minh họa"
                   className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] text-xs" />
+                <input value={sec.alt_text ?? ""} onChange={(e) => mutateSection(i, "alt_text", e.target.value)}
+                  placeholder="Alt text để hình dễ tiếp cận"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] text-xs" />
+                <details className="text-xs rounded-lg border border-dashed border-violet-200 dark:border-violet-800 p-2">
+                  <summary className="cursor-pointer text-violet-700 dark:text-violet-300 font-semibold">Gợi ý ảnh tùy chọn (không chặn việc tạo slide)</summary>
+                  <textarea value={sec.illustration_prompt ?? ""} rows={2}
+                    onChange={(e) => mutateSection(i, "illustration_prompt", e.target.value)}
+                    placeholder="Prompt để dùng với image generator khi có; để trống nếu sơ đồ là đủ."
+                    className="mt-2 w-full px-3 py-2 rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/40 dark:bg-violet-950/10 resize-y" />
+                </details>
                 <details className="text-xs">
                   <summary className="cursor-pointer text-blue-600 dark:text-cyan-400 font-semibold">Kịch bản thuyết trình</summary>
                   <textarea value={sec.narration} rows={4}
@@ -463,6 +481,12 @@ export default function StudioPage() {
                         <div className="mt-2 inline-flex rounded-full bg-violet-50 px-2 py-1 text-[10px] font-bold uppercase text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
                           Visual: {sec.visual_type ?? "auto"} · {(sec.visual_labels ?? []).length} nhãn
                         </div>
+                        {sec.illustration_prompt && (
+                          <p className="mt-2 text-[11px] text-violet-600 dark:text-violet-300">Gợi ý ảnh (chưa tạo): {sec.illustration_prompt}</p>
+                        )}
+                        {(sec.source_refs ?? []).length > 0 && (
+                          <p className="mt-1 text-[10px] font-mono text-slate-400">Nguồn: {sec.source_refs.join(", ")}</p>
+                        )}
                         {(sec.slide_bullets ?? []).length > 0 && (
                           <ul className="mt-2 space-y-1">
                             {sec.slide_bullets.map((b, bi) => (
