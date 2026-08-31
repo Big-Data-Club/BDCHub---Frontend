@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { User, Lock, Loader2, Globe, Cpu } from "lucide-react";
 
 import { userService, UserResponse, UpdateProfileRequest } from "@/services/auth/userService";
+import { resolveMediaUrl } from "@/lib/media-url";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useUser } from "@/store/UserContext";
 
@@ -65,7 +66,7 @@ const MyAccountPage: React.FC = () => {
           team: userData.team,
           type: userData.type,
         });
-        if (userData.profilePicture) setPreviewUrl(userData.profilePicture);
+        if (userData.profilePicture) setPreviewUrl(resolveMediaUrl(userData.profilePicture) ?? "");
       } catch (error: any) {
         console.error("Failed to fetch user data:", error);
         setMessage({ type: "error", text: "Failed to load user data" });
