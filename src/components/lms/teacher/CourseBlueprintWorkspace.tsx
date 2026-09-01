@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, FileText, Loader2, Sparkles, Upload, X } from "lucide-react";
 import { getAccessToken } from "@/services/auth/authToken";
 import { courseBlueprintService, type CourseBlueprint, type CourseBlueprintFile } from "@/services/lms/courseBlueprintService";
@@ -9,12 +9,21 @@ import { Select } from "@/components/lms/shared/Select";
 
 type Uploaded = CourseBlueprintFile & { size: number };
 
-export function CourseBlueprintWorkspace({ userId, organizations, onComplete, onCancel }: { userId: number; organizations: Organization[]; onComplete: (courseId: number) => Promise<void>; onCancel: () => void }) {
+export function CourseBlueprintWorkspace({ userId, organizations, onComplete, onCancel, blueprintId }: { userId: number; organizations: Organization[]; onComplete: (courseId: number) => Promise<void>; onCancel: () => void; blueprintId?: string | null }) {
   const input = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<Uploaded[]>([]);
   const [blueprint, setBlueprint] = useState<CourseBlueprint | null>(null);
   const [busy, setBusy] = useState<"upload" | "analyse" | "save" | "approve" | null>(null);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!blueprintId || !userId) return;
+    setBusy("analyse"); setError("");
+    courseBlueprintService.get(blueprintId, userId)
+      .then((loaded) => setBlueprint(loaded))
+      .catch((cause) => setError(cause instanceof Error ? cause.message : "Không thể mở blueprint này."))
+      .finally(() => setBusy(null));
+  }, [blueprintId, userId]);
 
   const upload = async (selected: FileList | null) => {
     if (!selected?.length) return;
@@ -63,7 +72,8 @@ export function CourseBlueprintWorkspace({ userId, organizations, onComplete, on
   const cancel = async () => { try { if (blueprint) await courseBlueprintService.cancel(blueprint.id); onCancel(); } catch (cause) { setError(cause instanceof Error ? cause.message : "Không thể hủy đề xuất"); } };
   const patch = (fn: (plan: CourseBlueprint["plan"]) => CourseBlueprint["plan"]) => setBlueprint((current) => current ? { ...current, plan: fn(current.plan) } : current);
 
-  const planReady = blueprint?.status === "DRAFT" && !!blueprint.plan?.governance && Array.isArray(blueprint.plan.chapters);
+  const planReady = blueprint?.status === "DRAFT" && Array.isArray(blueprint.plan?.chapters);
+  const isLegacyExternalBlueprint = blueprint?.origin === "chatbot";
   if (blueprint && !planReady && blueprint.status !== "FAILED") return <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"><div className="flex items-start gap-3"><div className="rounded-xl bg-violet-100 p-2.5 text-violet-700"><Loader2 className="h-6 w-6 animate-spin" /></div><div><h1 className="text-xl font-bold">Đang xây roadmap từ tài liệu</h1><p className="mt-1 text-sm text-slate-500">Bạn có thể giữ trang này mở. Hệ thống đang đọc tài liệu theo từng phần; việc này không còn bị giới hạn bởi timeout trình duyệt.</p></div></div><button onClick={cancel} className="rounded-lg border px-4 py-2 text-sm">Hủy phân tích</button></section>;
 
   if (blueprint?.status === "FAILED") return <section className="space-y-4 rounded-2xl border border-red-200 bg-white p-6 shadow-sm"><h1 className="text-xl font-bold">Chưa thể tạo đề xuất</h1><p className="text-sm text-red-700">{blueprint.error_message || "AI không thể hoàn tất phân tích tài liệu."}</p><div className="flex gap-3"><button onClick={() => setBlueprint(null)} className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white">Thử lại</button><button onClick={onCancel} className="rounded-lg border px-4 py-2 text-sm">Hủy</button></div></section>;
@@ -71,15 +81,16 @@ export function CourseBlueprintWorkspace({ userId, organizations, onComplete, on
   if (blueprint) return <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <header className="flex items-start gap-3"><div className="rounded-xl bg-violet-100 p-2.5 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300"><Sparkles /></div><div><h1 className="text-xl font-bold">Đề xuất roadmap từ giáo trình</h1><p className="text-sm text-slate-500">Bạn kiểm soát mọi thông tin trước khi tạo khóa học.</p></div></header>
     {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/20 dark:text-red-300">{error}</p>}
-    {blueprint.validation.errors.map((item) => <p key={item.code} className="rounded-lg bg-amber-50 p-2 text-sm text-amber-800">{item.message}</p>)}
+    {isLegacyExternalBlueprint && <p className="rounded-xl bg-blue-50 p-3 text-sm text-blue-800 dark:bg-blue-950/20 dark:text-blue-200">Đây là blueprint MCP cũ, chỉ mở để đối chiếu. Các course MCP mới sẽ được tạo trực tiếp ở trạng thái DRAFT.</p>}
+    {(blueprint.validation?.errors || []).map((item) => <p key={item.code} className="rounded-lg bg-amber-50 p-2 text-sm text-amber-800">{item.message}</p>)}
     <div className="grid gap-4 md:grid-cols-2">
       <label className="text-sm font-medium">Tên khóa học
         <input value={blueprint.plan.title} onChange={(e) => patch((p) => ({ ...p, title: e.target.value }))} className="mt-1.5 w-full rounded-xl border border-slate-300 dark:border-blue-500/20 bg-slate-50 dark:bg-[#0D192E] p-2.5 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-cyan-400/50" />
       </label>
       <Select
         label="Organization"
-        value={String(blueprint.plan.governance.organization_id || "")}
-        onValueChange={(val) => patch((p) => ({ ...p, governance: { ...p.governance, organization_id: Number(val) } }))}
+        value={String(blueprint.plan.governance?.organization_id || "")}
+        onValueChange={(val) => patch((p) => ({ ...p, governance: { organization_id: Number(val), visibility: p.governance?.visibility || "ORG_ONLY", co_teacher_ids: p.governance?.co_teacher_ids || [] } }))}
         options={organizations.map((org) => ({ value: String(org.id), label: org.name }))}
         placeholder="Chọn Organization..."
       />
@@ -87,8 +98,8 @@ export function CourseBlueprintWorkspace({ userId, organizations, onComplete, on
         <textarea value={blueprint.plan.description} onChange={(e) => patch((p) => ({ ...p, description: e.target.value }))} className="mt-1.5 min-h-24 w-full rounded-xl border border-slate-300 dark:border-blue-500/20 bg-slate-50 dark:bg-[#0D192E] p-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-cyan-400/50" />
       </label>
     </div>
-    <div><h2 className="mb-2 font-semibold">Chương học</h2><div className="space-y-3">{blueprint.plan.chapters.map((chapter, index) => <article key={chapter.id} className="rounded-xl border border-slate-200 p-4 dark:border-slate-800"><p className="text-xs font-semibold text-violet-600">CHƯƠNG {index + 1} · dựa trên {chapter.material_ids.length} tài liệu</p><input value={chapter.title} onChange={(e) => patch((p) => ({ ...p, chapters: p.chapters.map((c) => c.id === chapter.id ? { ...c, title: e.target.value } : c) }))} className="mt-1 w-full border-0 bg-transparent text-base font-semibold outline-none" /><textarea value={chapter.description} onChange={(e) => patch((p) => ({ ...p, chapters: p.chapters.map((c) => c.id === chapter.id ? { ...c, description: e.target.value } : c) }))} className="mt-2 min-h-16 w-full rounded-lg border p-2 text-sm dark:bg-slate-950" /><p className="mt-2 text-xs text-slate-500">Tiên quyết: {chapter.prerequisites.length ? chapter.prerequisites.join(", ") : "Không có"}</p></article>)}</div></div>
-    <footer className="flex flex-wrap justify-end gap-3 border-t pt-5"><button onClick={cancel} className="rounded-lg px-4 py-2 text-sm">Hủy</button><button disabled={!!busy} onClick={save} className="rounded-lg border px-4 py-2 text-sm font-semibold">{busy === "save" ? "Đang lưu…" : "Lưu thay đổi"}</button><button disabled={!!busy} onClick={approve} className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white"><CheckCircle2 className="h-4 w-4" />{busy === "approve" ? "Đang duyệt…" : "Duyệt & tạo khóa học"}</button></footer>
+    <div><h2 className="mb-2 font-semibold">Chương học</h2><div className="space-y-3">{blueprint.plan.chapters.map((chapter, index) => <article key={chapter.id || index} className="rounded-xl border border-slate-200 p-4 dark:border-slate-800"><p className="text-xs font-semibold text-violet-600">CHƯƠNG {index + 1} · {chapter.lessons?.length ? `${chapter.lessons.length} bài học` : `dựa trên ${chapter.material_ids?.length || 0} tài liệu`}</p><input value={chapter.title} onChange={(e) => patch((p) => ({ ...p, chapters: p.chapters.map((c, chapterIndex) => chapterIndex === index ? { ...c, title: e.target.value } : c) }))} className="mt-1 w-full border-0 bg-transparent text-base font-semibold outline-none" /><textarea value={chapter.description} onChange={(e) => patch((p) => ({ ...p, chapters: p.chapters.map((c, chapterIndex) => chapterIndex === index ? { ...c, description: e.target.value } : c) }))} className="mt-2 min-h-16 w-full rounded-lg border p-2 text-sm dark:bg-slate-950" /><p className="mt-2 text-xs text-slate-500">Tiên quyết: {chapter.prerequisites?.length ? chapter.prerequisites.join(", ") : "Không có"}</p>{chapter.lessons?.length ? <ol className="mt-3 space-y-1 border-t pt-3 text-sm text-slate-600 dark:text-slate-300">{chapter.lessons.map((lesson, lessonIndex) => <li key={`${lesson.title}-${lessonIndex}`}>{lessonIndex + 1}. {lesson.title}{lesson.description ? <span className="text-slate-400"> — {lesson.description}</span> : null}</li>)}</ol> : null}</article>)}</div></div>
+    {!isLegacyExternalBlueprint && <footer className="flex flex-wrap justify-end gap-3 border-t pt-5"><button onClick={cancel} className="rounded-lg px-4 py-2 text-sm">Hủy</button><button disabled={!!busy} onClick={save} className="rounded-lg border px-4 py-2 text-sm font-semibold">{busy === "save" ? "Đang lưu…" : "Lưu thay đổi"}</button><button disabled={!!busy} onClick={approve} className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white"><CheckCircle2 className="h-4 w-4" />{busy === "approve" ? "Đang duyệt…" : "Duyệt & tạo khóa học"}</button></footer>}
   </section>;
 
   return <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900"><div className="mb-6"><h1 className="text-2xl font-bold">Tạo khóa học từ tài liệu</h1><p className="mt-1 text-sm text-slate-500">Tải mọi loại file: giáo trình, slide, ảnh, dữ liệu, notebook, source code hoặc script. AI chỉ suy luận từ nội dung đọc được; file binary vẫn được lưu và gắn vào course.</p></div>{error && <p className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}<input ref={input} type="file" multiple className="hidden" onChange={(e) => upload(e.target.files)} /><button type="button" onClick={() => input.current?.click()} disabled={!!busy} className="flex min-h-40 w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-violet-300 bg-violet-50/60 text-violet-800 transition hover:bg-violet-50 dark:border-violet-800 dark:bg-violet-950/20 dark:text-violet-200"><Upload className="mb-2 h-7 w-7" /><span className="font-semibold">Chọn nhiều file bất kỳ</span><span className="mt-1 text-xs">Tài liệu, ảnh, code, dataset, notebook, script, archive và định dạng chuyên ngành</span></button><div className="mt-4 space-y-2">{files.map((file) => <div key={file.id} className="flex items-center gap-3 rounded-lg border p-3"><FileText className="h-4 w-4 text-violet-600" /><span className="min-w-0 flex-1 truncate text-sm">{file.filename}</span><span className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(1)} MB</span><button onClick={() => setFiles((items) => items.filter((item) => item.id !== file.id))} className="text-slate-400 hover:text-red-600"><X className="h-4 w-4" /></button></div>)}</div><div className="mt-6 flex justify-between"><button onClick={onCancel} className="rounded-lg px-4 py-2 text-sm">Hủy</button><button disabled={!files.length || !organizations.length || !!busy} onClick={analyse} className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-5 py-2.5 font-semibold text-white disabled:opacity-50">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}{busy === "upload" ? "Đang tải…" : busy === "analyse" ? "Đang phân tích…" : "Nhận đề xuất AI"}</button></div></section>;

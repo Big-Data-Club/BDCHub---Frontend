@@ -2,9 +2,9 @@ import { lmsApiClient } from "./lmsApiClient";
 
 export type CourseBlueprintFile = { id: string; filename: string; file_path: string; content_type: string };
 export type CourseBlueprint = {
-  id: string; status: "PROCESSING" | "DRAFT" | "APPROVED" | "CANCELLED" | "FAILED"; version: number;
+  id: string; origin?: "course_create" | "chatbot"; status: "PROCESSING" | "DRAFT" | "APPROVED" | "CANCELLED" | "FAILED"; version: number;
   documents: CourseBlueprintFile[];
-  plan: { title: string; description: string; category: string; level: string; tags: string[]; governance: { organization_id?: number; visibility: "PUBLIC" | "ORG_ONLY"; co_teacher_ids: number[]; thumbnail_url?: string }; chapters: Array<{ id: string; title: string; description: string; material_ids: string[]; prerequisites: string[] }> };
+  plan: { title: string; description: string; category: string; level: string; tags: string[]; governance?: { organization_id?: number; visibility: "PUBLIC" | "ORG_ONLY"; co_teacher_ids: number[]; thumbnail_url?: string }; chapters: Array<{ id?: string; title: string; description: string; material_ids?: string[]; prerequisites?: string[]; lessons?: Array<{ title: string; description?: string }> }> };
   validation: { valid: boolean; errors: Array<{ code: string; message: string }> };
   error_message?: string | null;
 };

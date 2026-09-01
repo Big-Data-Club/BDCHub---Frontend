@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import lmsService from "@/services/lms/lmsService";
 import { organizationService } from "@/services/admin/organizationService";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";
@@ -29,6 +29,8 @@ const WORKFLOW_TABS = [
 
 export default function CreateCoursePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const blueprintId = searchParams.get("blueprint");
   const titleInputRef = useRef<HTMLInputElement>(null);
   const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ export default function CreateCoursePage() {
   const [submitNotice, setSubmitNotice] = useState<{ type: "error" | "success"; message: string } | null>(null);
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [orgLoading, setOrgLoading] = useState(true);
-  const [aiWorkflow, setAiWorkflow] = useState(false); // Manual creation by default
+  const [aiWorkflow, setAiWorkflow] = useState(() => Boolean(blueprintId));
   const [hasDraftRestored, setHasDraftRestored] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
@@ -317,6 +319,7 @@ export default function CreateCoursePage() {
               <CourseBlueprintWorkspace
                 userId={Number(userId)}
                 organizations={orgs}
+                blueprintId={blueprintId}
                 onCancel={() => router.push("/lms/teacher/courses")}
                 onComplete={async (courseId) => {
                   try {
@@ -608,4 +611,3 @@ export default function CreateCoursePage() {
     </div>
   );
 }
-
