@@ -4,9 +4,7 @@ import React, { useState } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import { useMarkdownImage } from '@/hooks/common/useMarkdownImage';
 import { useTheme } from 'next-themes';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
-import 'katex/dist/katex.min.css';
+import MarkdownRenderer from './MarkdownRenderer';
 
 interface MarkdownEditorProps {
   value: string;
@@ -63,29 +61,39 @@ export default function MarkdownEditor({
         </label>
       )}
       
-      <div
-        onPaste={handlePaste}
-        className={`border rounded-lg overflow-hidden transition-all focus-within:ring-2 focus-within:ring-blue-500/20 ${
-          error ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'
-        }`}
-      >
-        <MDEditor
-          value={value}
-          onChange={(val) => onChange(val || '')}
-          preview="live"
-          height={350}
-          visibleDragbar={false}
-          hideToolbar={disabled}
-          textareaProps={{
-            disabled: disabled || uploading,
-            placeholder: placeholder || 'Nhập nội dung bài học... (Hỗ trợ Markdown)',
-          }}
-          previewOptions={{
-            remarkPlugins: [remarkMath],
-            rehypePlugins: [rehypeKatex],
-          }}
-          className="font-sans"
-        />
+      <div className="grid min-w-0 gap-3 xl:grid-cols-2">
+        <div
+          onPaste={handlePaste}
+          className={`min-w-0 overflow-hidden rounded-xl border transition-all focus-within:ring-2 focus-within:ring-blue-500/20 ${
+            error ? 'border-red-500' : 'border-gray-200 dark:border-slate-700'
+          }`}
+        >
+          <div className="border-b border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400">
+            Markdown
+          </div>
+          <MDEditor
+            value={value}
+            onChange={(val) => onChange(val || '')}
+            preview="edit"
+            height={430}
+            visibleDragbar={false}
+            hideToolbar={disabled}
+            textareaProps={{
+              disabled: disabled || uploading,
+              placeholder: placeholder || 'Nhập nội dung bài học... (Hỗ trợ Markdown)',
+            }}
+            className="font-sans !rounded-none !border-0 !shadow-none"
+          />
+        </div>
+
+        <section className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-[#0B1729]">
+          <div className="border-b border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400">
+            Xem trước · giống hệt màn học
+          </div>
+          <div className="h-[430px] overflow-auto p-5">
+            <MarkdownRenderer content={value} />
+          </div>
+        </section>
       </div>
 
       {/* Error / Loading Indicators */}

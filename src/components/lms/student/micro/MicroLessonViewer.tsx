@@ -60,7 +60,7 @@ export function MicroLessonViewer({
         </section>
       )}
 
-      <div className="px-6 py-6 prose prose-slate max-w-none">
+      <div className="px-6 py-6 min-w-0">
         <MarkdownRenderer content={ctx.lessonText} />
       </div>
 

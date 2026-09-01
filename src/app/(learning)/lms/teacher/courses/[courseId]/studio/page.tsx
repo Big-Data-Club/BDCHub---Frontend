@@ -503,7 +503,7 @@ export default function StudioPage() {
                 {artifacts.some((a) => a.type === "markdown") && (
                   <details className="rounded-2xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] p-4">
                     <summary className="text-xs font-bold text-slate-500 cursor-pointer flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" /> Xem bản tài liệu đầy đủ (Markdown)</summary>
-                    <div className="mt-3 prose prose-sm dark:prose-invert max-w-none">
+                    <div className="mt-3 min-w-0">
                       <MarkdownRenderer content={artifacts.find((a) => a.type === "markdown")?.inline ?? ""} />
                     </div>
                   </details>

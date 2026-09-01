@@ -1,15 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vs, vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import { Check, Copy, ZoomIn, X, ZoomOut } from 'lucide-react';
+import { Check, Copy, WrapText, ZoomIn, X } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 import { cn } from "@/lib/utils";
 
@@ -24,21 +25,60 @@ interface MarkdownRendererProps {
  * delimiters produced by many AI tools (\\(...\\), \\[...\\]).  Code fences are
  * deliberately left untouched so that examples containing LaTeX stay literal.
  */
-function normalizeMathDelimiters(markdown: string) {
-  return markdown
-    .split(/(```[\s\S]*?```)/g)
-    .map((part, index) => {
-      if (index % 2 === 1) return part;
-      return part
-        .replace(/\\\[\s*([\s\S]*?)\s*\\\]/g, (_, math) => `\n\n$$\n${math}\n$$\n\n`)
-        .replace(/\\\(([\s\S]*?)\\\)/g, (_, math) => `$${math}$`);
-    })
+function transformInlineCode(text: string, transform: (value: string) => string) {
+  return text
+    .split(/(`+[^`\n]*`+)/g)
+    .map((part, index) => (index % 2 === 1 ? part : transform(part)))
     .join('');
 }
 
-/** Strip HTML comments (speaker-notes, etc.) that shouldn't be visible. */
-function stripHtmlComments(markdown: string) {
-  return markdown.replace(/<!--[\s\S]*?-->/g, '');
+/** Apply cleanup only to prose, never to fenced/inline code examples. */
+function transformOutsideCode(markdown: string, transform: (value: string) => string) {
+  const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
+  const output: string[] = [];
+  let prose: string[] = [];
+  let fenceChar = '';
+  let fenceLength = 0;
+
+  const flushProse = () => {
+    if (!prose.length) return;
+    output.push(transformInlineCode(prose.join('\n'), transform));
+    prose = [];
+  };
+
+  for (const line of lines) {
+    if (!fenceChar) {
+      const opening = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+      if (opening) {
+        flushProse();
+        fenceChar = opening[1][0];
+        fenceLength = opening[1].length;
+        output.push(line);
+      } else {
+        prose.push(line);
+      }
+      continue;
+    }
+
+    output.push(line);
+    const closing = new RegExp(`^ {0,3}${fenceChar}{${fenceLength},}\\s*$`);
+    if (closing.test(line)) {
+      fenceChar = '';
+      fenceLength = 0;
+    }
+  }
+  flushProse();
+  return output.join('\n');
+}
+
+/** Normalize common AI-authored Markdown without mutating literal code. */
+export function normalizeMarkdown(markdown: string) {
+  return transformOutsideCode(markdown || '', (prose) => prose
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\\\[\s*([\s\S]*?)\s*\\\]/g, (_, math) => `\n\n$$\n${math}\n$$\n\n`)
+    .replace(/\\\(([\s\S]*?)\\\)/g, (_, math) => `$${math}$`)
+    .replace(/^(\s*)[•●▪]\s+/gm, '$1- ')
+    .replace(/^(\s*)(\d+)\)\s+/gm, '$1$2. '));
 }
 
 function copyText(text: string) {
@@ -57,14 +97,14 @@ function copyText(text: string) {
 
 // ─── Mermaid Block ────────────────────────────────────────────────────────────
 
-let mermaidInitialized = false;
-
 function MermaidBlock({ chart, compact }: { chart: string; compact: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [zoomed, setZoomed] = useState(false);
   const idRef = useRef(`mermaid-${Math.random().toString(36).slice(2)}`);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   useEffect(() => {
     let cancelled = false;
@@ -73,22 +113,25 @@ function MermaidBlock({ chart, compact }: { chart: string; compact: boolean }) {
       try {
         const mermaid = (await import('mermaid')).default;
 
-        if (!mermaidInitialized) {
-          mermaid.initialize({
-            startOnLoad: false,
-            theme: 'dark',
-            themeVariables: {
-              background: '#030712',
-              primaryColor: '#1e40af',
-              primaryTextColor: '#e2e8f0',
-              lineColor: '#475569',
-              secondaryColor: '#1e3a5f',
-              tertiaryColor: '#0f172a',
-            },
-            fontFamily: 'ui-monospace, SFMono-Regular, monospace',
-          });
-          mermaidInitialized = true;
-        }
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'strict',
+          maxTextSize: 50000,
+          maxEdges: 500,
+          suppressErrorRendering: true,
+          theme: 'base',
+          themeVariables: isDark ? {
+            darkMode: true,
+            background: '#020617', primaryColor: '#1d4ed8', primaryTextColor: '#f8fafc',
+            primaryBorderColor: '#60a5fa', lineColor: '#94a3b8', secondaryColor: '#172554',
+            tertiaryColor: '#0f172a', textColor: '#e2e8f0', fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+          } : {
+            darkMode: false,
+            background: '#ffffff', primaryColor: '#dbeafe', primaryTextColor: '#0f172a',
+            primaryBorderColor: '#3b82f6', lineColor: '#475569', secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc', textColor: '#1e293b', fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+          },
+        });
 
         const { svg: rendered } = await mermaid.render(idRef.current, chart.trim());
         if (!cancelled) setSvg(rendered);
@@ -99,7 +142,7 @@ function MermaidBlock({ chart, compact }: { chart: string; compact: boolean }) {
 
     render();
     return () => { cancelled = true; };
-  }, [chart]);
+  }, [chart, isDark]);
 
   const openZoom = useCallback(() => setZoomed(true), []);
   const closeZoom = useCallback(() => setZoomed(false), []);
@@ -127,10 +170,10 @@ function MermaidBlock({ chart, compact }: { chart: string; compact: boolean }) {
   return (
     <>
       {/* Inline diagram */}
-      <div className={cn("relative group my-4 rounded-xl overflow-hidden bg-slate-950/80 border border-slate-800 shadow-lg", compact ? "p-2" : "p-4")}>
+      <div className={cn("relative group my-4 rounded-xl overflow-hidden bg-white dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 shadow-sm", compact ? "p-2" : "p-4")}>
         <div
           ref={containerRef}
-          className="flex justify-center items-center overflow-x-auto"
+          className="flex justify-center items-center overflow-x-auto [&_svg]:h-auto [&_svg]:max-w-none"
           dangerouslySetInnerHTML={{ __html: svg }}
         />
         {/* Zoom button */}
@@ -179,8 +222,31 @@ function MermaidBlock({ chart, compact }: { chart: string; compact: boolean }) {
 
 // ─── Code Block ───────────────────────────────────────────────────────────────
 
+const LANGUAGE_ALIASES: Record<string, string> = {
+  js: 'javascript', jsx: 'jsx', ts: 'typescript', tsx: 'tsx', py: 'python',
+  sh: 'bash', shell: 'bash', zsh: 'bash', yml: 'yaml', md: 'markdown',
+  plaintext: 'text', txt: 'text', 'c++': 'cpp', cs: 'csharp', dockerfile: 'docker',
+};
+
+const SUPPORTED_LANGUAGES = new Set([
+  'bash', 'c', 'cpp', 'csharp', 'css', 'dart', 'diff', 'docker', 'go',
+  'graphql', 'java', 'javascript', 'json', 'jsx', 'kotlin', 'latex', 'lua',
+  'markdown', 'markup', 'php', 'python', 'r', 'ruby', 'rust', 'scala', 'sql',
+  'swift', 'text', 'typescript', 'tsx', 'yaml',
+]);
+
+function normalizeLanguage(language: string) {
+  const normalized = language.trim().toLowerCase();
+  const aliased = LANGUAGE_ALIASES[normalized] ?? normalized;
+  return SUPPORTED_LANGUAGES.has(aliased) ? aliased : 'text';
+}
+
 function CodeBlock({ code, language, compact }: { code: string; language: string; compact: boolean }) {
   const [copied, setCopied] = useState(false);
+  const [wrapLongLines, setWrapLongLines] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const normalizedLanguage = normalizeLanguage(language);
+  const lineCount = code ? code.split('\n').length : 1;
 
   const handleCopy = async () => {
     try {
@@ -197,24 +263,47 @@ function CodeBlock({ code, language, compact }: { code: string; language: string
     <div className={cn("relative group", compact ? "my-3" : "my-6")}>
       <div className="absolute inset-x-0 top-0 z-10 flex h-9 items-center justify-between rounded-t-xl bg-slate-950/75 px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400 opacity-100 backdrop-blur-sm sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
         <span>{language || 'text'}</span>
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-slate-200 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-          aria-label="Sao chép mã nguồn"
-        >
-          {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-          {copied ? 'Đã chép' : 'Sao chép'}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setWrapLongLines((current) => !current)}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-slate-200 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400",
+              wrapLongLines && "bg-white/10 text-white"
+            )}
+            aria-pressed={wrapLongLines}
+            aria-label="Bật hoặc tắt xuống dòng mã nguồn"
+            title="Xuống dòng mã dài"
+          >
+            <WrapText className="h-3.5 w-3.5" />
+            Wrap
+          </button>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-slate-200 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            aria-label="Sao chép mã nguồn"
+          >
+            {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? 'Đã chép' : 'Sao chép'}
+          </button>
+        </div>
       </div>
       <SyntaxHighlighter
-        style={vscDarkPlus}
-        language={language || 'text'}
+        style={resolvedTheme === 'dark' ? vscDarkPlus : vs}
+        language={normalizedLanguage}
         PreTag="div"
-        customStyle={{ color: '#e2e8f0', backgroundColor: '#030712' }}
+        showLineNumbers={!compact && lineCount >= 4}
+        wrapLongLines={wrapLongLines}
+        lineNumberStyle={{ minWidth: '2.5em', color: resolvedTheme === 'dark' ? '#64748b' : '#94a3b8' }}
+        customStyle={{
+          color: resolvedTheme === 'dark' ? '#e2e8f0' : '#1e293b',
+          backgroundColor: resolvedTheme === 'dark' ? '#030712' : '#f8fafc',
+          padding: compact ? '2.75rem 0.75rem 0.75rem' : '3rem 1rem 1rem',
+        }}
         className={cn(
-          "rounded-xl overflow-x-auto w-full max-w-full !m-0 shadow-lg font-mono text-slate-200 scrollbar-thin",
-          compact ? "!p-3 pt-11 text-[11px] leading-normal" : "!p-4 pt-12 text-sm"
+          "rounded-xl overflow-x-auto w-full max-w-full !m-0 border border-slate-200 dark:border-slate-800 shadow-sm font-mono scrollbar-thin",
+          compact ? "text-[11px] leading-normal" : "text-sm"
         )}
       >
         {code}
@@ -233,9 +322,7 @@ export default function MarkdownRenderer({
   const isChat = variant === 'chat' || variant === 'chat-user';
   const isUserChat = variant === 'chat-user';
 
-  const normalizedContent = stripHtmlComments(
-    normalizeMathDelimiters(content || '')
-  );
+  const normalizedContent = useMemo(() => normalizeMarkdown(content), [content]);
 
   return (
     <div
@@ -244,11 +331,14 @@ export default function MarkdownRenderer({
           ? cn("w-full text-sm leading-relaxed", isUserChat ? "text-white" : "text-slate-700 dark:text-slate-300")
           : "prose prose-sm dark:prose-invert max-w-none",
         "[&_.katex-display]:my-4 [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden [&_.katex-display]:py-2",
+        "[&_li>p]:my-1 [&_li>ul]:mt-1 [&_li>ol]:mt-1 [&_li>ul]:mb-1 [&_li>ol]:mb-1",
+        "[&_ul.contains-task-list]:list-none [&_ul.contains-task-list]:pl-1 [&_.task-list-item]:list-none",
+        "[&_.footnotes]:mt-10 [&_.footnotes]:border-t [&_.footnotes]:border-slate-200 [&_.footnotes]:pt-4 dark:[&_.footnotes]:border-slate-700",
         className
       )}
     >
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
+        remarkPlugins={[[remarkGfm, { singleTilde: false }], remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
           // ── Code fence (block) + Inline code ──────────────────────────
@@ -261,9 +351,9 @@ export default function MarkdownRenderer({
           // `pre` becomes a bare passthrough so it doesn't add an extra box.
           pre: ({ children }: React.HTMLAttributes<HTMLPreElement>) => <>{children}</>,
 
-          code: ({ className, children, ...props }: React.HTMLAttributes<HTMLElement>) => {
+          code: ({ className, children, node, ...props }) => {
             const match = /language-([\w+#-]+)/.exec(className ?? '');
-            const lang = match ? match[1] : '';
+            const lang = match ? match[1].toLowerCase() : '';
 
             // Normalise children to a plain string for block-detection.
             const rawChildren = Array.isArray(children)
@@ -273,7 +363,11 @@ export default function MarkdownRenderer({
             // react-markdown always appends a '\n' to fenced block children
             // (with or without a language tag) but never to inline code.
             // We use this to detect no-language fenced blocks.
-            const isFencedBlock = Boolean(match) || rawChildren.endsWith('\n');
+            const spansMultipleSourceLines = Boolean(
+              node?.position?.start?.line && node?.position?.end?.line
+              && node.position.end.line > node.position.start.line
+            );
+            const isFencedBlock = Boolean(match) || rawChildren.endsWith('\n') || spansMultipleSourceLines;
 
             // Fenced code block — has a language- className OR trailing newline
             if (isFencedBlock) {
@@ -335,6 +429,16 @@ export default function MarkdownRenderer({
               {...props}
             />
           ),
+          h4: ({ ...props }) => (
+            <h4
+              className={cn(
+                "font-bold",
+                isUserChat ? "text-white" : "text-slate-800 dark:text-slate-100",
+                isChat ? "text-sm mt-2 mb-1" : "text-lg mt-5 mb-2"
+              )}
+              {...props}
+            />
+          ),
 
           // ── Paragraph ─────────────────────────────────────────────────
           p: ({ ...props }) => (
@@ -350,31 +454,40 @@ export default function MarkdownRenderer({
           ),
 
           // ── Lists ──────────────────────────────────────────────────────
-          ul: ({ ...props }) => (
+          ul: ({ className, ...props }) => (
             <ul
               className={cn(
                 "list-disc list-outside",
                 isChat
                   ? cn("mb-2 pl-4 space-y-1", isUserChat ? "text-white" : "text-slate-700 dark:text-slate-300")
-                  : "mb-4 pl-5 space-y-1.5 text-gray-600 dark:text-gray-300"
+                  : "mb-4 pl-6 space-y-1.5 text-gray-600 dark:text-gray-300",
+                className
               )}
               {...props}
             />
           ),
-          ol: ({ ...props }) => (
+          ol: ({ className, ...props }) => (
             <ol
               className={cn(
                 "list-decimal list-outside",
                 isChat
                   ? cn("mb-2 pl-4 space-y-1", isUserChat ? "text-white" : "text-slate-700 dark:text-slate-300")
-                  : "mb-4 pl-5 space-y-1.5 text-gray-600 dark:text-gray-300"
+                  : "mb-4 pl-6 space-y-1.5 text-gray-600 dark:text-gray-300",
+                className
               )}
               {...props}
             />
           ),
-          li: ({ ...props }) => (
-            <li className={isChat ? "pl-0.5" : "pl-1"} {...props} />
+          li: ({ className, ...props }) => (
+            <li className={cn("marker:font-semibold marker:text-blue-500 dark:marker:text-cyan-400", isChat ? "pl-0.5" : "pl-1", className)} {...props} />
           ),
+          input: ({ type, ...props }) => type === 'checkbox' ? (
+            <input
+              type="checkbox"
+              className="mr-2 h-4 w-4 rounded border-slate-300 accent-blue-600 align-[-2px]"
+              {...props}
+            />
+          ) : <input type={type} {...props} />,
 
           // ── Blockquote ────────────────────────────────────────────────
           blockquote: ({ ...props }) => (
@@ -393,13 +506,13 @@ export default function MarkdownRenderer({
           table: ({ ...props }) => (
             <div
               className={cn(
-                "overflow-x-auto rounded-lg ring-1",
+                "max-w-full overflow-x-auto rounded-xl border",
                 isChat
-                  ? "my-3 ring-slate-100 dark:ring-slate-800"
-                  : "my-6 ring-gray-100 dark:ring-gray-800"
+                  ? "my-3 border-slate-200 dark:border-slate-800"
+                  : "my-6 border-slate-200 dark:border-slate-700"
               )}
             >
-              <table className="w-full border-collapse" {...props} />
+              <table className="m-0 w-full min-w-[36rem] border-collapse" {...props} />
             </div>
           ),
           thead: ({ ...props }) => (
@@ -409,23 +522,25 @@ export default function MarkdownRenderer({
             <th className="px-4 py-2.5 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200" {...props} />
           ),
           td: ({ ...props }) => (
-            <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-50 dark:border-gray-800" {...props} />
+            <td className="px-4 py-2.5 text-sm align-top text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-800" {...props} />
+          ),
+          tr: ({ className, ...props }) => (
+            <tr className={cn("even:bg-slate-50/60 dark:even:bg-slate-900/30", className)} {...props} />
           ),
 
           // ── Images ────────────────────────────────────────────────────
-          img: ({ src, alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => (
-            <div className={isChat ? "my-4 flex flex-col items-center" : "my-8 flex flex-col items-center"}>
-              <img
-                src={src}
-                alt={alt}
-                className={cn(
-                  "max-w-full h-auto rounded-xl shadow-md transition-shadow duration-300 ring-1 ring-black/[0.05] bg-white text-slate-900 dark:text-slate-900",
-                  isChat ? "hover:shadow-lg" : "hover:shadow-2xl rounded-2xl"
-                )}
-                loading="lazy"
-                {...props}
-              />
-            </div>
+          img: ({ src, alt, title, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => (
+            <img
+              src={src}
+              alt={alt}
+              title={title ?? alt}
+              className={cn(
+                "mx-auto block max-w-full h-auto rounded-xl shadow-md transition-shadow duration-300 ring-1 ring-black/[0.05] bg-white text-slate-900 dark:text-slate-900",
+                isChat ? "my-4 hover:shadow-lg" : "my-8 hover:shadow-2xl rounded-2xl"
+              )}
+              loading="lazy"
+              {...props}
+            />
           ),
 
           // ── Links ─────────────────────────────────────────────────────
@@ -437,6 +552,7 @@ export default function MarkdownRenderer({
                 </span>
               );
             }
+            const opensNewWindow = /^https?:\/\//i.test(href ?? '');
             return (
               <a
                 href={href}
@@ -446,8 +562,8 @@ export default function MarkdownRenderer({
                     ? "text-white decoration-white/50 hover:decoration-white"
                     : "text-blue-600 decoration-blue-500/30 hover:decoration-blue-500 dark:text-blue-400"
                 )}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={opensNewWindow ? "_blank" : undefined}
+                rel={opensNewWindow ? "noopener noreferrer" : undefined}
                 {...props}
               >
                 {children}

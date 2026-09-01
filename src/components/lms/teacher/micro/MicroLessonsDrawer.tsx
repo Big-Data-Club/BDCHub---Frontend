@@ -20,6 +20,7 @@ import microLessonService, {
   type JobWithLessons, type MicroLesson,
 } from "@/services/lms/microLessonService";
 import type { Section } from "@/types";
+import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 
 interface Props {
   jobId: number;
@@ -377,9 +378,7 @@ function LessonCard({
             </div>
           )}
           <div className="px-4 py-3 max-h-72 overflow-y-auto">
-            <pre className="text-xs whitespace-pre-wrap font-mono text-slate-700 dark:text-slate-300 leading-5">
-              {lesson.markdown_content}
-            </pre>
+            <MarkdownRenderer content={lesson.markdown_content} />
           </div>
 
           {!isPublished && (
