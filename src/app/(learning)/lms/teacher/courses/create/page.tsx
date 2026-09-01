@@ -320,11 +320,12 @@ export default function CreateCoursePage() {
                 userId={Number(userId)}
                 organizations={orgs}
                 blueprintId={blueprintId}
+                onOpenBlueprint={(id) => router.replace(`/lms/teacher/courses/create?blueprint=${encodeURIComponent(id)}`)}
                 onCancel={() => router.push("/lms/teacher/courses")}
                 onComplete={async (courseId) => {
                   try {
                     localStorage.removeItem(DRAFT_STORAGE_KEY);
-                  } catch (e) {}
+                  } catch {}
                   router.push(`/lms/teacher/courses/${courseId}`);
                 }}
               />
