@@ -696,13 +696,8 @@ export default function QuestionBankPage() {
         columns={columns}
         keyExtractor={(it) => String(it.id)}
         loading={loading}
-        onRowClick={(it) => setPreviewItem(it)}
         renderMobileCard={(item) => (
-          <button
-            type="button"
-            onClick={() => setPreviewItem(item)}
-            className="w-full text-left p-4 rounded-2xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] space-y-2 cursor-pointer hover:border-blue-400 dark:hover:border-cyan-500/40 transition-colors"
-          >
+          <div className="w-full text-left p-4 rounded-2xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] space-y-3">
             <div className="flex items-center gap-2">
               <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full", DIFFICULTY_BADGE[item.difficulty])}>
                 {DIFFICULTY_OPTIONS.find((d) => d.value === item.difficulty)?.label ?? item.difficulty}
@@ -715,7 +710,28 @@ export default function QuestionBankPage() {
             <p className="text-sm font-medium text-slate-800 dark:text-slate-100 line-clamp-3">
               {item.question_text.replace(/[#*`_[\]]/g, "")}
             </p>
-          </button>
+            <div className="flex items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-blue-500/10">
+              <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(item.id)}
+                  onChange={() => toggleSelect(item.id)}
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  aria-label={`Chọn câu hỏi ${item.id}`}
+                />
+                Chọn
+              </label>
+              <button
+                type="button"
+                onClick={() => setPreviewItem(item)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-600 dark:text-cyan-300 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                title="Xem trước câu hỏi"
+              >
+                <Eye className="w-4 h-4" />
+                Xem trước
+              </button>
+            </div>
+          </div>
         )}
         emptyState={
           <div className="py-12 text-center">
