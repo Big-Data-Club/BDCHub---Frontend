@@ -36,6 +36,18 @@ export class ApiClient {
       throw new Error(`Request to ${endpoint} failed (${response.status})${text ? `: ${text}` : ""}`);
     }
 
+    // 204 No Content or empty body – return undefined cast to T
+    if (response.status === 204) return undefined as T;
+    const contentLength = response.headers.get("content-length");
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentLength === "0") return undefined as T;
+    if (!contentType.includes("application/json") && !contentType.includes("text/json")) {
+      // Try to read as text, return undefined if empty
+      const txt = await response.text().catch(() => "");
+      if (!txt.trim()) return undefined as T;
+      try { return JSON.parse(txt) as T; } catch { return undefined as T; }
+    }
+
     return response.json();
   }
 

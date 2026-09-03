@@ -15,26 +15,40 @@ const PendingUsersSection = dynamic(() => import("./table/PendingUsersSection").
 
 function UserRowSkeleton() {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 animate-pulse min-w-max sm:min-w-full">
-      <div className="grid grid-cols-12 gap-2 sm:gap-4 items-center">
-        <div className="col-span-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-850" />
-          <div className="flex-1 min-w-0 space-y-2">
-            <div className="h-4 bg-slate-200 dark:bg-slate-850 rounded w-3/4" />
-            <div className="h-3 bg-slate-200 dark:bg-slate-850 rounded w-1/2" />
+    <>
+      {/* Mobile skeleton */}
+      <div className="sm:hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 animate-pulse">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-850 shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-slate-200 dark:bg-slate-850 rounded w-3/5" />
+            <div className="h-3 bg-slate-200 dark:bg-slate-850 rounded w-2/5" />
+            <div className="h-3 bg-slate-200 dark:bg-slate-850 rounded w-4/5" />
           </div>
         </div>
-        <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-2/3" /></div>
-        <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/2" /></div>
-        <div className="col-span-2"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-3/4" /></div>
-        <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/3" /></div>
-        <div className="col-span-2"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/2" /></div>
-        <div className="col-span-2 flex justify-center gap-3">
-          <div className="h-6 w-11 bg-slate-200 dark:bg-slate-850 rounded-full" />
-          <div className="h-4 bg-slate-200 dark:bg-slate-850 rounded w-12" />
+      </div>
+      {/* Desktop skeleton */}
+      <div className="hidden sm:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 animate-pulse">
+        <div className="grid grid-cols-12 gap-4 items-center min-w-[640px]">
+          <div className="col-span-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-850" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-slate-200 dark:bg-slate-850 rounded w-3/4" />
+              <div className="h-3 bg-slate-200 dark:bg-slate-850 rounded w-1/2" />
+            </div>
+          </div>
+          <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-2/3" /></div>
+          <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/2" /></div>
+          <div className="col-span-2"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-3/4" /></div>
+          <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/3" /></div>
+          <div className="col-span-2"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/2" /></div>
+          <div className="col-span-2 flex justify-center gap-3">
+            <div className="h-6 w-11 bg-slate-200 dark:bg-slate-850 rounded-full" />
+            <div className="h-4 bg-slate-200 dark:bg-slate-850 rounded w-12" />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -210,25 +224,24 @@ export default function UserApp() {
           </div>
 
           {/* Controls */}
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center lg:justify-between">
-            {/* Search */}
-            <div className="w-full lg:w-auto relative">
+          <div className="flex flex-col gap-3">
+            {/* Row 1: Search (full width) */}
+            <div className="w-full relative">
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name, email, or code..."
-                className="w-full lg:w-80 px-4 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
             </div>
 
-            {/* Filters & Actions */}
-            <div className="flex flex-wrap gap-3 w-full lg:w-auto">
-              {/* Team Filter - dynamic from data */}
+            {/* Row 2: Filters */}
+            <div className="flex flex-wrap gap-2">
               <select
                 value={teamFilter}
                 onChange={(e) => setTeamFilter(e.target.value)}
-                className="px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                className="flex-1 min-w-[120px] px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm"
               >
                 <option value="">All teams</option>
                 {uniqueTeams.map((t) => (
@@ -236,11 +249,10 @@ export default function UserApp() {
                 ))}
               </select>
 
-              {/* Type Filter - dynamic from data */}
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                className="flex-1 min-w-[120px] px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm"
               >
                 <option value="">All types</option>
                 {uniqueTypes.map((t) => (
@@ -248,19 +260,21 @@ export default function UserApp() {
                 ))}
               </select>
 
-              {/* Role Filter - dynamic from data */}
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
-                className="px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                className="flex-1 min-w-[120px] px-3 py-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm"
               >
                 <option value="">All roles</option>
                 {uniqueRoles.map((r) => (
                   <option key={r} value={r}>{r}</option>
                 ))}
               </select>
+            </div>
 
-              {/* Bulk Upload */}
+            {/* Row 3: Action Buttons */}
+            <div className="flex flex-wrap gap-2">
+              {/* Bulk Upload hidden input */}
               <input
                 id="user-file-input"
                 type="file"
@@ -273,27 +287,25 @@ export default function UserApp() {
               />
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm active:scale-95 transition-all duration-200"
+                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm active:scale-95 transition-all duration-200 text-sm"
               >
                 Add User
               </button>
               <button
                 onClick={() => document.getElementById("user-file-input")?.click()}
-                className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-all duration-200 active:scale-95"
+                className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-all duration-200 active:scale-95 text-sm"
               >
                 Bulk upload
               </button>
               <button
                 onClick={handleDownloadTemplate}
-                className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 font-medium transition-all duration-200 active:scale-95"
+                className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 font-medium transition-all duration-200 active:scale-95 text-sm"
               >
                 Tải file Excel mẫu
               </button>
- 
-              {/* Refresh */}
               <button
                 onClick={load}
-                className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-all duration-200 active:scale-95"
+                className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-all duration-200 active:scale-95 text-sm"
               >
                 Refresh
               </button>
@@ -304,9 +316,9 @@ export default function UserApp() {
         {/* Pending Users (admin only) */}
         {isAdmin && <PendingUsersSection isAdmin={isAdmin} onApproved={load} />}
 
-        {/* Table Header */}
-        <div className="bg-white dark:bg-slate-900 rounded-t-xl border border-b-0 border-slate-200 dark:border-slate-800 overflow-x-auto">
-          <div className="grid grid-cols-12 gap-2 sm:gap-4 items-center px-4 sm:px-6 py-3 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-max sm:min-w-full">
+        {/* Table Header - hidden on mobile */}
+        <div className="hidden sm:block bg-white dark:bg-slate-900 rounded-t-xl border border-b-0 border-slate-200 dark:border-slate-800 overflow-x-auto">
+          <div className="grid grid-cols-12 gap-2 sm:gap-4 items-center px-4 sm:px-6 py-3 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[640px]">
             <button
               onClick={() => toggleSort("name")}
               className="col-span-3 text-left flex items-center gap-2 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200"
@@ -358,7 +370,7 @@ export default function UserApp() {
         </div>
 
         {/* List */}
-        <div className="space-y-2 rounded-b-xl bg-white dark:bg-slate-900 border border-t-0 border-slate-200 dark:border-slate-800 p-2">
+        <div className="space-y-2 rounded-xl sm:rounded-t-none sm:rounded-b-xl bg-white dark:bg-slate-900 border sm:border-t-0 border-slate-200 dark:border-slate-800 p-2">
           {loading && (
             <div className="space-y-2">
               <UserRowSkeleton />
