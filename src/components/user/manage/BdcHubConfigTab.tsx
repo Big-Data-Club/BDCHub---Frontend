@@ -182,7 +182,7 @@ export default function BdcHubConfigTab() {
       )}
 
       {/* PUBLISH TOGGLE & PREVIEW BANNER */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
           <div className={`p-3 rounded-2xl border ${published ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "bg-amber-500/10 border-amber-500/30 text-amber-400"}`}>
             {published ? <Globe className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
@@ -225,7 +225,7 @@ export default function BdcHubConfigTab() {
       </div>
 
       {/* CORE PROFILE CONFIG */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-lg">
+      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-6 shadow-lg">
         <h3 className="font-bold text-base text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-indigo-400" />
           <span>Thông tin cơ bản & Định danh Alias</span>
@@ -310,7 +310,7 @@ export default function BdcHubConfigTab() {
       </div>
 
       {/* DYNAMIC SECTIONS & FIELD BUILDER */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-lg">
+      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-6 shadow-lg">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <h3 className="font-bold text-base text-slate-200 flex items-center gap-2">
             <Layers className="w-5 h-5 text-indigo-400" />

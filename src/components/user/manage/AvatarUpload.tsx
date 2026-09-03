@@ -10,7 +10,7 @@ interface AvatarUploadProps {
 
 export default function AvatarUpload({ previewUrl, fullUserData, onFileChange }: AvatarUploadProps) {
   return (
-    <div className="flex items-center gap-6 mb-8 pb-8 border-b border-slate-200 dark:border-slate-800">
+    <div className="flex items-center gap-3 sm:gap-6 mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-slate-200 dark:border-slate-800">
       {/* Avatar */}
       <div className="relative flex-shrink-0">
         <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden ring-4 ring-slate-200 dark:ring-slate-700">
@@ -45,11 +45,11 @@ export default function AvatarUpload({ previewUrl, fullUserData, onFileChange }:
       </div>
 
       {/* Info */}
-      <div>
-        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">
+      <div className="min-w-0 flex-1">
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-50 truncate">
           {fullUserData?.name || "-"}
         </h3>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-0.5 truncate">
           {fullUserData?.email}
         </p>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

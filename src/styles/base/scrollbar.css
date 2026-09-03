@@ -26,3 +26,12 @@
 :where(.dark, .dark *) * {
   scrollbar-color: rgba(59, 130, 246, 0.25) transparent;
 }
+
+/* Utility: hide scrollbar visually while keeping scroll functionality */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

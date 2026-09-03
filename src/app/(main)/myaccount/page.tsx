@@ -195,11 +195,11 @@ const MyAccountPage: React.FC = () => {
     );
   }
 
-  const tabs: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
-    { id: "profile", label: "Profile", icon: <User className="w-4 h-4" /> },
-    { id: "bdc-hub", label: "BDC Hub Public Portfolio", icon: <Globe className="w-4 h-4" /> },
-    { id: "mcp-keys", label: "MCP AI Keys", icon: <Cpu className="w-4 h-4" /> },
-    { id: "password", label: "Password", icon: <Lock className="w-4 h-4" /> },
+  const tabs: { id: ActiveTab; label: string; shortLabel: string; icon: React.ReactNode }[] = [
+    { id: "profile", label: "Profile", shortLabel: "Profile", icon: <User className="w-4 h-4" /> },
+    { id: "bdc-hub", label: "BDC Hub Public Portfolio", shortLabel: "Portfolio", icon: <Globe className="w-4 h-4" /> },
+    { id: "mcp-keys", label: "MCP AI Keys", shortLabel: "MCP Keys", icon: <Cpu className="w-4 h-4" /> },
+    { id: "password", label: "Password", shortLabel: "Password", icon: <Lock className="w-4 h-4" /> },
   ];
 
   return (
@@ -207,11 +207,11 @@ const MyAccountPage: React.FC = () => {
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-50 leading-tight">
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-50 leading-tight">
             My Account
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 text-base">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm sm:text-base">
             Manage your profile, public portfolio, MCP API keys, and account settings
           </p>
         </div>
@@ -219,9 +219,9 @@ const MyAccountPage: React.FC = () => {
         {/* Message */}
         <MessageAlert message={message} />
 
-        {/* Tabs */}
+        {/* Tabs - scrollable on mobile */}
         <div
-          className="flex gap-1 mb-6 border-b border-slate-200 dark:border-slate-800"
+          className="flex gap-0.5 mb-6 border-b border-slate-200 dark:border-slate-800 overflow-x-auto scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0"
           id="myaccount-tabs"
         >
           {tabs.map((tab) => (
@@ -231,14 +231,16 @@ const MyAccountPage: React.FC = () => {
                 setActiveTab(tab.id);
                 setMessage(null);
               }}
-              className={`flex items-center gap-2 px-5 py-3 font-medium text-sm transition-all relative ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm transition-all relative whitespace-nowrap shrink-0 ${
                 activeTab === tab.id
                   ? "text-blue-600 border-b-2 border-blue-600 -mb-px"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-t-lg"
               }`}
             >
               {tab.icon}
-              {tab.label}
+              {/* Short label on mobile, full label on sm+ */}
+              <span className="sm:hidden">{tab.shortLabel}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}
         </div>

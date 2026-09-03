@@ -127,7 +127,7 @@ export default function McpApiKeyTab() {
         </div>
       )}
 
-      <section className="overflow-hidden rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-violet-50 p-6 dark:border-indigo-500/20 dark:from-indigo-950/70 dark:via-slate-900 dark:to-violet-950/60">
+      <section className="overflow-hidden rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-violet-50 p-4 sm:p-6 dark:border-indigo-500/20 dark:from-indigo-950/70 dark:via-slate-900 dark:to-violet-950/60">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
           <div className="flex gap-4">
             <div className="h-fit rounded-2xl bg-indigo-100 p-3 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400"><Cpu className="h-7 w-7" /></div>
@@ -179,7 +179,7 @@ export default function McpApiKeyTab() {
 
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <form onSubmit={createKey} className="w-full max-w-md space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+          <form onSubmit={createKey} className="w-full max-w-md space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
             <h4 className="text-lg font-bold">Tạo MCP API key</h4>
             <label className="block text-sm font-medium">Tên thiết bị / ứng dụng<input value={name} onChange={event => setName(event.target.value)} maxLength={100} required placeholder="Codex trên MacBook" className="mt-1.5 w-full rounded-xl border border-slate-300 bg-transparent px-3 py-2 outline-none focus:border-indigo-500 dark:border-slate-700" /></label>
             <label className="flex items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700"><input type="checkbox" checked={writeAccess} onChange={event => setWriteAccess(event.target.checked)} className="mt-1" /><span><span className="block text-sm font-semibold">Cho phép thao tác ghi</span><span className="text-xs text-slate-500">Bỏ chọn nếu chỉ cần hỏi và tìm tài liệu. Key tự hết hạn sau 90 ngày.</span></span></label>

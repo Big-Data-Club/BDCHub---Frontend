@@ -37,7 +37,7 @@ export default function ProfileTab({
 }: ProfileTabProps) {
   return (
     <div
-      className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6"
+      className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-6"
       id="myaccount-profile-tab"
     >
       <form onSubmit={onSubmit}>
