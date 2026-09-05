@@ -12,25 +12,36 @@ export function humanizeEnum(value?: string) {
 }
 
 /** Safely convert a server date value (ISO string or epoch seconds) to an ISO string */
-function parseServerDate(value: string | number | null | undefined): string {
-  if (!value) return new Date().toISOString();
+function parseServerDate(value: string | number | null | undefined): string | undefined {
+  if (value === null || value === undefined || value === "") return undefined;
   // If it's a number, treat as epoch milliseconds (> 1e10) or epoch seconds (< 1e10)
   if (typeof value === "number") {
+    if (isNaN(value) || value <= 0) return undefined;
     const ms = value > 1e10 ? value : value * 1000;
-    return new Date(ms).toISOString();
+    const d = new Date(ms);
+    return isNaN(d.getTime()) ? undefined : d.toISOString();
   }
-  // If ISO string with time component, use as-is
-  if (typeof value === "string" && value.includes("T")) {
-    return value;
+  // If string
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    // If ISO string with time component, check validity
+    if (trimmed.includes("T")) {
+      const d = new Date(trimmed);
+      return isNaN(d.getTime()) ? undefined : trimmed;
+    }
+    // Date-only string like "2026-09-03" → append time to avoid UTC midnight shifting
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return `${trimmed}T00:00:00`;
+    }
+    const d = new Date(trimmed);
+    return isNaN(d.getTime()) ? undefined : d.toISOString();
   }
-  // Date-only string like "2026-09-03" → append time to avoid UTC midnight shifting
-  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return `${value}T00:00:00`;
-  }
-  return new Date(value).toISOString();
+  return undefined;
 }
 
 export function mapServerUserToClient(s: any): User {
+  const rawDate = s.createdAt ?? s.created_at ?? s.dateAdded ?? s.date_added ?? s.createdDate ?? s.createTime ?? s.joinedDate ?? s.updatedAt ?? s.updated_at;
   return {
     id: String(s.id ?? uuidv4()),
     name: s.name ?? s.fullName ?? "Unnamed",
@@ -42,7 +53,7 @@ export function mapServerUserToClient(s: any): User {
     roles: Array.isArray(s.roles) ? s.roles : (s.role ? [s.role] : ["ROLE_USER"]),
     lmsRoles: Array.isArray(s.lmsRoles) ? s.lmsRoles : [],
     score: Number(s.totalScore ?? s.score ?? 0),
-    dateAdded: parseServerDate(s.createdAt ?? s.updatedAt),
+    dateAdded: parseServerDate(rawDate),
     status: typeof s.active === "boolean" ? s.active : Boolean(s.status ?? true),
     organization: s.organization ?? "",
     organizations: s.organizations ?? [],
