@@ -14,12 +14,15 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       role?: string;
+      image?: string | null;
+      profilePicture?: string | null;
     };
   }
 
   interface User {
     role?: string;
     token?: string;
+    profilePicture?: string | null;
   }
 
   interface JWT {
@@ -110,6 +113,7 @@ export const authOptions: NextAuthOptions = {
             name: data.name,
             email: data.email,
             role: data.role,
+            profilePicture: data.profilePicture || null,
             token: authToken || data.token,
             refreshToken: refreshToken || data.refreshToken,
             expiresIn: data.expiresIn,
@@ -127,6 +131,7 @@ export const authOptions: NextAuthOptions = {
         name: { type: "text" },
         email: { type: "text" },
         role: { type: "text" },
+        profilePicture: { type: "text" },
         token: { type: "text" },
         refreshToken: { type: "text" },
         expiresIn: { type: "text" },
@@ -138,6 +143,7 @@ export const authOptions: NextAuthOptions = {
           name: credentials.name,
           email: credentials.email,
           role: credentials.role,
+          profilePicture: credentials.profilePicture || null,
           token: credentials.token,
           refreshToken: credentials.refreshToken,
           expiresIn: Number(credentials.expiresIn),
@@ -173,10 +179,13 @@ export const authOptions: NextAuthOptions = {
           refreshToken: (user as any).refreshToken,
           accessTokenExpires: Date.now() + ((user as any).expiresIn || 3600000),
           role: (user as any).role,
+          picture: (user as any).profilePicture || (user as any).image,
           sub: user.id,
           user: {
              name: user.name,
              email: user.email,
+             image: (user as any).profilePicture || (user as any).image,
+             profilePicture: (user as any).profilePicture,
           }
         };
       }
@@ -195,6 +204,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.role = token.role as string;
         (session.user as any).id = Number(token.sub);
+        session.user.image = (token as any).picture || (token as any).user?.image || null;
+        session.user.profilePicture = (token as any).picture || (token as any).user?.profilePicture || null;
         (session as any).error = token.error;
         (session as any).accessToken = token.accessToken;
       }
