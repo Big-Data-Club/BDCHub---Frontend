@@ -133,7 +133,7 @@ const Sidebar: React.FC = () => {
           >
             <UserAvatar
               name={user?.name}
-              src={mounted ? user?.profilePicture : undefined}
+              src={mounted ? (user?.profilePicture || (user as any)?.image) : undefined}
               className="h-8 w-8"
               fallbackClassName="text-xs"
             />

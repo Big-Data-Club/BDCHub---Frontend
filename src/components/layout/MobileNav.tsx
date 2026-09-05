@@ -75,7 +75,7 @@ const MobileNav = () => {
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              <UserAvatar name={user?.name} src={user?.profilePicture} className="h-8 w-8" fallbackClassName="text-xs" />
+              <UserAvatar name={user?.name} src={user?.profilePicture || (user as any)?.image} className="h-8 w-8" fallbackClassName="text-xs" />
               <div>
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{user?.name || "Guest"}</p>
                 <p className="text-xs text-slate-500">{user?.role?.replace("ROLE_", "") || "Member"}</p>

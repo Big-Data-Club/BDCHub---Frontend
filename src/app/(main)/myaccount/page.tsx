@@ -124,6 +124,7 @@ const MyAccountPage: React.FC = () => {
         name: updatedUser.name,
         email: updatedUser.email,
         role: updatedUser.role,
+        profilePicture: updatedUser.profilePicture,
       });
 
       setMessage({ type: "success", text: "Profile updated successfully!" });

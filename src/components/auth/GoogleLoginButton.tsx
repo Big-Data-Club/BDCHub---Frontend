@@ -80,6 +80,7 @@ export function GoogleLoginButton({ googleClientId, onError, callbackUrl = "/lms
         name: data.name,
         email: data.email,
         role: data.role,
+        profilePicture: data.profilePicture || "",
         token: authTokenMatch?.[1] || data.token,
         refreshToken: refreshTokenMatch?.[1] || data.refreshToken || "",
         expiresIn: String(data.expiresIn),
