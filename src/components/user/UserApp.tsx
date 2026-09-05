@@ -29,7 +29,7 @@ function UserRowSkeleton() {
       </div>
       {/* Desktop skeleton */}
       <div className="hidden sm:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 animate-pulse">
-        <div className="grid grid-cols-12 gap-4 items-center min-w-[640px]">
+        <div className="grid grid-cols-12 gap-4 items-center min-w-[768px]">
           <div className="col-span-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-850" />
             <div className="flex-1 space-y-2">
@@ -39,7 +39,8 @@ function UserRowSkeleton() {
           </div>
           <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-2/3" /></div>
           <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/2" /></div>
-          <div className="col-span-2"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-3/4" /></div>
+          <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/2" /></div>
+          <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-3/4" /></div>
           <div className="col-span-1"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/3" /></div>
           <div className="col-span-2"><div className="h-4 bg-slate-200 dark:bg-slate-850 rounded mx-auto w-1/2" /></div>
           <div className="col-span-2 flex justify-center gap-3">
@@ -72,7 +73,7 @@ export default function UserApp() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [previewUsers, setPreviewUsers] = useState<any[] | null>(null);
 
-  const [sortKey, setSortKey] = useState<"name" | "role" | "team" | "score" | "dateAdded" | "status" | "organization" | null>(null);
+  const [sortKey, setSortKey] = useState<"name" | "role" | "team" | "type" | "score" | "dateAdded" | "status" | "organization" | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc" | null>(null);
 
   // simple sort toggler
@@ -318,7 +319,7 @@ export default function UserApp() {
 
         {/* Table Header - hidden on mobile */}
         <div className="hidden sm:block bg-white dark:bg-slate-900 rounded-t-xl border border-b-0 border-slate-200 dark:border-slate-800 overflow-x-auto">
-          <div className="grid grid-cols-12 gap-2 sm:gap-4 items-center px-4 sm:px-6 py-3 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[640px]">
+          <div className="grid grid-cols-12 gap-2 sm:gap-4 items-center px-4 sm:px-6 py-3 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 min-w-[768px]">
             <button
               onClick={() => toggleSort("name")}
               className="col-span-3 text-left flex items-center gap-2 hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200"
@@ -343,8 +344,14 @@ export default function UserApp() {
               Team {sortKey === "team" && (sortDir === "asc" ? "▲" : "▼")}
             </button>
             <button
+              onClick={() => toggleSort("type")}
+              className="col-span-1 text-center hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200"
+            >
+              Type {sortKey === "type" && (sortDir === "asc" ? "▲" : "▼")}
+            </button>
+            <button
               onClick={() => toggleSort("organization")}
-              className="col-span-2 text-center hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200"
+              className="col-span-1 text-center hover:text-slate-900 dark:hover:text-slate-100 transition-colors duration-200"
             >
               Org {sortKey === "organization" && (sortDir === "asc" ? "▲" : "▼")}
             </button>

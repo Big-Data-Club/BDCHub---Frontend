@@ -59,6 +59,7 @@ export default function UserRow({ user, onClick, onToggleStatus, isAdmin }: { us
             <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
               <span><span className="font-medium text-slate-700 dark:text-slate-300">{roleLabel}</span></span>
               {user.team && <span>· {user.team}</span>}
+              {user.type && <span>· {user.type}</span>}
               {orgLabel !== "-" && <span>· {orgLabel}</span>}
               <span>· {dateLabel}</span>
               <span className={user.status ? "text-green-600 dark:text-green-400 font-medium" : "text-slate-400"}>
@@ -74,7 +75,7 @@ export default function UserRow({ user, onClick, onToggleStatus, isAdmin }: { us
         className="hidden sm:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer overflow-x-auto"
         onClick={() => onClick(user)}
       >
-        <div className="grid grid-cols-12 gap-4 items-center px-6 py-4 min-w-[640px]">
+        <div className="grid grid-cols-12 gap-4 items-center px-6 py-4 min-w-[768px]">
           {/* Name & Email */}
           <div className="col-span-3 flex items-center gap-3">
             <UserAvatar name={user.name} src={user.profilePicture} className="w-8 h-8" />
@@ -87,8 +88,10 @@ export default function UserRow({ user, onClick, onToggleStatus, isAdmin }: { us
           <div className="col-span-1 text-center text-sm text-slate-700 dark:text-slate-300">{roleLabel}</div>
           {/* Team */}
           <div className="col-span-1 text-center text-sm text-slate-700 dark:text-slate-300">{user.team}</div>
+          {/* Type */}
+          <div className="col-span-1 text-center text-sm text-slate-700 dark:text-slate-300">{user.type || "-"}</div>
           {/* Org */}
-          <div className="col-span-2 text-center text-sm text-slate-700 dark:text-slate-300 truncate" title={orgLabel}>{orgLabel}</div>
+          <div className="col-span-1 text-center text-sm text-slate-700 dark:text-slate-300 truncate" title={orgLabel}>{orgLabel}</div>
           {/* Score */}
           <div className="col-span-1 text-center text-sm font-medium text-slate-900 dark:text-slate-50">{user.score}</div>
           {/* Date Added */}
