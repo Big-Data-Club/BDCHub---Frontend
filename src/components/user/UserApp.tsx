@@ -105,9 +105,11 @@ export default function UserApp() {
         ? "totalScore"
         : sortKey === "status"
           ? "active"
-          : sortKey === "dateAdded" || !sortKey
-            ? "id"
-            : sortKey;
+          : sortKey === "dateAdded"
+            ? "createdAt"
+            : !sortKey
+              ? "id"
+              : sortKey;
       const result = await fetchUsers({
         page: currentPage - 1,
         pageSize: 15,
