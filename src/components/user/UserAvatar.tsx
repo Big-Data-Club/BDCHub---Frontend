@@ -27,7 +27,7 @@ export function UserAvatar({ name, src, className, fallbackClassName, alt, style
   const imageSrc = resolveMediaUrl(src);
   return (
     <Avatar className={cn("shrink-0 overflow-hidden", className)} style={style} title={title}>
-      {imageSrc ? <AvatarImage src={imageSrc} alt={alt || name || "User"} className="object-cover" /> : null}
+      {imageSrc ? <AvatarImage src={imageSrc} alt={alt || name || "User"} className="object-cover" referrerPolicy="no-referrer" /> : null}
       <AvatarFallback
         className={cn(
           "bg-blue-100 font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300",

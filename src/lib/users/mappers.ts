@@ -55,6 +55,7 @@ export function mapServerUserToClient(s: any): User {
     score: Number(s.totalScore ?? s.score ?? 0),
     dateAdded: parseServerDate(rawDate),
     status: typeof s.active === "boolean" ? s.active : Boolean(s.status ?? true),
+    profilePicture: s.profilePicture ?? s.profile_picture ?? s.avatar ?? "",
     organization: s.organization ?? "",
     organizations: s.organizations ?? [],
   };
