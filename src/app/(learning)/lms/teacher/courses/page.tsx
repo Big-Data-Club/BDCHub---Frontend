@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import lmsService from "@/services/lms/lmsService";
+import { analyticsService } from "@/services/lms/analyticsService";
 import {
   Plus, Search, BookOpen, Settings, Trash2, Archive, ArchiveRestore,
   Eye, EyeOff, ChevronRight, Users, RefreshCw, Home, X, ArrowUpDown,
@@ -47,6 +48,13 @@ export default function CoursesListPage() {
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [summary, setSummary] = useState<{
+    totalCourses: number;
+    publishedCourses: number;
+    draftCourses: number;
+    totalStudents: number;
+  } | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Keydown listener for focusing search input (/) or (Ctrl+K / Cmd+K)
@@ -104,6 +112,7 @@ export default function CoursesListPage() {
 
   const load = useCallback(async (status?: StatusFilter, pageNum = 1, append = false) => {
     if (!append) setLoading(true);
+    if (append) setLoadingMore(true);
     setError("");
     try {
       const params: {
@@ -127,10 +136,37 @@ export default function CoursesListPage() {
       setError("Không thể tải danh sách khóa học.");
     } finally {
       if (!append) setLoading(false);
+      if (append) setLoadingMore(false);
     }
   }, [search, selectedTag, selectedLevel]);
 
   useEffect(() => { load(filter); }, [filter, load]);
+
+  // Use the same server-side aggregation as the teacher dashboard.  The list
+  // itself is paginated, so deriving these totals from its currently loaded
+  // rows makes the header vary with scrolling and double-counts learners who
+  // are enrolled in more than one course.
+  useEffect(() => {
+    let cancelled = false;
+
+    void analyticsService.getTeacherDashboardSummary()
+      .then((response) => {
+        const data = response.data;
+        if (!cancelled && data) {
+          setSummary({
+            totalCourses: data.totalCoursesCount,
+            publishedCourses: data.publishedCoursesCount,
+            draftCourses: data.draftCoursesCount,
+            totalStudents: data.totalUniqueStudents,
+          });
+        }
+      })
+      .catch(() => {
+        // The list remains usable if the optional summary endpoint is down.
+      });
+
+    return () => { cancelled = true; };
+  }, []);
 
   // Confirm modal state
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -348,11 +384,11 @@ export default function CoursesListPage() {
         sideWidget={
           <div className="w-full lg:max-w-xl xl:max-w-2xl flex-shrink-0">
             <TeacherSummaryCard
-              totalCourses={totalCoursesCount}
-              publishedCourses={published}
-              draftCourses={draft}
+              totalCourses={summary?.totalCourses ?? totalCoursesCount}
+              publishedCourses={summary?.publishedCourses ?? published}
+              draftCourses={summary?.draftCourses ?? draft}
               archivedCourses={archived}
-              totalStudents={totalEnrollments}
+              totalStudents={summary?.totalStudents ?? totalEnrollments}
             />
           </div>
         }
@@ -803,6 +839,7 @@ export default function CoursesListPage() {
               <InfiniteScrollTrigger
                 key={page}
                 hasMore={hasMore}
+                loading={loadingMore}
                 onLoadMore={() => load(filter, page + 1, true)}
               />
             </>
