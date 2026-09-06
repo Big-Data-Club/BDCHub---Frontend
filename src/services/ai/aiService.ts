@@ -4,6 +4,7 @@
  * Calls Go lms-service endpoints which proxy to ai-service internally.
  */
 import { lmsApiClient } from "../lms/lmsApiClient";
+import { getAccessToken } from "../auth/authToken";
 
 // ─── Phase 1: Diagnosis ───────────────────────────────────────────────────────
 
@@ -187,6 +188,54 @@ class AIService {
   async getJobStatus<T = any>(jobId: string): Promise<AIJobStatus<T>> {
     const res = await lmsApiClient.get(`/ai/jobs/${jobId}/status`);
     return res.data?.data ?? res.data;
+  }
+
+  /**
+   * Wait for a Kafka-backed AI job over server-sent events. This deliberately
+   * uses fetch instead of EventSource because the LMS API is bearer-token
+   * protected and EventSource cannot attach an Authorization header.
+   */
+  async waitForJobCompletion<T = any>(jobId: string, signal?: AbortSignal): Promise<AIJobStatus<T>> {
+    const token = await getAccessToken();
+    const response = await fetch(`/lmsapiv1/ai/jobs/${encodeURIComponent(jobId)}/stream`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      credentials: "include",
+      signal,
+    });
+    if (!response.ok || !response.body) {
+      throw new Error("Unable to open the live generation stream.");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let boundary = buffer.indexOf("\n\n");
+        while (boundary >= 0) {
+          const event = buffer.slice(0, boundary);
+          buffer = buffer.slice(boundary + 2);
+          boundary = buffer.indexOf("\n\n");
+
+          const data = event
+            .split("\n")
+            .filter((line) => line.startsWith("data:"))
+            .map((line) => line.slice(5).trimStart())
+            .join("\n");
+          if (!data) continue;
+
+          const status = JSON.parse(data) as AIJobStatus<T>;
+          if (status.status === "completed" || status.status === "failed") return status;
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    throw new Error("The live generation stream closed before completion.");
   }
 
   // ─── Diagnosis ─────────────────────────────────────────────────────────────

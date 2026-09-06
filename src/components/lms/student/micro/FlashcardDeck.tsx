@@ -11,10 +11,11 @@
  * Visual language: solid neutral surfaces, hairline borders, no
  * gradients or playful icons.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import flashcardService, {
   FlashcardWithRepetition,
 } from "@/services/lms/flashcardService";
+import { aiService } from "@/services/ai/aiService";
 import analyticsService from "@/services/lms/analyticsService";
 import type { MicroLessonContext } from "./types";
 
@@ -30,8 +31,18 @@ export function FlashcardDeck({ ctx }: FlashcardDeckProps) {
   const [error, setError] = useState("");
   const [generating, setGenerating] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const mountedRef = useRef(true);
+  const generationAbortRef = useRef<AbortController | null>(null);
 
   const lang = ctx.language ?? "vi";
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      generationAbortRef.current?.abort();
+    };
+  }, []);
 
   // Load 3–5 cards. Skip the network call entirely when no node_id and no lesson_id is attached.
   useEffect(() => {
@@ -74,22 +85,39 @@ export function FlashcardDeck({ ctx }: FlashcardDeckProps) {
     setGenerating(true);
     setError("");
     try {
-      await flashcardService.generateFlashcards(ctx.courseId, ctx.nodeId ?? null, {
+      const job = await flashcardService.generateFlashcards(ctx.courseId, ctx.nodeId ?? null, {
         count: 5,
         lesson_id: ctx.lessonId,
         content_id: ctx.contentId,
         text_chunk: ctx.lessonText,
       });
-      // Reload the card list after generation
-      setReloadKey((k) => k + 1);
-    } catch {
-      setError(
+      if (!job?.job_id) {
+        throw new Error("Flashcard generation did not return a job ID.");
+      }
+
+      // Kafka completion is pushed through LMS SSE; no client-side polling.
+      const controller = new AbortController();
+      generationAbortRef.current = controller;
+      const status = await aiService.waitForJobCompletion(job.job_id, controller.signal);
+      if (!mountedRef.current) return;
+      if (status.status === "completed") {
+        setIndex(0);
+        setFlipped(false);
+        setReloadKey((key) => key + 1);
+        return;
+      }
+      throw new Error(status.error || "Flashcard generation failed.");
+    } catch (cause) {
+      if (!mountedRef.current) return;
+      const detail = cause instanceof Error ? cause.message : "";
+      setError(detail || (
         lang === "vi"
           ? "Không thể tạo flashcard. Vui lòng thử lại."
-          : "Failed to generate flashcards. Please try again.",
-      );
+          : "Failed to generate flashcards. Please try again."
+      ));
     } finally {
-      setGenerating(false);
+      generationAbortRef.current = null;
+      if (mountedRef.current) setGenerating(false);
     }
   }, [ctx.courseId, ctx.nodeId, ctx.lessonId, ctx.contentId, ctx.lessonText, generating, lang]);
 
@@ -160,6 +188,9 @@ export function FlashcardDeck({ ctx }: FlashcardDeckProps) {
           ? "Chưa có flashcard cho bài học này."
           : "No flashcards available for this lesson yet.",
       loading: lang === "vi" ? "Đang tải…" : "Loading…",
+      generating: lang === "vi"
+        ? "AI đang tạo flashcard. Các thẻ sẽ tự xuất hiện ngay khi sẵn sàng…"
+        : "AI is generating flashcards. Cards will appear automatically when ready…",
       counter: (i: number, n: number) =>
         lang === "vi" ? `Thẻ ${i}/${n}` : `Card ${i}/${n}`,
     }),
@@ -184,6 +215,7 @@ export function FlashcardDeck({ ctx }: FlashcardDeckProps) {
     return (
       <div className="px-6 py-10 text-sm text-slate-500 dark:text-slate-400 text-center flex flex-col items-center gap-3">
         <span>{labels.empty}</span>
+        {generating && <span className="text-center text-xs text-slate-500 dark:text-slate-400">{labels.generating}</span>}
         {(ctx.nodeId != null || ctx.lessonId != null || ctx.contentId != null) && (
           <button
             type="button"
