@@ -32,6 +32,38 @@ function transformInlineCode(text: string, transform: (value: string) => string)
     .join('');
 }
 
+/**
+ * Some imported/AI-authored lesson text escapes Markdown code delimiters as
+ * \`code\`.  Those backslashes make the delimiters literal, so the learner
+ * sees the ticks rather than an inline-code token.  Only restore a balanced
+ * pair; a single escaped tick is intentionally left as literal prose.
+ */
+function restoreEscapedCodeDelimiters(text: string) {
+  return text.replace(/\\(`+)([^`\n]+)\\\1/g, '$1$2$1');
+}
+
+/**
+ * A second delimiter pair sometimes wraps an already formatted inline token,
+ * e.g. `` `value` ``.  React Markdown correctly parses the outer pair and
+ * passes `value` (including the inner ticks) to this renderer.  Remove only
+ * that balanced, nested pair so the rendered code contains the value itself.
+ */
+function unwrapNestedInlineCodeDelimiters(value: string) {
+  let result = value;
+  let match = /^(?:`+)([\s\S]*?)(?:`+)$/.exec(result);
+
+  while (match && match[1].trim()) {
+    const openingLength = result.match(/^`+/)?.[0].length ?? 0;
+    const closingLength = result.match(/`+$/)?.[0].length ?? 0;
+    if (openingLength === 0 || openingLength !== closingLength) break;
+
+    result = match[1];
+    match = /^(?:`+)([\s\S]*?)(?:`+)$/.exec(result);
+  }
+
+  return result;
+}
+
 /** Apply cleanup only to prose, never to fenced/inline code examples. */
 function transformOutsideCode(markdown: string, transform: (value: string) => string) {
   const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
@@ -42,27 +74,31 @@ function transformOutsideCode(markdown: string, transform: (value: string) => st
 
   const flushProse = () => {
     if (!prose.length) return;
-    output.push(transformInlineCode(prose.join('\n'), transform));
+    output.push(transformInlineCode(restoreEscapedCodeDelimiters(prose.join('\n')), transform));
     prose = [];
   };
 
   for (const line of lines) {
     if (!fenceChar) {
-      const opening = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+      // Course content is sometimes serialized with an unnecessary slash
+      // before every fence delimiter (\```). Treat that as a fence as well;
+      // otherwise it is parsed as prose and all backticks are shown.
+      const opening = /^ {0,3}((?:\\?`){3,}|(?:\\?~){3,})/.exec(line);
       if (opening) {
         flushProse();
-        fenceChar = opening[1][0];
-        fenceLength = opening[1].length;
-        output.push(line);
+        fenceChar = opening[1].includes('`') ? '`' : '~';
+        fenceLength = (opening[1].match(/[`~]/g) ?? []).length;
+        output.push(line.replace(/^( {0,3})((?:\\?[`~])+)/, (_, indent, fence) => `${indent}${fence.replace(/\\/g, '')}`));
       } else {
         prose.push(line);
       }
       continue;
     }
 
-    output.push(line);
+    const normalizedFenceLine = line.replace(/^( {0,3})((?:\\?[`~])+)/, (_, indent, fence) => `${indent}${fence.replace(/\\/g, '')}`);
+    output.push(normalizedFenceLine);
     const closing = new RegExp(`^ {0,3}${fenceChar}{${fenceLength},}\\s*$`);
-    if (closing.test(line)) {
+    if (closing.test(normalizedFenceLine)) {
       fenceChar = '';
       fenceLength = 0;
     }
@@ -380,6 +416,7 @@ export default function MarkdownRenderer({
             }
 
             // Inline code
+            const inlineCode = unwrapNestedInlineCodeDelimiters(rawChildren);
             return (
               <code
                 className={cn(
@@ -390,7 +427,7 @@ export default function MarkdownRenderer({
                 )}
                 {...props}
               >
-                {children}
+                {inlineCode}
               </code>
             );
           },
