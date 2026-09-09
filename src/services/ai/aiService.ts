@@ -420,6 +420,24 @@ class AIService {
   }
 
   /**
+   * Trigger an async Kafka job that scans all nodes across all lectures/modules in a course,
+   * connects disjoint components/clusters and isolated nodes via LLM-enriched semantic analysis.
+   */
+  async linkAllNodes(courseId: number): Promise<{ job_id: string; status: string; message?: string }> {
+    const res = await lmsApiClient.post(`/courses/${courseId}/ai/link-all`);
+    return res.data?.data ?? res.data;
+  }
+
+  /**
+   * Check current status of the full graph linking job for a course.
+   */
+  async getLinkAllStatus(courseId: number): Promise<{ status: string; job_id: string; edges_created?: number; error?: string }> {
+    const res = await lmsApiClient.get(`/courses/${courseId}/ai/link-all/status`);
+    return res.data?.data ?? res.data;
+  }
+
+
+  /**
    * Create a new directed edge or update the relation_type/strength of an
    * existing one between two knowledge nodes. Idempotent.
    */

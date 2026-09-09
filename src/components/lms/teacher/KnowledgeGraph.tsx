@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   X, ExternalLink, Link2, BookOpen, BrainCircuit, Trash2,
-  GitMerge, Plus, Pencil, CheckCircle2, Loader2,
+  GitMerge, Plus, Pencil, CheckCircle2, Loader2, Sparkles,
 } from "lucide-react";
 import aiService from "@/services/ai/aiService";
 import toast from "react-hot-toast";
@@ -65,6 +65,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   const [nodeChunks, setNodeChunks] = useState<any[]>([]);
   const [isLoadingChunks, setIsLoadingChunks] = useState(false);
   const [linkJob, setLinkJob] = useState<LinkJobState>("idle");
+  const [linkJobType, setLinkJobType] = useState<"all" | "isolated">("all");
   const [linkJobNewEdges, setLinkJobNewEdges] = useState<number | null>(null);
   const [connectMode, setConnectMode] = useState(false);
   const [connectSrc, setConnectSrc] = useState<any>(null);
@@ -95,7 +96,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   useEffect(() => { if (initialData) setGraphData(initialData); }, [initialData]);
   useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
 
-  // ── Polling logic for Link Isolated Job ──────────────────────────────────────
+  // ── Polling logic for Graph Linking Jobs ─────────────────────────────────────
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) {
@@ -104,20 +105,23 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
     }
   }, []);
 
-  const startPolling = useCallback((prevCount: number) => {
+  const startPolling = useCallback((prevCount: number, type: "all" | "isolated" = "all") => {
     stopPolling();
     pollCount.current = 0;
     pollRef.current = setInterval(async () => {
       pollCount.current++;
-      if (pollCount.current > 24) {
+      if (pollCount.current > 30) {
         stopPolling();
         setLinkJob("idle");
-        toast("Chưa nhận kết quả. Hãy tải lại đồ thị.", { icon: "⏱️" });
+        toast("Quá thời gian chờ phản hồi. Hãy tải lại đồ thị.", { icon: "⏱️" });
         return;
       }
       try {
         // Query job status from backend
-        const jobInfo = await aiService.getLinkIsolatedStatus(courseId);
+        const jobInfo = type === "all"
+          ? await aiService.getLinkAllStatus(courseId)
+          : await aiService.getLinkIsolatedStatus(courseId);
+
         if (jobInfo.status === "completed" || jobInfo.status === "failed") {
           stopPolling();
           const latest = await aiService.getKnowledgeGraph(courseId);
@@ -125,14 +129,26 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
             source: e.source, target: e.target, type: e.relation_type,
             strength: e.strength, auto_generated: e.auto_generated,
           }));
-          const added = Math.max(0, newLinks.length - prevCount);
+          const added = (jobInfo.edges_created !== undefined && jobInfo.edges_created !== null)
+            ? jobInfo.edges_created
+            : Math.max(0, newLinks.length - prevCount);
           setLinkJobNewEdges(added);
-          setLinkJob("done");
+          setLinkJob(jobInfo.status === "failed" ? "error" : "done");
           setGraphData({ nodes: latest.nodes.map((n: any) => ({ ...n })), links: newLinks });
-          if (added > 0) {
-            toast.success(`Kết nối thành công - thêm ${added} liên kết mới!`);
+          if (jobInfo.status === "failed") {
+            toast.error(`Quá trình liên kết gặp lỗi: ${jobInfo.error || "Không xác định"}`);
+          } else if (added > 0) {
+            toast.success(
+              type === "all"
+                ? `Liên kết toàn bộ thành công - thêm ${added} liên kết mới giữa các bài giảng!`
+                : `Kết nối thành công - thêm ${added} liên kết mới cho các node cô lập!`
+            );
           } else {
-            toast.success("Đã hoàn tất kiểm tra các node cô lập!");
+            toast.success(
+              type === "all"
+                ? "Đã hoàn tất phân tích toàn bộ đồ thị! Các khái niệm đã được kết nối tối ưu."
+                : "Đã hoàn tất kiểm tra các node cô lập!"
+            );
           }
           return;
         }
@@ -152,34 +168,60 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
           toast.success(`Kết nối thành công - thêm ${added} liên kết mới!`);
         }
       } catch { /* retry on next tick */ }
-    }, 5000);
+    }, 4000);
   }, [courseId, stopPolling]);
 
   // Check active job status on mount so returning users don't double click
   useEffect(() => {
-    aiService.getLinkIsolatedStatus(courseId).then((st) => {
+    aiService.getLinkAllStatus(courseId).then((st) => {
       if (st && (st.status === "queued" || st.status === "processing")) {
         setLinkJob("queued");
-        startPolling(graphData.links.length);
+        setLinkJobType("all");
+        startPolling(graphData.links.length, "all");
       }
     }).catch(() => {});
   }, [courseId, startPolling, graphData.links.length]);
 
-  // ── Link Isolated trigger ─────────────────────────────────────────────────────
+  // ── Triggers ──────────────────────────────────────────────────────────────────
+
+  const handleLinkAll = useCallback(async () => {
+    if (linkJob === "queued") return;
+    try {
+      setLinkJob("queued");
+      setLinkJobType("all");
+      setLinkJobNewEdges(null);
+      const res = await aiService.linkAllNodes(courseId);
+      if (res.status === "queued" || res.status === "processing") {
+        toast.success("AI đang phân tích toàn bộ sơ đồ tri thức và kết nối các cụm kiến thức...", { duration: 4500 });
+        startPolling(graphData.links.length, "all");
+      } else {
+        toast(res.message || "Tác vụ đang được thực hiện.", { icon: "ℹ️" });
+      }
+    } catch {
+      setLinkJob("error");
+      toast.error("Không thể kích hoạt Liên kết toàn bộ đồ thị.");
+    }
+  }, [courseId, graphData.links.length, linkJob, startPolling]);
 
   const handleLinkIsolated = useCallback(async () => {
     if (linkJob === "queued") return;
     try {
-      setLinkJob("queued"); setLinkJobNewEdges(null);
+      setLinkJob("queued");
+      setLinkJobType("isolated");
+      setLinkJobNewEdges(null);
       const res = await aiService.linkIsolatedNodes(courseId);
       if (res.status === "queued" || res.status === "processing") {
         toast.success("Hệ thống đang quét và kết nối các node cô lập...", { duration: 4000 });
-        startPolling(graphData.links.length);
+        startPolling(graphData.links.length, "isolated");
       } else {
         toast(res.message || "Tác vụ đang được thực hiện.", { icon: "ℹ️" });
       }
-    } catch { setLinkJob("error"); toast.error("Không thể kích hoạt Link Graph."); }
+    } catch {
+      setLinkJob("error");
+      toast.error("Không thể kích hoạt Liên kết node cô lập.");
+    }
   }, [courseId, graphData.links.length, linkJob, startPolling]);
+
 
   // ── Node click ───────────────────────────────────────────────────────────────
 
@@ -318,12 +360,46 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
     <div className="flex flex-col h-[82vh] w-full gap-0 font-sans">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-4 py-2.5 border border-b-0 border-slate-200 dark:border-slate-800 rounded-t-xl bg-white dark:bg-slate-950">
-        <button id="btn-link-isolated" onClick={handleLinkIsolated} disabled={linkJob === "queued"}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${linkJob === "queued" ? "bg-blue-50 dark:bg-blue-900/20 text-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"}`}>
-          {linkJob === "queued" ? <><Loader2 size={14} className="animate-spin" /> Đang xử lý...</>
-           : linkJob === "done" ? <><CheckCircle2 size={14} /> Link Graph {linkJobNewEdges != null ? `(+${linkJobNewEdges})` : ""}</>
-           : <><GitMerge size={14} /> Link Graph</>}
+        {/* Nút Link Tất Cả (Primary Action) */}
+        <button
+          id="btn-link-all"
+          onClick={handleLinkAll}
+          disabled={linkJob === "queued" || graphData.nodes.length < 2}
+          title="Tự động phân tích toàn bộ sơ đồ tri thức, tìm quan hệ giữa các bài giảng và liên kết các cụm rời rạc"
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            linkJob === "queued" && linkJobType === "all"
+              ? "bg-purple-50 dark:bg-purple-900/20 text-purple-400 cursor-not-allowed"
+              : "bg-purple-600 hover:bg-purple-700 text-white shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+          }`}
+        >
+          {linkJob === "queued" && linkJobType === "all" ? (
+            <><Loader2 size={14} className="animate-spin" /> Đang phân tích...</>
+          ) : linkJob === "done" && linkJobType === "all" ? (
+            <><CheckCircle2 size={14} /> Đã liên kết {linkJobNewEdges != null ? `(+${linkJobNewEdges})` : ""}</>
+          ) : (
+            <><Sparkles size={14} /> Link tất cả</>
+          )}
         </button>
+
+        {/* Nút Link node cô lập (Secondary Action) */}
+        <button
+          id="btn-link-isolated"
+          onClick={handleLinkIsolated}
+          disabled={linkJob === "queued" || graphData.nodes.length < 2}
+          title="Chỉ tìm và giải cứu các node hoàn toàn cô lập (0 liên kết)"
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+            linkJob === "queued" && linkJobType === "isolated"
+              ? "bg-blue-50 dark:bg-blue-900/20 border-blue-300 text-blue-400 cursor-not-allowed"
+              : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          }`}
+        >
+          {linkJob === "queued" && linkJobType === "isolated" ? (
+            <><Loader2 size={13} className="animate-spin" /> Đang quét...</>
+          ) : (
+            <><GitMerge size={13} /> Link node cô lập</>
+          )}
+        </button>
+
         <button id="btn-connect-mode" onClick={() => { setConnectMode(v => !v); setConnectSrc(null); }}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${connectMode ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 text-emerald-700 dark:text-emerald-400" : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
           <Plus size={14} />
