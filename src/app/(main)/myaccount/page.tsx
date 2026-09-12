@@ -33,6 +33,7 @@ const MyAccountPage: React.FC = () => {
     email: "",
     team: "",
     type: "",
+    emailNotificationsEnabled: true,
   });
   const [fullUserData, setFullUserData] = useState<UserResponse | null>(null);
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
@@ -65,6 +66,7 @@ const MyAccountPage: React.FC = () => {
           email: userData.email,
           team: userData.team,
           type: userData.type,
+          emailNotificationsEnabled: userData.emailNotificationsEnabled !== false,
         });
         if (userData.profilePicture) setPreviewUrl(resolveMediaUrl(userData.profilePicture) ?? "");
       } catch (error: any) {
