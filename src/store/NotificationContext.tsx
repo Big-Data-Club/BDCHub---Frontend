@@ -156,7 +156,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const next = new Set(prev);
       next.add(key);
       if (typeof window !== "undefined") {
-        localStorage.setItem("read_notification_keys", JSON.stringify(Array.from(next)));
+        // Cap the persisted set so it cannot grow without bound.
+        const trimmed = Array.from(next).slice(-300);
+        localStorage.setItem("read_notification_keys", JSON.stringify(trimmed));
       }
       return next;
     });
