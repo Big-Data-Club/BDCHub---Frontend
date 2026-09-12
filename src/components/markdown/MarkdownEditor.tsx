@@ -35,17 +35,46 @@ export default function MarkdownEditor({
       if (item.kind === 'file' && item.type.startsWith('image/')) {
         // Prevent default only if it's an image
         e.preventDefault();
-        
+
+        // 1. Lưu lại textarea và vị trí con trỏ chuột TRƯỚC KHI upload
+        const target = e.target as HTMLElement | null;
+        const textarea =
+          target instanceof HTMLTextAreaElement
+            ? target
+            : (e.currentTarget.querySelector('textarea') as HTMLTextAreaElement | null);
+
+        const baseText = textarea?.value ?? value;
+        const start = textarea?.selectionStart ?? baseText.length;
+        const end = textarea?.selectionEnd ?? baseText.length;
+
         try {
           const file = item.getAsFile();
           if (!file) return;
 
           const imageUrl = await uploadImage(file);
-          // Insert the image markdown at the current position or just append
-          // Here we just append to the content
           const imageMarkdown = `![image](${imageUrl})`;
-          onChange(value + (value.endsWith('\n') ? '' : '\n') + imageMarkdown + '\n');
+
+          // 2. Chèn vào đúng vị trí con trỏ chuột
+          const before = baseText.substring(0, start);
+          const after = baseText.substring(end);
+          const prefix = before.endsWith('\n') || before === '' ? '' : '\n';
+          const suffix = after.startsWith('\n') || after === '' ? '\n' : '\n\n';
+          const insertion = `${prefix}${imageMarkdown}${suffix}`;
+          const newValue = `${before}${insertion}${after}`;
+
+          onChange(newValue);
           setUploadError('');
+
+          // 3. Đặt con trỏ chuột ra sau đoạn ảnh vừa chèn
+          const newPos = before.length + insertion.length;
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (textarea) {
+                textarea.focus();
+                textarea.setSelectionRange(newPos, newPos);
+              }
+            }, 50);
+          });
         } catch (err: any) {
           setUploadError(err.message);
         }
