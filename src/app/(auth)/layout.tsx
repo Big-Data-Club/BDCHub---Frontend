@@ -19,7 +19,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   const session = await getServerSession(authOptions);
   // A legacy/expired NextAuth cookie can still deserialize to a session while
   // its backend token can no longer be refreshed or is missing. Let the login page render
-  // so SessionMonitor can clear it instead of redirecting back to /lms.
+  // so SessionMonitor can clear it instead of redirecting back to /lms
   if (session && (session as any).error !== "RefreshAccessTokenError" && (session as any).accessToken) {
     redirect("/lms");
   }
