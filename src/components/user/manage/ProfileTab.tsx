@@ -1,4 +1,4 @@
-import { User, Mail, Tag, Users, Save, Loader2, Bell } from "lucide-react";
+import { User, Mail, Tag, Users, Save, Loader2 } from "lucide-react";
 import { UpdateProfileRequest, UserResponse } from "@/services/auth/userService";
 import AvatarUpload from "./AvatarUpload";
 
@@ -121,39 +121,6 @@ export default function ProfileTab({
                 className={disabledInputClass}
                 disabled
               />
-            </div>
-          </div>
-
-          {/* Email Notification Settings */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-            <label className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-3">
-              <Bell className="w-4 h-4 text-amber-500" />
-              Cài đặt thông báo qua Email
-            </label>
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 transition-colors">
-              <input
-                type="checkbox"
-                id="emailNotificationsEnabled"
-                checked={profile.emailNotificationsEnabled !== false}
-                onChange={(e) =>
-                  onProfileChange({
-                    ...profile,
-                    emailNotificationsEnabled: e.target.checked,
-                  })
-                }
-                className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-              />
-              <label
-                htmlFor="emailNotificationsEnabled"
-                className="text-sm cursor-pointer select-none"
-              >
-                <span className="font-medium text-slate-900 dark:text-slate-100 block">
-                  Nhận email thông báo &amp; nhắc nhở học tập cá nhân hóa
-                </span>
-                <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 block leading-relaxed">
-                  Bao gồm cảnh báo lỗ hổng kiến thức cần ôn luyện, nhắc nhở khi lâu ngày chưa vào học, và gợi ý học tập tự động từ BDC Hub. Bỏ chọn nếu bạn không muốn nhận các email này.
-                </span>
-              </label>
             </div>
           </div>
         </div>

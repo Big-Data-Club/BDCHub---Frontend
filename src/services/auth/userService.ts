@@ -11,7 +11,6 @@ export interface UserResponse {
   active: boolean;
   profilePicture?: string;
   totalScore: number;
-  emailNotificationsEnabled?: boolean;
 }
 
 interface UserPageResponse {
@@ -29,7 +28,6 @@ export interface UpdateProfileRequest {
   team?: string;
   type?: string;
   profilePicture?: string;
-  emailNotificationsEnabled?: boolean;
 }
 
 export interface ChangePasswordRequest {
