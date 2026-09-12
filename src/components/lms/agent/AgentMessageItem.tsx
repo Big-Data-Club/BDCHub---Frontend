@@ -2,7 +2,7 @@
 
 import { useState, useEffect, memo } from "react";
 import { cn } from "@/lib/utils";
-import { Wrench, Check, AlertCircle, ChevronDown, ChevronRight, Cpu, Layers, Sparkles, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown, RefreshCw, BookOpen, ExternalLink, AlertTriangle } from "lucide-react";
+import { Wrench, Check, AlertCircle, ChevronDown, ChevronRight, Cpu, Layers, Sparkles, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown, RefreshCw, BookOpen, ExternalLink, AlertTriangle, Zap, Compass, Brain } from "lucide-react";
 import type { AgentMessage, AIReference, HITLRequestData } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
 import { ClarificationCard } from "./ClarificationCard";
@@ -288,6 +288,38 @@ export const AgentMessageItem = memo(function AgentMessageItem({
                   title="Model tạo ra câu trả lời này"
                 >
                   {message.model}
+                </span>
+              )}
+
+              {message.chatMode && (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium border transition-colors",
+                    message.chatMode === "flash" &&
+                      "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/25",
+                    message.chatMode === "standard" &&
+                      "bg-blue-500/10 text-blue-700 dark:text-cyan-300 border-blue-500/25",
+                    message.chatMode === "deep" &&
+                      "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/25",
+                  )}
+                  title={`Chế độ: ${
+                    message.chatMode === "flash"
+                      ? "Nhanh (Flash)"
+                      : message.chatMode === "standard"
+                      ? "Chuẩn (Standard)"
+                      : "Sâu (Deep Thinking)"
+                  }`}
+                >
+                  {message.chatMode === "flash" && <Zap className="w-2.5 h-2.5 text-amber-500" />}
+                  {message.chatMode === "standard" && <Compass className="w-2.5 h-2.5 text-blue-500 dark:text-cyan-400" />}
+                  {message.chatMode === "deep" && <Brain className="w-2.5 h-2.5 text-purple-500" />}
+                  <span>
+                    {message.chatMode === "flash"
+                      ? "Flash"
+                      : message.chatMode === "standard"
+                      ? "Chuẩn"
+                      : "Sâu"}
+                  </span>
                 </span>
               )}
             </div>

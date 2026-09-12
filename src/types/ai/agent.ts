@@ -30,6 +30,8 @@ export type AgentEventType =
   | "done"
   | "error";
 
+export type ChatMode = "flash" | "standard" | "deep";
+
 export interface AgentEvent {
   type: AgentEventType;
   data: Record<string, any>;
@@ -156,6 +158,9 @@ export interface AgentMessage {
   /** Provider/model id that produced this answer (from DONE event). */
   model?: string;
 
+  /** Active chat mode for this turn (flash, standard, deep). */
+  chatMode?: ChatMode;
+
   /** True when the turn hit the processing limit before completing. */
   incomplete?: boolean;
 
@@ -175,6 +180,7 @@ export interface AgentChatRequest {
   user_id: number;
   course_id?: number;
   session_id?: string;
+  chat_mode?: ChatMode;
 
   /** Structured in-page context fed by the ChatSidebar. */
   page_context?: Record<string, any>;
@@ -220,6 +226,7 @@ export interface AgentHistoryMessage {
     thinking?: string;
     references?: AIReference[];
     model?: string;
+    chat_mode?: ChatMode;
     incomplete?: boolean;
   };
   created_at: string;

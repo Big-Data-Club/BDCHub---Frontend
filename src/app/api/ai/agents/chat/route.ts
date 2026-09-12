@@ -42,6 +42,9 @@ export async function POST(req: NextRequest) {
     role: (session.user as any).role || undefined,
   };
 
+  // Default chat_mode
+  body.chat_mode = body.chat_mode || "standard";
+
   if (!body.message || !body.agent_type) {
     return NextResponse.json(
       { error: "message and agent_type are required" },

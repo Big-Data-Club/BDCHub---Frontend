@@ -75,6 +75,8 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const {
     messages,
     sessionId,
+    chatMode,
+    setChatMode,
     isStreaming,
     isLoadingHistory,
     sendMessage,
@@ -354,6 +356,8 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
               onSend={sendMessage}
               isStreaming={isStreaming || isLoadingHistory}
               onStop={stopStreaming}
+              chatMode={chatMode}
+              onChatModeChange={setChatMode}
               placeholder={
                 agentType === "mentor"
                   ? "Hỏi về bài học hiện tại..."

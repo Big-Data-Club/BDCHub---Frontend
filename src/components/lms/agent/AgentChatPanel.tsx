@@ -106,6 +106,8 @@ export function AgentChatPanel({
   const {
     messages,
     sessionId,
+    chatMode,
+    setChatMode,
     isStreaming,
     isLoadingHistory,
     sendMessage,
@@ -440,6 +442,8 @@ export function AgentChatPanel({
               onSend={sendMessage}
               isStreaming={isStreaming || isLoadingHistory}
               onStop={stopStreaming}
+              chatMode={chatMode}
+              onChatModeChange={setChatMode}
               placeholder={
                 agentType === "mentor"
                   ? "Hỏi Mentor về bài học..."

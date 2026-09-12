@@ -16,6 +16,7 @@ import type {
   ToolActivity,
   AgentHistoryMessage,
   UIComponentData,
+  ChatMode,
 } from "@/types";
 
 let _msgIdCounter = 0;
@@ -121,6 +122,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
   // load and records the URL it consumed; otherwise clicking B while the URL
   // still says A briefly makes the hook switch straight back to A.
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId || null);
+  const [chatMode, setChatMode] = useState<ChatMode>("standard");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -156,6 +158,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         thinking: m.metadata?.thinking || "",
         references: m.metadata?.references || [],
         model: (m.metadata as any)?.model || undefined,
+        chatMode: (m.metadata as any)?.chat_mode || undefined,
         incomplete: Boolean((m.metadata as any)?.incomplete),
         multiAgentLogs: (m.metadata as any)?.multiAgentLogs || [],
         critiqueReport: (m.metadata as any)?.critiqueReport,
@@ -260,6 +263,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         toolActivities: [],
         thinking: "",
         references: [],
+        chatMode,
       };
 
       setMessages((prev) => [...prev, userMsg, assistantMsg]);
@@ -280,6 +284,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
             agent_type: agentType,
             course_id: effectiveCourseId,
             session_id: sessionId,
+            chat_mode: chatMode,
             ...(requestPageContext ? { page_context: requestPageContext } : {}),
             ...(systemContext ? { system_context: systemContext } : {}),
           }),
@@ -351,7 +356,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         }));
       }
     },
-    [agentType, effectiveCourseId, sessionId, isStreaming, effectivePageContext, systemContext],
+    [agentType, effectiveCourseId, sessionId, isStreaming, effectivePageContext, systemContext, chatMode],
   );
 
   /**
@@ -361,6 +366,9 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
     switch (event.type) {
       case "session":
         setSessionId(event.data.session_id);
+        if (event.data.chat_mode) {
+          setChatMode(event.data.chat_mode as ChatMode);
+        }
         if (event.data.is_new) {
           onSessionUpdated?.({
             sessionId: event.data.session_id,
@@ -581,6 +589,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
           isStreaming: false,
           references: event.data.references || msg.references,
           model: event.data.model || msg.model,
+          chatMode: (event.data.chat_mode as ChatMode) || msg.chatMode || chatMode,
           incomplete: Boolean(event.data.incomplete),
           dbId: event.data.message_id ? Number(event.data.message_id) : msg.dbId,
         }));
@@ -654,6 +663,8 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
   return {
     messages,
     sessionId,
+    chatMode,
+    setChatMode,
     isStreaming,
     isThinking,
     isLoadingHistory,
