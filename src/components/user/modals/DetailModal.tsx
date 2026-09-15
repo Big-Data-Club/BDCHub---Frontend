@@ -15,7 +15,7 @@ interface DetailModalProps {
   user: User | null;
   onClose: () => void;
   isAdmin?: boolean;
-  onUserUpdated?: () => void;
+  onUserUpdated?: (updatedUser?: User) => void;
 }
 
 
@@ -95,7 +95,13 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
     if (!confirm(`Bạn có chắc muốn xóa người dùng khỏi tổ chức "${orgName}"?`)) return;
     try {
       await organizationService.removeMember(orgId, Number(user.id));
-      onUserUpdated?.();
+      const newOrgs = (user.organizations || []).filter(o => o !== orgName);
+      const updatedUser: User = {
+        ...user,
+        organizations: newOrgs,
+        organization: newOrgs.join(", ")
+      };
+      onUserUpdated?.(updatedUser);
     } catch (e: any) {
       console.error("Failed to remove member:", e);
       alert(e?.message ?? "Xóa thất bại");
@@ -111,8 +117,14 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
         user_id: Number(user.id),
         org_role: "MEMBER"
       });
+      const newOrgs = Array.from(new Set([...(user.organizations || []), selectedOrgToAdd]));
+      const updatedUser: User = {
+        ...user,
+        organizations: newOrgs,
+        organization: newOrgs.join(", ")
+      };
       setSelectedOrgToAdd("");
-      onUserUpdated?.();
+      onUserUpdated?.(updatedUser);
     } catch (e: any) {
       console.error("Failed to add member:", e);
       alert(e?.message ?? "Thêm thất bại");
@@ -217,7 +229,7 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
         await updateUserRole(user.id, editRole);
       }
 
-      await updateUser(user.id, {
+      const updated = await updateUser(user.id, {
         name: editName.trim(),
         email: editEmail.trim(),
         team: mapFrontendTeamToBackend(editTeam),
@@ -225,9 +237,20 @@ export default function DetailModal({ user, onClose, isAdmin = false, onUserUpda
         organization: editOrganization.trim(),
       });
 
+      const finalUser: User = {
+        ...user,
+        ...updated,
+        name: editName.trim(),
+        email: editEmail.trim(),
+        team: editTeam,
+        type: editType,
+        role: editRole,
+        organization: editOrganization.trim(),
+      };
+
       setSaveSuccess(true);
       setIsEditing(false);
-      onUserUpdated?.();
+      onUserUpdated?.(finalUser);
 
       // Auto-dismiss success after 2s
       setTimeout(() => setSaveSuccess(false), 2000);

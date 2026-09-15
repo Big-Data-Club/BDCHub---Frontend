@@ -1,11 +1,12 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { User } from "@/types";
 import { fetchUsers, updateUserStatus } from "@/lib/users/api";
 import UserRow from "./table/UserRow";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/auth/useAuth";
-
+import { RefreshCw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Lazy-load components to optimize initial bundle size and page load speed
 const DetailModal = dynamic(() => import("./modals/DetailModal"), { ssr: false });
@@ -57,7 +58,12 @@ export default function UserApp() {
   const { isAdmin } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isRevalidating, setIsRevalidating] = useState(false);
+  const [togglingIds, setTogglingIds] = useState<Set<string | number>>(new Set());
   const [error, setError] = useState<string | null>(null);
+
+  const usersRef = useRef(users);
+  usersRef.current = users;
 
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -97,9 +103,16 @@ export default function UserApp() {
     setCurrentPage(1);
   }, [debouncedQuery, teamFilter, typeFilter, roleFilter, sortKey, sortDir]);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    const hasData = usersRef.current.length > 0;
+    // Chỉ bật loading (hiện Skeletons) khi danh sách trống và không phải revalidate ngầm
+    if (!silent && !hasData) {
+      setLoading(true);
+    } else {
+      setIsRevalidating(true);
+    }
     setError(null);
+
     try {
       const sortField = sortKey === "score"
         ? "totalScore"
@@ -126,11 +139,15 @@ export default function UserApp() {
     } catch (err: any) {
       console.error(err);
       setError(err?.message ?? String(err));
-      setUsers([]);
-      setTotalUsers(0);
-      setTotalPages(0);
+      // Chỉ xóa danh sách nếu là lần đầu load bị lỗi
+      if (!silent && !hasData) {
+        setUsers([]);
+        setTotalUsers(0);
+        setTotalPages(0);
+      }
     } finally {
       setLoading(false);
+      setIsRevalidating(false);
     }
   }, [currentPage, debouncedQuery, teamFilter, typeFilter, roleFilter, sortKey, sortDir]);
 
@@ -181,15 +198,56 @@ export default function UserApp() {
       alert("Chỉ có Quản trị viên mới có thể thực hiện hành động này.");
       return;
     }
+    if (togglingIds.has(id)) return;
+
+    // 1. Optimistic toggle ngay lập tức: switch chuyển trạng thái ngay, 0ms delay
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, status: !u.status } : u));
+    if (detail && detail.id === id) {
+      setDetail(prev => prev ? { ...prev, status: !prev.status } : null);
+    }
+    setTogglingIds(prev => new Set(prev).add(id));
 
     try {
-      await updateUserStatus(id);
-      await load();
+      const updated = await updateUserStatus(id);
+      // Đồng bộ lại status chính xác từ server nếu có khác biệt
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, status: updated.status } : u));
+      if (detail && detail.id === id) {
+        setDetail(prev => prev ? { ...prev, status: updated.status } : null);
+      }
     } catch (err: any) {
       console.error(err);
+      // Rollback về trạng thái cũ nếu lỗi
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, status: !u.status } : u));
+      if (detail && detail.id === id) {
+        setDetail(prev => prev ? { ...prev, status: !prev.status } : null);
+      }
       alert("Cập nhật trạng thái thất bại: " + (err.message || err));
+    } finally {
+      setTogglingIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   }
+
+  // Xử lý cập nhật thông tin user từ DetailModal một cách mượt mà (Optimistic + Silent Sync)
+  const handleUserUpdated = useCallback((updatedUser?: User) => {
+    if (updatedUser) {
+      setUsers(prev => prev.map(u => u.id === updatedUser.id ? { ...u, ...updatedUser } : u));
+      setDetail(prev => prev && prev.id === updatedUser.id ? { ...prev, ...updatedUser } : prev);
+      // Đồng bộ ngầm không chớp skeleton
+      load(true);
+    } else {
+      load(true);
+    }
+  }, [load]);
+
+  // Xử lý khi duyệt/từ chối user từ PendingUsersSection mà không reload cả bảng
+  const handlePendingApproved = useCallback((_approvedUser?: any) => {
+    setTotalUsers(prev => prev + 1);
+    load(true); // Silent revalidation
+  }, [load]);
 
   // Extract unique filter values dynamically from loaded users
   const uniqueTeams = useMemo(() => {
@@ -307,17 +365,20 @@ export default function UserApp() {
                 Tải file Excel mẫu
               </button>
               <button
-                onClick={load}
-                className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-all duration-200 active:scale-95 text-sm"
+                onClick={() => load(false)}
+                disabled={loading || isRevalidating}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium transition-all duration-200 active:scale-95 text-sm disabled:opacity-60"
+                title="Làm mới danh sách"
               >
-                Refresh
+                <RefreshCw className={cn("w-3.5 h-3.5", isRevalidating && "animate-spin text-blue-600 dark:text-blue-400")} />
+                <span>{isRevalidating ? "Đang đồng bộ..." : "Refresh"}</span>
               </button>
             </div>
           </div>
         </div>
 
         {/* Pending Users (admin only) */}
-        {isAdmin && <PendingUsersSection isAdmin={isAdmin} onApproved={load} />}
+        {isAdmin && <PendingUsersSection isAdmin={isAdmin} onApproved={handlePendingApproved} />}
 
         {/* Table Header - hidden on mobile */}
         <div className="hidden sm:block bg-white dark:bg-slate-900 rounded-t-xl border border-b-0 border-slate-200 dark:border-slate-800 overflow-x-auto">
@@ -379,8 +440,16 @@ export default function UserApp() {
         </div>
 
         {/* List */}
-        <div className="space-y-2 rounded-xl sm:rounded-t-none sm:rounded-b-xl bg-white dark:bg-slate-900 border sm:border-t-0 border-slate-200 dark:border-slate-800 p-2">
-          {loading && (
+        <div className="space-y-2 rounded-xl sm:rounded-t-none sm:rounded-b-xl bg-white dark:bg-slate-900 border sm:border-t-0 border-slate-200 dark:border-slate-800 p-2 relative overflow-hidden">
+          {/* Subtle top progress bar during background revalidation */}
+          {isRevalidating && (
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-blue-500/20 overflow-hidden z-10">
+              <div className="h-full bg-blue-600 animate-pulse w-full" />
+            </div>
+          )}
+
+          {/* Skeletons ONLY on initial empty load */}
+          {loading && users.length === 0 && (
             <div className="space-y-2">
               <UserRowSkeleton />
               <UserRowSkeleton />
@@ -389,10 +458,24 @@ export default function UserApp() {
               <UserRowSkeleton />
             </div>
           )}
-          {!loading && paginatedUsers.length > 0 && paginatedUsers.map((u) => (
-            <UserRow key={u.id} user={u} onClick={(user) => setDetail(user)} onToggleStatus={toggleStatusLocal} isAdmin={isAdmin} />
-          ))}
-          {!loading && users.length === 0 && (
+
+          {/* Stale-while-revalidate list: never unmounts or flickers */}
+          {paginatedUsers.length > 0 && (
+            <div className={cn("space-y-2 transition-opacity duration-200", isRevalidating && "opacity-80")}>
+              {paginatedUsers.map((u) => (
+                <UserRow
+                  key={u.id}
+                  user={u}
+                  onClick={(user) => setDetail(user)}
+                  onToggleStatus={toggleStatusLocal}
+                  isAdmin={isAdmin}
+                  isToggling={togglingIds.has(u.id)}
+                />
+              ))}
+            </div>
+          )}
+
+          {!loading && !isRevalidating && users.length === 0 && (
             <div className="py-12 px-4 text-center">
               <p className="text-slate-500 dark:text-slate-400 font-medium">No users found</p>
             </div>
@@ -457,13 +540,13 @@ export default function UserApp() {
       </div>
 
       {detail && (
-        <DetailModal user={detail} onClose={() => setDetail(null)} isAdmin={isAdmin} onUserUpdated={load} />
+        <DetailModal user={detail} onClose={() => setDetail(null)} isAdmin={isAdmin} onUserUpdated={handleUserUpdated} />
       )}
       {showCreateModal && (
-        <CreateUserModal open={showCreateModal} onClose={() => setShowCreateModal(false)} onUserCreated={load} />
+        <CreateUserModal open={showCreateModal} onClose={() => setShowCreateModal(false)} onUserCreated={() => load(true)} />
       )}
       {previewUsers !== null && (
-        <BulkUploadPreviewModal open={previewUsers !== null} onClose={() => setPreviewUsers(null)} parsedUsers={previewUsers} onImportSuccess={load} />
+        <BulkUploadPreviewModal open={previewUsers !== null} onClose={() => setPreviewUsers(null)} parsedUsers={previewUsers} onImportSuccess={() => load(true)} />
       )}
     </div>
   );

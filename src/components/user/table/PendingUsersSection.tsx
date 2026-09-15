@@ -5,7 +5,7 @@ import { userService, UserResponse } from "@/services/auth/userService";
 
 interface PendingUsersSectionProps {
   isAdmin: boolean;
-  onApproved?: () => void;
+  onApproved?: (approvedUser?: UserResponse) => void;
 }
 
 export function PendingUsersSection({ isAdmin, onApproved }: PendingUsersSectionProps) {
@@ -13,16 +13,16 @@ export function PendingUsersSection({ isAdmin, onApproved }: PendingUsersSection
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
 
-  const loadPending = useCallback(async () => {
+  const loadPending = useCallback(async (silent = false) => {
     if (!isAdmin) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const list = await userService.getPendingUsers();
       setPending(list);
     } catch {
       setPending([]);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [isAdmin]);
 
@@ -33,11 +33,19 @@ export function PendingUsersSection({ isAdmin, onApproved }: PendingUsersSection
   const handleApprove = async (id: number) => {
     if (!confirm("Duyệt tài khoản này? Mật khẩu sẽ được gửi qua email.")) return;
     setActionLoading(id);
+    const approvedUser = pending.find(u => u.id === id);
+    // Optimistic removal: xóa ngay khỏi danh sách chờ duyệt
+    setPending(prev => prev.filter(u => u.id !== id));
+
     try {
       await userService.approveUser(id);
-      await loadPending();
-      onApproved?.();
+      loadPending(true);
+      onApproved?.(approvedUser);
     } catch (err: any) {
+      // Rollback nếu API lỗi
+      if (approvedUser) {
+        setPending(prev => [approvedUser, ...prev]);
+      }
       alert("Duyệt thất bại: " + (err.message || err));
     } finally {
       setActionLoading(null);
@@ -47,10 +55,18 @@ export function PendingUsersSection({ isAdmin, onApproved }: PendingUsersSection
   const handleReject = async (id: number) => {
     if (!confirm("Từ chối tài khoản này? Tài khoản sẽ bị khóa.")) return;
     setActionLoading(id);
+    const rejectedUser = pending.find(u => u.id === id);
+    // Optimistic removal: xóa ngay khỏi danh sách chờ duyệt
+    setPending(prev => prev.filter(u => u.id !== id));
+
     try {
       await userService.rejectUser(id);
-      await loadPending();
+      loadPending(true);
+      onApproved?.();
     } catch (err: any) {
+      if (rejectedUser) {
+        setPending(prev => [rejectedUser, ...prev]);
+      }
       alert("Từ chối thất bại: " + (err.message || err));
     } finally {
       setActionLoading(null);

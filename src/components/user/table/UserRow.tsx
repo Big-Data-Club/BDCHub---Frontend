@@ -10,7 +10,19 @@ const ROLE_DISPLAY: Record<string, string> = {
   ROLE_ALUMNI: "Alumni",
 };
 
-export default function UserRow({ user, onClick, onToggleStatus, isAdmin }: { user: User; onClick: (u: User) => void; onToggleStatus: (id: string | number) => void; isAdmin: boolean; }) {
+export default function UserRow({
+  user,
+  onClick,
+  onToggleStatus,
+  isAdmin,
+  isToggling = false,
+}: {
+  user: User;
+  onClick: (u: User) => void;
+  onToggleStatus: (id: string | number) => void;
+  isAdmin: boolean;
+  isToggling?: boolean;
+}) {
   const roleLabel = ROLE_DISPLAY[user.role as string] || user.role;
   const dateLabel = user.dateAdded
     ? new Date(user.dateAdded).toLocaleDateString("vi-VN")
@@ -37,11 +49,11 @@ export default function UserRow({ user, onClick, onToggleStatus, isAdmin }: { us
               {/* Toggle + Details */}
               <div className="flex items-center gap-2 shrink-0">
                 <button
-                  onClick={(e) => { e.stopPropagation(); onToggleStatus(user.id); }}
-                  disabled={!isAdmin}
+                  onClick={(e) => { e.stopPropagation(); if (!isToggling) onToggleStatus(user.id); }}
+                  disabled={!isAdmin || isToggling}
                   className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
                     user.status ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"
-                  } ${!isAdmin ? "opacity-50 cursor-not-allowed" : ""}`}
+                  } ${!isAdmin || isToggling ? "opacity-50 cursor-not-allowed" : ""}`}
                   role="switch"
                   aria-checked={user.status}
                 >
@@ -99,11 +111,11 @@ export default function UserRow({ user, onClick, onToggleStatus, isAdmin }: { us
           {/* Status & Action */}
           <div className="col-span-2 flex items-center justify-center gap-3">
             <button
-              onClick={(e) => { e.stopPropagation(); onToggleStatus(user.id); }}
-              disabled={!isAdmin}
+              onClick={(e) => { e.stopPropagation(); if (!isToggling) onToggleStatus(user.id); }}
+              disabled={!isAdmin || isToggling}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
                 user.status ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"
-              } ${!isAdmin ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${!isAdmin || isToggling ? "opacity-50 cursor-not-allowed" : ""}`}
               role="switch"
               aria-checked={user.status}
             >
