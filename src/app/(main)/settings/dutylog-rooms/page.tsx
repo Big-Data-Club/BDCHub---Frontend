@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import {
   Plus, Trash2, Settings2, Loader2, DoorOpen,
   ChevronDown, ChevronRight, Users, MapPin, Building2,
-  ArrowLeft, Search, CheckCircle2, AlertCircle
+  ArrowLeft, Search
 } from "lucide-react";
 
 export interface DutyOrg {
@@ -601,7 +601,7 @@ export default function DutyLogRoomsPage() {
                 Chưa có phòng nào trong tổ chức {selectedOrg.name}
               </h4>
               <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                Bấm nút "Thêm phòng mới" phía trên để tạo phòng trực đầu tiên cho tổ chức này.
+                Bấm nút &quot;Thêm phòng mới&quot; phía trên để tạo phòng trực đầu tiên cho tổ chức này.
               </p>
               <button
                 onClick={() => setShowForm(true)}
