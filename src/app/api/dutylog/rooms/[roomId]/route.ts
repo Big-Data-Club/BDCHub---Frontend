@@ -6,14 +6,15 @@ const DUTYLOG_URL = process.env.DUTYLOG_SERVICE_URL || "http://dutylog-service:8
 
 export async function PUT(
   request: Request,
-  { params }: { params: { roomId: string } }
+  { params }: { params: Promise<{ roomId: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const { roomId } = await params;
   const body = await request.json();
-  const res = await fetch(`${DUTYLOG_URL}/api/v1/admin/rooms/${params.roomId}`, {
+  const res = await fetch(`${DUTYLOG_URL}/api/v1/admin/rooms/${roomId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -27,13 +28,14 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { roomId: string } }
+  { params }: { params: Promise<{ roomId: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const res = await fetch(`${DUTYLOG_URL}/api/v1/admin/rooms/${params.roomId}`, {
+  const { roomId } = await params;
+  const res = await fetch(`${DUTYLOG_URL}/api/v1/admin/rooms/${roomId}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${session.accessToken}` },
   });
