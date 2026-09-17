@@ -14,7 +14,8 @@ import {
   Sparkles,
   Layers,
   Mail,
-  MessageSquare
+  MessageSquare,
+  DoorOpen
 } from "lucide-react";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { redirect } from "next/navigation";
@@ -60,6 +61,14 @@ const SETTINGS_CARDS: SettingCard[] = [
     href: "/settings/chat-roles",
     status: "active",
     color: "bg-cyan-500",
+  },
+  {
+    title: "DutyLog Rooms",
+    description: "Quản lý phòng vật lý, thêm/xóa/sửa phòng trực cho từng cơ sở.",
+    icon: DoorOpen,
+    href: "/settings/dutylog-rooms",
+    status: "active",
+    color: "bg-orange-500",
   },
   {
     title: "General Settings",
