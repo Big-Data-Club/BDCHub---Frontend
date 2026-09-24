@@ -9,9 +9,6 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle2,
-  Pause,
-  Play,
-  Lock,
   User,
   Sparkles,
 } from "lucide-react";
@@ -36,7 +33,6 @@ export default function QrCheckinTab({ fullUserData }: QrCheckinTabProps) {
   const [countdown, setCountdown] = useState(INITIAL_COUNTDOWN_SECONDS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   // Sync state if fullUserData loads asynchronously
@@ -103,23 +99,19 @@ export default function QrCheckinTab({ fullUserData }: QrCheckinTabProps) {
     }, QR_ROTATION_INTERVAL_MS);
   }, [clearAllTimers, fetchNewToken]);
 
-  // Trigger token generation when student ID is ready and not paused
+  // Trigger token generation when student ID is ready
   useEffect(() => {
-    if (studentId.trim() && !isPaused) {
+    if (studentId.trim()) {
       startRotation();
     } else {
       clearAllTimers();
     }
 
     return () => clearAllTimers();
-  }, [studentId, isPaused, startRotation, clearAllTimers]);
+  }, [studentId, startRotation, clearAllTimers]);
 
   const handleManualRefresh = () => {
     startRotation();
-  };
-
-  const handleTogglePause = () => {
-    setIsPaused((prev) => !prev);
   };
 
   const hasMssv = Boolean(fullUserData?.code && fullUserData.code.trim().length > 0);
@@ -155,15 +147,13 @@ export default function QrCheckinTab({ fullUserData }: QrCheckinTabProps) {
         <div className="flex items-center gap-2 text-xs">
           <div
             className={`w-2.5 h-2.5 rounded-full ${
-              isPaused
-                ? "bg-amber-400"
-                : qrToken
+              qrToken
                 ? "bg-emerald-500 animate-pulse"
                 : "bg-slate-400"
             }`}
           />
           <span className="text-slate-600 dark:text-slate-300 font-medium">
-            {isPaused ? "Đang tạm dừng" : qrToken ? "Sẵn sàng quét" : "Chờ kích hoạt"}
+            {qrToken ? "Sẵn sàng quét" : "Chờ kích hoạt"}
           </span>
         </div>
       </div>
@@ -248,53 +238,16 @@ export default function QrCheckinTab({ fullUserData }: QrCheckinTabProps) {
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-2.5">
+          {/* Action button */}
+          <div>
             <button
               onClick={handleManualRefresh}
               disabled={loading || !studentId.trim()}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all disabled:opacity-50 active:scale-95"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all disabled:opacity-50 active:scale-95"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
               Làm mới mã ngay
             </button>
-
-            <button
-              onClick={handleTogglePause}
-              disabled={!studentId.trim()}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium text-xs sm:text-sm transition-all disabled:opacity-50 active:scale-95"
-            >
-              {isPaused ? (
-                <>
-                  <Play className="w-4 h-4 text-emerald-600" />
-                  Tiếp tục phát mã
-                </>
-              ) : (
-                <>
-                  <Pause className="w-4 h-4 text-amber-600" />
-                  Tạm dừng
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Anti-fraud technical info summary */}
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-2">
-            <div className="flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200">
-              <Lock className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-              Cơ chế bảo mật chống giả mạo
-            </div>
-            <ul className="space-y-1.5 list-disc list-inside text-[11px] leading-relaxed">
-              <li>
-                <span className="font-medium text-slate-700 dark:text-slate-300">Chữ ký HMAC SHA-256</span>: Ký số trực tiếp từ server, chống can thiệp dữ liệu MSSV.
-              </li>
-              <li>
-                <span className="font-medium text-slate-700 dark:text-slate-300">Token 1 lần (Single-use)</span>: Tự hủy ngay trên Redis sau khi DutyLog quét thành công.
-              </li>
-              <li>
-                <span className="font-medium text-slate-700 dark:text-slate-300">Thời hạn 10 giây</span>: Chụp ảnh màn hình gửi người khác điểm danh hộ sẽ vô hiệu.
-              </li>
-            </ul>
           </div>
         </div>
 
