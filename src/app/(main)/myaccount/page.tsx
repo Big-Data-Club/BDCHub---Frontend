@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Lock, Loader2, Globe, Cpu } from "lucide-react";
+import { User, Lock, Loader2, Globe, Cpu, QrCode } from "lucide-react";
 
 import { userService, UserResponse, UpdateProfileRequest } from "@/services/auth/userService";
 import { resolveMediaUrl } from "@/lib/media-url";
@@ -10,6 +10,7 @@ import { useUser } from "@/store/UserContext";
 
 import MessageAlert from "@/components/user/manage/MessageAlert";
 import ProfileTab from "@/components/user/manage/ProfileTab";
+import QrCheckinTab from "@/components/user/manage/QrCheckinTab";
 import PasswordTab from "@/components/user/manage/PasswordTab";
 import BdcHubConfigTab from "@/components/user/manage/BdcHubConfigTab";
 import McpApiKeyTab from "@/components/user/manage/McpApiKeyTab";
@@ -200,6 +201,7 @@ const MyAccountPage: React.FC = () => {
 
   const tabs: { id: ActiveTab; label: string; shortLabel: string; icon: React.ReactNode }[] = [
     { id: "profile", label: "Profile", shortLabel: "Profile", icon: <User className="w-4 h-4" /> },
+    { id: "qr-checkin", label: "QR Check-in", shortLabel: "QR Check-in", icon: <QrCode className="w-4 h-4" /> },
     { id: "bdc-hub", label: "BDC Hub Public Portfolio", shortLabel: "Portfolio", icon: <Globe className="w-4 h-4" /> },
     { id: "mcp-keys", label: "MCP AI Keys", shortLabel: "MCP Keys", icon: <Cpu className="w-4 h-4" /> },
     { id: "password", label: "Password", shortLabel: "Password", icon: <Lock className="w-4 h-4" /> },
@@ -259,6 +261,10 @@ const MyAccountPage: React.FC = () => {
             onFileChange={handleProfilePictureChange}
             onSubmit={handleUpdateProfile}
           />
+        )}
+
+        {activeTab === "qr-checkin" && (
+          <QrCheckinTab fullUserData={fullUserData} />
         )}
 
         {activeTab === "bdc-hub" && (

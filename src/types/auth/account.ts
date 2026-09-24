@@ -1,4 +1,4 @@
-export type ActiveTab = "profile" | "password" | "bdc-hub" | "mcp-keys";
+export type ActiveTab = "profile" | "qr-checkin" | "password" | "bdc-hub" | "mcp-keys";
 
 export type MessageState = { type: "success" | "error"; text: string } | null;
 
