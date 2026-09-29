@@ -1,0 +1,116 @@
+{
+  "formId": "big-data-day-2026-survey",
+  "formTitle": "KHẢO SÁT ĐÁNH GIÁ BIG DATA DAY 2026",
+  "formDescription": "Khảo sát ý kiến đóng góp đánh giá trải nghiệm và nội dung chuyên môn của Big Data Day 2026 với chủ đề From Data to Decisions.",
+  "formType": "survey",
+  "sheetName": "BDD2026_Survey",
+  "thankYouMessage": "Cảm ơn bạn đã hoàn thành khảo sát Big Data Day 2026! Mọi ý kiến đóng góp của bạn đều vô cùng quý giá để nâng cao chất lượng các hoạt động tiếp theo của Big Data Club.",
+  "allowMultipleSubmissions": true,
+  "questions": [
+    {
+      "id": "full_name",
+      "type": "short",
+      "question": "Họ và tên (Tùy chọn)",
+      "required": false,
+      "placeholder": "Nguyễn Văn An",
+      "note": "Khảo sát có thể thực hiện ẩn danh"
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "question": "Email liên hệ (Tùy chọn)",
+      "required": false,
+      "placeholder": "example@hcmut.edu.vn"
+    },
+    {
+      "id": "organization",
+      "type": "short",
+      "question": "Đơn vị học tập hoặc công tác (Tùy chọn)",
+      "required": false
+    },
+    {
+      "id": "role_track",
+      "type": "single",
+      "question": "Vai trò của bạn tại sự kiện",
+      "required": true,
+      "options": [
+        "Người tham dự",
+        "Diễn giả",
+        "Khách mời và Đối tác",
+        "Ban Tổ Chức"
+      ]
+    },
+    {
+      "id": "core_overall_experience",
+      "type": "rating",
+      "question": "Nhìn chung, bạn đánh giá trải nghiệm tại Big Data Day 2026 như thế nào?",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Rất không tốt",
+        "maxLabel": "Rất tốt"
+      }
+    },
+    {
+      "id": "core_useful_value",
+      "type": "rating",
+      "question": "Big Data Day 2026 mang lại giá trị hữu ích cho tôi.",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Hoàn toàn không đồng ý",
+        "maxLabel": "Hoàn toàn đồng ý"
+      }
+    },
+    {
+      "id": "core_well_organized",
+      "type": "rating",
+      "question": "Chương trình được tổ chức tốt.",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Hoàn toàn không đồng ý",
+        "maxLabel": "Hoàn toàn đồng ý"
+      }
+    },
+    {
+      "id": "core_theme_clarity",
+      "type": "rating",
+      "question": "Chủ đề \"From Data to Decisions\" được thể hiện rõ xuyên suốt chương trình.",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Hoàn toàn không đồng ý",
+        "maxLabel": "Hoàn toàn đồng ý"
+      }
+    },
+    {
+      "id": "core_future_interest",
+      "type": "rating",
+      "question": "Tôi muốn tiếp tục tham gia các hoạt động tương tự của Big Data Club trong tương lai.",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 5,
+        "minLabel": "Hoàn toàn không đồng ý",
+        "maxLabel": "Hoàn toàn đồng ý"
+      }
+    },
+    {
+      "id": "core_most_appreciated",
+      "type": "long",
+      "question": "Điều bạn đánh giá cao nhất ở Big Data Day 2026 là gì?",
+      "required": true
+    },
+    {
+      "id": "core_one_thing_to_change",
+      "type": "long",
+      "question": "Nếu chỉ được thay đổi một điều cho Big Data Day tiếp theo, bạn muốn thay đổi điều gì?",
+      "required": true
+    }
+  ]
+}
