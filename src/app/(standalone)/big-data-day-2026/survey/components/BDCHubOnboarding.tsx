@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { memo } from "react";
 import Link from "next/link";
 import { Lang } from "../types";
 import { T_DATA } from "../translations";
@@ -17,8 +17,8 @@ interface BDCHubOnboardingProps {
   lang: Lang;
 }
 
-export function BDCHubOnboarding({ lang }: BDCHubOnboardingProps) {
-  const t = T_DATA[lang];
+export const BDCHubOnboarding = memo(function BDCHubOnboarding({ lang }: BDCHubOnboardingProps) {
+  const t = T_DATA[lang] || T_DATA.vi;
 
   return (
     <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800 text-left">
@@ -112,4 +112,4 @@ export function BDCHubOnboarding({ lang }: BDCHubOnboardingProps) {
       </div>
     </div>
   );
-}
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useCallback, memo } from "react";
 import { SurveyFormData, FormErrors, Lang } from "../types";
 import { T_DATA } from "../translations";
 import {
@@ -20,48 +20,114 @@ interface AttendeeSectionProps {
   lang: Lang;
 }
 
-export function AttendeeSection({ form, onChange, errors, lang }: AttendeeSectionProps) {
+interface SessionCheckboxItemProps {
+  id: string;
+  title: string;
+  isChecked: boolean;
+  onToggle: (id: string) => void;
+}
+
+const SessionCheckboxItem = memo(function SessionCheckboxItem({
+  id,
+  title,
+  isChecked,
+  onToggle,
+}: SessionCheckboxItemProps) {
+  return (
+    <label
+      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors duration-75 ${
+        isChecked
+          ? "bg-blue-50/80 border-blue-500 dark:bg-blue-950/50 dark:border-blue-400"
+          : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 hover:border-slate-300"
+      }`}
+    >
+      <input
+        type="checkbox"
+        checked={isChecked}
+        onChange={() => onToggle(id)}
+        className="w-4 h-4 mt-0.5 rounded text-blue-600 border-slate-300 focus:ring-blue-500 accent-blue-600 cursor-pointer"
+      />
+      <span className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-snug">
+        {title}
+      </span>
+    </label>
+  );
+});
+
+export const AttendeeSection = memo(function AttendeeSection({ form, onChange, errors, lang }: AttendeeSectionProps) {
   const t = T_DATA[lang];
 
-  // Helper for matrix updates
-  const handleMatrixChange = (
-    field: "att_knowledge_before" | "att_knowledge_after" | "att_session_usefulness" | "att_session_clarity",
-    rowId: string,
-    colVal: string
-  ) => {
-    const current = form[field] || {};
-    onChange(field, { ...current, [rowId]: colVal });
-  };
+  // Granular matrix callbacks to prevent unnecessary dependency re-creation
+  const handleKnowledgeBeforeChange = useCallback(
+    (rowId: string, colVal: string) => {
+      onChange("att_knowledge_before", { ...(form.att_knowledge_before || {}), [rowId]: colVal });
+    },
+    [form.att_knowledge_before, onChange]
+  );
 
-  const knowledgeCols = [
+  const handleKnowledgeAfterChange = useCallback(
+    (rowId: string, colVal: string) => {
+      onChange("att_knowledge_after", { ...(form.att_knowledge_after || {}), [rowId]: colVal });
+    },
+    [form.att_knowledge_after, onChange]
+  );
+
+  const handleSessionUsefulChange = useCallback(
+    (rowId: string, colVal: string) => {
+      onChange("att_session_usefulness", { ...(form.att_session_usefulness || {}), [rowId]: colVal });
+    },
+    [form.att_session_usefulness, onChange]
+  );
+
+  const handleSessionClarityChange = useCallback(
+    (rowId: string, colVal: string) => {
+      onChange("att_session_clarity", { ...(form.att_session_clarity || {}), [rowId]: colVal });
+    },
+    [form.att_session_clarity, onChange]
+  );
+
+  const handleSessionToggle = useCallback(
+    (sessionId: string) => {
+      const cur = form.att_sessions_attended || [];
+      const updated = cur.includes(sessionId)
+        ? cur.filter((id) => id !== sessionId)
+        : [...cur, sessionId];
+      onChange("att_sessions_attended", updated);
+    },
+    [form.att_sessions_attended, onChange]
+  );
+
+  const knowledgeCols = useMemo(() => [
     { value: "1", label: t.knowledgeScale[1] },
     { value: "2", label: t.knowledgeScale[2] },
     { value: "3", label: t.knowledgeScale[3] },
     { value: "4", label: t.knowledgeScale[4] },
     { value: "5", label: t.knowledgeScale[5] },
-  ];
+  ], [t.knowledgeScale]);
 
-  const usefulCols = [
+  const usefulCols = useMemo(() => [
     { value: "1", label: t.sessionUsefulScale[1] },
     { value: "2", label: t.sessionUsefulScale[2] },
     { value: "3", label: t.sessionUsefulScale[3] },
     { value: "4", label: t.sessionUsefulScale[4] },
     { value: "5", label: t.sessionUsefulScale[5] },
-  ];
+  ], [t.sessionUsefulScale]);
 
-  const clarityCols = [
+  const clarityCols = useMemo(() => [
     { value: "1", label: t.sessionClarityScale[1] },
     { value: "2", label: t.sessionClarityScale[2] },
     { value: "3", label: t.sessionClarityScale[3] },
     { value: "4", label: t.sessionClarityScale[4] },
     { value: "5", label: t.sessionClarityScale[5] },
-  ];
+  ], [t.sessionClarityScale]);
 
   // Filter sessions that were selected as attended
   const attendedSessionIds = form.att_sessions_attended || [];
-  const attendedSessionRows = t.sessionsList
-    .filter((s) => attendedSessionIds.includes(s.id))
-    .map((s) => ({ id: s.id, text: s.title }));
+  const attendedSessionRows = useMemo(() => {
+    return t.sessionsList
+      .filter((s) => attendedSessionIds.includes(s.id))
+      .map((s) => ({ id: s.id, text: s.title }));
+  }, [t.sessionsList, attendedSessionIds]);
 
   return (
     <div className="space-y-10">
@@ -259,7 +325,7 @@ export function AttendeeSection({ form, onChange, errors, lang }: AttendeeSectio
           <MatrixGrid
             rows={t.knowledgeTopics}
             value={form.att_knowledge_before}
-            onChange={(rowId, val) => handleMatrixChange("att_knowledge_before", rowId, val)}
+            onChange={handleKnowledgeBeforeChange}
             columns={knowledgeCols}
             rowHeader={lang === "vi" ? "Lĩnh vực chuyên môn" : "Technical Domain"}
           />
@@ -276,7 +342,7 @@ export function AttendeeSection({ form, onChange, errors, lang }: AttendeeSectio
           <MatrixGrid
             rows={t.knowledgeTopics}
             value={form.att_knowledge_after}
-            onChange={(rowId, val) => handleMatrixChange("att_knowledge_after", rowId, val)}
+            onChange={handleKnowledgeAfterChange}
             columns={knowledgeCols}
             rowHeader={lang === "vi" ? "Lĩnh vực chuyên môn" : "Technical Domain"}
           />
@@ -299,35 +365,15 @@ export function AttendeeSection({ form, onChange, errors, lang }: AttendeeSectio
           error={errors.att_sessions_attended}
         >
           <div className="space-y-2 pt-1">
-            {t.sessionsList.map((session) => {
-              const isChecked = (form.att_sessions_attended || []).includes(session.id);
-              return (
-                <label
-                  key={session.id}
-                  className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-150 ${
-                    isChecked
-                      ? "bg-blue-50/70 border-blue-400 dark:bg-blue-950/40 dark:border-blue-500/50"
-                      : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => {
-                      const cur = form.att_sessions_attended || [];
-                      const updated = isChecked
-                        ? cur.filter((id) => id !== session.id)
-                        : [...cur, session.id];
-                      onChange("att_sessions_attended", updated);
-                    }}
-                    className="w-4 h-4 mt-0.5 rounded text-blue-600 border-slate-300 focus:ring-blue-500 accent-blue-600 cursor-pointer"
-                  />
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-snug">
-                    {session.title}
-                  </span>
-                </label>
-              );
-            })}
+            {t.sessionsList.map((session) => (
+              <SessionCheckboxItem
+                key={session.id}
+                id={session.id}
+                title={session.title}
+                isChecked={(form.att_sessions_attended || []).includes(session.id)}
+                onToggle={handleSessionToggle}
+              />
+            ))}
           </div>
         </QuestionCard>
 
@@ -344,7 +390,7 @@ export function AttendeeSection({ form, onChange, errors, lang }: AttendeeSectio
               <MatrixGrid
                 rows={attendedSessionRows}
                 value={form.att_session_usefulness}
-                onChange={(rowId, val) => handleMatrixChange("att_session_usefulness", rowId, val)}
+                onChange={handleSessionUsefulChange}
                 columns={usefulCols}
                 rowHeader={lang === "vi" ? "Phiên đã theo dõi" : "Attended Session"}
               />
@@ -360,7 +406,7 @@ export function AttendeeSection({ form, onChange, errors, lang }: AttendeeSectio
               <MatrixGrid
                 rows={attendedSessionRows}
                 value={form.att_session_clarity}
-                onChange={(rowId, val) => handleMatrixChange("att_session_clarity", rowId, val)}
+                onChange={handleSessionClarityChange}
                 columns={clarityCols}
                 rowHeader={lang === "vi" ? "Phiên đã theo dõi" : "Attended Session"}
               />
@@ -644,4 +690,4 @@ export function AttendeeSection({ form, onChange, errors, lang }: AttendeeSectio
       </div>
     </div>
   );
-}
+});

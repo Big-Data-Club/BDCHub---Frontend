@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { memo } from "react";
 import { SurveyFormData, FormErrors, Lang } from "../types";
 import { T_DATA } from "../translations";
 import { QuestionCard, LikertScale, LinearRating, TextAreaInput } from "./FormControls";
@@ -12,7 +12,7 @@ interface CoreQuestionsProps {
   lang: Lang;
 }
 
-export function CoreQuestions({ form, onChange, errors, lang }: CoreQuestionsProps) {
+export const CoreQuestions = memo(function CoreQuestions({ form, onChange, errors, lang }: CoreQuestionsProps) {
   const t = T_DATA[lang];
 
   return (
@@ -128,4 +128,4 @@ export function CoreQuestions({ form, onChange, errors, lang }: CoreQuestionsPro
       </QuestionCard>
     </div>
   );
-}
+});

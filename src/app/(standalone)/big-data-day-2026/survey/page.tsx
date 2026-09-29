@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTheme } from "next-themes";
 import {
   RoleTrack,
@@ -263,16 +263,15 @@ export default function BigDataDay2026SurveyPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleFieldChange = (field: keyof SurveyFormData, value: any) => {
+  const handleFieldChange = useCallback((field: keyof SurveyFormData, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    if (errors[field as string]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[field as string];
-        return next;
-      });
-    }
-  };
+    setErrors((prev) => {
+      if (!prev[field as string]) return prev;
+      const next = { ...prev };
+      delete next[field as string];
+      return next;
+    });
+  }, []);
 
   // Reset form completely & clear localStorage
   const handleResetForm = () => {
@@ -610,7 +609,7 @@ export default function BigDataDay2026SurveyPage() {
       />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28">
-        {draftRestored && (
+        {draftRestored && !isSubmitted && (
           <div className="mb-6 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm text-amber-900 dark:text-amber-200 shadow-sm">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
@@ -625,22 +624,24 @@ export default function BigDataDay2026SurveyPage() {
           </div>
         )}
 
-        {/* Banner / Title Header */}
-        <div className="mb-8 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-400/15 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md mb-3">
-              <ShieldCheck className="w-4 h-4 text-cyan-300" />
-              <span>Big Data Day 2026 • Official Feedback</span>
+        {/* Banner / Title Header - only show during survey filling */}
+        {!isSubmitted && (
+          <div className="mb-8 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white shadow-lg relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-400/15 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md mb-3">
+                <ShieldCheck className="w-4 h-4 text-cyan-300" />
+                <span>Big Data Day 2026 • Official Feedback</span>
+              </div>
+              <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight mb-3">
+                {t.siteTitle}
+              </h1>
+              <p className="text-xs sm:text-sm text-blue-100 leading-relaxed max-w-2xl font-medium">
+                {t.headerDesc}
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight mb-3">
-              {t.siteTitle}
-            </h1>
-            <p className="text-xs sm:text-sm text-blue-100 leading-relaxed max-w-2xl font-medium">
-              {t.headerDesc}
-            </p>
           </div>
-        </div>
+        )}
 
         {isSubmitted ? (
           <SuccessView

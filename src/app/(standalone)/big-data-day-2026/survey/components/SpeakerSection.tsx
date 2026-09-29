@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { memo } from "react";
 import { SurveyFormData, FormErrors, Lang } from "../types";
 import { T_DATA } from "../translations";
 import {
@@ -17,7 +17,7 @@ interface SpeakerSectionProps {
   lang: Lang;
 }
 
-export function SpeakerSection({ form, onChange, errors, lang }: SpeakerSectionProps) {
+export const SpeakerSection = memo(function SpeakerSection({ form, onChange, errors, lang }: SpeakerSectionProps) {
   const t = T_DATA[lang];
 
   return (
@@ -219,4 +219,4 @@ export function SpeakerSection({ form, onChange, errors, lang }: SpeakerSectionP
       </div>
     </div>
   );
-}
+});

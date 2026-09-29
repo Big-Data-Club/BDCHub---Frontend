@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { memo } from "react";
 import { SurveyFormData, FormErrors, Lang } from "../types";
 import { T_DATA } from "../translations";
 import {
@@ -19,7 +19,7 @@ interface OrganizerSectionProps {
   lang: Lang;
 }
 
-export function OrganizerSection({ form, onChange, errors, lang }: OrganizerSectionProps) {
+export const OrganizerSection = memo(function OrganizerSection({ form, onChange, errors, lang }: OrganizerSectionProps) {
   const t = T_DATA[lang];
 
   return (
@@ -516,4 +516,4 @@ export function OrganizerSection({ form, onChange, errors, lang }: OrganizerSect
       </div>
     </div>
   );
-}
+});
