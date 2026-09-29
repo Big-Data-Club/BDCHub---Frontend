@@ -523,18 +523,172 @@ export default function BigDataDay2026SurveyPage() {
 
     setIsSubmitting(true);
     try {
+      // Flatten & serialize all answers into clean string values for Google Sheets
+      const serializedAnswers: Record<string, string> = {
+        vai_tro: t.roles[form.roleTrack]?.title || form.roleTrack,
+        ho_va_ten: form.fullName || "Ẩn danh",
+        email: form.email || "",
+        don_vi: form.organization || "",
+
+        // Core Questions
+        core_q1_trai_nghiem_chung: form.core_overall_experience || "",
+        core_q2_gia_tri_huu_ich: form.core_useful_value || "",
+        core_q3_to_chuc_tot: form.core_well_organized || "",
+        core_q4_chu_de_ro_rang: form.core_theme_clarity || "",
+        core_q5_tham_gia_tuong_lai: form.core_future_interest || "",
+        core_q6_danh_gia_cao_nhat: form.core_most_appreciated || "",
+        core_q7_diem_can_thay_doi: form.core_one_thing_to_change || "",
+      };
+
+      // Add track-specific answers
+      if (form.roleTrack === "attendee") {
+        Object.assign(serializedAnswers, {
+          nhom_doi_tuong: form.attendee_target_group || "",
+          sinh_vien_bach_khoa: form.attendee_hcmut_student || "",
+          lan_dau_tham_gia_bdc: form.attendee_first_time_bdc || "",
+          kenh_biet_den_su_kien: (form.attendee_discovery_channel || []).join(", "),
+          noi_dung_phu_hop_chu_de: form.att_theme_fit || "",
+          muc_do_chuyen_mon: form.att_technical_depth || "",
+          thoi_luong_phu_hop: form.att_duration_fit || "",
+          sap_xep_cac_phien: form.att_session_flow || "",
+          thoi_gian_xung_dang: form.att_time_worth || "",
+          hieu_hon_ve_bdc: form.att_learn_bdc_scope || "",
+          dinh_huong_nghien_cuu_hoc_tap: form.att_learn_academic_directions || "",
+          ung_dung_du_lieu_thuc_te: form.att_learn_data_problem_solving || "",
+          hieu_quy_trinh_pipeline: form.att_learn_pipeline_understanding || "",
+          ky_nang_can_chuan_bi: form.att_learn_skills_preparation || "",
+          vi_du_du_an_thuc_te: form.att_learn_real_world_examples || "",
+          khao_sat_hieu_biet_truoc: Object.entries(form.att_knowledge_before || {})
+            .map(([k, v]) => `${k}: ${v}/5`).join("; "),
+          khao_sat_hieu_biet_sau: Object.entries(form.att_knowledge_after || {})
+            .map(([k, v]) => `${k}: ${v}/5`).join("; "),
+          cac_phien_da_theo_doi: (form.att_sessions_attended || []).join(", "),
+          danh_gia_muc_do_huu_ich_cac_phien: Object.entries(form.att_session_usefulness || {})
+            .map(([k, v]) => `${k}: ${v}/5`).join("; "),
+          danh_gia_muc_do_de_hieu_cac_phien: Object.entries(form.att_session_clarity || {})
+            .map(([k, v]) => `${k}: ${v}/5`).join("; "),
+          phien_an_tuong_nhat: form.att_most_valuable_session || "",
+          ly_do_phien_an_tuong: form.att_most_valuable_reason || "",
+          tham_quan_poster_demo: form.att_visited_poster_demo || "",
+          poster_giup_hieu_du_an: form.att_poster_improved_understanding || "",
+          trao_doi_truc_tiep_du_an: form.att_poster_team_interaction || "",
+          muon_nhieu_demo_hon: form.att_poster_more_demos_future || "",
+          ly_do_khong_tham_quan_poster: form.att_poster_not_visited_reason || "",
+          cac_nhom_da_trao_doi: (form.att_interacted_groups || []).join(", "),
+          co_hoi_dat_cau_hoi: form.att_qa_opportunity || "",
+          gia_tri_networking: form.att_networking_value || "",
+          ket_noi_moi_sau_su_kien: form.att_meaningful_connection || "",
+          cong_tac_checkin: form.att_logistics_checkin || "",
+          thong_tin_truoc_su_kien: form.att_logistics_pre_info || "",
+          dia_diem_phong_to_chuc: form.att_logistics_venue || "",
+          am_thanh_trinh_chieu: form.att_logistics_av_system || "",
+          dung_tien_do: form.att_logistics_punctuality || "",
+          gio_nghi_phu_hop: form.att_logistics_breaks || "",
+          chi_dan_de_theo_doi: form.att_logistics_wayfinding || "",
+          chu_de_quan_tam_tuong_lai: (form.att_future_topics || []).join(", "),
+          hinh_thuc_to_chuc_mong_muon: form.att_future_formats || "",
+          dang_ky_nhan_tin_bdc: form.att_subscribe_newsletter || "",
+          email_nhan_thong_tin: form.att_followup_email || "",
+        });
+      } else if (form.roleTrack === "speaker") {
+        Object.assign(serializedAnswers, {
+          thong_tin_truoc_su_kien_ro_rang: form.spk_info_clarity || "",
+          hieu_ro_doi_tuong_nghe: form.spk_audience_understanding || "",
+          thong_nhat_pham_vi_chu_de: form.spk_scope_communication || "",
+          thong_tin_lich_dia_diem: form.spk_schedule_venue_info || "",
+          giao_tiep_voi_btc: form.spk_comm_with_organizer || "",
+          tiep_don_ho_tro_on_site: form.spk_reception_support || "",
+          thiet_bi_am_thanh_trinh_chieu: form.spk_av_equipment || "",
+          thoi_luong_trinh_bay_phu_hop: form.spk_time_allocation || "",
+          dieu_phoi_chuyen_phien_muot_ma: form.spk_transition_flow || "",
+          nguoi_tham_du_chu_y_tuong_tac: form.spk_audience_engagement || "",
+          thoi_luong_qa_du_da: form.spk_qa_time || "",
+          su_kien_la_nen_tang_chia_se_tot: form.spk_platform_suitability || "",
+          san_sang_quay_lai_dong_hanh: form.spk_willing_to_rejoin || "",
+          diem_hai_long_nhat_trong_ho_tro: form.spk_best_support_aspect || "",
+          diem_btc_can_cai_thien_ho_tro: form.spk_support_improvement || "",
+          kien_thuc_nen_tang_can_chuan_bi: form.spk_audience_prerequisites || "",
+          huong_hop_tac_quan_tam: (form.spk_collaboration_interests || []).join(", "),
+          goi_y_chu_de_tuong_lai: form.spk_future_topic_suggestions || "",
+        });
+      } else if (form.roleTrack === "guest_partner") {
+        Object.assign(serializedAnswers, {
+          muc_tieu_su_kien_ro_rang: form.gst_goal_clarity || "",
+          hieu_ro_nang_luc_bdc: form.gst_bdc_capacity_understanding || "",
+          du_an_sinh_vien_co_tinh_thuc_tien: form.gst_practical_student_projects || "",
+          tinh_chuyen_nghiep_cua_su_kien: form.gst_professional_quality || "",
+          co_hoi_tiep_xuc_sinh_vien: form.gst_student_interaction_opportunity || "",
+          co_hoi_ket_noi_chuyen_gia: form.gst_expert_networking_opportunity || "",
+          khong_gian_poster_demo_nang_luc: form.gst_poster_demo_capacity || "",
+          networking_mang_lai_gia_tri: form.gst_networking_value || "",
+          tiem_nang_hop_tac_tuong_lai: form.gst_collaboration_potential || "",
+          hinh_thuc_hop_tac_quan_tam: (form.gst_collaboration_forms || []).join(", "),
+          du_an_gay_an_tuong: form.gst_notable_projects || "",
+          ky_nang_doanh_nghiep_can: form.gst_student_skills_needed || "",
+          gop_y_cho_su_kien_tuong_lai: form.gst_future_event_suggestions || "",
+          cho_phep_btc_lien_he: form.gst_contact_permission || "",
+          thong_tin_lien_he_doi_tac: form.gst_contact_details || "",
+        });
+      } else if (form.roleTrack === "organizer") {
+        Object.assign(serializedAnswers, {
+          ban_phu_trach: (form.org_role_teams || []).join(", "),
+          thoi_gian_chuan_bi: form.org_preparation_duration || "",
+          khoi_luong_cong_viec: form.org_workload_level || "",
+          vai_tro_ro_rang: form.org_role_clarity || "",
+          trach_nhiem_dau_viec_ro_rang: form.org_accountability_clarity || "",
+          deadline_hop_ly: form.org_reasonable_deadlines || "",
+          thay_doi_duoc_thong_bao_kip_thoi: form.org_timely_change_updates || "",
+          phoi_hop_lien_ban_tot: form.org_interteam_coordination || "",
+          hop_hieu_qua_gia_tri: form.org_valuable_meetings || "",
+          cong_cu_quan_ly_hieu_qua: form.org_management_tools || "",
+          setup_dung_thiet_ke: form.org_setup_execution || "",
+          checkin_muot_ma: form.org_checkin_efficiency || "",
+          dieu_phoi_dien_gia_tot: form.org_speaker_coordination || "",
+          ky_thuat_av_ho_tro_tot: form.org_technical_support || "",
+          bam_sat_timeline: form.org_schedule_coordination || "",
+          khu_vuc_poster_van_hanh_tot: form.org_poster_demo_operation || "",
+          teabreak_hau_can_chu_dao: form.org_teabreak_catering || "",
+          networking_van_hanh_dung_y_do: form.org_networking_session || "",
+          xu_ly_phat_sinh_nhanh: form.org_issue_handling || "",
+          escalation_ro_rang: form.org_escalation_clarity || "",
+          dieu_vuot_ky_vong: form.org_exceeded_expectations || "",
+          dieu_chua_nhu_y: form.org_not_as_planned || "",
+          van_de_lon_nhat: form.org_biggest_issue || "",
+          cach_da_xu_ly: form.org_resolution_method || "",
+          dau_viec_ton_cong_it_gia_tri: form.org_high_effort_low_value || "",
+          can_chuan_bi_som_hon: form.org_should_start_earlier || "",
+          quyet_dinh_muon_anh_huong: form.org_late_decisions || "",
+          thieu_thong_tin_can_thiet: form.org_missing_info || "",
+          chong_cheo_trach_nhiem: form.org_unclear_responsibility || "",
+          thay_doi_dau_tien_cho_lan_sau: form.org_first_thing_to_change || "",
+          kira_keep: form.org_kira_keep || "",
+          kira_improve: form.org_kira_improve || "",
+          kira_remove: form.org_kira_remove || "",
+          kira_add: form.org_kira_add || "",
+          co_su_co_nghiem_trong: form.org_has_incident || "",
+          su_co_phan_loai: form.incident_category || "",
+          su_co_thoi_gian: form.incident_occurred_time || "",
+          su_co_muc_do: form.incident_severity || "",
+          su_co_mo_ta: form.incident_description || "",
+          su_co_xu_ly: form.incident_action_taken || "",
+          su_co_ket_qua: form.incident_outcome || "",
+          su_co_nguyen_nhan_goc: form.incident_root_cause || "",
+          su_co_phong_ngua: form.incident_prevention_proposal || "",
+        });
+      }
+
+      // Metadata
+      serializedAnswers.thoi_gian_gui = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+      serializedAnswers.user_agent = typeof navigator !== "undefined" ? navigator.userAgent : "Unknown";
+
       const submissionPayload = {
         formId: "big-data-day-2026-survey",
         formTitle: "Khảo Sát Đánh Giá Big Data Day 2026",
         sheetName: "BDD2026_Survey",
         formType: "survey",
         track: form.roleTrack,
-        answers: {
-          ...form,
-          roleTrackTitle: t.roles[form.roleTrack]?.title || form.roleTrack,
-          submittedAt: new Date().toISOString(),
-          userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "Unknown",
-        },
+        questions: Object.keys(serializedAnswers).map((k) => ({ id: k, question: k })),
+        answers: serializedAnswers,
       };
 
       const response = await fetch("/api/submit-form", {

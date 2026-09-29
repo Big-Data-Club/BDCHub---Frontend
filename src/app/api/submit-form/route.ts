@@ -73,7 +73,16 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to submit to Google Sheets: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const text = await response.text();
+    let data: any = {};
+    try {
+      data = JSON.parse(text);
+    } catch {
+      console.error("Google Script did not return JSON. Raw response preview:", text.slice(0, 300));
+      throw new Error(
+        "Google Apps Script trả về trang web thay vì dữ liệu JSON. Vui lòng kiểm tra lại cấu hình Deploy Web App (chọn quyền 'Anyone / Bất kỳ ai') hoặc đường link GOOGLE_SCRIPT_URL."
+      );
+    }
 
     const confirmationEmailQueued = body.formId === RECRUITMENT_FORM_ID
       ? await queueRecruitmentConfirmation(body)
