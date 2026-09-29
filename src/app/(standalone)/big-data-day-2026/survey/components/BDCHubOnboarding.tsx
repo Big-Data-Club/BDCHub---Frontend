@@ -103,7 +103,7 @@ export const BDCHubOnboarding = memo(function BDCHubOnboarding({ lang }: BDCHubO
           </p>
         </div>
         <Link
-          href="/register"
+          href="/login"
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 active:scale-95 transition-all flex-shrink-0 w-full sm:w-auto"
         >
           <span>{t.bdcHubRegisterBtn}</span>
