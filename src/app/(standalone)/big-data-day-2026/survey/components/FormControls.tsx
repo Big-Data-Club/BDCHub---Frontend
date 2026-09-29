@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useId } from "react";
 import { Check, AlertCircle } from "lucide-react";
 
 export const QuestionCard = memo(function QuestionCard({
@@ -164,6 +164,7 @@ export const LinearRating = memo(function LinearRating({
 
 // Memoized Matrix Row for instant re-rendering without table thrashing
 interface MatrixRowProps {
+  namePrefix: string;
   rowId: string;
   rowText: string;
   selectedVal?: string;
@@ -172,6 +173,7 @@ interface MatrixRowProps {
 }
 
 const MatrixRow = memo(function MatrixRow({
+  namePrefix,
   rowId,
   rowText,
   selectedVal,
@@ -185,12 +187,22 @@ const MatrixRow = memo(function MatrixRow({
       </td>
       {columns.map((col) => {
         const isChecked = selectedVal === col.value;
+        const inputId = `radio_${namePrefix}_${rowId}_${col.value}`;
         return (
-          <td key={col.value} className="p-2 text-center align-middle">
-            <label className="flex items-center justify-center w-full h-full cursor-pointer py-2">
+          <td
+            key={col.value}
+            className={`p-0 text-center align-middle transition-colors ${
+              isChecked ? "bg-blue-50/60 dark:bg-blue-950/40" : ""
+            }`}
+          >
+            <label
+              htmlFor={inputId}
+              className="flex items-center justify-center w-full h-full cursor-pointer py-3.5 px-2"
+            >
               <input
+                id={inputId}
                 type="radio"
-                name={`matrix_${rowId}`}
+                name={`matrix_${namePrefix}_${rowId}`}
                 value={col.value}
                 checked={isChecked}
                 onChange={() => onChange(rowId, col.value)}
@@ -206,18 +218,23 @@ const MatrixRow = memo(function MatrixRow({
 
 // Matrix Grid (rows: items, columns: 1..5)
 export const MatrixGrid = memo(function MatrixGrid({
+  namePrefix,
   rows,
-  value = {},
+  value,
   onChange,
   columns,
   rowHeader = "Hạng mục",
 }: {
+  namePrefix?: string;
   rows: Array<{ id: string; text: string }>;
   value?: Record<string, string>;
   onChange: (rowId: string, colValue: string) => void;
   columns: Array<{ value: string; label: string }>;
   rowHeader?: string;
 }) {
+  const autoId = useId();
+  const prefix = namePrefix || autoId;
+
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/40">
       <table className="w-full text-xs sm:text-sm text-left border-collapse">
@@ -243,9 +260,10 @@ export const MatrixGrid = memo(function MatrixGrid({
           {rows.map((row) => (
             <MatrixRow
               key={row.id}
+              namePrefix={prefix}
               rowId={row.id}
               rowText={row.text}
-              selectedVal={value[row.id]}
+              selectedVal={value?.[row.id]}
               columns={columns}
               onChange={onChange}
             />
