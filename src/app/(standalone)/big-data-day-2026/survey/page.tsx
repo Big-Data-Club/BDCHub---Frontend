@@ -27,6 +27,7 @@ import {
   Users,
   ShieldCheck,
   CheckCircle,
+  Sparkles,
 } from "lucide-react";
 
 const LS_DRAFT_KEY = "bdd2026_survey_draft";
@@ -208,7 +209,7 @@ export default function BigDataDay2026SurveyPage() {
 
   // Scroll detection for sticky header
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -609,6 +610,21 @@ export default function BigDataDay2026SurveyPage() {
       />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28">
+        {draftRestored && (
+          <div className="mb-6 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm text-amber-900 dark:text-amber-200 shadow-sm">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+              <span>{t.draftRestored}</span>
+            </div>
+            <button
+              onClick={handleClearDraft}
+              className="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1"
+            >
+              <span>{t.clearDraft}</span>
+            </button>
+          </div>
+        )}
+
         {/* Banner / Title Header */}
         <div className="mb-8 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-400/15 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />

@@ -34,10 +34,10 @@ export function SurveyHeader({
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-200 ${
           scrolled
-            ? "bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/60 shadow-sm py-3"
-            : "bg-transparent py-4 sm:py-5"
+            ? "bg-white dark:bg-[#071325] border-b border-slate-200 dark:border-slate-800 shadow-md shadow-slate-900/10 dark:shadow-black/40 py-2.5 sm:py-3"
+            : "bg-white/95 dark:bg-[#071325]/95 backdrop-blur-md border-b border-slate-200/70 dark:border-slate-800/70 shadow-sm py-3 sm:py-4"
         }`}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4">
@@ -110,24 +110,6 @@ export function SurveyHeader({
           </div>
         </div>
       </header>
-
-      {/* Draft banner */}
-      {draftRestored && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-2">
-          <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm text-amber-900 dark:text-amber-200">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-              <span>{t.draftRestored}</span>
-            </div>
-            <button
-              onClick={onClearDraft}
-              className="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1"
-            >
-              <span>{t.clearDraft}</span>
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 }
