@@ -38,7 +38,7 @@ export const CHAT_MODES: Record<ChatMode, ModeConfig> = {
     hoverBg: "hover:bg-amber-500/10",
     details: [
       "1 lượt xử lý trực tiếp (Direct Generation - 0 tools)",
-      "Không lặp công cụ tìm kiếm, phản hồi trong vài giây",
+      "Bắt đầu hiển thị ngay khi model sinh token đầu tiên",
       "Tiết kiệm tối đa tài nguyên và thời gian chờ",
       "Tối ưu cho: Định nghĩa, tóm tắt bài học, cú pháp lệnh, câu hỏi ngắn",
     ],

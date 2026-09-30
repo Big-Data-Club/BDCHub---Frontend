@@ -15,6 +15,12 @@ const AI_SERVICE_URL =
   process.env.AI_SERVICE_URL || "http://ai-service:8000";
 const AI_SECRET = process.env.AI_SERVICE_SECRET || "";
 
+// SSE must run on the Node runtime and never be cached or statically
+// optimized.  This keeps upstream chunks flowing through the BFF as soon as
+// ai-service emits them.
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   // 1. Auth check
   const session = await getServerSession(authOptions);
@@ -56,11 +62,13 @@ export async function POST(req: NextRequest) {
   try {
     const upstream = await fetch(`${AI_SERVICE_URL}/ai/agents/chat`, {
       method: "POST",
+      cache: "no-store",
       headers: {
         "Content-Type": "application/json",
         "X-AI-Secret": AI_SECRET,
       },
       body: JSON.stringify(body),
+      signal: req.signal,
     });
 
     if (!upstream.ok) {
