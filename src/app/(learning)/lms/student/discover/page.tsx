@@ -8,17 +8,18 @@ import { DiscoverCourseGrid } from "@/components/lms/student/discover/DiscoverCo
 import { DiscoverPreferenceModal } from "@/components/lms/student/discover/DiscoverPreferenceModal";
 import { Alert, Select } from "@/components/lms/shared";
 import { SlidersHorizontal, RotateCcw } from "lucide-react";
-import { useAuth } from "@/hooks/auth/useAuth";
 
 export default function DiscoverPage() {
   const router = useRouter();
-  const { user } = useAuth();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const {
     publishedCourses,
     enrolledCourseIds,
     recommendationsByCourseId,
+    activeProfile,
+    recommendationStatus,
+    preferencesSaved,
     allTags,
     recommendedCourses,
     showPreferences,
@@ -105,6 +106,35 @@ export default function DiscoverPage() {
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 flex-grow [overflow-anchor:none]">
         {error && <Alert type="error">{error}</Alert>}
+
+        <div className="rounded-2xl border border-blue-200 dark:border-blue-500/20 bg-white dark:bg-[#0F1E35] p-5 shadow-xs" aria-live="polite">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white">Gợi ý khóa học dành cho bạn</h2>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                {recommendationStatus === "loading" && "Đang xếp hạng khóa học theo mục tiêu và trình độ của bạn..."}
+                {recommendationStatus === "personalized" && `Đã xếp hạng ${recommendedCourses.length} khóa học theo mục tiêu, trình độ và thông tin khóa học hiện có.`}
+                {recommendationStatus === "general" && "Đang xếp hạng theo trình độ, độ mới và mức độ quan tâm chung. Hãy đặt mục tiêu để gợi ý sát hơn."}
+                {recommendationStatus === "unavailable" && "Dịch vụ gợi ý đang tạm thời không sẵn sàng. Danh sách khóa học vẫn có thể duyệt bình thường."}
+              </p>
+            </div>
+            {preferencesSaved && <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Đã lưu mục tiêu học tập</span>}
+          </div>
+          {activeProfile && (
+            <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+              Đang dùng: {[
+                activeProfile.interested_categories.length ? activeProfile.interested_categories.join(", ") : null,
+                activeProfile.target_career ? `mục tiêu ${activeProfile.target_career}` : null,
+                activeProfile.experience_level ? `trình độ ${activeProfile.experience_level}` : null,
+              ].filter(Boolean).join(" · ")}
+            </p>
+          )}
+          {recommendationStatus === "personalized" && recommendedCourses[0] && (
+            <p className="mt-2 text-xs text-blue-700 dark:text-cyan-300">
+              Gợi ý đầu tiên: {recommendedCourses[0].course.title} — {recommendedCourses[0].item.description}
+            </p>
+          )}
+        </div>
 
         {/* Filter Controls Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/15 p-4 rounded-2xl shadow-xs">

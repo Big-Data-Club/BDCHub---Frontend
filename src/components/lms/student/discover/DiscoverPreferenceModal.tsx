@@ -69,10 +69,10 @@ export function DiscoverPreferenceModal({
             </div>
             <div>
               <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                Cài đặt mục tiêu học tập AI
+                Mục tiêu gợi ý khóa học
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Cung cấp sở thích & định hướng để thuật toán đề xuất khóa học tối ưu.
+                Sở thích, mục tiêu và trình độ sẽ thay đổi thứ tự gợi ý khóa học.
               </p>
             </div>
           </div>
@@ -121,6 +121,7 @@ export function DiscoverPreferenceModal({
             <Input
               value={preferenceGoal}
               onChange={(e) => onGoalChange(e.target.value)}
+              maxLength={120}
               placeholder="VD: Trở thành Data Engineer, AI Researcher, Fullstack Dev..."
             />
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
@@ -163,5 +164,3 @@ export function DiscoverPreferenceModal({
     </div>
   );
 }
-
-

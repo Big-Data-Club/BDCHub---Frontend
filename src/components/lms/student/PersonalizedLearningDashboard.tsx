@@ -5,7 +5,6 @@ import {
   Target,
   Brain,
   Clock,
-  CheckCircle2,
   AlertCircle,
   Zap,
   BookOpen,
@@ -16,7 +15,10 @@ import personalizedLearningService, { DailyRecommendationsResponse } from "@/ser
 
 interface Props {
   studentId: string | number;
-  onNavigateToLesson?: (lessonId: number) => void;
+  suggestedCourse?: { course_id: number; course_title?: string } | null;
+  onNavigateToLesson?: (courseId: number, contentId: number) => void;
+  onNavigateToCourse?: (courseId: number) => void;
+  onNavigateToDiscover?: () => void;
 }
 
 const PRIORITY_CONFIG = {
@@ -37,7 +39,7 @@ const PRIORITY_CONFIG = {
   },
 };
 
-export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }: Props) {
+export function PersonalizedLearningDashboard({ studentId, suggestedCourse, onNavigateToLesson, onNavigateToCourse, onNavigateToDiscover }: Props) {
   const [data, setData] = useState<DailyRecommendationsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -83,21 +85,40 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
   }
 
   if (error || !data) {
-    return null;
+    return (
+      <div className="rounded-2xl border border-amber-200 dark:border-amber-500/20 bg-white dark:bg-[#0F1E35] p-6">
+        <h3 className="font-bold text-slate-900 dark:text-white">Chưa tải được gợi ý học tập</h3>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error || "Dữ liệu tạm thời chưa sẵn sàng."}</p>
+        <button onClick={load} className="mt-3 text-sm font-semibold text-blue-600 dark:text-cyan-400">Thử lại</button>
+      </div>
+    );
   }
 
-  if (!data.priority_recommendations || data.priority_recommendations.length === 0) {
+  const dailyItems = data.priority_recommendations?.length
+    ? data.priority_recommendations
+    : data.optional_recommendations ?? [];
+
+  if (dailyItems.length === 0) {
     return (
       <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-8 text-center shadow-sm">
-        <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3">
-          <CheckCircle2 className="w-6 h-6" />
+        <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-cyan-400 rounded-full flex items-center justify-center mx-auto mb-3">
+          <BookOpen className="w-6 h-6" />
         </div>
         <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 leading-tight">
-          Bạn đã hoàn thành mục tiêu hôm nay!
+          {suggestedCourse ? "Tiếp tục khóa học của bạn" : "Khám phá khóa học phù hợp"}
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Tuyệt vời! Hãy nghỉ ngơi hoặc khám phá thêm nội dung mới.
+          {suggestedCourse
+            ? `Chưa có bài học gắn với kỹ năng cần ôn. Bạn có thể tiếp tục ${suggestedCourse.course_title || "khóa học đang học"}.`
+            : "Chưa có gợi ý bài học dựa trên kỹ năng. Hãy chọn khóa học để bắt đầu."}
         </p>
+        <button
+          onClick={() => suggestedCourse ? onNavigateToCourse?.(suggestedCourse.course_id) : onNavigateToDiscover?.()}
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 active:scale-95 transition-all"
+        >
+          {suggestedCourse ? "Học tiếp" : "Khám phá khóa học"}
+          <ChevronRight className="w-4 h-4" />
+        </button>
       </div>
     );
   }
@@ -117,7 +138,7 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
         </div>
         <div className="text-right">
           <div className="text-2xl font-black text-slate-900 dark:text-slate-50 leading-none">
-            {data.priority_recommendations.reduce((total, recommendation) => total + recommendation.estimated_minutes, 0)}
+            {dailyItems.reduce((total, recommendation) => total + recommendation.estimated_minutes, 0)}
           </div>
           <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1">
             <Clock className="w-3 h-3" />
@@ -128,13 +149,13 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
 
       {/* Recommendations list */}
       <div className="divide-y divide-slate-100 dark:divide-slate-450/10">
-        {data.priority_recommendations.map((rec, index) => {
+        {dailyItems.map((rec, index) => {
           const priorityConfig = PRIORITY_CONFIG[rec.priority as keyof typeof PRIORITY_CONFIG] || PRIORITY_CONFIG[3];
           const PriorityIcon = priorityConfig.icon;
 
           return (
             <div
-              key={rec.content_id}
+              key={`${rec.course_id}:${rec.content_id}`}
               className="p-5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-slate-50 dark:hover:bg-[#162644] transition-colors"
             >
               <div className="flex-1">
@@ -177,7 +198,8 @@ export function PersonalizedLearningDashboard({ studentId, onNavigateToLesson }:
               {/* Action */}
               <div className="flex-shrink-0">
                 <button
-                  onClick={() => onNavigateToLesson?.(rec.content_id)}
+                  onClick={() => onNavigateToLesson?.(rec.course_id, rec.content_id)}
+                  disabled={!rec.course_id}
                   className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border bg-blue-600 hover:bg-blue-700 text-white active:scale-95 duration-200 shadow-xs transition-all cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"
                 >
                   <ChevronRight className="w-4 h-4" />

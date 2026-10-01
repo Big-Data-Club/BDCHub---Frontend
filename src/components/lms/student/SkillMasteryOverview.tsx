@@ -50,7 +50,7 @@ const MASTERY_CONFIG = {
   },
 };
 
-export function StartLearningBanner() {
+export function StartLearningBanner({ hasCourses = false, onNavigateToDiscover }: { hasCourses?: boolean; onNavigateToDiscover?: () => void }) {
   return (
     <div className="bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/10 rounded-2xl p-8 text-center shadow-sm">
       <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -60,13 +60,20 @@ export function StartLearningBanner() {
         Bắt đầu hành trình học tập!
       </h3>
       <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-        Hoàn thành bài học đầu tiên để theo dõi tiến độ kỹ năng của bạn.
+        {hasCourses
+          ? "Kỹ năng sẽ được cập nhật khi bạn làm bài kiểm tra hoặc hoạt động học tập có gắn kỹ năng."
+          : "Chọn một khóa học và bắt đầu học để theo dõi kỹ năng của bạn."}
       </p>
+      {!hasCourses && onNavigateToDiscover && (
+        <button onClick={onNavigateToDiscover} className="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 active:scale-95 transition-all">
+          Khám phá khóa học
+        </button>
+      )}
     </div>
   );
 }
 
-export function SkillMasteryOverview({ studentId }: Props) {
+export function SkillMasteryOverview({ studentId, hasCourses = false, onNavigateToDiscover }: Props & { hasCourses?: boolean; onNavigateToDiscover?: () => void }) {
   const [data, setData] = useState<SkillsOverviewResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -126,11 +133,11 @@ export function SkillMasteryOverview({ studentId }: Props) {
   }
 
   if (error || !data) {
-    return null;
+    return <div className="rounded-2xl border border-amber-200 dark:border-amber-500/20 bg-white dark:bg-[#0F1E35] p-5 text-sm text-slate-600 dark:text-slate-300">Chưa tải được tiến độ kỹ năng. <button onClick={load} className="font-semibold text-blue-600 dark:text-cyan-400">Thử lại</button></div>;
   }
 
   if (!data.skills || data.skills.length === 0) {
-    return null;
+    return <StartLearningBanner hasCourses={hasCourses} onNavigateToDiscover={onNavigateToDiscover} />;
   }
 
   return (

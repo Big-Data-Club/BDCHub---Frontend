@@ -36,6 +36,7 @@ export interface SkillsOverviewResponse {
 
 export interface DailyRecommendation {
   content_id: number;
+  course_id: number;
   content_title: string;
   content_type: string;
   skill_id: number;

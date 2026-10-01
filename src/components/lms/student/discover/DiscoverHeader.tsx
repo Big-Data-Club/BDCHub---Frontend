@@ -35,10 +35,10 @@ export function DiscoverHeader({ search, onSearchChange, onOpenPreferences, sear
           <button
             onClick={onOpenPreferences}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider shadow-xs hover:shadow-md transition-all active:scale-95 cursor-pointer self-start md:self-auto border border-blue-500/30"
-            aria-label="Cấu hình mục tiêu học tập AI"
+            aria-label="Thiết lập mục tiêu gợi ý khóa học"
           >
             <Sparkles className="w-4 h-4 text-cyan-200" />
-            <span>Thiết lập Mục tiêu AI</span>
+            <span>Thiết lập mục tiêu gợi ý</span>
           </button>
         </div>
 
@@ -58,4 +58,3 @@ export function DiscoverHeader({ search, onSearchChange, onOpenPreferences, sear
     </div>
   );
 }
-

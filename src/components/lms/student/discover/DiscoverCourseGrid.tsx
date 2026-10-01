@@ -65,7 +65,6 @@ export function DiscoverCourseGrid({
         {courses.map((course, index) => {
           const isEnrolled = enrolledCourseIds.has(course.id);
           const recommendation = recommendationsByCourseId?.get(course.id);
-          const matchPercentage = recommendation?.item?.score ? Math.round(recommendation.item.score * 100) : null;
           const badgeText = recommendation?.item?.badges?.[0]?.text;
 
           return (
@@ -74,6 +73,7 @@ export function DiscoverCourseGrid({
               id={course.id}
               title={course.title}
               description={course.description}
+              recommendationReason={!isEnrolled ? recommendation?.item.description : undefined}
               category={course.category ?? undefined}
               level={course.level ?? undefined}
               teacherName={course.creator_name ?? undefined}
@@ -90,7 +90,7 @@ export function DiscoverCourseGrid({
                 ) : recommendation ? (
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 dark:bg-slate-900/90 text-blue-700 dark:text-cyan-300 border border-blue-200 dark:border-blue-500/30 flex items-center gap-1 shadow-xs">
                     <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-                    <span>{matchPercentage ? `${matchPercentage}% Match` : (badgeText || "Phù hợp")}</span>
+                    <span>{badgeText || "Được gợi ý"}</span>
                   </span>
                 ) : undefined
               }

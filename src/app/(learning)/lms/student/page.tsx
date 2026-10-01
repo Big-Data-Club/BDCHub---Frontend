@@ -7,7 +7,7 @@ import { StudentCourseSidebar } from "@/components/lms/student/StudentCourseSide
 import { StudentCourseAnalytics } from "@/components/lms/student/StudentCourseAnalytics";
 import { StudentDashboardHeader } from "@/components/lms/student/StudentDashboardHeader";
 import { PersonalizedLearningDashboard } from "@/components/lms/student/PersonalizedLearningDashboard";
-import { SkillMasteryOverview, StartLearningBanner } from "@/components/lms/student/SkillMasteryOverview";
+import { SkillMasteryOverview } from "@/components/lms/student/SkillMasteryOverview";
 import { useScrollSnap } from "@/hooks/common/useScrollSnap";
 import { useStudentDashboard } from "@/hooks/lms/student/useStudentDashboard";
 import { trackRecommendationEvent } from "@/services/lms/recommendationService";
@@ -99,7 +99,7 @@ export default function StudentDashboard() {
 
         {/* ── Skill progress belongs with the dashboard overview. ── */}
         {user && (
-          <SkillMasteryOverview studentId={user.id} />
+          <SkillMasteryOverview studentId={user.id} hasCourses={totalCount > 0} onNavigateToDiscover={() => router.push("/lms/student/discover")} />
         )}
 
         {/* ── Dashboard Layout ── */}
@@ -148,14 +148,15 @@ export default function StudentDashboard() {
         {user && (
           <PersonalizedLearningDashboard
             studentId={user.id}
-            onNavigateToLesson={(lessonId) => {
-              router.push(`/lms/student/lessons/${lessonId}`);
+            suggestedCourse={focusCourse}
+            onNavigateToCourse={(courseId) => router.push(`/lms/student/courses/${courseId}/learn`)}
+            onNavigateToDiscover={() => router.push("/lms/student/discover")}
+            onNavigateToLesson={(courseId, contentId) => {
+              router.push(`/lms/student/courses/${courseId}/learn?contentId=${contentId}`);
             }}
           />
         )}
 
-        {/* Onboarding Banner moved to the bottom of Dashboard */}
-        <StartLearningBanner />
       </div>
     </div>
   );

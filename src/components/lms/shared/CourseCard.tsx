@@ -25,6 +25,7 @@ interface CourseCardProps {
   createdAt?: string;
   onClick?: () => void;
   actions?: ReactNode;
+  recommendationReason?: string;
   className?: string;
   /** Above-the-fold cards should load their thumbnail eagerly. */
   priority?: boolean;
@@ -53,7 +54,7 @@ const formatDate = (dateStr?: string) => {
 
 export function CourseCard({
   title, category, level, status, teacherName, teacherAvatarUrl,
-  thumbnailUrl, enrollmentCount, progress, createdAt, onClick, actions, className,
+  thumbnailUrl, enrollmentCount, progress, createdAt, onClick, actions, recommendationReason, className,
   priority = false,
 }: CourseCardProps) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
@@ -149,6 +150,11 @@ export function CourseCard({
         </div>
 
         <div className="mt-4 space-y-4">
+          {recommendationReason && (
+            <p className="rounded-xl bg-blue-50 dark:bg-blue-950/30 px-3 py-2 text-xs leading-relaxed text-blue-700 dark:text-cyan-300">
+              Vì sao được gợi ý: {recommendationReason}
+            </p>
+          )}
           {/* Progress bar for enrolled courses */}
           {progress !== undefined && (
             <div className="space-y-1.5">

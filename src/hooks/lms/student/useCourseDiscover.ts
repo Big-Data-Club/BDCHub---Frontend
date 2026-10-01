@@ -24,6 +24,9 @@ export function useCourseDiscover() {
   const [preferenceCategories, setPreferenceCategories] = useState("");
   const [preferenceGoal, setPreferenceGoal] = useState("");
   const [preferenceLevel, setPreferenceLevel] = useState<"" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED">("");
+  const [activeProfile, setActiveProfile] = useState<LearningPreferenceProfile | null>(null);
+  const [recommendationStatus, setRecommendationStatus] = useState<"loading" | "personalized" | "general" | "unavailable">("loading");
+  const [preferencesSaved, setPreferencesSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   // Synchronous guard against concurrent loadMore() calls.
@@ -72,10 +75,12 @@ export function useCourseDiscover() {
 
   const loadInitialData = useCallback(async () => {
     const seq = ++requestSeqRef.current;
+    setRecommendationStatus("loading");
     orderFrozenRef.current = false;
     displayOrderRef.current = [];
     try {
       setLoading(true);
+      setError("");
       const [allCourses, accepted, profile] = await Promise.all([
         lmsService.listPublishedCourses({ page_size: 100 }),
         lmsService.getMyEnrollments("ACCEPTED"),
@@ -89,6 +94,7 @@ export function useCourseDiscover() {
       setPreferenceCategories(profile.interested_categories.join(", "));
       setPreferenceGoal(profile.target_career || "");
       setPreferenceLevel(profile.experience_level || "");
+      setActiveProfile(profile.profile_available ? profile : null);
 
       const allCoursesList = (allCourses?.items || []) as Course[];
       const enrolledIds = new Set((accepted || []).map((enrollment: Enrollment) => enrollment.course_id));
@@ -108,7 +114,7 @@ export function useCourseDiscover() {
           goal: profile.target_career || undefined,
           interestedCategories: profile.interested_categories,
           experienceLevel: profile.experience_level || undefined,
-          profileResolved: true,
+          profileResolved: profile.profile_available === true,
           candidates: allCoursesList.map((course) => ({
             entity_id: course.id,
             title: course.title,
@@ -129,13 +135,18 @@ export function useCourseDiscover() {
             ? [{ course, item, recommendationSetId: recommendationSet.recommendation_set_id }]
             : [];
         });
+        if (seq !== requestSeqRef.current) return;
         setRecommendedCourses(recommendations);
+        setRecommendationStatus(recommendationSet.fallback ? "general" : "personalized");
         recommendations.slice(0, 3).forEach(({ item, recommendationSetId }) => {
           trackRecommendationEvent(item, recommendationSetId, "impression", "course_discovery");
         });
       } catch (recommendationError) {
         console.warn("Discovery recommendations unavailable", recommendationError);
-        setRecommendedCourses([]);
+        if (seq === requestSeqRef.current) {
+          setRecommendedCourses([]);
+          setRecommendationStatus("unavailable");
+        }
       }
 
       const paginatedRes = await lmsService.listPublishedCourses({ page: 1, page_size: PAGE_SIZE });
@@ -146,9 +157,12 @@ export function useCourseDiscover() {
       setHasMore(checkHasMore(paginatedRes, items.length, PAGE_SIZE));
     } catch (err: any) {
       console.error(err);
-      setError(err?.message || "Không thể tải danh sách khóa học");
+      if (seq === requestSeqRef.current) {
+        setError(err?.message || "Không thể tải danh sách khóa học");
+        setRecommendationStatus("unavailable");
+      }
     } finally {
-      setLoading(false);
+      if (seq === requestSeqRef.current) setLoading(false);
     }
   }, [PAGE_SIZE, checkHasMore]);
 
@@ -237,6 +251,7 @@ export function useCourseDiscover() {
       });
       setShowPreferences(false);
       await loadInitialData();
+      setPreferencesSaved(true);
     } catch (err: any) {
       alert(err?.message || "Không thể lưu thông tin gợi ý cá nhân hóa");
     } finally {
@@ -333,6 +348,9 @@ export function useCourseDiscover() {
     allTags,
     recommendedCourses,
     recommendationsByCourseId,
+    activeProfile,
+    recommendationStatus,
+    preferencesSaved,
     showPreferences,
     setShowPreferences,
     savingPreferences,
