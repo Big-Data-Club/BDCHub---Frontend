@@ -273,7 +273,8 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
       const assistantId = assistantMsg.id;
 
       try {
-        abortRef.current = new AbortController();
+        const controller = new AbortController();
+        abortRef.current = controller;
         const requestPageContext = compactPageContext(effectivePageContext);
 
         const response = await fetch("/api/ai/agents/chat", {
@@ -288,7 +289,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
             ...(requestPageContext ? { page_context: requestPageContext } : {}),
             ...(systemContext ? { system_context: systemContext } : {}),
           }),
-          signal: abortRef.current.signal,
+          signal: controller.signal,
         });
 
         if (!response.ok || !response.body) {
@@ -298,6 +299,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        let sawDone = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -320,6 +322,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
               continue;
             }
 
+            if (event.type === "done") sawDone = true;
             processEventRef.current?.(event, assistantId);
           }
         }
@@ -329,11 +332,21 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
           const raw = buffer.slice(6).trim();
           if (raw) {
             try {
-              processEventRef.current?.(JSON.parse(raw), assistantId);
+              const event: AgentEvent = JSON.parse(raw);
+              if (event.type === "done") sawDone = true;
+              processEventRef.current?.(event, assistantId);
             } catch {
               /* ignore */
             }
           }
+        }
+        if (!sawDone && !controller.signal.aborted) {
+          updateAssistant(assistantId, (msg) => ({
+            ...msg,
+            content: msg.content || "Kết nối bị gián đoạn trước khi AI trả lời xong. Vui lòng thử lại.",
+            incomplete: true,
+            isStreaming: false,
+          }));
         }
       } catch (err: any) {
         if (err.name !== "AbortError") {
@@ -341,6 +354,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
             ...msg,
             content:
               msg.content || "Đã xảy ra lỗi kết nối. Vui lòng thử lại.",
+            incomplete: true,
             isStreaming: false,
           }));
         }
@@ -607,6 +621,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
           ...msg,
           content:
             msg.content || event.data.error || "Đã xảy ra lỗi.",
+          incomplete: true,
           isStreaming: false,
         }));
         break;

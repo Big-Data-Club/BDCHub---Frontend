@@ -19,6 +19,8 @@ interface AgentInputBarProps {
 
 const MIN_HEIGHT = 36;
 const MAX_HEIGHT = 192;
+// Match the AI chat request schema; keep pasted text intact so users can edit it.
+const MAX_MESSAGE_LENGTH = 5000;
 
 export const AgentInputBar = memo(function AgentInputBar({
   onSend,
@@ -32,6 +34,8 @@ export const AgentInputBar = memo(function AgentInputBar({
 }: AgentInputBarProps) {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messageLength = Array.from(input.trim()).length;
+  const isTooLong = messageLength > MAX_MESSAGE_LENGTH;
 
   useLayoutEffect(() => {
     const el = textareaRef.current;
@@ -43,7 +47,7 @@ export const AgentInputBar = memo(function AgentInputBar({
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!input.trim() || isStreaming || disabled) return;
+    if (!messageLength || isTooLong || isStreaming || disabled) return;
     onSend(input.trim());
     setInput("");
   };
@@ -89,6 +93,8 @@ export const AgentInputBar = memo(function AgentInputBar({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled || isStreaming}
+          aria-invalid={isTooLong}
+          aria-describedby={isTooLong ? "agent-message-length-error" : undefined}
           rows={1}
           className={cn(
             "flex-1 bg-transparent resize-none border-none outline-none",
@@ -113,7 +119,7 @@ export const AgentInputBar = memo(function AgentInputBar({
         ) : (
           <button
             type="submit"
-            disabled={!input.trim() || disabled}
+            disabled={!messageLength || isTooLong || disabled}
             className={cn(
               "flex items-center justify-center w-8.5 h-8.5 rounded-xl flex-shrink-0",
               "bg-blue-600 hover:bg-blue-700 active:scale-95 text-white",
@@ -126,6 +132,19 @@ export const AgentInputBar = memo(function AgentInputBar({
           </button>
         )}
       </div>
+      {messageLength > 4500 && (
+        <p
+          id={isTooLong ? "agent-message-length-error" : undefined}
+          role={isTooLong ? "alert" : undefined}
+          className={cn(
+            "px-2 text-[11px] text-slate-500 dark:text-slate-400",
+            isTooLong && "text-red-600 dark:text-red-400",
+          )}
+        >
+          {messageLength.toLocaleString("vi-VN")}/{MAX_MESSAGE_LENGTH.toLocaleString("vi-VN")} ký tự
+          {isTooLong ? " · Hãy rút ngắn tin nhắn hoặc chia thành nhiều phần." : ""}
+        </p>
+      )}
     </form>
   );
 });

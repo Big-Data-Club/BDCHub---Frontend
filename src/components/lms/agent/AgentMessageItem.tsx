@@ -207,7 +207,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
           <div className="mt-2 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-300">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
             <span>
-              Câu trả lời có thể chưa hoàn tất do đạt giới hạn xử lý của lượt này.
+              Câu trả lời chưa hoàn tất do đạt giới hạn sinh nội dung hoặc kết nối bị gián đoạn.
               Bạn có thể yêu cầu tiếp tục.
             </span>
           </div>
