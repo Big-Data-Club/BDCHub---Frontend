@@ -299,7 +299,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
-        let sawDone = false;
+        let sawTerminalEvent = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -322,7 +322,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
               continue;
             }
 
-            if (event.type === "done") sawDone = true;
+            if (event.type === "done" || event.type === "error") sawTerminalEvent = true;
             processEventRef.current?.(event, assistantId);
           }
         }
@@ -333,14 +333,14 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
           if (raw) {
             try {
               const event: AgentEvent = JSON.parse(raw);
-              if (event.type === "done") sawDone = true;
+              if (event.type === "done" || event.type === "error") sawTerminalEvent = true;
               processEventRef.current?.(event, assistantId);
             } catch {
               /* ignore */
             }
           }
         }
-        if (!sawDone && !controller.signal.aborted) {
+        if (!sawTerminalEvent && !controller.signal.aborted) {
           updateAssistant(assistantId, (msg) => ({
             ...msg,
             content: msg.content || "Kết nối bị gián đoạn trước khi AI trả lời xong. Vui lòng thử lại.",
@@ -621,7 +621,8 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
           ...msg,
           content:
             msg.content || event.data.error || "Đã xảy ra lỗi.",
-          incomplete: true,
+          incomplete:
+            event.data.code !== "input_budget_exceeded" || Boolean(msg.content?.trim()),
           isStreaming: false,
         }));
         break;
