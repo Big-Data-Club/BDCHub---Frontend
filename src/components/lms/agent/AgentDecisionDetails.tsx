@@ -32,6 +32,9 @@ export function AgentDecisionDetails({ breakdown, explanation }: AgentDecisionDe
             ))}
           </div>
           <p className="mt-1 text-slate-500 dark:text-slate-400">Các số trên dùng để chọn luồng xử lý; chúng không đo mức hiểu người học.</p>
+          {typeof breakdown.jev_decomposition === "number" && (
+            <p className="mt-1">JEV gợi ý tách bước: <strong>{Math.round(breakdown.jev_decomposition * 100)}%</strong>{breakdown.jev_promoted ? " · đã chuyển sang Multi-Agent" : " · không đổi luồng xử lý"}</p>
+          )}
         </section>
       )}
 
