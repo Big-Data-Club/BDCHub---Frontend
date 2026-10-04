@@ -11,23 +11,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { message_id?: number; session_id?: string; rating?: string };
+  let body: { message_id?: number; session_id?: string; rating?: string | null };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid JSON object" }, { status: 400 });
+  }
   const messageId = Number(body.message_id);
-  const rating = String(body.rating || "");
-  if (!Number.isFinite(messageId) || messageId <= 0) {
+  const rating = body.rating;
+  if (!Number.isInteger(messageId) || messageId <= 0) {
     return NextResponse.json({ error: "message_id is required" }, { status: 400 });
   }
-  if (!body.session_id || !["like", "dislike"].includes(rating)) {
+  if (typeof body.session_id !== "string" || !body.session_id || !(rating === null || rating === "like" || rating === "dislike")) {
     return NextResponse.json({ error: "session_id and a like|dislike rating are required" }, { status: 400 });
   }
 
-  const userId = (session.user as any).id ?? (session.user as any).userId ?? 0;
+  const userId = Number((session.user as any).id ?? (session.user as any).userId);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const response = await fetch(`${AI_SERVICE_URL}/ai/agents/feedback?user_id=${userId}`, {

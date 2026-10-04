@@ -165,6 +165,7 @@ export interface AgentMessage {
   id: string;
   /** Persisted DB id (available once the turn is saved / from history). */
   dbId?: number;
+  feedback?: "like" | "dislike" | null;
   role: "user" | "assistant";
   content: string;
   isStreaming?: boolean;
@@ -257,6 +258,7 @@ export interface AgentSession {
 }
 
 export interface AgentHistoryMessage {
+  feedback?: "like" | "dislike" | null;
   id: string;
   role: "user" | "assistant" | "system" | "tool";
   content: string;

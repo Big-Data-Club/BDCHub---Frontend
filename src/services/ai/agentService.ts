@@ -154,7 +154,7 @@ export function notifyNotebookChanged(): void {
 export async function sendFeedback(payload: {
   messageId: string | number;
   sessionId: string;
-  rating: "like" | "dislike";
+  rating: "like" | "dislike" | null;
 }): Promise<void> {
   const res = await fetch("/api/ai/agents/feedback", {
     method: "POST",

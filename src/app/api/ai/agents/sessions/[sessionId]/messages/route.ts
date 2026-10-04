@@ -12,6 +12,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = Number((session.user as any).id ?? (session.user as any).userId);
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { sessionId } = await context.params;
     
     const { searchParams } = new URL(request.url);
@@ -21,7 +25,7 @@ export async function GET(
     let res: Response | null = null;
     try {
       res = await fetch(
-          `${AI_SERVICE_URL}/ai/agents/sessions/${sessionId}/messages?limit=${limit}`, 
+          `${AI_SERVICE_URL}/ai/agents/sessions/${encodeURIComponent(sessionId)}/messages?limit=${encodeURIComponent(limit)}&user_id=${userId}`,
           {
               method: "GET",
               headers: {

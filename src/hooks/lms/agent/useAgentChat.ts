@@ -148,6 +148,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
       const mappedMessages: AgentMessage[] = history.map((m) => ({
         id: m.id,
         dbId: Number(m.id) || undefined,
+        feedback: m.feedback ?? null,
         role: m.role as any,
         content: m.content || "",
         timestamp: new Date(m.created_at).getTime(),
@@ -623,6 +624,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         setIsThinking(false);
         updateAssistant(assistantId, (msg) => ({
           ...msg,
+          dbId: event.data.message_id ? Number(event.data.message_id) : msg.dbId,
           content:
             msg.content || event.data.error || "Đã xảy ra lỗi.",
           incomplete:

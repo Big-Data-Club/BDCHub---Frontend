@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import { cn } from "@/lib/utils";
 import { Wrench, Check, AlertCircle, ChevronDown, ChevronRight, Cpu, Layers, Sparkles, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown, RefreshCw, BookOpen, ExternalLink, AlertTriangle, Zap, Compass, Brain } from "lucide-react";
 import type { AgentMessage, AIReference, HITLRequestData } from "@/types";
@@ -40,17 +40,28 @@ export const AgentMessageItem = memo(function AgentMessageItem({
   const [savingNote, setSavingNote] = useState(false);
   const [noteSaved, setNoteSaved] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [feedback, setFeedback] = useState<"like" | "dislike" | null>(null);
+  const [feedback, setFeedback] = useState<"like" | "dislike" | null>(message.feedback ?? null);
   const [showReferences, setShowReferences] = useState(false);
 
-  /** Persist thumbs feedback once the turn has a DB id + session. */
-  const rateMessage = (rating: "like" | "dislike") => {
+  const [feedbackPending, setFeedbackPending] = useState(false);
+  const [feedbackError, setFeedbackError] = useState("");
+  const feedbackLock = useRef(false);
+  useEffect(() => { setFeedback(message.feedback ?? null); }, [message.id, message.feedback]);
+  const rateMessage = async (rating: "like" | "dislike") => {
+    if (feedbackLock.current || !sessionId || !message.dbId || message.isStreaming) return;
+    feedbackLock.current = true;
+    setFeedbackPending(true);
+    setFeedbackError("");
     const next = feedback === rating ? null : rating;
-    setFeedback(next);
-    if (!next || !sessionId || !message.dbId) return;
-    sendFeedback({ messageId: message.dbId, sessionId, rating: next }).catch((err) =>
-      console.error("Failed to persist feedback", err),
-    );
+    try {
+      await sendFeedback({ messageId: message.dbId, sessionId, rating: next });
+      setFeedback(next);
+    } catch {
+      setFeedbackError("Chưa lưu được đánh giá. Vui lòng thử lại.");
+    } finally {
+      feedbackLock.current = false;
+      setFeedbackPending(false);
+    }
   };
 
   const handleCopyContent = async () => {
@@ -249,6 +260,8 @@ export const AgentMessageItem = memo(function AgentMessageItem({
                 <button
                   type="button"
                   onClick={() => rateMessage("like")}
+                  disabled={feedbackPending || !message.dbId || !sessionId || message.isStreaming}
+                  aria-pressed={feedback === "like"}
                   className={cn(
                     "p-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer active:scale-95",
                     feedback === "like" && "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40"
@@ -260,6 +273,8 @@ export const AgentMessageItem = memo(function AgentMessageItem({
                 <button
                   type="button"
                   onClick={() => rateMessage("dislike")}
+                  disabled={feedbackPending || !message.dbId || !sessionId || message.isStreaming}
+                  aria-pressed={feedback === "dislike"}
                   className={cn(
                     "p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer active:scale-95",
                     feedback === "dislike" && "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40"
@@ -269,6 +284,8 @@ export const AgentMessageItem = memo(function AgentMessageItem({
                   <ThumbsDown className="w-3.5 h-3.5" />
                 </button>
               </div>
+
+              {feedbackError && <span role="alert" className="text-xs text-rose-600 dark:text-rose-400">{feedbackError}</span>}
 
               {onClarificationSelect && (
                 <button
