@@ -39,8 +39,8 @@ export function AgentDecisionDetails({ breakdown, explanation }: AgentDecisionDe
       )}
 
       {explanation && (
-        <section className="border-t border-slate-200 dark:border-blue-500/15 pt-2" aria-label="Dữ liệu dùng cho câu trả lời">
-          <div className="font-semibold text-slate-700 dark:text-slate-200">Agent đã dựa vào gì để trả lời?</div>
+        <section className="border-t border-slate-200 dark:border-blue-500/15 pt-2" aria-label="Ngữ cảnh chuẩn bị cho câu trả lời">
+          <div className="font-semibold text-slate-700 dark:text-slate-200">Ngữ cảnh nào được chuẩn bị cho câu trả lời?</div>
           <p className="mt-1">Ý định nhận diện: <strong>{explanation.intent}</strong> · Cá nhân hóa theo kế hoạch: <strong>{explanation.personalization_requested ? "có" : "không"}</strong></p>
           <p>Hội thoại gần đây: <strong>{explanation.conversation_turns_used} tin nhắn</strong>{explanation.conversation_tokens > 0 ? ` (~${explanation.conversation_tokens} token)` : ""}</p>
           <p>Ghi nhớ dài hạn: <strong>{explanation.durable_memory_used} mục</strong> · Tóm tắt hội thoại cũ: <strong>{explanation.past_episodes_used} mục</strong></p>
@@ -49,7 +49,7 @@ export function AgentDecisionDetails({ breakdown, explanation }: AgentDecisionDe
           )}
           {!explanation.multi_agent_executed && (
             <>
-              <p>Hồ sơ học tập theo khóa: <strong>{explanation.profile_status === "used" ? "đã dùng" : explanation.profile_status === "available_not_used" ? "có dữ liệu nhưng chưa dùng" : "chưa có dữ liệu được dùng"}</strong></p>
+              <p>Hồ sơ học tập theo khóa: <strong>{explanation.profile_status === "used" ? "đã đưa vào ngữ cảnh" : explanation.profile_status === "available_not_used" ? "có dữ liệu nhưng chưa đưa vào ngữ cảnh" : "chưa có dữ liệu"}</strong></p>
               {profile && (
                 <p>Đã hoàn thành {profile.completed_lessons}/{profile.attempted_lessons} bài · Quick check {profile.quick_checks > 0 ? `${Math.round(profile.check_accuracy * 100)}% đúng (${profile.quick_checks} lượt)` : "chưa có dữ liệu"}</p>
               )}
@@ -62,7 +62,7 @@ export function AgentDecisionDetails({ breakdown, explanation }: AgentDecisionDe
               )}
             </>
           )}
-          <p className="mt-1 text-slate-500 dark:text-slate-400">Đây là nguồn ngữ cảnh được đưa vào lượt trả lời, không phải thước đo agent đã hiểu đúng hoàn toàn.</p>
+          <p className="mt-1 text-slate-500 dark:text-slate-400">Ngữ cảnh có thể được rút gọn theo giới hạn model. Các nguồn được trích dẫn trong câu trả lời cho thấy bằng chứng đã sử dụng; các số này không đo mức hiểu đúng hoàn toàn.</p>
         </section>
       )}
     </div>
