@@ -23,6 +23,9 @@ type Props = {
   onChanged: () => void;
 };
 
+const canBindModel = (task: string, model: LlmModel) =>
+  (task === "jev_decision") === (model.config?.api_protocol === "system_one");
+
 export function BindingsPanel({ bindings, models, catalogue, onChanged }: Props) {
   const byTask = useMemo(() => {
     const m = new Map<string, LlmBinding[]>();
@@ -197,6 +200,7 @@ function BindingAddInline({
   const [modelId, setModelId] = useState<string>("");
   const [priority, setPriority] = useState("100");
   const [saving,  setSaving]  = useState(false);
+  const compatibleModels = models.filter((model) => canBindModel(task, model));
 
   const add = async () => {
     if (!modelId) return;
@@ -236,7 +240,7 @@ function BindingAddInline({
                 <SelectValue placeholder="Chọn model" />
               </SelectTrigger>
               <SelectContent>
-                {models.map((m) => (
+                {compatibleModels.map((m) => (
                   <SelectItem key={m.id} value={String(m.id)}>
                     <code className="font-mono text-xs">{m.provider_code}</code>
                     <span className="text-slate-400 mx-1">/</span>
@@ -282,6 +286,7 @@ function BindingDialog({
   const [saving,     setSaving]     = useState(false);
 
   const effectiveTask = taskCode === "__custom" ? customTask.trim() : taskCode;
+  const compatibleModels = models.filter((model) => canBindModel(effectiveTask, model));
 
   const save = async () => {
     if (!modelId || !effectiveTask) return;
@@ -321,7 +326,7 @@ function BindingDialog({
             <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Task code <span className="text-rose-500">*</span>
             </Label>
-            <Select value={taskCode} onValueChange={setTaskCode}>
+            <Select value={taskCode} onValueChange={(value) => { setTaskCode(value); setModelId(""); }}>
               <SelectTrigger className="rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20">
                 <SelectValue />
               </SelectTrigger>
@@ -336,7 +341,7 @@ function BindingDialog({
               <Input
                 className="mt-2 rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-blue-500/20 font-mono"
                 value={customTask}
-                onChange={(e) => setCustomTask(e.target.value)}
+                onChange={(e) => { setCustomTask(e.target.value); setModelId(""); }}
                 placeholder="my_custom_task"
               />
             )}
@@ -352,7 +357,7 @@ function BindingDialog({
                 <SelectValue placeholder="Chọn model" />
               </SelectTrigger>
               <SelectContent>
-                {models.map((m) => (
+                {compatibleModels.map((m) => (
                   <SelectItem key={m.id} value={String(m.id)}>
                     <code className="font-mono text-xs">{m.provider_code}</code>
                     <span className="text-slate-400 mx-1">/</span>

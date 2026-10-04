@@ -356,11 +356,11 @@ function ModelDialogContent({
             rows={4}
             value={configStr}
             onChange={(e) => setConfigStr(e.target.value)}
-            placeholder={'{\n  "headers": {\n    "CF-Access-Client-Id": "...",\n    "CF-Access-Client-Secret": "..."\n  }\n}'}
+            placeholder={'{\n  "api_protocol": "system_one",\n  "endpoint_path": "systemone"\n}'}
             className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 font-mono text-xs p-3 focus:outline-none"
           />
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
-            Dùng để cấu hình custom headers (như Cloudflare Access) cho mô hình self-hosted.
+            Model dùng cho jev_decision cần api_protocol là system_one. Key được quản lý tại API Keys.
           </p>
         </div>
 

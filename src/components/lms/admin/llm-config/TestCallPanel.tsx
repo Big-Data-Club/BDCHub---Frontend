@@ -26,7 +26,7 @@ export function TestCallPanel({ catalogue }: { catalogue: LlmCatalogue | null })
     try {
       const res = await llmConfigService.testCall({
         task,
-        model_hint: modelHint || undefined,
+        model_hint: task === "jev_decision" ? undefined : modelHint || undefined,
         prompt,
       });
       setResult(res);
@@ -49,7 +49,7 @@ export function TestCallPanel({ catalogue }: { catalogue: LlmCatalogue | null })
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>Task</Label>
-          <Select value={task} onValueChange={setTask}>
+          <Select value={task} onValueChange={(value) => { setTask(value); setModelHint(""); }}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {(catalogue?.task_codes ?? []).map((t) => (
@@ -64,6 +64,7 @@ export function TestCallPanel({ catalogue }: { catalogue: LlmCatalogue | null })
             value={modelHint}
             onChange={(e) => setModelHint(e.target.value)}
             placeholder="llama-3.1-8b-instant"
+            disabled={task === "jev_decision"}
           />
         </div>
         <div className="col-span-2">
