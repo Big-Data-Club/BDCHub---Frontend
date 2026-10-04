@@ -165,6 +165,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         consolidation: (m.metadata as any)?.consolidation,
         spawningScore: (m.metadata as any)?.spawningScore,
         spawningBreakdown: (m.metadata as any)?.spawningBreakdown,
+        decisionExplanation: m.metadata?.decisionExplanation,
       }));
       setMessages(mappedMessages);
     } catch (err) {
@@ -412,6 +413,9 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
               spawningScore: event.data.score,
               spawningBreakdown: event.data.breakdown,
             };
+          }
+          if (step === "decision_explanation") {
+            extra = { decisionExplanation: event.data.explanation };
           }
           return {
             ...msg,

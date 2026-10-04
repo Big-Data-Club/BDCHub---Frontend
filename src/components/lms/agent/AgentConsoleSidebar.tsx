@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import type { AgentMessage } from "@/types";
 import { cn } from "@/lib/utils";
+import { AgentDecisionDetails } from "./AgentDecisionDetails";
 
 interface AgentConsoleSidebarProps {
   isOpen: boolean;
@@ -39,12 +40,11 @@ export function AgentConsoleSidebar({
 
   const logs = activeMessage?.multiAgentLogs || [];
   const score = activeMessage?.spawningScore ?? 0.0;
-  const breakdown = activeMessage?.spawningBreakdown || {};
   const consolidation = activeMessage?.consolidation;
   const critique = activeMessage?.critiqueReport;
 
   // Spawning status
-  const didSpawn = score >= 0.5;
+  const didSpawn = activeMessage?.decisionExplanation?.multi_agent_executed ?? logs.length > 0;
 
   return (
     <>
@@ -118,31 +118,12 @@ export function AgentConsoleSidebar({
                 )}
                 style={{ width: `${Math.min(100, score * 100)}%` }}
               />
-              {/* Threshold indicator at 50% */}
-              <div className="absolute left-1/2 top-0 w-0.5 h-full bg-red-400 dark:bg-red-600" title="Threshold: 0.5" />
+              {/* Multi-agent routing can start at 0.45 in deep mode. */}
+              <div className="absolute top-0 w-0.5 h-full bg-red-400 dark:bg-red-600" style={{ left: "45%" }} title="Ngưỡng Deep: 0.45" />
             </div>
 
             {/* Formula Breakdown */}
-            {breakdown && Object.keys(breakdown).length > 0 && (
-              <div className="grid grid-cols-2 gap-2 pt-2 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/60">
-                <div className="flex justify-between">
-                  <span>Context Pres. (w_c):</span>
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">{(breakdown.c_ratio || 0).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Intent Comp. (w_d):</span>
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">{(breakdown.d_intent || 0).toFixed(1)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Retrieval Vol. (w_r):</span>
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">{(breakdown.r_docs || 0).toFixed(1)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Verification (w_v):</span>
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">{(breakdown.v_need || 0).toFixed(1)}</span>
-                </div>
-              </div>
-            )}
+            <AgentDecisionDetails breakdown={activeMessage?.spawningBreakdown} explanation={activeMessage?.decisionExplanation} />
           </div>
         </div>
 

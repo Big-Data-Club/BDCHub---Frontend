@@ -9,6 +9,7 @@ import { ClarificationCard } from "./ClarificationCard";
 import { WidgetRenderer } from "./WidgetRenderer";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { ActionApprovalCard } from "./ActionApprovalCard";
+import { AgentDecisionDetails } from "./AgentDecisionDetails";
 import { saveNotebookEntry, notifyNotebookChanged, sendFeedback } from "@/services/ai/agentService";
 
 interface AgentMessageItemProps {
@@ -69,10 +70,9 @@ export const AgentMessageItem = memo(function AgentMessageItem({
 
   const logs = message.multiAgentLogs || [];
   const score = message.spawningScore ?? 0.0;
-  const breakdown = message.spawningBreakdown || {};
   const consolidation = message.consolidation;
   const critique = message.critiqueReport;
-  const didSpawn = score >= 0.5;
+  const didSpawn = message.decisionExplanation?.multi_agent_executed ?? logs.length > 0;
 
   const hasRunningLogs = logs.some((l) => l.status === "running");
   const uiComponents = Array.isArray(message.uiComponents)
@@ -388,12 +388,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
                       S-Score: {score.toFixed(3)}
                     </span>
                   </div>
-                  {breakdown && Object.keys(breakdown).length > 0 && (
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-slate-400 pt-1">
-                      <div>Độ phức tạp câu hỏi: <span className="font-semibold text-slate-600 dark:text-slate-300">{(breakdown.c_ratio || 0).toFixed(2)}</span></div>
-                      <div>Độ dài ngữ cảnh: <span className="font-semibold text-slate-600 dark:text-slate-300">{(breakdown.d_intent || 0).toFixed(1)}</span></div>
-                    </div>
-                  )}
+                  <AgentDecisionDetails breakdown={message.spawningBreakdown} explanation={message.decisionExplanation} />
                 </div>
 
                 {consolidation && (

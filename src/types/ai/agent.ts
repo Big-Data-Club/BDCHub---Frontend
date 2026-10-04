@@ -65,6 +65,41 @@ export interface ConsolidationData {
   compression_ratio: number;
 }
 
+/** Bounded, server-produced evidence summary for this answer. */
+export interface AgentDecisionExplanation {
+  mode: ChatMode;
+  multi_agent_executed: boolean;
+  intent: string;
+  personalization_requested: boolean;
+  conversation_turns_used: number;
+  conversation_tokens: number;
+  durable_memory_used: number;
+  past_episodes_used: number;
+  profile_status: "used" | "available_not_used" | "unavailable";
+  course_profile?: {
+    completed_lessons: number;
+    attempted_lessons: number;
+    check_accuracy: number;
+    quick_checks: number;
+  };
+  learner_snapshot?: {
+    due_count: number;
+    weak: { name: string; mastery: number }[];
+    strong: string[];
+  };
+}
+
+export interface AgentSpawningBreakdown {
+  c_ratio?: number;
+  d_intent?: number;
+  r_docs?: number;
+  v_need?: number;
+  p_ctx?: number;
+  depth_signal?: number;
+  score?: number;
+  triggered_by?: string[];
+}
+
 // ── Chat Messages ───────────────────────────────────────────────────────────
 
 export interface UIComponentData {
@@ -169,7 +204,8 @@ export interface AgentMessage {
   critiqueReport?: CritiqueReportData;
   consolidation?: ConsolidationData;
   spawningScore?: number;
-  spawningBreakdown?: Record<string, any>;
+  spawningBreakdown?: AgentSpawningBreakdown;
+  decisionExplanation?: AgentDecisionExplanation;
 }
 
 // ── Request / Response ──────────────────────────────────────────────────────
@@ -228,6 +264,9 @@ export interface AgentHistoryMessage {
     model?: string;
     chat_mode?: ChatMode;
     incomplete?: boolean;
+    spawningScore?: number;
+    spawningBreakdown?: AgentSpawningBreakdown;
+    decisionExplanation?: AgentDecisionExplanation;
   };
   created_at: string;
 }
