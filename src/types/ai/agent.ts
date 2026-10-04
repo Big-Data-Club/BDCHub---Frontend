@@ -71,6 +71,11 @@ export interface AgentDecisionExplanation {
   multi_agent_executed: boolean;
   intent: string;
   personalization_requested: boolean;
+  personalization_context_prepared?: boolean;
+  memory_forwarded?: boolean;
+  profile_fetch_status?: "not_requested" | "not_applicable" | "no_course" | "budget_limited" | "loaded" | "empty" | "error";
+  conversation_messages_available?: number;
+  conversation_history_excerpted?: boolean;
   conversation_turns_used: number;
   conversation_tokens: number;
   durable_memory_used: number;
