@@ -98,6 +98,8 @@ export interface AgentSpawningBreakdown {
   depth_signal?: number;
   score?: number;
   triggered_by?: string[];
+  jev_decomposition?: number;
+  jev_promoted?: boolean;
 }
 
 // ── Chat Messages ───────────────────────────────────────────────────────────
