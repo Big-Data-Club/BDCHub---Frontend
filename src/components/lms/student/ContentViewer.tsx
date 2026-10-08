@@ -55,7 +55,7 @@ export default function ContentViewer({
 
     const match = nodes.find((n) => n.source_content_id === content.id);
     return match ? match.id : null;
-  }, [shouldFetchNodes, content.metadata, content.id, content.title, nodes]);
+  }, [shouldFetchNodes, content.metadata, content.id, nodes]);
 
   const loadingNode = shouldFetchNodes && !nodes && !nodesError;
 
@@ -120,7 +120,7 @@ export default function ContentViewer({
       );
     }
     prevCompleted.current = isCompleted;
-  }, [isCompleted, content.type, courseId, isStudent, nodeId, loadingNode]);
+  }, [isCompleted, content.id, content.type, courseId, isStudent, nodeId, loadingNode]);
 
   const renderBody = () => {
     switch (content.type) {
