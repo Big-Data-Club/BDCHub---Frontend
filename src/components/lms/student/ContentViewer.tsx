@@ -12,6 +12,7 @@ import { ForumRenderer } from "./content-renderers/ForumRenderer";
 import { AnnouncementRenderer } from "./content-renderers/AnnouncementRenderer";
 import analyticsService from "@/services/lms/analyticsService";
 import aiService from "@/services/ai/aiService";
+import QuickActionPanel from "./micro/QuickActionPanel";
 import personalizedLearningTracker from "@/lib/personalized-learning-tracker";
 
 export type { ContentItem };
@@ -34,7 +35,7 @@ export default function ContentViewer({
   const isStudent = userRole === "STUDENT";
   const hasTrackedView = useRef<string | null>(null);
 
-  const shouldFetchNodes = isStudent && !!courseId && content.type !== "TEXT";
+  const shouldFetchNodes = isStudent && !!courseId;
 
   // Use SWR to cache the knowledge nodes for the entire course
   const { data: nodes, error: nodesError } = useSWR(
@@ -52,11 +53,7 @@ export default function ContentViewer({
 
     if (!nodes) return null;
 
-    let match = nodes.find((n) => n.source_content_id === content.id);
-    if (!match) {
-      const titleLower = content.title.trim().toLowerCase();
-      match = nodes.find((n) => n.name.trim().toLowerCase() === titleLower);
-    }
+    const match = nodes.find((n) => n.source_content_id === content.id);
     return match ? match.id : null;
   }, [shouldFetchNodes, content.metadata, content.id, content.title, nodes]);
 
@@ -64,7 +61,7 @@ export default function ContentViewer({
 
   // 2. Track view and auto-complete (15s threshold)
   useEffect(() => {
-    if (!courseId || !isStudent || content.type === "TEXT" || loadingNode) return;
+    if (!courseId || !isStudent || loadingNode) return;
 
     const currentKey = `${content.id}:${nodeId}`;
     if (hasTrackedView.current === currentKey) return;
@@ -106,7 +103,7 @@ export default function ContentViewer({
   // 3. Track explicit completion when isCompleted changes from false to true
   const prevCompleted = useRef(isCompleted);
   useEffect(() => {
-    if (!courseId || !isStudent || content.type === "TEXT" || loadingNode) return;
+    if (!courseId || !isStudent || loadingNode) return;
 
     if (isCompleted && !prevCompleted.current) {
       analyticsService.trackMicroInteraction({
@@ -174,6 +171,12 @@ export default function ContentViewer({
         </div>
       )}
 
+      {isStudent && courseId && ["TEXT", "DOCUMENT", "VIDEO"].includes(content.type) && (
+        <QuickActionPanel key={`${courseId}:${content.id}`} trackActivity={false} ctx={{
+          courseId: Number(courseId), contentId: content.id, lessonId: null,
+          lessonTitle: content.title, lessonText: "", nodeId,
+        }} />
+      )}
       {/* Content body */}
       {renderBody()}
 

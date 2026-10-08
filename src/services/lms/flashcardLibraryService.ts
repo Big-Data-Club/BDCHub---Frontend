@@ -8,7 +8,10 @@ async function action<T>(courseId: number, name: string, data: object = {}, sign
     return response.data.data;
   } catch (error) {
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
-    if (isAxiosError(error)) throw new Error(error.response?.data?.message || "Chưa kết nối được. Hãy thử lại.");
+    if (isAxiosError(error)) {
+      if (error.response?.status === 404 && !error.response?.data?.message) throw new Error("Kho thẻ chưa sẵn sàng. Hãy thử lại sau ít phút.");
+      throw new Error(error.response?.data?.message || "Chưa kết nối được. Hãy thử lại.");
+    }
     throw error;
   }
 }
@@ -37,6 +40,10 @@ export const flashcardLibraryService = (courseId: number) => ({
   deleteCard: (card_id: number) => action(courseId, "delete_card", { card_id }),
   async generate(topic: string, count: number, language: string, answer_language: string, signal: AbortSignal) {
     const job = await action<FlashcardJob<{ cards: CardDraft[] }>>(courseId, "generate", { topic, count, language, answer_language }, signal);
+    return waitForJob(courseId, job, signal);
+  },
+  async fromContent<T>(kind: "generate_content" | "quiz_content", data: { content_id?: number; lesson_id?: number; request_id: string; count: number; language: string }, signal: AbortSignal): Promise<T> {
+    const job = await action<FlashcardJob<T>>(courseId, kind, data, signal);
     return waitForJob(courseId, job, signal);
   },
   async check(card_id: number, answer: string, review_id: string, revision: number, signal: AbortSignal, reveal = false) {

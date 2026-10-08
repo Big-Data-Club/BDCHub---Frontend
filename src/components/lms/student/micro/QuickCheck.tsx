@@ -1,23 +1,7 @@
 "use client";
 
-/**
- * QuickCheck.tsx
- *
- * "Quick Check" tab of the Quick Action Panel: 1–2 ultra-short MCQ
- * questions generated on-the-fly by the AI service, grounded in the
- * current micro-lesson body (`text_chunk`) so the quiz is guaranteed
- * to be answerable from what the student just read.
- *
- * Analytics events:
- *   * quick_check_attempt   - every submitted answer (with score 0/1)
- *   * quick_check_correct   - convenience event for correct submissions
- *   * quick_check_incorrect - convenience event for wrong submissions
- *
- * The composite mastery worker on the LMS side blends `quick_check_*`
- * events into the "mini quiz" component (20% weight) of the heatmap.
- */
-import { useCallback, useEffect, useMemo, useState } from "react";
-import aiService, {
+import { useCallback, useMemo, useState } from "react";
+import {
   type ConceptCheckQuestion,
 } from "@/services/ai/aiService";
 import analyticsService from "@/services/lms/analyticsService";
@@ -26,6 +10,8 @@ import type { MicroLessonContext } from "./types";
 
 interface QuickCheckProps {
   ctx: MicroLessonContext;
+  questions: ConceptCheckQuestion[];
+  onRegenerate: () => void;
 }
 
 interface QuestionState {
@@ -33,11 +19,8 @@ interface QuestionState {
   submitted: boolean;
 }
 
-export function QuickCheck({ ctx }: QuickCheckProps) {
-  const [questions, setQuestions] = useState<ConceptCheckQuestion[]>([]);
-  const [state, setState] = useState<QuestionState[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export function QuickCheck({ ctx, questions, onRegenerate }: QuickCheckProps) {
+  const [state, setState] = useState<QuestionState[]>(() => questions.map(() => ({ selectedIdx: null, submitted: false })));
 
   const lang = ctx.language ?? "vi";
 
@@ -58,38 +41,6 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
     }),
     [lang],
   );
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await aiService.generateConceptCheck({
-        // Sending the lesson body directly is the "cheap path" - the
-        // AI service skips RAG retrieval and grounds the question in
-        // exactly what the student is reading.
-        text_chunk: ctx.lessonText,
-        node_id: ctx.nodeId ?? undefined,
-        course_id: ctx.courseId,
-        count: 2,
-        language: lang,
-      });
-      const qs = res.questions ?? [];
-      setQuestions(qs);
-      setState(qs.map(() => ({ selectedIdx: null, submitted: false })));
-    } catch {
-      setError(
-        lang === "vi"
-          ? "Không tạo được câu hỏi. Thử lại sau."
-          : "Failed to generate questions. Please retry.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [ctx.courseId, ctx.lessonText, ctx.nodeId, lang]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   const onSubmit = useCallback(
     (qIdx: number) => {
@@ -136,29 +87,6 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
       });
     }, [ctx.courseId, ctx.lessonId, ctx.nodeId, questions, state]);
 
-  if (loading) {
-    return (
-      <div className="px-6 py-10 text-sm text-slate-500 dark:text-slate-400 text-center">
-        {labels.loading}
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="px-6 py-10 text-sm text-red-600 dark:text-red-400 text-center">
-        {error}
-        <div className="mt-3">
-          <button
-            type="button"
-            onClick={load}
-            className="text-xs font-medium text-slate-900 dark:text-slate-100 underline underline-offset-2"
-          >
-            {labels.regenerate}
-          </button>
-        </div>
-      </div>
-    );
-  }
   if (questions.length === 0) {
     return (
       <div className="px-6 py-10 text-sm text-slate-500 dark:text-slate-400 text-center">
@@ -244,7 +172,7 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
       <div className="flex items-center justify-between mt-2">
         <button
           type="button"
-          onClick={load}
+          onClick={onRegenerate}
           className="text-xs font-medium text-slate-700 dark:text-slate-300 underline underline-offset-2"
         >
           {labels.regenerate}

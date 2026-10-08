@@ -1,15 +1,3 @@
-/**
- * Shared TypeScript types for the Quick Action Panel mounted at the
- * bottom of the MicroLessonViewer.
- *
- * Three primary actions live here:
- *   1. Flashcards   - flip-card revision of 3–5 key terms
- *   2. Quick Check  - 1–2 ultra-short MCQ generated from this lesson
- *   3. Ask AI       - contextual chat drawer pre-loaded with the lesson body
- *
- * Every interaction calls `analyticsService.trackMicroInteraction(...)`.
- */
-
 export interface MicroLessonContext {
   /** Lesson row id from `micro_lessons.id` (Postgres). Null for regular TEXT content. */
   lessonId: number | null;
@@ -30,4 +18,4 @@ export interface MicroLessonContext {
   language?: "vi" | "en";
 }
 
-export type QuickActionTab = "quick_check" | "ask_ai" | null;
+

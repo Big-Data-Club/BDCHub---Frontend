@@ -21,7 +21,7 @@ export function useFlashcardLibrary(courseId: number) {
   const reload = useCallback(async (signal?: AbortSignal) => { setLibrary(await service.list(signal)); }, [service]);
   useEffect(() => {
     const abort = new AbortController();
-    void reload(abort.signal).catch(() => { if (!abort.signal.aborted) setError("Chưa tải được thẻ. Hãy thử lại."); }).finally(() => { if (!abort.signal.aborted) setLoading(false); });
+    void reload(abort.signal).catch(e => { if (!abort.signal.aborted) setError(e instanceof Error ? e.message : "Chưa tải được thẻ. Hãy thử lại."); }).finally(() => { if (!abort.signal.aborted) setLoading(false); });
     return () => { abort.abort(); controller.current?.abort(); };
   }, [reload]);
   const run = async (work: () => Promise<void>) => {

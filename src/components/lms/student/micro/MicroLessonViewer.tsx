@@ -60,11 +60,12 @@ export function MicroLessonViewer({
         </section>
       )}
 
+      <div className="px-6 pt-4"><QuickActionPanel key={`${ctx.courseId}:${ctx.lessonId}`} ctx={ctx} /></div>
+
       <div className="px-6 py-6 min-w-0">
         <MarkdownRenderer content={ctx.lessonText} />
       </div>
 
-      <QuickActionPanel ctx={ctx} />
     </article>
   );
 }
