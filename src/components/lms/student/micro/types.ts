@@ -30,4 +30,4 @@ export interface MicroLessonContext {
   language?: "vi" | "en";
 }
 
-export type QuickActionTab = "flashcards" | "quick_check" | "ask_ai" | null;
+export type QuickActionTab = "quick_check" | "ask_ai" | null;

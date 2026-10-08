@@ -36,3 +36,7 @@ export * from "./chat/useChat";
 // Labs hooks
 export * from "./labs/useLabs";
 export * from "./labs/useTutorialManager";
+export * from "./lms/student/useFlashcardCourses";
+export * from "./lms/student/useFlashcardLibrary";
+export * from "./lms/student/useFlashcardReview";
+export * from "./lms/student/useFlashcardSpeech";

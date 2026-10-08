@@ -37,10 +37,6 @@ export function QuickActionPanel({
       flashcards: lang === "vi" ? "Thẻ ghi nhớ" : "Flashcards",
       quickCheck: lang === "vi" ? "Kiểm tra nhanh" : "Quick Check",
       askAI: lang === "vi" ? "Hỏi AI" : "Ask AI",
-      flashcardsDesc:
-        lang === "vi"
-          ? "Ôn lại các thuật ngữ chính."
-          : "Review the key terms.",
       quickCheckDesc:
         lang === "vi"
           ? "Trả lời 1–2 câu trắc nghiệm ngắn."

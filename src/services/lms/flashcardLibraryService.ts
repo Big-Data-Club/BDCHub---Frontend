@@ -39,8 +39,8 @@ export const flashcardLibraryService = (courseId: number) => ({
     const job = await action<FlashcardJob<{ cards: CardDraft[] }>>(courseId, "generate", { topic, count, language, answer_language }, signal);
     return waitForJob(courseId, job, signal);
   },
-  async check(card_id: number, answer: string, review_id: string, revision: number, signal: AbortSignal) {
-    const result = await action<AnswerResult | FlashcardJob<AnswerResult>>(courseId, "check", { card_id, answer, review_id, revision }, signal);
+  async check(card_id: number, answer: string, review_id: string, revision: number, signal: AbortSignal, reveal = false) {
+    const result = await action<AnswerResult | FlashcardJob<AnswerResult>>(courseId, "check", { card_id, answer, review_id, revision, reveal }, signal);
     return "job_id" in result ? waitForJob(courseId, result, signal) : result;
   },
 });

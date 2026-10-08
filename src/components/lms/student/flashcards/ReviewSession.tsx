@@ -14,12 +14,13 @@ export function ReviewSession({ courseId, cards, onClose }: { courseId: number; 
   if (!r.card) return <div className={`${panel} mx-auto max-w-2xl space-y-6 text-center`}><Check className="mx-auto text-emerald-600 dark:text-emerald-400" size={36} /><h2 className="text-2xl font-bold">Xong lượt ôn!</h2><p>{r.correct}/{cards.length} câu trả lời đúng</p><button className={primary} onClick={close}>Về bộ thẻ</button></div>;
   return <div className="mx-auto max-w-3xl space-y-5">
     <div className="flex items-center justify-between"><span className="text-sm font-medium">{r.index + 1} / {cards.length}</span><button className={button} onClick={close}><X size={16} />Kết thúc</button></div>
-    <progress aria-label="Tiến độ ôn" value={r.index} max={cards.length} className="h-1.5 w-full accent-blue-600" />
+    <progress aria-label="Tiến độ ôn" value={r.index + (r.result ? 1 : 0)} max={cards.length} className="h-1.5 w-full accent-blue-600" />
     <div className={`${panel} space-y-6`}>
       <div className="flex items-start justify-between gap-4"><h2 className="whitespace-pre-wrap break-words text-xl font-semibold leading-relaxed sm:text-2xl">{r.card.front_text}</h2><button className={button} aria-label="Đọc mặt trước" disabled={!speech.voices.length} onClick={() => speech.speak(r.card.front_text, r.card.language)}><Volume2 size={18} /></button></div>
       <form className="space-y-4" onSubmit={e => { e.preventDefault(); void r.check(); }}>
         <label className="block space-y-2 text-sm font-medium"><span>Câu trả lời của bạn</span><textarea ref={answerRef} className={input} rows={4} maxLength={4000} value={r.answer} disabled={r.busy || !!r.result || r.locked} onChange={e => r.setAnswer(e.target.value)} placeholder="Nhập câu trả lời…" /></label>
-        {!r.result && <button className={primary} disabled={r.busy || !r.answer.trim()}>{r.busy ? "Đang kiểm tra…" : r.error ? "Thử lại" : "Kiểm tra"}</button>}
+        {!r.result && <button className={primary} disabled={r.busy || (!r.answer.trim() && !r.locked)}>{r.busy ? "Đang kiểm tra…" : r.error ? "Thử lại" : "Kiểm tra"}</button>}
+        {!r.result && !r.locked && <button type="button" className={`${button} ml-2`} disabled={r.busy} onClick={() => void r.check(true)}>Chưa nhớ</button>}
       </form>
       {r.error && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{r.error}</p>}
       {r.result && <div role="status" className="space-y-4 border-t border-slate-200 pt-5 dark:border-blue-500/10">

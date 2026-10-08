@@ -11,18 +11,18 @@ export function useFlashcardReview(courseId: number, cards: PersonalCard[]) {
   const [error, setError] = useState("");
   const [correct, setCorrect] = useState(0);
   const request = useRef<AbortController | null>(null);
-  const attempt = useRef<{ id: string; answer: string } | null>(null);
+  const attempt = useRef<{ id: string; answer: string; reveal: boolean } | null>(null);
   const lock = useRef(false);
   useEffect(() => () => request.current?.abort(), []);
   const card = cards[index];
-  const check = async () => {
-    if (!card || !answer.trim() || lock.current || result) return;
+  const check = async (reveal = false) => {
+    if (!card || (!reveal && !answer.trim() && !attempt.current) || lock.current || result) return;
     lock.current = true; setBusy(true); setError("");
     // A retry keeps the same answer and key, so a lost response cannot count twice.
-    if (!attempt.current) attempt.current = { id: crypto.randomUUID(), answer };
+    if (!attempt.current) attempt.current = { id: crypto.randomUUID(), answer, reveal };
     request.current = new AbortController();
     try {
-      const checked = await flashcardLibraryService(courseId).check(card.id, attempt.current.answer, attempt.current.id, card.revision, request.current.signal);
+      const checked = await flashcardLibraryService(courseId).check(card.id, attempt.current.answer, attempt.current.id, card.revision, request.current.signal, attempt.current.reveal);
       setResult(checked); if (checked.correct) setCorrect(c => c + 1);
     } catch (e) { if (!request.current.signal.aborted) setError(e instanceof Error ? e.message : "Chưa kiểm tra được. Hãy thử lại."); }
     finally { lock.current = false; setBusy(false); }

@@ -34,7 +34,7 @@ export function useFlashcardLibrary(courseId: number) {
   const due = cards.filter(c => Date.parse(c.due_at) <= Date.now());
   return {
     library, loading, busy, error, selectedDeck, setSelectedDeck, query, setQuery, cards, due,
-    drafts, setDrafts, editorDeck, setEditorDeck, session, setSession,
+    drafts, setDrafts, editorDeck, setEditorDeck, session, setSession: (cards: PersonalCard[]) => { setSession(cards); window.scrollTo({ top: 0 }); },
     reload: () => run(async () => { await reload(); setLoading(false); }),
     createDeck: (name: string) => run(async () => { const deck = await service.createDeck(name); await reload(); setSelectedDeck(deck.id); setEditorDeck(deck.id); }),
     renameDeck: (id: number, name: string) => run(async () => { await service.renameDeck(id, name); await reload(); }),
