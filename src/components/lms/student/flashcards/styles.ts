@@ -1,0 +1,5 @@
+export const panel = "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-blue-500/10 dark:bg-[#0F1E35] dark:shadow-none sm:p-6";
+export const input = "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-blue-500/30 dark:border-blue-500/20 dark:bg-[#0D192E] dark:text-slate-100";
+export const button = "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 dark:border-blue-500/20 dark:bg-[#0F1E35] dark:text-slate-200";
+export const primary = `${button} !border-blue-600 !bg-blue-600 !text-white`;
+export const languages = [["vi-VN", "Tiếng Việt"], ["en-US", "English (US)"], ["en-GB", "English (UK)"], ["fr-FR", "Français"], ["de-DE", "Deutsch"], ["es-ES", "Español"], ["ja-JP", "日本語"], ["ko-KR", "한국어"], ["zh-CN", "中文"]];

@@ -46,6 +46,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   const navItems = [
     { href: "/lms/student", label: "Dashboard" },
     { href: "/lms/student/discover", label: "Khám phá" },
+    { href: "/lms/student/flashcards", label: "Flashcard" },
     { href: "/lms/student/ai-mentor", label: "AI Mentor" },
   ];
 

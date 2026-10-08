@@ -4,15 +4,9 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   TrendingDown,
   AlertCircle,
-  Brain,
-  Lightbulb,
-  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import analyticsService, { WeaknessOverviewResponse, WeakNode } from "@/services/lms/analyticsService";
-import flashcardService from "@/services/lms/flashcardService";
-import { FlashcardReviewModal } from "@/components/lms/student/modals/FlashcardReviewModal";
-import toast from "react-hot-toast";
 
 interface Props {
   courseId: number;
@@ -33,11 +27,8 @@ const formatPercent = (val: number | null | undefined) => {
 export function WeaknessTracker({ courseId }: Props) {
   const [data, setData] = useState<WeaknessOverviewResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [generatingFor, setGeneratingFor] = useState<number | null>(null);
   const [error, setError] = useState("");
 
-  const [reviewNodeId, setReviewNodeId] = useState<number | null>(null);
-  const [reviewNodeName, setReviewNodeName] = useState("");
   const [visibleCount, setVisibleCount] = useState(5);
 
   const isMounted = useRef(true);
@@ -76,67 +67,6 @@ export function WeaknessTracker({ courseId }: Props) {
       isMounted.current = false;
     };
   }, [load]);
-
-  const handleGenerateFlashcards = async (node: WeakNode) => {
-    setGeneratingFor(node.node_id);
-    try {
-      // request AI to generate 3 flashcards specifically targeting the weakness
-      const response = await flashcardService.generateFlashcards(courseId, node.node_id, { count: 3 });
-      
-      if (!response || !response.job_id) {
-        throw new Error("Không nhận được Job ID từ server.");
-      }
-
-      // Polling Logic
-      let isDone = false;
-      const { aiService } = await import("@/services/ai/aiService");
-      
-      while (!isDone && isMounted.current) {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        if (!isMounted.current) break;
-        
-        const statusCheck = await aiService.getJobStatus(response.job_id);
-        if (statusCheck.status === "completed" && isMounted.current) {
-          isDone = true;
-          toast.success(`Đã tạo flashcard ôn tập cho "${node.node_name}"!`);
-          
-          // Update local state directly instead of reloading
-          setData((prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              weak_nodes: prev.weak_nodes.map((n) =>
-                n.node_id === node.node_id
-                  ? { ...n, flashcard_count: (n.flashcard_count || 0) + 3 }
-                  : n
-              ),
-            };
-          });
-        } else if (statusCheck.status === "failed") {
-          isDone = true;
-          throw new Error(statusCheck.error || "Quá trình tạo flashcard lỗi.");
-        }
-      }
-    } catch (e: any) {
-      if (isMounted.current) {
-        toast.error(e?.message || e?.response?.data?.message || "Tạo flashcard thất bại.");
-      }
-    } finally {
-      if (isMounted.current) {
-        setGeneratingFor(null);
-      }
-    }
-  };
-
-  const openReviewModal = (node: WeakNode) => {
-    setReviewNodeId(node.node_id);
-    setReviewNodeName(node.node_name);
-  };
-
-  const closeReviewModal = () => {
-    setReviewNodeId(null);
-    setReviewNodeName("");
-  };
 
   if (loading) {
     return (
@@ -218,47 +148,11 @@ export function WeaknessTracker({ courseId }: Props) {
                     <TrendingDown className="w-3.5 h-3.5 text-slate-400" />
                     <strong>{isNaN(errorRate) ? "Chưa có TT" : `${formatPercent(errorRate)}%`}</strong> {isNaN(errorRate) ? "" : "tỷ lệ sai"}
                   </span>
-                  <span className="flex items-center gap-1 flex-shrink-0 ml-2">
-                    <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                    <strong className="text-violet-655 dark:text-violet-400">{node.flashcard_count || 0}</strong> flashcard
-                  </span>
+
                 </div>
               </div>
 
-              {/* Action */}
-              <div className="flex-shrink-0 flex items-center gap-2">
-                <button
-                  onClick={() => openReviewModal(node)}
-                  title="Mở modal xem tất cả flashcard của chủ đề này"
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border bg-white dark:bg-[#0F1E35] border-slate-200 dark:border-blue-500/20 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#162644] active:scale-95 duration-200 shadow-xs transition-all cursor-pointer"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span className="hidden sm:inline">Xem lại Flashcard</span>
-                </button>
-                
-                <button
-                  onClick={() => handleGenerateFlashcards(node)}
-                  disabled={generatingFor === node.node_id}
-                  className={cn(
-                    "flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-all cursor-pointer",
-                    generatingFor === node.node_id
-                      ? "bg-slate-100 dark:bg-[#0D192E] border-slate-200 dark:border-blue-500/10 text-slate-400 dark:text-slate-500 cursor-not-allowed"
-                      : "bg-white dark:bg-[#0F1E35] border-violet-200 dark:border-violet-850/50 text-violet-600 dark:text-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-950/20 active:scale-95 duration-200 shadow-xs"
-                  )}
-                >
-                  {generatingFor === node.node_id ? (
-                    <>
-                      <Lightbulb className="w-4 h-4 animate-pulse" />
-                      Đang tạo...
-                    </>
-                  ) : (
-                    <>
-                      <Brain className="w-4 h-4" />
-                      Tạo Flashcard
-                    </>
-                  )}
-                </button>
-              </div>
+
             </div>
           );
         })}
@@ -274,16 +168,7 @@ export function WeaknessTracker({ courseId }: Props) {
         </button>
       )}
 
-      {/* Review Modal */}
-      {reviewNodeId !== null && (
-        <FlashcardReviewModal
-          courseId={courseId}
-          nodeId={reviewNodeId}
-          nodeName={reviewNodeName}
-          isOpen={true}
-          onClose={closeReviewModal}
-        />
-      )}
+
     </div>
   );
 }

@@ -97,11 +97,6 @@ export default function StudentDashboard() {
           </Alert>
         )}
 
-        {/* ── Skill progress belongs with the dashboard overview. ── */}
-        {user && (
-          <SkillMasteryOverview studentId={user.id} hasCourses={totalCount > 0} onNavigateToDiscover={() => router.push("/lms/student/discover")} />
-        )}
-
         {/* ── Dashboard Layout ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* ── Left Column: Main Area (lg:col-span-8) ── */}
@@ -155,6 +150,11 @@ export default function StudentDashboard() {
               router.push(`/lms/student/courses/${courseId}/learn?contentId=${contentId}`);
             }}
           />
+        )}
+
+        {/* ── Skill progress belongs with the dashboard overview. ── */}
+        {user && (
+          <SkillMasteryOverview studentId={user.id} hasCourses={totalCount > 0} onNavigateToDiscover={() => router.push("/lms/student/discover")} />
         )}
 
       </div>

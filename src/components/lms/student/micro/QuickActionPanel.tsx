@@ -1,28 +1,8 @@
 "use client";
 
-/**
- * QuickActionPanel.tsx
- *
- * Mounted at the bottom of the MicroLessonViewer. Three primary
- * actions sit in a single horizontal bar:
- *
- *   1. Flashcards   - flip-card revision (3–5 cards)
- *   2. Quick Check  - 1–2 ultra-short MCQ generated from this lesson
- *   3. Ask AI       - opens a contextual chat drawer; the lesson body
- *                     is invisibly stitched into the agent's system
- *                     prompt via `system_context`.
- *
- * Selecting a tab expands its panel inline; "Ask AI" instead opens
- * a side drawer because the chat needs the full screen height.
- *
- * A `lesson_view` analytics event fires on first mount; once the
- * student spends 30 seconds on the lesson we also send
- * `lesson_complete`, half-credit completion is automatic via the
- * `lesson_view` event already.
- */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import analyticsService from "@/services/lms/analyticsService";
-import FlashcardDeck from "./FlashcardDeck";
+import Link from "next/link";
 import QuickCheck from "./QuickCheck";
 import AskAIDrawer from "./AskAIDrawer";
 import type { MicroLessonContext, QuickActionTab } from "./types";
@@ -141,12 +121,7 @@ export function QuickActionPanel({
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 dark:divide-blue-500/10">
-        <ActionButton
-          active={tab === "flashcards"}
-          label={labels.flashcards}
-          desc={labels.flashcardsDesc}
-          onClick={() => openTab("flashcards")}
-        />
+        <Link href={`/lms/student/flashcards?courseId=${ctx.courseId}`} className="px-6 py-4 text-sm font-semibold text-slate-900 transition active:scale-95 dark:text-slate-50">{labels.flashcards}</Link>
         <ActionButton
           active={tab === "quick_check"}
           label={labels.quickCheck}
@@ -161,11 +136,6 @@ export function QuickActionPanel({
         />
       </div>
 
-      {tab === "flashcards" && (
-        <div className="border-t border-slate-200 dark:border-blue-500/10">
-          <FlashcardDeck ctx={ctx} />
-        </div>
-      )}
       {tab === "quick_check" && (
         <div className="border-t border-slate-200 dark:border-blue-500/10">
           <QuickCheck ctx={ctx} />

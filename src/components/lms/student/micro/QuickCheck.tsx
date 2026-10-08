@@ -20,7 +20,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import aiService, {
   type ConceptCheckQuestion,
 } from "@/services/ai/aiService";
-import flashcardService from "@/services/lms/flashcardService";
 import analyticsService from "@/services/lms/analyticsService";
 import personalizedLearningTracker from "@/lib/personalized-learning-tracker";
 import type { MicroLessonContext } from "./types";
@@ -39,8 +38,6 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
   const [state, setState] = useState<QuestionState[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   const lang = ctx.language ?? "vi";
 
@@ -58,10 +55,6 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
       correct: lang === "vi" ? "Chính xác." : "Correct.",
       incorrect: lang === "vi" ? "Chưa đúng." : "Not quite.",
       regenerate: lang === "vi" ? "Tạo bộ câu mới" : "Regenerate",
-      save: lang === "vi" ? "Lưu lại ôn tập" : "Save for review",
-      saving: lang === "vi" ? "Đang lưu…" : "Saving…",
-      saved: lang === "vi" ? "Đã lưu vào Flashcard" : "Saved to Flashcards",
-      saveError: lang === "vi" ? "Lỗi khi lưu" : "Failed to save",
     }),
     [lang],
   );
@@ -142,44 +135,6 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
         },
       });
     }, [ctx.courseId, ctx.lessonId, ctx.nodeId, questions, state]);
-
-  const handleSave = useCallback(async () => {
-    if (saving || saved || questions.length === 0) return;
-    setSaving(true);
-    try {
-      const flashcards = questions.map((q) => {
-        // Front: Question + Options (A, B, C, D)
-        const optionsText = q.answer_options
-          .map((opt, i) => `${String.fromCharCode(65 + i)}. ${opt.text}`)
-          .join("\n");
-        const front_text = `${q.question_text}\n\n${optionsText}`;
-
-        // Back: Correct Answer + Explanation
-        const correctOpt = q.answer_options.find((o) => o.is_correct);
-        const correctIndex = q.answer_options.findIndex((o) => o.is_correct);
-        const correctLetter = String.fromCharCode(65 + correctIndex);
-        
-        let back_text = `Đáp án đúng: ${correctLetter}. ${correctOpt?.text || ""}`;
-        if (correctOpt?.explanation) {
-          back_text += `\n\nGiải thích: ${correctOpt.explanation}`;
-        }
-
-        return { front_text, back_text };
-      });
-
-      await flashcardService.bulkSaveFlashcards(ctx.courseId, {
-        node_id: ctx.nodeId,
-        lesson_id: ctx.lessonId,
-        content_id: ctx.contentId,
-        flashcards,
-      });
-      setSaved(true);
-    } catch {
-      alert(labels.saveError);
-    } finally {
-      setSaving(false);
-    }
-  }, [ctx.courseId, ctx.lessonId, ctx.nodeId, ctx.contentId, questions, saved, saving, labels]);
 
   if (loading) {
     return (
@@ -294,18 +249,7 @@ export function QuickCheck({ ctx }: QuickCheckProps) {
         >
           {labels.regenerate}
         </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={saving || saved}
-          className={`px-4 py-2 text-xs font-medium rounded-md transition-colors ${
-            saved
-              ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
-              : "border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50"
-          }`}
-        >
-          {saving ? labels.saving : saved ? labels.saved : labels.save}
-        </button>
+
       </div>
     </div>
   );

@@ -13,7 +13,6 @@ import {
 import { Enrollment } from "@/types";
 import { LessonProgressTab } from "./analytics/LessonProgressTab";
 import { MasteryTab } from "./analytics/MasteryTab";
-import { FlashcardTab } from "./analytics/FlashcardTab";
 
 interface StudentCourseAnalyticsProps {
   selectedCourseId: number | null;
@@ -39,7 +38,6 @@ export function StudentCourseAnalytics({
   loadingAnalytics,
   analyticsTab,
   setAnalyticsTab,
-  flashcardStats,
   quizScores,
   lessonProgress,
   microInteractions,
@@ -94,7 +92,6 @@ export function StudentCourseAnalytics({
             tabs={[
               { id: "lessons", label: "Tiến độ bài học", icon: <ListTodo className="w-4 h-4" /> },
               { id: "mastery", label: "Năng lực & Quiz", icon: <Target className="w-4 h-4" /> },
-              { id: "flashcards", label: "Flashcard", icon: <Brain className="w-4 h-4" /> },
             ]}
             active={analyticsTab}
             onChange={setAnalyticsTab}
@@ -118,12 +115,7 @@ export function StudentCourseAnalytics({
             />
           )}
 
-          {analyticsTab === "flashcards" && (
-            <FlashcardTab
-              flashcardStats={flashcardStats}
-              mounted={mounted}
-            />
-          )}
+
         </div>
       )}
     </div>
