@@ -34,7 +34,7 @@ export function useContentStudy(ctx: MicroLessonContext) {
     requests.current[kind] = requestID;
     try {
       const response = await flashcardLibraryService(ctx.courseId).fromContent<ContentStudyResult>(kind === "cards" ? "generate_content" : "quiz_content", {
-        ...(ctx.contentId ? { content_id: ctx.contentId } : { lesson_id: ctx.lessonId ?? undefined }),
+        ...(ctx.lessonId ? { lesson_id: ctx.lessonId } : { content_id: ctx.contentId ?? undefined }),
         request_id: requestID, count: kind === "cards" ? 5 : 3, language: ctx.language ?? "vi",
       }, abort.signal);
       if (!abort.signal.aborted) { setResult(response); delete requests.current[kind]; }
