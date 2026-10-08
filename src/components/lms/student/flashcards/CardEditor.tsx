@@ -1,5 +1,5 @@
 "use client";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Layers, Save, X } from "lucide-react";
 import type { CardDraft, FlashcardLibrary } from "@/types/lms/flashcardLibrary";
 import { emptyCard } from "@/hooks/lms/student/useFlashcardLibrary";
 import { button, input, languages, panel, primary } from "./styles";
@@ -11,19 +11,22 @@ interface Props {
 }
 export function CardEditor({ drafts, onChange, decks, deck, onDeck, busy, onSave, onCancel }: Props) {
   const update = (index: number, patch: Partial<CardDraft>) => onChange(drafts.map((card, i) => i === index ? { ...card, ...patch } : card));
-  return <form className={`${panel} space-y-5`} onSubmit={e => { e.preventDefault(); onSave(); }}>
-    <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">{drafts[0]?.id ? "Sửa thẻ" : "Thẻ mới"}</h2><button type="button" className={button} onClick={onCancel} disabled={busy}>Hủy</button></div>
-    <label className="block space-y-2 text-sm font-medium"><span>Bộ thẻ</span><select className={input} value={deck ?? ""} onChange={e => onDeck(e.target.value ? Number(e.target.value) : null)} disabled={busy}>
+  return <form className={`${panel} space-y-6 !p-0 overflow-hidden`} onSubmit={e => { e.preventDefault(); onSave(); }}>
+    <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/70 px-5 py-4 dark:border-blue-500/10 dark:bg-[#0D192E]/60 sm:px-6">
+      <div className="flex items-center gap-3"><span className="rounded-xl bg-blue-100 p-2.5 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400"><Layers size={21} /></span><h2 className="text-lg font-bold">{drafts[0]?.id ? "Sửa thẻ" : "Tạo thẻ"}</h2><span className="rounded-full bg-slate-200/70 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-700/50 dark:text-slate-300">{drafts.length}</span></div>
+      <button type="button" className={button} aria-label="Đóng trình tạo thẻ" onClick={onCancel} disabled={busy}><X size={16} /></button>
+    </div>
+    <label className="mx-5 block space-y-2 text-sm font-medium sm:mx-6"><span>Bộ thẻ</span><select className={input} value={deck ?? ""} onChange={e => onDeck(e.target.value ? Number(e.target.value) : null)} disabled={busy}>
       <option value="">Bộ thẻ của tôi (mới)</option>{decks.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
     </select></label>
-    <fieldset disabled={busy} className="space-y-6">
-      {drafts.map((card, index) => <div key={card.id ?? index} className="space-y-4 border-t border-slate-100 pt-5 dark:border-blue-500/10">
-        <div className="flex items-center justify-between"><span className="text-sm font-semibold">Thẻ {index + 1}</span>{drafts.length > 1 && <button type="button" className={button} aria-label={`Bỏ thẻ ${index + 1}`} onClick={() => onChange(drafts.filter((_, i) => i !== index))}><Trash2 size={16} /></button>}</div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="space-y-2 text-sm font-medium"><span>Mặt trước</span><textarea required maxLength={4000} rows={3} className={input} value={card.front_text} onChange={e => update(index, { front_text: e.target.value })} placeholder="Từ, câu hỏi hoặc khái niệm" /></label>
-          <label className="space-y-2 text-sm font-medium"><span>Đáp án</span><textarea required maxLength={4000} rows={3} className={input} value={card.back_text} onChange={e => update(index, { back_text: e.target.value })} placeholder="Điều bạn muốn ghi nhớ" /></label>
+    <fieldset disabled={busy} className="space-y-5 px-5 sm:px-6">
+      {drafts.map((card, index) => <div key={card.id ?? index} className="space-y-4 rounded-2xl border border-slate-200 p-4 dark:border-blue-500/15 sm:p-5">
+        <div className="flex items-center justify-between"><span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Thẻ {index + 1}</span>{drafts.length > 1 && <button type="button" className={button} aria-label={`Bỏ thẻ ${index + 1}`} onClick={() => onChange(drafts.filter((_, i) => i !== index))}><Trash2 size={16} /></button>}</div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-3 rounded-xl bg-slate-50 p-4 text-sm font-medium dark:bg-[#0D192E]"><span className="text-slate-500 dark:text-slate-400">Mặt trước</span><textarea required maxLength={4000} rows={4} className={`${input} resize-y !border-transparent !bg-transparent !px-0 !text-base focus:!border-blue-500/30 focus:!px-3`} value={card.front_text} onChange={e => update(index, { front_text: e.target.value })} placeholder="Từ, câu hỏi hoặc khái niệm" /></label>
+          <label className="space-y-3 rounded-xl bg-blue-50/60 p-4 text-sm font-medium dark:bg-blue-500/5"><span className="text-blue-600 dark:text-blue-400">Đáp án</span><textarea required maxLength={4000} rows={4} className={`${input} resize-y !border-transparent !bg-transparent !px-0 !text-base focus:!border-blue-500/30 focus:!px-3`} value={card.back_text} onChange={e => update(index, { back_text: e.target.value })} placeholder="Điều bạn muốn ghi nhớ" /></label>
         </div>
-        <details className="rounded-xl bg-slate-50 p-4 dark:bg-[#0D192E]">
+        <details className="border-t border-slate-100 pt-4 dark:border-blue-500/10">
           <summary className="cursor-pointer text-sm font-semibold">Tùy chỉnh</summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="space-y-2 text-sm"><span>Cách kiểm tra</span><select className={input} value={card.match_mode} onChange={e => update(index, { match_mode: e.target.value as CardDraft["match_mode"] })}><option value="exact">Khớp đáp án</option><option value="ai">AI kiểm tra ý nghĩa</option></select></label>
@@ -35,6 +38,6 @@ export function CardEditor({ drafts, onChange, decks, deck, onDeck, busy, onSave
         </details>
       </div>)}
     </fieldset>
-    <div className="flex flex-wrap justify-between gap-3"><button type="button" className={button} disabled={busy || drafts.length >= 100} onClick={() => onChange([...drafts, emptyCard()])}><Plus size={16} />Thêm thẻ</button><button className={primary} disabled={busy || drafts.some(c => !c.front_text.trim() || !c.back_text.trim())}>{busy ? "Đang lưu…" : `Lưu ${drafts.length} thẻ`}</button></div>
+    <div className="sticky bottom-0 flex flex-wrap justify-between gap-3 border-t border-slate-200 bg-white/95 px-5 py-4 backdrop-blur dark:border-blue-500/15 dark:bg-[#0F1E35]/95 sm:px-6"><button type="button" className={button} disabled={busy || drafts.length >= 100} onClick={() => onChange([...drafts, emptyCard()])}><Plus size={16} />Thêm thẻ</button><button className={primary} disabled={busy || drafts.some(c => !c.front_text.trim() || !c.back_text.trim())}><Save size={16} />{busy ? "Đang lưu…" : `Lưu ${drafts.length} thẻ`}</button></div>
   </form>;
 }
