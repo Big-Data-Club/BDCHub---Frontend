@@ -26,6 +26,13 @@ const eslintConfig = [...compat.extends("next/core-web-vitals", "next/typescript
   rules: {
     "@typescript-eslint/no-explicit-any": "off",
   },
-}, ...storybook.configs["flat/recommended"]];
+}, ...storybook.configs["flat/recommended"], {
+  // Node test harnesses load transpiled TypeScript through CommonJS.
+  // Keep application import rules intact while linting these test files.
+  files: ["tests/**/*.test.cjs"],
+  rules: {
+    "@typescript-eslint/no-require-imports": "off",
+  },
+}];
 
 export default eslintConfig;
