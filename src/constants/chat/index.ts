@@ -1,2 +1,4 @@
 // Barrel export for chat domain constants
-export {};
+
+
+export * from "./preferences";

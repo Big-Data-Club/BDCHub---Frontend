@@ -1,2 +1,4 @@
 // Barrel export for chat domain utils
-export {};
+
+
+export * from "./messages";

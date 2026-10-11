@@ -1,542 +1,331 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  ChatChannel,
-  ChatMessage,
-  WSEvent,
-  WSMessagePayload,
-  WSDeletePayload,
-  WSEditPayload,
-} from "@/types/chat/chat";
-import {
-  listChannels,
-  listMessages,
-  sendMessageRest,
-  getOrCreateDM,
-} from "@/services/chat/chatService";
-
-// ─── Notification helpers ─────────────────────────────────────────────────────
-
-/** Play a short "ting" chime using Web Audio API - no file/network needed. */
-function playChatSound() {
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
-    gain.gain.setValueAtTime(0.25, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.18);
-    osc.onended = () => ctx.close();
-  } catch {
-    // AudioContext blocked or unavailable - silently ignore
-  }
-}
-
-const DEFAULT_TITLE = "BDC Chat";
-
-// ─── Context ──────────────────────────────────────────────────────────────────
+import type { ChatChannel, ChatMessage, WSEvent, WSMessagePayload, WSEditPayload, WSDeletePayload } from "@/types/chat/chat";
+import type { ChatConnectionState, ChatPreferences } from "@/types/chat/preferences";
+import { listChannels, listMessages, sendMessageRest, sendAttachments as uploadAttachments,
+  deleteMessage as removeMessage, editMessage as updateMessage, getOrCreateDM } from "@/services/chat/chatService";
+import { mergeMessages, chatWebSocketUrl } from "@/utils/chat/messages";
+import { useChatPreferences } from "./useChatPreferences";
 
 interface ChatContextValue {
   channels: ChatChannel[];
   channelsLoading: boolean;
-
   activeChannelId: number | null;
   setActiveChannelId: (id: number) => void;
-
   messages: ChatMessage[];
   messagesLoading: boolean;
   hasMoreMessages: boolean;
   loadMoreMessages: () => Promise<void>;
-
   sendMessage: (body: string, parentId?: number | null) => Promise<void>;
   sendAttachments: (files: File[], body: string, parentId?: number | null) => Promise<void>;
-  deleteMessage: (msgId: number) => void;
-  editMessage: (msgId: number, newBody: string) => Promise<void>;
-
+  deleteMessage: (id: number) => Promise<void>;
+  editMessage: (id: number, body: string) => Promise<void>;
   unreadCounts: Record<number, number>;
   isConnected: boolean;
+  connectionState: ChatConnectionState;
   refreshChannels: () => Promise<void>;
   addChannel: (channel: ChatChannel) => void;
+  reconnect: () => void;
+  error: string | null;
+  clearError: () => void;
+  showSidebar: boolean;
+  openSidebar: () => void;
+  preferences: ChatPreferences;
+  updatePreferences: (patch: Partial<ChatPreferences>) => void;
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null);
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const WS_BASE_URL = process.env.NEXT_PUBLIC_CHAT_WS_URL || "ws://localhost:8083/api/v1";
-const RECONNECT_INITIAL_DELAY = 1000;
-const RECONNECT_MAX_DELAY = 30000;
 const HISTORY_LIMIT = 50;
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
+function playChatSound() {
+  try {
+    const audio = new AudioContext();
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+    oscillator.connect(gain); gain.connect(audio.destination);
+    oscillator.frequency.setValueAtTime(880, audio.currentTime);
+    gain.gain.setValueAtTime(.1, audio.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.0001, audio.currentTime + .15);
+    oscillator.start(); oscillator.stop(audio.currentTime + .15);
+    oscillator.onended = () => { void audio.close(); };
+  } catch { /* Browsers may require user interaction before playing audio. */ }
+}
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
-  const token = (session as any)?.accessToken as string | undefined;
-  const currentUserId = (session as any)?.user?.id as string | undefined;
-  const currentEmail = (session as any)?.user?.email as string | undefined;
-
+  const identity = session as unknown as { accessToken?: string; user?: { id?: string | number } } | null;
+  const token = identity?.accessToken;
+  const userId = identity?.user?.id == null ? undefined : String(identity.user.id);
+  const { preferences, updatePreferences } = useChatPreferences(userId);
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const [channels, setChannels] = useState<ChatChannel[]>([]);
   const [channelsLoading, setChannelsLoading] = useState(true);
   const [activeChannelId, setActiveChannelIdRaw] = useState<number | null>(null);
-  const [messagesByChannel, setMessagesByChannel] = useState<Record<number, ChatMessage[]>>({});
-  const [cursorByChannel, setCursorByChannel] = useState<Record<number, number>>({});
-  const [hasMoreByChannel, setHasMoreByChannel] = useState<Record<number, boolean>>({});
-  const [messagesLoading, setMessagesLoading] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [cache, setCache] = useState<Record<number, ChatMessage[]>>({});
+  const [cursors, setCursors] = useState<Record<number, number>>({});
+  const [hasMore, setHasMore] = useState<Record<number, boolean>>({});
+  const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
+  const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({});
+  const [unreadIdentity, setUnreadIdentity] = useState<string>();
+  const [connectionState, setConnectionState] = useState<ChatConnectionState>("connecting");
+  const [connectionEpoch, setConnectionEpoch] = useState(0);
+  const [showSidebar, setShowSidebar] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const activeRef = useRef<number | null>(null);
+  const accountEpoch = useRef(0);
+  const loaded = useRef(new Set<number>());
+  const inFlight = useRef(new Set<number>());
+  const seenEvents = useRef(new Set<string>());
+  const wsRef = useRef<WebSocket | null>(null);
+  const eventHandler = useRef<(events: WSEvent[]) => void>(() => {});
 
-  const activeChannelIdRef = useRef<number | null>(null);
   useEffect(() => {
-    activeChannelIdRef.current = activeChannelId;
-  }, [activeChannelId]);
+    accountEpoch.current++;
+    activeRef.current = null;
+    loaded.current.clear(); inFlight.current.clear(); seenEvents.current.clear();
+    setChannels([]); setCache({}); setCursors({}); setHasMore({}); setLoadingIds(new Set());
+    setActiveChannelIdRaw(null); setShowSidebar(true); setError(null);
+    let counts: Record<number, number> = {};
+    try {
+      const stored = JSON.parse(localStorage.getItem(`bdc.chat.unread:${userId}`) || "{}");
+      counts = Object.fromEntries(Object.entries(stored).filter(([id, count]) =>
+        Number(id) > 0 && typeof count === "number" && Number.isFinite(count) && count >= 0)) as Record<number, number>;
+    } catch { /* optional storage */ }
+    setUnreadCounts(counts); setUnreadIdentity(userId);
+  }, [userId]);
 
-  const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("chat_unread_counts");
-      if (stored) {
-        try { return JSON.parse(stored); } catch { return {}; }
-      }
-    }
-    return {};
-  });
-
-  // Debounced localStorage sync: batches rapid successive updates (e.g. burst
-  // of incoming messages) into a single write + event dispatch after 200ms.
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (persistTimer.current) clearTimeout(persistTimer.current);
-      persistTimer.current = setTimeout(() => {
-        localStorage.setItem("chat_unread_counts", JSON.stringify(unreadCounts));
-        const total = Object.values(unreadCounts).reduce((s, n) => s + n, 0);
+    if (!userId || userId !== unreadIdentity) return;
+    const timer = window.setTimeout(() => {
+      try {
+        localStorage.setItem(`bdc.chat.unread:${userId}`, JSON.stringify(unreadCounts));
+        const total = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
         localStorage.setItem("unread_chat_messages_count", String(total));
         window.dispatchEvent(new Event("unread-chat-change"));
-      }, 200);
-    }
-  }, [unreadCounts]);
-
-  const totalUnreadRef = useRef(0);
-
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectDelay = useRef(RECONNECT_INITIAL_DELAY);
-  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const unmounted = useRef(false);
-  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // ── Load channels ────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!token) return;
-    setChannelsLoading(true);
-    listChannels()
-      .then(setChannels)
-      .catch(() => setChannels([]))
-      .finally(() => setChannelsLoading(false));
-  }, [token]);
+      } catch { /* optional storage */ }
+    }, 200);
+    return () => window.clearTimeout(timer);
+  }, [unreadCounts, userId, unreadIdentity]);
 
   const refreshChannels = useCallback(async () => {
-    if (!token) return;
+    if (!token) { setChannelsLoading(false); return; }
+    const epoch = accountEpoch.current;
     try {
-      const list = await listChannels();
-      setChannels(list);
-    } catch (err) {
-      console.error("Refresh channels error:", err);
-    }
+      const next = await listChannels();
+      if (epoch !== accountEpoch.current) return;
+      setChannels(next);
+      const accessible = new Set(next.map((channel) => channel.id));
+      setCache((previous) => Object.fromEntries(Object.entries(previous).filter(([id]) => accessible.has(Number(id)))));
+      for (const id of loaded.current) if (!accessible.has(id)) loaded.current.delete(id);
+      if (activeRef.current && !accessible.has(activeRef.current)) {
+        activeRef.current = null; setActiveChannelIdRaw(null); setShowSidebar(true);
+      }
+    } catch { if (epoch === accountEpoch.current) setError("Không thể tải kênh chat. Hãy thử tải lại."); }
+    finally { if (epoch === accountEpoch.current) setChannelsLoading(false); }
   }, [token]);
 
+  const loadHistory = useCallback(async (id: number, reset = false, beforeId?: number) => {
+    if (inFlight.current.has(id)) return;
+    const epoch = accountEpoch.current;
+    inFlight.current.add(id); setLoadingIds((previous) => new Set(previous).add(id));
+    try {
+      const page = await listMessages(id, beforeId, HISTORY_LIMIT);
+      if (epoch !== accountEpoch.current) return;
+      setCache((previous) => ({ ...previous, [id]: reset ? page.messages : mergeMessages(page.messages, previous[id] || []) }));
+      loaded.current.add(id);
+      setCursors((previous) => ({ ...previous, [id]: page.nextCursor }));
+      // The browser retains a bounded history window; older pages remain on the server.
+      setHasMore((previous) => ({ ...previous, [id]: page.hasMore && (!beforeId || (cache[id]?.length || 0) + page.messages.length < 500) }));
+    } catch { if (epoch === accountEpoch.current) setError("Không thể tải tin nhắn. Bạn có thể thử lại."); }
+    finally {
+      if (epoch === accountEpoch.current) {
+        inFlight.current.delete(id);
+        setLoadingIds((previous) => { const next = new Set(previous); next.delete(id); return next; });
+      }
+    }
+  }, [cache]);
+  const loadHistoryRef = useRef(loadHistory);
+  useEffect(() => { loadHistoryRef.current = loadHistory; }, [loadHistory]);
+
+  const setActiveChannelId = useCallback((id: number) => {
+    activeRef.current = id; setActiveChannelIdRaw(id); setShowSidebar(false); setError(null);
+    setUnreadCounts((previous) => ({ ...previous, [id]: 0 }));
+    if (!loaded.current.has(id)) void loadHistoryRef.current(id);
+  }, []);
+  const reconnect = useCallback(() => setConnectionEpoch((value) => value + 1), []);
   const addChannel = useCallback((channel: ChatChannel) => {
-    setChannels((prev) => {
-      if (prev.some((c) => c.id === channel.id)) return prev;
-      return [...prev, channel];
-    });
-  }, []);
-
-  // ── WebSocket lifecycle ───────────────────────────────────────────────────────
-  const connect = useCallback(() => {
-    if (!token || unmounted.current) return;
-
-    const url = `${WS_BASE_URL}/chat/ws?token=${encodeURIComponent(token)}`;
-    const ws = new WebSocket(url);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      setIsConnected(true);
-      reconnectDelay.current = RECONNECT_INITIAL_DELAY;
-    };
-
-    ws.onclose = () => {
-      setIsConnected(false);
-      if (!unmounted.current) scheduleReconnect();
-    };
-
-    ws.onerror = () => { ws.close(); };
-
-    ws.onmessage = (event) => {
-      const lines = (event.data as string).split("\n").filter(Boolean);
-      for (const line of lines) {
-        try {
-          const wsEvent: WSEvent = JSON.parse(line);
-          handleWsEvent(wsEvent);
-        } catch {
-          // ignore malformed frames
-        }
-      }
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
-
-  const scheduleReconnect = useCallback(() => {
-    if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
-    reconnectTimer.current = setTimeout(() => {
-      reconnectDelay.current = Math.min(reconnectDelay.current * 2, RECONNECT_MAX_DELAY);
-      connect();
-    }, reconnectDelay.current);
-  }, [connect]);
+    setChannels((previous) => previous.some((entry) => entry.id === channel.id) ? previous : [...previous, channel]);
+    reconnect(); // Subscription membership is resolved by the server during upgrade.
+  }, [reconnect]);
 
   useEffect(() => {
-    unmounted.current = false;
-    if (token) connect();
-    return () => {
-      unmounted.current = true;
-      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
-      wsRef.current?.close();
-    };
-  }, [token, connect]);
-
-  // ── Handle incoming WS events ─────────────────────────────────────────────────
-  const handleWsEvent = useCallback((event: WSEvent) => {
-    const channelId = event.channel_id;
-
-    switch (event.type) {
-      case "message": {
-        const p = event.payload as WSMessagePayload;
-        const newMsg: ChatMessage = {
-          id: p.id,
-          channelId,
-          senderId: p.sender_id,
-          senderName: p.sender_name,
-          senderEmail: "",
-          senderAvatar: p.sender_avatar ?? "",
-          body: p.body,
-          isDeleted: false,
-          isEdited: p.is_edited ?? false,
-          parentId: p.parent_id ?? null,
-          parentSenderName: p.parent_sender_name ?? "",
-          parentBody: p.parent_body ?? "",
-          attachments: (p.attachments ?? []).map((attachment) => ({
-            id: attachment.id,
-            fileName: attachment.file_name,
-            mimeType: attachment.mime_type,
-            sizeBytes: attachment.size_bytes,
-            createdAt: attachment.created_at,
-          })),
-          createdAt: event.ts,
-        };
-
-        setMessagesByChannel((prev) => {
-          const existing = prev[channelId] ?? [];
-          const idx = existing.findIndex((m) => m.id === p.id);
-          if (idx >= 0) {
-            // Update in-place (de-duplicate optimistic inserts)
-            const updated = [...existing];
-            updated[idx] = { ...updated[idx], ...newMsg };
-            return { ...prev, [channelId]: updated };
-          }
-          return { ...prev, [channelId]: [...existing, newMsg] };
-        });
-
-        setActiveChannelIdRaw((active) => {
-          if (active !== channelId) {
-            setUnreadCounts((counts) => {
-              const next = { ...counts, [channelId]: (counts[channelId] ?? 0) + 1 };
-              totalUnreadRef.current = Object.values(next).reduce((s, n) => s + n, 0);
-              return next;
+    eventHandler.current = (events) => {
+      const updates: Record<number, ChatMessage[]> = {};
+      const mutations: WSEvent[] = [];
+      const unread: Record<number, number> = {};
+      let notify = false;
+      for (const event of events) {
+        const id = event.channel_id;
+        if (!Number.isSafeInteger(id) || id <= 0) continue;
+        if (event.type === "message") {
+          const payload = event.payload as WSMessagePayload;
+          if (!payload || !Number.isSafeInteger(payload.id)) continue;
+          const eventId = `${id}:${payload.id}`;
+          if (seenEvents.current.has(eventId)) continue;
+          seenEvents.current.add(eventId);
+          if (seenEvents.current.size > 2000) seenEvents.current.delete(seenEvents.current.values().next().value!);
+          if (loaded.current.has(id) || activeRef.current === id) {
+            (updates[id] ||= []).push({
+              id: payload.id, channelId: id, senderId: payload.sender_id,
+              senderName: payload.sender_name, senderEmail: "", senderAvatar: payload.sender_avatar || "",
+              body: payload.body, isDeleted: false, isEdited: payload.is_edited || false,
+              parentId: payload.parent_id, parentSenderName: payload.parent_sender_name,
+              parentBody: payload.parent_body, createdAt: event.ts,
+              attachments: (payload.attachments || []).map((attachment) => ({ id: attachment.id,
+                fileName: attachment.file_name, mimeType: attachment.mime_type,
+                sizeBytes: attachment.size_bytes, createdAt: attachment.created_at })),
             });
-
-            const isOwnMsg =
-              currentUserId ? String(p.sender_id) === currentUserId
-              : currentEmail ? p.sender_name === currentEmail
-              : false;
-
-            if (document.hidden && !isOwnMsg) {
-              playChatSound();
-              document.title = `(${totalUnreadRef.current}) ${DEFAULT_TITLE}`;
-            }
           }
-          return active;
-        });
-        break;
+          if (String(payload.sender_id) !== userId && (activeRef.current !== id || document.hidden)) {
+            unread[id] = (unread[id] || 0) + 1; notify = true;
+          }
+        } else if (event.type === "edit" || event.type === "delete") mutations.push(event);
       }
-
-      case "edit": {
-        const p = event.payload as WSEditPayload;
-        setMessagesByChannel((prev) => ({
-          ...prev,
-          [channelId]: (prev[channelId] ?? []).map((m) =>
-            m.id === p.id ? { ...m, body: p.body, isEdited: true } : m
-          ),
-        }));
-        break;
-      }
-
-      case "delete": {
-        const p = event.payload as WSDeletePayload;
-        setMessagesByChannel((prev) => ({
-          ...prev,
-          [channelId]: (prev[channelId] ?? []).map((m) =>
-            m.id === p.id ? { ...m, isDeleted: true, body: "[deleted]" } : m
-          ),
-        }));
-        break;
-      }
-
-    }
-  }, [currentUserId, currentEmail]);
-
-  // ── Page-visibility listener: reset title when user returns to tab ───────────
-  useEffect(() => {
-    const onVisible = () => {
-      if (!document.hidden) {
-        const active = activeChannelIdRef.current;
-        if (active !== null) {
-          setUnreadCounts((counts) => {
-            const next = { ...counts, [active]: 0 };
-            totalUnreadRef.current = Object.values(next).reduce((s, n) => s + n, 0);
-            if (totalUnreadRef.current === 0) {
-              document.title = DEFAULT_TITLE;
-            } else {
-              document.title = `(${totalUnreadRef.current}) ${DEFAULT_TITLE}`;
-            }
-            return next;
-          });
-        }
-      }
-    };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
-  }, []);
-
-  // ── Active channel management ─────────────────────────────────────────────────
-  const setActiveChannelId = useCallback(
-    (id: number) => {
-      setActiveChannelIdRaw(id);
-      setUnreadCounts((u) => {
-        const next = { ...u, [id]: 0 };
-        totalUnreadRef.current = Object.values(next).reduce((s, n) => s + n, 0);
-        if (totalUnreadRef.current === 0) {
-          document.title = DEFAULT_TITLE;
-        } else {
-          document.title = `(${totalUnreadRef.current}) ${DEFAULT_TITLE}`;
+      if (Object.keys(updates).length || mutations.length) setCache((previous) => {
+        const next = { ...previous };
+        for (const [id, incoming] of Object.entries(updates)) next[Number(id)] = mergeMessages(next[Number(id)] || [], incoming);
+        for (const event of mutations) {
+          const payload = event.payload as WSEditPayload | WSDeletePayload;
+          if (!payload || !next[event.channel_id]) continue;
+          next[event.channel_id] = next[event.channel_id].map((message) => message.id !== payload.id ? message
+            : event.type === "delete" ? { ...message, body: "[deleted]", isDeleted: true }
+            : { ...message, body: (payload as WSEditPayload).body, isEdited: true });
         }
         return next;
       });
-
-      if (!messagesByChannel[id]) {
-        setMessagesLoading(true);
-        listMessages(id, undefined, HISTORY_LIMIT)
-          .then((res) => {
-            setMessagesByChannel((prev) => ({ ...prev, [id]: res.messages }));
-            setCursorByChannel((prev) => ({ ...prev, [id]: res.nextCursor }));
-            setHasMoreByChannel((prev) => ({ ...prev, [id]: res.hasMore }));
-          })
-          .catch(() => {})
-          .finally(() => setMessagesLoading(false));
-      }
-    },
-    [messagesByChannel]
-  );
-
-  // ── Load more (older) messages ────────────────────────────────────────────────
-  const loadMoreMessages = useCallback(async () => {
-    if (!activeChannelId) return;
-    const cursor = cursorByChannel[activeChannelId];
-    if (!cursor) return;
-
-    setMessagesLoading(true);
-    try {
-      const res = await listMessages(activeChannelId, cursor, HISTORY_LIMIT);
-      setMessagesByChannel((prev) => ({
-        ...prev,
-        [activeChannelId]: [...res.messages, ...(prev[activeChannelId] ?? [])],
-      }));
-      setCursorByChannel((prev) => ({ ...prev, [activeChannelId]: res.nextCursor }));
-      setHasMoreByChannel((prev) => ({ ...prev, [activeChannelId]: res.hasMore }));
-    } catch {
-      // silently ignore
-    } finally {
-      setMessagesLoading(false);
-    }
-  }, [activeChannelId, cursorByChannel]);
-
-  // ── Send message ──────────────────────────────────────────────────────────────
-  const sendMessage = useCallback(
-    async (body: string, parentId?: number | null) => {
-      if (!activeChannelId || !body.trim()) return;
-
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(
-          JSON.stringify({
-            type: "message",
-            channel_id: activeChannelId,
-            body: body.trim(),
-            parent_id: parentId ?? null,
-          })
-        );
-      } else {
-        // REST fallback
-        const msg = await sendMessageRest(activeChannelId, body.trim(), parentId);
-        setMessagesByChannel((prev) => ({
-          ...prev,
-          [activeChannelId]: [...(prev[activeChannelId] ?? []), msg],
-        }));
-      }
-    },
-    [activeChannelId]
-  );
-
-  const sendAttachments = useCallback(
-    async (files: File[], body: string, parentId?: number | null) => {
-      if (!activeChannelId) return;
-      const { sendAttachments: upload } = await import("@/services/chat/chatService");
-      const message = await upload(activeChannelId, files, body, parentId);
-      // The WebSocket broadcast normally arrives immediately. Insert the REST
-      // result as well so a sender never waits on a reconnect; event handling
-      // de-duplicates by server message id.
-      setMessagesByChannel((prev) => {
-        const existing = prev[activeChannelId] ?? [];
-        if (existing.some((m) => m.id === message.id)) return prev;
-        return { ...prev, [activeChannelId]: [...existing, message] };
+      if (Object.keys(unread).length) setUnreadCounts((previous) => {
+        const next = { ...previous };
+        for (const [id, count] of Object.entries(unread)) next[Number(id)] = (next[Number(id)] || 0) + count;
+        return next;
       });
-    },
-    [activeChannelId]
-  );
+      if (notify && document.hidden && preferences.sound) playChatSound();
+    };
+  }, [userId, preferences.sound]);
 
-  // ── Delete message ────────────────────────────────────────────────────────────
-  const deleteMessage = useCallback((msgId: number) => {
-    if (!activeChannelId) return;
-    setMessagesByChannel((prev) => ({
-      ...prev,
-      [activeChannelId]: (prev[activeChannelId] ?? []).map((m) =>
-        m.id === msgId ? { ...m, isDeleted: true, body: "[deleted]" } : m
-      ),
-    }));
-    import("@/services/chat/chatService").then(({ deleteMessage: del }) =>
-      del(activeChannelId, msgId)
-    );
-  }, [activeChannelId]);
-
-  // ── Edit message ──────────────────────────────────────────────────────────────
-  const editMessage = useCallback(
-    async (msgId: number, newBody: string) => {
-      if (!activeChannelId) return;
-      // Optimistic update
-      setMessagesByChannel((prev) => ({
-        ...prev,
-        [activeChannelId]: (prev[activeChannelId] ?? []).map((m) =>
-          m.id === msgId ? { ...m, body: newBody, isEdited: true } : m
-        ),
-      }));
-      try {
-        await import("@/services/chat/chatService").then(({ editMessage: edit }) =>
-          edit(activeChannelId, msgId, newBody)
-        );
-      } catch (err) {
-        console.error("editMessage failed:", err);
-      }
-    },
-    [activeChannelId]
-  );
-
-  // Auto-select DM channel if userId parameter is present
   useEffect(() => {
-    if (!token || channelsLoading) return;
-    const userIdStr = searchParams.get("userId");
-    if (!userIdStr) return;
+    let disposed = false;
+    let delay = 1000;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let frame: number | undefined;
+    let pending: WSEvent[] = [];
+    const flush = () => { frame = undefined; const batch = pending; pending = []; eventHandler.current(batch); };
+    const connect = () => {
+      if (disposed || !token) return;
+      setConnectionState(delay === 1000 ? "connecting" : "reconnecting");
+      const socket = new WebSocket(chatWebSocketUrl(window.location.origin, token, process.env.NEXT_PUBLIC_CHAT_WS_URL));
+      wsRef.current = socket;
+      socket.onopen = () => {
+        if (disposed) { socket.close(); return; }
+        setConnectionState("connected"); delay = 1000;
+        void refreshChannels().then(() => { if (!disposed && activeRef.current) void loadHistoryRef.current(activeRef.current, true); });
+      };
+      socket.onclose = () => {
+        if (disposed) return;
+        setConnectionState("reconnecting");
+        timer = setTimeout(connect, delay * (.8 + Math.random() * .4));
+        delay = Math.min(delay * 2, 30000);
+      };
+      socket.onerror = () => socket.close();
+      socket.onmessage = (event: MessageEvent) => {
+        if (typeof event.data !== "string") return;
+        for (const line of event.data.split("\n")) {
+          try { pending.push(JSON.parse(line) as WSEvent); } catch { /* malformed frame */ }
+        }
+        if (pending.length > 1000) { pending = []; socket.close(); return; }
+        // A short batch also works in background tabs where animation frames pause.
+        if (frame === undefined) frame = window.setTimeout(flush, 16);
+      };
+    };
+    void refreshChannels();
+    if (token) connect(); else setConnectionState("offline");
+    return () => {
+      disposed = true;
+      if (timer) clearTimeout(timer);
+      if (frame !== undefined) clearTimeout(frame);
+      wsRef.current?.close(); wsRef.current = null;
+    };
+  }, [token, refreshChannels, connectionEpoch]);
 
-    const targetUserId = parseInt(userIdStr, 10);
-    if (isNaN(targetUserId)) return;
+  useEffect(() => {
+    const markRead = () => { if (!document.hidden && activeRef.current) setUnreadCounts((previous) => ({ ...previous, [activeRef.current!]: 0 })); };
+    document.addEventListener("visibilitychange", markRead);
+    return () => document.removeEventListener("visibilitychange", markRead);
+  }, []);
 
-    const existingDm = channels.find(
-      (c) => c.isDm && c.dmUser?.id === targetUserId
-    );
+  const sendMessage = useCallback(async (body: string, parentId?: number | null) => {
+    const id = activeRef.current;
+    if (!id || !body.trim()) return;
+    // HTTP acknowledges persistence; WebSocket is delivery, not a send receipt.
+    const message = await sendMessageRest(id, body.trim(), parentId);
+    setCache((previous) => ({ ...previous, [id]: mergeMessages(previous[id] || [], [message]) }));
+  }, []);
+  const sendAttachments = useCallback(async (files: File[], body: string, parentId?: number | null) => {
+    const id = activeRef.current; if (!id) return;
+    const message = await uploadAttachments(id, files, body, parentId);
+    setCache((previous) => ({ ...previous, [id]: mergeMessages(previous[id] || [], [message]) }));
+  }, []);
+  const deleteMessage = useCallback(async (messageId: number) => {
+    const id = activeRef.current; if (!id) return;
+    try {
+      await removeMessage(id, messageId);
+      setCache((previous) => ({ ...previous, [id]: (previous[id] || []).map((message) => message.id === messageId ? { ...message, body: "[deleted]", isDeleted: true } : message) }));
+    } catch { setError("Chưa xóa được tin nhắn. Hãy thử lại."); }
+  }, []);
+  const editMessage = useCallback(async (messageId: number, body: string) => {
+    const id = activeRef.current; if (!id) return;
+    const message = await updateMessage(id, messageId, body);
+    setCache((previous) => ({ ...previous, [id]: mergeMessages(previous[id] || [], [message]) }));
+  }, []);
+  const loadMoreMessages = useCallback(async () => {
+    if (activeChannelId && hasMore[activeChannelId]) await loadHistory(activeChannelId, false, cursors[activeChannelId]);
+  }, [activeChannelId, hasMore, cursors, loadHistory]);
 
-    if (existingDm) {
-      setActiveChannelId(existingDm.id);
-      const newParams = new URLSearchParams(searchParams.toString());
-      newParams.delete("userId");
-      const cleanUrl = `/chat${newParams.toString() ? `?${newParams.toString()}` : ""}`;
-      router.replace(cleanUrl);
-    } else {
-      setMessagesLoading(true);
-      getOrCreateDM(targetUserId)
-        .then((channel) => {
-          addChannel(channel);
-          setActiveChannelId(channel.id);
-          const newParams = new URLSearchParams(searchParams.toString());
-          newParams.delete("userId");
-          const cleanUrl = `/chat${newParams.toString() ? `?${newParams.toString()}` : ""}`;
-          router.replace(cleanUrl);
-        })
-        .catch((err) => {
-          console.error("Failed to auto-create DM channel:", err);
-        })
-        .finally(() => {
-          setMessagesLoading(false);
-        });
-    }
-  }, [token, channelsLoading, searchParams, channels, addChannel, setActiveChannelId, router]);
+  const dmTarget = searchParams.get("userId");
+  const requestedDm = useRef<string | null>(null);
+  useEffect(() => {
+    if (!token || channelsLoading || !dmTarget || requestedDm.current === dmTarget) return;
+    const target = Number(dmTarget);
+    if (!Number.isSafeInteger(target) || target <= 0) return;
+    requestedDm.current = dmTarget;
+    const existing = channels.find((channel) => channel.isDm && channel.dmUser?.id === target);
+    const open = async () => {
+      try {
+        const channel = existing || await getOrCreateDM(target);
+        if (!existing) addChannel(channel);
+        setActiveChannelId(channel.id);
+        const params = new URLSearchParams(searchParams.toString()); params.delete("userId");
+        router.replace(`/chat${params.size ? `?${params}` : ""}`);
+      } catch { requestedDm.current = null; setError("Không thể mở cuộc trò chuyện này."); }
+    };
+    void open();
+  }, [dmTarget, token, channelsLoading, channels, addChannel, setActiveChannelId, searchParams, router]);
 
-  // ── Computed values ───────────────────────────────────────────────────────────
-  const messages = activeChannelId ? (messagesByChannel[activeChannelId] ?? []) : [];
-  const hasMoreMessages = activeChannelId ? (hasMoreByChannel[activeChannelId] ?? false) : false;
-
-  return (
-    <ChatContext.Provider
-      value={{
-        channels,
-        channelsLoading,
-        activeChannelId,
-        setActiveChannelId,
-        messages,
-        messagesLoading,
-        hasMoreMessages,
-        loadMoreMessages,
-        sendMessage,
-        sendAttachments,
-        deleteMessage,
-        editMessage,
-        unreadCounts,
-        isConnected,
-        refreshChannels,
-        addChannel,
-      }}
-    >
-      {children}
-    </ChatContext.Provider>
-  );
+  return <ChatContext.Provider value={{ channels, channelsLoading, activeChannelId, setActiveChannelId,
+    messages: activeChannelId ? cache[activeChannelId] || [] : [],
+    messagesLoading: !!activeChannelId && loadingIds.has(activeChannelId),
+    hasMoreMessages: !!activeChannelId && !!hasMore[activeChannelId], loadMoreMessages,
+    sendMessage, sendAttachments, deleteMessage, editMessage, unreadCounts,
+    isConnected: connectionState === "connected", connectionState, refreshChannels, addChannel, reconnect,
+    error, clearError: () => setError(null), showSidebar, openSidebar: () => setShowSidebar(true),
+    preferences, updatePreferences }}>{children}</ChatContext.Provider>;
 }
 
-// ─── Consumer hook ────────────────────────────────────────────────────────────
-
 export function useChat() {
-  const ctx = useContext(ChatContext);
-  if (!ctx) throw new Error("useChat must be used within <ChatProvider>");
-  return ctx;
+  const context = useContext(ChatContext);
+  if (!context) throw new Error("useChat must be used within <ChatProvider>");
+  return context;
 }

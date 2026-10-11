@@ -42,3 +42,5 @@ export * from "./lms/student/useFlashcardReview";
 export * from "./lms/student/useFlashcardSpeech";
 
 export * from "./labs/useLabAuthoring";
+
+export * from "./chat/useChatPreferences";
