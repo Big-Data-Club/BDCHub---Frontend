@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { labAuthoringService } from "@/services/labs/labAuthoringService";
 import type { AuthoringJob, AuthoringTask, LabAuthoringProposal, TestCaseDraft } from "@/types/labs/authoring";
@@ -19,11 +19,20 @@ export function useLabAuthoring(labId: number | undefined, labType: string, sour
   const [replace, setReplace] = useState(false);
   const baseline = useRef<number[]>([]);
   const baselineRevision = useRef("");
+  const load = useCallback((value: LabAuthoringProposal) => {
+    setProposal(value); setCaseText(value.test_cases.length ? JSON.stringify(value.test_cases, null, 2) : "");
+    setGenerator(value.generator_code); setReference(value.reference_code);
+  }, []);
   useEffect(() => {
     let cancelled = false;
     setJob(null); setBusy(false); setProposal(null); setCaseText(""); setGenerator(""); setReference(""); setTask("format_lab");
     const key = `lab-authoring-job:${labId || "new"}:${labType}`;
-    const id = sessionStorage.getItem(key);
+    const stored = sessionStorage.getItem(key);
+    let id: string | null = null;
+    if (stored) {
+      try { const saved = JSON.parse(stored); id = saved.id; baseline.current = saved.ids || []; baselineRevision.current = saved.revision || ""; setReplace(saved.replace === true); }
+      catch { id = stored; }
+    }
     if (id) labAuthoringService.status(id).then(next => {
       if (cancelled) return; setJob(next);
       setBusy(["QUEUED", "RUNNING"].includes(next.status));
@@ -31,20 +40,17 @@ export function useLabAuthoring(labId: number | undefined, labType: string, sour
     }).catch(() => { if (!cancelled) sessionStorage.removeItem(key); });
     return () => { cancelled = true; };
     // Job ownership is rechecked by the server when resuming after reload.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [labId, labType]);
-  const load = (value: LabAuthoringProposal) => {
-    setProposal(value); setCaseText(value.test_cases.length ? JSON.stringify(value.test_cases, null, 2) : "");
-    setGenerator(value.generator_code); setReference(value.reference_code);
-  };
+  }, [labId, labType, load]);
+  const jobId = job?.id;
+  const jobStatus = job?.status;
   useEffect(() => {
-    if (!job || !["QUEUED", "RUNNING"].includes(job.status)) return;
+    if (!jobId || !jobStatus || !["QUEUED", "RUNNING"].includes(jobStatus)) return;
     let cancelled = false; let pending = false;
     const started = Date.now();
     const timer = setInterval(async () => {
       if (pending) return; pending = true;
       try {
-        const next = await labAuthoringService.status(job.id);
+        const next = await labAuthoringService.status(jobId);
         if (cancelled) return;
         setJob(next);
         if (next.status === "READY" && next.proposal) { load(next.proposal); setBusy(false); }
@@ -55,8 +61,7 @@ export function useLabAuthoring(labId: number | undefined, labType: string, sour
     }, 2000);
     return () => { cancelled = true; clearInterval(timer); };
     // Poll one durable job independently of changes to the editor.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [job?.id, job?.status]);
+  }, [jobId, jobStatus, load]);
   const guarded = async (action: () => Promise<void>) => {
     setBusy(true);
     try { await action(); } catch (error) { toast.error(error instanceof Error ? error.message : "Không thực hiện được thao tác."); }
@@ -70,7 +75,7 @@ export function useLabAuthoring(labId: number | undefined, labType: string, sour
     try {
       if (labId && task === "edit_testcase" && !existingRevision) throw new Error("Tải bộ test hiện tại trước khi yêu cầu AI chỉnh sửa.");
       const next = await labAuthoringService.request(task, labType, instruction, { ...source, test_cases: existingCases }, count);
-      sessionStorage.setItem(`lab-authoring-job:${labId || "new"}:${labType}`, next.id);
+      sessionStorage.setItem(`lab-authoring-job:${labId || "new"}:${labType}`, JSON.stringify({ id: next.id, ids: baseline.current, revision: baselineRevision.current, replace: task === "edit_testcase" }));
       setJob(next);
     }
     catch (error) { setBusy(false); toast.error(error instanceof Error ? error.message : "Không tạo được job."); }

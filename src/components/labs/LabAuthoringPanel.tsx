@@ -8,13 +8,13 @@ import { useLabAuthoring } from "@/hooks/labs/useLabAuthoring";
 import { specialElementsExample, gitStepsExample } from "@/constants/labs/authoringExamples";
 import type { AuthoringTask, LabAuthoringProposal, TestCaseDraft } from "@/types/labs/authoring";
 
-interface Props {
+interface LabAuthoringPanelProps {
   labId?: number; labType: string; source: Record<string, unknown>;
   existingRevision?: string;
   existingCases?: (TestCaseDraft & { id?: number })[];
   onApply: (proposal: LabAuthoringProposal) => void; onSaved?: () => void;
 }
-export default function LabAuthoringPanel({ labId, labType, source, existingCases = [], existingRevision = "", onApply, onSaved }: Props) {
+export function LabAuthoringPanel({ labId, labType, source, existingCases = [], existingRevision = "", onApply, onSaved }: LabAuthoringPanelProps) {
   const a = useLabAuthoring(labId, labType, source, existingCases, existingRevision, onSaved);
   useEffect(() => {
     if (!labId) return;
@@ -84,3 +84,5 @@ export default function LabAuthoringPanel({ labId, labType, source, existingCase
     </div>
   </details>;
 }
+
+export default LabAuthoringPanel;

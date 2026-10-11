@@ -37,6 +37,7 @@ export default function LabCreatePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === "labType") setAuthoringDraft(null);
     setFormData((prev) => ({
       ...prev,
       [name]: name === "maxSessionDurationMin" || name === "maxConcurrentSessions"
@@ -255,10 +256,10 @@ export default function LabCreatePage() {
                   <option value="CODING">Coding Lab (Python, Java, Go...)</option>
                   <option value="DATABASE">SQL Database Sandbox (PostgreSQL)</option>
                   <option value="WORKSPACE">Linux Workspace Console (ttyd terminal)</option>
-                  <option value="HPC">HPC Job Submission (SLURM cluster)</option>
-                  <option value="PLANT">Plant Science Experiment (2.5D Virtual)</option>
-                  <option value="ROBOT">Robot Engineering Experiment (2.5D Virtual)</option>
-                  <option value="CHEMISTRY">🧪 Chemistry Virtual Lab (2D/2.5D – Titration, Reactions)</option>
+                  <option value="HPC" disabled={!isAdmin}>HPC Job Submission (SLURM cluster)</option>
+                  <option value="PLANT" disabled={!isAdmin}>Plant Science Experiment (2.5D Virtual)</option>
+                  <option value="ROBOT" disabled={!isAdmin}>Robot Engineering Experiment (2.5D Virtual)</option>
+                  <option value="CHEMISTRY" disabled={!isAdmin}>🧪 Chemistry Virtual Lab (2D/2.5D – Titration, Reactions)</option>
                 </select>
                 <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-normal flex items-start gap-1 mt-1">
                   <HelpCircle size={12} className="inline mt-0.5 flex-shrink-0" />

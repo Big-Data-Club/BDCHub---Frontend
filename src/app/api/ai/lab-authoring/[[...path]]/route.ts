@@ -29,5 +29,5 @@ async function forward(req: NextRequest, path: string[] = []) {
     return NextResponse.json({ error: "Unable to request AI draft" }, { status: 502 });
   }
 }
-export function POST(req: NextRequest, { params }: { params: { path?: string[] } }) { return forward(req, params.path); }
-export function GET(req: NextRequest, { params }: { params: { path?: string[] } }) { return forward(req, params.path); }
+export async function POST(req: NextRequest, { params }: { params: Promise<{ path?: string[] }> }) { return forward(req, (await params).path); }
+export async function GET(req: NextRequest, { params }: { params: Promise<{ path?: string[] }> }) { return forward(req, (await params).path); }
