@@ -135,7 +135,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const page = await listMessages(id, beforeId, HISTORY_LIMIT);
       if (epoch !== accountEpoch.current) return;
-      setCache((previous) => ({ ...previous, [id]: reset ? page.messages : mergeMessages(page.messages, previous[id] || []) }));
+      setCache((previous) => ({ ...previous, [id]: reset ? mergeMessages(page.messages, (previous[id] || []).filter((message) => message.id > Math.max(0, ...page.messages.map((entry) => entry.id)))) : mergeMessages(page.messages, previous[id] || []) }));
       loaded.current.add(id);
       setCursors((previous) => ({ ...previous, [id]: page.nextCursor }));
       // The browser retains a bounded history window; older pages remain on the server.
@@ -241,7 +241,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       };
       socket.onerror = () => socket.close();
       socket.onmessage = (event: MessageEvent) => {
-        if (typeof event.data !== "string") return;
+        if (disposed || typeof event.data !== "string") return;
         for (const line of event.data.split("\n")) {
           try { pending.push(JSON.parse(line) as WSEvent); } catch { /* malformed frame */ }
         }
@@ -270,25 +270,29 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const id = activeRef.current;
     if (!id || !body.trim()) return;
     // HTTP acknowledges persistence; WebSocket is delivery, not a send receipt.
+    const epoch = accountEpoch.current;
     const message = await sendMessageRest(id, body.trim(), parentId);
-    setCache((previous) => ({ ...previous, [id]: mergeMessages(previous[id] || [], [message]) }));
+    if (epoch === accountEpoch.current) setCache((previous) => ({ ...previous, [id]: mergeMessages(previous[id] || [], [message]) }));
   }, []);
   const sendAttachments = useCallback(async (files: File[], body: string, parentId?: number | null) => {
     const id = activeRef.current; if (!id) return;
+    const epoch = accountEpoch.current;
     const message = await uploadAttachments(id, files, body, parentId);
-    setCache((previous) => ({ ...previous, [id]: mergeMessages(previous[id] || [], [message]) }));
+    if (epoch === accountEpoch.current) setCache((previous) => ({ ...previous, [id]: mergeMessages(previous[id] || [], [message]) }));
   }, []);
   const deleteMessage = useCallback(async (messageId: number) => {
     const id = activeRef.current; if (!id) return;
+    const epoch = accountEpoch.current;
     try {
       await removeMessage(id, messageId);
-      setCache((previous) => ({ ...previous, [id]: (previous[id] || []).map((message) => message.id === messageId ? { ...message, body: "[deleted]", isDeleted: true } : message) }));
-    } catch { setError("Chưa xóa được tin nhắn. Hãy thử lại."); }
+      if (epoch === accountEpoch.current) setCache((previous) => ({ ...previous, [id]: (previous[id] || []).map((message) => message.id === messageId ? { ...message, body: "[deleted]", isDeleted: true } : message) }));
+    } catch { if (epoch === accountEpoch.current) setError("Chưa xóa được tin nhắn. Hãy thử lại."); }
   }, []);
   const editMessage = useCallback(async (messageId: number, body: string) => {
     const id = activeRef.current; if (!id) return;
+    const epoch = accountEpoch.current;
     const message = await updateMessage(id, messageId, body);
-    setCache((previous) => ({ ...previous, [id]: mergeMessages(previous[id] || [], [message]) }));
+    if (epoch === accountEpoch.current) setCache((previous) => ({ ...previous, [id]: mergeMessages(previous[id] || [], [message]) }));
   }, []);
   const loadMoreMessages = useCallback(async () => {
     if (activeChannelId && hasMore[activeChannelId]) await loadHistory(activeChannelId, false, cursors[activeChannelId]);
@@ -297,14 +301,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const dmTarget = searchParams.get("userId");
   const requestedDm = useRef<string | null>(null);
   useEffect(() => {
+    if (!dmTarget) { requestedDm.current = null; return; }
     if (!token || channelsLoading || !dmTarget || requestedDm.current === dmTarget) return;
     const target = Number(dmTarget);
     if (!Number.isSafeInteger(target) || target <= 0) return;
     requestedDm.current = dmTarget;
     const existing = channels.find((channel) => channel.isDm && channel.dmUser?.id === target);
+    const epoch = accountEpoch.current;
     const open = async () => {
       try {
         const channel = existing || await getOrCreateDM(target);
+        if (epoch !== accountEpoch.current) return;
         if (!existing) addChannel(channel);
         setActiveChannelId(channel.id);
         const params = new URLSearchParams(searchParams.toString()); params.delete("userId");

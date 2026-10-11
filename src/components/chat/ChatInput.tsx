@@ -55,6 +55,9 @@ export default function ChatInput({
   const [mentionStart, setMentionStart] = useState(0);
   const mentionDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const mentionRequest = useRef(0);
+  useEffect(() => () => { mentionRequest.current++; if (mentionDebounceRef.current) clearTimeout(mentionDebounceRef.current); }, []);
+
   // Pre-fill when editing a message
   useEffect(() => {
     if (editingMessage) {
@@ -77,6 +80,8 @@ export default function ChatInput({
   // Detect @ trigger and query users
   const handleChange = useCallback(
     async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const request = ++mentionRequest.current;
+      if (mentionDebounceRef.current) clearTimeout(mentionDebounceRef.current);
       const text = e.target.value;
       setValue(text);
       const cursor = e.target.selectionStart ?? text.length;
@@ -97,9 +102,11 @@ export default function ChatInput({
             try {
               const { searchChannelMembers } = await import("@/services/chat/chatService");
               const users = await searchChannelMembers(channelId, word);
+              if (request !== mentionRequest.current) return;
               setMentionQuery(word);
               setMentionUsers(users.slice(0, 8));
             } catch {
+              if (request !== mentionRequest.current) return;
               setMentionQuery(null);
               setMentionUsers([]);
             }
@@ -389,7 +396,7 @@ export default function ChatInput({
         {/* Bottom bar: hints + send */}
         <div className="flex items-center justify-between px-3 pb-2 pt-1">
           <p className="text-[11px] text-slate-400 dark:text-slate-500 hidden sm:block">
-            <kbd className="font-mono">Enter</kbd> gửi ·{" "}
+            <kbd className="font-mono">{preferences.enterToSend ? "Enter" : "Ctrl/⌘+Enter"}</kbd> gửi ·{" "}
             <kbd className="font-mono">Shift+Enter</kbd> xuống dòng ·{" "}
             <kbd className="font-mono">@</kbd> tag thành viên
           </p>

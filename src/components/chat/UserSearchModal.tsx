@@ -1,183 +1,29 @@
 "use client";
-
-import { useEffect, useState, useRef } from "react";
-import { createPortal } from "react-dom";
-import { Search, X, Loader2, MessageSquare } from "lucide-react";
-import { searchUsers, getOrCreateDM } from "@/services/chat/chatService";
-import { ChatUser } from "@/types/chat/chat";
+import { Loader2, MessageSquare, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useChatUserSearch } from "@/hooks/chat/useChatUserSearch";
+import type { ChatChannel } from "@/types/chat/chat";
 import ChatAvatar from "./ChatAvatar";
 
 interface UserSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectChannel: (channelId: number) => void;
-  onAddChannelToList: (channel: any) => void;
+  onSelectChannel: (id: number) => void;
+  onAddChannelToList: (channel: ChatChannel) => void;
 }
 
-export default function UserSearchModal({
-  isOpen,
-  onClose,
-  onSelectChannel,
-  onAddChannelToList,
-}: UserSearchModalProps) {
-  const [query, setQuery] = useState("");
-  const [users, setUsers] = useState<ChatUser[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [submittingUserId, setSubmittingUserId] = useState<number | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      setQuery("");
-      setUsers([]);
-      document.body.style.overflow = "hidden";
-      setTimeout(() => inputRef.current?.focus(), 100);
-
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Escape" && !submittingUserId) {
-          onClose();
-        }
-      };
-      window.addEventListener("keydown", handleKeyDown);
-
-      return () => {
-        document.body.style.overflow = "unset";
-        window.removeEventListener("keydown", handleKeyDown);
-      };
-    }
-  }, [isOpen, submittingUserId, onClose]);
-
-  useEffect(() => {
-    if (!query.trim()) {
-      setUsers([]);
-      return;
-    }
-
-    const delayDebounce = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const results = await searchUsers(query);
-        setUsers(results);
-      } catch (err) {
-        console.error("Search users error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(delayDebounce);
-  }, [query]);
-
-  if (!isOpen || !mounted) return null;
-
-  const handleSelectUser = async (targetUser: ChatUser) => {
-    setSubmittingUserId(targetUser.id);
-    try {
-      const channel = await getOrCreateDM(targetUser.id);
-      onAddChannelToList(channel);
-      onSelectChannel(channel.id);
-      onClose();
-    } catch (err) {
-      console.error("Get or create DM error:", err);
-    } finally {
-      setSubmittingUserId(null);
-    }
-  };
-
-  return createPortal(
-    <div
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !submittingUserId) {
-          onClose();
-        }
-      }}
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
-    >
-      <div className="relative w-full max-w-md bg-white dark:bg-[#0F1E35] border border-slate-200 dark:border-blue-500/20 rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-200 my-auto">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-            Tin nhắn trực tiếp mới
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 
-                       hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Search Input */}
-        <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
-          <Search className="h-5 w-5 text-slate-400 flex-shrink-0" />
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Tìm theo tên hoặc email..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-transparent border-0 outline-none text-slate-800 dark:text-slate-100 
-                       placeholder-slate-400 text-sm py-1"
-          />
-          {loading && <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />}
-        </div>
-
-        {/* User list */}
-        <div className="flex-1 overflow-y-auto px-2 py-3">
-          {!query.trim() ? (
-            <div className="text-center py-12 text-slate-400 dark:text-slate-600 text-sm">
-              Nhập tên hoặc email để bắt đầu tìm kiếm
-            </div>
-          ) : !loading && users.length === 0 ? (
-            <div className="text-center py-12 text-slate-400 dark:text-slate-600 text-sm">
-              Không tìm thấy thành viên nào khớp với &quot;{query}&quot;
-            </div>
-          ) : (
-            <ul className="space-y-1">
-              {users.map((u) => {
-                const isSubmitting = submittingUserId === u.id;
-                return (
-                  <li key={u.id}>
-                    <button
-                      onClick={() => handleSelectUser(u)}
-                      disabled={isSubmitting}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left
-                                 hover:bg-blue-50 dark:hover:bg-blue-950/35 group transition-colors"
-                    >
-                      <ChatAvatar name={u.fullName} src={u.profilePicture} size="lg" />
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {u.fullName}
-                        </div>
-                        <div className="text-xs text-slate-400 dark:text-slate-500 truncate">
-                          {u.email}
-                        </div>
-                      </div>
-
-                      <div className="flex-shrink-0 text-slate-300 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors pr-1">
-                        {isSubmitting ? (
-                          <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-                        ) : (
-                          <MessageSquare className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        )}
-                      </div>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+export default function UserSearchModal({ isOpen, onClose, onSelectChannel, onAddChannelToList }: UserSearchModalProps) {
+  const { query, setQuery, users, loading, submittingUserId, error, selectUser } = useChatUserSearch(isOpen, (channel) => {
+    onAddChannelToList(channel); onSelectChannel(channel.id); onClose();
+  });
+  return <Dialog open={isOpen} onOpenChange={(open) => { if (!open && submittingUserId === null) onClose(); }}>
+    <DialogContent className="rounded-2xl border-border bg-card text-foreground sm:max-w-md">
+      <DialogHeader><DialogTitle>Cuộc trò chuyện mới</DialogTitle><DialogDescription className="text-muted-foreground">Tìm một thành viên để bắt đầu trao đổi riêng.</DialogDescription></DialogHeader>
+      <label className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-3 py-3"><Search className="h-4 w-4 shrink-0 text-muted-foreground" /><input aria-label="Tìm thành viên" autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tên hoặc email…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />{loading && <Loader2 className="h-4 w-4 animate-spin text-blue-500" />}</label>
+      {error && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      <div className="max-h-[50vh] min-h-40 overflow-y-auto">
+        {!query.trim() ? <p className="px-4 py-12 text-center text-sm text-muted-foreground">Nhập tên hoặc email để tìm thành viên.</p> : !loading && !users.length && !error ? <p className="px-4 py-12 text-center text-sm text-muted-foreground">Không tìm thấy thành viên phù hợp.</p> : <ul className="space-y-1">{users.map((user) => <li key={user.id}><button disabled={submittingUserId !== null} onClick={() => void selectUser(user)} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-muted disabled:opacity-60"><ChatAvatar name={user.fullName} src={user.profilePicture} /><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{user.fullName}</p><p className="truncate text-xs text-muted-foreground">{user.email}</p></div>{submittingUserId === user.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4 text-muted-foreground" />}</button></li>)}</ul>}
       </div>
-    </div>,
-    document.body
-  );
+    </DialogContent>
+  </Dialog>;
 }

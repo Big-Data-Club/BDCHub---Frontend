@@ -10,6 +10,7 @@ export function useChatChannelRow({ channel, onDeleted, onUpdated }: ChannelRowP
   const [roles, setRoles] = useState<ChannelRoleEntry[]>([]);
   // pendingUsers: what will be saved - mutated locally on add/remove
   const [pendingUsers, setPendingUsers] = useState<ChatUser[]>([]);
+  const [detailsLoaded, setDetailsLoaded] = useState(false);
   const [rolesLoading, setRolesLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savingWhitelist, setSavingWhitelist] = useState(false);
@@ -30,6 +31,7 @@ export function useChatChannelRow({ channel, onDeleted, onUpdated }: ChannelRowP
   // ── Load details once on first expand ────────────────────────────────────
   const loadDetails = async () => {
     setRolesLoading(true);
+    setDetailsLoaded(false);
     try {
       // Parallel fetch - no serial waterfall
       const [r, u] = await Promise.all([
@@ -38,6 +40,7 @@ export function useChatChannelRow({ channel, onDeleted, onUpdated }: ChannelRowP
       ]);
       setRoles(r);
       setPendingUsers(u);
+      setDetailsLoaded(true);
     } catch {
       setNotice("Không thể tải phân quyền. Hãy đóng và mở lại kênh để thử lại.");
     } finally {
@@ -110,6 +113,7 @@ export function useChatChannelRow({ channel, onDeleted, onUpdated }: ChannelRowP
 
   // ── Save whitelist - one PUT, response contains updated list ─────────────
   const handleSaveWhitelist = async () => {
+    if (!detailsLoaded || rolesLoading) return;
     setSavingWhitelist(true);
     try {
       const ids = pendingUsers.map((u) => u.id);
@@ -155,6 +159,7 @@ export function useChatChannelRow({ channel, onDeleted, onUpdated }: ChannelRowP
   };
 
   const handleSaveRoles = async () => {
+    if (!detailsLoaded || rolesLoading) return;
     setSaving(true);
     try {
       await setChannelRoles(channel.id, roles);
@@ -194,5 +199,5 @@ export function useChatChannelRow({ channel, onDeleted, onUpdated }: ChannelRowP
     }
   };
 
-  return { notice, expanded, roles, pendingUsers, rolesLoading, saving, savingWhitelist, deleting, editing, name, description, isPrivate, userQuery, searchResults, searchLoading, showDropdown, searchRef, dropdownRef, setEditing, setExpanded, setName, setDescription, setIsPrivate, setUserQuery, loadDetails, toggle, handleAddUser, handleRemoveUser, handleSaveWhitelist, handleRoleChange, handleAddRole, handleRemoveRole, handleSaveRoles, handleUpdate, handleDelete };
+  return { notice, detailsLoaded, expanded, roles, pendingUsers, rolesLoading, saving, savingWhitelist, deleting, editing, name, description, isPrivate, userQuery, searchResults, searchLoading, showDropdown, setShowDropdown, searchRef, dropdownRef, setEditing, setExpanded, setName, setDescription, setIsPrivate, setUserQuery, loadDetails, toggle, handleAddUser, handleRemoveUser, handleSaveWhitelist, handleRoleChange, handleAddRole, handleRemoveRole, handleSaveRoles, handleUpdate, handleDelete };
 }

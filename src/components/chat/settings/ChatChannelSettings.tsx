@@ -6,7 +6,7 @@ import { useChatChannelRow, AVAILABLE_ROLES, type ChannelRowProps } from "@/hook
 import { useChatChannelSettings } from "@/hooks/chat/useChatChannelSettings";
 function ChannelRow(props: ChannelRowProps) {
   const { channel } = props;
-  const { notice, expanded, roles, pendingUsers, rolesLoading, saving, savingWhitelist, deleting, editing, name, description, isPrivate, userQuery, searchResults, searchLoading, showDropdown, searchRef, dropdownRef, setEditing, setExpanded, setName, setDescription, setIsPrivate, setUserQuery, loadDetails, toggle, handleAddUser, handleRemoveUser, handleSaveWhitelist, handleRoleChange, handleAddRole, handleRemoveRole, handleSaveRoles, handleUpdate, handleDelete } = useChatChannelRow(props);
+  const { notice, detailsLoaded, expanded, roles, pendingUsers, rolesLoading, saving, savingWhitelist, deleting, editing, name, description, isPrivate, userQuery, searchResults, searchLoading, showDropdown, setShowDropdown, searchRef, dropdownRef, setEditing, setExpanded, setName, setDescription, setIsPrivate, setUserQuery, loadDetails, toggle, handleAddUser, handleRemoveUser, handleSaveWhitelist, handleRoleChange, handleAddRole, handleRemoveRole, handleSaveRoles, handleUpdate, handleDelete } = useChatChannelRow(props);
   return (
     <div className="rounded-2xl border border-border bg-card overflow-hidden">
       {notice && <p role="status" className="border-b border-border bg-muted/50 px-4 py-3 text-sm text-foreground">{notice}</p>}
@@ -161,7 +161,7 @@ function ChannelRow(props: ChannelRowProps) {
 
                 <button
                   onClick={handleSaveRoles}
-                  disabled={saving}
+                  disabled={saving || !detailsLoaded}
                   className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-xl
                              hover:bg-blue-700 disabled:opacity-60 transition-colors"
                 >
@@ -264,7 +264,7 @@ function ChannelRow(props: ChannelRowProps) {
 
                 <button
                   onClick={handleSaveWhitelist}
-                  disabled={savingWhitelist}
+                  disabled={savingWhitelist || rolesLoading || !detailsLoaded}
                   className="flex items-center gap-1.5 px-4 py-1.5 bg-emerald-600 text-white text-sm rounded-xl
                              hover:bg-emerald-700 disabled:opacity-60 transition-colors"
                 >
