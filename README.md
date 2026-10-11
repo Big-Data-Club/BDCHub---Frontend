@@ -10,6 +10,7 @@ This repository houses the frontend layer that interacts with multiple microserv
 * **Learning Management System (LMS):** Comprehensive tools for course navigation, interactive quizzes, and flashcard-based learning.
 * **AI Mentor & Assistant:** Integrated intelligent agents providing personalized study plans and real-time concept explanations.
 * **Admin Dashboard:** Centralized management for user roles, system permissions, and LLM provider configurations.
+* **Community Chat:** Theme-aware channels and direct messages with mobile navigation, per-account browser preferences, bounded message history and reconnect recovery. Administrators manage access at `/settings/chat-roles`.
 * **Events & Hackathon:** Dedicated landing pages and registration systems for club activities like Hackathon 2025.
 
 ## Tech Stack

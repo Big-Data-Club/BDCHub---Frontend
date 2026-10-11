@@ -13,7 +13,8 @@ export function useChatUserSearch(open: boolean, onSelect: (channel: ChatChannel
   useEffect(() => {
     epoch.current++;
     setQuery(""); setUsers([]); setLoading(false); setError(null); setSubmittingUserId(null);
-    return () => { epoch.current++; };
+    const generation = epoch.current;
+    return () => { epoch.current = generation + 1; };
   }, [open]);
   useEffect(() => {
     let cancelled = false;
