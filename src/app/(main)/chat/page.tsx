@@ -8,7 +8,7 @@ import ChatPanel from "@/components/chat/ChatPanel";
 export default function ChatPage() {
   return (
     <Suspense fallback={
-      <div className="flex h-full items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500">
+      <div className="flex h-full items-center justify-center bg-card text-muted-foreground">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-4 border-blue-600 border-t-transparent animate-spin" />
           <span className="text-sm font-medium">Đang tải tin nhắn...</span>
@@ -17,7 +17,7 @@ export default function ChatPage() {
     }>
       <ChatProvider>
         {/* Slack-style: channel list | message panel - fills the layout container */}
-        <div className="flex h-full overflow-hidden">
+        <div className="flex h-full min-w-0 overflow-hidden">
           <ChatSidebar />
           <ChatPanel />
         </div>

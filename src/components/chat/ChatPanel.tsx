@@ -1,291 +1,114 @@
 "use client";
-
-import { useEffect, useRef, useCallback, useState } from "react";
-import { Hash, Lock, Loader2, ChevronUp, Wifi, WifiOff } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useCallback, useState } from "react";
+import { Hash, Lock, Loader2, ChevronUp, Wifi, WifiOff, ArrowLeft, ArrowDown, MessageSquare, RefreshCw, X } from "lucide-react";
 import { useChat } from "@/hooks/chat/useChat";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
-import { cn } from "@/lib/utils";
-import { ChatMessage as ChatMessageType } from "@/types/chat/chat";
 import ChatAvatar from "./ChatAvatar";
+import { cn } from "@/lib/utils";
+import type { ChatMessage as Message } from "@/types/chat/chat";
 import { getChannelPresence } from "@/services/chat/chatService";
 
 export default function ChatPanel() {
-  const {
-    activeChannelId,
-    channels,
-    messages,
-    messagesLoading,
-    hasMoreMessages,
-    loadMoreMessages,
-    sendMessage,
-    sendAttachments,
-    deleteMessage,
-    editMessage,
-    isConnected,
-  } = useChat();
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const prevMessageCount = useRef(0);
-
-  const [replyingTo, setReplyingTo] = useState<ChatMessageType | null>(null);
-  const [editingMessage, setEditingMessage] = useState<ChatMessageType | null>(null);
+  const { activeChannelId, channels, messages, messagesLoading, hasMoreMessages, loadMoreMessages,
+    sendMessage, sendAttachments, deleteMessage, editMessage, isConnected, connectionState,
+    showSidebar, openSidebar, preferences, error, clearError, reconnect } = useChat();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const pinned = useRef(true);
+  const previousChannel = useRef<number | null>(null);
+  const pagination = useRef<{ height: number; top: number; channelId: number | null } | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [dmOnline, setDmOnline] = useState(false);
-
-  const activeChannel = channels.find((ch) => ch.id === activeChannelId);
+  const [showJump, setShowJump] = useState(false);
+  const channel = channels.find((entry) => entry.id === activeChannelId);
+  const dmUserId = channel?.dmUser?.id;
 
   useEffect(() => {
-    const dmUser = activeChannel?.isDm ? activeChannel.dmUser : undefined;
-    if (!activeChannelId || !dmUser) {
-      setDmOnline(false);
-      return;
-    }
-    let cancelled = false;
-    const refresh = async () => {
-      try {
-        const users = await getChannelPresence(activeChannelId);
-        if (!cancelled) setDmOnline(users.some((user) => user.userId === dmUser.id && user.online));
-      } catch {
-        if (!cancelled) setDmOnline(false);
-      }
-    };
-    void refresh();
-    const timer = window.setInterval(() => void refresh(), 30_000);
-    return () => { cancelled = true; window.clearInterval(timer); };
-  }, [activeChannelId, activeChannel?.isDm, activeChannel?.dmUser?.id]);
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    const isFirstLoad = prevMessageCount.current === 0;
-    const isNewMessage = messages.length > prevMessageCount.current;
-    prevMessageCount.current = messages.length;
-
-    if (messages.length > 0 && scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-
-      if (isFirstLoad) {
-        // Instant snap on first load
-        setTimeout(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
-          }
-        }, 60);
-        return;
-      }
-
-      if (isNewMessage) {
-        const isNearBottom =
-          container.scrollHeight - container.scrollTop - container.clientHeight < 250;
-        if (isNearBottom) {
-          container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
-        }
-      }
-    }
-  }, [messages]);
-
-  // Reset state on channel switch
-  useEffect(() => {
-    if (activeChannelId) {
-      prevMessageCount.current = 0;
-      setReplyingTo(null);
-      setEditingMessage(null);
-      setTimeout(() => {
-        if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
-        }
-      }, 100);
-    }
+    setReplyingTo(null); setEditingMessage(null); setShowJump(false);
+    pinned.current = true; pagination.current = null;
   }, [activeChannelId]);
 
+  useEffect(() => {
+    if (!activeChannelId || !dmUserId) { setDmOnline(false); return; }
+    let cancelled = false;
+    const refresh = async () => {
+      if (document.hidden) return;
+      try { const users = await getChannelPresence(activeChannelId); if (!cancelled) setDmOnline(users.some((user) => user.userId === dmUserId && user.online)); }
+      catch { if (!cancelled) setDmOnline(false); }
+    };
+    void refresh();
+    const timer = window.setInterval(() => void refresh(), 30000);
+    return () => { cancelled = true; clearInterval(timer); };
+  }, [activeChannelId, dmUserId]);
+
+  useLayoutEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    if (previousChannel.current !== activeChannelId) {
+      previousChannel.current = activeChannelId; pinned.current = true; pagination.current = null;
+    }
+    if (pagination.current?.channelId === activeChannelId) {
+      container.scrollTop = pagination.current.top + container.scrollHeight - pagination.current.height;
+      pagination.current = null;
+    } else if (pinned.current) container.scrollTop = container.scrollHeight;
+    else setShowJump(true);
+  }, [messages, activeChannelId]);
+
+  const loadOlder = useCallback(async () => {
+    const container = scrollRef.current;
+    if (!container || messagesLoading || !hasMoreMessages || pagination.current) return;
+    pagination.current = { height: container.scrollHeight, top: container.scrollTop, channelId: activeChannelId };
+    await loadMoreMessages();
+    // Failure/empty-page responses still release the guard.
+    requestAnimationFrame(() => { pagination.current = null; });
+  }, [activeChannelId, messagesLoading, hasMoreMessages, loadMoreMessages]);
   const handleScroll = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container || !hasMoreMessages || messagesLoading) return;
-    if (container.scrollTop < 120) loadMoreMessages();
-  }, [hasMoreMessages, messagesLoading, loadMoreMessages]);
+    const container = scrollRef.current;
+    if (!container) return;
+    pinned.current = container.scrollHeight - container.scrollTop - container.clientHeight < 120;
+    if (pinned.current) setShowJump(false);
+    if (container.scrollTop < 60 && !pinned.current) void loadOlder();
+  }, [loadOlder]);
+  const jumpToLatest = useCallback(() => {
+    pinned.current = true; setShowJump(false);
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, []);
+  const handleReply = useCallback((message: Message) => { setEditingMessage(null); setReplyingTo(message); }, []);
+  const handleEdit = useCallback((message: Message) => { setReplyingTo(null); setEditingMessage(message); }, []);
+  const handleSend = useCallback(async (body: string, parentId?: number | null) => {
+    await sendMessage(body, parentId); setReplyingTo(null); jumpToLatest();
+  }, [sendMessage, jumpToLatest]);
+  const handleSendAttachments = useCallback(async (files: File[], body: string, parentId?: number | null) => {
+    await sendAttachments(files, body, parentId); setReplyingTo(null); jumpToLatest();
+  }, [sendAttachments, jumpToLatest]);
+  const handleSaveEdit = useCallback(async (id: number, body: string) => { await editMessage(id, body); setEditingMessage(null); }, [editMessage]);
 
-  const handleSend = useCallback(
-    async (body: string, parentId?: number | null) => {
-      await sendMessage(body, parentId);
-      setReplyingTo(null);
-    },
-    [sendMessage]
-  );
-
-  const handleSaveEdit = useCallback(
-    async (msgId: number, body: string) => {
-      await editMessage(msgId, body);
-      setEditingMessage(null);
-    },
-    [editMessage]
-  );
-
-  const handleSendAttachments = useCallback(
-    async (files: File[], body: string, parentId?: number | null) => {
-      await sendAttachments(files, body, parentId);
-      setReplyingTo(null);
-    },
-    [sendAttachments]
-  );
-
-  // ── Empty state ───────────────────────────────────────────────────────────────
-  if (!activeChannelId || !activeChannel) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-5 bg-white dark:bg-slate-900">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shadow-inner">
-            <Hash className="w-8 h-8 text-slate-300 dark:text-slate-600" />
-          </div>
-          <div className="text-center">
-            <p className="text-base font-semibold text-slate-500 dark:text-slate-400">
-              Chọn một kênh để bắt đầu
-            </p>
-            <p className="text-sm text-slate-400 dark:text-slate-600 mt-1">
-              Chọn kênh hoặc người dùng từ danh sách bên trái
-            </p>
-          </div>
-        </div>
+  if (!channel) return <section className={cn("min-w-0 flex-1 flex-col items-center justify-center bg-muted/25 p-8 text-center md:flex", showSidebar ? "hidden" : "flex")}>
+    <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-card text-blue-600 dark:text-blue-400"><MessageSquare className="h-9 w-9" strokeWidth={1.5} /></div>
+    <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">BDC / Cộng đồng</p>
+    <h2 className="text-2xl font-semibold tracking-tight text-foreground">Một ý tưởng hay bắt đầu từ cuộc trò chuyện.</h2>
+    <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">Chọn kênh để cùng thảo luận, hoặc bắt đầu tin nhắn riêng với một thành viên.</p>
+    {error && <p role="alert" className="mt-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
+    <button onClick={openSidebar} className="mt-6 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white md:hidden">Chọn cuộc trò chuyện</button>
+  </section>;
+  const name = channel.dmUser?.fullName || channel.name;
+  const description = channel.isDm ? channel.dmUser?.email : channel.description;
+  const Icon = channel.isPrivate ? Lock : Hash;
+  return <section aria-label={`Trò chuyện ${name}`} className={cn("relative h-full min-h-0 min-w-0 flex-1 flex-col bg-card md:flex", showSidebar ? "hidden" : "flex")}>
+    <header className="flex min-w-0 shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-6">
+      <div className="flex min-w-0 items-center gap-3"><button onClick={openSidebar} aria-label="Quay về danh sách trò chuyện" className="rounded-xl p-2 text-muted-foreground hover:bg-muted md:hidden"><ArrowLeft className="h-5 w-5" /></button>
+        {channel.isDm ? <ChatAvatar name={name} src={channel.dmUser?.profilePicture} size="sm" showPresence={dmOnline} /> : <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/50 text-muted-foreground"><Icon className="h-5 w-5" /></div>}
+        <div className="min-w-0"><h2 className="truncate text-base font-semibold tracking-tight text-foreground">{name}</h2><p className="mt-0.5 truncate text-xs text-muted-foreground">{description || (channel.isDm ? "Cuộc trò chuyện riêng tư" : "Trao đổi, chia sẻ và cùng tiến bộ")}</p></div>
       </div>
-    );
-  }
-
-  const isDm = activeChannel.isDm;
-  const displayName = isDm
-    ? activeChannel.dmUser?.fullName || activeChannel.name
-    : activeChannel.name;
-  const displayDesc = isDm
-    ? activeChannel.dmUser?.email || activeChannel.description
-    : activeChannel.description;
-
-  return (
-    <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900">
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0">
-        <div className="flex items-center gap-2.5 min-w-0">
-          {isDm ? (
-            <ChatAvatar name={displayName} src={activeChannel.dmUser?.profilePicture} size="sm" showPresence={dmOnline} />
-          ) : activeChannel.isPrivate ? (
-            <Lock className="h-5 w-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-          ) : (
-            <Hash className="h-5 w-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-          )}
-          <h2 className="font-semibold text-slate-800 dark:text-slate-100 truncate">
-            {displayName}
-          </h2>
-          {displayDesc && (
-            <>
-              <span className="text-slate-300 dark:text-slate-700 flex-shrink-0">·</span>
-              <p className="text-sm text-slate-400 dark:text-slate-500 truncate">{displayDesc}</p>
-            </>
-          )}
-        </div>
-
-        {/* Connection status indicator */}
-        <div
-          className={cn(
-            "flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0",
-            isConnected
-              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-400"
-          )}
-        >
-          {isConnected ? (
-            <><Wifi className="h-3 w-3" />Live</>
-          ) : (
-            <><WifiOff className="h-3 w-3" />Offline</>
-          )}
-        </div>
-      </div>
-
-      {/* ── Load more (older messages) ── */}
-      {hasMoreMessages && (
-        <button
-          onClick={loadMoreMessages}
-          disabled={messagesLoading}
-          className={cn(
-            "mx-4 mt-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5",
-            "border border-slate-200 dark:border-slate-700",
-            "text-slate-500 dark:text-slate-400",
-            "hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150",
-            messagesLoading && "opacity-60 cursor-not-allowed"
-          )}
-        >
-          {messagesLoading ? (
-            <><Loader2 className="h-3 w-3 animate-spin" />Đang tải…</>
-          ) : (
-            <><ChevronUp className="h-3 w-3" />Xem thêm tin nhắn cũ hơn</>
-          )}
-        </button>
-      )}
-
-      {/* ── Message list ── */}
-      <div
-        ref={scrollContainerRef}
-        onScroll={handleScroll}
-        className="flex-1 overflow-y-auto py-2 scroll-smooth"
-      >
-        {messagesLoading && messages.length === 0 ? (
-          <div className="flex items-center justify-center h-40">
-            <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center">
-              {isDm ? (
-                <ChatAvatar name={displayName} src={activeChannel.dmUser?.profilePicture} size="sm" />
-              ) : (
-                <Hash className="h-6 w-6 text-blue-400" />
-              )}
-            </div>
-            <p className="text-sm text-slate-400 dark:text-slate-500 text-center px-4">
-              {isDm ? (
-                <>Bắt đầu cuộc trò chuyện với <strong>{displayName}</strong></>
-              ) : (
-                <>Đây là đầu kênh <strong>#{activeChannel.name}</strong>. Gửi tin nhắn đầu tiên!</>
-              )}
-            </p>
-          </div>
-        ) : (
-          messages.map((msg, i) => (
-            <ChatMessage
-              key={msg.id}
-              message={msg}
-              prevMessage={messages[i - 1]}
-              onDelete={deleteMessage}
-              onReply={(m) => {
-                setEditingMessage(null);
-                setReplyingTo(m);
-                textareaFocus();
-              }}
-              onEdit={(m) => {
-                setReplyingTo(null);
-                setEditingMessage(m);
-              }}
-            />
-          ))
-        )}
-      </div>
-
-      {/* ── Input ── */}
-      <ChatInput
-        channelId={activeChannel.id}
-        channelName={isDm ? displayName : activeChannel.slug}
-        onSend={handleSend}
-        onSendAttachments={handleSendAttachments}
-        onSaveEdit={handleSaveEdit}
-        disabled={!isConnected && messages.length === 0}
-        replyingTo={replyingTo}
-        onCancelReply={() => setReplyingTo(null)}
-        editingMessage={editingMessage}
-        onCancelEdit={() => setEditingMessage(null)}
-      />
+      <div className="flex shrink-0 items-center gap-2"><span role="status" className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium", isConnected ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-amber-500/10 text-amber-700 dark:text-amber-400")}>{isConnected ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />}<span className="hidden sm:inline">{isConnected ? "Trực tuyến" : connectionState === "offline" ? "Ngoại tuyến" : "Kết nối lại"}</span></span>{!isConnected && <button aria-label="Kết nối lại ngay" onClick={reconnect} className="rounded-xl p-2 text-muted-foreground hover:bg-muted"><RefreshCw className="h-4 w-4" /></button>}</div>
+    </header>
+    {error && <div role="alert" className="flex items-center justify-between gap-3 border-b border-red-500/10 bg-red-500/5 px-5 py-3 text-sm text-red-600 dark:text-red-400"><span>{error}</span><button onClick={clearError} aria-label="Đóng thông báo lỗi" className="shrink-0 p-1"><X className="h-4 w-4" /></button></div>}
+    <div ref={scrollRef} onScroll={handleScroll} aria-label="Lịch sử tin nhắn" className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain py-4", preferences.compact && "[&_.chat-message]:py-1 [&_.chat-message]:mt-0")}>
+      {hasMoreMessages && <div className="mb-4 flex justify-center"><button onClick={() => void loadOlder()} disabled={messagesLoading} className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50">{messagesLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ChevronUp className="h-3.5 w-3.5" />}Tin nhắn trước đó</button></div>}
+      {messagesLoading && !messages.length ? <div className="flex h-40 items-center justify-center" role="status"><Loader2 className="h-6 w-6 animate-spin text-blue-500" /><span className="sr-only">Đang tải tin nhắn</span></div> : !messages.length ? <div className="flex h-full min-h-48 flex-col items-center justify-center px-6 text-center"><div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400"><MessageSquare className="h-6 w-6" /></div><h3 className="font-semibold text-foreground">Bắt đầu một cuộc trò chuyện</h3><p className="mt-2 max-w-xs text-sm text-muted-foreground">Gửi lời chào hoặc chia sẻ điều bạn đang tìm hiểu với {channel.isDm ? name : "mọi người"}.</p></div> : messages.map((message, index) => <ChatMessage key={message.id} message={message} prevMessage={messages[index - 1]} onDelete={deleteMessage} onReply={handleReply} onEdit={handleEdit} />)}
     </div>
-  );
-}
-
-// helper - focuses the hidden textarea inside ChatInput
-function textareaFocus() {
-  setTimeout(() => {
-    const ta = document.querySelector<HTMLTextAreaElement>("textarea");
-    ta?.focus();
-  }, 50);
+    {showJump && <button onClick={jumpToLatest} className="absolute bottom-44 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-foreground shadow-md"><ArrowDown className="h-3.5 w-3.5" />Tin nhắn mới nhất</button>}
+    <ChatInput key={channel.id} channelId={channel.id} channelName={channel.isDm ? name : channel.slug} onSend={handleSend} onSendAttachments={handleSendAttachments} onSaveEdit={handleSaveEdit} replyingTo={replyingTo} onCancelReply={() => setReplyingTo(null)} editingMessage={editingMessage} onCancelEdit={() => setEditingMessage(null)} />
+  </section>;
 }

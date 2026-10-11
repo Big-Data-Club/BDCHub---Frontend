@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+
 import { format, isToday, isYesterday } from "date-fns";
 import { Trash2, Reply, Pencil, CornerUpRight } from "lucide-react";
 import { ChatMessage as ChatMessageType } from "@/types/chat/chat";
@@ -40,7 +42,7 @@ function isSameSender(a: ChatMessageType, b: ChatMessageType): boolean {
   return a.senderId === b.senderId;
 }
 
-export default function ChatMessage({
+function ChatMessage({
   message,
   prevMessage,
   onDelete,
@@ -83,7 +85,7 @@ export default function ChatMessage({
       <div
         className={cn(
           "relative flex gap-3 px-4 py-0.5 rounded-lg",
-          "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors duration-100",
+          "hover:bg-muted/40 transition-colors duration-100",
           showAvatar && "mt-3"
         )}
       >
@@ -196,3 +198,5 @@ export default function ChatMessage({
     </div>
   );
 }
+
+export default memo(ChatMessage);

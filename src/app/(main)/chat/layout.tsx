@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 // We use negative margins to cancel it out, giving chat a true full viewport height.
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="-m-4 sm:-m-6 lg:-m-8 h-[calc(100vh-0px)] overflow-hidden">
+    <div className="h-[calc(100dvh-8rem)] min-h-[28rem] overflow-hidden rounded-2xl border border-border bg-card shadow-sm md:h-[calc(100dvh-4rem)]">
       {children}
     </div>
   );
