@@ -443,6 +443,11 @@ export const labService = {
     };
   },
 
+  getAuthoringLab: async (id: number): Promise<SuccessResponse<Lab>> => {
+    const res = await labApiClient.get<SuccessResponse<Lab>>(`/labs/${id}/authoring`);
+    return { ...res, data: mapLab(res.data) };
+  },
+
   updateLab: async (id: number, data: Partial<Lab>): Promise<SuccessResponse<Lab>> => {
     const payload = {
       title: data.title,
@@ -650,7 +655,7 @@ export const labService = {
     return labApiClient.delete(`/content/${contentId}`);
   },
 
-  getTestCases: async (labId: number): Promise<SuccessResponse<any[]>> => {
+  getTestCases: async (labId: number): Promise<SuccessResponse<any[]> & { revision?: string }> => {
     return labApiClient.get<SuccessResponse<any[]>>(`/labs/${labId}/test-cases`);
   },
 
@@ -691,8 +696,8 @@ export const labService = {
   getRuntimeTaskProgress: async (labId: number): Promise<SuccessResponse<any>> =>
     labApiClient.get<SuccessResponse<any>>(`/labs/${labId}/runtime-tasks/progress`),
 
-  checkRuntimeTasks: async (labId: number, sessionId?: string | null): Promise<SuccessResponse<any>> =>
-    labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/runtime-tasks/check`, { session_id: sessionId || "" }),
+  checkRuntimeTasks: async (labId: number, sessionId?: string | null, taskId?: number): Promise<SuccessResponse<any>> =>
+    labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/runtime-tasks/check`, { session_id: sessionId || "", task_id: taskId || 0 }),
 
   createRuntimeTask: async (labId: number, data: any): Promise<SuccessResponse<any>> =>
     labApiClient.post<SuccessResponse<any>>(`/labs/${labId}/runtime-tasks`, data),

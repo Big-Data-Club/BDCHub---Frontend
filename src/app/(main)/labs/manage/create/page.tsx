@@ -1,5 +1,7 @@
 "use client";
 
+import LabAuthoringPanel from "@/components/labs/LabAuthoringPanel";
+import type { LabAuthoringProposal } from "@/types/labs/authoring";
 import React, { useState } from "react";
 import { 
   ArrowLeft, 
@@ -19,8 +21,9 @@ export default function LabCreatePage() {
   const { user, isAdmin } = useAuth();
   const router = useRouter();
   
-  const isAuthorized = isAdmin;
+  const isAuthorized = isAdmin || user?.role === "ROLE_TEACHER" || user?.role === "TEACHER";
 
+  const [authoringDraft, setAuthoringDraft] = useState<LabAuthoringProposal | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -62,7 +65,7 @@ export default function LabCreatePage() {
         maxConcurrentSessions: formData.maxConcurrentSessions,
         status: "DRAFT", // default to draft status
         thumbnailUrl: "",
-        runtimeConfig: {},
+        runtimeConfig: authoringDraft ? { starter_code: authoringDraft.starter_code, supported_languages: Object.keys(authoringDraft.starter_code), db_type: "POSTGRESQL", schema_sql: authoringDraft.schema_sql, seed_sql: authoringDraft.seed_sql } : {},
         gradingConfig: formData.labType === "CODING" 
           ? { method: "test_cases" } 
           : formData.labType === "DATABASE" 
@@ -73,6 +76,7 @@ export default function LabCreatePage() {
       toast.success("Virtual lab created successfully!");
       // Redirect to edit details page immediately so they can configure sections and test cases
       if (res.data && res.data.id) {
+        if (authoringDraft) sessionStorage.setItem(`lab-authoring-draft:${res.data.id}`, JSON.stringify(authoringDraft));
         router.push(`/labs/manage/${res.data.id}`);
       } else {
         router.push("/labs/manage");
@@ -142,6 +146,7 @@ export default function LabCreatePage() {
 
         {/* Creation Form */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8">
+          {["CODING", "DATABASE", "WORKSPACE"].includes(formData.labType) && <LabAuthoringPanel labType={formData.labType} source={{title: formData.title, description: formData.description}} onApply={proposal => { setAuthoringDraft(proposal); setFormData(prev => ({...prev,title:proposal.title,description:proposal.description})); }} />}
           <form onSubmit={handleSubmit} className="space-y-6">
             
             {/* Title */}

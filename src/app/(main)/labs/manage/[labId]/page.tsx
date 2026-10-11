@@ -27,6 +27,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import LabAuthoringPanel from "@/components/labs/LabAuthoringPanel";
 import StemExperimentSetup from "@/components/labs/StemExperimentSetup";
 import StemLearnerProgress from "@/components/labs/StemLearnerProgress";
 import { ChemistryLabBuilder } from "@/components/labs/chemistry/ChemistryLabBuilder";
@@ -41,7 +42,7 @@ export default function LabEditPage() {
   const params = useParams();
   const labId = parseInt(params.labId as string) || 0;
   
-  const isAuthorized = isAdmin;
+  const isAuthorized = isAdmin || user?.role === "ROLE_TEACHER" || user?.role === "TEACHER";
 
   const [activeTab, setActiveTab] = useState<"general" | "stem" | "progress" | "sections" | "testcases" | "sandbox">("general");
   const [lab, setLab] = useState<Lab | null>(null);
@@ -69,6 +70,7 @@ export default function LabEditPage() {
   const [contentForms, setContentForms] = useState<Record<number, { title: string; description: string; type: string }>>({});
 
   // Tab 3: Test Cases State
+  const [testSuiteRevision, setTestSuiteRevision] = useState("");
   const [testCases, setTestCases] = useState<any[]>([]);
   const [loadingTestCases, setLoadingTestCases] = useState(false);
   const [addingTestCase, setAddingTestCase] = useState(false);
@@ -131,12 +133,14 @@ export default function LabEditPage() {
   const fetchLabDetails = async () => {
     try {
       setLoading(true);
-      const res = await labService.getLabById(labId);
+      const res = await labService.getAuthoringLab(labId);
       if (res.data) {
         if (!lab && isVirtualLab(res.data.labType)) {
           setActiveTab("stem");
         }
         setLab(res.data);
+        fetchTestCasesList();
+        fetchRuntimeTasks();
         setGeneralForm({
           title: res.data.title,
           description: res.data.description || "",
@@ -272,6 +276,7 @@ export default function LabEditPage() {
       const res = await labService.getTestCases(labId);
       // Go backend returns SuccessResponse with .data as test cases array
       setTestCases(res.data || []);
+      setTestSuiteRevision(res.revision || "");
     } catch (err) {
       console.error(err);
       toast.error("Failed to load grading test cases.");
@@ -713,6 +718,18 @@ export default function LabEditPage() {
         {activeTab === "progress" && isVirtualLab(lab.labType) && (
           <StemLearnerProgress lab={lab} />
         )}
+
+        {["CODING", "DATABASE", "WORKSPACE"].includes(lab.labType) && <LabAuthoringPanel
+          labId={labId} labType={lab.labType}
+          source={{ title: generalForm.title, description: generalForm.description, starter_code: sandboxForm.starterCode, schema_sql: sandboxForm.schemaSql, seed_sql: sandboxForm.seedSql }}
+          existingCases={testCases} existingRevision={testSuiteRevision} onSaved={() => { fetchTestCasesList(); fetchRuntimeTasks(); }}
+          onApply={proposal => {
+            setGeneralForm(prev => ({ ...prev, title: proposal.title, description: proposal.description }));
+            setSandboxForm(prev => ({ ...prev, starterCode: Object.keys(proposal.starter_code).length ? proposal.starter_code : prev.starterCode,
+              supportedLanguages: Object.keys(proposal.starter_code).length ? Object.keys(proposal.starter_code) : prev.supportedLanguages,
+              schemaSql: proposal.schema_sql || prev.schemaSql, seedSql: proposal.seed_sql || prev.seedSql }));
+            setActiveTab("general"); toast.success("Đã áp dụng vào form. Lưu nội dung và runtime sau khi kiểm tra.");
+          }} />}
 
         {/* Tab 1: General Details */}
         {activeTab === "general" && (

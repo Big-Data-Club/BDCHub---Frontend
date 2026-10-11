@@ -318,10 +318,10 @@ export default function LabDetailPage() {
     }
   };
 
-  const checkRuntimeTasks = async () => {
+  const checkRuntimeTasks = async (taskId?: number) => {
     setCheckingTasks(true);
     try {
-      const response = await labService.checkRuntimeTasks(labId, terminalSessionId);
+      const response = await labService.checkRuntimeTasks(labId, terminalSessionId, taskId);
       setTaskProgress(response.data);
       if (response.data?.completed) toast.success(`Lab hoàn thành · ${Math.round(response.data.score)} điểm`);
       else toast.success(`Đã kiểm tra · ${Math.round(response.data?.score || 0)} điểm`);
@@ -424,13 +424,17 @@ export default function LabDetailPage() {
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {taskProgress.tasks.map((task: any) => (
-                    <span key={task.id} title={task.last_message || task.description} className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${task.passed ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300" : "border-slate-300 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"}`}>
-                      {task.passed ? "✓" : "○"} {task.title} · {task.weight}đ{task.is_required ? " · bắt buộc" : ""}
-                    </span>
+                    <details key={task.id} className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                      <summary className="cursor-pointer font-semibold">{task.passed ? "✓ Pass" : "○ Chưa pass"} · {task.title} · trọng số {task.weight}{task.is_required ? " · bắt buộc" : ""}</summary>
+                      <div className="mt-2 space-y-2"><MarkdownRenderer content={task.description || ""} />
+                        {task.last_message && <p className="text-xs text-slate-500">{task.last_message}</p>}
+                        <button onClick={() => checkRuntimeTasks(task.id)} disabled={checkingTasks || (lab.labType === "WORKSPACE" && !terminalSessionActive)} className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white disabled:opacity-50">Kiểm tra bước này</button>
+                      </div>
+                    </details>
                   ))}
                 </div>
               </div>
-              <button onClick={checkRuntimeTasks} disabled={checkingTasks || (lab.labType === "WORKSPACE" && !terminalSessionActive)} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+              <button onClick={() => checkRuntimeTasks()} disabled={checkingTasks || (lab.labType === "WORKSPACE" && !terminalSessionActive)} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
                 {checkingTasks && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Kiểm tra tiến độ
               </button>
             </div>

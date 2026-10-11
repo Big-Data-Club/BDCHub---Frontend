@@ -25,8 +25,8 @@ import { Plus } from "lucide-react";
 
 export default function LabsPage() {
   const router = useRouter();
-  const { isAdmin } = useAuth();
-  const canManage = isAdmin;
+  const { isAdmin, user } = useAuth();
+  const canManage = isAdmin || user?.role === "ROLE_TEACHER" || user?.role === "TEACHER";
 
   const {
     labs,

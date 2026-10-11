@@ -25,7 +25,7 @@ export default function LabManagePage() {
   const { user, isAdmin } = useAuth();
   const router = useRouter();
   
-  const isAuthorized = isAdmin;
+  const isAuthorized = isAdmin || user?.role === "ROLE_TEACHER" || user?.role === "TEACHER";
   
   const [labs, setLabs] = useState<Lab[]>([]);
   const [loading, setLoading] = useState(true);

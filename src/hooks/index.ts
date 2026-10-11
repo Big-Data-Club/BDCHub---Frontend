@@ -40,3 +40,5 @@ export * from "./lms/student/useFlashcardCourses";
 export * from "./lms/student/useFlashcardLibrary";
 export * from "./lms/student/useFlashcardReview";
 export * from "./lms/student/useFlashcardSpeech";
+
+export * from "./labs/useLabAuthoring";
