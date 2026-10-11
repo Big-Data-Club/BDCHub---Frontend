@@ -14,7 +14,6 @@ import {
   Terminal,
   Trophy,
   History,
-  Activity,
   Cpu,
   Database as DbIcon
 } from "lucide-react";
@@ -26,6 +25,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { XTerminal, type XTerminalHandle } from "@/components/terminal/XTerminal";
+import { useLabDraft } from "@/hooks/labs/useLabDraft";
+import { useUser } from "@/store/UserContext";
 import StemLearnerWorkspace from "@/components/labs/StemLearnerWorkspace";
 import { ChemistryLabStudentView } from "@/components/labs/chemistry/ChemistryLabStudentView";
 
@@ -43,7 +44,11 @@ export default function LabDetailPage() {
 
   // Coding playground states
   const [selectedLang, setSelectedLang] = useState("python");
-  const [code, setCode] = useState("");
+  const { user } = useUser();
+  const { code, setCode, draftSaved } = useLabDraft(user?.id, labId, selectedLang,
+    lab?.runtimeConfig?.starter_code?.[selectedLang] || "", lab !== null);
+  const terminalOutputRef = useRef<Array<string | Uint8Array>>([]);
+  const terminalReadyRef = useRef(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [runResult, setRunResult] = useState<any | null>(null);
@@ -56,6 +61,7 @@ export default function LabDetailPage() {
   // Virtual terminal workspace states
   const [terminalSessionActive, setTerminalSessionActive] = useState(false);
   const [terminalSessionId, setTerminalSessionId] = useState<string | null>(null);
+  const [terminalExpiresAt, setTerminalExpiresAt] = useState<string | null>(null);
   const [terminalProvisioning, setTerminalProvisioning] = useState(false);
   const [provisionStep, setProvisionStep] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
@@ -82,10 +88,8 @@ export default function LabDetailPage() {
 
       // Set starter code if configured in runtimeConfig
       const runtimeConfig = labRes.data.runtimeConfig || {};
-      const starterCodeMap = runtimeConfig.starter_code || {};
       const defaultLang = runtimeConfig.supported_languages?.[0] || "python";
       setSelectedLang(labRes.data.labType === "DATABASE" ? "sql" : defaultLang);
-      setCode(starterCodeMap[defaultLang] || "");
 
       const sectionsRes = await labService.getLabSections(labId);
       const sortedSections = (sectionsRes.data || []).sort((a: any, b: any) => (a.orderIndex || 0) - (b.orderIndex || 0));
@@ -148,8 +152,8 @@ export default function LabDetailPage() {
   // Handle changing language and mapping its starter code
   const handleLangChange = (lang: string) => {
     setSelectedLang(lang);
-    const starterCodeMap = lab?.runtimeConfig?.starter_code || {};
-    setCode(starterCodeMap[lang] || "");
+    setRunResult(null);
+    setSubmitResult(null);
   };
 
   // Run code against sample tests
@@ -163,7 +167,8 @@ export default function LabDetailPage() {
     try {
       const res = await labService.runCode(labId, { language: selectedLang, code });
       setRunResult(res.data);
-      toast.success("Execution completed!");
+      if (res.data.status === "ACCEPTED") toast.success("Sample tests passed. Submit to check all tests.");
+      else toast.error(`Run status: ${res.data.status}`);
     } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data?.message || err.message || "Failed to execute code.");
@@ -232,6 +237,9 @@ export default function LabDetailPage() {
       if (!activeSessionId) throw new Error("Sandbox session is missing");
       const wsUrl = `${wsProtocol}//${wsHost}/labapiv1/labs/${labId}/session/terminal/ws?token=${encodeURIComponent(token || "")}&session_id=${encodeURIComponent(activeSessionId)}`;
       
+      if (wsRef.current) wsRef.current.close();
+      terminalReadyRef.current = false;
+      terminalOutputRef.current = [];
       const socket = new WebSocket(wsUrl);
       socket.binaryType = "arraybuffer";
       wsRef.current = socket;
@@ -249,21 +257,22 @@ export default function LabDetailPage() {
       };
 
       socket.onmessage = (event) => {
-        // Pipe raw PTY output directly into xterm.js
-        if (event.data instanceof ArrayBuffer) {
-          xtermRef.current?.write(new Uint8Array(event.data));
-        } else {
-          xtermRef.current?.write(event.data);
-        }
+        const data = event.data instanceof ArrayBuffer ? new Uint8Array(event.data) : String(event.data);
+        if (terminalReadyRef.current) xtermRef.current?.write(data);
+        else if (terminalOutputRef.current.length < 64) terminalOutputRef.current.push(data);
       };
 
       socket.onclose = () => {
+        if (wsRef.current !== socket) return;
+        setTerminalProvisioning(false);
         setTerminalSessionActive(false);
         xtermRef.current?.write("\r\n\x1b[1;31m*** Terminal session disconnected ***\x1b[0m\r\n");
         wsRef.current = null;
       };
 
       socket.onerror = (err) => {
+        setTerminalProvisioning(false);
+        toast.error("Terminal connection failed. Reconnect to resume your workspace.");
         console.error("WebSocket Terminal Error:", err);
       };
     } catch (err) {
@@ -298,14 +307,10 @@ export default function LabDetailPage() {
       const sessionId = sessionResponse.data?.session_id;
       if (!sessionId) throw new Error("Backend did not return a sandbox session");
       setTerminalSessionId(sessionId);
+      setTerminalExpiresAt(sessionResponse.data?.expires_at || null);
       
-      setProvisionStep(1); // "Spawning container..."
-      setTimeout(() => {
-        setProvisionStep(2); // "Connecting terminal..."
-        setTimeout(() => {
-          connectWebSocket(sessionId);
-        }, 800);
-      }, 800);
+      setProvisionStep(2);
+      await connectWebSocket(sessionId);
     } catch (err: any) {
       console.error(err);
       setTerminalProvisioning(false);
@@ -582,6 +587,13 @@ export default function LabDetailPage() {
                   )}
                 </div>
 
+                {lab.labType === "DATABASE" && (
+                  <details className="px-5 py-3 text-xs text-slate-300">
+                    <summary className="cursor-pointer">PostgreSQL schema and sample data</summary>
+                    <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap font-mono">{lab.runtimeConfig?.schema_sql || "No schema configured."}{"\n\n"}{lab.runtimeConfig?.seed_sql || ""}</pre>
+                    <p className="mt-2">Write a SELECT query. Results include column names; duplicate rows count. {lab.runtimeConfig?.order_sensitive ? "Row order matters." : "Row order does not matter."}</p>
+                  </details>
+                )}
                 {/* Code Input Area */}
                 <div className="flex-1 min-h-0 relative">
                   <textarea
@@ -590,10 +602,28 @@ export default function LabDetailPage() {
                     className="w-full h-full p-5 bg-slate-950 text-slate-100 font-mono text-sm leading-relaxed 
                                focus:outline-none resize-none no-scrollbar placeholder:text-slate-700"
                     placeholder={lab.labType === "DATABASE" ? "-- Write your SQL query here...\nSELECT * FROM users;" : "// Write your code solution here..."}
+                    aria-label={lab.labType === "DATABASE" ? "SQL query editor" : "Solution editor"}
+                    onKeyDown={(event) => {
+                      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+                        event.preventDefault();
+                        if (!isRunning && !isSubmitting) {
+                          if (event.shiftKey) void handleSubmitCode(); else void handleRunCode();
+                        }
+                      } else if (event.key === "Tab" && !event.shiftKey) {
+                        event.preventDefault();
+                        const editor = event.currentTarget;
+                        const start = editor.selectionStart, end = editor.selectionEnd;
+                        setCode(code.slice(0, start) + "    " + code.slice(end));
+                        requestAnimationFrame(() => { editor.selectionStart = editor.selectionEnd = start + 4; });
+                      }
+                    }}
                     spellCheck="false"
                   />
                 </div>
 
+                <p className="px-5 py-2 text-[11px] text-slate-400" role="status">
+                  {draftSaved ? "Draft saved on this browser" : "Draft not saved yet"} · Ctrl+Enter: Run · Ctrl+Shift+Enter: Submit
+                </p>
                 {/* Run & Submit Console Toolbars */}
                 <div className="flex items-center justify-between px-5 py-3 bg-slate-950 border-t border-slate-800 flex-shrink-0">
                   <div className="flex gap-2">
@@ -844,42 +874,21 @@ export default function LabDetailPage() {
                     <div className="max-w-md space-y-2">
                       <h3 className="text-lg font-bold text-slate-200">Interactive Environment Sandbox</h3>
                       <p className="text-slate-500 text-xs leading-relaxed">
-                        Provision a dedicated container session for this exercise. The container is isolated and secure, pre-configured with the workspace dependencies.
+                        Open your Linux terminal to complete the exercise and check your work.
                       </p>
                     </div>
 
-                    {/* Allocation metadata */}
-                    <div className="bg-slate-950/40 rounded-2xl border border-slate-800/80 p-4 max-w-sm w-full grid grid-cols-2 gap-4 text-left font-mono text-[10px] text-slate-450">
-                      <div>
-                        <span className="text-slate-650 block text-[9px] uppercase font-semibold">Compute Backend</span>
-                        <span className="text-slate-300 font-bold">{lab.runtimeConfig?.compute_backend || "K8S Pod"}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-650 block text-[9px] uppercase font-semibold">Docker Image</span>
-                        <span className="text-slate-300 font-bold truncate max-w-[120px] block" title={lab.runtimeConfig?.docker_image || "ubuntu:22.04"}>
-                          {lab.runtimeConfig?.docker_image || "ubuntu:22.04"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-650 block text-[9px] uppercase font-semibold flex items-center gap-1">
-                          <Cpu size={10} /> Allocated CPU
-                        </span>
-                        <span className="text-slate-300 font-bold">0.5 Cores</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-650 block text-[9px] uppercase font-semibold flex items-center gap-1">
-                          <Activity size={10} /> Allocated RAM
-                        </span>
-                        <span className="text-slate-300 font-bold">512 MB</span>
-                      </div>
-                    </div>
+                    <p className="max-w-sm text-xs leading-relaxed text-slate-400">
+                      Your files stay available until the workspace expires. Reconnect after a network interruption to open a new shell.
+                      {terminalExpiresAt && <> Session ends at {new Date(terminalExpiresAt).toLocaleTimeString()}.</>}
+                    </p>
 
                     <button
                       onClick={startTerminalSession}
                       className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs active:scale-95 transition-all shadow-md flex items-center gap-2"
                     >
                       <Play size={13} fill="white" />
-                      Launch Sandbox Session
+                      {terminalSessionId ? "Reconnect to workspace" : "Start terminal"}
                     </button>
                   </div>
                 ) : null}
@@ -891,22 +900,31 @@ export default function LabDetailPage() {
                     <div className="space-y-1">
                       <h4 className="text-sm font-bold text-slate-300">Starting Sandbox Container...</h4>
                       <p className="text-xs text-slate-500 font-mono">
-                        {provisionStep === 0 && "Allocating namespace resources..."}
-                        {provisionStep === 1 && "Spawning isolated sandbox K8s pod..."}
-                        {provisionStep === 2 && "Connecting terminal agent tunnel..."}
+                        {provisionStep === 0 && "Preparing your workspace…"}
+                        {provisionStep === 2 && "Connecting terminal…"}
                       </p>
                     </div>
                   </div>
                 ) : null}
 
-                {/* Terminal Active (Simulated Console) */}
+                {terminalSessionActive && terminalExpiresAt && (
+                  <p className="px-5 py-2 text-xs text-slate-400">Workspace expires at {new Date(terminalExpiresAt).toLocaleTimeString()}. Save any files you need before then.</p>
+                )}
+                {/* Active terminal */}
                 {terminalSessionActive ? (
                   <div className="flex-1 min-h-0 overflow-hidden">
                     <XTerminal
                       ref={xtermRef}
                       onData={handleTerminalData}
                       onResize={handleTerminalResize}
-                      onReady={() => xtermRef.current?.focus()}
+                      onReady={() => {
+                        terminalReadyRef.current = true;
+                        terminalOutputRef.current.forEach(chunk => xtermRef.current?.write(chunk));
+                        terminalOutputRef.current = [];
+                        xtermRef.current?.focus();
+                        const dimensions = xtermRef.current?.getDimensions();
+                        if (dimensions) handleTerminalResize(dimensions.cols, dimensions.rows);
+                      }}
                       className="w-full h-full"
                     />
                   </div>

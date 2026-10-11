@@ -248,7 +248,7 @@ export default function LabCreatePage() {
                              transition-all text-sm outline-none cursor-pointer"
                 >
                   <option value="CODING">Coding Lab (Python, Java, Go...)</option>
-                  <option value="DATABASE">SQL Database Sandbox (SQLite)</option>
+                  <option value="DATABASE">SQL Database Sandbox (PostgreSQL)</option>
                   <option value="WORKSPACE">Linux Workspace Console (ttyd terminal)</option>
                   <option value="HPC">HPC Job Submission (SLURM cluster)</option>
                   <option value="PLANT">Plant Science Experiment (2.5D Virtual)</option>

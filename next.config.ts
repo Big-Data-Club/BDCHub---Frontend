@@ -56,7 +56,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   
   experimental: {
-    proxyTimeout: 120000,
+    // Synchronous lab grading may include cold image startup and compilation.
+    proxyTimeout: 600000,
     optimizePackageImports: [
       '@radix-ui/react-avatar',
       '@radix-ui/react-dialog',
