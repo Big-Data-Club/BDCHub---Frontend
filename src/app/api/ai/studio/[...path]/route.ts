@@ -30,9 +30,10 @@ async function forward(req: NextRequest, path: string[]) {
   );
 
   const searchParams = new URLSearchParams(req.nextUrl.search);
-  if (userId && !searchParams.has("user_id")) {
-    searchParams.set("user_id", String(userId));
+  if (!Number.isSafeInteger(userId) || userId <= 0) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  searchParams.set("user_id", String(userId));
   const queryString = searchParams.toString() ? `?${searchParams.toString()}` : "";
 
   const url = `${AI_SERVICE_URL}/ai/studio/${path.join("/")}${queryString}`;

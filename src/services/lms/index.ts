@@ -26,3 +26,5 @@ export { default as youtubeService } from "./youtubeService";
 export * from "./youtubeTokenManager";
 export { default as youtubeTokenManager } from "./youtubeTokenManager";
 export * from "./flashcardLibraryService";
+
+export * from "./learningScopeService";

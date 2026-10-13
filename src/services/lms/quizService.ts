@@ -219,8 +219,8 @@ class QuizService {
     return response.data;
   }
 
-  /** AI generation straight into the bank, optionally scoped to selected nodes. */
-  async generateBankQuestions(courseId: number, payload: { count?: number; bloom_levels?: string[]; node_ids?: number[]; language?: string }) {
+  /** Generate from canonical chapters/lessons; empty scope means the whole course. */
+  async generateBankQuestions(courseId: number, payload: { count?: number; bloom_levels?: string[]; section_ids?: number[]; content_ids?: number[]; language?: string }) {
     const response = await lmsApiClient.post(
       `/courses/${courseId}/question-bank/generate`,
       payload

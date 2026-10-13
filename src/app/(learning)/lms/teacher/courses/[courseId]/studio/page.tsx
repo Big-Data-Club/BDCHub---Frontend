@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { studioService, type StudioProject } from "@/services/ai/studioService";
 import lmsService from "@/services/lms/lmsService";
-import { aiService } from "@/services/ai/aiService";
+import { useLearningScope } from "@/hooks/lms/teacher/useLearningScope";
+import { LearningScopePicker } from "@/components/lms/shared/LearningScopePicker";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import AIRevisionPanel from "@/components/lms/teacher/AIRevisionPanel";
 import { cn } from "@/lib/utils";
@@ -39,8 +40,7 @@ export default function StudioPage() {
   const [slideCount, setSlideCount] = useState(8);
 
   // collect
-  const [nodes, setNodes] = useState<{ id: number; name: string }[]>([]);
-  const [selectedNodes, setSelectedNodes] = useState<Set<number>>(new Set());
+  const scope = useLearningScope(courseId);
   const [pasteText, setPasteText] = useState("");
   const [addingSource, setAddingSource] = useState(false);
   const [collectError, setCollectError] = useState("");
@@ -59,20 +59,12 @@ export default function StudioPage() {
   const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
-    aiListNodes();
     lmsService.listSections(courseId)
       .then((res) => setSectionsList((res?.data ?? []).map((s: any) => ({ id: s.id, title: s.title }))))
       .catch(() => {});
     return () => { if (pollRef) clearInterval(pollRef); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
-
-  const aiListNodes = async () => {
-    try {
-      const list = await aiService.listKnowledgeNodes(courseId);
-      setNodes((list ?? []).map((n: any) => ({ id: n.id, name: n.name_vi ?? n.name })));
-    } catch {}
-  };
 
   const ensureProject = useCallback(async () => {
     if (project) return project;
@@ -88,14 +80,13 @@ export default function StudioPage() {
     setAddingSource(true); setCollectError(""); setError("");
     try {
       const proj = await ensureProject();
-      for (const nid of selectedNodes) {
-        const n = nodes.find((x) => x.id === nid);
-        await studioService.addContext(proj.id, { type: "node", title: n?.name ?? `Node ${nid}`, ref: nid });
+      if (scope.hasSelection) {
+        await studioService.addContext(proj.id, { type: "curriculum", title: "Nội dung khóa học", ...scope.payload });
       }
       if (pasteText.trim()) {
         await studioService.addContext(proj.id, { type: "text", title: "Văn bản dán", text: pasteText.trim() });
       }
-      setSelectedNodes(new Set()); setPasteText("");
+      scope.setSelection({ whole_course: false, section_ids: [], content_ids: [] }); setPasteText("");
       setProject(await studioService.getProject(proj.id));
     } catch (err: any) {
       setCollectError(err.message ?? "Không thêm được nguồn.");
@@ -277,26 +268,15 @@ export default function StudioPage() {
 
           <div className="rounded-2xl border border-slate-200 dark:border-blue-500/15 bg-white dark:bg-[#0F1E35] p-5 space-y-3">
             <h3 className="font-bold text-sm flex items-center gap-2"><FileText className="w-4 h-4 text-emerald-500" /> Nguồn tư liệu</h3>
-            {nodes.length > 0 ? (
-              <div className="max-h-44 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
-                {nodes.map((n) => (
-                  <label key={n.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-[#12223a] cursor-pointer text-xs">
-                    <input type="checkbox" checked={selectedNodes.has(n.id)}
-                      onChange={() => setSelectedIds(setNodes, n.id)} className="w-3.5 h-3.5" />
-                    <span className="truncate">{n.name}</span>
-                  </label>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400">Chưa có knowledge node - có thể dùng nguồn văn bản bên dưới.</p>
-            )}
+            <LearningScopePicker sections={scope.sections} value={scope.selection} onChange={scope.setSelection}
+              loading={scope.loading} error={scope.error} onRetry={scope.retry} disabled={addingSource} />
             <textarea value={pasteText} onChange={(e) => setPasteText(e.target.value)} rows={3}
               placeholder="Hoặc dán thêm nội dung/giáo trình..."
               className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0D192E] text-xs resize-none" />
-            <button onClick={addSources} disabled={addingSource || (selectedNodes.size === 0 && !pasteText.trim())}
+            <button onClick={addSources} disabled={addingSource || (!scope.hasSelection && !pasteText.trim())}
               className="w-full h-10 rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white text-xs font-bold flex items-center justify-center gap-2 disabled:opacity-40 active:scale-[0.98] transition-all cursor-pointer">
               {addingSource ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-              Thêm vào Context Pack {project ? `(${(project.context_pack ?? []).length})` : ""}
+              Thêm nguồn tư liệu {project ? `(${(project.context_pack ?? []).length})` : ""}
             </button>
             {collectError && <p className="text-xs text-red-500 flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5" />{collectError}</p>}
           </div>
@@ -544,13 +524,7 @@ export default function StudioPage() {
   );
 
   // ── helpers ────────────────────────────────────────────────────────────
-  function setSelectedIds(_setter: unknown, id: number) {
-    setSelectedNodes((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }
+
 
   function mutateSection(i: number, field: string, value: any) {
     if (!project?.plan) return;

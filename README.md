@@ -8,6 +8,7 @@ This repository houses the frontend layer that interacts with multiple microserv
 
 ### Core Modules
 * **Learning Management System (LMS):** Comprehensive tools for course navigation, interactive quizzes, and flashcard-based learning.
+* **Authoring context:** Studio and course question generation select whole courses, chapters or lessons (text, documents, video and images). The shared curriculum picker sends IDs; LMS authorizes and resolves canonical material. Knowledge nodes and chunks are internal AI details. Deploy the LMS authoring-context endpoint and AI curriculum generation support before this UI.
 * **AI Mentor & Assistant:** Integrated intelligent agents providing personalized study plans and real-time concept explanations.
 * **Admin Dashboard:** Centralized management for user roles, system permissions, and LLM provider configurations.
 * **Community Chat:** Theme-aware channels and direct messages with mobile navigation, per-account browser preferences, bounded message history and reconnect recovery. Administrators manage access at `/settings/chat-roles`.

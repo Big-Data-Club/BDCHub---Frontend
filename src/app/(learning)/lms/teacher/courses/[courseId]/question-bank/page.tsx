@@ -11,6 +11,8 @@
  *  - Assemble quizzes by copying selected items
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLearningScope } from "@/hooks/lms/teacher/useLearningScope";
+import { LearningScopePicker } from "@/components/lms/shared/LearningScopePicker";
 import { useParams, useRouter } from "next/navigation";
 import {
   LibraryBig,
@@ -34,7 +36,6 @@ import BaseModal from "@/components/lms/shared/BaseModal";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import quizService from "@/services/lms/quizService";
 import lmsService from "@/services/lms/lmsService";
-import aiService from "@/services/ai/aiService";
 import { cn } from "@/lib/utils";
 import AIRevisionPanel from "@/components/lms/teacher/AIRevisionPanel";
 import { toast } from "sonner";
@@ -114,7 +115,6 @@ export default function QuestionBankPage() {
   const [mounted, setMounted] = useState(false);
   const [items, setItems] = useState<BankItem[]>([]);
   const [stats, setStats] = useState<BankStats | null>(null);
-  const [nodes, setNodes] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -127,7 +127,6 @@ export default function QuestionBankPage() {
   const [difficulty, setDifficulty] = useState("");
   const [bloom, setBloom] = useState("");
   const [source, setSource] = useState("");
-  const [nodeFilter, setNodeFilter] = useState(""); // "" | "dangling" | nodeId
   const [month, setMonth] = useState("");
   const [sort, setSort] = useState("created_at");
   const [order, setOrder] = useState<"asc" | "desc">("desc");
@@ -143,7 +142,7 @@ export default function QuestionBankPage() {
   const [showGenDialog, setShowGenDialog] = useState(false);
   const [genCount, setGenCount] = useState(10);
   const [genBlooms, setGenBlooms] = useState<string[]>(["remember", "understand", "apply"]);
-  const [genNodeIds, setGenNodeIds] = useState<number[]>([]);
+  const genScope = useLearningScope(courseId, true);
   const [generating, setGenerating] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
@@ -185,8 +184,6 @@ export default function QuestionBankPage() {
         difficulty: difficulty || undefined,
         bloom_level: bloom || undefined,
         source: source || undefined,
-        dangling: nodeFilter === "dangling" ? true : undefined,
-        node_id: nodeFilter && nodeFilter !== "dangling" ? Number(nodeFilter) : undefined,
         time_from: timeFrom,
         sort,
         order,
@@ -199,13 +196,10 @@ export default function QuestionBankPage() {
     } finally {
       setLoading(false);
     }
-  }, [courseId, page, pageSize, q, difficulty, bloom, source, nodeFilter, month, sort, order]);
+  }, [courseId, page, pageSize, q, difficulty, bloom, source, month, sort, order]);
 
   useEffect(() => {
     loadStats();
-    aiService.listKnowledgeNodes(courseId)
-      .then((ns) => setNodes(ns.map((n) => ({ id: n.id, name: n.name_vi ?? n.name }))))
-      .catch(() => {});
     lmsService.listSections(courseId)
       .then((res) => {
         const list = (res?.data ?? []).map((s: any) => ({ id: s.id, title: s.title }));
@@ -223,7 +217,7 @@ export default function QuestionBankPage() {
   useEffect(() => {
     setPage(1);
     setSelectedIds(new Set());
-  }, [q, difficulty, bloom, source, nodeFilter, month, sort, order]);
+  }, [q, difficulty, bloom, source, month, sort, order]);
 
   const refreshAll = () => {
     loadItems();
@@ -232,13 +226,13 @@ export default function QuestionBankPage() {
   };
 
   const handleGenerate = async () => {
-    if (generating) return;
+    if (generating || !genScope.hasSelection) return;
     setGenerating(true);
     try {
       await quizService.generateBankQuestions(courseId, {
         count: genCount,
         bloom_levels: genBlooms.length > 0 ? genBlooms : undefined,
-        node_ids: genNodeIds.length > 0 ? genNodeIds : undefined,
+        ...genScope.payload,
         language: "vi",
       });
       setShowGenDialog(false);
@@ -404,11 +398,7 @@ export default function QuestionBankPage() {
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase">
                 {item.source === "AI_GENERATED" ? "AI" : item.source === "IMPORT" ? "Nhập" : item.source === "QUIZ" ? "Từ quiz" : "Thủ công"}
               </span>
-              {!item.node_id && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-100 dark:bg-orange-950/30 text-orange-600 dark:text-orange-300">
-                  Chưa gắn node
-                </span>
-              )}
+
               {item.bloom_level && (
                 <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-300">
                   {item.bloom_level}
@@ -558,19 +548,6 @@ export default function QuestionBankPage() {
               {DIFFICULTY_OPTIONS.find((d) => d.value === k)?.label}: <strong>{v}</strong>
             </span>
           ))}
-          <button
-            onClick={() => {
-              setNodeFilter(nodeFilter === "dangling" ? "" : "dangling");
-            }}
-            className={cn(
-              "px-3 py-1.5 rounded-xl border font-semibold cursor-pointer transition-colors",
-              nodeFilter === "dangling"
-                ? "bg-orange-500 text-white border-orange-500"
-                : "bg-orange-50 dark:bg-orange-950/25 text-orange-600 dark:text-orange-300 border-orange-200 dark:border-orange-800/60 hover:bg-orange-100"
-            )}
-          >
-            Chưa gắn node: <strong>{stats.dangling_count}</strong>
-          </button>
           {stats.by_month.slice(-6).map((m) => (
             <button
               key={m.month}
@@ -619,17 +596,6 @@ export default function QuestionBankPage() {
               value={source}
               onValueChange={setSource}
               options={[{ value: "", label: "Mọi nguồn" }, ...SOURCE_OPTIONS]}
-            />
-          </div>
-          <div className="w-[185px] max-w-full">
-            <FilterDropdown
-              value={nodeFilter}
-              onValueChange={setNodeFilter}
-              options={[
-                { value: "", label: "Mọi node" },
-                { value: "dangling", label: "Chưa gắn node" },
-                ...nodes.map((n) => ({ value: String(n.id), label: n.name })),
-              ]}
             />
           </div>
           <div className="w-[170px]">
@@ -737,7 +703,7 @@ export default function QuestionBankPage() {
           <div className="py-12 text-center">
             <Layers className="w-10 h-10 mx-auto mb-3 text-slate-300 dark:text-slate-700 opacity-60" />
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-              {q || difficulty || bloom || source || nodeFilter
+              {q || difficulty || bloom || source
                 ? "Không có câu hỏi nào khớp bộ lọc."
                 : "Ngân hàng còn trống - hãy Nhập từ tệp hoặc Sinh đề bằng AI."}
             </p>
@@ -823,11 +789,7 @@ export default function QuestionBankPage() {
                 {QUESTION_TYPE_LABELS[previewItem.question_type] ?? previewItem.question_type}
               </span>
               <span className="text-xs font-mono font-bold text-slate-500">{previewItem.points} điểm</span>
-              {!previewItem.node_id && (
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-orange-100 dark:bg-orange-950/30 text-orange-600 dark:text-orange-300">
-                  Chưa gắn node
-                </span>
-              )}
+
             </div>
 
             {/* Question body */}
@@ -904,57 +866,12 @@ export default function QuestionBankPage() {
               </div>
               <div>
                 <h3 className="font-black text-slate-900 dark:text-white">Sinh đề vào Thư viện</h3>
-                <p className="text-xs text-slate-500">Chọn phần kiến thức cần kiểm tra hoặc để AI quét toàn khóa.</p>
+                <p className="text-xs text-slate-500">Chọn chương hoặc bài học cần kiểm tra.</p>
               </div>
             </div>
 
-            <div>
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Node kiến thức
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setGenNodeIds([])}
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
-                >
-                  Toàn khóa
-                </button>
-              </div>
-              <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 p-2 space-y-1">
-                {nodes.length === 0 ? (
-                  <p className="px-2 py-3 text-xs text-slate-500">Khóa học chưa có node kiến thức.</p>
-                ) : nodes.map((node) => {
-                  const checked = genNodeIds.includes(node.id);
-                  return (
-                    <label
-                      key={node.id}
-                      className={cn(
-                        "flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm cursor-pointer transition-colors",
-                        checked
-                          ? "bg-blue-50 text-blue-800 dark:bg-cyan-950/40 dark:text-cyan-200"
-                          : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                      )}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => setGenNodeIds((current) =>
-                          checked ? current.filter((id) => id !== node.id) : [...current, node.id]
-                        )}
-                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="min-w-0 truncate">{node.name}</span>
-                    </label>
-                  );
-                })}
-              </div>
-              <p className="mt-1.5 text-xs text-slate-400">
-                {genNodeIds.length > 0
-                  ? `Đã chọn ${genNodeIds.length} node. AI chỉ dùng nội dung thuộc các node này.`
-                  : "Chưa chọn node: AI phân bổ câu hỏi trên toàn bộ knowledge graph."}
-              </p>
-            </div>
+            <LearningScopePicker sections={genScope.sections} value={genScope.selection} onChange={genScope.setSelection}
+              loading={genScope.loading} error={genScope.error} onRetry={genScope.retry} disabled={generating} />
 
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">
@@ -1007,7 +924,7 @@ export default function QuestionBankPage() {
             <div className="flex gap-2">
               <button
                 onClick={handleGenerate}
-                disabled={generating}
+                disabled={generating || !genScope.hasSelection}
                 className="flex-1 h-11 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer"
               >
                 {generating ? (

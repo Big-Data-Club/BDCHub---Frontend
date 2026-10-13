@@ -3,10 +3,12 @@
  * Goes through the Next proxy /api/ai/studio/* which injects auth + secret.
  */
 export interface StudioContextSource {
-  type: "node" | "text" | "document_url";
+  type: "curriculum" | "text";
   title: string;
   ref?: number | null;
   text?: string;
+  section_ids?: number[];
+  content_ids?: number[];
 }
 
 export interface StudioSection {
