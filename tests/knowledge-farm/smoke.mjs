@@ -1,16 +1,16 @@
 // UI smoke against a local Next server with a synthetic NextAuth session.
 // Usage: FARM_SMOKE_SECRET=<local test secret> FARM_SMOKE_URL=http://localhost:3217
-// PLAYWRIGHT_BROWSERS_PATH=/tmp/bdc-farm-playwright node tests/knowledge-farm/smoke.cjs
-const { chromium } = require('@playwright/test');
-const { encode } = require('next-auth/jwt');
-const fs = require('node:fs');
-const path = require('node:path');
-const assert = require('node:assert/strict');
+// PLAYWRIGHT_BROWSERS_PATH=/tmp/bdc-farm-playwright node tests/knowledge-farm/smoke.mjs
+import { chromium } from '@playwright/test';
+import { encode } from 'next-auth/jwt';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import assert from 'node:assert/strict';
 (async () => {
   const base = process.env.FARM_SMOKE_URL || 'http://localhost:3217';
   const secret = process.env.FARM_SMOKE_SECRET;
   assert(secret, 'Set a dedicated local FARM_SMOKE_SECRET, never a production secret');
-  const catalog = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../farm-service/internal/farm/catalog.json'), 'utf8'));
+  const catalog = JSON.parse(fs.readFileSync(fileURLToPath(new URL('../../../farm-service/internal/farm/catalog.json', import.meta.url)), 'utf8'));
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   try {
     const context = await browser.newContext();
