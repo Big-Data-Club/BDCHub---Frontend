@@ -9,6 +9,7 @@ import {
   GraduationCap,
   BookOpen,
   MessageSquare,
+  Sprout,
 } from "lucide-react";
 
 export const sidebarSections = [
@@ -21,6 +22,7 @@ export const sidebarSections = [
       { label: "Tasks",           route: "/tasks",        icon: ClipboardList,   iconColor: "text-blue-500" },
       { label: "Leaderboard",     route: "/leaderboard",  icon: Trophy,          iconColor: "text-blue-500" },
       { label: "BDCourse",        route: "/lms",          icon: GraduationCap,   iconColor: "text-blue-500" },
+      { label: "Nông trại kiến thức", route: "/knowledge-farm", icon: Sprout, iconColor: "text-emerald-600" },
       { label: "Virtual Lab",     route: "/labs",         icon: FlaskConical,    iconColor: "text-blue-500" },
       { label: "Chat",            route: "/chat",         icon: MessageSquare,   iconColor: "text-blue-500" },
     ],

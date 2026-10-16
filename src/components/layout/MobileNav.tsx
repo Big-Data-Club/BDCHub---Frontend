@@ -102,6 +102,7 @@ const MobileNav = () => {
                   return (
                     link.label === "BDCourse" ||
                     link.label === "Virtual Lab" ||
+                  link.route === "/knowledge-farm" ||
                     link.label === "Data Hackathon" ||
                     link.label === "HCMUT HPC School"
                   );

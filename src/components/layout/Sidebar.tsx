@@ -165,6 +165,7 @@ const Sidebar: React.FC = () => {
                 return (
                   link.label === "BDCourse" ||
                   link.label === "Virtual Lab" ||
+                  link.route === "/knowledge-farm" ||
                   link.label === "Chat" ||
                   link.label === "Data Hackathon" ||
                   link.label === "HCMUT HPC School"

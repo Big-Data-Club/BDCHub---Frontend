@@ -81,3 +81,19 @@ The following variables are required for full system functionality:
 ---
 
 © 2026 Big Data Club - HCMUT. All rights reserved.
+
+### Nông trại kiến thức
+
+`/knowledge-farm` is an authenticated educational farm game, reached from the
+main navigation. Set server-side `FARM_SERVICE_URL` (default
+`http://farm-service:8087`). The BFF forwards the session access token, enforces
+same-origin POST requests and exposes only farm routes. Configure NEXTAUTH_URL
+with the public origin, including the local development port.
+
+Six starter plants/animals include real-world learning cards with sources.
+Each harvest requires a quiz or typed recall flashcard. Farm-awarded points
+are asynchronous; `/api/farm/score` reads the canonical Auth total using only
+the session user ID, and the UI refreshes it every 15 seconds. There are
+no real-farm bookings, IoT, commerce or AI-per-action calls. The initial
+question pack comes from Farm, not from LMS courses. Original sprite source
+is recorded in `public/knowledge-farm/ATTRIBUTION.md`.
