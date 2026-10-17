@@ -38,6 +38,7 @@ try{
    const body=route.request().postDataJSON();actions.push({path,...body});
    if(path.endsWith('/action')&&body.action==='HARVEST'){
     assert(body.challenge_id,'harvest bypassed learning');
+    if(body.answer==='1')return route.fulfill({json:{correct:false,awarded:0,correct_answer:'Thóc',explanation:'Lúa cho thóc.'}});
     world.entities.find(e=>e.id===body.entityId).ready=0;
     earned+=5;world.inventory[body.entityId==='rice'?'paddy':'egg']=(world.inventory[body.entityId==='rice'?'paddy':'egg']||0)+(body.entityId==='rice'?3:1);
     return route.fulfill({json:{correct:true,awarded:5,explanation:'Bạn đã học thêm một điều.',event_id:'test-'+earned}});
@@ -59,6 +60,12 @@ try{
  const tile=async(x,y)=>{const box=await canvas.boundingBox();assert(box);await canvas.click({position:{x:(x+.5)*box.width/20,y:(y+.5)*box.height/14}})};
  await tile(6,5);
  await page.getByRole('heading',{name:'Ngoài đời thực',exact:true}).waitFor();
+ await page.locator('.eco-shortcuts-actions').getByRole('button',{name:/Thu hoạch/}).click();
+ await page.getByRole('radio',{name:'Trứng'}).check();
+ await page.getByRole('dialog').getByRole('button',{name:'Trả lời để thu hoạch'}).click();
+ await page.getByRole('status').filter({hasText:'Đáp án đúng: Thóc'}).waitFor();
+ assert.equal(earned,0);
+ await page.getByRole('dialog').getByRole('button',{name:'Đã hiểu'}).click();
  await page.locator('.eco-shortcuts-actions').getByRole('button',{name:/Thu hoạch/}).click();
  await page.getByRole('radio',{name:'Thóc'}).check();
  await page.getByRole('dialog').getByRole('button',{name:'Trả lời để thu hoạch'}).click();

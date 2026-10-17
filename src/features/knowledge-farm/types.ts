@@ -18,5 +18,5 @@ export interface FarmView {
   daily_limit: number; reward: number;
 }
 export interface AnswerResult {
-  correct: boolean; explanation: string; awarded: number; event_id?: string;
+  correct: boolean; explanation: string; correct_answer?: string; awarded: number; event_id?: string;
 }

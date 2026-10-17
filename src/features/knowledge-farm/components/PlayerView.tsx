@@ -63,6 +63,7 @@ export default function PlayerView({flash,fail,catalogInfo,onReward}:ViewProps){
   const [learningMode,setLearningMode]=useState<LearningMode>('quiz');
   const [lesson,setLesson]=useState<{challenge:Challenge;entityId:string;action:string}|null>(null);
   const [lessonError,setLessonError]=useState('');
+  const [lessonResult,setLessonResult]=useState<AnswerResult|null>(null);
   const [now,setNow]=useState(Date.now());
   const actionLock=useRef(false), requestVersion=useRef(0);
   const [world,setWorld]=useState<EcoWorld|null>(null);
@@ -83,7 +84,7 @@ export default function PlayerView({flash,fail,catalogInfo,onReward}:ViewProps){
   useEffect(()=>{
     const versionRef=requestVersion;
     load().catch(fail);
-    const timer=setInterval(()=>{if(!document.hidden&&!actionLock.current)load().catch(()=>{});},5000);
+    const timer=setInterval(()=>{if(!document.hidden&&!actionLock.current)load().catch(()=>{});},15000);
     const tick=setInterval(()=>setNow(Date.now()),1000);
     return ()=>{clearInterval(timer);clearInterval(tick);++versionRef.current;};
   },[load,fail]);
@@ -95,7 +96,7 @@ export default function PlayerView({flash,fail,catalogInfo,onReward}:ViewProps){
   const info=catalogInfo.find(item=>item.kind===infoKind);
   const beginHarvest=async(name:string)=>{
     if(!picked||actionLock.current)return;
-    actionLock.current=true;setBusy(true);++requestVersion.current;setLessonError('');
+    actionLock.current=true;setBusy(true);++requestVersion.current;setLessonError('');setLessonResult(null);
     try{
       const challenge=await post<Challenge>('/game/challenge',{entityId:picked.id,action:name,kind:learningMode});
       setLesson({challenge,entityId:picked.id,action:name});
@@ -106,9 +107,16 @@ export default function PlayerView({flash,fail,catalogInfo,onReward}:ViewProps){
     actionLock.current=true;setBusy(true);++requestVersion.current;setLessonError('');
     try{
       const result=await post<AnswerResult>('/game/action',{entityId:lesson.entityId,action:lesson.action,challenge_id:lesson.challenge.id,answer});
-      setLesson(null);
-      flash(result.correct?`Thu hoạch thành công! +${result.awarded} điểm. ${result.explanation}`:`Chưa đúng. ${result.explanation}`);
-      await load();onReward();
+      if(result.correct){
+        setLesson(null);
+        if(lesson.action==='SELL_CHICKEN'||['fish','frog'].includes(picked?.kind||''))setSelected(null);
+        setWorld(previous=>previous&&({...previous,entities:previous.entities.map(entity=>entity.id===lesson.entityId?{...entity,ready:0}:entity)}));
+        flash(`Thu hoạch thành công! +${result.awarded} điểm. ${result.explanation}`);
+        onReward();
+      }else{
+        setLessonResult(result);
+      }
+      void load().catch(fail);
     }catch(error){setLessonError(error instanceof Error?error.message:'Không thể kiểm tra câu trả lời.');}
     finally{actionLock.current=false;setBusy(false);}
   };
@@ -119,7 +127,7 @@ export default function PlayerView({flash,fail,catalogInfo,onReward}:ViewProps){
     actionLock.current=true;++requestVersion.current;setBusy(true);
     try{
       const result=await post<{message:string}>(path,body);
-      flash(result.message);await load();return true;
+      flash(result.message);void load().catch(fail);return true;
     }catch(error){fail(error);return false;}
     finally{actionLock.current=false;setBusy(false);}
   };
@@ -351,7 +359,7 @@ export default function PlayerView({flash,fail,catalogInfo,onReward}:ViewProps){
         <div className="eco-log"><h3>🧾 Hoạt động gần đây</h3>{world.history.length===0?<p>Chưa có giao dịch nào.</p>:world.history.slice(0,4).map((event,i)=><div key={i}><span>{event.type==='SELL_TO_RESTAURANT'?'Bán':event.type==='BUY'?'Mua':event.type==='CRAFT'?'Xay':event.type==='SUPPLY'?'Mua vật tư':'Hoạt động'} {world.labels[event.kind]||world.catalog[event.kind]?.label||event.kind}</span><b className={event.coins>=0?'positive':'negative'}>{event.coins>0?'+':''}{event.coins} xu</b></div>)}</div>
       </section>
     </div>
-    {lesson&&<HarvestDialog key={lesson.challenge.id} challenge={lesson.challenge} open onClose={()=>{if(!busy)setLesson(null);}} onAnswer={answer=>void answerHarvest(answer)} busy={busy} error={lessonError} now={now}/>}
+    {lesson&&<HarvestDialog key={lesson.challenge.id} challenge={lesson.challenge} open onClose={()=>{if(!busy){setLesson(null);setLessonResult(null);}}} onAnswer={answer=>void answerHarvest(answer)} busy={busy} error={lessonError} result={lessonResult} now={now}/>}
     <div className="eco-note"><span><Heart size={16}/> Mỗi mùa vụ là một câu chuyện mới.</span><span><Leaf size={16}/> Nông trại kiến thức</span></div>
   </div>;
 }
