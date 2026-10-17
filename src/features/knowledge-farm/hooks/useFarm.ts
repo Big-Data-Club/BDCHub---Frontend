@@ -47,12 +47,13 @@ export function useFarm() {
   useEffect(() => {
     const requestSequence = sequence;
     void reload();
-    const poll = setInterval(() => {
+    const onVisible = () => {
       if (!document.hidden) void reload();
-    }, 15000);
+    };
+    document.addEventListener("visibilitychange", onVisible);
     const tick = setInterval(() => setNow(Date.now() + offset.current), 1000);
     return () => {
-      clearInterval(poll);
+      document.removeEventListener("visibilitychange", onVisible);
       clearInterval(tick);
       ++requestSequence.current;
     };

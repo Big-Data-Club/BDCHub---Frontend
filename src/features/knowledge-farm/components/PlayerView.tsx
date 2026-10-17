@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { Check, X } from "lucide-react";
 import { api, post } from "../lib/api";
 import { entityFootprint } from "../lib/economy";
+import { nextWorldRefreshDelay } from "../lib/worldSchedule";
 import {
   getEntityShortcuts,
   nudgeMovePreview,
@@ -21,8 +22,10 @@ import "../game/eco.css";
 type ViewProps = {
   flash: (message: string) => void;
   fail: (error: unknown) => void;
+  clearError: () => void;
   catalogInfo: Species[];
   onReward: () => void;
+  onRefresh: () => void;
   score: number | null;
   dailyEarned: number;
   dailyLimit: number;
@@ -34,8 +37,10 @@ const EcoGame = dynamic(() => import("../game/EcoGame"), { ssr: false });
 export default function PlayerView({
   flash,
   fail,
+  clearError,
   catalogInfo,
   onReward,
+  onRefresh,
   score,
   dailyEarned,
   dailyLimit,
@@ -68,25 +73,43 @@ export default function PlayerView({
     const data = await api<EcoWorld>("/game/state");
     if (version !== requestVersion.current) return data;
     setWorld(data);
+    clearError();
     setFarmName((prev) => prev || data.farm.name);
     return data;
-  }, []);
+  }, [clearError]);
   useEffect(() => {
     const versionRef = requestVersion;
     load().catch(fail);
-    const timer = setInterval(() => {
-      if (!document.hidden && !actionLock.current) load().catch(() => {});
-    }, 30000);
     const onVisible = () => {
       if (!document.hidden && !actionLock.current) load().catch(() => {});
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => {
-      clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
       ++versionRef.current;
     };
   }, [load, fail]);
+  useEffect(() => {
+    if (!world || lesson) return;
+    const delay = nextWorldRefreshDelay(world);
+    if (delay === null) return;
+    let active = true;
+    let retries = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const refreshAtDeadline = () => {
+      if (document.hidden || actionLock.current) return;
+      void load().catch(() => {
+        if (active && retries++ < 3)
+          timer = setTimeout(refreshAtDeadline, 15000 + Math.random() * 10000);
+      });
+    };
+    // Spread a classroom's simultaneous crop deadlines across a short window.
+    timer = setTimeout(refreshAtDeadline, delay + Math.random() * 2000);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [world, lesson, load]);
   const entities = world?.entities || [];
   const picked = entities.find((e) => e.id === selected);
   const pickedCatalog = picked && world?.catalog[picked.kind];
@@ -141,7 +164,7 @@ export default function PlayerView({
               ...previous,
               entities: previous.entities.map((entity) =>
                 entity.id === lesson.entityId
-                  ? { ...entity, ready: 0 }
+                  ? { ...entity, ready: 0, progress: 0 }
                   : entity,
               ),
             },
@@ -486,6 +509,12 @@ export default function PlayerView({
       <div className="eco-loader">
         <span className="eco-pixel-loader">🌱</span>
         <h2>Đang mở khu vườn...</h2>
+        {error && (
+          <p role="alert">
+            {error}{" "}
+            <button onClick={() => void load().catch(fail)}>Thử lại</button>
+          </p>
+        )}
       </div>
     );
   const harvestable = entities.filter((e) => e.ready > 0).length;
@@ -565,6 +594,7 @@ export default function PlayerView({
           mode={mode}
           movePreview={mode?.type === "move" ? movePreview : null}
           insects={world.wildInsects || []}
+          serverTime={world.serverTime}
           onTile={onTile}
           disabled={busy || !!lesson}
         />
@@ -750,7 +780,10 @@ export default function PlayerView({
           <button
             type="button"
             aria-label="Làm mới nông trại"
-            onClick={() => void load().catch(fail)}
+            onClick={() => {
+              void load().catch(fail);
+              onRefresh();
+            }}
           >
             ↻ <span>Làm mới</span>
           </button>
@@ -765,6 +798,7 @@ export default function PlayerView({
             if (!busy) {
               setLesson(null);
               setLessonResult(null);
+              void load().catch(fail);
             }
           }}
           onAnswer={(answer) => void answerHarvest(answer)}

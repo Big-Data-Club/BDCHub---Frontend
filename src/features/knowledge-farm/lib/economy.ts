@@ -52,10 +52,16 @@ export type WildInsect = {
   species: "ladybug" | "grasshopper" | "butterfly" | "dragonfly";
   x: number;
   y: number;
+  expiresAt?: string;
 };
 export type EcoWorld = {
   farm: Farm;
-  life: { hungerPct: number; insects: number; catchCooldown: number };
+  life: {
+    hungerPct: number;
+    insects: number;
+    nextInsectIn?: number;
+    catchCooldown: number;
+  };
   entities: EcoEntity[];
   wildInsects: WildInsect[];
   inventory: Record<string, number>;

@@ -18,6 +18,7 @@ export default function EcoGame({
   selected,
   mode,
   insects,
+  serverTime,
   movePreview,
   onTile,
   disabled,
@@ -27,6 +28,7 @@ export default function EcoGame({
   selected: string | null;
   mode: Mode;
   insects: WildInsect[];
+  serverTime: string;
   movePreview: { x: number; y: number } | null;
   onTile: (x: number, y: number) => void;
   disabled: boolean;
@@ -41,8 +43,15 @@ export default function EcoGame({
     scene = useRef<EcoScene | null>(null),
     cb = useRef(onTile);
   cb.current = onTile;
-  const latest = useRef({ entities, catalog, selected, mode, insects });
-  latest.current = { entities, catalog, selected, mode, insects };
+  const latest = useRef({
+    entities,
+    catalog,
+    selected,
+    mode,
+    insects,
+    serverTime,
+  });
+  latest.current = { entities, catalog, selected, mode, insects, serverTime };
   const preview = useRef(movePreview);
   preview.current = movePreview;
   useEffect(() => {
@@ -66,6 +75,7 @@ export default function EcoGame({
         latest.current.selected,
         latest.current.mode,
         latest.current.insects,
+        latest.current.serverTime,
       );
       sc.setMovePreview(preview.current);
       const pg = new Phaser.Game({
@@ -88,6 +98,7 @@ export default function EcoGame({
             latest.current.selected,
             latest.current.mode,
             latest.current.insects,
+            latest.current.serverTime,
           );
       });
     })().catch((cause) => {
@@ -103,8 +114,15 @@ export default function EcoGame({
     };
   }, []);
   useEffect(() => {
-    scene.current?.refresh(entities, catalog, selected, mode, insects);
-  }, [entities, catalog, selected, mode, insects]);
+    scene.current?.refresh(
+      entities,
+      catalog,
+      selected,
+      mode,
+      insects,
+      serverTime,
+    );
+  }, [entities, catalog, selected, mode, insects, serverTime]);
   useEffect(() => {
     scene.current?.setMovePreview(movePreview);
   }, [movePreview]);

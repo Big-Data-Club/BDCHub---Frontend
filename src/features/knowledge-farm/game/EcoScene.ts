@@ -5,6 +5,7 @@ import {
   WATER_HABITAT_CAPACITY,
   entityFootprint,
 } from "../lib/economy";
+import { projectedProgress } from "../lib/worldSchedule";
 
 export const GRID_SIZE = 48;
 export const GRID_W = 20;
@@ -50,6 +51,15 @@ const TYPES = [
   "flowerpot",
 ];
 
+function cropStage(entity: EcoEntity, progress: number): number {
+  if (entity.ready) return 1;
+  if (entity.needsRewater || entity.regrowLeft > 0) return 0.34;
+  if (progress < 0.22) return 0.42;
+  if (progress < 0.46) return 0.61;
+  if (progress < 0.7) return 0.78;
+  return 0.94;
+}
+
 export class EcoScene extends Phaser.Scene {
   private actors!: Phaser.GameObjects.Container;
   private insectActors!: Phaser.GameObjects.Container;
@@ -72,6 +82,23 @@ export class EcoScene extends Phaser.Scene {
   private insectEffects: Phaser.Tweens.Tween[] = [];
   private entitySnapshot = "";
   private insectSnapshot = "";
+  private serverTime = "";
+  private progressSince = 0;
+  private visualTick = 0;
+  private progressBars = new Map<
+    string,
+    { bar: Phaser.GameObjects.Graphics; pixels: number }
+  >();
+  private cropSprites = new Map<
+    string,
+    {
+      sprite: Phaser.GameObjects.Image;
+      baseX: number;
+      baseY: number;
+      size: number;
+      stage: number;
+    }
+  >();
   constructor() {
     super({ key: "EcoWorld" });
   }
@@ -182,6 +209,11 @@ export class EcoScene extends Phaser.Scene {
     );
   }
   update(_: number, delta: number) {
+    this.visualTick += delta;
+    if (this.visualTick >= 500) {
+      this.visualTick = 0;
+      this.updateProjectedProgress();
+    }
     this.motion += delta * 0.001;
     if (!this.keys || this.mode?.type === "move" || this.motion < 0.135) return;
     // Typing a quantity or changing a form field must not move the farmer.
@@ -227,6 +259,7 @@ export class EcoScene extends Phaser.Scene {
     selected: string | null,
     mode: FarmMode,
     insects: WildInsect[] = [],
+    serverTime = "",
   ) {
     // Only changes that alter pixels require rebuilding Phaser display objects.
     // Server timestamps and fine-grained progress still update the inspector.
@@ -258,6 +291,13 @@ export class EcoScene extends Phaser.Scene {
     this.picked = selected;
     this.mode = mode;
     this.insects = insects;
+    if (
+      (serverTime && serverTime !== this.serverTime) ||
+      (serverTime === this.serverTime && entitySnapshot !== this.entitySnapshot)
+    ) {
+      this.serverTime = serverTime;
+      this.progressSince = performance.now();
+    }
     if (this.actors && entitySnapshot !== this.entitySnapshot) {
       this.entitySnapshot = entitySnapshot;
       this.redraw();
@@ -268,6 +308,51 @@ export class EcoScene extends Phaser.Scene {
     }
     if (this.selection) this.drawSelection();
     if (this.marker) this.drawPointer();
+  }
+  private updateProjectedProgress() {
+    const elapsed = Math.max(
+      0,
+      (performance.now() - this.progressSince) / 1000,
+    );
+    for (const entity of this.entities) {
+      const progress = projectedProgress(entity, this.goods, elapsed);
+      const savedBar = this.progressBars.get(entity.id);
+      const pixels = Math.round(progress * 32);
+      if (savedBar && pixels !== savedBar.pixels) {
+        savedBar.pixels = pixels;
+        const color = entity.sick
+          ? 0xee6b6b
+          : entity.category === "ANIMAL" && entity.hungerPct === 0
+            ? 0xc99b68
+            : 0x91d56f;
+        savedBar.bar.clear();
+        savedBar.bar
+          .fillStyle(0x25402f, 0.75)
+          .fillRoundedRect(-17, 24, 34, 6, 2);
+        savedBar.bar
+          .fillStyle(color)
+          .fillRoundedRect(-16, 25, Math.max(1, pixels), 4, 2);
+      }
+      const crop = this.cropSprites.get(entity.id);
+      if (crop) {
+        const stage = cropStage(entity, progress);
+        if (stage !== crop.stage) {
+          crop.stage = stage;
+          const texture =
+            progress < 0.22 ? "px_seedling" : this.texture(entity.kind);
+          if (crop.sprite.texture.key !== texture) {
+            crop.sprite
+              .setTexture(texture)
+              .setDisplaySize(crop.size, crop.size);
+            crop.baseX = crop.sprite.scaleX;
+            crop.baseY = crop.sprite.scaleY;
+          }
+          crop.sprite.setScale(crop.baseX * stage, crop.baseY * stage);
+          if (!entity.ready && progress < 0.46) crop.sprite.setTint(0xb6e5a2);
+          else crop.sprite.clearTint();
+        }
+      }
+    }
   }
   setMovePreview(preview: { x: number; y: number } | null) {
     this.movePreview = preview;
@@ -422,6 +507,8 @@ export class EcoScene extends Phaser.Scene {
   private redraw() {
     this.effects.forEach((t) => t.remove());
     this.effects = [];
+    this.progressBars.clear();
+    this.cropSprites.clear();
     this.actors.removeAll(true);
     // Water-loop pipes are visible only when fish + a finished water habitat sustain aquaponics.
     for (const bed of this.entities.filter(
@@ -528,20 +615,18 @@ export class EcoScene extends Phaser.Scene {
         if (isWide) sprite.setDisplaySize(fw * GRID_SIZE, fh * GRID_SIZE);
         else sprite.setDisplaySize(dim, dim);
         if (e.category === "CROP") {
-          // Five visibly distinct stages; water and server progress control growth.
-          const stage = e.ready
-            ? 1
-            : e.needsRewater || e.regrowLeft > 0
-              ? 0.34
-              : e.progress < 0.22
-                ? 0.42
-                : e.progress < 0.46
-                  ? 0.61
-                  : e.progress < 0.7
-                    ? 0.78
-                    : 0.94;
-          sprite.setScale(sprite.scaleX * stage, sprite.scaleY * stage);
+          const stage = cropStage(e, e.progress);
+          const baseX = sprite.scaleX,
+            baseY = sprite.scaleY;
+          sprite.setScale(baseX * stage, baseY * stage);
           if (!e.ready && e.progress < 0.46) sprite.setTint(0xb6e5a2);
+          this.cropSprites.set(e.id, {
+            sprite,
+            baseX,
+            baseY,
+            size: dim,
+            stage,
+          });
         }
         node.add(sprite);
         if (isWater) {
@@ -662,6 +747,10 @@ export class EcoScene extends Phaser.Scene {
             2,
           );
         node.add(bar);
+        this.progressBars.set(e.id, {
+          bar,
+          pixels: Math.round(e.progress * 32),
+        });
       }
       if (e.category === "CROP" && e.needsRewater && e.regrowLeft > 0) {
         // Keep the little sprout on its soil tile while recovery counts down.
