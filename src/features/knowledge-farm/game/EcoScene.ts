@@ -22,14 +22,18 @@ export class EcoScene extends Phaser.Scene {
  private picked:string|null=null;
  private mode:FarmMode=null;
  private press:TilePress=()=>{};
+ private assetError:()=>void=()=>{};
  private hovered={x:-1,y:-1};
  private movePreview:{x:number;y:number}|null=null;
  private motion=0;
  private insects:WildInsect[]=[];
  private effects:Phaser.Tweens.Tween[]=[];
  constructor(){super({key:'EcoWorld'});}
- attach(cb:TilePress){this.press=cb;}
- preload(){for(const asset of TYPES){this.load.image(`px_${asset}`,`/knowledge-farm/sprites/${asset}.png`);}}
+ attach(cb:TilePress,onAssetError:()=>void){this.press=cb;this.assetError=onAssetError;}
+ preload(){
+  this.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR,this.assetError);
+  for(const asset of TYPES){this.load.image(`px_${asset}`,`/knowledge-farm/sprites/${asset}.png`);}
+ }
  create(){
   this.cameras.main.setBackgroundColor('#92bd75');
   const floor=this.add.container(0,0).setDepth(0);

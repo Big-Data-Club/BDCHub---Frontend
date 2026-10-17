@@ -21,6 +21,7 @@ try{
  await context.addCookies([{name:'__Secure-bdc.session-token.v2',value:session,domain:new URL(base).hostname,path:'/',secure:true,httpOnly:true,sameSite:'Lax'}]);
  const page=await context.newPage();const errors=[],assetFailures=[];
  page.on('pageerror',error=>errors.push(error.message));
+ page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
  page.on('response',response=>{if(response.url().includes('/knowledge-farm/sprites/')&&!response.ok())assetFailures.push(response.url())});
  await page.route('**/apiv1/**',route=>route.fulfill({json:route.request().url().includes('/users/41')?{id:41,name:'Farm UI Test',email:'farm-ui@example.invalid',role:'ROLE_USER',totalScore:100+earned}:[]}));
  await page.route('**/lmsapiv1/**',route=>route.fulfill({json:{data:[]}}));
@@ -48,7 +49,8 @@ try{
  });
  await page.setViewportSize({width:1440,height:1100});
  await page.goto(`${base}/knowledge-farm`,{waitUntil:'networkidle'});
- await page.getByRole('heading',{name:'Nông trại kiến thức',exact:true}).waitFor();
+ try{await page.getByRole('heading',{name:'Nông trại kiến thức',exact:true}).waitFor();}
+ catch(error){console.error('Smoke location:',page.url(),'Body:',(await page.locator('body').innerText()).slice(0,500),'Page errors:',errors);throw error}
  const canvas=page.locator('.eco-stage canvas');await canvas.waitFor();
  // Verify the production server serves every texture the copied scene needs.
  const sprites=fs.readdirSync(fileURLToPath(new URL('../../public/knowledge-farm/sprites',import.meta.url))).filter(name=>name.endsWith('.png'));
@@ -61,9 +63,12 @@ try{
  await page.getByRole('radio',{name:'Thóc'}).check();
  await page.getByRole('dialog').getByRole('button',{name:'Trả lời để thu hoạch'}).click();
  await page.getByRole('status').filter({hasText:'Thu hoạch thành công! +5 điểm'}).waitFor();
+ await page.waitForFunction(()=>!document.querySelector('.eco-touch-controls button')?.hasAttribute('disabled'));
  assert.equal(earned,5);assert.equal(world.inventory.paddy,6);
  await page.getByRole('combobox',{name:'Cách học khi thu hoạch'}).selectOption('flashcard');
  await tile(10,5);
+ try{await page.locator('.eco-selected h3').filter({hasText:'Gà thả vườn'}).waitFor({timeout:2000});}
+ catch{await tile(10,5);await page.locator('.eco-selected h3').filter({hasText:'Gà thả vườn'}).waitFor()}
  await page.locator('.eco-shortcuts-actions').getByRole('button',{name:/Nhặt trứng/}).click();
  await page.getByRole('textbox',{name:'Câu trả lời của bạn'}).fill('trứng');
  await page.getByRole('dialog').getByRole('button',{name:'Trả lời để thu hoạch'}).click();
