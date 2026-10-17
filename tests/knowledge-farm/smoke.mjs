@@ -64,7 +64,9 @@ try{
  await page.waitForFunction(()=>Array.from(document.querySelectorAll('.eco img')).every(img=>img.complete&&img.naturalWidth>0));
  const tile=async(x,y)=>{const box=await canvas.boundingBox();assert(box);await canvas.click({position:{x:(x+.5)*box.width/20,y:(y+.5)*box.height/14}})};
  await tile(6,5);
+ await page.getByRole('button',{name:'ⓘ Thông tin & cách chăm'}).click();
  await page.getByRole('heading',{name:'Ngoài đời thực',exact:true}).waitFor();
+ await page.getByRole('button',{name:'Đóng cửa sổ'}).click();
  await page.locator('.eco-shortcuts-actions').getByRole('button',{name:/Thu hoạch/}).click();
  await page.getByRole('radio',{name:'Trứng'}).check();
  await page.getByRole('dialog').getByRole('button',{name:'Trả lời để thu hoạch'}).click();
@@ -79,19 +81,22 @@ try{
  assert.equal(earned,5);assert.equal(world.inventory.paddy,6);
  await page.getByRole('combobox',{name:'Cách học khi thu hoạch'}).selectOption('flashcard');
  await tile(10,5);
- try{await page.locator('.eco-selected h3').filter({hasText:'Gà thả vườn'}).waitFor({timeout:2000});}
- catch{await tile(10,5);await page.locator('.eco-selected h3').filter({hasText:'Gà thả vườn'}).waitFor()}
+ try{await page.locator('.eco-context-title h2').filter({hasText:'Gà thả vườn'}).waitFor({timeout:2000});}
+ catch{await tile(10,5);await page.locator('.eco-context-title h2').filter({hasText:'Gà thả vườn'}).waitFor()}
  await page.locator('.eco-shortcuts-actions').getByRole('button',{name:/Nhặt trứng/}).click();
  await page.getByRole('textbox',{name:'Câu trả lời của bạn'}).fill('trứng');
  await page.getByRole('dialog').getByRole('button',{name:'Trả lời để thu hoạch'}).click();
  await page.getByRole('dialog').waitFor({state:'hidden'});assert.equal(earned,10);
+ await page.getByRole('button',{name:'Trồng & xây'}).click();
  await page.locator('.eco-product').filter({hasText:'Rau muống'}).click();
  await tile(12,11);
  await page.waitForFunction(()=>!document.querySelector('.eco-build-hint'));
  assert(actions.some(a=>a.path.endsWith('/place')&&a.kind==='water_spinach'&&a.x===12&&a.y===11));
  await tile(15,8);
+ await page.getByRole('button',{name:'Kho & bán'}).click();
  await page.locator('.eco-stock').filter({hasText:'insect'}).getByText('Đang có: 1').waitFor();
  assert(actions.some(a=>a.path.endsWith('/catch')&&a.insectId==='bug'));
+ await page.getByRole('button',{name:'Đóng cửa sổ'}).click();
  await tile(8,6);await page.locator('.eco-stage').focus();await page.keyboard.press('Digit1');
  await page.waitForTimeout(250);assert(actions.some(a=>a.action==='WATER'&&a.entityId==='flower'));
  await page.locator('.eco-stage').focus();await page.keyboard.press('KeyD');

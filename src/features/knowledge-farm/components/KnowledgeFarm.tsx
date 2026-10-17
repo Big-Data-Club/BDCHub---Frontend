@@ -24,12 +24,11 @@ export default function KnowledgeFarm() {
     return () => clearInterval(timer); 
   }, [refreshSummary]);
 
-  return <div className="min-w-0 space-y-3">
-    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100">
-      Điểm tài khoản: <strong>{score ?? '—'}</strong> · Học hôm nay: <strong>{summary?.state.daily_earned ?? 0}/{summary?.daily_limit ?? 100}</strong> · +5 điểm/câu đúng.
-    </div>
-    {error && <div role="alert" className="rounded-xl bg-red-50 p-3 text-red-800 dark:bg-red-950 dark:text-red-100">{error} <button className="underline" onClick={() => window.location.reload()}>Tải lại</button></div>}
-    {message && <div role="status" className="rounded-xl bg-emerald-50 p-3 text-emerald-950 dark:bg-emerald-950 dark:text-emerald-100">{message}</div>}
-    <PlayerView flash={flash} fail={fail} catalogInfo={summary?.catalog ?? []} onReward={refreshSummary} />
-  </div>;
+  useEffect(() => {
+    if (!message) return;
+    const timer = setTimeout(() => setMessage(''), 4500);
+    return () => clearTimeout(timer);
+  }, [message]);
+
+  return <PlayerView flash={flash} fail={fail} catalogInfo={summary?.catalog ?? []} onReward={refreshSummary} score={score} dailyEarned={summary?.state.daily_earned ?? 0} dailyLimit={summary?.daily_limit ?? 100} message={message} error={error} />;
 }
