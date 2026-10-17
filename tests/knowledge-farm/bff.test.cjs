@@ -66,3 +66,17 @@ test('score endpoint reads only session user and returns only canonical score', 
   assert.equal(upstream, 'http://backend:8080/api/users/41');
   assert.deepEqual(await result.json(), { total_score: 105 });
 });
+
+test('BFF allows only authenticated game actions on the Farm service', async () => {
+  const seen = [];
+  const api = handler({ accessToken: 'test' }, async (url, options) => {
+    seen.push({url, options}); return new Response('{}', {status: 200});
+  });
+  assert.equal((await api.GET(request('GET', 'game/state'), context(['game','state']))).status, 200);
+  for (const action of ['place','action','challenge','move','shop','sell','craft','catch','eat','aid','remove','rename']) {
+    assert.equal((await api.POST(request('POST', `game/${action}`, '{}'), context(['game',action]))).status, 200);
+  }
+  assert(seen.every(item=>item.url.startsWith('http://farm-test:8087/api/v1/farm/game/')));
+  assert.equal((await api.POST(request('POST','game/action','{}','https://other.example'),context(['game','action']))).status,403);
+  assert.equal((await api.POST(request('POST','game/admin','{}'),context(['game','admin']))).status,404);
+});

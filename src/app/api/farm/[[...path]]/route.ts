@@ -30,8 +30,10 @@ async function proxy(req: NextRequest, context: Context) {
       return NextResponse.json({ error: "Chưa đọc được tổng điểm tài khoản." }, { status: 503 });
     }
   }
-  if (!(req.method === "GET" && !suffix) &&
-      !(req.method === "POST" && /^plots\/[1-6]\/(care|challenge|answer)$/.test(suffix))) {
+  const gameRead = req.method === "GET" && suffix === "game/state";
+  const gameWrite = req.method === "POST" && /^game\/(place|move|remove|shop|sell|craft|aid|catch|eat|action|rename|challenge)$/.test(suffix);
+  if (!gameRead && !gameWrite && !(req.method === "GET" && !suffix) &&
+    !(req.method === "POST" && /^plots\/[1-6]\/(care|challenge|answer)$/.test(suffix))) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   if (req.method === "POST") {
@@ -49,7 +51,7 @@ async function proxy(req: NextRequest, context: Context) {
       const chunks: Uint8Array[] = [];
       let length = 0;
       if (reader) {
-        for (;;) {
+        for (; ;) {
           const { done, value } = await reader.read();
           if (done) break;
           length += value.length;
