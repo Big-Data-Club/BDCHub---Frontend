@@ -10,11 +10,22 @@ export function saleLimit(stock: number): number {
 export function parsedSaleQuantity(text: string, stock: number): number | null {
   if (!/^\d+$/.test(text)) return null;
   const quantity = Number(text);
-  if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > saleLimit(stock)) return null;
+  if (
+    !Number.isSafeInteger(quantity) ||
+    quantity < 1 ||
+    quantity > saleLimit(stock)
+  )
+    return null;
   return quantity;
 }
 
 export function saleRevenue(quantity: number, unitPrice: number): number {
-  if (!Number.isSafeInteger(quantity) || quantity < 1 || !Number.isSafeInteger(unitPrice) || unitPrice < 0) return 0;
+  if (
+    !Number.isSafeInteger(quantity) ||
+    quantity < 1 ||
+    !Number.isSafeInteger(unitPrice) ||
+    unitPrice < 0
+  )
+    return 0;
   return quantity * unitPrice;
 }

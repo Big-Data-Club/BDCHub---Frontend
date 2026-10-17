@@ -25,43 +25,93 @@ export function useFarm() {
     if (actionRunning.current) return;
     const seq = ++sequence.current;
     // Auth availability must not delay loading the farm.
-    void farmAPI.score().then(data => {
-      if (seq === sequence.current) setScore(data.total_score);
-    }).catch(() => { if (seq === sequence.current) setScore(null); });
+    void farmAPI
+      .score()
+      .then((data) => {
+        if (seq === sequence.current) setScore(data.total_score);
+      })
+      .catch(() => {
+        if (seq === sequence.current) setScore(null);
+      });
     try {
       const data = await farmAPI.load();
-      if (seq === sequence.current) { accept(data); setError(""); }
+      if (seq === sequence.current) {
+        accept(data);
+        setError("");
+      }
     } catch (e) {
-      if (seq === sequence.current) setError(e instanceof Error ? e.message : "Không thể tải nông trại.");
+      if (seq === sequence.current)
+        setError(e instanceof Error ? e.message : "Không thể tải nông trại.");
     }
   }, [accept]);
   useEffect(() => {
     const requestSequence = sequence;
     void reload();
-    const poll = setInterval(() => { if (!document.hidden) void reload(); }, 15000);
+    const poll = setInterval(() => {
+      if (!document.hidden) void reload();
+    }, 15000);
     const tick = setInterval(() => setNow(Date.now() + offset.current), 1000);
-    return () => { clearInterval(poll); clearInterval(tick); ++requestSequence.current; };
+    return () => {
+      clearInterval(poll);
+      clearInterval(tick);
+      ++requestSequence.current;
+    };
   }, [reload]);
   const run = async (action: () => Promise<void>) => {
     if (actionRunning.current) return;
-    actionRunning.current = true; ++sequence.current; setBusy(true); setError("");
-    try { await action(); }
-    catch (e) { setError(e instanceof Error ? e.message : "Không thể cập nhật nông trại."); }
-    finally { actionRunning.current = false; setBusy(false); }
+    actionRunning.current = true;
+    ++sequence.current;
+    setBusy(true);
+    setError("");
+    try {
+      await action();
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Không thể cập nhật nông trại.",
+      );
+    } finally {
+      actionRunning.current = false;
+      setBusy(false);
+    }
   };
-  const plot = view?.state.plots.find(p => p.id === selected);
+  const plot = view?.state.plots.find((p) => p.id === selected);
   return {
-    view, score, selected, setSelected, mode, setMode, busy, error, result, setResult,
-    challengeOpen, setChallengeOpen, now, plot, reload,
-    care: () => run(async () => { accept(await farmAPI.care(selected)); }),
-    start: () => run(async () => {
-      accept(await farmAPI.start(selected, mode)); setResult(null); setChallengeOpen(true);
-    }),
-    answer: (answer: string) => run(async () => {
-      if (!plot?.challenge) return;
-      const response = await farmAPI.answer(selected, plot.challenge.id, answer);
-      setResult(response); setChallengeOpen(false);
-      accept(await farmAPI.load());
-    }),
+    view,
+    score,
+    selected,
+    setSelected,
+    mode,
+    setMode,
+    busy,
+    error,
+    result,
+    setResult,
+    challengeOpen,
+    setChallengeOpen,
+    now,
+    plot,
+    reload,
+    care: () =>
+      run(async () => {
+        accept(await farmAPI.care(selected));
+      }),
+    start: () =>
+      run(async () => {
+        accept(await farmAPI.start(selected, mode));
+        setResult(null);
+        setChallengeOpen(true);
+      }),
+    answer: (answer: string) =>
+      run(async () => {
+        if (!plot?.challenge) return;
+        const response = await farmAPI.answer(
+          selected,
+          plot.challenge.id,
+          answer,
+        );
+        setResult(response);
+        setChallengeOpen(false);
+        accept(await farmAPI.load());
+      }),
   };
 }
