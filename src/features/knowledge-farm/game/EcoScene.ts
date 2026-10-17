@@ -13,8 +13,10 @@ const TYPES=['pond_wide','tank_wide','aquaponics_wide','grass','path','soil','ho
 
 export class EcoScene extends Phaser.Scene {
  private actors!:Phaser.GameObjects.Container;
+ private insectActors!:Phaser.GameObjects.Container;
  private avatar!:Phaser.GameObjects.Container;
  private marker!:Phaser.GameObjects.Graphics;
+ private selection!:Phaser.GameObjects.Graphics;
  private keys?:Record<string,Phaser.Input.Keyboard.Key>;
  private pos={x:9,y:8};
  private entities:EcoEntity[]=[];
@@ -28,6 +30,9 @@ export class EcoScene extends Phaser.Scene {
  private motion=0;
  private insects:WildInsect[]=[];
  private effects:Phaser.Tweens.Tween[]=[];
+ private insectEffects:Phaser.Tweens.Tween[]=[];
+ private entitySnapshot='';
+ private insectSnapshot='';
  constructor(){super({key:'EcoWorld'});}
  attach(cb:TilePress,onAssetError:()=>void){this.press=cb;this.assetError=onAssetError;}
  preload(){
@@ -52,7 +57,9 @@ export class EcoScene extends Phaser.Scene {
   const border=this.add.graphics().setDepth(5);
   border.lineStyle(5,0x578d61,.8).strokeRect(2,2,VIEW_W-4,VIEW_H-4);
   this.actors=this.add.container(0,0).setDepth(10);
+  this.insectActors=this.add.container(0,0).setDepth(15);
   this.marker=this.add.graphics().setDepth(20);
+  this.selection=this.add.graphics().setDepth(21);
   this.avatar=this.add.container(this.pos.x*GRID_SIZE+24,this.pos.y*GRID_SIZE+22).setDepth(30);
   const avatarShadow=this.add.ellipse(0,13,30,10,0x31583d,.30);
   const farmer=this.add.image(0,-6,'px_farmer').setDisplaySize(47,47);
@@ -70,15 +77,14 @@ export class EcoScene extends Phaser.Scene {
    this.keys=this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT',false) as Record<string,Phaser.Input.Keyboard.Key>;
 
   }
-  this.redraw();
+  this.refresh(this.entities,this.goods,this.picked,this.mode,this.insects);
  }
  update(_:number,delta:number){
   this.motion+=delta*.001;
-  if(!this.keys || this.mode?.type==='move')return;
+  if(!this.keys || this.mode?.type==='move' || this.motion<.135)return;
   // Typing a quantity or changing a form field must not move the farmer.
   const active=document.activeElement;
   if(document.querySelector('[role="dialog"]') || !(active instanceof HTMLElement) || !active.closest('.eco-stage'))return;
-  if(this.motion<.135)return;
   this.motion=0;
   const held=(...names:string[])=>names.some(n=>this.keys?.[n]?.isDown);
   const dx=Number(held('D','RIGHT'))-Number(held('A','LEFT'));
@@ -93,7 +99,15 @@ export class EcoScene extends Phaser.Scene {
   this.pos={x,y};
   this.avatar.setPosition(x*GRID_SIZE+24,y*GRID_SIZE+22);
  }
- refresh(entities:EcoEntity[],goods:EcoCatalog,selected:string|null,mode:FarmMode,insects:WildInsect[]=[]){this.entities=entities;this.goods=goods;this.picked=selected;this.mode=mode;this.insects=insects;if(this.actors)this.redraw();if(this.marker)this.drawPointer();}
+ refresh(entities:EcoEntity[],goods:EcoCatalog,selected:string|null,mode:FarmMode,insects:WildInsect[]=[]){
+  const entitySnapshot=JSON.stringify(entities);
+  const insectSnapshot=JSON.stringify(insects);
+  this.entities=entities;this.goods=goods;this.picked=selected;this.mode=mode;this.insects=insects;
+  if(this.actors && entitySnapshot!==this.entitySnapshot){this.entitySnapshot=entitySnapshot;this.redraw();}
+  if(this.insectActors && insectSnapshot!==this.insectSnapshot){this.insectSnapshot=insectSnapshot;this.redrawInsects();}
+  if(this.selection)this.drawSelection();
+  if(this.marker)this.drawPointer();
+ }
  setMovePreview(preview:{x:number;y:number}|null){this.movePreview=preview;if(this.marker)this.drawPointer();}
  private texture(kind:string){return TYPES.includes(kind)?`px_${kind}`:'px_flowerpot';}
  private canDrop(x:number,y:number,w:number,h:number):boolean{
@@ -145,6 +159,13 @@ export class EcoScene extends Phaser.Scene {
     // Graphics-only preview remains visible even when the cursor has left the canvas.
     this.marker.lineStyle(1,0xffffff,.75).strokeRect(x*GRID_SIZE+5,y*GRID_SIZE+5,w*GRID_SIZE-10,h*GRID_SIZE-10);
   }
+ }
+ private drawSelection(){
+  this.selection.clear();
+  const entity=this.entities.find(e=>e.id===this.picked);
+  if(!entity)return;
+  const {width,height}=entityFootprint(entity.kind);
+  this.selection.lineStyle(3,0xffec9f,1).strokeRect(entity.x*GRID_SIZE+3,entity.y*GRID_SIZE+3,width*GRID_SIZE-6,height*GRID_SIZE-6);
  }
  private redraw(){
   this.effects.forEach(t=>t.remove());this.effects=[];
@@ -227,23 +248,26 @@ export class EcoScene extends Phaser.Scene {
    if(e.sick){node.add(this.add.text(-17,-23,'+',{fontFamily:'monospace',fontSize:'18px',color:'#ef6868'}).setOrigin(.5))}
    if(e.buildLeft>0){const dark=this.add.rectangle(0,0,45,45,0x23372e,.38);node.add(dark);node.add(this.add.text(0,0,'🔨',{fontSize:'18px'}).setOrigin(.5))}
    if(e.realLinked){node.add(this.add.text(-16,-27,'●',{fontSize:'13px',color:'#4cd88d'}));}
-   if(e.id===this.picked){const frame=this.add.rectangle(0,0,isWide?GRID_SIZE*fw-6:45,isWide?GRID_SIZE*fh-6:45,0x000000,0).setStrokeStyle(3,0xffec9f);node.add(frame);}
    this.actors.add(node);
   }
+ }
+ private redrawInsects(){
+  this.insectEffects.forEach(t=>t.remove());this.insectEffects=[];
+  this.insectActors.removeAll(true);
   // Server-supplied insect identities/positions remain stable across refresh.
   // Movements are decorative only; catching uses the authoritative tile + ID.
   for(const [i,bug] of this.insects.entries()){
     const x=bug.x*GRID_SIZE+24, y=bug.y*GRID_SIZE+17;
     const sprite=this.add.image(x,y,`px_${bug.species}`).setDisplaySize(35,35).setDepth(15);
-    this.actors.add(sprite);
-    this.effects.push(this.tweens.add({targets:sprite,x:{from:x-5,to:x+5},y:{from:y-7,to:y+5},duration:830+((i*97)%380),yoyo:true,repeat:-1,ease:'Sine.easeInOut'}));
+    this.insectActors.add(sprite);
+    this.insectEffects.push(this.tweens.add({targets:sprite,x:{from:x-5,to:x+5},y:{from:y-7,to:y+5},duration:830+((i*97)%380),yoyo:true,repeat:-1,ease:'Sine.easeInOut'}));
     if(bug.species==='butterfly'||bug.species==='dragonfly'){
-      this.effects.push(this.tweens.add({targets:sprite,angle:{from:-8,to:8},duration:420,yoyo:true,repeat:-1}));
+      this.insectEffects.push(this.tweens.add({targets:sprite,angle:{from:-8,to:8},duration:420,yoyo:true,repeat:-1}));
     }
     // A gentle highlight helps users distinguish catchable wildlife.
     const glow=this.add.ellipse(x,y+19,25,7,0xfff3a9,.48);
-    this.actors.add(glow);
-    this.effects.push(this.tweens.add({targets:glow,alpha:{from:.14,to:.48},duration:900,yoyo:true,repeat:-1}));
+    this.insectActors.add(glow);
+    this.insectEffects.push(this.tweens.add({targets:glow,alpha:{from:.14,to:.48},duration:900,yoyo:true,repeat:-1}));
   }
  }
 }

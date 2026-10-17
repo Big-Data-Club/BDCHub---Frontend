@@ -131,6 +131,20 @@ export default function PlayerView({flash,fail,catalogInfo,onReward}:ViewProps){
     }catch(error){fail(error);return false;}
     finally{actionLock.current=false;setBusy(false);}
   };
+  const catchInsect=async(insectId:string)=>{
+    if(actionLock.current)return;
+    actionLock.current=true;++requestVersion.current;setBusy(true);
+    // Remove the insect immediately; the next authoritative state restores it if the catch fails.
+    setWorld(previous=>previous&&({...previous,wildInsects:previous.wildInsects.filter(insect=>insect.id!==insectId)}));
+    try{
+      const result=await post<{message:string}>('/game/catch',{insectId});
+      flash(result.message);
+    }catch(error){fail(error);}
+    finally{
+      actionLock.current=false;setBusy(false);
+      void load().catch(fail);
+    }
+  };
   const onTile=(x:number,y:number)=>{
     if(!world||busy)return;
     if(world.life.hungerPct===0&&mode){flash('Nông dân cần ăn cơm để làm tiếp!');setMode(null);return;}
@@ -142,7 +156,7 @@ export default function PlayerView({flash,fail,catalogInfo,onReward}:ViewProps){
       setMovePreview({x,y});return;
     }
     const bug=world.wildInsects?.find(b=>b.x===x&&b.y===y);
-    if(bug){if(world.life.hungerPct===0){flash('Nông dân cần ăn cơm để bắt côn trùng!');return;}void submit('/game/catch',{insectId:bug.id});return;}
+    if(bug){if(world.life.hungerPct===0){flash('Nông dân cần ăn cơm để bắt côn trùng!');return;}void catchInsect(bug.id);return;}
     // A fish/frog belongs to its water tile: choose the animal before the habitat.
     const hit=entities.filter(e=>{const {width,height}=entityFootprint(e.kind);return x>=e.x&&x<e.x+width&&y>=e.y&&y<e.y+height;});
     const target=hit.find(e=>e.category==='ANIMAL')||hit.find(e=>e.category==='CROP')||hit[hit.length-1];

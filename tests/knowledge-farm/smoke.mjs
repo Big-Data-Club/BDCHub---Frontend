@@ -43,6 +43,11 @@ try{
     earned+=5;world.inventory[body.entityId==='rice'?'paddy':'egg']=(world.inventory[body.entityId==='rice'?'paddy':'egg']||0)+(body.entityId==='rice'?3:1);
     return route.fulfill({json:{correct:true,awarded:5,explanation:'Bạn đã học thêm một điều.',event_id:'test-'+earned}});
    }
+   if(path.endsWith('/catch')){
+    world.wildInsects=world.wildInsects.filter(insect=>insect.id!==body.insectId);
+    world.inventory.insect=(world.inventory.insect||0)+1;
+    world.life.insects=0;
+   }
    if(path.endsWith('/place'))world.entities.push(makeEntity('placed',body.kind,body.x,body.y));
    return route.fulfill({json:{message:'Đã thực hiện hành động'}});
   }
@@ -84,6 +89,9 @@ try{
  await tile(12,11);
  await page.waitForFunction(()=>!document.querySelector('.eco-build-hint'));
  assert(actions.some(a=>a.path.endsWith('/place')&&a.kind==='water_spinach'&&a.x===12&&a.y===11));
+ await tile(15,8);
+ await page.locator('.eco-stock').filter({hasText:'insect'}).getByText('Đang có: 1').waitFor();
+ assert(actions.some(a=>a.path.endsWith('/catch')&&a.insectId==='bug'));
  await tile(8,6);await page.locator('.eco-stage').focus();await page.keyboard.press('Digit1');
  await page.waitForTimeout(250);assert(actions.some(a=>a.action==='WATER'&&a.entityId==='flower'));
  await page.locator('.eco-stage').focus();await page.keyboard.press('KeyD');
