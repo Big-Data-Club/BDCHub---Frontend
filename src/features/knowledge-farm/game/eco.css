@@ -2129,6 +2129,8 @@
 }
 .eco-v5 .eco-play-frame {
   position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   height: clamp(460px, calc(100dvh - 190px), 700px);
   overflow: hidden;
   background: #92bd75;
@@ -2139,7 +2141,10 @@
     8px 12px 0 #283f2c38;
 }
 .eco-v5 .eco-play-frame > div:first-child {
+  grid-row: 2;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 .eco-v5 .eco-stage {
   height: 100%;
@@ -2162,14 +2167,16 @@
   display: none;
 }
 .eco-v5 .eco-play-hud {
-  position: absolute;
+  position: relative;
+  grid-row: 1;
   z-index: 4;
-  top: 10px;
-  left: 10px;
-  right: 10px;
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
+  align-items: center;
+  padding: 7px;
+  background: #739b62;
+  border-bottom: 3px solid #486d40;
   pointer-events: none;
 }
 .eco-v5 .eco-play-hud span {
@@ -2211,18 +2218,17 @@
   font-weight: 900;
 }
 .eco-v5 .eco-play-dock {
-  position: absolute;
+  position: relative;
+  grid-row: 3;
+  justify-self: center;
   z-index: 7;
-  left: 50%;
-  bottom: 9px;
-  transform: translateX(-50%);
   display: flex;
   gap: 5px;
   padding: 6px;
   background: #57492c;
   border: 4px solid #d6bb76;
   box-shadow: 0 0 0 3px #2f422e;
-  max-width: calc(100% - 18px);
+  max-width: 100%;
 }
 .eco-v5 .eco-play-dock button {
   display: grid;
@@ -2360,6 +2366,7 @@
   display: grid;
   place-items: center;
   padding: 12px;
+  min-height: 0;
   background: #1b3b2a99;
 }
 .eco-v5 .eco-pixel-window {
@@ -2367,6 +2374,7 @@
   flex-direction: column;
   width: min(740px, 100%);
   max-height: calc(100% - 6px);
+  min-height: 0;
   background: #fff9df;
   border: 6px solid #6b5532;
   box-shadow:
@@ -2393,9 +2401,12 @@
   font: 900 17px monospace;
 }
 .eco-v5 .eco-window-body {
+  flex: 1 1 auto;
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: contain;
+  touch-action: pan-y;
   padding: 13px;
   scrollbar-color: #8bb477 #f6eacb;
 }
@@ -2463,16 +2474,16 @@
 }
 .eco-v5 .eco-inventory-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 .eco-v5 .eco-stock {
   display: grid;
-  grid-template-columns: 43px minmax(90px, 1fr) auto;
-  gap: 8px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 5px 7px;
   align-items: center;
   min-width: 0;
-  padding: 8px;
+  padding: 7px;
   border: 3px solid #a8bd86;
   border-radius: 0;
   background: #fffdf1;
@@ -2486,8 +2497,14 @@
 .eco-v5 .eco-stock-info small {
   font-size: 11px;
 }
+.eco-v5 .eco-stock > .eco-pix,
+.eco-v5 .eco-stock > .eco-pix img {
+  width: 32px !important;
+  height: 32px !important;
+}
 .eco-v5 .eco-stock > .eco-use {
-  padding: 6px;
+  grid-column: 1 / -1;
+  padding: 5px;
   border: 2px solid #7ca369;
   background: #e9f4d7;
   color: #315e3a;
@@ -2496,13 +2513,53 @@
 .eco-v5 .eco-stock .eco-sell-panel {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
-  gap: 7px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px;
   border-top: 2px dashed #c7d6a9;
-  padding-top: 7px;
+  padding: 6px 0 0;
 }
 .eco-v5 .eco-stock .eco-sell-panel button {
   border-radius: 0;
+}
+.eco-v5 .eco-stock .eco-sell-stepper {
+  min-width: 0;
+}
+.eco-v5 .eco-stock .eco-sell-stepper button {
+  min-width: 23px;
+  padding: 0 4px;
+}
+.eco-v5 .eco-stock .eco-sell-stepper input {
+  width: 31px;
+}
+.eco-v5 .eco-stock .eco-sell-estimate,
+.eco-v5 .eco-stock .eco-sell-confirm {
+  grid-column: 1 / -1;
+}
+.eco-v5 .eco-stock .eco-sell-estimate {
+  text-align: left;
+}
+.eco-v5 .eco-stock .eco-sell-estimate strong {
+  font-size: 14px;
+}
+.eco-v5 .eco-stock .eco-sell-confirm {
+  min-height: 32px;
+  padding: 5px;
+}
+.eco-v5 .eco-pixel-window-bag {
+  width: min(860px, 100%);
+  height: min(560px, 100%);
+}
+@media (min-width: 900px) {
+  .eco-v5 .eco-inventory-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 580px) {
+  .eco-v5 .eco-stock .eco-sell-max {
+    grid-column: 1 / -1;
+    min-height: 28px;
+    padding: 4px;
+  }
 }
 .eco-v5 .eco-info-species,
 .eco-v5 .eco-info-grid section,
@@ -2581,10 +2638,8 @@
     border-width: 5px;
   }
   .eco-v5 .eco-play-hud {
-    top: 5px;
-    left: 5px;
-    right: 5px;
     gap: 3px;
+    padding: 5px;
   }
   .eco-v5 .eco-play-hud span {
     font-size: 9px;
@@ -2592,7 +2647,6 @@
     border-width: 2px;
   }
   .eco-v5 .eco-play-dock {
-    bottom: 5px;
     gap: 2px;
     padding: 3px;
     border-width: 2px;
@@ -2669,8 +2723,7 @@
     font-size: 9px;
   }
   .eco-v5 .eco-stock .eco-sell-panel {
-    grid-template-columns: 1fr auto;
-    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
   .eco-v5 .eco-sell-estimate {
     text-align: left;
@@ -2684,10 +2737,17 @@
     padding: 6px;
   }
   .eco-v5 .eco-touch-controls {
+    position: relative;
     display: flex;
-    left: 5px;
-    bottom: 62px;
+    left: auto;
+    bottom: auto;
     gap: 3px;
+    padding: 3px;
+    background: #739b62;
+  }
+  .eco-v5 .eco-play-frame > div:first-child {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
   }
   .eco-v5 .eco-touch-controls button {
     width: 31px;

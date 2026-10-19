@@ -60,7 +60,7 @@ export function GameWindow({
   return (
     <div className="eco-window-shade" onClick={() => setPanel(null)}>
       <section
-        className="eco-pixel-window"
+        className={`eco-pixel-window${panel === "bag" ? " eco-pixel-window-bag" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label={
