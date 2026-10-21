@@ -26,7 +26,7 @@ export function TestCallPanel({ catalogue }: { catalogue: LlmCatalogue | null })
     try {
       const res = await llmConfigService.testCall({
         task,
-        model_hint: task === "jev_decision" ? undefined : modelHint || undefined,
+        model_hint: ["jev_decision", "text_to_speech"].includes(task) ? undefined : modelHint || undefined,
         prompt,
       });
       setResult(res);
@@ -64,7 +64,7 @@ export function TestCallPanel({ catalogue }: { catalogue: LlmCatalogue | null })
             value={modelHint}
             onChange={(e) => setModelHint(e.target.value)}
             placeholder="llama-3.1-8b-instant"
-            disabled={task === "jev_decision"}
+            disabled={["jev_decision", "text_to_speech"].includes(task)}
           />
         </div>
         <div className="col-span-2">
@@ -97,6 +97,7 @@ export function TestCallPanel({ catalogue }: { catalogue: LlmCatalogue | null })
               <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">fallback</span>
             )}
           </div>
+          {result.audio_data_url && <audio controls src={result.audio_data_url} className="w-full" aria-label="Nghe thử giọng neural" />}
           <pre className="whitespace-pre-wrap rounded bg-slate-50 dark:bg-slate-950 p-3 text-sm">
             {result.content}
           </pre>

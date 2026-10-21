@@ -17,12 +17,22 @@ export interface StudioSection {
   slide_bullets: string[];
   narration: string;
   visual_suggestion: string;
-  visual_type: "auto" | "flow" | "cycle" | "comparison" | "hierarchy" | "timeline";
+  visual_type: "auto" | "flow" | "cycle" | "comparison" | "hierarchy" | "timeline" | "matrix_dot_product" | "matrix_tiling" | "reduction_tree" | "broadcast_tree" | "resource_timeline" | "queue" | "network_topology" | "process_grid" | "memory_hierarchy" | "data_path" | "algorithm_tree" | "pipeline" | "code_execution" | "architecture" | "collective_communication";
   visual_labels: string[];
   illustration_prompt: string;
   alt_text: string;
   source_refs: string[];
   duration_est_sec: number;
+  learning_goal: string;
+  key_message: string;
+  animation_steps: string[];
+  grounding: "source" | "extension";
+  visual_spec: {
+    nodes: { id: string; label: string; role: "input" | "output" | "intermediate" | "warning" }[];
+    edges: { source: string; target: string; label: string }[];
+    equation: string;
+    code: string;
+  };
 }
 
 export interface StudioPlan {
@@ -31,6 +41,7 @@ export interface StudioPlan {
   learning_objectives: string[];
   sections: StudioSection[];
   summary: string;
+  narrative: { learner_goal: string; misconception: string; concept_dependencies: string[] };
 }
 
 export interface StudioProject {
@@ -38,11 +49,12 @@ export interface StudioProject {
   course_id: number;
   kind: "slides" | "document" | "report" | "video";
   title: string;
-  status: "collecting" | "planned" | "generating" | "ready" | "failed";
+  status: "collecting" | "planning" | "planned" | "generating" | "ready" | "failed";
   error_detail?: string | null;
   context_pack: { type: string; title: string; chars?: number }[];
   plan?: StudioPlan | null;
-  settings: Record<string, any>;
+  settings: { planning_warnings?: string[]; theme?: string; aspect_ratio?: "16:9" | "9:16"; context_metrics?: { raw_estimated_tokens: number; used_estimated_tokens: number; input_token_budget: number; hierarchical_reduction: boolean } };
+  current_job_id?: string;
   artifacts: { type: string; url: string; inline?: string }[];
 }
 
@@ -100,6 +112,11 @@ export const studioService = {
       body: JSON.stringify({ index, patch }),
     }),
 
+  downloadArtifact: async (url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Không tải được artifact.");
+    return response.blob();
+  },
   startGenerate: (id: string) =>
     call<{ started?: boolean; already_running?: boolean }>(`projects/${id}/generate`, {
       method: "POST",

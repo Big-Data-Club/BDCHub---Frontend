@@ -85,6 +85,7 @@ export interface LlmUsageResponse {
 }
 
 export interface LlmTestCallResponse {
+  audio_data_url?: string;
   content: string;
   model: string;
   provider: string;

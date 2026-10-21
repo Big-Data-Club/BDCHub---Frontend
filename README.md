@@ -98,3 +98,19 @@ no real-farm bookings, IoT, commerce or per-action AI generation. Quiz questions
 come from enrolled LMS courses, and flashcards from the learner's LMS library.
 Original sprite source
 is recorded in `public/knowledge-farm/ATTRIBUTION.md`.
+
+### AI Studio and neural flashcard speech
+
+Studio creates HTML/SVG slides exported to PDF, Markdown lessons/reports, and
+narrated MP4 videos with native 16:9/9:16 layouts. The teacher reviews the narrative,
+scene plan and final artifacts before publishing. Project URLs preserve the ID to
+resume polling after navigation. PDF/HTML/storyboard/QA/source files are downloadable
+as a bundle; Studio no longer exports PPTX. Existing MCP tools are unchanged.
+
+Flashcard review defaults to neural speech configured by the admin's
+`text_to_speech` gateway binding; browser speech is an explicit alternative. The BFF
+injects session identity, rejects cross-origin speech POSTs and proxies owner-scoped
+job/audio reads. It sends card IDs and front/back selection, never trusted client text.
+Deploy AI migrations V020/V021 and the updated AI HTTP/worker image before this UI.
+The worker image supplies Chromium/FFmpeg; actual TTS needs an operator-added key
+and, for ElevenLabs, a valid voice ID.

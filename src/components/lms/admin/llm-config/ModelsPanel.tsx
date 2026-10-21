@@ -362,6 +362,9 @@ function ModelDialogContent({
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
             Model dùng cho jev_decision cần api_protocol là system_one. Key được quản lý tại API Keys.
           </p>
+          {model?.family === "speech" && <p className="text-xs text-blue-600 dark:text-cyan-400">
+            text_to_speech: cấu hình voice_id và speed (0.7–1.2). Runway dùng preset Niki; ElevenLabs cần voice ID từ tài khoản. Thêm API key sau tại API Keys.
+          </p>}
         </div>
 
         {/* Enabled */}

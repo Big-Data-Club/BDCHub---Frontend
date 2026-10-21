@@ -24,7 +24,8 @@ type Props = {
 };
 
 const canBindModel = (task: string, model: LlmModel) =>
-  (task === "jev_decision") === (model.config?.api_protocol === "system_one");
+  (task === "jev_decision") === (model.config?.api_protocol === "system_one") &&
+  (task === "text_to_speech") === ["runway", "elevenlabs"].includes(model.adapter_type);
 
 export function BindingsPanel({ bindings, models, catalogue, onChanged }: Props) {
   const byTask = useMemo(() => {
