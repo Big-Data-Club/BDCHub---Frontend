@@ -55,7 +55,7 @@ export interface StudioProject {
   plan?: StudioPlan | null;
   settings: { planning_warnings?: string[]; theme?: string; aspect_ratio?: "16:9" | "9:16"; context_metrics?: { raw_estimated_tokens: number; used_estimated_tokens: number; input_token_budget: number; hierarchical_reduction: boolean } };
   current_job_id?: string;
-  artifacts: { type: string; url: string; inline?: string }[];
+  artifacts: { type: string; url: string; inline?: string; asset_id?: string; expires_at?: string }[];
 }
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
@@ -79,6 +79,10 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const studioService = {
+  youtubeStatus: (id: string) => call<SharedYoutubeStatus>(`projects/${id}/youtube`),
+  uploadVideo: (id: string, payload: Record<string, unknown>) => call<{ upload_id: string }>(`projects/${id}/youtube`, { method: "POST", body: JSON.stringify({ ...payload, confirmed: true }) }),
+  uploadStatus: (id: string, uploadId: string) => call<StudioUpload>(`projects/${id}/uploads/${uploadId}`),
+  publish: (id: string, sectionId: number, uploadId?: string) => call<{ content: { id: number } }>(`projects/${id}/publish`, { method: "POST", body: JSON.stringify({ section_id: sectionId, upload_id: uploadId, confirmed: true }) }),
   createProject: (payload: { course_id: number; kind: string; title: string; settings?: Record<string, any> }) =>
     call<StudioProject>("projects", { method: "POST", body: JSON.stringify(payload) }),
 
@@ -123,3 +127,21 @@ export const studioService = {
       body: JSON.stringify({}),
     }),
 };
+
+export interface StudioUpload {
+  id: string;
+  status: "queued" | "running" | "ready" | "failed";
+  title: string;
+  privacy: string;
+  actual_privacy?: string;
+  processing_status?: string;
+  video_id?: string;
+  error?: string;
+}
+
+export interface SharedYoutubeStatus {
+  connected: boolean;
+  channel_id?: string;
+  channel_title?: string;
+  uploads: StudioUpload[];
+}

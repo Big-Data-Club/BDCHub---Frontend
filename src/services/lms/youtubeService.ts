@@ -32,13 +32,14 @@ class YouTubeService {
   /**
    * Get authorization URL for OAuth2
    */
-  getAuthUrl(): string {
+  getAuthUrl(state?: string): string {
     const scopes = [
       'https://www.googleapis.com/auth/youtube.upload',
       'https://www.googleapis.com/auth/youtube',
     ];
 
     return this.oauth2Client.generateAuthUrl({
+      state,
       access_type: 'offline',
       scope: scopes,
       prompt: 'consent',

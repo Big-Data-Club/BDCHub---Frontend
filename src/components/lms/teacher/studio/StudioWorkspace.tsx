@@ -19,6 +19,8 @@ import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import AIRevisionPanel from "@/components/lms/teacher/AIRevisionPanel";
 import { cn } from "@/lib/utils";
 
+import { StudioVideoDelivery } from "./StudioVideoDelivery";
+
 const THEMES = [
   { value: "google", label: "Google · sáng, rõ nét" },
   { value: "apple", label: "Apple · tối giản" },
@@ -58,6 +60,11 @@ export function StudioWorkspace() {
   const [sections, setSectionsList] = useState<{ id: number; title: string }[]>([]);
   const [sectionId, setSectionId] = useState<number | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [youtubeUploadId, setYoutubeUploadId] = useState<string>();
+  const [clock, setClock] = useState(Date.now());
+  useEffect(() => { setYoutubeUploadId(undefined); }, [project?.id, project?.current_job_id]);
+
+  useEffect(() => { const timer = setInterval(() => setClock(Date.now()), 5000); return () => clearInterval(timer); }, []);
 
   useEffect(() => {
     lmsService.listSections(courseId)
@@ -168,39 +175,9 @@ export function StudioWorkspace() {
     if (!project || !sectionId) return;
     setPublishing(true); setError("");
     try {
-      let contentId: number | undefined;
-      if (asType === "DOCUMENT") {
-        const pdf = project.artifacts.find((a) => a.type === "pdf");
-        if (!pdf) throw new Error("Chưa có file PDF.");
-        const created = await lmsService.createContent(sectionId, {
-          type: "DOCUMENT", title: project.title, description: "Slide HTML xuất PDF từ AI Studio",
-          order_index: 9999, is_mandatory: false,
-          metadata: { file_path: pdf.url.replace(/^\/files\//, ""), file_name: `${project.title}.pdf` },
-        });
-        contentId = created?.data?.id;
-      } else if (asType === "VIDEO") {
-        const mp4 = project.artifacts.find(a => a.type === "mp4");
-        if (!mp4) throw new Error("Chưa có MP4.");
-        const created = await lmsService.createContent(sectionId, {
-          type: "VIDEO", title: project.title, description: "Video kỹ thuật từ AI Studio",
-          order_index: 9999, is_mandatory: false,
-          metadata: { video_url: mp4.url, file_path: mp4.url.replace(/^\/files\//, ""), video_type: "file" },
-        });
-        contentId = created?.data?.id;
-      } else {
-        const mdArt = project.artifacts.find((a) => a.type === "markdown");
-        const markdown = mdArt?.inline ?? "";
-        const created = await lmsService.createContent(sectionId, {
-          type: "TEXT",
-          title: project.title,
-          description: "Bài giảng tạo bằng Content Studio",
-          order_index: 9999,
-          is_mandatory: false,
-          metadata: { content: markdown },
-        });
-        contentId = created?.data?.id;
-      }
-      if (contentId) router.push(`/lms/teacher/courses/${courseId}/content`);
+      if (asType === "VIDEO" && !youtubeUploadId) throw new Error("Đăng video lên kênh chung và chờ YouTube xử lý xong trước khi gắn vào bài học.");
+      const result = await studioService.publish(project.id, sectionId, asType === "VIDEO" ? youtubeUploadId : undefined);
+      if (result.content?.id) router.push(`/lms/teacher/courses/${courseId}/content`);
     } catch (err: any) {
       setError(err?.message ?? "Đăng tải thất bại.");
     } finally {
@@ -209,7 +186,7 @@ export function StudioWorkspace() {
   };
 
   const plan = project?.plan;
-  const artifacts = project?.artifacts ?? [];
+  const artifacts = (project?.artifacts ?? []).filter(a => !a.expires_at || Date.parse(a.expires_at) > clock);
 
   return (
     <div className="space-y-6 animate-fadeIn pb-24">
@@ -425,7 +402,7 @@ export function StudioWorkspace() {
             <>
               <div className="flex flex-wrap items-center gap-2">
                 {artifacts.map((a, i) => (
-                  <a key={i} href={a.url} target="_blank" rel="noreferrer"
+                  <a key={i} href={`${a.url}${a.url.includes("?") ? "&" : "?"}download=1`} target="_blank" rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold text-emerald-700 dark:text-emerald-300 cursor-pointer">
                     {a.type === "pdf" ? <Presentation className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
                     Tải {a.type.toUpperCase()}
@@ -438,6 +415,7 @@ export function StudioWorkspace() {
 
               {artifacts.find(a => a.type === "pdf") && <iframe title="Xem slide PDF" src={artifacts.find(a => a.type === "pdf")!.url} className="h-[65vh] w-full rounded-2xl border border-slate-200 dark:border-slate-700" />}
               {artifacts.find(a => a.type === "mp4") && <video aria-label="Xem video đã dựng" controls preload="metadata" src={artifacts.find(a => a.type === "mp4")!.url} className="max-h-[70vh] w-full rounded-2xl" />}
+              {project.kind === "video" && <StudioVideoDelivery key={project.id} project={project} onReady={setYoutubeUploadId} />}
               {/* Inline section review */}
               <div className="space-y-3">
                 {plan?.sections.map((sec, i) => (
@@ -527,7 +505,7 @@ export function StudioWorkspace() {
                   {artifacts.some((a) => a.type === "pdf") && (
                     <PubBtn onClick={() => publish("DOCUMENT")} busy={publishing}>Đăng file Slide</PubBtn>
                   )}
-                  {artifacts.some(a => a.type === "mp4") && <PubBtn onClick={() => publish("VIDEO")} busy={publishing}>Đăng video</PubBtn>}
+                  {project.kind === "video" && youtubeUploadId && <PubBtn onClick={() => publish("VIDEO")} busy={publishing}>Gắn video YouTube vào khóa học</PubBtn>}
                   {artifacts.some((a) => a.type === "markdown") && (
                     <PubBtn onClick={() => publish("TEXT")} busy={publishing}>Đăng tài liệu</PubBtn>
                   )}

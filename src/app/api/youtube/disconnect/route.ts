@@ -1,7 +1,10 @@
+import { requireYoutubeRole } from "@/lib/youtube-auth";
 import { NextRequest, NextResponse } from 'next/server';
 import youtubeTokenManager from '@/services/lms/youtubeTokenManager';
 
 export async function POST(request: NextRequest) {
+  const denied = await requireYoutubeRole(request);
+  if (denied) return denied;
   try {
     await youtubeTokenManager.deleteTokens();
 
@@ -9,10 +12,10 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'YouTube disconnected successfully',
     });
-  } catch (error: any) {
-    console.error('YouTube disconnect error:', error);
+  } catch {
+    console.warn("YouTube operation failed; inspect connection and quota");
     return NextResponse.json(
-      { error: error.message || 'Failed to disconnect YouTube' },
+      { error: 'Failed to disconnect shared YouTube channel' },
       { status: 500 }
     );
   }

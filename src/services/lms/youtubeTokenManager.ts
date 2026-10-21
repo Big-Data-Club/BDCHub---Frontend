@@ -1,6 +1,4 @@
 // lib/youtubeTokenManager.ts
-import fs from 'fs';
-import path from 'path';
 import { google } from 'googleapis';
 
 interface YouTubeTokens {
@@ -19,32 +17,27 @@ interface YouTubeConnectionData {
 }
 
 class YouTubeTokenManager {
-  private tokensFilePath: string;
-  private oauth2Client: any;
 
   constructor() {
-    // Store tokens in a file (in production, use database)
-    this.tokensFilePath = path.join(process.cwd(), 'data', 'youtube-tokens.json');
-    
-    this.oauth2Client = new google.auth.OAuth2(
-      process.env.YOUTUBE_CLIENT_ID,
-      process.env.YOUTUBE_CLIENT_SECRET,
-      process.env.YOUTUBE_REDIRECT_URI
-    );
-
-    // Ensure data directory exists
-    this.ensureDataDirectory();
   }
 
-  private ensureDataDirectory() {
-    const dir = path.dirname(this.tokensFilePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
+  private client() {
+    return new google.auth.OAuth2(process.env.YOUTUBE_CLIENT_ID, process.env.YOUTUBE_CLIENT_SECRET, process.env.YOUTUBE_REDIRECT_URI);
+  }
+
+  private async connection(method = "GET", data?: YouTubeConnectionData) {
+    const secret = process.env.AI_SERVICE_SECRET;
+    if (!secret) throw new Error("AI service secret is not configured");
+    const response = await fetch(`${process.env.AI_SERVICE_URL || "http://ai-service:8000"}/ai/studio/youtube/connection`, {
+      method, headers: { "X-AI-Secret": secret, "Content-Type": "application/json" },
+      body: data ? JSON.stringify(data) : undefined, cache: "no-store", signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) throw new Error("Shared YouTube connection storage unavailable");
+    return response.json();
   }
 
   /**
-   * Save tokens to file
+   * Persist the shared connection encrypted in the AI-owned database
    */
   async saveTokens(tokens: any, channelInfo?: { name: string; id: string }): Promise<void> {
     const data: YouTubeConnectionData = {
@@ -54,33 +47,21 @@ class YouTubeTokenManager {
       connected_at: new Date().toISOString(),
     };
 
-    fs.writeFileSync(this.tokensFilePath, JSON.stringify(data, null, 2));
+    await this.connection("PUT", data);
   }
 
   /**
-   * Load tokens from file
+   * Load the shared connection through the authenticated internal API
    */
   async loadTokens(): Promise<YouTubeConnectionData | null> {
-    try {
-      if (!fs.existsSync(this.tokensFilePath)) {
-        return null;
-      }
-
-      const data = fs.readFileSync(this.tokensFilePath, 'utf-8');
-      return JSON.parse(data);
-    } catch (error) {
-      console.error('Error loading tokens:', error);
-      return null;
-    }
+    return this.connection();
   }
 
   /**
    * Delete tokens
    */
   async deleteTokens(): Promise<void> {
-    if (fs.existsSync(this.tokensFilePath)) {
-      fs.unlinkSync(this.tokensFilePath);
-    }
+    await this.connection("DELETE");
   }
 
   /**
@@ -88,13 +69,13 @@ class YouTubeTokenManager {
    */
   async hasValidTokens(): Promise<boolean> {
     const data = await this.loadTokens();
-    if (!data || !data.tokens) {
+    if (!data || !data.tokens?.refresh_token) {
       return false;
     }
 
     // Check if token is expired
     const now = Date.now();
-    if (data.tokens.expiry_date && data.tokens.expiry_date < now) {
+    if (!data.tokens.access_token || !data.tokens.expiry_date || data.tokens.expiry_date < now + 60000) {
       // Try to refresh
       try {
         await this.refreshTokens();
@@ -116,26 +97,32 @@ class YouTubeTokenManager {
       throw new Error('No YouTube tokens found. Please connect YouTube first.');
     }
 
-    this.oauth2Client.setCredentials(data.tokens);
+    const auth = this.client();
+    auth.setCredentials(data.tokens);
 
     // Auto-refresh if needed
     const now = Date.now();
-    if (data.tokens.expiry_date && data.tokens.expiry_date < now) {
-      await this.refreshTokens();
+    if (!data.tokens.access_token || !data.tokens.expiry_date || data.tokens.expiry_date < now + 60000) {
+      const { credentials } = await auth.refreshAccessToken();
+      const merged = { ...data.tokens, ...credentials, refresh_token: credentials.refresh_token || data.tokens.refresh_token };
+      auth.setCredentials(merged);
+      await this.saveTokens(merged, { name: data.channel_name || "Shared channel", id: data.channel_id || "" });
     }
 
-    return this.oauth2Client;
+    return auth;
   }
 
   /**
    * Exchange authorization code for tokens
    */
   async exchangeCodeForTokens(code: string): Promise<void> {
-    const { tokens } = await this.oauth2Client.getToken(code);
-    this.oauth2Client.setCredentials(tokens);
+    const auth = this.client();
+    const { tokens } = await auth.getToken(code);
+    auth.setCredentials(tokens);
+    if (!tokens.refresh_token) throw new Error("Reconnect the shared channel with offline access and consent");
 
     // Get channel info
-    const youtube = google.youtube({ version: 'v3', auth: this.oauth2Client });
+    const youtube = google.youtube({ version: 'v3', auth });
     const response = await youtube.channels.list({
       part: ['snippet'],
       mine: true,
@@ -147,6 +134,7 @@ class YouTubeTokenManager {
       id: channel.id || 'unknown',
     } : undefined;
 
+    if (!channelInfo?.id || channelInfo.id === "unknown") throw new Error("No YouTube channel found");
     await this.saveTokens(tokens, channelInfo);
   }
 
@@ -159,10 +147,11 @@ class YouTubeTokenManager {
       throw new Error('No tokens to refresh');
     }
 
-    this.oauth2Client.setCredentials(data.tokens);
-    const { credentials } = await this.oauth2Client.refreshAccessToken();
+    const auth = this.client();
+    auth.setCredentials(data.tokens);
+    const { credentials } = await auth.refreshAccessToken();
     
-    await this.saveTokens(credentials, {
+    await this.saveTokens({ ...data.tokens, ...credentials, refresh_token: credentials.refresh_token || data.tokens.refresh_token }, {
       name: data.channel_name || 'Unknown',
       id: data.channel_id || 'unknown',
     });

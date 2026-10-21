@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { NextRequest, NextResponse } from "next/server";
+import { isSameOriginRequest } from "@/lib/request-origin";
 
 /**
  * Generic proxy for the Content Studio AI endpoints.
@@ -21,6 +22,11 @@ function injectUser(bodyText: string | null, userId: number): string {
 }
 
 async function forward(req: NextRequest, path: string[]) {
+  const route = path.join("/");
+  const uuid = "[0-9a-fA-F-]{36}";
+  if (!new RegExp(`^(projects|projects/${uuid}(?:/(?:context|plan|sections|generate|youtube|publish|sections/[0-9]+/render-preview|uploads/${uuid}))?|media/${uuid})$`).test(route)) {
+    return NextResponse.json({ error: "Unknown Studio route" }, { status: 404 });
+  }
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -38,9 +44,13 @@ async function forward(req: NextRequest, path: string[]) {
 
   const url = `${AI_SERVICE_URL}/ai/studio/${path.join("/")}${queryString}`;
   const headers: Record<string, string> = { "X-AI-Secret": AI_SECRET };
+  if (req.headers.has("range")) headers.Range = req.headers.get("range")!;
   let body: string | undefined;
 
   if (req.method !== "GET") {
+    if (!isSameOriginRequest(req)) {
+      return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+    }
     headers["Content-Type"] = "application/json";
     body = injectUser(await req.text(), userId);
   }
@@ -52,10 +62,14 @@ async function forward(req: NextRequest, path: string[]) {
       body,
       cache: "no-store",
     });
-    const data = await upstream.text();
-    return new NextResponse(data, {
+    const responseHeaders = new Headers({ "Cache-Control": "private, no-store" });
+    for (const name of ["content-type", "content-length", "content-range", "accept-ranges", "content-disposition", "x-content-type-options", "content-security-policy", "referrer-policy"]) {
+      const value = upstream.headers.get(name);
+      if (value) responseHeaders.set(name, value);
+    }
+    return new NextResponse(upstream.body, {
       status: upstream.status,
-      headers: { "Content-Type": "application/json" },
+      headers: responseHeaders,
     });
   } catch (err: any) {
     console.error("[studio-proxy] failed:", err.message);

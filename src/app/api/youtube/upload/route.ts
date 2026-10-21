@@ -1,3 +1,4 @@
+import { requireYoutubeRole } from "@/lib/youtube-auth";
 // app/api/youtube/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import youtubeTokenManager from '@/services/lms/youtubeTokenManager';
@@ -5,21 +6,14 @@ import { google } from 'googleapis';
 import { Readable } from 'stream';
 
 export async function POST(request: NextRequest) {
+  const denied = await requireYoutubeRole(request, ["ADMIN", "TEACHER"]);
+  if (denied) return denied;
   try {
     // Check if YouTube upload is enabled
     if (process.env.NEXT_PUBLIC_YOUTUBE_UPLOAD_ENABLED !== 'true') {
       return NextResponse.json(
         { error: 'YouTube upload is not enabled' },
         { status: 403 }
-      );
-    }
-
-    // Get authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: 'No authorization header' },
-        { status: 401 }
       );
     }
 
@@ -115,19 +109,20 @@ export async function POST(request: NextRequest) {
         thumbnail_url: thumbnailUrl,
       },
     });
-  } catch (error: any) {
-    console.error('YouTube upload error:', error);
+  } catch {
+    console.warn("YouTube operation failed; inspect connection and quota");
     return NextResponse.json(
       { 
-        error: error.message || 'Failed to upload video to YouTube',
-        details: error.response?.data || error.toString()
+        error: "Failed to upload video to the shared YouTube channel"
       },
       { status: 500 }
     );
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const denied = await requireYoutubeRole(request, ["ADMIN", "TEACHER"]);
+  if (denied) return denied;
   try {
     const hasValidTokens = await youtubeTokenManager.hasValidTokens();
     
