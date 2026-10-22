@@ -17,6 +17,11 @@ export type EcoCatalogEntry = {
   description: string;
 };
 export type EcoCatalog = Record<string, EcoCatalogEntry>;
+export type CareTimers = {
+  farmerHunger: number;
+  animalHunger: number;
+  cropWater: number;
+};
 export type EcoEntity = {
   refundCoins: number;
   onAquaponics: boolean;
@@ -56,6 +61,7 @@ export type WildInsect = {
 };
 export type EcoWorld = {
   farm: Farm;
+  careTimers?: CareTimers;
   life: {
     hungerPct: number;
     insects: number;

@@ -595,6 +595,7 @@ export default function PlayerView({
           movePreview={mode?.type === "move" ? movePreview : null}
           insects={world.wildInsects || []}
           serverTime={world.serverTime}
+          careTimers={world.careTimers}
           onTile={onTile}
           disabled={busy || !!lesson}
         />

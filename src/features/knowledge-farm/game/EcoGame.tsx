@@ -1,6 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import type { EcoCatalog, EcoEntity, WildInsect } from "../lib/economy";
+import type {
+  CareTimers,
+  EcoCatalog,
+  EcoEntity,
+  WildInsect,
+} from "../lib/economy";
 import type { EcoScene } from "./EcoScene";
 type Mode =
   | {
@@ -19,6 +24,7 @@ export default function EcoGame({
   mode,
   insects,
   serverTime,
+  careTimers,
   movePreview,
   onTile,
   disabled,
@@ -29,6 +35,7 @@ export default function EcoGame({
   mode: Mode;
   insects: WildInsect[];
   serverTime: string;
+  careTimers?: CareTimers;
   movePreview: { x: number; y: number } | null;
   onTile: (x: number, y: number) => void;
   disabled: boolean;
@@ -50,8 +57,17 @@ export default function EcoGame({
     mode,
     insects,
     serverTime,
+    careTimers,
   });
-  latest.current = { entities, catalog, selected, mode, insects, serverTime };
+  latest.current = {
+    entities,
+    catalog,
+    selected,
+    mode,
+    insects,
+    serverTime,
+    careTimers,
+  };
   const preview = useRef(movePreview);
   preview.current = movePreview;
   useEffect(() => {
@@ -76,6 +92,7 @@ export default function EcoGame({
         latest.current.mode,
         latest.current.insects,
         latest.current.serverTime,
+        latest.current.careTimers,
       );
       sc.setMovePreview(preview.current);
       const pg = new Phaser.Game({
@@ -99,6 +116,7 @@ export default function EcoGame({
             latest.current.mode,
             latest.current.insects,
             latest.current.serverTime,
+            latest.current.careTimers,
           );
       });
     })().catch((cause) => {
@@ -121,8 +139,9 @@ export default function EcoGame({
       mode,
       insects,
       serverTime,
+      careTimers,
     );
-  }, [entities, catalog, selected, mode, insects, serverTime]);
+  }, [entities, catalog, selected, mode, insects, serverTime, careTimers]);
   useEffect(() => {
     scene.current?.setMovePreview(movePreview);
   }, [movePreview]);

@@ -286,6 +286,12 @@ export function GameWindow({
                     Nhấn vào côn trùng trên bản đồ để bắt. Thu hoạch cần trả lời
                     một câu học tập.
                   </p>
+                  {world.careTimers && (
+                    <p>
+                      Nông dân, vật nuôi, nước tưới và oxy đủ khoảng 12 giờ khi
+                      đầy. Cây còn ẩm tự lớn tiếp sau khi thu hoạch.
+                    </p>
+                  )}
                 </section>
                 <section>
                   <h3>Mục tiêu</h3>

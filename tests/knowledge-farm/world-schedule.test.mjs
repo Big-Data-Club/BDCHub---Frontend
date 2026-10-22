@@ -84,3 +84,24 @@ test("local animation stops at water limits and does not freeze chickens", () =>
     0.5,
   );
 });
+
+test("server care timers control projections and the next refresh", () => {
+  const relaxed = world();
+  relaxed.careTimers = {
+    farmerHunger: 43200,
+    animalHunger: 43200,
+    cropWater: 43200,
+  };
+  relaxed.life.hungerPct = 100;
+  assert.equal(nextWorldRefreshDelay(relaxed), 43201200);
+  assert.ok(
+    Math.abs(
+      projectedProgress(
+        { ...crop(), waterPct: 0.1 },
+        relaxed.catalog,
+        100,
+        relaxed.careTimers,
+      ) - 0.36,
+    ) < 1e-9,
+  );
+});

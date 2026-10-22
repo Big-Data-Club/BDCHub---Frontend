@@ -1,5 +1,10 @@
 import * as Phaser from "phaser";
-import type { EcoEntity, EcoCatalog, WildInsect } from "../lib/economy";
+import type {
+  CareTimers,
+  EcoEntity,
+  EcoCatalog,
+  WildInsect,
+} from "../lib/economy";
 import {
   WATER_HABITAT,
   WATER_HABITAT_CAPACITY,
@@ -70,6 +75,7 @@ export class EcoScene extends Phaser.Scene {
   private pos = { x: 9, y: 8 };
   private entities: EcoEntity[] = [];
   private goods: EcoCatalog = {};
+  private careTimers?: CareTimers;
   private picked: string | null = null;
   private mode: FarmMode = null;
   private press: TilePress = () => {};
@@ -260,6 +266,7 @@ export class EcoScene extends Phaser.Scene {
     mode: FarmMode,
     insects: WildInsect[] = [],
     serverTime = "",
+    careTimers?: CareTimers,
   ) {
     // Only changes that alter pixels require rebuilding Phaser display objects.
     // Server timestamps and fine-grained progress still update the inspector.
@@ -288,6 +295,7 @@ export class EcoScene extends Phaser.Scene {
     const insectSnapshot = JSON.stringify(insects);
     this.entities = entities;
     this.goods = goods;
+    this.careTimers = careTimers;
     this.picked = selected;
     this.mode = mode;
     this.insects = insects;
@@ -315,7 +323,12 @@ export class EcoScene extends Phaser.Scene {
       (performance.now() - this.progressSince) / 1000,
     );
     for (const entity of this.entities) {
-      const progress = projectedProgress(entity, this.goods, elapsed);
+      const progress = projectedProgress(
+        entity,
+        this.goods,
+        elapsed,
+        this.careTimers,
+      );
       const savedBar = this.progressBars.get(entity.id);
       const pixels = Math.round(progress * 32);
       if (savedBar && pixels !== savedBar.pixels) {

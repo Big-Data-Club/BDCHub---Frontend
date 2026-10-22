@@ -1,4 +1,11 @@
-import type { EcoCatalog, EcoEntity, EcoWorld } from "./economy";
+import type { CareTimers, EcoCatalog, EcoEntity, EcoWorld } from "./economy";
+
+// Used only while an older farm-service replica is still serving responses.
+const legacyCareTimers: CareTimers = {
+  farmerHunger: 1800,
+  animalHunger: 480,
+  cropWater: 180,
+};
 
 // A visual estimate only. All actions still use the server's authoritative
 // clock and production rules.
@@ -6,6 +13,7 @@ export function projectedProgress(
   entity: EcoEntity,
   catalog: EcoCatalog,
   elapsedSeconds: number,
+  careTimers: CareTimers = legacyCareTimers,
 ): number {
   const duration = catalog[entity.kind]?.seconds;
   if (!duration || entity.ready > 0)
@@ -20,7 +28,10 @@ export function projectedProgress(
       if (!entity.aquaActive) return entity.progress;
       speed = 1.2;
     } else {
-      activeSeconds = Math.min(activeSeconds, (entity.waterPct * 180) / 100);
+      activeSeconds = Math.min(
+        activeSeconds,
+        (entity.waterPct * careTimers.cropWater) / 100,
+      );
     }
   } else if (entity.category === "ANIMAL") {
     if (
@@ -29,7 +40,10 @@ export function projectedProgress(
       (entity.kind === "bee" && !entity.flowerNearby)
     )
       return entity.progress;
-    activeSeconds = Math.min(activeSeconds, (entity.hungerPct * 480) / 100);
+    activeSeconds = Math.min(
+      activeSeconds,
+      (entity.hungerPct * careTimers.animalHunger) / 100,
+    );
   } else {
     return entity.progress;
   }
@@ -39,6 +53,7 @@ export function projectedProgress(
 // All durations originate from the last authoritative server snapshot. One
 // timeout covers the closest possible state transition; no idle HTTP polling.
 export function nextWorldRefreshDelay(world: EcoWorld): number | null {
+  const careTimers = world.careTimers ?? legacyCareTimers;
   const due: number[] = [];
   const addSeconds = (seconds: number | undefined) => {
     if (seconds !== undefined && Number.isFinite(seconds) && seconds > 0) {
@@ -47,7 +62,7 @@ export function nextWorldRefreshDelay(world: EcoWorld): number | null {
   };
 
   addSeconds(world.life.nextInsectIn);
-  addSeconds((world.life.hungerPct * 1800) / 100);
+  addSeconds((world.life.hungerPct * careTimers.farmerHunger) / 100);
 
   for (const entity of world.entities) {
     addSeconds(entity.buildLeft);
@@ -55,10 +70,10 @@ export function nextWorldRefreshDelay(world: EcoWorld): number | null {
     addSeconds(entity.oxygenLeft);
 
     if (entity.category === "CROP" && !entity.onAquaponics) {
-      addSeconds((entity.waterPct * 180) / 100);
+      addSeconds((entity.waterPct * careTimers.cropWater) / 100);
     }
     if (entity.category === "ANIMAL") {
-      addSeconds((entity.hungerPct * 480) / 100);
+      addSeconds((entity.hungerPct * careTimers.animalHunger) / 100);
     }
 
     const duration = world.catalog[entity.kind]?.seconds;
@@ -70,7 +85,10 @@ export function nextWorldRefreshDelay(world: EcoWorld): number | null {
         continue;
       const remaining =
         ((1 - entity.progress) * duration) / (entity.onAquaponics ? 1.2 : 1);
-      if (entity.onAquaponics || remaining <= (entity.waterPct * 180) / 100) {
+      if (
+        entity.onAquaponics ||
+        remaining <= (entity.waterPct * careTimers.cropWater) / 100
+      ) {
         addSeconds(remaining);
       }
     } else if (entity.category === "ANIMAL") {
@@ -82,7 +100,8 @@ export function nextWorldRefreshDelay(world: EcoWorld): number | null {
       )
         continue;
       const remaining = (1 - entity.progress) * duration;
-      if (remaining <= (entity.hungerPct * 480) / 100) addSeconds(remaining);
+      if (remaining <= (entity.hungerPct * careTimers.animalHunger) / 100)
+        addSeconds(remaining);
     }
   }
 
