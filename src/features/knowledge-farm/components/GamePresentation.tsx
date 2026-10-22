@@ -6,11 +6,12 @@ export type Mode =
   | { type: "place"; kind: string }
   | { type: "move"; id: string }
   | null;
-export type Tab = "CROP" | "ANIMAL" | "STRUCTURE" | "DECOR";
+export type Tab = "CROP" | "ANIMAL" | "STRUCTURE" | "SUPPLY" | "DECOR";
 export const TABS: { key: Tab; label: string; symbol: string }[] = [
   { key: "CROP", label: "Trồng cây", symbol: "🌾" },
   { key: "ANIMAL", label: "Vật nuôi", symbol: "🐓" },
   { key: "STRUCTURE", label: "Xây dựng", symbol: "🏠" },
+  { key: "SUPPLY", label: "Vật tư", symbol: "💊" },
   { key: "DECOR", label: "Trang trí", symbol: "🌼" },
 ];
 const symbols: Record<string, string> = {

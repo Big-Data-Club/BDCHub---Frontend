@@ -510,7 +510,7 @@
 }
 .eco-category-tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 4px;
   background: #f1f4e9;
   padding: 4px;
@@ -2447,7 +2447,6 @@
   font-size: 11px;
   border-radius: 0;
 }
-.eco-v5 .eco-window-supplies,
 .eco-v5 .eco-window-kitchen {
   display: flex;
   gap: 7px;
@@ -2457,12 +2456,10 @@
   margin-top: 14px;
   padding-top: 12px;
 }
-.eco-v5 .eco-window-supplies strong,
 .eco-v5 .eco-window-kitchen strong {
   width: 100%;
   font: 900 14px monospace;
 }
-.eco-v5 .eco-window-supplies button,
 .eco-v5 .eco-window-kitchen button {
   padding: 8px;
   border: 2px solid #7ca369;

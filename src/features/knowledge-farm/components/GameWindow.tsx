@@ -104,46 +104,50 @@ export function GameWindow({
                 ))}
               </div>
               <div className="eco-product-grid">
-                {catalog.map(([key, good]: [string, EcoCatalogEntry]) => (
-                  <button
-                    disabled={busy || hungry}
-                    className={
-                      "eco-product " +
-                      (mode?.type === "place" && mode.kind === key
-                        ? "chosen"
-                        : "")
-                    }
-                    key={key}
-                    onClick={() => selectPlace(key)}
-                  >
-                    <Pix kind={key} size={43} />
-                    <strong>{good.label}</strong>
-                    <small>
-                      {good.category === "STRUCTURE"
-                        ? "Xây " + formatSecs(good.seconds || 0)
-                        : good.category === "CROP"
-                          ? "Lớn " + formatSecs(good.seconds || 0)
-                          : good.category === "ANIMAL"
-                            ? "Nuôi & chăm sóc"
-                            : "Trang trí"}
-                    </small>
-                    <b>{good.price} xu</b>
-                  </button>
-                ))}
-              </div>
-              <div className="eco-window-supplies">
-                <strong>Vật tư</strong>
-                {Object.entries(world.shopSupplies).map(([kind, price]) => (
-                  <button
-                    disabled={busy || (hungry && kind !== "rice")}
-                    key={kind}
-                    onClick={() =>
-                      void submit("/game/shop", { kind, quantity: 1 })
-                    }
-                  >
-                    + {world.labels[kind]} · {price} xu
-                  </button>
-                ))}
+                {tab === "SUPPLY"
+                  ? Object.entries(world.shopSupplies).map(([kind, price]) => (
+                      <button
+                        type="button"
+                        className="eco-product"
+                        disabled={busy || (hungry && kind !== "rice")}
+                        key={kind}
+                        onClick={() =>
+                          void submit("/game/shop", { kind, quantity: 1 })
+                        }
+                        aria-label={`Mua ${world.labels[kind] || kind}, ${price} xu`}
+                      >
+                        <Pix kind={kind} size={43} />
+                        <strong>{world.labels[kind] || kind}</strong>
+                        <small>Đang có: {inv(kind)}</small>
+                        <b>{price} xu</b>
+                      </button>
+                    ))
+                  : catalog.map(([key, good]: [string, EcoCatalogEntry]) => (
+                      <button
+                        disabled={busy || hungry}
+                        className={
+                          "eco-product " +
+                          (mode?.type === "place" && mode.kind === key
+                            ? "chosen"
+                            : "")
+                        }
+                        key={key}
+                        onClick={() => selectPlace(key)}
+                      >
+                        <Pix kind={key} size={43} />
+                        <strong>{good.label}</strong>
+                        <small>
+                          {good.category === "STRUCTURE"
+                            ? "Xây " + formatSecs(good.seconds || 0)
+                            : good.category === "CROP"
+                              ? "Lớn " + formatSecs(good.seconds || 0)
+                              : good.category === "ANIMAL"
+                                ? "Nuôi & chăm sóc"
+                                : "Trang trí"}
+                        </small>
+                        <b>{good.price} xu</b>
+                      </button>
+                    ))}
               </div>
             </>
           )}
