@@ -11,9 +11,10 @@ import { safeLmsReturnPath } from "@/lib/lms-navigation";
 
 interface LoginFormProps {
   googleClientId?: string;
+  organizationName?: string;
 }
 
-export default function LoginForm({ googleClientId }: LoginFormProps) {
+export default function LoginForm({ googleClientId, organizationName }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = safeLmsReturnPath(searchParams.get("callbackUrl"));
@@ -71,7 +72,7 @@ export default function LoginForm({ googleClientId }: LoginFormProps) {
 
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Chào mừng trở lại!</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Đăng nhập vào hệ thống quản trị BDC</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{organizationName ? `Đăng nhập học tập cùng ${organizationName}` : "Đăng nhập vào hệ thống quản trị BDC"}</p>
         </div>
 
         {error && (
