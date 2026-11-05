@@ -101,6 +101,7 @@ const MobileNav = () => {
                   }
                   return (
                     link.label === "BDCourse" ||
+                    link.route === "/workspace" ||
                     link.label === "Virtual Lab" ||
                   link.route === "/knowledge-farm" ||
                     link.label === "Data Hackathon" ||

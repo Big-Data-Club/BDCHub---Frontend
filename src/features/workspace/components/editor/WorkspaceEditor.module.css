@@ -1,0 +1,31 @@
+.editor {
+  min-width: 0;
+}
+.editor :global(.bn-editor) {
+  background: transparent;
+  padding: 18px 46px 100px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.editor :global(.bn-container) {
+  --bn-colors-editor-background: transparent;
+  font-family: var(--font-body), sans-serif;
+}
+.editor :global(.bn-block-content[data-content-type="pageLink"]) {
+  width: 100%;
+}
+.editor :global(.katex-display) {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.editor :global(.bn-block-content[data-content-type="mathBlock"]) {
+  overflow: visible;
+}
+@media (max-width: 640px) {
+  .editor :global(.bn-editor) {
+    padding: 12px 24px 80px;
+    font-size: 16px;
+  }
+}

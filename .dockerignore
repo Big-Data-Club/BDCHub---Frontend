@@ -63,5 +63,7 @@ mvnw.cmd
 
 # Node & Build Cache
 node_modules/
+node_modules.*/
 .next/
+.next.*/
 .pnpm-store/

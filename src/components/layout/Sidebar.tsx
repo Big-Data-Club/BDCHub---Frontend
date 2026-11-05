@@ -164,6 +164,7 @@ const Sidebar: React.FC = () => {
                 }
                 return (
                   link.label === "BDCourse" ||
+                  link.route === "/workspace" ||
                   link.label === "Virtual Lab" ||
                   link.route === "/knowledge-farm" ||
                   link.label === "Chat" ||
@@ -184,7 +185,7 @@ const Sidebar: React.FC = () => {
               )}
               <ul className="space-y-0.5">
                 {section.links.map((link) => {
-                  const isActive = pathname === link.route;
+                  const isActive = pathname === link.route || (link.route === "/workspace" && pathname.startsWith("/workspace/"));
                   const Icon = link.icon;
                   const isExternal = link.route.startsWith("http");
                   const hasBadge = link.route === "/lms" && unreadAlertsCount > 0;
