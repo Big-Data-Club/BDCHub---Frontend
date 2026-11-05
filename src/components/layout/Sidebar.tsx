@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "@/lib/tenant/Link";
+import { usePathname, useRouter } from "@/lib/tenant/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import { sidebarSections, LogoIcon } from "@/constants";
+import { sidebarSections } from "@/constants";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user/UserAvatar";
 import {
@@ -17,7 +17,8 @@ import { useUser } from "@/store/UserContext";
 import { useNotifications } from "@/store/NotificationContext";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useTheme } from "next-themes";
-import SafeImage from "../common/SafeImage";
+import { BrandMark } from "./BrandMark";
+import { useTenant } from "@/lib/tenant/context";
 import lmsService from "@/services/lms/lmsService";
 import { logout } from "@/services/auth/logout";
 import { GhostBtn } from "@/components/lms/shared/Button";
@@ -27,6 +28,7 @@ const MAX_WIDTH = 280;
 const DEFAULT_WIDTH = 240;
 
 const Sidebar: React.FC = () => {
+  const tenant = useTenant();
   const pathname = usePathname();
   const { user, setUser } = useUser();
   const { unreadAlertsCount, unreadChatCount } = useNotifications();
@@ -111,12 +113,12 @@ const Sidebar: React.FC = () => {
         <Link
           href="/"
           className={cn("flex items-center gap-2.5 px-4 py-4 border-b border-slate-200 dark:border-blue-500/10 hover:opacity-85 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-cyan-400 rounded-lg", isCollapsed && "justify-center px-2")}
-          title="Trang chủ BDC Hub"
+          title={tenant?.name || "Trang chủ BDC Hub"}
         >
-          <SafeImage src={LogoIcon} alt="BDC" width={40} height={40} priority className="flex-shrink-0 w-10 h-10 object-contain" />
+          <BrandMark />
           {!isCollapsed && (
             <div>
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-50 leading-tight">Big Data Club</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-50 leading-tight">{tenant?.name || "Big Data Club"}</p>
             </div>
           )}
         </Link>

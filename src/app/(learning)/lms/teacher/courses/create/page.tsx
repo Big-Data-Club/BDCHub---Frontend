@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "@/lib/tenant/navigation";
 import lmsService from "@/services/lms/lmsService";
 import { organizationService } from "@/services/admin/organizationService";
 import FileUpload from "@/components/lms/teacher/upload/FileUpload";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { useForumPost } from "@/hooks/lms/student/useForumPost";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { ForumMarkdownEditor } from "./ForumMarkdownEditor";

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { CheckCircle2, ArrowRight, RotateCcw, ExternalLink } from "lucide-react";
 import { T, Lang } from "../types";
 import { Button } from "@/components/ui/button";

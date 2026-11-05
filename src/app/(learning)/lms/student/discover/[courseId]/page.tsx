@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "@/lib/tenant/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import {
   BookOpen, Users, GraduationCap, ChevronDown, ChevronUp,
   CheckCircle2, Clock, Play, Award, Globe, Lock,

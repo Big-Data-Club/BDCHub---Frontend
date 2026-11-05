@@ -64,7 +64,9 @@ export const organizationService = {
   },
 
   create: async (data: CreateOrgPayload): Promise<Organization> => {
-    return apiClient.post<Organization>("/api/organizations", data);
+    // Auth CreateOrgRequest uses camelCase; UpdateOrgRequest uses logo_url.
+    const { logo_url, ...payload } = data;
+    return apiClient.post<Organization>("/api/organizations", { ...payload, logoUrl: logo_url });
   },
 
   getById: async (id: number): Promise<Organization> => {

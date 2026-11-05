@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "@/lib/tenant/navigation";
 import { useSession } from "next-auth/react";
 import { LmsHeader } from "@/components/layout/LmsHeader";
 import lmsService from "@/services/lms/lmsService";

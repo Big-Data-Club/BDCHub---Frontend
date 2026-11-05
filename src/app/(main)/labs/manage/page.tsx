@@ -18,8 +18,8 @@ import { useAuth } from "@/hooks/auth/useAuth";
 import { labService, ListResponse } from "@/services/labs/labService";
 import type { Lab } from "@/types";
 import toast from "react-hot-toast";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/lib/tenant/Link";
+import { useRouter } from "@/lib/tenant/navigation";
 
 export default function LabManagePage() {
   const { user, isAdmin } = useAuth();

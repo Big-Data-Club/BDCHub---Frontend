@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { useCourseDiscover } from "@/hooks/lms/student/useCourseDiscover";
 import { DiscoverHeader } from "@/components/lms/student/discover/DiscoverHeader";
 import { DiscoverCourseGrid } from "@/components/lms/student/discover/DiscoverCourseGrid";

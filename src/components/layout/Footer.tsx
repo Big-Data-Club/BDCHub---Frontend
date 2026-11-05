@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { FaFacebook, FaGithub, FaGlobe } from "react-icons/fa";
-import bdc from "@/assets/bdclogo.png";
-import SafeImage from "../common/SafeImage";
+import { BrandMark } from "./BrandMark";
+import { useTenant } from "@/lib/tenant/context";
 
 const SOCIALS = [
   { Icon: FaFacebook, href: "https://facebook.com/BDCofHCMUT", label: "Facebook" },
@@ -12,6 +12,7 @@ const SOCIALS = [
 ];
 
 const Footer: React.FC = () => {
+  const tenant = useTenant();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -26,14 +27,14 @@ const Footer: React.FC = () => {
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2.5 group">
               <div className="relative w-8 h-8 rounded-xl overflow-hidden border border-slate-200 dark:border-blue-500/20 shadow-sm group-hover:scale-105 transition-transform duration-200">
-                <SafeImage src={bdc} alt="Big Data Club" fill sizes="32px" className="object-cover" />
+                <BrandMark size={32} />
               </div>
               <div>
                 <span className="text-sm font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors block leading-tight">
-                  Big Data Club
+                  {tenant?.name || "Big Data Club"}
                 </span>
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold block">
-                  HCMUT • Computer Science & Engineering
+                  {tenant ? "Nền tảng BDC Hub" : "HCMUT • Computer Science & Engineering"}
                 </span>
               </div>
             </Link>
@@ -41,13 +42,13 @@ const Footer: React.FC = () => {
 
           {/* Center Copyright & Affiliation Text */}
           <div className="text-center text-xs text-slate-600 dark:text-slate-400 font-medium space-y-1">
-            <p>© 2021–{currentYear} Big Data Club HCMUT. Under guidance of HPC Lab.</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500">Think Big • Speak Data</p>
+            <p>{tenant ? `© ${currentYear} ${tenant.name}` : `© 2021–${currentYear} Big Data Club HCMUT. Under guidance of HPC Lab.`}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{tenant ? "Nền tảng BDC Hub" : "Think Big • Speak Data"}</p>
           </div>
 
           {/* Right Social & Web Links */}
           <div className="flex items-center gap-4">
-            {SOCIALS.map(({ Icon, href, label }) => (
+            {!tenant && SOCIALS.map(({ Icon, href, label }) => (
               <a
                 key={label}
                 href={href}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { memo } from "react";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { Lang } from "../types";
 import { T_DATA } from "../translations";
 import {

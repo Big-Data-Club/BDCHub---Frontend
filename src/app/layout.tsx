@@ -4,6 +4,9 @@ import { Nunito_Sans, Roboto_Mono, Comfortaa } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/MainProvider";
 import ScrollToTop from "@/components/common/ScrollToTop";
+import { headers } from "next/headers";
+import { getTenantLanding } from "@/features/tenant-landing/registry";
+import { TenantProvider } from "@/lib/tenant/context";
 
 const comfortaa = Comfortaa({
   subsets: ["vietnamese"],
@@ -70,16 +73,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const slug = (await headers()).get("x-bdc-tenant");
+  const tenant = slug ? await getTenantLanding(slug) : undefined;
+  const brand = tenant ? { slug: tenant.slug, name: tenant.name, logo: tenant.logo } : null;
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${comfortaa.variable} ${nunitoSans.variable} ${geistMono.variable} antialiased overflow-x-hidden no-scrollbar lms-fonts`}>
-        <Providers>
-          {children}
-          <ScrollToTop />
-        </Providers>
+        <TenantProvider initialTenant={brand}>
+          <Providers>
+            {children}
+            <ScrollToTop />
+          </Providers>
+        </TenantProvider>
       </body>
     </html>
   );

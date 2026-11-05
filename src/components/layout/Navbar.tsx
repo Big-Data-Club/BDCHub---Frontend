@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { useSession } from "next-auth/react";
 import { logout } from "@/services/auth/logout";
 import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu, X, ChevronDown, CalendarDays, ExternalLink, Facebook, Mail, Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {

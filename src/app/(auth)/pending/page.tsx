@@ -1,6 +1,6 @@
 import React from "react";
 import { Logo } from "@/components/layout/Logo";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 
 export default function PendingApprovalPage() {
   return (

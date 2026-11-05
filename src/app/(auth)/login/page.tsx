@@ -2,13 +2,15 @@ import React from "react";
 import LoginForm from "@/components/auth/LoginForm";
 import { Logo } from "@/components/layout/Logo";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { getTenantLanding } from "@/features/tenant-landing/registry";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ tenant?: string | string[] }> }) {
-  const { tenant: slug } = await searchParams;
+  const query = await searchParams;
+  const slug = (await headers()).get("x-bdc-tenant") || query.tenant;
   const tenant = typeof slug === "string" ? await getTenantLanding(slug) : undefined;
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
   return (

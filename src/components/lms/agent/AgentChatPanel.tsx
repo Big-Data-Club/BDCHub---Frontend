@@ -7,7 +7,7 @@
  * Works as a self-contained component that can be embedded in any page.
  */
 import { useRef, useEffect, useCallback, useState } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "@/lib/tenant/navigation";
 import { MessageSquare, Sidebar, Cpu, ArrowDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";

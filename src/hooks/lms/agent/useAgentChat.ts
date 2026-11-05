@@ -8,7 +8,7 @@
  * clarifications, and dynamic UI widgets.
  */
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/tenant/navigation";
 import { agentService } from "@/services/ai/agentService";
 import type {
   AgentMessage,

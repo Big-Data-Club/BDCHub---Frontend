@@ -1,21 +1,23 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "@/lib/tenant/Link";
+import { usePathname, useRouter } from "@/lib/tenant/navigation";
 import { Menu, LogOut, Sun, Moon, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { UserAvatar } from "@/components/user/UserAvatar";
-import { sidebarSections, LogoIcon } from "@/constants";
+import { sidebarSections } from "@/constants";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useUser } from "@/store/UserContext";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useTheme } from "next-themes";
-import SafeImage from "../common/SafeImage";
+import { BrandMark } from "./BrandMark";
+import { useTenant } from "@/lib/tenant/context";
 import lmsService from "@/services/lms/lmsService";
 import { logout } from "@/services/auth/logout";
 
 const MobileNav = () => {
+  const tenant = useTenant();
   const pathname = usePathname();
   const { user, setUser } = useUser();
   const { isAdmin } = useAuth();
@@ -59,12 +61,12 @@ const MobileNav = () => {
             href="/"
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-2.5 px-4 py-5 border-b border-slate-200 dark:border-slate-800 hover:opacity-85 transition-opacity"
-            title="Trang chủ BDC Hub"
+            title={tenant?.name || "Trang chủ BDC Hub"}
           >
-            <SafeImage src={LogoIcon} alt="BDC" width={28} height={28} priority />
+            <BrandMark size={28} />
             <div>
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-50">Think Big</p>
-              <p className="text-xs text-blue-600 font-semibold tracking-wide">Speak Data</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-50">{tenant?.name || "Think Big"}</p>
+              <p className="text-xs text-blue-600 font-semibold tracking-wide">{tenant ? "Cổng học tập" : "Speak Data"}</p>
             </div>
           </Link>
 
@@ -192,7 +194,7 @@ const MobileNav = () => {
       {/* Center logo */}
       <div className="flex-1 flex justify-center">
         <Link href="/" className="flex items-center gap-2">
-          <SafeImage src={LogoIcon} alt="BDC" width={28} height={28} priority />
+          <BrandMark size={28} />
         </Link>
       </div>
 

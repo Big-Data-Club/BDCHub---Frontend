@@ -19,8 +19,8 @@ import { useLabs } from "@/hooks/labs/useLabs";
 import { useAuth } from "@/hooks/auth/useAuth";
 import type { LabType, LabLevel } from "@/types";
 import toast from "react-hot-toast";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/lib/tenant/Link";
+import { useRouter } from "@/lib/tenant/navigation";
 import { Plus } from "lucide-react";
 
 export default function LabsPage() {

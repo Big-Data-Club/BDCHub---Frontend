@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "@/lib/tenant/navigation";
 import { HelpCircle, CheckCircle2, AlertCircle, Lock, BookOpen, Award, Target, BarChart2 } from "lucide-react";
 import dynamic from "next/dynamic";
 

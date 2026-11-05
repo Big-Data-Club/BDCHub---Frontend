@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/tenant/navigation";
 import { useSession } from "next-auth/react";
 import { Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";

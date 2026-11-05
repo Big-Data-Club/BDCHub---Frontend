@@ -12,8 +12,8 @@
  */
 
 import { useEffect, useState, Suspense } from "react";
-import { useParams, usePathname } from "next/navigation";
-import Link from "next/link";
+import { useParams, usePathname } from "@/lib/tenant/navigation";
+import Link from "@/lib/tenant/Link";
 import {
   Menu, X, BarChart3, ChevronLeft, ChevronRight
 } from "lucide-react";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { Check, ClipboardCheck, Layers, Loader2, X } from "lucide-react";
 import analyticsService from "@/services/lms/analyticsService";
 import { useContentStudy } from "@/hooks/lms/student/useContentStudy";

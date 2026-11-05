@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { lmsService } from "@/services/lms/lmsService";
 import {
   consumeRecommendationAttribution,

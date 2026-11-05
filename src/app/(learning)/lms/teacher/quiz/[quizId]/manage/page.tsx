@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "@/lib/tenant/navigation";
 import quizService from "@/services/lms/quizService";
 import { BreadcrumbNav } from "@/components/lms/shared/BreadcrumbNav";
 import { QuizSettingsModal } from "@/components/lms/teacher/modals/QuizSettingsModal";

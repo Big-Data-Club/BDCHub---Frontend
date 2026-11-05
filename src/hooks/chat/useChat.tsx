@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "@/lib/tenant/navigation";
 import type { ChatChannel, ChatMessage, WSEvent, WSMessagePayload, WSEditPayload, WSDeletePayload } from "@/types/chat/chat";
 import type { ChatConnectionState, ChatPreferences } from "@/types/chat/preferences";
 import { listChannels, listMessages, sendMessageRest, sendAttachments as uploadAttachments,

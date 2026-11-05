@@ -7,7 +7,7 @@
  * Click vào quiz → điều hướng đến trang làm bài.
  */
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import {
   HelpCircle, CheckCircle2, XCircle, Clock, AlertCircle,
   ChevronRight, Play, RotateCcw, Minus

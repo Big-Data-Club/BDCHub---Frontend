@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "@/lib/tenant/navigation";
 import { EyeIcon, EyeOffIcon, Spinner } from "@/components/icons/Icons";
 import { validatePassword } from "@/utils/common/utils";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import Mascot from "./Mascot";
 import { GoogleLoginButton } from "./GoogleLoginButton";
-import { safeLmsReturnPath } from "@/lib/lms-navigation";
+import { safeTenantReturnPath } from "@/lib/tenant/paths";
+import { useTenant } from "@/lib/tenant/context";
 
 interface LoginFormProps {
   googleClientId?: string;
@@ -17,7 +18,8 @@ interface LoginFormProps {
 export default function LoginForm({ googleClientId, organizationName }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = safeLmsReturnPath(searchParams.get("callbackUrl"));
+  const tenant = useTenant();
+  const callbackUrl = safeTenantReturnPath(searchParams.get("callbackUrl"), tenant?.slug);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

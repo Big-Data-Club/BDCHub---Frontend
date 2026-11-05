@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "@/lib/tenant/navigation";
 import { ArrowLeft, Play, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuizHistory } from "@/hooks/lms/student/useQuizHistory";

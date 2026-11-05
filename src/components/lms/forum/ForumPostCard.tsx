@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { ForumPost } from "@/services/lms/forumService";
 import forumService from "@/services/lms/forumService";
 import {

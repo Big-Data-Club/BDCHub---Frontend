@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { Spinner } from "@/components/icons/Icons";
 import { fetchPublicTeams, fetchPublicTypes } from "@/lib/admin/teamsTypesApi";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { motion } from "framer-motion";
 import { 
   ShieldCheck, 

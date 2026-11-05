@@ -2,6 +2,7 @@
 
 import { signOut } from "next-auth/react";
 import { clearAccessTokenCache } from "./authToken";
+import { parseTenantPath, tenantPath } from "@/lib/tenant/paths";
 
 let isLoggingOut = false;
 
@@ -33,7 +34,7 @@ export async function logout() {
     console.error("SignOut error:", e);
   } finally {
     if (typeof window !== "undefined" && window.location.pathname !== "/login") {
-      window.location.replace("/login");
+      window.location.replace(tenantPath("/login", parseTenantPath(window.location.pathname)?.slug));
     } else {
       isLoggingOut = false;
     }

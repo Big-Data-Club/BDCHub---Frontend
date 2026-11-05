@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 /** Chat keeps a compact launch card; the full editable wizard lives on its own route. */

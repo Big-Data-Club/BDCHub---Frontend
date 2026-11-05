@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import Link from "@/lib/tenant/Link";
+import { useParams, useRouter } from "@/lib/tenant/navigation";
 import { userProfileHubService, PublicUserProfile, ProfileSection, ProfileItem } from "@/services/admin/userProfileHubService";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { resolveMediaUrl } from "@/lib/media-url";

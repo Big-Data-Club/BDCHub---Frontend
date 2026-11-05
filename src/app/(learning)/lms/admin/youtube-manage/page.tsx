@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { Button } from "@/components/ui/button";
 import { Youtube, CheckCircle, XCircle, RefreshCw, Trash2, AlertCircle } from "lucide-react";
 

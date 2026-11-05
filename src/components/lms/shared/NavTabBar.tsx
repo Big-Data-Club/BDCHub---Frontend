@@ -1,8 +1,8 @@
 "use client";
 
 import React, { memo } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from "@/lib/tenant/Link";
+import { usePathname } from "@/lib/tenant/navigation";
 import { cn } from "@/lib/utils";
 import {
   lmsTabsListVariants,

@@ -11,7 +11,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { RefreshCw, Search } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { analyticsService, CourseStudentProgress } from "@/services/lms/analyticsService";
 import { StudentProgressTable } from "@/components/lms/teacher/students/StudentProgressTable";
 import { TabBar, SearchBar }   from "@/components/lms/shared";

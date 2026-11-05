@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { usePathname } from "@/lib/tenant/navigation";
+import Link from "@/lib/tenant/Link";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { NotificationPopover } from "@/components/lms/notifications/NotificationPopover";
 import { SecondaryBtn } from "@/components/lms/shared/Button";

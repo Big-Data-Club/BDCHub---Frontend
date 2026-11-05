@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "@/lib/tenant/navigation";
 import { useQuizTaking } from "@/hooks/lms/student/useQuizTaking";
 import { QuizHeader } from "@/components/lms/student/quiz/QuizHeader";
 import { QuizQuestionCard } from "@/components/lms/student/quiz/QuizQuestionCard";

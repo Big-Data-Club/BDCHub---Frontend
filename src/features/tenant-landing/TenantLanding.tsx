@@ -1,11 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import type { TenantLandingConfig } from "./registry";
 
 const actionClass = "inline-flex items-center justify-center rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500 active:scale-95 transition-all duration-200";
 
 export function TenantLanding({ tenant }: { tenant: TenantLandingConfig }) {
-  const loginHref = `/login?tenant=${encodeURIComponent(tenant.slug)}&callbackUrl=%2Flms`;
+  const loginHref = `/${tenant.slug}/login?callbackUrl=${encodeURIComponent(`/${tenant.slug}/lms`)}`;
   return (
     <div lang="vi" className="min-h-screen bg-slate-50 text-slate-900 dark:bg-lms-bg dark:text-slate-100">
       <a href="#noi-dung" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-4 focus:text-blue-700">

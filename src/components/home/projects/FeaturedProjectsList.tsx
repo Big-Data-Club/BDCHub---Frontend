@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { Briefcase, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import clubData from "@/data/clubData.json";
