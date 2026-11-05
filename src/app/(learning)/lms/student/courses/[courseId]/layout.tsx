@@ -25,6 +25,8 @@ import { StudentCourseProviders } from "@/components/lms/student/StudentCoursePr
 import { CourseLearningSidebar } from "@/components/lms/student/CourseLearningSidebar";
 import { CourseDetailProgressCard } from "@/components/lms/student/CourseDetailProgressCard";
 import { cn } from "@/lib/utils";
+import { CourseNotebookProvider, useCourseNotebook } from "@/features/notebook/CourseNotebookContext";
+import { CourseNotebookSidebar } from "@/features/notebook/components/CourseNotebookSidebar";
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
@@ -38,6 +40,7 @@ const TABS = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNode }) {
+  const notebook = useCourseNotebook();
   const { courseId } = useParams<{ courseId: string }>();
   const pathname = usePathname();
   const id = Number(courseId);
@@ -116,6 +119,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
               basePath={basePath}
               className="hidden sm:flex"
             />
+            <button type="button" aria-expanded={notebook?.open || false} onClick={() => notebook?.setOpen(!notebook.open)} className="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2 text-xs font-bold text-blue-700 transition-all duration-200 active:scale-95 dark:border-cyan-500/20 dark:bg-cyan-500/10 dark:text-cyan-300">Ghi chú</button>
             <button
               className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-blue-500/20 bg-white dark:bg-[#0F1E35] text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs cursor-pointer"
               onClick={() => setSidebarOpen(true)}
@@ -201,16 +205,18 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
             {children}
           </div>
         </main>
+        <CourseNotebookSidebar />
       </div>
     </div>
   );
 }
 
 export default function StudentCourseDetailLayout({ children }: { children: React.ReactNode }) {
+  const { courseId } = useParams<{ courseId: string }>();
   return (
     <Suspense fallback={<PageLoader message="Đang tải khóa học..." />}>
       <StudentCourseProviders>
-        <StudentCourseDetailLayoutInner>{children}</StudentCourseDetailLayoutInner>
+        <CourseNotebookProvider key={courseId} courseId={Number(courseId)}><StudentCourseDetailLayoutInner>{children}</StudentCourseDetailLayoutInner></CourseNotebookProvider>
       </StudentCourseProviders>
     </Suspense>
   );

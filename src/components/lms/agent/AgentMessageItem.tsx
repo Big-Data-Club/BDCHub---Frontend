@@ -11,6 +11,7 @@ import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { ActionApprovalCard } from "./ActionApprovalCard";
 import { AgentDecisionDetails } from "./AgentDecisionDetails";
 import { saveNotebookEntry, notifyNotebookChanged, sendFeedback } from "@/services/ai/agentService";
+import { usePageContext } from "@/hooks/common/usePageContext";
 
 interface AgentMessageItemProps {
   message: AgentMessage;
@@ -34,6 +35,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
   sessionId,
 }: AgentMessageItemProps) {
   const isUser = message.role === "user";
+  const pageContext = usePageContext();
   const [showThinking, setShowThinking] = useState(false);
   const [showTrace, setShowTrace] = useState(false);
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
@@ -100,7 +102,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
       await saveNotebookEntry({
         title: plainTitle.slice(0, 100),
         content: message.content,
-        courseId: message.context?.course_id ?? undefined,
+        courseId: message.context?.course_id ?? pageContext?.courseId ?? undefined,
       });
       setNoteSaved(true);
       notifyNotebookChanged();

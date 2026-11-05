@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { ContentItem } from "./utils";
 import { useSetPageContext } from "@/hooks/common/usePageContext";
+import { AnnotatedLesson } from "@/features/notebook/components/AnnotatedLesson";
 
 const MarkdownRenderer = dynamic(
   () => import("@/components/markdown/MarkdownRenderer"),
@@ -18,6 +19,7 @@ interface TextRendererProps {
 
 export function TextRenderer({
   content,
+  userRole,
 }: TextRendererProps) {
   const { patchPageContext } = useSetPageContext();
 
@@ -30,5 +32,6 @@ export function TextRenderer({
     }
   }, [markdownBody, patchPageContext]);
 
-  return <MarkdownRenderer content={markdownBody} />;
+  const body = <MarkdownRenderer content={markdownBody} />;
+  return userRole === "STUDENT" ? <AnnotatedLesson key={content.id} contentId={content.id} title={content.title}>{body}</AnnotatedLesson> : body;
 }
