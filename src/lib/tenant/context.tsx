@@ -12,14 +12,14 @@ export function TenantProvider({ initialTenant, children }: { initialTenant: Ten
   const slug = parseTenantPath(pathname)?.slug;
   const [tenant, setTenant] = useState(initialTenant);
   useEffect(() => {
-    if (!slug || tenant?.slug === slug) return;
+    if (!slug) return;
     const controller = new AbortController();
     fetch(`/api/tenant/${encodeURIComponent(slug)}`, { signal: controller.signal })
       .then(response => response.ok ? response.json() : null)
       .then(setTenant)
       .catch(() => undefined);
     return () => controller.abort();
-  }, [slug, tenant?.slug]);
+  }, [slug, pathname]);
   // Never carry branding into another tenant or the default application.
   return <TenantContext.Provider value={slug && tenant?.slug === slug ? tenant : null}>{children}</TenantContext.Provider>;
 }

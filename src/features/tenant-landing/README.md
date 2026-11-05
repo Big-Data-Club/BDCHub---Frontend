@@ -52,5 +52,11 @@ Auth's creation DTO accepts `logoUrl` while its update DTO accepts `logo_url`.
 The frontend create adapter maps the field accordingly. If an older create
 request silently omitted the logo, edit that organization and save its logo URL.
 
+Organization create/edit forms support PNG/JPEG/WebP logo files up to 2 MB,
+with preview and removal. Files upload only on Save through the existing
+authenticated LMS `/files/upload` image flow; its returned `/files/...` URL is
+stored in Auth's `logo_url`. No frontend-local storage or backend changes are
+needed. Tenant context refreshes on navigation to pick up updated branding.
+
 Checks: `node --test tests/tenant-routing.test.cjs`, `pnpm exec tsc --noEmit`,
 `pnpm run build`.

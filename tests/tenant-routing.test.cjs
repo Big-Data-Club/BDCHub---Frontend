@@ -14,6 +14,32 @@ function load(relative, resolve = require) {
 }
 const paths = load("src/lib/tenant/paths.ts");
 
+test("logo uploads use image storage and reject invalid files before uploading", async () => {
+  let requests = 0;
+  let fileUrl = "/files/logo.png";
+  const { organizationService } = load("src/services/admin/organizationService.ts", id => {
+    if (id === "../lms/lmsApiClient") return { lmsApiClient: { post: async (url, form) => {
+      requests++;
+      assert.equal(url, "/files/upload");
+      assert.equal(form.get("type"), "image");
+      assert.equal(form.get("file").name, "logo.png");
+      return { data: { data: { file_url: fileUrl } } };
+    } } };
+    if (id === "../common/api") return { apiClient: {} };
+    return require(id);
+  });
+  const file = new File([new Uint8Array([1])], "logo.png", { type: "image/png" });
+  assert.equal(await organizationService.uploadLogo(file), "/files/logo.png");
+  for (const invalid of [
+    new File(["<svg/>"], "x.svg", { type: "image/svg+xml" }),
+    new File([], "empty.png", { type: "image/png" }),
+    new File([new Uint8Array(2 * 1024 * 1024 + 1)], "big.png", { type: "image/png" }),
+  ]) await assert.rejects(organizationService.uploadLogo(invalid));
+  assert.equal(requests, 1);
+  fileUrl = "https://unexpected.test/logo.png";
+  await assert.rejects(organizationService.uploadLogo(file), /đường dẫn/);
+});
+
 test("organization creation sends the logo field expected by Auth", async () => {
   let sent;
   const { organizationService } = load("src/services/admin/organizationService.ts", id => {
