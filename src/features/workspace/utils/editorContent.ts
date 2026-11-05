@@ -54,6 +54,28 @@ export function mathExportProjection<T>(blocks: T[]) {
         content: [token(contentText(item.content), true)],
         children: project(item.children),
       };
+    if (item.type === "webLink") {
+      const props = item.props as { url: string };
+      let url = "";
+      try {
+        const parsed = new URL(props.url);
+        if (["https:", "http:"].includes(parsed.protocol)) url = parsed.href;
+      } catch {}
+      return {
+        type: "paragraph",
+        props: {},
+        content: url
+          ? [
+              {
+                type: "link",
+                href: url,
+                content: [{ type: "text", text: url, styles: {} }],
+              },
+            ]
+          : [],
+        children: project(item.children),
+      };
+    }
     if (item.type === "pageLink") {
       const props = item.props as { pageId: string; title: string };
       return {

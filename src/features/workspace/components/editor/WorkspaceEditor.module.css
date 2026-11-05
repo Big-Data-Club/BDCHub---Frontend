@@ -29,3 +29,28 @@
     font-size: 16px;
   }
 }
+
+.editor :global(.bn-side-menu) {
+  gap: 2px;
+}
+.editor :global(.bn-side-menu .bn-button) {
+  width: 27px;
+  height: 29px;
+  border-radius: 6px;
+  color: #94a3b8;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.editor :global(.bn-side-menu .bn-button:hover) {
+  background: #e9edf4;
+  color: #334155;
+}
+.editor :global(.bn-side-menu .bn-button svg) {
+  width: 20px;
+  height: 20px;
+}
+:global(.dark) .editor :global(.bn-side-menu .bn-button:hover) {
+  background: #26354b;
+  color: #e2e8f0;
+}

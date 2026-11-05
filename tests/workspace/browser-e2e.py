@@ -12,8 +12,10 @@ with sync_playwright() as p:
     browser=p.chromium.launch(headless=True,executable_path=executable)
     contexts=[]; errors=[]
     def actor(index, viewport=None):
-        context=browser.new_context(viewport=viewport or {'width':1440,'height':1000})
-        context.add_cookies([{'name':'bdc.session-token.v2','value':actors[index]['cookie'],'domain':'localhost','path':'/','httpOnly':True,'sameSite':'Lax'}])
+        production=os.environ.get('WORKSPACE_TEST_PRODUCTION')=='1'
+        cookie_name='__Secure-bdc.session-token.v2' if production else 'bdc.session-token.v2'
+        context=browser.new_context(viewport=viewport or {'width':1440,'height':1000},extra_http_headers={'Cookie':cookie_name+'='+actors[index]['cookie']} if production else {})
+        context.add_cookies([{'name':cookie_name,'value':actors[index]['cookie'],'domain':'localhost','path':'/','httpOnly':True,'sameSite':'Lax','secure':production}])
         contexts.append(context)
         # The global BDC shell also calls unrelated services; isolate those only.
         context.route('**/api/ai/agents/notifications',lambda route:route.fulfill(json={'notifications':[],'unread_count':0}))
@@ -108,7 +110,7 @@ with sync_playwright() as p:
     a.screenshot(path=str(artifacts/'workspace-calendar.png'),full_page=True)
     # Mobile layout and guide navigation do not overflow the viewport.
     mobile,m=actor(0,{'width':390,'height':844})
-    m.goto(base+'/workspace',wait_until='networkidle',timeout=90000)
+    m.goto(base+'/workspace?page='+page['id'],wait_until='networkidle',timeout=90000)
     expect(m.get_by_role('button',name='Mở cây trang')).to_be_visible()
     m.get_by_role('button',name='Mở cây trang').click()
     m.get_by_role('button',name='Hướng dẫn editor & LaTeX',exact=True).click()

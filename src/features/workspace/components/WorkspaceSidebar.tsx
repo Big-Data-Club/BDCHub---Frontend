@@ -16,11 +16,13 @@ import {
   Star,
   Trash2,
   Users,
+  ArrowLeft,
 } from "lucide-react";
 import type {
   WorkspaceBootstrap,
   WorkspacePage,
   WorkspaceSpace,
+  WorkspaceField,
 } from "../types";
 import { useWorkspaceSearch } from "../hooks/useWorkspaceSearch";
 import { WorkspacePageMenu, type PageAction } from "./WorkspacePageMenu";
@@ -40,6 +42,9 @@ interface SidebarProps {
   onInbox: () => void;
   onPageAction: (action: PageAction, page: WorkspacePage) => void;
   onMove: (id: string, parentId: string | null) => void;
+  field: WorkspaceField | null;
+  onHome: () => void;
+  onField: (id: string) => void;
 }
 export function WorkspaceSidebar(props: SidebarProps) {
   const [query, setQuery] = useState(""),
@@ -192,6 +197,13 @@ export function WorkspaceSidebar(props: SidebarProps) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-slate-50/70 text-slate-700 dark:bg-lms-shell dark:text-slate-300">
       <div className="shrink-0 space-y-4 p-4">
+        <WorkspaceButton
+          onClick={props.onHome}
+          className="w-full justify-start text-xs text-slate-500"
+        >
+          <ArrowLeft className="size-4" />
+          Về các lĩnh vực
+        </WorkspaceButton>
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
             Workspace
@@ -205,22 +217,28 @@ export function WorkspaceSidebar(props: SidebarProps) {
           </WorkspaceButton>
         </div>
         <label className="grid gap-1 text-xs text-slate-500 dark:text-slate-400">
-          Không gian
+          Lĩnh vực
           <select
-            aria-label="Chọn không gian"
-            value={props.space?.id || ""}
+            aria-label="Chọn lĩnh vực"
+            value={props.field?.id || ""}
             onChange={(event) => {
               setQuery("");
-              props.onOpen(undefined, event.target.value);
+              props.onField(event.target.value);
             }}
             className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-sm font-medium text-slate-800 dark:border-lms-border dark:bg-lms-input dark:text-slate-100"
           >
-            {!props.space && <option value="">Trang được chia sẻ</option>}
-            {props.bootstrap.spaces.map((space) => (
-              <option key={space.id} value={space.id}>
-                {space.title}
+            {!props.field && (
+              <option value="">
+                {props.space ? "Trang chưa xếp lĩnh vực" : "Trang được chia sẻ"}
               </option>
-            ))}
+            )}
+            {props.bootstrap.fields
+              .filter((field) => field.space_id === props.space?.id)
+              .map((space) => (
+                <option key={space.id} value={space.id}>
+                  {space.title}
+                </option>
+              ))}
           </select>
         </label>
         <p className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
@@ -319,7 +337,7 @@ export function WorkspaceSidebar(props: SidebarProps) {
             </nav>
             <p className="mb-3 px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
               {filter === "all"
-                ? "Trang trong không gian"
+                ? "Trang trong lĩnh vực"
                 : filter === "shared"
                   ? "Chia sẻ trực tiếp"
                   : filter === "favorite"

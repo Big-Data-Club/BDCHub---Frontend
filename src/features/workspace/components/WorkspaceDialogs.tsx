@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { PageAppearanceFields } from "./PageAppearanceFields";
 import { workspaceService } from "../api/workspaceService";
 import type {
   WorkspaceBootstrap,
@@ -45,6 +46,7 @@ export function WorkspaceDialogs({
     [kind, setKind] = useState<"page" | "database">("page"),
     [template, setTemplate] = useState("blank"),
     [parent, setParent] = useState(""),
+    [fieldId, setFieldId] = useState(""),
     [icon, setIcon] = useState(""),
     [cover, setCover] = useState<WorkspacePage["cover"]>(""),
     [full, setFull] = useState(false);
@@ -67,6 +69,7 @@ export function WorkspaceDialogs({
     setKind("page");
     setTemplate("blank");
     setParent(value && "page" in value ? value.page.parent_id || "" : "");
+    setFieldId(value && "page" in value ? value.page.field_id || "" : "");
     setIcon(value && "page" in value ? value.page.icon : "");
     setCover(value && "page" in value ? value.page.cover : "");
     setFull(Boolean(value && "page" in value && value.page.full_width));
@@ -152,7 +155,7 @@ export function WorkspaceDialogs({
             ? { title: title.trim() }
             : value.type === "appearance"
               ? { icon, cover, full_width: full }
-              : { parent_id: parent || null }),
+              : { parent_id: parent || null, field_id: fieldId || null }),
         });
     }
   }
@@ -249,51 +252,41 @@ export function WorkspaceDialogs({
             </>
           )}
           {value.type === "appearance" && (
-            <>
-              <label className="grid gap-2 text-sm">
-                Icon / emoji
-                <input
-                  aria-label="Icon trang"
-                  maxLength={20}
-                  className={workspaceInputClass}
-                  value={icon}
-                  onChange={(event) => setIcon(event.target.value)}
-                />
-              </label>
-              <label className="grid gap-2 text-sm">
-                Màu cover
-                <select
-                  aria-label="Màu cover"
-                  className={workspaceInputClass}
-                  value={cover}
-                  onChange={(event) =>
-                    setCover(event.target.value as typeof cover)
-                  }
-                >
-                  {[
-                    ["", "Không cover"],
-                    ["blue", "Xanh dương"],
-                    ["violet", "Tím"],
-                    ["green", "Xanh lá"],
-                    ["amber", "Vàng"],
-                    ["rose", "Hồng"],
-                    ["slate", "Xám"],
-                  ].map(([id, name]) => (
-                    <option key={id} value={id}>
-                      {name}
+            <PageAppearanceFields
+              icon={icon}
+              cover={cover}
+              full={full}
+              onIcon={setIcon}
+              onCover={setCover}
+              onFull={setFull}
+            />
+          )}
+          {value.type === "move" && (
+            <label className="grid gap-2 text-sm">
+              Lĩnh vực
+              <select
+                aria-label="Lĩnh vực đích"
+                className={workspaceInputClass}
+                value={fieldId}
+                onChange={(event) => {
+                  setFieldId(event.target.value);
+                  setParent("");
+                }}
+              >
+                <option value="">Chưa xếp lĩnh vực</option>
+                {bootstrap.fields
+                  .filter(
+                    (field) =>
+                      field.space_id ===
+                      ("page" in value ? value.page.space_id : space?.id),
+                  )
+                  .map((field) => (
+                    <option key={field.id} value={field.id}>
+                      {field.title}
                     </option>
                   ))}
-                </select>
-              </label>
-              <label className="flex gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={full}
-                  onChange={(event) => setFull(event.target.checked)}
-                />
-                Mở rộng vùng nội dung
-              </label>
-            </>
+              </select>
+            </label>
           )}
           {value.type === "move" && (
             <label className="grid gap-2 text-sm">
@@ -307,7 +300,10 @@ export function WorkspaceDialogs({
                 <option value="">Cấp cao nhất</option>
                 {pages
                   .filter(
-                    (page) => page.kind === "page" && !forbidden.has(page.id),
+                    (page) =>
+                      page.kind === "page" &&
+                      !forbidden.has(page.id) &&
+                      page.field_id === (fieldId || null),
                   )
                   .map((page) => (
                     <option key={page.id} value={page.id}>

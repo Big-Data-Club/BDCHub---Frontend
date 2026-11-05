@@ -11,6 +11,7 @@ import {
   SideMenuController,
   SuggestionMenuController,
   useCreateBlockNote,
+  type DefaultReactSuggestionItem,
 } from "@blocknote/react";
 import { getMathSlashMenuItems } from "@blocknote/math-block";
 import { useTheme } from "next-themes";
@@ -19,7 +20,7 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/shadcn/style.css";
 import "katex/contrib/mhchem";
 import "katex/dist/katex.min.css";
-import { BookOpen, FilePlus2, ImagePlus } from "lucide-react";
+import { BookOpen, FilePlus2, ImagePlus, Link2 } from "lucide-react";
 import { workspaceService, WorkspaceError } from "../../api/workspaceService";
 import {
   decodeUpdate,
@@ -40,6 +41,7 @@ import {
   WorkspaceLoading,
 } from "../WorkspacePrimitives";
 import { downloadWorkspaceFile } from "../../utils/editorContent";
+import { EditorInsertMenu } from "./EditorInsertMenu";
 import { EditorBlockMenu } from "./EditorBlockMenu";
 import { WorkspaceEditorContext } from "./EditorContext";
 import { parseWorkspaceMarkdown, workspaceSchema } from "./schema";
@@ -214,6 +216,7 @@ function RichEditor({
 }) {
   const { resolvedTheme } = useTheme();
   const uploadInput = useRef<HTMLInputElement>(null);
+  const [linkedIds, setLinkedIds] = useState<string[]>([]);
   const editor = useCreateBlockNote(
     withCollaboration({
       schema: workspaceSchema,
@@ -238,6 +241,23 @@ function RichEditor({
   useEffect(() => {
     editor.isEditable = provider.editable;
   }, [editor, provider, status]);
+  const updateLinkedIds = useCallback(() => {
+    const ids: string[] = [];
+    const visit = (blocks: typeof editor.document) => {
+      for (const block of blocks) {
+        if (block.type === "pageLink") ids.push(block.props.pageId);
+        visit(block.children);
+      }
+    };
+    visit(editor.document);
+    setLinkedIds((previous) =>
+      previous.join() === ids.join() ? previous : ids,
+    );
+  }, [editor]);
+  useEffect(() => {
+    updateLinkedIds();
+    return editor.onChange(updateLinkedIds);
+  }, [editor, updateLinkedIds]);
   const { onCreateChild } = props;
   const currentPageId = props.page.id;
   const createChild = useCallback(async () => {
@@ -254,6 +274,66 @@ function RichEditor({
       );
     }
   }, [editor, onCreateChild, currentPageId, setError]);
+  const insertWebLink = () => {
+    editor.insertBlocks(
+      [{ type: "webLink", props: { url: "" } }],
+      editor.getTextCursorPosition().block,
+      "after",
+    );
+  };
+  const slashItems: DefaultReactSuggestionItem[] =
+    getDefaultReactSlashMenuItems(editor).map((item) => ({
+      ...item,
+      group: /image|video|audio|file/.test((item as { key?: string }).key || "")
+        ? "Media"
+        : /heading/.test((item as { key?: string }).key || "")
+          ? "Tiêu đề"
+          : "Nội dung cơ bản",
+    }));
+  slashItems.push({
+    title: "Liên kết web",
+    subtext: "Chèn thẻ liên kết đến một website",
+    aliases: ["url", "link", "bookmark"],
+    group: "Media",
+    icon: <Link2 />,
+    onItemClick: insertWebLink,
+  });
+  if (props.page.space_role)
+    slashItems.push({
+      title: "Trang con",
+      subtext: "Tạo một trang bên trong trang này",
+      aliases: ["page", "subpage", "trang"],
+      group: "Sổ ghi chép",
+      icon: <FilePlus2 />,
+      onItemClick: () => {
+        void createChild();
+      },
+    });
+  slashItems.push(
+    ...getMathSlashMenuItems(editor).map((item) => ({
+      ...item,
+      group: "Công thức",
+    })),
+    {
+      title: "Hướng dẫn LaTeX",
+      subtext: "Cách viết và thư viện công thức",
+      aliases: ["guide", "latex"],
+      group: "Công thức",
+      icon: <BookOpen />,
+      onItemClick: props.onGuide,
+    },
+  );
+  const groupOrder = [
+    "Media",
+    "Sổ ghi chép",
+    "Tiêu đề",
+    "Nội dung cơ bản",
+    "Công thức",
+  ];
+  slashItems.sort(
+    (a, b) =>
+      groupOrder.indexOf(a.group || "") - groupOrder.indexOf(b.group || ""),
+  );
   const context = {
     page: props.page,
     pages: props.pages,
@@ -286,6 +366,10 @@ function RichEditor({
             <WorkspaceButton onClick={() => uploadInput.current?.click()}>
               <ImagePlus className="size-4" />
               Ảnh / tệp
+            </WorkspaceButton>
+            <WorkspaceButton onClick={insertWebLink}>
+              <Link2 className="size-4" />
+              Liên kết web
             </WorkspaceButton>
             <WorkspaceButton onClick={props.onGuide}>
               <BookOpen className="size-4" />
@@ -350,37 +434,35 @@ function RichEditor({
           />
           <SuggestionMenuController
             triggerCharacter="/"
-            getItems={async (query) =>
-              filterSuggestionItems(
-                [
-                  ...getDefaultReactSlashMenuItems(editor),
-                  ...getMathSlashMenuItems(editor),
-                  ...(props.page.space_role
-                    ? [
-                        {
-                          title: "Trang con",
-                          aliases: ["page", "subpage", "trang"],
-                          group: "Workspace",
-                          icon: <FilePlus2 className="size-4" />,
-                          onItemClick: () => {
-                            void createChild();
-                          },
-                        },
-                      ]
-                    : []),
-                  {
-                    title: "Hướng dẫn LaTeX",
-                    aliases: ["guide", "latex", "cong thuc"],
-                    group: "Workspace",
-                    icon: <BookOpen className="size-4" />,
-                    onItemClick: props.onGuide,
-                  },
-                ],
-                query,
-              )
-            }
+            suggestionMenuComponent={EditorInsertMenu}
+            getItems={async (query) => filterSuggestionItems(slashItems, query)}
           />
         </BlockNoteView>
+        <div className="mx-6 -mt-16 mb-16 space-y-1 sm:mx-12">
+          {props.pages
+            .filter(
+              (child) =>
+                child.parent_id === props.page.id &&
+                child.kind !== "record" &&
+                !linkedIds.includes(child.id),
+            )
+            .map((child) => (
+              <a
+                key={child.id}
+                href={`/workspace?page=${child.id}`}
+                onClick={(event) => {
+                  if (!event.metaKey && !event.ctrlKey) {
+                    event.preventDefault();
+                    props.onOpen(child.id);
+                  }
+                }}
+                className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium underline decoration-slate-300 underline-offset-4 hover:bg-slate-50 dark:hover:bg-lms-hover"
+              >
+                <FilePlus2 className="size-4" />
+                {child.icon} {child.title}
+              </a>
+            ))}
+        </div>
       </div>
     </WorkspaceEditorContext.Provider>
   );

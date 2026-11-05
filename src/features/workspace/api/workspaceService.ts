@@ -1,4 +1,6 @@
 import type {
+  WorkspaceField,
+  FieldInput,
   DatabaseField,
   DatabaseView,
   DatabaseViewConfig,
@@ -59,6 +61,22 @@ export const workspaceService = {
       `/pages/${pageId}/tasks`,
     ),
   bootstrap: () => request<WorkspaceBootstrap>("/bootstrap"),
+  fields: (spaceId: string, archived = false) =>
+    request<WorkspaceField[]>(`/spaces/${spaceId}/fields?archived=${archived}`),
+  field: (id: string) => request<WorkspaceField>(`/fields/${id}`),
+  createField: (spaceId: string, input: FieldInput) =>
+    request<WorkspaceField>(`/spaces/${spaceId}/fields`, "POST", input),
+  updateField: (id: string, input: Partial<FieldInput> & { version: number }) =>
+    request<WorkspaceField>(`/fields/${id}`, "PATCH", input),
+  archiveField: (id: string) => request(`/fields/${id}/archive`, "POST", {}),
+  restoreField: (id: string) => request(`/fields/${id}/restore`, "POST", {}),
+  blockActivity: (pageId: string, blockId: string, signal?: AbortSignal) =>
+    request<{ author: string; updated_at: string } | null>(
+      `/pages/${pageId}/blocks/${encodeURIComponent(blockId)}/activity`,
+      "GET",
+      undefined,
+      signal,
+    ),
   notifications: () =>
     request<{ id: string; page_id: string; title: string; kind: string }[]>(
       "/notifications",
@@ -90,6 +108,7 @@ export const workspaceService = {
     input: {
       title: string;
       parent_id?: string | null;
+      field_id?: string | null;
       kind?: "page" | "database";
       template?: string;
       sources?: WorkspacePage["sources"];
@@ -105,6 +124,7 @@ export const workspaceService = {
         | "cover"
         | "full_width"
         | "parent_id"
+        | "field_id"
         | "sort_order"
         | "sources"
       >

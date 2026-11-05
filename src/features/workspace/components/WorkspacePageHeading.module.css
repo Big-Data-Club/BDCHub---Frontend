@@ -1,0 +1,114 @@
+.heading {
+  padding: 25px 42px 20px;
+}
+.cover {
+  position: relative;
+  margin: 5px 0 48px;
+  border-radius: 16px;
+}
+.coverArt {
+  overflow: hidden;
+  border-radius: 16px;
+}
+.coverArt > div {
+  min-height: 185px;
+}
+.coverArt svg {
+  position: absolute;
+  right: 35px;
+  width: 115px;
+  height: 115px;
+  opacity: 0.25;
+  transform: rotate(-10deg);
+}
+.badge {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  bottom: -22px;
+  left: 24px;
+  min-width: 70px;
+  height: 70px;
+  padding: 10px;
+  border: 1px solid #dde4f2;
+  border-radius: 17px;
+  color: #7d6ad5;
+  background: white;
+  font-size: 38px;
+  box-shadow: 0 3px 12px #18335304;
+}
+.badge:focus-visible {
+  outline: 2px solid #4078ff;
+  outline-offset: 3px;
+}
+:global(.dark) .badge {
+  background: #101e33;
+  border-color: #2c3c55;
+  color: #a9a0ed;
+}
+.withoutCover {
+  position: static;
+  min-width: 55px;
+  height: 55px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  justify-items: start;
+}
+.customize {
+  position: absolute;
+  right: 17px;
+  bottom: 15px;
+  background: white;
+  border: 1px solid #dce4f1;
+  color: #34445f;
+  font-size: 12px;
+}
+:global(.dark) .customize {
+  background: #12213a;
+  border-color: #32445f;
+  color: #c5d1e7;
+}
+.titleWithCover {
+  padding-top: 0;
+}
+.title {
+  padding-top: 10px;
+}
+.caption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 12px;
+  color: #8190a8;
+  margin-top: 17px;
+}
+@media (max-width: 640px) {
+  .heading {
+    padding: 20px 24px;
+  }
+  .coverArt > div {
+    min-height: 145px;
+  }
+  .coverArt svg {
+    width: 90px;
+    height: 90px;
+    right: 15px;
+  }
+  .badge {
+    left: 15px;
+    min-width: 58px;
+    height: 58px;
+    font-size: 30px;
+  }
+  .customize {
+    right: 10px;
+    bottom: 10px;
+    font-size: 10px;
+    padding: 5px 9px;
+  }
+  .cover {
+    margin-bottom: 44px;
+  }
+}

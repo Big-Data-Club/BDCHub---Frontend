@@ -13,6 +13,7 @@ import {
   Search,
   X,
 } from "lucide-react";
+import styles from "./WorkspaceGuide.module.css";
 import { formulaCategories, formulaExamples } from "../data/formulas";
 import type { FormulaInsert } from "../types";
 import {
@@ -94,7 +95,9 @@ export function WorkspaceGuide({
     onInsert({ source, mode });
   };
   return (
-    <div className="min-w-0 bg-white text-slate-800 dark:bg-lms-bg dark:text-slate-200">
+    <div
+      className={`${styles.guide} min-w-0 bg-white text-slate-800 dark:bg-lms-bg dark:text-slate-200`}
+    >
       <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-4 dark:border-lms-border dark:bg-lms-shell">
         {onClose ? (
           <WorkspaceButton onClick={onClose}>
@@ -107,7 +110,7 @@ export function WorkspaceGuide({
             className="flex items-center gap-2 text-sm text-blue-600 dark:text-cyan-400"
           >
             <ArrowLeft className="size-4" />
-            Về Workspace
+            Về các lĩnh vực
           </Link>
         )}
         <span className="flex items-center gap-2 text-sm">
@@ -120,13 +123,16 @@ export function WorkspaceGuide({
           </WorkspaceButton>
         )}
       </header>
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-10 lg:grid-cols-[180px_minmax(0,1fr)] lg:px-10">
+      <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-12 lg:grid-cols-[210px_minmax(0,1fr)] lg:gap-16 lg:px-16 lg:py-20">
         <nav
           aria-label="Mục lục hướng dẫn"
           className="flex flex-wrap gap-4 text-sm lg:sticky lg:top-24 lg:block lg:self-start lg:space-y-5"
         >
+          <p className="mb-8 w-full text-xs uppercase tracking-widest text-slate-400">
+            Sổ tay Workspace
+          </p>
           {[
-            ["start", "Bắt đầu"],
+            ["start", "Trang & trang con"],
             ["blocks", "Viết bằng khối"],
             ["latex", "Công thức LaTeX"],
             ["library", "Thư viện công thức"],
@@ -141,15 +147,15 @@ export function WorkspaceGuide({
             </a>
           ))}
         </nav>
-        <main className="min-w-0 space-y-12">
+        <main className="min-w-0 space-y-16">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-cyan-400">
               Viết · Sắp xếp · Cộng tác
             </p>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="mt-7 max-w-4xl text-4xl font-bold leading-[1.12] tracking-tight sm:text-5xl xl:text-6xl">
               Một nơi cho những ý tưởng rõ ràng.
             </h1>
-            <p className="mt-4 text-slate-500 dark:text-slate-400">
+            <p className="mt-7 max-w-3xl text-base leading-8 text-slate-500 dark:text-slate-400">
               Từ trang đầu tiên đến ghi chép có cấu trúc và công thức dễ đọc.
             </p>
           </div>
@@ -157,30 +163,53 @@ export function WorkspaceGuide({
             id="workspace-guide-start"
             className="scroll-mt-24 space-y-4"
           >
-            <h2 className="text-xl font-semibold">Bắt đầu với một trang</h2>
+            <p className={styles.number}>01 / KHÔNG GIAN</p>
+            <h2 className="text-2xl font-semibold">
+              Bắt đầu từ một lĩnh vực của bạn.
+            </h2>
+            <div className={styles.hierarchy}>
+              Không gian <span>→</span> Lĩnh vực <span>→</span> Trang{" "}
+              <span>→</span> Trang con
+            </div>
             <ol className="list-decimal space-y-3 pl-5 text-sm leading-7">
               <li>
-                Chọn không gian cá nhân hoặc nhóm. Dùng Trang mới để tạo trang
-                gốc, hoặc nút + của một trang để tạo trang con.
+                Chọn không gian cá nhân hoặc nhóm rồi tạo lĩnh vực theo nhu cầu.
+                Tự đặt tên, mô tả, biểu tượng, màu và nhãn. Workspace không tạo
+                sẵn các môn học.
               </li>
               <li>
-                Nhấp tiêu đề để đổi tên; menu trang có icon, cover, chiều rộng,
-                nhân bản và thùng rác.
+                Mở một lĩnh vực. Trang mới tạo trang ở cấp gốc của lĩnh vực; nút
+                + bên cạnh một trang, Trang con trên thanh công cụ hoặc /page
+                tạo trang bên trong trang đó.
               </li>
               <li>
-                Mở lại trang trong cây, Gần đây hoặc Yêu thích. Tìm kiếm chỉ trả
+                Dùng Tùy chỉnh trang để đổi biểu tượng, ảnh bìa và độ rộng. Mở
+                lại trang trong cây, Gần đây hoặc Yêu thích. Tìm kiếm chỉ trả
                 nội dung bạn có quyền đọc.
               </li>
               <li>
                 Bảng quản lý có nhiều cách xem trên cùng dữ liệu. Mở một hàng
                 hoặc thẻ để viết thêm vào trang chi tiết.
               </li>
+              <li>
+                Dùng Di chuyển để chọn lĩnh vực và trang cha mới. Cả nhánh trang
+                con đi cùng. Trang cũ chưa xếp lĩnh vực vẫn nằm ở màn hình tổng
+                quan để bạn tự sắp xếp.
+              </li>
             </ol>
+            <p className="rounded-r-xl border-l-4 border-blue-500 bg-blue-50/50 p-5 text-sm leading-7 dark:bg-blue-500/10">
+              Liên kết trang và trang con có vai trò khác nhau: gỡ khối liên kết
+              chỉ gỡ khỏi nội dung; quản lý cây, chuyển trang hoặc đưa vào thùng
+              rác qua menu trang. Lưu trữ lĩnh vực sẽ cất cả các trang đang hoạt
+              động; khôi phục lĩnh vực không tự khôi phục những trang đã xóa
+              trước đó.
+            </p>
           </section>
           <section
             id="workspace-guide-blocks"
             className="scroll-mt-24 space-y-4"
           >
+            <p className={styles.number}>02 / KHỐI NỘI DUNG</p>
             <h2 className="text-xl font-semibold">Viết bằng các khối</h2>
             <p className="text-sm leading-7">
               Gõ / để tìm khối, dùng + để thêm và tay nắm sáu chấm để mở thao
@@ -217,6 +246,7 @@ export function WorkspaceGuide({
             id="workspace-guide-latex"
             className="scroll-mt-24 space-y-4"
           >
+            <p className={styles.number}>03 / LATEX</p>
             <h2 className="text-xl font-semibold">
               LaTeX trong dòng hoặc riêng khối
             </h2>
@@ -278,6 +308,7 @@ export function WorkspaceGuide({
             id="workspace-guide-library"
             className="scroll-mt-24 space-y-5"
           >
+            <p className={styles.number}>04 / THƯ VIỆN CÔNG THỨC</p>
             <h2 className="text-xl font-semibold">Thư viện công thức</h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               65 ví dụ có mã, kết quả và gợi ý sử dụng. Tìm theo tên hoặc lệnh
@@ -381,6 +412,7 @@ export function WorkspaceGuide({
             </div>
           </section>
           <section id="workspace-guide-sync" className="scroll-mt-24 space-y-4">
+            <p className={styles.number}>05 / ĐỒNG BỘ & CHIA SẺ</p>
             <h2 className="text-xl font-semibold">
               Lưu và chia sẻ có kiểm soát
             </h2>

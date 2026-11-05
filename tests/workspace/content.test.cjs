@@ -137,3 +137,32 @@ test("date filters compare calendar dates and never treat an empty value as zero
     ["b"],
   );
 });
+
+test("field breadcrumbs exclude other fields and stop at cycles", () => {
+  const { pageAncestors } = load("utils/pageHierarchy.ts");
+  const root = { id: "a", space_id: "s", field_id: "f", parent_id: null },
+    child = { id: "b", space_id: "s", field_id: "f", parent_id: "a" },
+    leaf = { id: "c", space_id: "s", field_id: "f", parent_id: "b" };
+  assert.deepEqual(
+    pageAncestors(leaf, [root, child, leaf]).map((p) => p.id),
+    ["a", "b"],
+  );
+  assert.deepEqual(
+    pageAncestors({ ...leaf, field_id: "g" }, [root, child]),
+    [],
+  );
+  assert.ok(
+    pageAncestors({ ...root, parent_id: "b" }, [
+      root,
+      { ...child, parent_id: "a" },
+    ]).length <= 2,
+  );
+});
+test("web cards export valid destinations and omit executable URL schemes", () => {
+  const value = mathExportProjection([
+    { type: "webLink", props: { url: "https://example.com/paper" } },
+    { type: "webLink", props: { url: "javascript:alert(1)" } },
+  ]);
+  assert.equal(value.blocks[0].content[0].href, "https://example.com/paper");
+  assert.deepEqual(value.blocks[1].content, []);
+});

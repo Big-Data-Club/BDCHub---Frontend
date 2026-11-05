@@ -16,6 +16,44 @@ export interface WorkspaceSpace {
   owner_id: string;
   role: WorkspaceRole;
 }
+export type FieldColor =
+  | "blue"
+  | "violet"
+  | "green"
+  | "amber"
+  | "rose"
+  | "slate";
+export type FieldIcon =
+  | "book"
+  | "folder"
+  | "sigma"
+  | "atom"
+  | "flask"
+  | "brain"
+  | "code"
+  | "sprout"
+  | "globe"
+  | "pen"
+  | "briefcase"
+  | "sparkles";
+export interface WorkspaceField {
+  id: string;
+  space_id: string;
+  title: string;
+  description: string;
+  icon: FieldIcon;
+  color: FieldColor;
+  tags: string[];
+  version: number;
+  page_count: number;
+  last_activity?: string;
+  archived_at: string | null;
+  page_id?: string;
+}
+export type FieldInput = Pick<
+  WorkspaceField,
+  "title" | "description" | "icon" | "color" | "tags"
+>;
 export interface WorkspaceSource {
   type: "course" | "lab" | "task" | "url" | "notebook" | "studio";
   id?: string;
@@ -25,6 +63,7 @@ export interface WorkspaceSource {
 export interface WorkspacePage {
   id: string;
   space_id: string;
+  field_id: string | null;
   parent_id: string | null;
   title: string;
   icon: string;
@@ -38,6 +77,7 @@ export interface WorkspacePage {
   archived_at: string | null;
   created_at: string;
   updated_at: string;
+  last_editor?: string;
   favorite?: boolean;
   opened_at?: string;
   access?: number;
@@ -67,6 +107,7 @@ export interface WorkspaceBootstrap {
   spaces: WorkspaceSpace[];
   shared_pages: Pick<WorkspacePage, "id" | "title" | "icon" | "space_id">[];
   invitations: WorkspaceInvite[];
+  fields: WorkspaceField[];
 }
 export interface FieldOption {
   id: string;

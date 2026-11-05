@@ -1,9 +1,11 @@
 "use client";
 import { WorkspaceHeader } from "./WorkspaceHeader";
-import { WorkspacePageTitle } from "./WorkspacePageTitle";
+import { WorkspacePageHeading } from "./WorkspacePageHeading";
+import { WorkspaceLanding } from "./fields/WorkspaceLanding";
+import { pageAncestors } from "../utils/pageHierarchy";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BookOpen, FileText, Menu, X } from "lucide-react";
+import { BookOpen, Menu, X } from "lucide-react";
 import { useWorkspace } from "../hooks/useWorkspace";
 import { workspaceService } from "../api/workspaceService";
 import type { InspectorTab } from "../hooks/useWorkspacePanel";
@@ -33,14 +35,6 @@ const Editor = dynamic(
     import("./editor/WorkspaceEditor").then((module) => module.WorkspaceEditor),
   { ssr: false, loading: () => <WorkspaceLoading label="Đang mở editor…" /> },
 );
-const coverColors = {
-  blue: "bg-blue-100 dark:bg-blue-900/30",
-  violet: "bg-violet-100 dark:bg-violet-900/30",
-  green: "bg-emerald-100 dark:bg-emerald-900/30",
-  amber: "bg-amber-100 dark:bg-amber-900/30",
-  rose: "bg-rose-100 dark:bg-rose-900/30",
-  slate: "bg-slate-200 dark:bg-slate-700",
-};
 
 export function WorkspaceClient() {
   const model = useWorkspace(),
@@ -152,6 +146,26 @@ export function WorkspaceClient() {
     },
     [],
   );
+  const createWithLink = async (
+    title: string,
+    kind: "page" | "database",
+    parentId?: string,
+    template?: string,
+  ) => {
+    if (parentId === pageId && pageSpaceId && editor.current) {
+      const child = await workspaceService.createPage(pageSpaceId, {
+        title,
+        kind,
+        parent_id: parentId,
+        template,
+      });
+      editor.current.insertPageLink(child);
+      await reload();
+      open(child.id);
+      return child;
+    }
+    return model.createPage(title, kind, parentId, template);
+  };
   async function action(type: PageAction, target: WorkspacePage) {
     try {
       if (["rename", "appearance", "move", "archive"].includes(type)) {
@@ -219,6 +233,38 @@ export function WorkspaceClient() {
     manager = Boolean(
       page && ["owner", "manager"].includes(page.space_role || ""),
     );
+  const dialogs = (
+    <WorkspaceDialogs
+      value={dialog}
+      onClose={() => setDialog(null)}
+      space={model.activeSpace}
+      pages={model.allPages}
+      bootstrap={bootstrap}
+      onRefresh={model.refresh}
+      onOpen={open}
+      onCreate={createWithLink}
+    />
+  );
+  if (model.isLanding)
+    return (
+      <>
+        <WorkspaceLanding
+          bootstrap={bootstrap}
+          space={model.activeSpace}
+          pages={model.allPages}
+          error={model.error}
+          onRefresh={reload}
+          onSpace={(id) => navigate(undefined, id)}
+          onField={(field) => navigate(field.page_id, field.space_id, field.id)}
+          onPage={(id) => open(id)}
+          onArrange={(target) => void action("move", target)}
+          onCreateSpace={() => setDialog({ type: "team" })}
+          onInbox={() => setDialog({ type: "inbox" })}
+          onNotes={() => setDialog({ type: "notes" })}
+        />
+        {dialogs}
+      </>
+    );
   return (
     <div className="relative flex h-full min-h-0 min-w-0 bg-white dark:bg-lms-bg">
       {mobile && (
@@ -237,6 +283,9 @@ export function WorkspaceClient() {
           space={model.activeSpace}
           pages={model.pages}
           activeId={page?.id}
+          field={model.field}
+          onHome={() => navigate(undefined, model.activeSpace?.id)}
+          onField={(id) => navigate(undefined, model.activeSpace?.id, id)}
           onOpen={open}
           onCreate={(parent) => setDialog({ type: "create", parent })}
           onCreateSpace={() => setDialog({ type: "team" })}
@@ -306,6 +355,20 @@ export function WorkspaceClient() {
             page={page}
             status={status}
             spaceName={model.activeSpace?.title}
+            fieldName={model.field?.title}
+            ancestors={pageAncestors(page, model.allPages)}
+            onFieldHome={
+              model.field
+                ? () =>
+                    navigate(undefined, model.activeSpace?.id, model.field!.id)
+                : undefined
+            }
+            onHome={() => navigate(undefined, model.activeSpace?.id)}
+            onCreateChild={
+              editable && page.kind === "page" && page.space_role
+                ? () => setDialog({ type: "create", parent: page.id })
+                : undefined
+            }
             parentTitle={
               model.pages.find((item) => item.id === page.parent_id)?.title
             }
@@ -327,49 +390,19 @@ export function WorkspaceClient() {
               <div
                 className={`mx-auto w-full ${page.full_width || page.kind === "database" ? "max-w-none" : "max-w-4xl"}`}
               >
-                {page.cover && (
-                  <div
-                    className={`mx-5 mt-6 h-32 rounded-2xl sm:mx-10 sm:h-40 ${coverColors[page.cover]}`}
-                  />
-                )}
-                <div className="px-5 pb-6 pt-10 sm:px-10">
-                  <button
-                    type="button"
-                    disabled={!editable}
-                    aria-label="Đổi icon và cover"
-                    className="mb-4 block text-4xl"
-                    onClick={() => setDialog({ type: "appearance", page })}
-                  >
-                    {page.icon || (
-                      <FileText className="size-9 text-slate-300 dark:text-slate-600" />
-                    )}
-                  </button>
-                  <WorkspacePageTitle
-                    key={page.id}
-                    page={page}
-                    editable={editable}
-                    onSave={async (title, version) => {
-                      await model.patch({ title, version });
-                    }}
-                  />
-                  <p className="mt-3 text-xs text-slate-400">
-                    {page.kind === "database"
-                      ? "Bảng quản lý"
-                      : page.kind === "record"
-                        ? "Trang chi tiết"
-                        : "Trang ghi chép"}{" "}
-                    ·{" "}
-                    {access >= 3
-                      ? "Có thể chỉnh sửa"
-                      : access === 2
-                        ? "Có thể bình luận"
-                        : "Chỉ xem"}
-                  </p>
-                </div>
+                <WorkspacePageHeading
+                  page={page}
+                  field={model.field}
+                  editable={editable}
+                  onCustomize={() => setDialog({ type: "appearance", page })}
+                  onSave={async (title, version) => {
+                    await model.patch({ title, version });
+                  }}
+                />
                 <Editor
                   key={`${page.id}:${page.generation}`}
                   page={page}
-                  pages={model.pages}
+                  pages={model.allPages}
                   user={bootstrap.user}
                   onRefresh={refresh}
                   onOpen={(id) => open(id)}
@@ -393,7 +426,7 @@ export function WorkspaceClient() {
                     <WorkspaceDatabase
                       key={page.id}
                       page={page}
-                      pages={model.pages}
+                      pages={model.allPages}
                       members={members}
                       userId={bootstrap.user.id}
                       onOpen={(id) => open(id)}
@@ -514,16 +547,7 @@ export function WorkspaceClient() {
           </div>
         </div>
       )}
-      <WorkspaceDialogs
-        value={dialog}
-        onClose={() => setDialog(null)}
-        space={model.activeSpace}
-        pages={model.pages}
-        bootstrap={bootstrap}
-        onRefresh={model.refresh}
-        onOpen={open}
-        onCreate={model.createPage}
-      />
+      {dialogs}
       <input
         ref={importInput}
         aria-label="Nhập nội dung Markdown"

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { SideMenuExtension } from "@blocknote/core/extensions";
 import {
   BlockColorsItem,
-  DragHandleMenu,
   RemoveBlockItem,
   blockTypeSelectItems,
   useBlockNoteEditor,
@@ -19,6 +18,7 @@ import {
   FileText,
   Link2,
   MessageSquare,
+  PaintRoller,
   Repeat2,
   Search,
   Sigma,
@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { useWorkspaceEditorContext } from "./EditorContext";
 import { contentText, duplicateBlock } from "../../utils/editorContent";
+import { useBlockActivity } from "../../hooks/useBlockActivity";
+import styles from "./EditorMenus.module.css";
 import { workspaceSchema } from "./schema";
 
 export function EditorBlockMenu() {
@@ -47,6 +49,11 @@ export function EditorBlockMenu() {
   const [query, setQuery] = useState(""),
     [copied, setCopied] = useState(false),
     [copyError, setCopyError] = useState(false);
+  const activity = useBlockActivity(
+    context?.page.id,
+    block?.id,
+    block ? JSON.stringify(block) : undefined,
+  );
   if (!block || !components) return null;
   const Menu = components.Generic.Menu;
   const match = (label: string) =>
@@ -66,8 +73,10 @@ export function EditorBlockMenu() {
       .catch(() => setCopyError(true));
   }
   return (
-    <DragHandleMenu>
-      <div className="flex items-center gap-2 px-3 py-2">
+    <Menu.Dropdown
+      className={`bn-menu-dropdown bn-drag-handle-menu ${styles.menu}`}
+    >
+      <div className={styles.search}>
         <Search className="size-4" />
         <input
           aria-label="Tìm thao tác khối"
@@ -80,71 +89,79 @@ export function EditorBlockMenu() {
           className="w-full bg-transparent text-sm outline-none"
         />
       </div>
-      <div className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
+      <div className={styles.caption}>
         {block.type === "pageLink"
           ? "Trang liên kết"
           : block.type === "mathBlock"
             ? "Công thức"
             : "Khối nội dung"}
       </div>
-      {editor.isEditable && match("Chuyển thành Turn into") && (
-        <Menu.Root
-          sub
-          position="right"
-          portalElement={
-            (editor.domElement?.closest(".bn-root") ||
-              null) as HTMLElement | null
-          }
-        >
-          <Menu.Trigger sub>
-            <Menu.Item subTrigger>
-              <Repeat2 className="size-4" />
-              Chuyển thành
-            </Menu.Item>
-          </Menu.Trigger>
-          <Menu.Dropdown sub className="bn-menu-dropdown">
-            {types.map((item) => (
-              <Menu.Item
-                key={item.name}
-                onClick={() => {
-                  editor.updateBlock(block, {
-                    type: item.type as "paragraph",
-                    props: item.props,
-                  });
-                }}
-              >
-                <item.icon />
-                {item.name}
-              </Menu.Item>
-            ))}
-          </Menu.Dropdown>
-        </Menu.Root>
-      )}
-      {editor.isEditable && match("Công thức Equation") && (
-        <Menu.Item
-          onClick={() =>
-            editor.updateBlock(block, {
-              type: "mathBlock",
-              props: {},
-              content: text,
-            })
-          }
-        >
-          <Sigma className="size-4" />
-          Chuyển thành công thức
-        </Menu.Item>
-      )}
       {editor.isEditable &&
-        block.type !== "pageLink" &&
-        context?.page.space_role &&
-        match("Trang Page") && (
-          <Menu.Item onClick={() => context.onConvertBlock(block.id)}>
-            <FileText className="size-4" />
-            Chuyển thành trang con
-          </Menu.Item>
+        match("Chuyển thành Turn into Công thức Equation Trang Page") && (
+          <Menu.Root
+            sub
+            position="right"
+            portalElement={
+              (editor.domElement?.closest(".bn-root") ||
+                null) as HTMLElement | null
+            }
+          >
+            <Menu.Trigger sub>
+              <Menu.Item subTrigger>
+                <Repeat2 className="size-4" />
+                Chuyển thành
+              </Menu.Item>
+            </Menu.Trigger>
+            <Menu.Dropdown sub className={`bn-menu-dropdown ${styles.menu}`}>
+              {types.map((item) => (
+                <Menu.Item
+                  key={item.name}
+                  onClick={() => {
+                    editor.updateBlock(block, {
+                      type: item.type as "paragraph",
+                      props: item.props,
+                    });
+                  }}
+                >
+                  <item.icon />
+                  {item.name}
+                </Menu.Item>
+              ))}
+              {match("Công thức Equation") && (
+                <Menu.Item
+                  onClick={() =>
+                    editor.updateBlock(block, {
+                      type: "mathBlock",
+                      props: {},
+                      content: text,
+                    })
+                  }
+                >
+                  <Sigma className="size-4" />
+                  Chuyển thành công thức
+                </Menu.Item>
+              )}
+              {block.type !== "pageLink" &&
+                context?.page.space_role &&
+                match("Trang Page") && (
+                  <Menu.Item
+                    onClick={() => {
+                      editor.getExtension(SideMenuExtension)?.unfreezeMenu();
+                      context.onConvertBlock(block.id);
+                    }}
+                  >
+                    <FileText className="size-4" />
+                    Chuyển thành trang con
+                  </Menu.Item>
+                )}
+            </Menu.Dropdown>
+          </Menu.Root>
         )}
       {editor.isEditable && match("Màu Color") && (
-        <BlockColorsItem>Màu chữ & nền</BlockColorsItem>
+        <BlockColorsItem>
+          <PaintRoller className="size-4" />
+          Màu chữ & nền
+        </BlockColorsItem>
       )}
       <Menu.Divider />
       {match("Sao chép liên kết Copy link") && (
@@ -179,24 +196,46 @@ export function EditorBlockMenu() {
           Chuyển xuống
         </Menu.Item>
       )}
-      {context && match("Bình luận Comment") && (
-        <Menu.Item onClick={() => context.onComment(block.id)}>
-          <MessageSquare className="size-4" />
-          Bình luận
-        </Menu.Item>
-      )}
-      {context && match("Hỏi AI Ask AI") && (
-        <Menu.Item onClick={() => context.onAskAi(text)}>
-          <Sparkles className="size-4" />
-          Hỏi AI về khối này
-        </Menu.Item>
-      )}
-      {context && match("Hướng dẫn LaTeX") && (
-        <Menu.Item onClick={context.onGuide}>
-          <BookOpen className="size-4" />
-          Hướng dẫn LaTeX
-        </Menu.Item>
-      )}
+      {context &&
+        match(
+          "Cộng tác Trợ giúp Bình luận Comment Hỏi AI Ask AI Hướng dẫn LaTeX",
+        ) && (
+          <Menu.Root
+            sub
+            position="right"
+            portalElement={
+              (editor.domElement?.closest(".bn-root") ||
+                null) as HTMLElement | null
+            }
+          >
+            <Menu.Trigger sub>
+              <Menu.Item subTrigger>
+                <MessageSquare className="size-4" />
+                Cộng tác & trợ giúp
+              </Menu.Item>
+            </Menu.Trigger>
+            <Menu.Dropdown sub className={`bn-menu-dropdown ${styles.menu}`}>
+              {context && match("Bình luận Comment") && (
+                <Menu.Item onClick={() => context.onComment(block.id)}>
+                  <MessageSquare className="size-4" />
+                  Bình luận
+                </Menu.Item>
+              )}
+              {context && match("Hỏi AI Ask AI") && (
+                <Menu.Item onClick={() => context.onAskAi(text)}>
+                  <Sparkles className="size-4" />
+                  Hỏi AI về khối này
+                </Menu.Item>
+              )}
+              {context && match("Hướng dẫn LaTeX") && (
+                <Menu.Item onClick={context.onGuide}>
+                  <BookOpen className="size-4" />
+                  Hướng dẫn LaTeX
+                </Menu.Item>
+              )}
+            </Menu.Dropdown>
+          </Menu.Root>
+        )}
       {editor.isEditable && (
         <>
           <Menu.Divider />
@@ -207,10 +246,16 @@ export function EditorBlockMenu() {
           </RemoveBlockItem>
         </>
       )}
-      <div className="border-t border-slate-200 px-3 py-2 text-xs text-slate-500 dark:border-lms-border dark:text-slate-400">
+      <div className={styles.footer}>
+        {activity && (
+          <>
+            <div>Sửa gần nhất bởi {activity.author}</div>
+            <div>{new Date(activity.updated_at).toLocaleString("vi-VN")}</div>
+          </>
+        )}
         {text.trim() ? text.trim().split(/\s+/u).length : 0} từ ·{" "}
         {Array.from(text).length} ký tự
       </div>
-    </DragHandleMenu>
+    </Menu.Dropdown>
   );
 }

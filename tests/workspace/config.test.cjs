@@ -26,3 +26,29 @@ test("production keeps the Workspace WebSocket route for direct frontend access"
     "http://workspace-service:8088/workspace-ws",
   );
 });
+
+test("development keeps Next's chunk graph so editor CSS cannot replace a vendor script", () => {
+  const code = ts.transpileModule(
+    fs.readFileSync(path.resolve(__dirname, "../../next.config.ts"), "utf8"),
+    { compilerOptions: { module: ts.ModuleKind.CommonJS } },
+  ).outputText;
+  const module = { exports: {} };
+  new Function("module", "exports", code)(module, module.exports);
+  const nextConfig = module.exports.default;
+  const original = {
+    chunks: "async",
+    cacheGroups: { framework: { name: "framework" } },
+  };
+  const development = { optimization: { splitChunks: original } };
+  assert.equal(
+    nextConfig.webpack(development, { isServer: false, dev: true }).optimization
+      .splitChunks,
+    original,
+  );
+  const production = { optimization: { splitChunks: original } };
+  assert.equal(
+    nextConfig.webpack(production, { isServer: false, dev: false }).optimization
+      .splitChunks.cacheGroups.vendor.name,
+    "vendor",
+  );
+});

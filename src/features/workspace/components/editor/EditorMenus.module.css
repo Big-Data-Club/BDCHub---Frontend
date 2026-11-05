@@ -1,0 +1,144 @@
+.menu {
+  width: min(310px, calc(100vw - 28px));
+  max-height: min(670px, 82vh);
+  overflow: auto;
+  padding: 7px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  color: #334155;
+  box-shadow:
+    0 12px 40px #0f172a20,
+    0 3px 10px #0f172a12;
+  font-family: var(--font-body), sans-serif;
+}
+.menu :global([role="menuitem"]) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.menu :global([role="menuitem"] > svg) {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+}
+.menu :global([role="menuitem"]:hover),
+.menu :global([role="menuitem"][data-highlighted]) {
+  background: #f1f5f9;
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 4px 12px;
+  padding: 12px;
+  border: 1px solid #dbe3ef;
+  border-radius: 9px;
+}
+.search:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #3b82f61c;
+}
+.search input {
+  min-width: 0;
+  width: 100%;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+}
+.caption {
+  padding: 4px 10px 7px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+.footer {
+  border-top: 1px solid #e2e8f0;
+  padding: 12px 10px 5px;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #64748b;
+}
+.suggestions {
+  width: min(420px, calc(100vw - 36px));
+  max-height: min(470px, 60vh);
+}
+.suggestions :global(.bn-suggestion-menu-item) {
+  display: flex;
+  cursor: pointer;
+  min-height: 60px;
+  padding: 10px;
+  gap: 14px;
+  align-items: center;
+}
+.suggestions :global(.bn-suggestion-menu-item-icon) {
+  width: 40px;
+  height: 40px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.suggestions :global(.bn-suggestion-menu-item-icon svg) {
+  width: 23px;
+  height: 23px;
+}
+.suggestions :global(.bn-suggestion-menu-item-title) {
+  font-size: 15px;
+  font-weight: 500;
+}
+.suggestions :global(.bn-suggestion-menu-item-subtitle) {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748b;
+}
+.suggestions :global(.bn-suggestion-menu-label) {
+  padding: 10px 12px 5px;
+  font-size: 12px;
+  color: #64748b;
+}
+.suggestions :global(.bn-suggestion-menu-item[aria-selected="true"]) {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+:global(.dark) .menu {
+  background: #111c30;
+  border-color: #29364d;
+  color: #e2e8f0;
+  box-shadow: 0 12px 40px #0005;
+}
+:global(.dark) .search,
+:global(.dark) .footer {
+  border-color: #334155;
+}
+:global(.dark) .menu :global([role="menuitem"]:hover),
+:global(.dark) .menu :global([role="menuitem"][data-highlighted]),
+:global(.dark)
+  .suggestions
+  :global(.bn-suggestion-menu-item[aria-selected="true"]),
+:global(.dark) .suggestions :global(.bn-suggestion-menu-item-icon) {
+  background: #223149;
+}
+:global(.dark) .caption,
+:global(.dark) .footer,
+:global(.dark) .suggestions :global(.bn-suggestion-menu-label),
+:global(.dark) .suggestions :global(.bn-suggestion-menu-item-subtitle) {
+  color: #94a3b8;
+}
+
+.suggestions :global(.bn-suggestion-menu-item:hover) {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+:global(.dark) .suggestions :global(.bn-suggestion-menu-item:hover) {
+  background: #223149;
+}

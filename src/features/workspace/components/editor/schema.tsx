@@ -15,6 +15,7 @@ import {
 import { inputRules, InputRule } from "@handlewithcare/prosemirror-inputrules";
 import { TextSelection } from "prosemirror-state";
 import { FileText, MoreHorizontal, Plus } from "lucide-react";
+import { webLinkBlock } from "./WebLinkBlock";
 import { useWorkspaceEditorContext } from "./EditorContext";
 
 const closingDollars = createExtension({
@@ -119,6 +120,7 @@ export const workspaceSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     pageLink: linkedPage,
+    webLink: webLinkBlock,
     mathBlock: { ...createReactMathBlockSpec(), extensions: [closingDollars] },
   },
   inlineContentSpecs: {

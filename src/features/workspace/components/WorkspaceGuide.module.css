@@ -1,0 +1,58 @@
+.guide {
+  font-family: var(--font-body), sans-serif;
+}
+.guide main > div:first-child {
+  padding-bottom: 12px;
+}
+.guide main > section {
+  border-top: 1px solid #dce3ef;
+  padding-top: 44px;
+}
+.guide main > section h2 {
+  font-size: clamp(23px, 2.2vw, 30px);
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+}
+.guide nav a {
+  text-underline-offset: 5px;
+  line-height: 1.6;
+}
+.guide nav a:hover {
+  text-decoration: underline;
+}
+.number {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #2563eb;
+  margin-bottom: 22px;
+}
+.hierarchy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0;
+  color: #64748b;
+  font-size: 13px;
+}
+.hierarchy span {
+  color: #94a3b8;
+}
+:global(.dark) .guide main > section {
+  border-color: #29364d;
+}
+:global(.dark) .number {
+  color: #67e8f9;
+}
+:global(.dark) .hierarchy {
+  color: #94a3b8;
+}
+@media (max-width: 640px) {
+  .guide main > section {
+    padding-top: 30px;
+  }
+  .guide main {
+    overflow-wrap: anywhere;
+  }
+}

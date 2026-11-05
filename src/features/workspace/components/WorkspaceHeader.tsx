@@ -1,4 +1,5 @@
 "use client";
+import { Fragment } from "react";
 import {
   ChevronRight,
   MessageSquare,
@@ -6,6 +7,8 @@ import {
   Share2,
   Sparkles,
   Star,
+  Plus,
+  ArrowLeft,
 } from "lucide-react";
 import type { WorkspacePage, CollaborationStatus } from "../types";
 import type { InspectorTab } from "../hooks/useWorkspacePanel";
@@ -31,6 +34,11 @@ export function WorkspaceHeader({
   onPanel,
   onAction,
   setTab,
+  fieldName,
+  onHome,
+  onCreateChild,
+  ancestors = [],
+  onFieldHome,
 }: {
   page: WorkspacePage;
   status: CollaborationStatus;
@@ -41,22 +49,55 @@ export function WorkspaceHeader({
   onPanel: (tab: InspectorTab) => void;
   onAction: (action: PageAction, page: WorkspacePage) => void;
   setTab: (action: (tab: InspectorTab | null) => InspectorTab | null) => void;
+  fieldName?: string;
+  onHome: () => void;
+  onCreateChild?: () => void;
+  ancestors?: WorkspacePage[];
+  onFieldHome?: () => void;
 }) {
   const editable = (page.access || 0) >= 3;
   return (
     <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-2 dark:border-lms-border">
       <div className="flex min-w-0 items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-        <span className="max-w-28 truncate">{spaceName || "Được chia sẻ"}</span>
+        <button
+          type="button"
+          className="mr-2 flex items-center gap-1 hover:text-blue-600"
+          onClick={onHome}
+          aria-label="Về danh sách lĩnh vực"
+        >
+          <ArrowLeft className="size-3" />
+          <span className="hidden sm:inline">Workspace</span>
+        </button>
+        <button
+          type="button"
+          className="max-w-36 truncate hover:text-blue-600"
+          onClick={onFieldHome}
+        >
+          {fieldName || spaceName || "Được chia sẻ"}
+        </button>
         <ChevronRight className="size-3 shrink-0" />
-        {page.parent_id && (
-          <button
-            type="button"
-            className="max-w-24 truncate hover:text-blue-600"
-            onClick={() => onOpen(page.parent_id!)}
-          >
-            {parentTitle || "Trang cha"}
-          </button>
-        )}
+        {ancestors.length
+          ? ancestors.map((parent) => (
+              <Fragment key={parent.id}>
+                <button
+                  type="button"
+                  className="max-w-28 truncate hover:text-blue-600"
+                  onClick={() => onOpen(parent.id)}
+                >
+                  {parent.title}
+                </button>
+                <ChevronRight className="size-3 shrink-0" />
+              </Fragment>
+            ))
+          : page.parent_id && (
+              <button
+                type="button"
+                className="max-w-24 truncate hover:text-blue-600"
+                onClick={() => onOpen(page.parent_id!)}
+              >
+                {parentTitle || "Trang cha"}
+              </button>
+            )}
         <span className="max-w-44 truncate text-slate-800 dark:text-slate-200">
           {page.title}
         </span>
@@ -82,6 +123,12 @@ export function WorkspaceHeader({
           <Share2 className="size-4" />
           <span className="hidden sm:inline">Chia sẻ</span>
         </WorkspaceButton>
+        {onCreateChild && (
+          <WorkspaceButton onClick={onCreateChild} aria-label="Tạo trang con">
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">Trang con</span>
+          </WorkspaceButton>
+        )}
         <WorkspaceButton
           aria-label="Bình luận"
           className="px-2"

@@ -25,3 +25,20 @@ another installed Chromium. Elsewhere use Playwright's installed Chromium.
 Other BDC services are needed to verify live AI, legacy notebook, Tasks and LMS
 source links end to end. Core Workspace tests do not claim live AI-provider or
 production-network verification.
+
+`browser-fields.py` additionally verifies an initially empty field gallery in a
+fresh test team space, two custom fields, real +/six-dot menus, URL cards,
+persisted customization, parent/child links, field archive/restore, the standalone
+handbook, and light/dark/mobile layouts. Generated accounts/artifacts stay in the
+isolated test database and external artifact directory.
+
+A frontend configuration regression also checks that development retains Next's
+own chunk graph. A fixed `vendor` split chunk must not be applied in development:
+with extracted editor styles it can make a CSS asset load as a script. The
+production Turbopack build is verified separately from the native dev server.
+
+When checking the built Docker frontend, set `WORKSPACE_TEST_PRODUCTION=1`.
+Fixtures use the production secure-cookie name and an explicit signed-cookie
+header for the loopback HTTP test transport. This still exercises normal
+NextAuth validation; no product auth bypass is enabled. Keep its API and database
+on a separate test Docker network, never the main Workspace database.

@@ -71,9 +71,11 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     // Optimize for production
-    if (!isServer) {
+    // Let Next own development chunks: a fixed vendor name can collide with
+    // extracted editor CSS during navigation and load vendor.css as JavaScript.
+    if (!isServer && !dev) {
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
