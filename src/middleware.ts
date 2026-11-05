@@ -15,7 +15,7 @@ export async function middleware(req: NextRequest) {
   if (tenant) requestHeaders.set("x-bdc-tenant", tenant.slug);
   if (pathname === "/login") requestHeaders.set("x-bdc-return-to", safeTenantReturnPath(req.nextUrl.searchParams.get("callbackUrl"), tenant?.slug));
   if (pathname === "/login" && req.nextUrl.searchParams.get("reason") === "session-expired") requestHeaders.set("x-bdc-auth-retry", "1");
-  const next = () => tenant && pathname !== "/"
+  const next = () => tenant && pathname !== "/" && !pathname.startsWith("/thong-tin/")
     ? NextResponse.rewrite(new URL(`${pathname}${req.nextUrl.search}`, req.url), { request: { headers: requestHeaders } })
     : NextResponse.next({ request: { headers: requestHeaders } });
   const login = (expired = false) => {
@@ -53,7 +53,7 @@ export async function middleware(req: NextRequest) {
       : "bdc.session-token.v2",
   });
 
-  const publicTenantPath = pathname === "/" || ["/login", "/pending", "/register/google", "/confirm-password-change"].includes(pathname);
+  const publicTenantPath = pathname === "/" || pathname.startsWith("/thong-tin/") || ["/login", "/pending", "/register/google", "/confirm-password-change"].includes(pathname);
   if (tenant && !publicTenantPath) {
     if (!token?.accessToken || token.error === "RefreshAccessTokenError") return login();
     const backend = (process.env.BACKEND_URL || "http://auth-service:8080").replace(/\/$/, "");

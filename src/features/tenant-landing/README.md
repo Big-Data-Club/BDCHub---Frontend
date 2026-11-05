@@ -1,5 +1,17 @@
 # Tenant UI routing
 
+## Website builder
+
+Global admins open Organizations → **Thiết kế website** for block-based design.
+The separate `tenant-site` feature supplies theme/contact settings, ordered
+slides, two-level navigation, homepage sections, information pages, draft
+preview and publication. Public documents are cached for at most 30 seconds.
+Before deploying frontend, apply the Auth migration and deploy its tenant-site
+APIs; see `docs/adr/20261105-tenant-site-module.md` in the parent repository.
+Until publication, the existing tenant landing is the fallback. Information
+pages at `/<slug>/thong-tin/<pageSlug>` bypass membership and do not rewrite
+to service routes. Published content is never mixed with draft configuration.
+
 Public entry: `/trungtamdientoan`. Any active organization uses the same
 template at `/<organization-slug>`, with name, description and `logo_url`
 loaded from Auth's existing public `GET /api/organizations/slug/{slug}`.

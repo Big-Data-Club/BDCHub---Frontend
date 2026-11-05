@@ -95,6 +95,11 @@ test("middleware enforces membership before rewrites and preserves canonical rol
   });
   const request = (pathname, headers) => new NextRequest(`https://bdc.test${pathname}`, { headers });
   try {
+    const info = await middleware(request("/trungtamdientoan/thong-tin/gioi-thieu-chung"));
+    assert.equal(info.status, 200);
+    assert.equal(info.headers.get("x-middleware-rewrite"), null);
+    assert.equal(info.headers.get("x-middleware-request-x-bdc-tenant"), "trungtamdientoan");
+    assert.equal(fetchCalls, 0, "public information does not require membership");
     const guest = await middleware(request("/trungtamdientoan/chat?channel=1"));
     assert.equal(guest.status, 307);
     const login = new URL(guest.headers.get("location"));

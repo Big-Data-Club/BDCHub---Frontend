@@ -22,6 +22,7 @@ import type { Organization, OrgMember, OrgStats } from "@/types";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { Select } from "@/components/lms/shared";
 import { OrganizationLogoInput } from "@/components/admin/organization/OrganizationLogoInput";
+import Link from "@/lib/tenant/Link";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -134,6 +135,7 @@ function OrgCard({ org, onSelect, onDeactivate }: OrgCardProps) {
         </div>
 
         {/* Manage button */}
+        <Link href={`/lms/admin/organizations/${org.id}/website`} className="mb-3 block rounded-xl bg-blue-600 px-4 py-2 text-center text-sm font-semibold text-white">Thiết kế website</Link>
         <button
           id={`org-manage-${org.id}`}
           onClick={() => onSelect(org)}

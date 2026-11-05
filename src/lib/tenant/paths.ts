@@ -1,6 +1,6 @@
 // UI routes only. API, uploads, static files and WebSockets stay at the origin root.
 export const tenantRouteRoots = new Set([
-  "lms", "knowledge-farm", "chat", "labs", "myaccount", "guide",
+  "lms", "knowledge-farm", "chat", "labs", "myaccount", "guide", "thong-tin",
   "dashboard", "users", "events", "tasks", "leaderboard", "settings",
   "login", "pending", "register", "confirm-password-change",
 ]);
