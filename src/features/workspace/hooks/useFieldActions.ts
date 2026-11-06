@@ -5,7 +5,6 @@ import type { FieldInput, WorkspaceField } from "../types";
 export function useFieldActions(
   spaceId: string | undefined,
   onRefresh: () => Promise<void>,
-  onOpen: (field: WorkspaceField) => void,
 ) {
   const [editing, setEditing] = useState<WorkspaceField | null>(null),
     [open, setOpen] = useState(false),
@@ -41,15 +40,14 @@ export function useFieldActions(
   const save = (input: FieldInput) =>
     run(async () => {
       if (!spaceId) throw Error("Chọn không gian trước.");
-      const field = editing
-        ? await workspaceService.updateField(editing.id, {
-            ...input,
-            version: editing.version,
-          })
-        : await workspaceService.createField(spaceId, input);
+      if (editing)
+        await workspaceService.updateField(editing.id, {
+          ...input,
+          version: editing.version,
+        });
+      else await workspaceService.createField(spaceId, input);
       await onRefresh();
       setOpen(false);
-      if (!editing) onOpen(field);
     });
   const archive = (field: WorkspaceField) =>
     run(async () => {

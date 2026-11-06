@@ -368,3 +368,55 @@
     transform: none;
   }
 }
+
+.card:has(.cardLink:focus-visible) {
+  border-color: #8068d8;
+  box-shadow: 0 12px 32px #8068d818;
+}
+.card:has(.cardLink:active) {
+  transform: translateY(-1px) scale(0.985);
+}
+.card .artIcon {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.card:hover .artIcon,
+.card:has(.cardLink:focus-visible) .artIcon {
+  transform: rotate(5deg) scale(1.07);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card:has(.cardLink:active),
+  .card:hover .artIcon,
+  .card:has(.cardLink:focus-visible) .artIcon {
+    transform: none;
+  }
+  .card .artIcon {
+    transition: none;
+  }
+}
+
+.card {
+  --field-accent: #8068d8;
+}
+.card[data-tone="blue"] {
+  --field-accent: #288fbc;
+}
+.card[data-tone="green"] {
+  --field-accent: #219a83;
+}
+.card[data-tone="amber"] {
+  --field-accent: #bd8733;
+}
+.card[data-tone="rose"] {
+  --field-accent: #c4658e;
+}
+.card[data-tone="slate"] {
+  --field-accent: #7388a6;
+}
+.card:hover,
+.card:has(.cardLink:focus-visible) {
+  border-color: var(--field-accent);
+}
+
+:global(.dark) .card:hover {
+  border-color: var(--field-accent);
+}

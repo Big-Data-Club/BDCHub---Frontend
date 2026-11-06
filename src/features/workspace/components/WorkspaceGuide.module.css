@@ -1,4 +1,8 @@
 .guide {
+  height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
   font-family: var(--font-body), sans-serif;
 }
 .guide main > div:first-child {
@@ -54,5 +58,18 @@
   }
   .guide main {
     overflow-wrap: anywhere;
+  }
+}
+
+.guide nav a[aria-current="location"] {
+  color: #2563eb;
+  text-decoration: underline;
+}
+:global(.dark) .guide nav a[aria-current="location"] {
+  color: #67e8f9;
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide {
+    scroll-behavior: auto;
   }
 }

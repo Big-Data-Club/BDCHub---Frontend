@@ -1,4 +1,5 @@
 import type {
+  PageAnalytics,
   WorkspaceField,
   FieldInput,
   DatabaseField,
@@ -77,6 +78,18 @@ export const workspaceService = {
       undefined,
       signal,
     ),
+  tabPages: (query: string, fieldId: string, signal?: AbortSignal) =>
+    request<
+      (Pick<
+        WorkspacePage,
+        "id" | "title" | "icon" | "space_id" | "field_id"
+      > & { snippet: string; updated_at: string })[]
+    >(
+      `/tab-pages?${new URLSearchParams({ q: query, ...(fieldId ? { field: fieldId } : {}) })}`,
+      "GET",
+      undefined,
+      signal,
+    ),
   notifications: () =>
     request<{ id: string; page_id: string; title: string; kind: string }[]>(
       "/notifications",
@@ -103,6 +116,17 @@ export const workspaceService = {
   pages: (spaceId: string, archived = false) =>
     request<WorkspacePage[]>(`/spaces/${spaceId}/pages?archived=${archived}`),
   page: (id: string) => request<WorkspacePage>(`/pages/${id}`),
+  recordView: (id: string) =>
+    request<{ counted: boolean }>(`/pages/${id}/view`, "POST", {}),
+  analytics: (id: string, days: number, signal?: AbortSignal) =>
+    request<PageAnalytics>(
+      `/pages/${id}/analytics?days=${days}`,
+      "GET",
+      undefined,
+      signal,
+    ),
+  viewPreference: (id: string, show_name: boolean) =>
+    request(`/pages/${id}/view-preference`, "PATCH", { show_name }),
   createPage: (
     spaceId: string,
     input: {
@@ -138,7 +162,10 @@ export const workspaceService = {
     request(`/pages/${id}/favorite`, "PUT", { favorite }),
   search: (query: string, signal?: AbortSignal) =>
     request<
-      (Pick<WorkspacePage, "id" | "title" | "icon" | "space_id"> & {
+      (Pick<
+        WorkspacePage,
+        "id" | "title" | "icon" | "space_id" | "field_id"
+      > & {
         snippet: string;
       })[]
     >(`/search?q=${encodeURIComponent(query)}`, "GET", undefined, signal),

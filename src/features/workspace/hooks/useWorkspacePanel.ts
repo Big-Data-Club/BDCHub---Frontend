@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { workspaceService } from "../api/workspaceService";
 import type { WorkspacePage } from "../types";
 export type InspectorTab =
+  | "activity"
   | "comments"
   | "sharing"
   | "history"

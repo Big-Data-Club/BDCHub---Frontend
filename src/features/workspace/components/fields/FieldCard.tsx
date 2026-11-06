@@ -29,7 +29,7 @@ export function FieldCard({
   onOpen: (field: WorkspaceField) => void;
 }) {
   return (
-    <article className={styles.card} key={field.id}>
+    <article className={styles.card} data-tone={field.color} key={field.id}>
       {canEdit && (
         <div className={styles.cardMenu}>
           <DropdownMenu>

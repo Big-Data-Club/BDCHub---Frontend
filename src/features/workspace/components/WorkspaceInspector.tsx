@@ -11,12 +11,14 @@ import type {
   EditorActions,
 } from "../types";
 import { WorkspaceButton, WorkspaceErrorBanner } from "./WorkspacePrimitives";
+import { PageActivityPanel } from "./panels/PageActivityPanel";
 import { CommentsPanel } from "./panels/CommentsPanel";
 import { SharingPanel } from "./panels/SharingPanel";
 import { HistoryPanel } from "./panels/HistoryPanel";
 import { SourcesPanel } from "./panels/SourcesPanel";
 import { AiPanel } from "./panels/AiPanel";
 const names: [InspectorTab, string][] = [
+  ["activity", "Hoạt động"],
   ["comments", "Bình luận"],
   ["sharing", "Chia sẻ"],
   ["history", "Lịch sử"],
@@ -77,6 +79,7 @@ export function WorkspaceInspector({
       </div>
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 text-sm">
         <WorkspaceErrorBanner message={model.error} />
+        {tab === "activity" && <PageActivityPanel page={page} user={user} />}
         {tab === "comments" && (
           <CommentsPanel
             model={model}

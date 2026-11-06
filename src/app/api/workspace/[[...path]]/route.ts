@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const allowed = new RegExp(
-  `^(bootstrap|me|spaces|spaces/${uuid}/(pages|members|fields)|fields/${uuid}(/(archive|restore))?|pages/${uuid}/blocks/[a-zA-Z0-9_-]{1,100}/activity|search|pages/${uuid}(/(archive|restore|duplicate|favorite|document|ticket|initialize|versions|sharing|comments|files|activity|references|ai|tasks))?|pages/${uuid}/versions/${uuid}/restore|invitations|invitations/${uuid}(/respond)?|grants|comments/${uuid}|databases/${uuid}(/(schema|records|views))?|databases/${uuid}/views/${uuid}|records/${uuid}|files/${uuid}|legacy-notes|notifications|notifications/${uuid}/read)$`,
+  `^(bootstrap|tab-pages|me|spaces|spaces/${uuid}/(pages|members|fields)|fields/${uuid}(/(archive|restore))?|pages/${uuid}/blocks/[a-zA-Z0-9_-]{1,100}/activity|search|pages/${uuid}(/(archive|restore|duplicate|favorite|document|ticket|initialize|versions|sharing|comments|files|activity|view|view-preference|analytics|references|ai|tasks))?|pages/${uuid}/versions/${uuid}/restore|invitations|invitations/${uuid}(/respond)?|grants|comments/${uuid}|databases/${uuid}(/(schema|records|views))?|databases/${uuid}/views/${uuid}|records/${uuid}|files/${uuid}|legacy-notes|notifications|notifications/${uuid}/read)$`,
 );
 
 async function readBody(req: NextRequest, limit: number) {

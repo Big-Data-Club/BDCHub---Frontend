@@ -13,6 +13,7 @@ import {
   Search,
   X,
 } from "lucide-react";
+import { useGuideNavigation } from "../hooks/useGuideNavigation";
 import styles from "./WorkspaceGuide.module.css";
 import { formulaCategories, formulaExamples } from "../data/formulas";
 import type { FormulaInsert } from "../types";
@@ -29,6 +30,7 @@ export function WorkspaceGuide({
   onInsert?: (value: FormulaInsert) => void;
   onClose?: () => void;
 }) {
+  const navigation = useGuideNavigation();
   const [query, setQuery] = useState(""),
     [category, setCategory] = useState("all"),
     [copied, setCopied] = useState(""),
@@ -96,6 +98,8 @@ export function WorkspaceGuide({
   };
   return (
     <div
+      id="workspace-editor-guide"
+      ref={navigation.container}
       className={`${styles.guide} min-w-0 bg-white text-slate-800 dark:bg-lms-bg dark:text-slate-200`}
     >
       <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-5 py-4 dark:border-lms-border dark:bg-lms-shell">
@@ -142,6 +146,11 @@ export function WorkspaceGuide({
               key={id}
               className="block text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400"
               href={`#workspace-guide-${id}`}
+              aria-current={navigation.active === id ? "location" : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                navigation.jump(id);
+              }}
             >
               {label}
             </a>

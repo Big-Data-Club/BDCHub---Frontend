@@ -78,6 +78,8 @@ export interface WorkspacePage {
   created_at: string;
   updated_at: string;
   last_editor?: string;
+  creator_name?: string;
+  search_text?: string;
   favorite?: boolean;
   opened_at?: string;
   access?: number;
@@ -105,7 +107,9 @@ export interface WorkspaceInvite {
 export interface WorkspaceBootstrap {
   user: WorkspaceUser;
   spaces: WorkspaceSpace[];
-  shared_pages: Pick<WorkspacePage, "id" | "title" | "icon" | "space_id">[];
+  shared_pages: (Pick<WorkspacePage, "id" | "title" | "icon" | "space_id"> & {
+    field_id?: string | null;
+  })[];
   invitations: WorkspaceInvite[];
   fields: WorkspaceField[];
 }
@@ -208,6 +212,7 @@ export interface WorkspaceVersion {
   created_at: string;
 }
 export interface WorkspaceActivity {
+  actor_id?: string;
   id: string;
   action: string;
   actor: string;
@@ -251,4 +256,15 @@ export interface EditorActions {
   selectionText: () => string;
   insertPageLink: (page: WorkspacePage) => void;
   focus: () => void;
+}
+
+export interface PageAnalytics {
+  days: number;
+  views: number;
+  unique_viewers: number;
+  show_name: boolean;
+  tracked_since: string;
+  daily: { day: string; views: number; unique_viewers: number }[];
+  viewers: { name: string; viewed_at: string; views: number }[];
+  editors: { name: string; edited_at: string }[];
 }

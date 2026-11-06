@@ -54,3 +54,40 @@
   background: #26354b;
   color: #e2e8f0;
 }
+
+/* BlockNote portals remain inside the owned editor. Explicit colors avoid the
+   library tooltip inheriting the page's foreground/background in reverse. */
+.editor :global([data-slot="tooltip-content"]) {
+  background: #fff;
+  color: #334155;
+  border: 1px solid #dce3ee;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px #1723381a;
+  width: max-content;
+  min-width: max-content;
+  max-width: 300px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+.editor :global([data-slot="tooltip-content"] *) {
+  color: inherit;
+}
+.editor :global([data-slot="tooltip-content"] kbd) {
+  color: #64748b;
+}
+.editor :global([data-slot="tooltip-content"] svg) {
+  background: #fff;
+  fill: #fff;
+}
+:global(.dark) .editor :global([data-slot="tooltip-content"]) {
+  background: #132240;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+:global(.dark) .editor :global([data-slot="tooltip-content"] kbd) {
+  color: #94a3b8;
+}
+:global(.dark) .editor :global([data-slot="tooltip-content"] svg) {
+  background: #132240;
+  fill: #132240;
+}

@@ -58,7 +58,7 @@ export function WorkspaceLanding({
 }) {
   const [query, setQuery] = useState(""),
     [confirm, setConfirm] = useState<WorkspaceField | null>(null),
-    actions = useFieldActions(space?.id, onRefresh, onField);
+    actions = useFieldActions(space?.id, onRefresh);
   const fields = bootstrap.fields.filter(
       (field) => field.space_id === space?.id,
     ),

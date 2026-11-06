@@ -42,3 +42,9 @@ Fixtures use the production secure-cookie name and an explicit signed-cookie
 header for the loopback HTTP test transport. This still exercises normal
 NextAuth validation; no product auth bypass is enabled. Keep its API and database
 on a separate test Docker network, never the main Workspace database.
+
+`browser-chrome.py` covers staying in the gallery after field creation, tooltip
+contrast, removed quick actions, sidebar resize/collapse/keyboard/persistence,
+cross-field workspace tabs, edited metadata, real analytics privacy and animated
+guide scrolling. It supports the same native/production fixture modes. Tests do
+not infer a successful save from a success label that the product no longer shows.

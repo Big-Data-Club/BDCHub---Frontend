@@ -166,3 +166,40 @@ test("web cards export valid destinations and omit executable URL schemes", () =
   assert.equal(value.blocks[0].content[0].href, "https://example.com/paper");
   assert.deepEqual(value.blocks[1].content, []);
 });
+
+test("workspace tab order stays stable, closes to its neighbor and truncates forward navigation", () => {
+  const { resolveTab, closeTab, emptyTabs } = load("utils/workspaceTabs.ts");
+  const a = { id: "a", title: "A", icon: "" },
+    b = { id: "b", title: "B", icon: "" },
+    c = { id: "c", title: "C", icon: "" };
+  let state = resolveTab(resolveTab(emptyTabs, a), b);
+  state = resolveTab(state, { ...a, title: "A renamed" });
+  assert.deepEqual(
+    state.tabs.map((item) => item.id),
+    ["a", "b"],
+  );
+  assert.equal(state.tabs[0].title, "A renamed");
+  const back = { ...state, cursor: 1 };
+  state = resolveTab(back, c);
+  assert.deepEqual(state.trail, ["a", "b", "c"]);
+  const closed = closeTab(state, "c", "c");
+  assert.equal(closed.next, "b");
+  assert.deepEqual(
+    closed.state.tabs.map((item) => item.id),
+    ["a", "b"],
+  );
+  assert.equal(closeTab(resolveTab(emptyTabs, a), "a", "a").next, undefined);
+});
+test("sidebar bounds preserve writing space and reject invalid stored widths", () => {
+  const { sidebarWidth, sidebarMaximum } = load("utils/sidebarLayout.ts");
+  assert.equal(sidebarWidth(NaN, 1440), 280);
+  assert.equal(sidebarWidth(20, 1440), 220);
+  assert.equal(sidebarWidth(900, 1024), sidebarMaximum(1024));
+});
+test("edited time advances by real elapsed time and never claims future edits", () => {
+  const { relativeTime } = load("utils/relativeTime.ts"),
+    now = Date.parse("2026-11-05T12:00:00Z");
+  assert.equal(relativeTime("2026-11-05T12:00:30Z", now), "vừa xong");
+  assert.equal(relativeTime("2026-11-05T11:00:00Z", now), "1 giờ trước");
+  assert.equal(relativeTime("2026-11-05T11:58:00Z", now), "2 phút trước");
+});

@@ -17,6 +17,7 @@ import {
   Trash2,
   Users,
   ArrowLeft,
+  PanelLeft,
 } from "lucide-react";
 import type {
   WorkspaceBootstrap,
@@ -29,6 +30,7 @@ import { WorkspacePageMenu, type PageAction } from "./WorkspacePageMenu";
 import { WorkspaceButton } from "./WorkspacePrimitives";
 const rank = { owner: 5, manager: 4, editor: 3, commenter: 2, viewer: 1 };
 interface SidebarProps {
+  onCollapse: () => void;
   bootstrap: WorkspaceBootstrap;
   space?: WorkspaceSpace;
   pages: WorkspacePage[];
@@ -197,13 +199,23 @@ export function WorkspaceSidebar(props: SidebarProps) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-slate-50/70 text-slate-700 dark:bg-lms-shell dark:text-slate-300">
       <div className="shrink-0 space-y-4 p-4">
-        <WorkspaceButton
-          onClick={props.onHome}
-          className="w-full justify-start text-xs text-slate-500"
-        >
-          <ArrowLeft className="size-4" />
-          Về các lĩnh vực
-        </WorkspaceButton>
+        <div className="flex items-center justify-between gap-1">
+          <WorkspaceButton
+            onClick={props.onHome}
+            className="min-w-0 flex-1 justify-start px-1 text-xs text-slate-500"
+          >
+            <ArrowLeft className="size-4" />
+            Về các lĩnh vực
+          </WorkspaceButton>
+          <WorkspaceButton
+            onClick={props.onCollapse}
+            className="size-8 shrink-0 p-1"
+            aria-label="Thu gọn thanh bên"
+            title="Thu gọn · Ctrl+\"
+          >
+            <PanelLeft className="size-4" />
+          </WorkspaceButton>
+        </div>
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
             Workspace

@@ -2,10 +2,23 @@
 import { WorkspaceHeader } from "./WorkspaceHeader";
 import { WorkspacePageHeading } from "./WorkspacePageHeading";
 import { WorkspaceLanding } from "./fields/WorkspaceLanding";
+import { useWorkspaceSidebar } from "../hooks/useWorkspaceSidebar";
+import { useWorkspaceTabs } from "../hooks/useWorkspaceTabs";
+import { usePageVisit } from "../hooks/usePageVisit";
+import { WorkspaceSidebarEdge } from "./WorkspaceSidebarEdge";
+import { WorkspaceTabs } from "./WorkspaceTabs";
+import { WorkspaceTabPicker } from "./WorkspaceTabPicker";
+import chrome from "./WorkspaceChrome.module.css";
 import { pageAncestors } from "../utils/pageHierarchy";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { BookOpen, Menu, X } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { BookOpen, X } from "lucide-react";
 import { useWorkspace } from "../hooks/useWorkspace";
 import { workspaceService } from "../api/workspaceService";
 import type { InspectorTab } from "../hooks/useWorkspacePanel";
@@ -40,12 +53,13 @@ export function WorkspaceClient() {
   const model = useWorkspace(),
     { page, bootstrap, refresh: reload, navigate } = model;
   const pageId = page?.id,
-    pageTitle = page?.title,
-    pageIcon = page?.icon,
     pageSpaceId = page?.space_id,
     spaceRole = page?.space_role;
+  const sidebar = useWorkspaceSidebar(bootstrap?.user.id);
+  usePageVisit(pageId);
   const [dialog, setDialog] = useState<WorkspaceDialogState>(null),
     [mobile, setMobile] = useState(false),
+    [tabPicker, setTabPicker] = useState(false),
     [guide, setGuide] = useState(false),
     [tab, setTab] = useState<InspectorTab | null>(null),
     [selection, setSelection] = useState(""),
@@ -65,19 +79,7 @@ export function WorkspaceClient() {
       text?: string;
       blockId?: string;
     } | null>(null),
-    importInput = useRef<HTMLInputElement>(null),
-    [tabs, setTabs] = useState<Pick<WorkspacePage, "id" | "title" | "icon">[]>(
-      [],
-    );
-  useEffect(() => {
-    if (pageId)
-      setTabs((previous) =>
-        [
-          ...previous.filter((item) => item.id !== pageId),
-          { id: pageId, title: pageTitle || "", icon: pageIcon || "" },
-        ].slice(-8),
-      );
-  }, [pageId, pageTitle, pageIcon]);
+    importInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const pending =
       pendingPanel.current?.pageId === pageId ? pendingPanel.current : null;
@@ -121,6 +123,30 @@ export function WorkspaceClient() {
     },
     [navigate],
   );
+  const tabModel = useWorkspaceTabs(page, open);
+  const { setCollapsed } = sidebar;
+  const toggleSidebar = useCallback(() => {
+    if (innerWidth >= 1024) setCollapsed((value) => !value);
+    else setMobile((value) => !value);
+  }, [setCollapsed]);
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.code === "Backslash" &&
+        !event.repeat
+      ) {
+        event.preventDefault();
+        toggleSidebar();
+      }
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [toggleSidebar]);
+  useEffect(() => {
+    if (sidebar.collapsed)
+      document.getElementById("workspace-sidebar-toggle")?.focus();
+  }, [sidebar.collapsed]);
   const refresh = useCallback(() => {
     void reload();
   }, [reload]);
@@ -266,7 +292,13 @@ export function WorkspaceClient() {
       </>
     );
   return (
-    <div className="relative flex h-full min-h-0 min-w-0 bg-white dark:bg-lms-bg">
+    <div
+      key={model.field?.id || page?.space_id || "shared"}
+      className={`${chrome.shell} ${chrome.enter}`}
+      style={
+        { "--workspace-sidebar-width": `${sidebar.width}px` } as CSSProperties
+      }
+    >
       {mobile && (
         <button
           aria-label="Đóng cây trang"
@@ -276,10 +308,17 @@ export function WorkspaceClient() {
         />
       )}
       <aside
-        className={`${mobile ? "absolute inset-y-0 left-0 z-40 flex" : "hidden"} w-64 shrink-0 flex-col border-r border-slate-200 dark:border-lms-border lg:relative lg:flex`}
+        id="workspace-page-sidebar"
+        className={chrome.sidebar}
+        data-mobile={mobile || undefined}
+        data-collapsed={sidebar.collapsed || undefined}
       >
         <WorkspaceSidebar
           bootstrap={bootstrap}
+          onCollapse={() => {
+            sidebar.setCollapsed(true);
+            setMobile(false);
+          }}
           space={model.activeSpace}
           pages={model.pages}
           activeId={page?.id}
@@ -310,46 +349,35 @@ export function WorkspaceClient() {
               .catch((reason) => model.setError(reason.message));
           }}
         />
+        {!sidebar.collapsed && <WorkspaceSidebarEdge controls={sidebar} />}
       </aside>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <nav
-          className="flex h-10 shrink-0 items-center gap-1 overflow-x-auto border-b border-slate-200 px-2 dark:border-lms-border"
-          aria-label="Trang đã mở"
-        >
-          <WorkspaceButton
-            className="h-7 px-2 lg:hidden"
-            aria-label="Mở cây trang"
-            onClick={() => setMobile((value) => !value)}
-          >
-            <Menu className="size-4" />
-          </WorkspaceButton>
-          {tabs.map((item) => (
-            <div
-              key={item.id}
-              className={`flex shrink-0 items-center rounded-t-lg text-xs ${item.id === page?.id ? "bg-slate-100 dark:bg-lms-card" : ""}`}
-            >
-              <button
-                type="button"
-                className="max-w-44 truncate px-3 py-2"
-                onClick={() => open(item.id)}
-              >
-                {item.icon || "▤"} {item.title}
-              </button>
-              <button
-                type="button"
-                aria-label={`Đóng tab ${item.title}`}
-                className="p-1"
-                onClick={() =>
-                  setTabs((previous) =>
-                    previous.filter((value) => value.id !== item.id),
-                  )
-                }
-              >
-                <X className="size-3" />
-              </button>
-            </div>
-          ))}
-        </nav>
+        <WorkspaceTabs
+          model={tabModel}
+          activeId={page?.id}
+          onAdd={() => setTabPicker(true)}
+          onSidebar={toggleSidebar}
+          sidebarOpen={sidebar.isDesktop ? !sidebar.collapsed : mobile}
+        />
+        {tabPicker && (
+          <WorkspaceTabPicker
+            bootstrap={bootstrap}
+            fieldId={model.field?.id}
+            canCreate={
+              !!model.activeSpace &&
+              ["owner", "manager", "editor"].includes(model.activeSpace.role)
+            }
+            onClose={() => setTabPicker(false)}
+            onOpen={(id) => {
+              setTabPicker(false);
+              open(id);
+            }}
+            onNew={() => {
+              setTabPicker(false);
+              setDialog({ type: "create" });
+            }}
+          />
+        )}
         {page && (
           <WorkspaceHeader
             page={page}

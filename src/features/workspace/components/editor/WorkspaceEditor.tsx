@@ -20,7 +20,7 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/shadcn/style.css";
 import "katex/contrib/mhchem";
 import "katex/dist/katex.min.css";
-import { BookOpen, FilePlus2, ImagePlus, Link2 } from "lucide-react";
+import { BookOpen, FilePlus2, Link2 } from "lucide-react";
 import { workspaceService, WorkspaceError } from "../../api/workspaceService";
 import {
   decodeUpdate,
@@ -215,7 +215,6 @@ function RichEditor({
   status: CollaborationStatus;
 }) {
   const { resolvedTheme } = useTheme();
-  const uploadInput = useRef<HTMLInputElement>(null);
   const [linkedIds, setLinkedIds] = useState<string[]>([]);
   const editor = useCreateBlockNote(
     withCollaboration({
@@ -361,65 +360,6 @@ function RichEditor({
     <WorkspaceEditorContext.Provider value={context}>
       <div className={styles.editor}>
         <WorkspaceErrorBanner message={error} />
-        {provider.editable && (
-          <div className="mb-2 flex flex-wrap gap-1 px-4 sm:px-10">
-            <WorkspaceButton onClick={() => uploadInput.current?.click()}>
-              <ImagePlus className="size-4" />
-              Ảnh / tệp
-            </WorkspaceButton>
-            <WorkspaceButton onClick={insertWebLink}>
-              <Link2 className="size-4" />
-              Liên kết web
-            </WorkspaceButton>
-            <WorkspaceButton onClick={props.onGuide}>
-              <BookOpen className="size-4" />
-              LaTeX
-            </WorkspaceButton>
-            <input
-              ref={uploadInput}
-              type="file"
-              className="hidden"
-              accept="image/png,image/jpeg,image/webp,application/pdf"
-              aria-label="Tải ảnh hoặc tệp lên trang"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-                void workspaceService
-                  .upload(props.page.id, file)
-                  .then((result) => {
-                    if (!provider.editable) return;
-                    editor.insertBlocks(
-                      [
-                        result.mime.startsWith("image/")
-                          ? {
-                              type: "image",
-                              props: {
-                                url: result.url,
-                                caption: "",
-                                name: result.name,
-                              },
-                            }
-                          : {
-                              type: "file",
-                              props: { url: result.url, name: result.name },
-                            },
-                      ],
-                      editor.getTextCursorPosition().block,
-                      "after",
-                    );
-                  })
-                  .catch((reason) =>
-                    setError(
-                      reason instanceof Error
-                        ? reason.message
-                        : "Chưa tải được tệp.",
-                    ),
-                  );
-                event.target.value = "";
-              }}
-            />
-          </div>
-        )}
         <BlockNoteView
           editor={editor}
           editable={provider.editable}

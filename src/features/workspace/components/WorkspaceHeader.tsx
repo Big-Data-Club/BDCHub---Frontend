@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceEdited } from "./WorkspaceEdited";
 import { Fragment } from "react";
 import {
   ChevronRight,
@@ -16,7 +17,7 @@ import { WorkspaceButton } from "./WorkspacePrimitives";
 import { WorkspacePageMenu, type PageAction } from "./WorkspacePageMenu";
 const saveLabels = {
   connecting: "Đang kết nối…",
-  saved: "Đã lưu",
+  saved: "",
   saving: "Đang lưu…",
   offline: "Bản nháp trên thiết bị",
   readonly: "Chỉ xem",
@@ -103,12 +104,15 @@ export function WorkspaceHeader({
         </span>
       </div>
       <div className="flex items-center gap-1">
-        <span
-          role="status"
-          className={`mr-1 text-xs ${status.state === "saved" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}
-        >
-          {saveLabels[status.state]}
-        </span>
+        {status.state !== "saved" && (
+          <span
+            role="status"
+            className="mr-1 text-xs text-slate-500 dark:text-slate-400"
+          >
+            {saveLabels[status.state]}
+          </span>
+        )}
+        <WorkspaceEdited page={page} onActivity={() => onPanel("activity")} />
         <WorkspaceButton
           aria-label={page.favorite ? "Bỏ yêu thích" : "Yêu thích"}
           aria-pressed={page.favorite}
