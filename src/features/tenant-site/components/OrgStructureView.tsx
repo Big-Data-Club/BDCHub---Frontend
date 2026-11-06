@@ -7,7 +7,6 @@ import {
   Phone,
   Globe,
   Search,
-  Sparkles,
   ShieldCheck,
   Building2,
   LayoutGrid,
@@ -15,37 +14,55 @@ import {
   Network,
   ExternalLink,
 } from "lucide-react";
-import type { PersonnelMember } from "../helpers";
+import type { OrgChartData, OrgMember, OrgGroup } from "../helpers";
 
 interface Props {
-  members: PersonnelMember[];
-  introText?: string;
-  primaryColor?: string;
+  data: OrgChartData;
 }
 
-export function OrgStructureView({ members, introText, primaryColor }: Props) {
+export function OrgStructureView({ data }: Props) {
   const [viewMode, setViewMode] = useState<"tree" | "grid" | "text">("tree");
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredMembers = useMemo(() => {
-    if (!searchTerm.trim()) return members;
+    if (!searchTerm.trim()) return data.allMembers;
     const term = searchTerm.toLowerCase();
-    return members.filter(
+    return data.allMembers.filter(
       m =>
         m.name.toLowerCase().includes(term) ||
         m.role.toLowerCase().includes(term) ||
         (m.email && m.email.toLowerCase().includes(term)) ||
         (m.other && m.other.toLowerCase().includes(term))
     );
-  }, [members, searchTerm]);
+  }, [data.allMembers, searchTerm]);
 
-  // Group by tier
-  const tier1 = useMemo(() => filteredMembers.filter(m => m.tier === 1), [filteredMembers]);
-  const tier2 = useMemo(() => filteredMembers.filter(m => m.tier === 2), [filteredMembers]);
-  const tier3 = useMemo(() => filteredMembers.filter(m => m.tier === 3 || m.tier === 4), [filteredMembers]);
+  // Filter groups according to search
+  const filteredGroups = useMemo(() => {
+    if (!searchTerm.trim()) return data.groups;
+    const term = searchTerm.toLowerCase();
+    return data.groups
+      .map(group => ({
+        ...group,
+        members: group.members.filter(
+          m =>
+            m.name.toLowerCase().includes(term) ||
+            m.role.toLowerCase().includes(term) ||
+            (m.email && m.email.toLowerCase().includes(term)) ||
+            (m.other && m.other.toLowerCase().includes(term))
+        ),
+      }))
+      .filter(group => group.members.length > 0);
+  }, [data.groups, searchTerm]);
 
   return (
     <div className="space-y-8">
+      {/* Intro text (if admin wrote text above the org chart) */}
+      {data.introText && (
+        <div className="prose max-w-none text-slate-700 dark:prose-invert dark:text-slate-300">
+          <p className="whitespace-pre-line leading-relaxed">{data.introText}</p>
+        </div>
+      )}
+
       {/* Search & View Switcher Toolbar */}
       <div className="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/60 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2.5">
@@ -53,9 +70,9 @@ export function OrgStructureView({ members, introText, primaryColor }: Props) {
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <span className="font-bold text-slate-900 dark:text-white">Tổ chức nhân sự</span>
+            <span className="font-bold text-slate-900 dark:text-white">Sơ đồ tổ chức</span>
             <span className="ml-2 inline-flex items-center rounded-full bg-slate-200/70 px-2 py-0.5 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-              {filteredMembers.length} thành viên
+              {filteredMembers.length} thành viên · {filteredGroups.length} bộ phận
             </span>
           </div>
         </div>
@@ -109,93 +126,95 @@ export function OrgStructureView({ members, introText, primaryColor }: Props) {
               }`}
             >
               <FileText className="h-3.5 w-3.5" />
-              <span>Chi tiết</span>
+              <span>Bảng chi tiết</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* VIEW MODE 1: TREE VIEW */}
+      {/* VIEW MODE 1: DYNAMIC TREE VIEW */}
       {viewMode === "tree" && (
         <div className="relative overflow-x-auto rounded-3xl border border-slate-200/80 bg-gradient-to-b from-slate-50/50 to-white/80 p-6 backdrop-blur-md dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/80 md:p-10">
           <div className="min-w-[640px] space-y-8">
-            {/* TIER 1: LEADERSHIP / DIRECTOR */}
-            {tier1.length > 0 && (
-              <div className="space-y-4 text-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[var(--tenant-primary)]/20 bg-[var(--tenant-primary)]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[var(--tenant-primary)]">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>Ban Lãnh đạo</span>
-                </div>
-                <div className="flex flex-wrap justify-center gap-6">
-                  {tier1.map(member => (
-                    <MemberCard key={member.id} member={member} isLeader />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Tree Branch Connector: Tier 1 to Tier 2 */}
-            {tier1.length > 0 && (tier2.length > 0 || tier3.length > 0) && (
-              <div className="flex flex-col items-center">
-                <div className="h-8 w-0.5 bg-gradient-to-b from-[var(--tenant-primary)] to-slate-300 dark:to-slate-700" />
-                <div className="h-2 w-2 rounded-full bg-[var(--tenant-primary)] shadow-[0_0_8px_var(--tenant-primary)]" />
-              </div>
-            )}
-
-            {/* TIER 2: DEPUTY DIRECTORS */}
-            {tier2.length > 0 && (
-              <div className="space-y-4 text-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-sky-700 dark:bg-sky-950/60 dark:text-sky-300">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>Ban Phó Giám đốc</span>
-                </div>
-                {/* Horizontal branch line connecting columns */}
-                <div className="relative pt-2">
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {tier2.map(member => (
-                      <MemberCard key={member.id} member={member} />
-                    ))}
+            {filteredGroups.map((group, gIdx) => (
+              <div key={group.id} className="space-y-4">
+                {/* Group Title Badge - Dynamically defined by Admin! */}
+                <div className="text-center">
+                  <div
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider shadow-xs ${
+                      group.isRoot
+                        ? "border border-[var(--tenant-primary)]/30 bg-[var(--tenant-primary)]/10 text-[var(--tenant-primary)]"
+                        : "border border-slate-300/80 bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                    }`}
+                  >
+                    {group.isRoot ? (
+                      <ShieldCheck className="h-3.5 w-3.5 text-[var(--tenant-primary)]" />
+                    ) : (
+                      <Building2 className="h-3.5 w-3.5 text-slate-500" />
+                    )}
+                    <span>{group.title}</span>
+                    <span className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold dark:bg-white/10">
+                      {group.members.length}
+                    </span>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* Tree Branch Connector: Tier 2 to Tier 3 */}
-            {tier2.length > 0 && tier3.length > 0 && (
-              <div className="flex flex-col items-center">
-                <div className="h-8 w-0.5 bg-slate-300 dark:bg-slate-700" />
-                <div className="h-2 w-2 rounded-full bg-slate-400 dark:bg-slate-600" />
-              </div>
-            )}
-
-            {/* TIER 3: DEPARTMENTS & SPECIALISTS */}
-            {tier3.length > 0 && (
-              <div className="space-y-4 text-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-slate-300/80 bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                  <Building2 className="h-3.5 w-3.5" />
-                  <span>Bộ phận Chuyên môn & Kế toán</span>
-                </div>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {tier3.map(member => (
-                    <MemberCard key={member.id} member={member} />
+                {/* Group Members Grid */}
+                <div
+                  className={`grid gap-6 ${
+                    group.isRoot
+                      ? "flex flex-wrap justify-center"
+                      : group.members.length === 1
+                      ? "mx-auto max-w-sm"
+                      : group.members.length === 2
+                      ? "mx-auto max-w-2xl sm:grid-cols-2"
+                      : "sm:grid-cols-2 lg:grid-cols-3"
+                  }`}
+                >
+                  {group.members.map(member => (
+                    <MemberCard
+                      key={member.id}
+                      member={member}
+                      isLeader={group.isRoot}
+                    />
                   ))}
                 </div>
+
+                {/* Branch connector line to the next group */}
+                {gIdx < filteredGroups.length - 1 && (
+                  <div className="flex flex-col items-center pt-2">
+                    <div className="h-8 w-0.5 bg-gradient-to-b from-[var(--tenant-primary)]/60 to-slate-300 dark:to-slate-700" />
+                    <div className="h-2 w-2 rounded-full bg-[var(--tenant-primary)] shadow-[0_0_8px_var(--tenant-primary)]" />
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
         </div>
       )}
 
       {/* VIEW MODE 2: CARDS GRID */}
       {viewMode === "grid" && (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredMembers.map(member => (
-            <MemberCard key={member.id} member={member} isLeader={member.tier === 1} />
+        <div className="space-y-10">
+          {filteredGroups.map(group => (
+            <div key={group.id} className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-200/80 pb-2 dark:border-slate-800">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{group.title}</h3>
+                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                  {group.members.length}
+                </span>
+              </div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {group.members.map(member => (
+                  <MemberCard key={member.id} member={member} isLeader={group.isRoot} />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       )}
 
-      {/* VIEW MODE 3: TEXT DETAIL */}
+      {/* VIEW MODE 3: TEXT DETAIL TABLE */}
       {viewMode === "text" && (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
           <div className="overflow-x-auto">
@@ -204,60 +223,73 @@ export function OrgStructureView({ members, introText, primaryColor }: Props) {
                 <tr>
                   <th className="px-6 py-3.5">Họ và tên</th>
                   <th className="px-6 py-3.5">Chức vụ</th>
+                  <th className="px-6 py-3.5">Bộ phận / Nhóm</th>
                   <th className="px-6 py-3.5">Email</th>
                   <th className="px-6 py-3.5">Điện thoại</th>
                   <th className="px-6 py-3.5">Website / Khác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                {filteredMembers.map(member => (
-                  <tr key={member.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
-                    <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--tenant-primary)]/10 text-xs font-bold text-[var(--tenant-primary)]">
-                          {member.initials}
-                        </span>
-                        <span>{member.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-semibold text-[var(--tenant-primary)]">{member.role}</td>
-                    <td className="px-6 py-4">
-                      {member.email ? (
-                        <a href={`mailto:${member.email}`} className="text-blue-600 hover:underline dark:text-blue-400">
-                          {member.email}
-                        </a>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="px-6 py-4">{member.phone || "—"}</td>
-                    <td className="px-6 py-4">
-                      {member.website ? (
-                        <a
-                          href={member.website.startsWith("http") ? member.website : `https://${member.website}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-slate-600 hover:underline dark:text-slate-300"
-                        >
-                          <span>{member.website.replace(/^https?:\/\//, "")}</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      ) : (
-                        member.other || "—"
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {filteredGroups.flatMap(group =>
+                  group.members.map(member => (
+                    <tr key={member.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
+                      <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--tenant-primary)]/10 text-xs font-bold text-[var(--tenant-primary)]">
+                            {member.initials}
+                          </span>
+                          <span>{member.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[var(--tenant-primary)]">{member.role}</td>
+                      <td className="px-6 py-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+                        {group.title}
+                      </td>
+                      <td className="px-6 py-4">
+                        {member.email ? (
+                          <a href={`mailto:${member.email}`} className="text-blue-600 hover:underline dark:text-blue-400">
+                            {member.email}
+                          </a>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="px-6 py-4">{member.phone || "—"}</td>
+                      <td className="px-6 py-4">
+                        {member.website ? (
+                          <a
+                            href={member.website.startsWith("http") ? member.website : `https://${member.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-slate-600 hover:underline dark:text-slate-300"
+                          >
+                            <span>{member.website.replace(/^https?:\/\//, "")}</span>
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        ) : (
+                          member.other || "—"
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Outro text (if admin wrote text below the org chart) */}
+      {data.outroText && (
+        <div className="prose max-w-none text-slate-700 dark:prose-invert dark:text-slate-300">
+          <p className="whitespace-pre-line leading-relaxed">{data.outroText}</p>
         </div>
       )}
     </div>
   );
 }
 
-function MemberCard({ member, isLeader = false }: { member: PersonnelMember; isLeader?: boolean }) {
+function MemberCard({ member, isLeader = false }: { member: OrgMember; isLeader?: boolean }) {
   const websiteUrl = member.website
     ? member.website.startsWith("http")
       ? member.website
@@ -283,8 +315,6 @@ function MemberCard({ member, isLeader = false }: { member: PersonnelMember; isL
           className={`flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl text-base font-extrabold shadow-xs transition-transform duration-300 group-hover:scale-105 ${
             isLeader
               ? "bg-gradient-to-br from-[var(--tenant-primary)] to-blue-600 text-white"
-              : member.tier === 2
-              ? "bg-gradient-to-br from-indigo-500 to-sky-500 text-white"
               : "bg-slate-100 font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
           }`}
         >
@@ -298,17 +328,15 @@ function MemberCard({ member, isLeader = false }: { member: PersonnelMember; isL
               className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide ${
                 isLeader
                   ? "bg-[var(--tenant-primary)]/15 text-[var(--tenant-primary)]"
-                  : member.tier === 2
-                  ? "bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"
                   : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
               }`}
             >
               {member.role}
             </span>
           </div>
-          <h3 className="truncate text-base font-bold text-slate-900 dark:text-white md:text-lg">
+          <h4 className="truncate text-base font-bold text-slate-900 dark:text-white md:text-lg">
             {member.name}
-          </h3>
+          </h4>
           {member.other && (
             <p className="line-clamp-2 text-xs text-slate-500 dark:text-slate-400">
               {member.other}

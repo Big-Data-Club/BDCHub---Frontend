@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import type { SiteDocument, SiteSection } from "../types";
 import { siteHref } from "../links";
-import { normalizeMarkdown, parsePersonnel } from "../helpers";
+import { normalizeMarkdown, parseOrgChart } from "../helpers";
 import { OrgStructureView } from "./OrgStructureView";
 
 function CopyButton({ text }: { text: string }) {
@@ -42,11 +42,11 @@ function CopyButton({ text }: { text: string }) {
 
 function Content({ text, slug }: { text: string; slug: string }) {
   const normalized = normalizeMarkdown(text);
-  const personnel = parsePersonnel(normalized);
+  const chartData = parseOrgChart(normalized);
 
-  // If text is detected as personnel structure (or org list), render OrgStructureView
-  if (personnel && personnel.length >= 2) {
-    return <OrgStructureView members={personnel} />;
+  // If text is explicitly marked as org-chart by admin, render dynamic OrgStructureView
+  if (chartData && chartData.groups.length > 0) {
+    return <OrgStructureView data={chartData} />;
   }
 
   return (

@@ -68,7 +68,7 @@ export function normalizeMarkdown(text: string): string {
   return result.join("\n");
 }
 
-export interface PersonnelMember {
+export interface OrgMember {
   id: string;
   name: string;
   role: string;
@@ -77,36 +77,56 @@ export interface PersonnelMember {
   website?: string;
   other?: string;
   initials: string;
-  tier: 1 | 2 | 3 | 4;
+}
+
+export interface OrgGroup {
+  id: string;
+  title: string;
+  isRoot: boolean;
+  members: OrgMember[];
+}
+
+export interface OrgChartData {
+  introText?: string;
+  outroText?: string;
+  groups: OrgGroup[];
+  allMembers: OrgMember[];
 }
 
 /**
- * Parses personnel text (freeform or markdown bullet list) into structured hierarchy nodes.
+ * Checks if the content is explicitly marked as an Org Chart by the admin.
  */
-export function parsePersonnel(text: string): PersonnelMember[] | null {
-  if (!text) return null;
+export function isOrgChartMarked(text: string): boolean {
+  if (!text) return false;
+  return /:::org(?:-chart)?/i.test(text) || /```org(?:-chart)?/i.test(text) || /\[org(?:-chart)?\]/i.test(text);
+}
 
-  const lines = text.split("\n");
-  const members: Omit<PersonnelMember, "id" | "initials" | "tier">[] = [];
+function parseGroupMembers(content: string): OrgMember[] {
+  const lines = content.split("\n");
+  const members: Omit<OrgMember, "id" | "initials">[] = [];
 
-  // Check if bullet list format: "- **PGS TS. Thoại Nam** - Giám đốc"
   const isBulletFormat = lines.some(l => /^\s*[-*+]\s+/.test(l));
 
   if (isBulletFormat) {
-    let current: Omit<PersonnelMember, "id" | "initials" | "tier"> | null = null;
+    let current: Omit<OrgMember, "id" | "initials"> | null = null;
     for (const rawLine of lines) {
       const isSubBullet = /^\s{2,}[-*+]\s+/.test(rawLine);
       const line = rawLine.trim();
       if (!line) continue;
 
       if (!isSubBullet && /^[-*+]\s+/.test(line)) {
-        const content = line.replace(/^[-*+]\s+/, "");
-        const parts = content.split(/\s*[-–—|:]\s*/);
+        const itemText = line.replace(/^[-*+]\s+/, "");
+        const parts = itemText.split(/\s*[-–—|:]\s*/);
         if (parts.length >= 2) {
           if (current) members.push(current);
           const name = parts[0].replace(/\*\*/g, "").trim();
           const role = parts.slice(1).join(" - ").replace(/\*\*/g, "").trim();
           current = { name, role, phone: "", email: "", website: "", other: "" };
+          continue;
+        } else if (parts.length === 1 && itemText.trim()) {
+          if (current) members.push(current);
+          const name = itemText.replace(/\*\*/g, "").trim();
+          current = { name, role: "Thành viên", phone: "", email: "", website: "", other: "" };
           continue;
         }
       }
@@ -125,27 +145,24 @@ export function parsePersonnel(text: string): PersonnelMember[] | null {
           const m = cleanLine.match(/(?:website|web):\s*(.+)$/i);
           if (m) current.website = m[1].trim();
         }
-        if (/thông tin khác|chuyên ngành/i.test(cleanLine)) {
-          const m = cleanLine.match(/(?:thông tin khác|chuyên ngành):\s*(.+)$/i);
+        if (/chuyên môn|chuyên ngành|thông tin khác|khác/i.test(cleanLine)) {
+          const m = cleanLine.match(/(?:chuyên môn|chuyên ngành|thông tin khác|khác):\s*(.+)$/i);
           if (m) current.other = m[1].trim();
         }
       }
     }
     if (current) members.push(current);
-  }
-
-  // Fallback to paragraph/block format (e.g. from the admin's unformatted input)
-  if (members.length < 2) {
-    const blocks = text.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+  } else {
+    const blocks = content.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
     for (const block of blocks) {
-      if (!/chức vụ/i.test(block) && !/@/.test(block) && !/giám đốc|trưởng phòng|kế toán/i.test(block)) continue;
+      if (!/chức vụ|email|điện thoại/i.test(block)) continue;
       const nameMatch = block.match(/^([^:\n]+?)(?=\s+(?:Chức vụ|Chức danh|Chức vụ:))/i) ||
                         block.match(/^([^:\n]+?)(?=\s*\n\s*(?:Chức vụ|Chức danh))/i);
       const roleMatch = block.match(/(?:Chức vụ|Chức danh):\s*([^:\n]+?)(?=\s+(?:Điện thoại|Email|Website|Thông tin khác|$|\n))/i);
       const phoneMatch = block.match(/Điện thoại:\s*([^:\n]+?)(?=\s+(?:Email|Website|Thông tin khác|$|\n))/i);
       const emailMatch = block.match(/Email:\s*([^\s,;]+@[^\s,;]+)/i);
       const webMatch = block.match(/Website:\s*([^:\n]+?)(?=\s+(?:Thông tin khác|$|\n))/i);
-      const otherMatch = block.match(/Thông tin khác:\s*([\s\S]+)$/i);
+      const otherMatch = block.match(/(?:Thông tin khác|Chuyên ngành):\s*([\s\S]+)$/i);
 
       let name = nameMatch ? nameMatch[1].trim() : "";
       if (!name) {
@@ -162,28 +179,124 @@ export function parsePersonnel(text: string): PersonnelMember[] | null {
       if (website.toLowerCase() === "thông tin khác:" || website === "-") website = "";
       const other = otherMatch ? otherMatch[1].trim() : "";
 
-      if (name && (role || email)) {
+      if (name) {
         members.push({ name, role: role || "Cán bộ", phone, email, website, other });
       }
     }
   }
 
-  if (members.length < 2) return null;
-
   return members.map((m, idx) => {
+    const cleanName = m.name.replace(/^(?:PGS\.?\s*TS\.?|TS\.?|ThS\.?|CN\.?|GS\.?|Thạc sĩ|Tiến sĩ|Giáo sư|Kỹ sư|KS\.?)\s+/i, "");
+    const words = cleanName.trim().split(/\s+/);
+    const initials = words.length > 1 ? (words[0][0] + words[words.length - 1][0]).toUpperCase() : cleanName.slice(0, 2).toUpperCase();
+    return {
+      id: `member-${idx + 1}-${Math.random().toString(36).slice(2, 6)}`,
+      ...m,
+      initials,
+    };
+  });
+}
+
+/**
+ * Parses content marked as Org Chart into dynamic groups and members.
+ * Supports:
+ * - Explicit marker: :::org-chart ... ::: or ```org-chart ... ``` or [org-chart] ... [/org-chart]
+ * - Or force = true (when admin enabled the Org Chart toggle on this block)
+ * - Group headers: ## Tên Nhóm or ### Tên Nhóm
+ */
+export function parseOrgChart(text: string, force = false): OrgChartData | null {
+  if (!text) return null;
+
+  const orgChartMatch = text.match(/:::org(?:-chart)?\s*([\s\S]*?):::/i) ||
+                        text.match(/```org(?:-chart)?\s*([\s\S]*?)```/i) ||
+                        text.match(/\[org(?:-chart)?\]\s*([\s\S]*?)\[\/org(?:-chart)?\]/i);
+
+  let rawChart = "";
+  let introText = "";
+  let outroText = "";
+
+  if (orgChartMatch) {
+    rawChart = orgChartMatch[1].trim();
+    const fullMatch = orgChartMatch[0];
+    const matchIndex = text.indexOf(fullMatch);
+    introText = text.slice(0, matchIndex).trim();
+    outroText = text.slice(matchIndex + fullMatch.length).trim();
+  } else if (force) {
+    rawChart = text.trim();
+  } else {
+    return null;
+  }
+
+  const groupSplits = rawChart.split(/(?=^#{2,3}\s+)/m);
+  const groups: OrgGroup[] = [];
+
+  for (let gIdx = 0; gIdx < groupSplits.length; gIdx++) {
+    const chunk = groupSplits[gIdx].trim();
+    if (!chunk) continue;
+
+    let groupTitle = "";
+    let content = chunk;
+
+    const titleMatch = chunk.match(/^#{2,3}\s+(.+)$/m);
+    if (titleMatch) {
+      groupTitle = titleMatch[1].trim();
+      content = chunk.replace(/^#{2,3}\s+.+$/m, "").trim();
+    } else {
+      groupTitle = gIdx === 0 ? "Ban Lãnh đạo" : `Bộ phận ${gIdx + 1}`;
+    }
+
+    const members = parseGroupMembers(content);
+    if (members.length > 0) {
+      groups.push({
+        id: `group-${groups.length + 1}`,
+        title: groupTitle,
+        isRoot: groups.length === 0,
+        members,
+      });
+    }
+  }
+
+  if (groups.length === 0) return null;
+
+  const allMembers = groups.flatMap(g => g.members);
+
+  return {
+    introText,
+    outroText,
+    groups,
+    allMembers,
+  };
+}
+
+export interface PersonnelMember {
+  id: string;
+  name: string;
+  role: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  other?: string;
+  initials: string;
+  tier: 1 | 2 | 3 | 4;
+}
+
+/**
+ * Backwards compatibility helper for existing legacy tests.
+ */
+export function parsePersonnel(text: string): PersonnelMember[] | null {
+  const chart = parseOrgChart(text, true);
+  if (!chart || chart.allMembers.length < 2) return null;
+
+  return chart.allMembers.map((m, idx) => {
     let tier: 1 | 2 | 3 | 4 = 4;
     const rLower = m.role.toLowerCase();
     if (/giám đốc|hiệu trưởng|viện trưởng|chủ tịch|trưởng trung tâm|director|dean|ceo/i.test(rLower) && !/phó|deputy|vice/i.test(rLower)) {
       tier = 1;
-    } else if (/phó giám đốc|phó hiệu trưởng|phó viện trưởng|phó trưởng|phó chủ tịch|deputy|vice/i.test(rLower)) {
+    } else if (/phó/i.test(rLower)) {
       tier = 2;
-    } else if (/trưởng phòng|kế toán trưởng|trưởng ban|trưởng bộ môn|head|lead|quản lý/i.test(rLower)) {
+    } else if (/trưởng phòng|kế toán trưởng|trưởng ban|trưởng bộ môn/i.test(rLower)) {
       tier = 3;
     }
-
-    const cleanName = m.name.replace(/^(?:PGS\.?\s*TS\.?|TS\.?|ThS\.?|CN\.?|GS\.?|Thạc sĩ|Tiến sĩ|Giáo sư|Kỹ sư|KS\.?)\s+/i, "");
-    const words = cleanName.trim().split(/\s+/);
-    const initials = words.length > 1 ? (words[0][0] + words[words.length - 1][0]).toUpperCase() : cleanName.slice(0, 2).toUpperCase();
 
     return {
       id: `person-${idx + 1}`,
@@ -193,7 +306,7 @@ export function parsePersonnel(text: string): PersonnelMember[] | null {
       email: m.email,
       website: m.website,
       other: m.other,
-      initials,
+      initials: m.initials,
       tier,
     };
   });

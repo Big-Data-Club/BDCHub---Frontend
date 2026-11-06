@@ -65,13 +65,29 @@ export function Toggle({
   );
 }
 
-const sampleOrg = `PGS TS. Thoại Nam Chức vụ: Giám đốc Email: nam@cse.hcmut.edu.vn Website: www.cse.hcmut.edu.vn/~nam
+const sampleOrg = `:::org-chart
+## Ban Giám Đốc
+- **PGS TS. Thoại Nam** - Giám đốc
+  - Email: nam@cse.hcmut.edu.vn
+  - Website: www.cse.hcmut.edu.vn/~nam
 
-TS. Dương Ngọc Hiếu Chức vụ: Phó giám đốc Email: dnhieu@hcmut.edu.vn Website: www.cse.hcmut.edu.vn/~dnhieu Thông tin khác: Chuyên ngành công nghệ thông tin
+## Ban Phó Giám Đốc
+- **TS. Dương Ngọc Hiếu** - Phó giám đốc
+  - Email: dnhieu@hcmut.edu.vn
+  - Chuyên môn: Chuyên ngành công nghệ thông tin
+- **ThS. Lê Quốc Tuấn** - Phó giám đốc
+  - Email: lqtuan@hcmut.edu.vn
+  - Chuyên môn: Chuyên ngành công nghệ thông tin
+- **ThS. Ngô Quang Nhựt** - Phó giám đốc
+  - Điện thoại: 0813 23 04 33
+  - Email: nhutnq@hcmut.edu.vn
+  - Chuyên môn: Chuyên ngành công nghệ thông tin
 
-ThS. Lê Quốc Tuấn Chức vụ: Phó giám đốc Email: lqtuan@hcmut.edu.vn Website: http://www4.hcmut.edu.vn/~lqtuan Thông tin khác: Chuyên ngành công nghệ thông tin
-
-CN. Trần Thị Ngọc Diễm Chức vụ: Kế toán trưởng Điện thoại: 01666444566 Email: ngocdiemkt28@gmail.com`;
+## Phòng Kế toán & Hành chính
+- **CN. Trần Thị Ngọc Diễm** - Kế toán trưởng
+  - Điện thoại: 01666444566
+  - Email: ngocdiemkt28@gmail.com
+:::`;
 
 export function RichTextField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -84,8 +100,19 @@ export function RichTextField({ value, onChange }: { value: string; onChange: (v
     ref.current?.focus();
   }
 
-  function appendSampleOrg() {
-    onChange(value ? `${value}\n\n${sampleOrg}` : sampleOrg);
+  function toggleOrgChartTag() {
+    const start = ref.current?.selectionStart || 0;
+    const end = ref.current?.selectionEnd || start;
+    const selected = value.slice(start, end);
+
+    if (selected.trim()) {
+      // Wrap selected in :::org-chart
+      const wrapped = `:::org-chart\n## Cấp lãnh đạo\n${selected}\n:::`;
+      onChange(value.slice(0, start) + wrapped + value.slice(end));
+    } else {
+      // Append complete sample template
+      onChange(value ? `${value}\n\n${sampleOrg}` : sampleOrg);
+    }
     ref.current?.focus();
   }
 
@@ -97,10 +124,11 @@ export function RichTextField({ value, onChange }: { value: string; onChange: (v
         </span>
         <button
           type="button"
-          onClick={appendSampleOrg}
-          className="rounded-lg border border-sky-400 bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700 transition-colors hover:bg-sky-100 dark:border-sky-700 dark:bg-sky-950/60 dark:text-sky-300"
+          onClick={toggleOrgChartTag}
+          className="rounded-lg border border-sky-400 bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700 shadow-xs transition-colors hover:bg-sky-100 dark:border-sky-700 dark:bg-sky-950/60 dark:text-sky-300"
+          title="Đánh dấu khối hiển thị thành Sơ đồ tổ chức dạng Cây (Org Tree)"
         >
-          + Thêm mẫu sơ đồ nhân sự
+          🌳 Đánh dấu Sơ đồ tổ chức (:::org-chart)
         </button>
       </div>
 
@@ -137,13 +165,13 @@ export function RichTextField({ value, onChange }: { value: string; onChange: (v
       />
 
       <div className="rounded-xl border border-blue-500/20 bg-blue-50/60 p-3 text-xs text-blue-900 dark:border-blue-500/30 dark:bg-blue-950/40 dark:text-blue-200">
-        <p className="font-semibold">💡 Mẹo trình bày:</p>
-        <ul className="mt-1 list-disc pl-4 space-y-0.5">
+        <p className="font-semibold">💡 Hướng dẫn định dạng:</p>
+        <ul className="mt-1 list-disc pl-4 space-y-1">
           <li>
-            <strong>Không lùi đầu dòng bằng 4 dấu cách hoặc phím Tab</strong> (tránh làm văn bản biến thành khối mã nguồn đen).
+            <strong>Sơ đồ tổ chức dạng cây:</strong> Bao quanh khối nhân sự bằng thẻ <code>:::org-chart</code> và <code>:::</code>. Đặt tên cấp/phòng ban tùy ý bằng đề mục <code>## Tên Nhóm</code> (Ví dụ: <code>## Ban Giám Đốc</code>, <code>## Phòng Đào Tạo</code>...). Hệ thống sẽ dựng cây theo đúng các nhóm bạn đặt.
           </li>
           <li>
-            Trang <strong>Tổ chức nhân sự</strong> sẽ tự động nhận diện danh sách cán bộ và vẽ thành <strong>Sơ đồ cây (Org Tree)</strong> và danh thiếp trực quan.
+            <strong>Tránh lỗi khối đen:</strong> Không lùi đầu dòng đoạn văn bằng 4 dấu cách hoặc phím Tab.
           </li>
           <li>Xem trước giao diện ngay tại tab <em>&ldquo;Xem trước&rdquo;</em> trước khi Xuất bản.</li>
         </ul>
