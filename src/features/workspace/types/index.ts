@@ -82,7 +82,7 @@ export interface WorkspacePage {
   creator_name?: string;
   search_text?: string;
   favorite?: boolean;
-  opened_at?: string;
+  opened_at?: string | null;
   access?: number;
   generation?: number;
   revision?: string;

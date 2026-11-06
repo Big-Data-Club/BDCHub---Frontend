@@ -66,3 +66,10 @@ hierarchical heading navigation, uploaded cover saving and reload persistence.
 It also captures light, dark and 390 px layouts. Use the same isolated sessions,
 API and PostgreSQL setup described above; it creates only fresh fixture pages.
 Production mode additionally verifies undo/redo after moving an image.
+
+`browser-library.py` verifies cross-space aggregation, server pagination, nested
+expansion, property filtering with AND/OR, column visibility/reorder persistence,
+private-source redaction, truthful visits, favorites and new-page creation. It
+uses the same isolated API/NextAuth fixtures and checks both themes and a 390 px
+viewport. Unit cases cover preference recovery, mandatory columns and incomplete
+filter drafts. The library BFF accepts only its two declared catalog routes.

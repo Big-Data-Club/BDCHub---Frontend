@@ -55,6 +55,39 @@ function request(method, route, body, origin = base) {
 const context = (route) => ({
   params: Promise.resolve({ path: route.split("/") }),
 });
+test("library BFF forwards filters under the signed-in identity and rejects undeclared library routes", async () => {
+  let sent;
+  const api = handler(user, async (url, options) => {
+    sent = { url, options };
+    return new Response(
+      JSON.stringify({ items: [], total: 0, next_offset: null }),
+    );
+  });
+  const response = await api.GET(
+    request("GET", "library?tab=all&q=notes"),
+    context("library"),
+  );
+  assert.equal(response.status, 200);
+  assert.ok(sent.url.endsWith("/library?tab=all&q=notes"));
+  assert.equal(
+    sent.options.headers.Authorization,
+    "Bearer server-session-token",
+  );
+  assert.equal(
+    (
+      await api.GET(
+        request("GET", "library/options"),
+        context("library/options"),
+      )
+    ).status,
+    200,
+  );
+  assert.equal(
+    (await api.GET(request("GET", "library/admin"), context("library/admin")))
+      .status,
+    404,
+  );
+});
 test("Workspace BFF requires a valid session and rejects cross-site writes and unknown routes", async () => {
   const noFetch = () => {
     throw Error("must not fetch");

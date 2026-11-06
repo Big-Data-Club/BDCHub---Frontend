@@ -17,6 +17,7 @@ import {
   Trash2,
   Users,
   ArrowLeft,
+  LibraryBig,
 } from "lucide-react";
 import type {
   WorkspaceBootstrap,
@@ -236,6 +237,13 @@ export function WorkspaceSidebar(props: SidebarProps) {
             ? "Riêng tư · chia sẻ khi bạn chọn"
             : "Theo quyền được cấp"}
         </p>
+        <Link
+          href="/workspace/library"
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-lms-hover"
+        >
+          <LibraryBig className="size-4" />
+          Thư viện
+        </Link>
         <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-lms-border dark:bg-lms-input">
           <Search className="size-4 shrink-0 text-slate-400" />
           <input

@@ -6,6 +6,14 @@ layout keeps the BDC icon rail and provides a separate page tree/editor shell.
 through `api/workspaceService.ts`, and request/state logic lives in hooks.
 Inspector sections and database layouts are independent components.
 
+`/workspace/library` is an authenticated cross-space catalog with recent,
+favorite, shared, private and all-page views. The Library API filters and sorts
+before pagination and never marks catalog rows visited. Source links and author
+options are scoped on the server; a directly shared child cannot disclose an
+inaccessible parent/field. View preferences (columns, ordering, filters and sort)
+are versioned per user and tab in browser storage. Preferences, data, tree state
+and creation each have a separate hook. There are no placeholder AI/Skills tabs.
+
 `WorkspaceProvider` implements Yjs transport, durable ACK tracking, reconnect and
 per-account/page/generation IndexedDB recovery. Server ticket/access checks must
 finish before recovered changes are merged. Permission and generation changes

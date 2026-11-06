@@ -19,6 +19,11 @@ import type {
   WorkspaceVersion,
   PropertyValue,
 } from "../types";
+import type {
+  LibraryQuery,
+  LibraryResult,
+  LibraryPeople,
+} from "../types/library";
 
 export class WorkspaceError extends Error {
   constructor(
@@ -62,6 +67,27 @@ export const workspaceService = {
       `/pages/${pageId}/tasks`,
     ),
   bootstrap: () => request<WorkspaceBootstrap>("/bootstrap"),
+  library: (input: LibraryQuery, signal?: AbortSignal) => {
+    const query = new URLSearchParams({
+      tab: input.tab,
+      q: input.q,
+      sort: input.sort,
+      direction: input.direction,
+      match: input.match,
+      timezone: input.timezone,
+      filters: JSON.stringify(input.filters),
+      offset: String(input.offset || 0),
+    });
+    if (input.parent) query.set("parent", input.parent);
+    return request<LibraryResult>(
+      `/library?${query}`,
+      "GET",
+      undefined,
+      signal,
+    );
+  },
+  libraryPeople: (signal?: AbortSignal) =>
+    request<LibraryPeople>("/library/options", "GET", undefined, signal),
   fields: (spaceId: string, archived = false) =>
     request<WorkspaceField[]>(`/spaces/${spaceId}/fields?archived=${archived}`),
   field: (id: string) => request<WorkspaceField>(`/fields/${id}`),

@@ -182,6 +182,12 @@ export function WorkspaceGuide({
             </div>
             <ol className="list-decimal space-y-3 pl-5 text-sm leading-7">
               <li>
+                Mở Thư viện từ đầu màn hình Workspace hoặc cây trang để xem các
+                trang ở mọi lĩnh vực và không gian. Dùng Gần đây, Yêu thích,
+                Được chia sẻ hoặc Riêng tư; tìm tên trang, lọc theo người và
+                ngày, rồi chọn các thuộc tính cần hiển thị trong bảng.
+              </li>
+              <li>
                 Chọn không gian cá nhân hoặc nhóm rồi tạo lĩnh vực theo nhu cầu.
                 Tự đặt tên, mô tả, biểu tượng, màu và nhãn. Workspace không tạo
                 sẵn các môn học.

@@ -12,6 +12,7 @@ import {
   Search,
   Trash2,
   Users,
+  LibraryBig,
 } from "lucide-react";
 import type {
   WorkspaceBootstrap,
@@ -75,6 +76,13 @@ export function WorkspaceLanding({
             Workspace
           </span>
           <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/workspace/library"
+              className="flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium hover:bg-slate-100 dark:hover:bg-lms-hover"
+            >
+              <LibraryBig className="size-4" />
+              Thư viện
+            </Link>
             <label className="sr-only" htmlFor="workspace-space">
               Không gian
             </label>
