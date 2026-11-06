@@ -17,7 +17,7 @@ import { WorkspacePageMenu, type PageAction } from "./WorkspacePageMenu";
 const saveLabels = {
   connecting: "Đang kết nối…",
   saved: "",
-  saving: "Đang lưu…",
+  saving: "",
   offline: "Bản nháp trên thiết bị",
   readonly: "Chỉ xem",
   revoked: "Quyền truy cập đã đổi",
@@ -54,6 +54,7 @@ export function WorkspaceHeader({
   onFieldHome?: () => void;
 }) {
   const editable = (page.access || 0) >= 3;
+  const saveLabel = saveLabels[status.state];
   return (
     <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-2 dark:border-lms-border">
       <div className="flex min-w-0 items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
@@ -101,12 +102,12 @@ export function WorkspaceHeader({
         </span>
       </div>
       <div className="flex items-center gap-1">
-        {status.state !== "saved" && (
+        {saveLabel && (
           <span
             role="status"
             className="mr-1 text-xs text-slate-500 dark:text-slate-400"
           >
-            {saveLabels[status.state]}
+            {saveLabel}
           </span>
         )}
         <WorkspaceEdited page={page} onActivity={() => onPanel("activity")} />
