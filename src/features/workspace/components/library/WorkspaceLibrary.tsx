@@ -7,6 +7,7 @@ import {
   useWorkspaceLibrary,
 } from "../../hooks/useWorkspaceLibrary";
 import { useLibraryCreate } from "../../hooks/useLibraryCreate";
+import { useLibraryReturn } from "../../hooks/useLibraryReturn";
 import {
   WorkspaceButton,
   WorkspaceErrorBanner,
@@ -34,14 +35,22 @@ export function WorkspaceLibrary() {
 }
 function LibraryContent({ bootstrap }: { bootstrap: WorkspaceBootstrap }) {
   const model = useWorkspaceLibrary(bootstrap.user.id),
-    create = useLibraryCreate(bootstrap);
+    create = useLibraryCreate(bootstrap),
+    back = useLibraryReturn(bootstrap);
   return (
     <div className={styles.library}>
       <div className={styles.content}>
-        <Link href="/workspace" className={styles.back}>
-          <ArrowLeft size={15} />
-          <span>Workspace</span>
-        </Link>
+        {back.href ? (
+          <Link href={back.href} className={styles.back}>
+            <ArrowLeft size={15} />
+            <span>{back.label}</span>
+          </Link>
+        ) : (
+          <span className={styles.back} aria-hidden>
+            <ArrowLeft size={15} />
+            <span>Quay lại trang</span>
+          </span>
+        )}
         <header className={styles.header}>
           <div>
             <h1>Thư viện</h1>

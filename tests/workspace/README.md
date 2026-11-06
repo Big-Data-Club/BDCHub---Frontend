@@ -73,3 +73,7 @@ private-source redaction, truthful visits, favorites and new-page creation. It
 uses the same isolated API/NextAuth fixtures and checks both themes and a 390 px
 viewport. Unit cases cover preference recovery, mandatory columns and incomplete
 filter drafts. The library BFF accepts only its two declared catalog routes.
+
+Library navigation checks return to the exact editor/field after changing views
+and reloading. Direct/gallery entry returns to the most recently visited
+accessible page. Return destinations accept only internal Workspace editors.

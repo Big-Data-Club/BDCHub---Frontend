@@ -26,6 +26,7 @@ import type {
   WorkspaceField,
 } from "../types";
 import { useWorkspaceSearch } from "../hooks/useWorkspaceSearch";
+import { workspaceLibraryHref } from "../utils/libraryNavigation";
 
 import { WorkspaceButton } from "./WorkspacePrimitives";
 const rank = { owner: 5, manager: 4, editor: 3, commenter: 2, viewer: 1 };
@@ -238,7 +239,11 @@ export function WorkspaceSidebar(props: SidebarProps) {
             : "Theo quyền được cấp"}
         </p>
         <Link
-          href="/workspace/library"
+          href={workspaceLibraryHref({
+            page: props.activeId,
+            space: props.space?.id,
+            field: props.field?.id,
+          })}
           className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-lms-hover"
         >
           <LibraryBig className="size-4" />

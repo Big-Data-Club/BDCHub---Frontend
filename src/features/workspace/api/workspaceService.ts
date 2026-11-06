@@ -79,6 +79,7 @@ export const workspaceService = {
       offset: String(input.offset || 0),
     });
     if (input.parent) query.set("parent", input.parent);
+    if (input.limit !== undefined) query.set("limit", String(input.limit));
     return request<LibraryResult>(
       `/library?${query}`,
       "GET",

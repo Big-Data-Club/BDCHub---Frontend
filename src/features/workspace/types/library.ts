@@ -47,6 +47,7 @@ export interface LibraryQuery {
   match: "all" | "any";
   timezone: string;
   offset?: number;
+  limit?: number;
   parent?: string;
 }
 export interface LibrarySource {

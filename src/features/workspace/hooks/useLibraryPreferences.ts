@@ -15,6 +15,7 @@ import {
   readyFilter,
   reorderLibraryColumn,
 } from "../utils/library";
+import { libraryReturnHref } from "../utils/libraryNavigation";
 export function useLibraryPreferences(userId: string) {
   const router = useRouter(),
     search = useSearchParams(),
@@ -100,8 +101,12 @@ export function useLibraryPreferences(userId: string) {
     setQuery,
     preferences,
     setPreferences,
-    setTab: (value: LibraryTab) =>
-      router.replace(`/workspace/library?tab=${value}`, { scroll: false }),
+    setTab: (value: LibraryTab) => {
+      const query = new URLSearchParams({ tab: value }),
+        returnTo = libraryReturnHref(search.get("returnTo"));
+      if (returnTo) query.set("returnTo", returnTo);
+      router.replace(`/workspace/library?${query}`, { scroll: false });
+    },
     updateFilter,
     addFilter,
     removeFilter: (id: string) =>

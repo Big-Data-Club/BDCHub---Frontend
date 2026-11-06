@@ -1,6 +1,7 @@
 """Owned local app with isolated workspace_test API, normal NextAuth and real SQL."""
 import json,os,re,sys,time
 from pathlib import Path
+from urllib.parse import parse_qs,urlparse
 from playwright.sync_api import sync_playwright,expect
 sys.stdout.reconfigure(encoding='utf-8')
 artifacts=Path(os.environ['WORKSPACE_TEST_ARTIFACTS']);actors=json.loads((artifacts/'browser-sessions.json').read_text());base='http://localhost:3100'
@@ -94,8 +95,18 @@ with sync_playwright() as p:
     a.set_viewport_size({'width':1600,'height':1050});a.get_by_role('button',name='Trang mới',exact=True).click()
     a.get_by_label('Tên trang mới',exact=True).fill(prefix+'Tạo từ thư viện');a.get_by_label('Không gian lưu trang',exact=True).select_option(personal['id']);a.get_by_label('Lĩnh vực lưu trang',exact=True).select_option(field['id'])
     a.get_by_role('button',name='Tạo trang',exact=True).click();expect(a.get_by_label('Tiêu đề trang')).to_have_value(prefix+'Tạo từ thư viện')
+    editor_url=a.url
     a.get_by_role('link',name='Thư viện',exact=True).click();expect(a.get_by_role('heading',name='Thư viện',exact=True)).to_be_visible()
+    a.get_by_role('tab',name='Yêu thích',exact=True).click();a.reload(wait_until='networkidle')
+    a.get_by_role('link',name='Quay lại trang',exact=True).click()
+    expect(a.get_by_label('Tiêu đề trang')).to_have_value(prefix+'Tạo từ thư viện')
+    assert parse_qs(urlparse(a.url).query)=={'page':parse_qs(urlparse(editor_url).query)['page'],'space':[personal['id']],'field':[field['id']]}
+    expect(a.get_by_label('Chọn lĩnh vực',exact=True)).to_have_value(field['id'])
+    # Existing/direct library links also return to the latest accessible editor.
+    a.goto(base+'/workspace',wait_until='networkidle');a.get_by_role('link',name='Thư viện',exact=True).click()
+    a.get_by_role('link',name='Quay lại trang',exact=True).click()
+    expect(a).to_have_url(editor_url);expect(a.get_by_label('Tiêu đề trang')).to_have_value(prefix+'Tạo từ thư viện')
     assert not errors,errors
-    print('PASS: library aggregation, pagination, nested pages, filters, visibility/order persistence, private sources, truthful visits, favorites, creation and light/dark/mobile')
+    print('PASS: library aggregation, pagination, nested pages, filters, visibility/order persistence, private sources, truthful visits, favorites, creation, editor return through view changes/reload/direct links and light/dark/mobile')
     for context in contexts:context.close()
     browser.close()

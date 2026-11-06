@@ -52,3 +52,8 @@ Run `pnpm test:workspace`, `pnpm lint:workspace`, `pnpm exec tsc --noEmit`, and
 `pnpm build`. See `tests/workspace/README.md` for isolated browser verification.
 The main repository's `docs/features/WORKSPACE.md` and `workspace-service/README.md`
 define the complete feature and service contracts.
+
+The sidebar Library link carries the current editor's page/space/field in an
+internal return destination. Library view changes retain it across reloads.
+Direct/gallery entry resolves the latest accessible visit through the read-only
+catalog, with an existing field/shared page fallback when there are no visits.
