@@ -140,3 +140,9 @@
 :global(.dark) .editor :global(.bn-color-picker-dropdown [data-highlighted]) {
   background: #223149;
 }
+.editor :global(.bn-block-outer[data-workspace-drop="before"]) {
+  box-shadow: 0 -3px #438fee;
+}
+.editor :global(.bn-block-outer[data-workspace-drop="after"]) {
+  box-shadow: 0 3px #438fee;
+}

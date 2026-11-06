@@ -41,7 +41,7 @@ with sync_playwright() as p:
     box=colors.bounding_box();print('Mobile color bounds:',box,flush=True);assert box['x']>=0 and box['x']+box['width']<=390 and box['y']>=0 and box['y']+box['height']<=844,box
     a.screenshot(path=str(artifacts/'recycle-colors-mobile.png'),full_page=True)
     a.goto(base+'/workspace/guide',wait_until='networkidle')
-    expect(a.get_by_text('Chọn Trang con trên thanh công cụ hoặc gõ /page',exact=False)).to_be_visible()
+    expect(a.get_by_text('/page hoặc chọn Trang con trong trình đơn thêm khối',exact=False)).to_be_visible()
     a.get_by_role('link',name='Thư viện công thức',exact=True).click()
     expect(a.get_by_role('heading',name='Thư viện công thức',exact=True)).to_be_visible()
     assert not errors,errors

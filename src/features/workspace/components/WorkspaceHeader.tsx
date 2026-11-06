@@ -8,7 +8,6 @@ import {
   Share2,
   Sparkles,
   Star,
-  Plus,
   ArrowLeft,
 } from "lucide-react";
 import type { WorkspacePage, CollaborationStatus } from "../types";
@@ -37,7 +36,6 @@ export function WorkspaceHeader({
   setTab,
   fieldName,
   onHome,
-  onCreateChild,
   ancestors = [],
   onFieldHome,
 }: {
@@ -52,7 +50,6 @@ export function WorkspaceHeader({
   setTab: (action: (tab: InspectorTab | null) => InspectorTab | null) => void;
   fieldName?: string;
   onHome: () => void;
-  onCreateChild?: () => void;
   ancestors?: WorkspacePage[];
   onFieldHome?: () => void;
 }) {
@@ -127,12 +124,6 @@ export function WorkspaceHeader({
           <Share2 className="size-4" />
           <span className="hidden sm:inline">Chia sẻ</span>
         </WorkspaceButton>
-        {onCreateChild && (
-          <WorkspaceButton onClick={onCreateChild} aria-label="Tạo trang con">
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">Trang con</span>
-          </WorkspaceButton>
-        )}
         <WorkspaceButton
           aria-label="Bình luận"
           className="px-2"

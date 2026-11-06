@@ -37,6 +37,7 @@ export function WorkspaceDialog({
   description,
   children,
   wide = false,
+  className,
 }: {
   open: boolean;
   onOpenChange: (value: boolean) => void;
@@ -44,6 +45,7 @@ export function WorkspaceDialog({
   description: string;
   children: ReactNode;
   wide?: boolean;
+  className?: string;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -51,6 +53,7 @@ export function WorkspaceDialog({
         className={cn(
           "max-h-[88dvh] overflow-y-auto rounded-2xl bg-white text-slate-900 dark:bg-lms-card dark:text-slate-100",
           wide ? "sm:max-w-3xl" : "sm:max-w-lg",
+          className,
         )}
       >
         <DialogHeader>

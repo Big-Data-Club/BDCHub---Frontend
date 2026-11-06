@@ -21,10 +21,23 @@ export function WorkspacePageHeading({
   const Icon = field ? fieldIcons[field.icon] : FileText;
   return (
     <div className={styles.heading}>
-      {page.cover ? (
+      {page.cover || page.cover_image_id ? (
         <div className={styles.cover}>
           <div className={styles.coverArt}>
-            <FieldArtwork icon={field?.icon || "book"} color={page.cover} />
+            {page.cover_image_id ? (
+              // Private attachments are served by the authenticated Workspace endpoint.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`/api/workspace/files/${page.cover_image_id}`}
+                alt="Ảnh bìa trang"
+                className="h-[185px] w-full object-cover max-sm:h-[145px]"
+              />
+            ) : (
+              <FieldArtwork
+                icon={field?.icon || "book"}
+                color={page.cover || "violet"}
+              />
+            )}
           </div>
           <button
             type="button"
@@ -64,7 +77,13 @@ export function WorkspacePageHeading({
           )}
         </div>
       )}
-      <div className={page.cover ? styles.titleWithCover : styles.title}>
+      <div
+        className={
+          page.cover || page.cover_image_id
+            ? styles.titleWithCover
+            : styles.title
+        }
+      >
         <WorkspacePageTitle page={page} editable={editable} onSave={onSave} />
       </div>
     </div>

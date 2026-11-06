@@ -50,6 +50,8 @@ export function WorkspaceDialogs({
     [fieldId, setFieldId] = useState(""),
     [icon, setIcon] = useState(""),
     [cover, setCover] = useState<WorkspacePage["cover"]>(""),
+    [coverImage, setCoverImage] = useState<string | null>(null),
+    [coverUploading, setCoverUploading] = useState(false),
     [full, setFull] = useState(false);
   const [notes, setNotes] = useState<
       Awaited<ReturnType<typeof workspaceService.legacyNotes>>
@@ -65,6 +67,7 @@ export function WorkspaceDialogs({
     const current = ++generation.current;
     let cancelled = false;
     setError(null);
+    setCoverUploading(false);
     setTitle(value && "page" in value ? value.page.title : "");
     setKind("page");
     setTemplate("blank");
@@ -72,6 +75,9 @@ export function WorkspaceDialogs({
     setFieldId(value && "page" in value ? value.page.field_id || "" : "");
     setIcon(value && "page" in value ? value.page.icon : "");
     setCover(value && "page" in value ? value.page.cover : "");
+    setCoverImage(
+      value && "page" in value ? value.page.cover_image_id || null : null,
+    );
     setFull(Boolean(value && "page" in value && value.page.full_width));
     setNotes([]);
     const load = async () => {
@@ -157,7 +163,7 @@ export function WorkspaceDialogs({
           ...(value.type === "rename"
             ? { title: title.trim() }
             : value.type === "appearance"
-              ? { icon, cover, full_width: full }
+              ? { icon, cover, cover_image_id: coverImage, full_width: full }
               : { parent_id: parent || null, field_id: fieldId || null }),
         });
     }
@@ -183,7 +189,7 @@ export function WorkspaceDialogs({
     <WorkspaceDialog
       open
       onOpenChange={(open) => {
-        if (!open && !busy) onClose();
+        if (!open && !busy && !coverUploading) onClose();
       }}
       title={titles[value.type]}
       description={description}
@@ -196,7 +202,7 @@ export function WorkspaceDialogs({
           className="space-y-4"
           onSubmit={(event) => {
             event.preventDefault();
-            void run(save);
+            if (!coverUploading) void run(save);
           }}
         >
           {["create", "team", "rename"].includes(value.type) && (
@@ -256,11 +262,19 @@ export function WorkspaceDialogs({
           )}
           {value.type === "appearance" && (
             <PageAppearanceFields
+              key={value.page.id}
               icon={icon}
               cover={cover}
+              pageId={value.page.id}
+              coverImage={coverImage}
+              onCoverImage={setCoverImage}
+              onUploading={setCoverUploading}
               full={full}
               onIcon={setIcon}
-              onCover={setCover}
+              onCover={(color) => {
+                setCover(color);
+                setCoverImage(null);
+              }}
               onFull={setFull}
             />
           )}
@@ -318,7 +332,7 @@ export function WorkspaceDialogs({
           )}
           <WorkspaceButton
             type="submit"
-            disabled={busy}
+            disabled={busy || coverUploading}
             className={
               value.type === "archive"
                 ? "bg-rose-600 text-white hover:bg-rose-700"

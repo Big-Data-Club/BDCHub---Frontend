@@ -68,6 +68,7 @@ export interface WorkspacePage {
   title: string;
   icon: string;
   cover: "" | "blue" | "violet" | "green" | "amber" | "rose" | "slate";
+  cover_image_id?: string | null;
   full_width: boolean;
   kind: "page" | "database" | "record";
   properties: Record<string, PropertyValue>;

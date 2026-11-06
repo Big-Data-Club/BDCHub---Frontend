@@ -385,11 +385,6 @@ export function WorkspaceClient() {
                 : undefined
             }
             onHome={() => navigate(undefined, model.activeSpace?.id)}
-            onCreateChild={
-              editable && page.kind === "page" && page.space_role
-                ? () => setDialog({ type: "create", parent: page.id })
-                : undefined
-            }
             parentTitle={
               model.pages.find((item) => item.id === page.parent_id)?.title
             }
@@ -402,6 +397,7 @@ export function WorkspaceClient() {
         )}
         <div className="flex min-h-0 min-w-0 flex-1">
           <main
+            data-workspace-scroll
             className={`min-h-0 min-w-0 flex-1 overflow-y-auto ${guide ? "hidden" : ""}`}
           >
             <div className="px-4 pt-3">

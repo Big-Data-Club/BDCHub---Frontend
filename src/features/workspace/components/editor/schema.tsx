@@ -17,6 +17,9 @@ import { TextSelection } from "prosemirror-state";
 import { FileText } from "lucide-react";
 import { webLinkBlock } from "./WebLinkBlock";
 import { useWorkspaceEditorContext } from "./EditorContext";
+import { workspaceImage } from "./WorkspaceImage";
+import { startBlockDrag } from "../../hooks/useBlockDrop";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 
 const closingDollars = createExtension({
   key: "bdc-closing-equation",
@@ -61,17 +64,28 @@ const linkedPage = createReactBlockSpec(
     content: "none",
   },
   {
-    render: function PageReference({ block }) {
+    render: function PageReference({ block, editor }) {
       const context = useWorkspaceEditorContext(),
         target = context?.pages.find((page) => page.id === block.props.pageId);
       if (context && !target) return null;
       return (
         <div
           contentEditable={false}
+          draggable={editor.isEditable}
+          onPointerDown={(event) =>
+            context?.onBlockPointerDown(event, { blockId: block.id })
+          }
+          onDragStartCapture={(event) =>
+            startBlockDrag(event, editor as WorkspaceEditorInstance, block)
+          }
+          onDragEnd={() =>
+            editor.getExtension(SideMenuExtension)?.blockDragEnd()
+          }
           className="group flex w-full items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-100 dark:hover:bg-lms-hover"
         >
           <FileText className="size-4 shrink-0" />
           <a
+            draggable={false}
             href={`/workspace?page=${block.props.pageId}`}
             onClick={(event) => {
               if (!event.ctrlKey && !event.metaKey) {
@@ -96,6 +110,7 @@ const linkedPage = createReactBlockSpec(
 export const workspaceSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    image: workspaceImage,
     pageLink: linkedPage,
     webLink: webLinkBlock,
     mathBlock: { ...createReactMathBlockSpec(), extensions: [closingDollars] },

@@ -59,3 +59,10 @@ page readers without an opt-in checkbox, per the explicit product change.
 `browser-layout.py` reproduces the mobile submenu clipping case and verifies the
 final guide instructions on the built frontend. The submenu honors the actual
 menu engine available-height variable, rather than only the window height.
+
+`browser-media.py` checks pointer movement of legacy children, pageLink blocks and
+images, centered direct caption editing, expand/zoom, crop output dimensions,
+hierarchical heading navigation, uploaded cover saving and reload persistence.
+It also captures light, dark and 390 px layouts. Use the same isolated sessions,
+API and PostgreSQL setup described above; it creates only fresh fixture pages.
+Production mode additionally verifies undo/redo after moving an image.

@@ -24,6 +24,28 @@ function load(file) {
 const { formulaExamples } = load("data/formulas.ts"),
   { mathExportProjection, duplicateBlock } = load("utils/editorContent.ts"),
   { visibleRecords, moveDate } = load("utils/databaseViews.ts");
+const { changeCrop } = load("utils/imageCrop.ts");
+test("crop handles and translations stay in image bounds and cannot invert the selection", () => {
+  const initial = { x: 0.2, y: 0.1, width: 0.6, height: 0.7 };
+  for (const handle of ["move", "nw", "n", "ne", "e", "se", "s", "sw", "w"]) {
+    for (const [dx, dy] of [
+      [-2, -2],
+      [2, 2],
+      [-2, 2],
+      [2, -2],
+      [0.1, 0.2],
+    ]) {
+      const rect = changeCrop(initial, handle, dx, dy);
+      assert.ok(rect.x >= 0 && rect.y >= 0, handle);
+      assert.ok(rect.width >= 0.029 && rect.height >= 0.029, handle);
+      assert.ok(
+        rect.x + rect.width <= 1.00001 && rect.y + rect.height <= 1.00001,
+        handle,
+      );
+    }
+  }
+  assert.deepEqual(initial, { x: 0.2, y: 0.1, width: 0.6, height: 0.7 });
+});
 test("all 65 authored formulas render safely with the exact workspace KaTeX settings", () => {
   assert.equal(formulaExamples.length, 65);
   assert.equal(new Set(formulaExamples.map((item) => item.id)).size, 65);

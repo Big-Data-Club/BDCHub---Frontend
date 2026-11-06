@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext } from "react";
+import { createContext, useContext, type PointerEvent } from "react";
 import type { WorkspacePage } from "../../types";
 export interface EditorContextValue {
   page: WorkspacePage;
@@ -12,6 +12,10 @@ export interface EditorContextValue {
   onConvertBlock: (id: string) => void;
   onPageMenu: (id: string) => void;
   onTrashPage: (id: string) => Promise<void>;
+  onBlockPointerDown: (
+    event: PointerEvent,
+    payload: { blockId?: string; pageId?: string },
+  ) => void;
 }
 export const WorkspaceEditorContext = createContext<EditorContextValue | null>(
   null,

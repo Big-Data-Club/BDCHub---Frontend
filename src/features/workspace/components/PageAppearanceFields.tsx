@@ -1,5 +1,7 @@
 "use client";
 import { Check, Palette, X } from "lucide-react";
+import { useState } from "react";
+import { workspaceService } from "../api/workspaceService";
 import type { WorkspacePage, FieldColor } from "../types";
 import { FieldArtwork, colorLabels } from "./fields/FieldArtwork";
 import { workspaceInputClass } from "./WorkspacePrimitives";
@@ -24,6 +26,10 @@ const emojis = [
 export function PageAppearanceFields({
   icon,
   cover,
+  pageId,
+  coverImage,
+  onCoverImage,
+  onUploading,
   full,
   onIcon,
   onCover,
@@ -31,11 +37,17 @@ export function PageAppearanceFields({
 }: {
   icon: string;
   cover: WorkspacePage["cover"];
+  pageId: string;
+  coverImage: string | null;
+  onCoverImage: (value: string | null) => void;
+  onUploading: (value: boolean) => void;
   full: boolean;
   onIcon: (value: string) => void;
   onCover: (value: WorkspacePage["cover"]) => void;
   onFull: (value: boolean) => void;
 }) {
+  const [uploading, setUploading] = useState(false),
+    [error, setError] = useState("");
   return (
     <div className="space-y-6">
       <fieldset>
@@ -68,13 +80,77 @@ export function PageAppearanceFields({
           />
         </label>
       </fieldset>
-      <fieldset>
-        <legend className="mb-3 text-sm font-semibold">Bảng màu ảnh bìa</legend>
+      <fieldset disabled={uploading}>
+        <legend className="mb-3 text-sm font-semibold">Ảnh bìa</legend>
+        <label className="mb-3 flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-300 p-4 text-sm dark:border-lms-border">
+          {uploading
+            ? "Đang tải ảnh…"
+            : "Tải ảnh bìa lên · PNG, JPEG, WebP · tối đa 10 MB"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="sr-only"
+            aria-label="Tải ảnh bìa lên"
+            disabled={uploading}
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (!file) return;
+              if (
+                !["image/png", "image/jpeg", "image/webp"].includes(
+                  file.type,
+                ) ||
+                file.size > 10 * 1024 * 1024
+              ) {
+                setError("Chọn ảnh PNG, JPEG hoặc WebP không quá 10 MB.");
+                return;
+              }
+              setUploading(true);
+              onUploading(true);
+              setError("");
+              try {
+                const uploaded = await workspaceService.upload(pageId, file);
+                onCoverImage(uploaded.id);
+              } catch (reason) {
+                setError(
+                  reason instanceof Error
+                    ? reason.message
+                    : "Chưa tải được ảnh bìa.",
+                );
+              } finally {
+                setUploading(false);
+                onUploading(false);
+              }
+            }}
+          />
+        </label>
+        {error && (
+          <p role="alert" className="mb-3 text-sm text-rose-500">
+            {error}
+          </p>
+        )}
+        {coverImage && (
+          <div className="mb-3 space-y-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/workspace/files/${coverImage}`}
+              alt="Xem trước ảnh bìa"
+              className="h-32 w-full rounded-xl object-cover"
+            />
+            <button
+              type="button"
+              className="text-sm text-rose-500"
+              onClick={() => onCoverImage(null)}
+            >
+              Bỏ ảnh đã tải lên
+            </button>
+          </div>
+        )}
         <div className="grid grid-cols-3 gap-3">
           <button
             type="button"
             aria-label="Bỏ ảnh bìa"
-            aria-pressed={!cover}
+            aria-pressed={!cover && !coverImage}
             onClick={() => onCover("")}
             className={`flex min-h-20 flex-col items-center justify-center gap-1 rounded-xl border text-xs text-slate-500 ${!cover ? "border-blue-500" : "border-slate-200 dark:border-lms-border"}`}
           >
@@ -86,14 +162,14 @@ export function PageAppearanceFields({
               type="button"
               key={color}
               aria-label={`Ảnh bìa ${colorLabels[color]}`}
-              aria-pressed={cover === color}
-              className={`relative overflow-hidden rounded-xl border-2 text-xs ${cover === color ? "border-blue-500" : "border-transparent"}`}
+              aria-pressed={cover === color && !coverImage}
+              className={`relative overflow-hidden rounded-xl border-2 text-xs ${cover === color && !coverImage ? "border-blue-500" : "border-transparent"}`}
               onClick={() => onCover(color)}
             >
               <div className="[&>div]:min-h-20 [&_svg]:size-10">
                 <FieldArtwork icon="sparkles" color={color} compact />
               </div>
-              {cover === color && (
+              {cover === color && !coverImage && (
                 <Check className="absolute right-2 top-2 size-4 text-blue-600" />
               )}
               <span className="block bg-white py-1.5 text-slate-500 dark:bg-lms-input dark:text-slate-300">

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { vi } from "@blocknote/core/locales";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import { blocksToYDoc, withCollaboration } from "@blocknote/core/yjs";
 import { BlockNoteView } from "@blocknote/shadcn";
 import {
@@ -11,6 +12,12 @@ import {
   SideMenuController,
   SuggestionMenuController,
   useCreateBlockNote,
+  FormattingToolbar,
+  FormattingToolbarController,
+  useBlockNoteEditor,
+  useEditorState,
+  useExtensionState,
+  type SideMenuProps,
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
 import { getMathSlashMenuItems } from "@blocknote/math-block";
@@ -47,6 +54,38 @@ import { WorkspaceEditorContext } from "./EditorContext";
 import { parseWorkspaceMarkdown, workspaceSchema } from "./schema";
 import styles from "./WorkspaceEditor.module.css";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import { useBlockDrop, workspaceDragType } from "../../hooks/useBlockDrop";
+import { EditorOutline } from "./EditorOutline";
+
+function WorkspaceSideMenu(props: SideMenuProps) {
+  const block = useExtensionState(SideMenuExtension, {
+    selector: (state) => state?.block,
+  });
+  return (
+    <div
+      onDragStart={(event) => {
+        if (block)
+          event.dataTransfer.setData(
+            workspaceDragType,
+            JSON.stringify({ blockId: block.id }),
+          );
+      }}
+    >
+      <SideMenu {...props} dragHandleMenu={EditorBlockMenu} />
+    </div>
+  );
+}
+function WorkspaceFormattingToolbar() {
+  const editor = useBlockNoteEditor();
+  const imageSelected = useEditorState({
+    editor,
+    selector: () =>
+      (
+        editor.getSelection()?.blocks || [editor.getTextCursorPosition().block]
+      ).some((block) => block.type === "image"),
+  });
+  return imageSelected ? null : <FormattingToolbar />;
+}
 
 interface WorkspaceEditorProps {
   page: WorkspacePage;
@@ -237,6 +276,12 @@ function RichEditor({
     props.onCreateChild,
     props.onActions,
   );
+  const { host: dropHost, startPointerDrag } = useBlockDrop(
+    editor,
+    props.pages,
+    props.page.id,
+    setError,
+  );
   useEffect(() => {
     editor.isEditable = provider.editable;
   }, [editor, provider, status]);
@@ -335,6 +380,7 @@ function RichEditor({
   );
   const context = {
     page: props.page,
+    onBlockPointerDown: startPointerDrag,
     pages: props.pages,
     onOpen: props.onOpen,
     onGuide: props.onGuide,
@@ -395,7 +441,8 @@ function RichEditor({
   }, [editor]);
   return (
     <WorkspaceEditorContext.Provider value={context}>
-      <div className={styles.editor}>
+      <div className={styles.editor} ref={dropHost}>
+        <EditorOutline editor={editor} />
         <WorkspaceErrorBanner message={error} />
         <BlockNoteView
           editor={editor}
@@ -403,11 +450,11 @@ function RichEditor({
           theme={resolvedTheme === "dark" ? "dark" : "light"}
           sideMenu={false}
           slashMenu={false}
+          formattingToolbar={false}
         >
-          <SideMenuController
-            sideMenu={(menuProps) => (
-              <SideMenu {...menuProps} dragHandleMenu={EditorBlockMenu} />
-            )}
+          <SideMenuController sideMenu={WorkspaceSideMenu} />
+          <FormattingToolbarController
+            formattingToolbar={WorkspaceFormattingToolbar}
           />
           <SuggestionMenuController
             triggerCharacter="/"
@@ -415,7 +462,7 @@ function RichEditor({
             getItems={async (query) => filterSuggestionItems(slashItems, query)}
           />
         </BlockNoteView>
-        <div className="mx-6 -mt-16 mb-16 space-y-1 sm:mx-12">
+        <div className="relative mx-6 -mt-16 mb-16 space-y-1 sm:mx-12">
           {props.pages
             .filter(
               (child) =>
@@ -426,6 +473,23 @@ function RichEditor({
             .map((child) => (
               <a
                 key={child.id}
+                draggable={provider.editable}
+                onPointerDown={(event) =>
+                  startPointerDrag(event, { pageId: child.id })
+                }
+                title={
+                  provider.editable
+                    ? "Kéo để đặt trang con vào nội dung"
+                    : undefined
+                }
+                onDragStart={(event) => {
+                  event.dataTransfer.clearData();
+                  event.dataTransfer.setData(
+                    workspaceDragType,
+                    JSON.stringify({ pageId: child.id }),
+                  );
+                  event.dataTransfer.effectAllowed = "move";
+                }}
                 href={`/workspace?page=${child.id}`}
                 onClick={(event) => {
                   if (!event.metaKey && !event.ctrlKey) {

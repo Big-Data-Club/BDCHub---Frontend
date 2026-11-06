@@ -187,14 +187,14 @@ export function WorkspaceGuide({
                 sẵn các môn học.
               </li>
               <li>
-                Mở một lĩnh vực. Trang mới tạo trang ở cấp gốc của lĩnh vực.
-                Chọn Trang con trên thanh công cụ hoặc gõ /page trong editor để
-                tạo trang bên trong trang đang mở.
+                Mở một lĩnh vực. Trang mới tạo trang ở cấp gốc của lĩnh vực. Gõ
+                /page hoặc chọn Trang con trong trình đơn thêm khối để tạo trang
+                bên trong trang đang mở.
               </li>
               <li>
-                Dùng Tùy chỉnh trang để đổi biểu tượng, ảnh bìa và độ rộng. Mở
-                lại trang trong cây, Gần đây hoặc Yêu thích. Tìm kiếm chỉ trả
-                nội dung bạn có quyền đọc.
+                Dùng Tùy chỉnh trang để đổi biểu tượng, chọn màu hoặc tải ảnh
+                bìa lên và đổi độ rộng. Mở lại trang trong cây, Gần đây hoặc Yêu
+                thích. Tìm kiếm chỉ trả nội dung bạn có quyền đọc.
               </li>
               <li>
                 Bảng quản lý có nhiều cách xem trên cùng dữ liệu. Mở một hàng
@@ -236,7 +236,7 @@ export function WorkspaceGuide({
                 ],
                 [
                   "Ảnh & tệp",
-                  "Tải lên trang để người có quyền đọc trang truy cập.",
+                  "Kéo ảnh để đổi vị trí. Di chuột lên ảnh để mở rộng, cắt hoặc thay ảnh. Gõ chú thích ngay dưới ảnh.",
                 ],
               ].map(([name, text]) => (
                 <div
@@ -250,6 +250,11 @@ export function WorkspaceGuide({
                 </div>
               ))}
             </div>
+            <p className="text-sm leading-7 text-slate-500 dark:text-slate-400">
+              Mục lục bên phải tự lấy các tiêu đề và giữ đúng cấp lồng nhau. Di
+              chuột hoặc nhấn vào mục lục để mở, rồi chọn một tiêu đề để cuộn
+              đến phần đó.
+            </p>
           </section>
           <section
             id="workspace-guide-latex"

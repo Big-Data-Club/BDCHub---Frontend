@@ -145,6 +145,7 @@ export const workspaceService = {
         | "title"
         | "icon"
         | "cover"
+        | "cover_image_id"
         | "full_width"
         | "parent_id"
         | "field_id"

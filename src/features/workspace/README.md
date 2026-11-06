@@ -13,6 +13,17 @@ lock stale sessions. Do not replace this with local optimistic “saved” label
 Awareness is throttled separately from document updates.
 
 The editor schema adds page references and inline/block math to BlockNote.
+Its image spec retains the standard image properties and adds an inline centered
+caption, resize handles, expand/zoom and a client-side crop dialog. Crops upload a
+new private attachment and keep the original available to undo/history. A stale
+crop cannot replace an image changed by another editor. PNG/JPEG/WebP are accepted.
+The right outline derives nested entries from document headings and tracks the
+scrolling page. Pointer moves and native handle drops move the existing block in
+one transaction; a legacy child link outside the document becomes a pageLink on
+its first drop. Creating children remains available through /page and the insert
+menu; the redundant header child button is removed.
+Page covers may reference a private uploaded attachment via cover_image_id. The
+server validates its binding and image MIME before accepting the page patch.
 Markdown parsing and export preserve equation source. The guide is also rendered
 at `/workspace/guide`; opening it inside Workspace keeps the live editor mounted.
 The 65 authored formula examples are checked with the same KaTeX settings used in
