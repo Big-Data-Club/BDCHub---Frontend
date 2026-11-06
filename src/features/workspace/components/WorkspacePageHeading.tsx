@@ -66,11 +66,6 @@ export function WorkspacePageHeading({
       )}
       <div className={page.cover ? styles.titleWithCover : styles.title}>
         <WorkspacePageTitle page={page} editable={editable} onSave={onSave} />
-        <p className={styles.caption}>
-          {field?.title || "Trang ghi chép"}
-          <span>·</span>Cập nhật{" "}
-          {new Date(page.updated_at).toLocaleDateString("vi-VN")}
-        </p>
       </div>
     </div>
   );

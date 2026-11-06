@@ -9,9 +9,7 @@ export function useFieldActions(
   const [editing, setEditing] = useState<WorkspaceField | null>(null),
     [open, setOpen] = useState(false),
     [busy, setBusy] = useState(false),
-    [error, setError] = useState<string | null>(null),
-    [archived, setArchived] = useState<WorkspaceField[]>([]),
-    [trash, setTrash] = useState(false);
+    [error, setError] = useState<string | null>(null);
   const create = () => {
     setEditing(null);
     setError(null);
@@ -54,18 +52,6 @@ export function useFieldActions(
       await workspaceService.archiveField(field.id);
       await onRefresh();
     });
-  const showTrash = () =>
-    run(async () => {
-      if (!spaceId) return;
-      setArchived(await workspaceService.fields(spaceId, true));
-      setTrash(true);
-    });
-  const restore = (id: string) =>
-    run(async () => {
-      await workspaceService.restoreField(id);
-      await onRefresh();
-      if (spaceId) setArchived(await workspaceService.fields(spaceId, true));
-    });
   return {
     editing,
     open,
@@ -76,10 +62,5 @@ export function useFieldActions(
     edit,
     save,
     archive,
-    showTrash,
-    archived,
-    trash,
-    setTrash,
-    restore,
   };
 }

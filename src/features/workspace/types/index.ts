@@ -262,7 +262,6 @@ export interface PageAnalytics {
   days: number;
   views: number;
   unique_viewers: number;
-  show_name: boolean;
   tracked_since: string;
   daily: { day: string; views: number; unique_viewers: number }[];
   viewers: { name: string; viewed_at: string; views: number }[];

@@ -14,7 +14,7 @@ import {
 } from "@blocknote/math-block";
 import { inputRules, InputRule } from "@handlewithcare/prosemirror-inputrules";
 import { TextSelection } from "prosemirror-state";
-import { FileText, MoreHorizontal, Plus } from "lucide-react";
+import { FileText } from "lucide-react";
 import { webLinkBlock } from "./WebLinkBlock";
 import { useWorkspaceEditorContext } from "./EditorContext";
 
@@ -64,6 +64,7 @@ const linkedPage = createReactBlockSpec(
     render: function PageReference({ block }) {
       const context = useWorkspaceEditorContext(),
         target = context?.pages.find((page) => page.id === block.props.pageId);
+      if (context && !target) return null;
       return (
         <div
           contentEditable={false}
@@ -82,30 +83,6 @@ const linkedPage = createReactBlockSpec(
           >
             {target?.title || block.props.title || "Trang"}
           </a>
-          {target?.kind === "page" &&
-            context?.page.space_role &&
-            (context.page.access || 0) >= 3 && (
-              <button
-                type="button"
-                aria-label="Tạo trang con"
-                className="rounded p-1 active:scale-95"
-                onClick={() => {
-                  void context
-                    .onCreateChild("Trang không tiêu đề", target.id)
-                    .catch(() => context.onPageMenu(target.id));
-                }}
-              >
-                <Plus className="size-4" />
-              </button>
-            )}
-          <button
-            type="button"
-            aria-label="Thao tác trang liên kết"
-            className="rounded p-1 active:scale-95"
-            onClick={() => context?.onPageMenu(block.props.pageId)}
-          >
-            <MoreHorizontal className="size-4" />
-          </button>
         </div>
       );
     },

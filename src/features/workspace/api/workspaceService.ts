@@ -69,6 +69,7 @@ export const workspaceService = {
     request<WorkspaceField>(`/spaces/${spaceId}/fields`, "POST", input),
   updateField: (id: string, input: Partial<FieldInput> & { version: number }) =>
     request<WorkspaceField>(`/fields/${id}`, "PATCH", input),
+  deleteField: (id: string) => request(`/fields/${id}`, "DELETE"),
   archiveField: (id: string) => request(`/fields/${id}/archive`, "POST", {}),
   restoreField: (id: string) => request(`/fields/${id}/restore`, "POST", {}),
   blockActivity: (pageId: string, blockId: string, signal?: AbortSignal) =>
@@ -125,8 +126,6 @@ export const workspaceService = {
       undefined,
       signal,
     ),
-  viewPreference: (id: string, show_name: boolean) =>
-    request(`/pages/${id}/view-preference`, "PATCH", { show_name }),
   createPage: (
     spaceId: string,
     input: {
@@ -154,6 +153,7 @@ export const workspaceService = {
       >
     > & { version: number },
   ) => request<WorkspacePage>(`/pages/${id}`, "PATCH", input),
+  deletePage: (id: string) => request(`/pages/${id}`, "DELETE"),
   archive: (id: string) => request(`/pages/${id}/archive`, "POST", {}),
   restore: (id: string) => request(`/pages/${id}/restore`, "POST", {}),
   duplicate: (id: string) =>

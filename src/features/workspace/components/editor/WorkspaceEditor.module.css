@@ -91,3 +91,52 @@
   background: #132240;
   fill: #132240;
 }
+
+.editor :global(.bn-color-picker-dropdown) {
+  width: min(280px, calc(100vw - 32px));
+  min-width: min(280px, calc(100vw - 32px));
+  max-height: min(
+    610px,
+    calc(100dvh - 32px),
+    var(
+      --available-height,
+      var(--radix-dropdown-menu-content-available-height, 610px)
+    )
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  color: #334155;
+  box-shadow: 0 10px 32px #0f172a26;
+}
+.editor :global(.bn-color-picker-dropdown [role^="menuitem"]) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.editor :global(.bn-color-picker-dropdown [role^="menuitem"] [data-color]) {
+  flex-shrink: 0;
+}
+.editor :global(.bn-color-picker-dropdown [role^="menuitem"]:hover),
+.editor :global(.bn-color-picker-dropdown [data-highlighted]) {
+  background: #f1f5f9;
+}
+:global(.dark) .editor :global(.bn-color-picker-dropdown) {
+  background: #111c30;
+  color: #e2e8f0;
+  border-color: #29364d;
+}
+:global(.dark)
+  .editor
+  :global(.bn-color-picker-dropdown [role^="menuitem"]:hover),
+:global(.dark) .editor :global(.bn-color-picker-dropdown [data-highlighted]) {
+  background: #223149;
+}

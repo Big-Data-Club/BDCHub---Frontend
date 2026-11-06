@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { WorkspaceTrashDialog } from "./dialogs/WorkspaceTrashDialog";
 import { PageAppearanceFields } from "./PageAppearanceFields";
 import { workspaceService } from "../api/workspaceService";
 import type {
@@ -50,8 +51,7 @@ export function WorkspaceDialogs({
     [icon, setIcon] = useState(""),
     [cover, setCover] = useState<WorkspacePage["cover"]>(""),
     [full, setFull] = useState(false);
-  const [items, setItems] = useState<WorkspacePage[]>([]),
-    [notes, setNotes] = useState<
+  const [notes, setNotes] = useState<
       Awaited<ReturnType<typeof workspaceService.legacyNotes>>
     >([]),
     [notifications, setNotifications] = useState<
@@ -73,13 +73,8 @@ export function WorkspaceDialogs({
     setIcon(value && "page" in value ? value.page.icon : "");
     setCover(value && "page" in value ? value.page.cover : "");
     setFull(Boolean(value && "page" in value && value.page.full_width));
-    setItems([]);
     setNotes([]);
     const load = async () => {
-      if (value?.type === "trash" && spaceId) {
-        const result = await workspaceService.pages(spaceId!, true);
-        if (!cancelled && current === generation.current) setItems(result);
-      }
       if (value?.type === "notes") {
         const result = await workspaceService.legacyNotes();
         if (!cancelled && current === generation.current) setNotes(result);
@@ -101,6 +96,14 @@ export function WorkspaceDialogs({
     };
   }, [value, spaceId]);
   if (!value) return null;
+  if (value.type === "trash")
+    return (
+      <WorkspaceTrashDialog
+        space={space}
+        onClose={onClose}
+        onRefresh={onRefresh}
+      />
+    );
   const titles = {
     create: "Trang mới",
     team: "Không gian nhóm mới",
@@ -332,33 +335,6 @@ export function WorkspaceDialogs({
           </WorkspaceButton>
         </form>
       )}
-      {value.type === "trash" &&
-        (items.length ? (
-          items.map((page) => (
-            <div
-              key={page.id}
-              className="flex items-center justify-between gap-3 border-b border-slate-100 py-2 dark:border-lms-border"
-            >
-              <span className="min-w-0 truncate text-sm">{page.title}</span>
-              <WorkspaceButton
-                disabled={busy}
-                onClick={() =>
-                  void run(async () => {
-                    await workspaceService.restore(page.id);
-                    if (space)
-                      setItems(await workspaceService.pages(space.id, true));
-                  }, false)
-                }
-              >
-                Khôi phục
-              </WorkspaceButton>
-            </div>
-          ))
-        ) : (
-          <p className="text-sm text-slate-500">
-            Không có trang trong thùng rác.
-          </p>
-        ))}
       {value.type === "notes" &&
         (notes.length ? (
           notes.map((note) => (

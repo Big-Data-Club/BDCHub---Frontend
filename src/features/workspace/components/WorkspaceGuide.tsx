@@ -187,9 +187,9 @@ export function WorkspaceGuide({
                 sẵn các môn học.
               </li>
               <li>
-                Mở một lĩnh vực. Trang mới tạo trang ở cấp gốc của lĩnh vực; nút
-                + bên cạnh một trang, Trang con trên thanh công cụ hoặc /page
-                tạo trang bên trong trang đó.
+                Mở một lĩnh vực. Trang mới tạo trang ở cấp gốc của lĩnh vực.
+                Chọn Trang con trên thanh công cụ hoặc gõ /page trong editor để
+                tạo trang bên trong trang đang mở.
               </li>
               <li>
                 Dùng Tùy chỉnh trang để đổi biểu tượng, ảnh bìa và độ rộng. Mở
@@ -202,16 +202,16 @@ export function WorkspaceGuide({
               </li>
               <li>
                 Dùng Di chuyển để chọn lĩnh vực và trang cha mới. Cả nhánh trang
-                con đi cùng. Trang cũ chưa xếp lĩnh vực vẫn nằm ở màn hình tổng
-                quan để bạn tự sắp xếp.
+                con đi cùng. Dùng nút tìm trang ở đầu màn hình tổng quan để mở
+                lại các trang cũ chưa xếp lĩnh vực.
               </li>
             </ol>
             <p className="rounded-r-xl border-l-4 border-blue-500 bg-blue-50/50 p-5 text-sm leading-7 dark:bg-blue-500/10">
-              Liên kết trang và trang con có vai trò khác nhau: gỡ khối liên kết
-              chỉ gỡ khỏi nội dung; quản lý cây, chuyển trang hoặc đưa vào thùng
-              rác qua menu trang. Lưu trữ lĩnh vực sẽ cất cả các trang đang hoạt
-              động; khôi phục lĩnh vực không tự khôi phục những trang đã xóa
-              trước đó.
+              Mở menu sáu chấm của trang con và chọn Chuyển vào thùng rác để gỡ
+              trang cùng nhánh con. Lĩnh vực đưa vào thùng rác sẽ cất cả các
+              trang đang hoạt động. Trong Thùng rác, chọn Khôi phục để lấy lại
+              hoặc Xóa vĩnh viễn để xóa hẳn sau khi xác nhận. Khôi phục lĩnh vực
+              không tự khôi phục những trang đã xóa riêng trước đó.
             </p>
           </section>
           <section

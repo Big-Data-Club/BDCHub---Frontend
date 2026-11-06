@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Clock3, ShieldCheck } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import { usePageActivity } from "../../hooks/usePageActivity";
 import type { WorkspacePage, WorkspaceUser } from "../../types";
 import { relativeTime } from "../../utils/relativeTime";
@@ -145,7 +145,7 @@ export function PageActivityPanel({
             ))
           ) : (
             <p className="text-xs leading-6 text-slate-500">
-              Chưa có người xem nào chọn hiển thị tên.
+              Chưa có lượt xem trong khoảng thời gian này.
             </p>
           )}
           <h4 className="mb-3 mt-8 font-semibold">Người chỉnh sửa</h4>
@@ -173,30 +173,6 @@ export function PageActivityPanel({
         </>
       ) : (
         !model.error && <WorkspaceLoading label="Đang tải hoạt động…" />
-      )}
-      {data && (
-        <div className="mt-8">
-          <label className="flex cursor-pointer items-center gap-3 rounded-xl bg-slate-50 p-4 text-xs dark:bg-lms-card">
-            <ShieldCheck className="size-4 shrink-0" />
-            <span className="flex-1">
-              Hiển thị tên tôi trong lịch sử xem trang này
-            </span>
-            <input
-              type="checkbox"
-              aria-label="Hiển thị tên tôi trong lịch sử xem trang này"
-              checked={data.show_name}
-              disabled={model.busy}
-              onChange={(event) =>
-                void model.setPreference(event.target.checked)
-              }
-              className="size-4 accent-blue-600"
-            />
-          </label>
-          <p className="mt-3 text-xs leading-6 text-slate-400">
-            Tắt để ẩn tên, kể cả những lần xem trước. Lượt xem vẫn được tính
-            trong số liệu tổng hợp.
-          </p>
-        </div>
       )}
     </div>
   );

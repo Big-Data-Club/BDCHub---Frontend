@@ -17,7 +17,6 @@ import {
   Trash2,
   Users,
   ArrowLeft,
-  PanelLeft,
 } from "lucide-react";
 import type {
   WorkspaceBootstrap,
@@ -26,11 +25,10 @@ import type {
   WorkspaceField,
 } from "../types";
 import { useWorkspaceSearch } from "../hooks/useWorkspaceSearch";
-import { WorkspacePageMenu, type PageAction } from "./WorkspacePageMenu";
+
 import { WorkspaceButton } from "./WorkspacePrimitives";
 const rank = { owner: 5, manager: 4, editor: 3, commenter: 2, viewer: 1 };
 interface SidebarProps {
-  onCollapse: () => void;
   bootstrap: WorkspaceBootstrap;
   space?: WorkspaceSpace;
   pages: WorkspacePage[];
@@ -42,7 +40,6 @@ interface SidebarProps {
   onTrash: () => void;
   onNotes: () => void;
   onInbox: () => void;
-  onPageAction: (action: PageAction, page: WorkspacePage) => void;
   onMove: (id: string, parentId: string | null) => void;
   field: WorkspaceField | null;
   onHome: () => void;
@@ -163,22 +160,6 @@ export function WorkspaceSidebar(props: SidebarProps) {
                 )}
                 <span className="min-w-0 flex-1 truncate">{page.title}</span>
               </button>
-              {role >= 3 && page.kind === "page" && (
-                <button
-                  type="button"
-                  aria-label={`Tạo trang con trong ${page.title}`}
-                  className="shrink-0 rounded p-1 transition-all active:scale-95"
-                  onClick={() => props.onCreate(page.id)}
-                >
-                  <Plus className="size-3" />
-                </button>
-              )}
-              <WorkspacePageMenu
-                page={page}
-                editable={role >= 3}
-                manager={role >= 4}
-                onAction={props.onPageAction}
-              />
             </div>
             {children && !closed && tree(page.id, depth + 1, next)}
           </div>
@@ -206,14 +187,6 @@ export function WorkspaceSidebar(props: SidebarProps) {
           >
             <ArrowLeft className="size-4" />
             Về các lĩnh vực
-          </WorkspaceButton>
-          <WorkspaceButton
-            onClick={props.onCollapse}
-            className="size-8 shrink-0 p-1"
-            aria-label="Thu gọn thanh bên"
-            title="Thu gọn · Ctrl+\"
-          >
-            <PanelLeft className="size-4" />
           </WorkspaceButton>
         </div>
         <div className="flex items-center justify-between">

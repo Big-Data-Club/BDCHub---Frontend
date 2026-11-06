@@ -53,7 +53,7 @@ export function FieldCard({
                   className="text-rose-600"
                 >
                   <Trash2 className="mr-2 size-4" />
-                  Lưu trữ lĩnh vực
+                  Chuyển vào thùng rác
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

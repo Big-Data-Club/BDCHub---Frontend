@@ -341,6 +341,43 @@ function RichEditor({
     onAskAi: props.onAskAi,
     onComment: props.onComment,
     onPageMenu: props.onPageMenu,
+    onTrashPage: async (id: string) => {
+      try {
+        await workspaceService.archive(id);
+        const branch = new Set([id]);
+        let changed = true;
+        while (changed) {
+          changed = false;
+          for (const page of props.pages)
+            if (
+              page.parent_id &&
+              branch.has(page.parent_id) &&
+              !branch.has(page.id)
+            ) {
+              branch.add(page.id);
+              changed = true;
+            }
+        }
+        const removed: string[] = [];
+        const visit = (blocks: typeof editor.document) => {
+          for (const block of blocks) {
+            if (block.type === "pageLink" && branch.has(block.props.pageId))
+              removed.push(block.id);
+            visit(block.children);
+          }
+        };
+        visit(editor.document);
+        if (removed.length) editor.removeBlocks(removed);
+        props.onRefresh();
+      } catch (reason) {
+        setError(
+          reason instanceof Error
+            ? reason.message
+            : "Chưa chuyển được trang vào thùng rác.",
+        );
+        throw reason;
+      }
+    },
     onCreateChild: props.onCreateChild,
     onConvertBlock: (id: string) => {
       void convertBlock(id);

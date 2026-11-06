@@ -5,7 +5,7 @@ import {
   ArrowRight,
   Bell,
   BookOpen,
-  FileText,
+  Files,
   Layers3,
   LockKeyhole,
   Plus,
@@ -16,10 +16,10 @@ import {
 import type {
   WorkspaceBootstrap,
   WorkspaceField,
-  WorkspacePage,
   WorkspaceSpace,
 } from "../../types";
 import { useFieldActions } from "../../hooks/useFieldActions";
+import { WorkspaceTabPicker } from "../WorkspaceTabPicker";
 import { FieldCard } from "./FieldCard";
 import { FieldDialog } from "./FieldDialog";
 import {
@@ -32,31 +32,28 @@ import styles from "./Fields.module.css";
 export function WorkspaceLanding({
   bootstrap,
   space,
-  pages,
   error,
   onRefresh,
   onSpace,
   onField,
   onPage,
-  onArrange,
   onCreateSpace,
   onInbox,
-  onNotes,
+  onTrash,
 }: {
   bootstrap: WorkspaceBootstrap;
   space?: WorkspaceSpace;
-  pages: WorkspacePage[];
   error: string | null;
   onRefresh: () => Promise<void>;
   onSpace: (id: string) => void;
   onField: (field: WorkspaceField) => void;
   onPage: (id: string) => void;
-  onArrange: (page: WorkspacePage) => void;
   onCreateSpace: () => void;
   onInbox: () => void;
-  onNotes: () => void;
+  onTrash: () => void;
 }) {
   const [query, setQuery] = useState(""),
+    [picker, setPicker] = useState(false),
     [confirm, setConfirm] = useState<WorkspaceField | null>(null),
     actions = useFieldActions(space?.id, onRefresh);
   const fields = bootstrap.fields.filter(
@@ -68,10 +65,7 @@ export function WorkspaceLanding({
         .includes(query.toLocaleLowerCase("vi")),
     ),
     canEdit = !!space && ["owner", "manager", "editor"].includes(space.role),
-    canManage = !!space && ["owner", "manager"].includes(space.role),
-    unfiled = pages.filter(
-      (page) => !page.field_id && !page.parent_id && page.kind !== "record",
-    );
+    canManage = !!space && ["owner", "manager"].includes(space.role);
   return (
     <div className={styles.landing}>
       <div className={styles.content}>
@@ -97,6 +91,12 @@ export function WorkspaceLanding({
                 </option>
               ))}
             </select>
+            <WorkspaceButton
+              onClick={() => setPicker(true)}
+              aria-label="Tìm trang trong Workspace"
+            >
+              <Files className="size-4" />
+            </WorkspaceButton>
             <WorkspaceButton
               onClick={onCreateSpace}
               aria-label="Tạo không gian nhóm"
@@ -135,9 +135,7 @@ export function WorkspaceLanding({
           </span>
         </section>
         <WorkspaceErrorBanner
-          message={
-            error || (!actions.open && !actions.trash ? actions.error : null)
-          }
+          message={error || (!actions.open ? actions.error : null)}
         />
         <section aria-label="Các lĩnh vực">
           <div className={styles.heading}>
@@ -170,10 +168,7 @@ export function WorkspaceLanding({
                 </WorkspaceButton>
               )}
               {canManage && (
-                <WorkspaceButton
-                  aria-label="Lĩnh vực đã lưu trữ"
-                  onClick={() => void actions.showTrash()}
-                >
+                <WorkspaceButton aria-label="Mở thùng rác" onClick={onTrash}>
                   <Trash2 className="size-4" />
                 </WorkspaceButton>
               )}
@@ -225,64 +220,19 @@ export function WorkspaceLanding({
           <span>Hướng dẫn editor & thư viện công thức LaTeX</span>
           <ArrowRight className="size-4 shrink-0" />
         </Link>
-        {unfiled.length > 0 && (
-          <details className={styles.lower}>
-            <summary>Trang chưa xếp lĩnh vực · {unfiled.length}</summary>
-            <p className="my-4 text-xs text-slate-500">
-              Các trang đã có được giữ nguyên. Bạn có thể mở lại hoặc chuyển cả
-              nhánh vào lĩnh vực do bạn chọn.
-            </p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {unfiled.map((page) => (
-                <div
-                  key={page.id}
-                  className="flex min-w-0 items-center rounded-xl border border-slate-200 p-2 dark:border-lms-border"
-                >
-                  <WorkspaceButton
-                    className="min-w-0 flex-1 justify-start"
-                    onClick={() => onPage(page.id)}
-                  >
-                    <FileText className="size-4 shrink-0" />
-                    <span className="truncate">{page.title}</span>
-                  </WorkspaceButton>
-                  {canManage && (
-                    <WorkspaceButton
-                      onClick={() => onArrange(page)}
-                      className="text-xs"
-                    >
-                      Xếp vào lĩnh vực
-                    </WorkspaceButton>
-                  )}
-                </div>
-              ))}
-            </div>
-          </details>
-        )}
-        {bootstrap.shared_pages.length > 0 && (
-          <details className={styles.lower}>
-            <summary>
-              Trang được chia sẻ · {bootstrap.shared_pages.length}
-            </summary>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              {bootstrap.shared_pages.map((page) => (
-                <WorkspaceButton
-                  key={page.id}
-                  onClick={() => onPage(page.id)}
-                  className="justify-start"
-                >
-                  <FileText className="size-4" />
-                  {page.title}
-                </WorkspaceButton>
-              ))}
-            </div>
-          </details>
-        )}
-        <div className="mt-5">
-          <WorkspaceButton onClick={onNotes} className="text-xs text-slate-500">
-            Mở vở ghi hiện có →
-          </WorkspaceButton>
-        </div>
       </div>
+      {picker && (
+        <WorkspaceTabPicker
+          bootstrap={bootstrap}
+          canCreate={false}
+          onClose={() => setPicker(false)}
+          onOpen={(id) => {
+            setPicker(false);
+            onPage(id);
+          }}
+          onNew={() => {}}
+        />
+      )}
       <FieldDialog
         open={actions.open}
         editing={actions.editing}
@@ -296,8 +246,8 @@ export function WorkspaceLanding({
         onOpenChange={(open) => {
           if (!open) setConfirm(null);
         }}
-        title="Lưu trữ lĩnh vực?"
-        description="Các trang trong lĩnh vực sẽ được lưu trữ cùng nhau. Bạn có thể khôi phục lại sau."
+        title="Chuyển lĩnh vực vào thùng rác?"
+        description="Lĩnh vực cùng các trang bên trong sẽ vào thùng rác. Bạn có thể khôi phục lại sau."
       >
         <WorkspaceErrorBanner message={actions.error} />
         <WorkspaceButton
@@ -310,34 +260,8 @@ export function WorkspaceLanding({
               });
           }}
         >
-          Lưu trữ {confirm?.title}
+          <Trash2 className="size-4" /> Chuyển vào thùng rác
         </WorkspaceButton>
-      </WorkspaceDialog>
-      <WorkspaceDialog
-        open={actions.trash}
-        onOpenChange={actions.setTrash}
-        title="Lĩnh vực đã lưu trữ"
-        description="Khôi phục lĩnh vực cùng các trang đã được lưu trữ trong lần đó."
-      >
-        <WorkspaceErrorBanner message={actions.error} />
-        {actions.archived.length ? (
-          actions.archived.map((field) => (
-            <div
-              key={field.id}
-              className="flex items-center justify-between gap-2"
-            >
-              <span>{field.title}</span>
-              <WorkspaceButton
-                disabled={actions.busy}
-                onClick={() => void actions.restore(field.id)}
-              >
-                Khôi phục lĩnh vực
-              </WorkspaceButton>
-            </div>
-          ))
-        ) : (
-          <p className="text-sm text-slate-500">Chưa có lĩnh vực đã lưu trữ.</p>
-        )}
       </WorkspaceDialog>
     </div>
   );

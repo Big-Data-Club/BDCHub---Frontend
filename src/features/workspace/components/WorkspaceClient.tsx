@@ -277,16 +277,14 @@ export function WorkspaceClient() {
         <WorkspaceLanding
           bootstrap={bootstrap}
           space={model.activeSpace}
-          pages={model.allPages}
           error={model.error}
           onRefresh={reload}
           onSpace={(id) => navigate(undefined, id)}
           onField={(field) => navigate(field.page_id, field.space_id, field.id)}
           onPage={(id) => open(id)}
-          onArrange={(target) => void action("move", target)}
           onCreateSpace={() => setDialog({ type: "team" })}
           onInbox={() => setDialog({ type: "inbox" })}
-          onNotes={() => setDialog({ type: "notes" })}
+          onTrash={() => setDialog({ type: "trash" })}
         />
         {dialogs}
       </>
@@ -315,10 +313,6 @@ export function WorkspaceClient() {
       >
         <WorkspaceSidebar
           bootstrap={bootstrap}
-          onCollapse={() => {
-            sidebar.setCollapsed(true);
-            setMobile(false);
-          }}
           space={model.activeSpace}
           pages={model.pages}
           activeId={page?.id}
@@ -335,7 +329,6 @@ export function WorkspaceClient() {
           onTrash={() => setDialog({ type: "trash" })}
           onNotes={() => setDialog({ type: "notes" })}
           onInbox={() => setDialog({ type: "inbox" })}
-          onPageAction={(type, target) => void action(type, target)}
           onMove={(id, parent_id) => {
             void workspaceService
               .page(id)

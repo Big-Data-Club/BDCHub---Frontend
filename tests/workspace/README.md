@@ -45,6 +45,17 @@ on a separate test Docker network, never the main Workspace database.
 
 `browser-chrome.py` covers staying in the gallery after field creation, tooltip
 contrast, removed quick actions, sidebar resize/collapse/keyboard/persistence,
-cross-field workspace tabs, edited metadata, real analytics privacy and animated
+cross-field workspace tabs, edited metadata, named page-view history and animated
 guide scrolling. It supports the same native/production fixture modes. Tests do
 not infer a successful save from a success label that the product no longer shows.
+
+`browser-recycle.py` checks the wide bounded color submenu, trash icons, child-page
+Move to Trash, removed captions/row buttons/footer, shared page/field Recycle Bin,
+restore, permanent deletion and cancellation, gallery legacy-page search and
+mobile layouts. Destructive fixture actions target only freshly created resources
+in the isolated workspace_test database. Viewer names now appear for authorized
+page readers without an opt-in checkbox, per the explicit product change.
+
+`browser-layout.py` reproduces the mobile submenu clipping case and verifies the
+final guide instructions on the built frontend. The submenu honors the actual
+menu engine available-height variable, rather than only the window height.

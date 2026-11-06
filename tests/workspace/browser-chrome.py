@@ -100,12 +100,8 @@ with sync_playwright() as p:
     a.get_by_role('button',name='Thông tin chỉnh sửa trang',exact=True).click()
     a.get_by_role('tab',name='Thống kê',exact=True).click()
     expect(a.get_by_role('heading',name='Lượt xem (1)',exact=True)).to_be_visible()
-    a.get_by_label('Hiển thị tên tôi trong lịch sử xem trang này',exact=True).check()
-    expect(a.get_by_label('Hiển thị tên tôi trong lịch sử xem trang này',exact=True)).not_to_be_disabled()
-    assert api(alice,f'/pages/{page_id}/analytics')['show_name']
-    a.get_by_label('Hiển thị tên tôi trong lịch sử xem trang này',exact=True).uncheck()
-    expect(a.get_by_label('Hiển thị tên tôi trong lịch sử xem trang này',exact=True)).not_to_be_disabled()
-    assert api(alice,f'/pages/{page_id}/analytics')['viewers']==[]
+    expect(a.get_by_label('Hiển thị tên tôi trong lịch sử xem trang này',exact=True)).to_have_count(0)
+    assert api(alice,f'/pages/{page_id}/analytics')['viewers'][0]['name']=='Alice'
     a.get_by_text('Xem dữ liệu từng ngày',exact=True).click()
     expect(a.locator('aside[aria-label="Thông tin trang"] tbody tr')).to_have_count(28)
     a.get_by_label('Khoảng thời gian thống kê').select_option('7')
@@ -126,9 +122,9 @@ with sync_playwright() as p:
     m.goto(base+'/workspace?page='+page_id,wait_until='networkidle',timeout=90000)
     expect(m.locator('.bn-editor')).to_be_visible(timeout=60000)
     m.get_by_role('button',name='Mở cây trang',exact=True).click();expect(m.locator('#workspace-page-sidebar')).to_be_visible()
-    m.get_by_role('button',name='Thu gọn thanh bên',exact=True).click();expect(m.locator('#workspace-page-sidebar')).not_to_be_visible()
+    m.get_by_role('button',name='Đóng cây trang',exact=True).click(position={'x':380,'y':250});expect(m.locator('#workspace-page-sidebar')).not_to_be_visible()
     assert m.evaluate('document.documentElement.scrollWidth<=innerWidth')
     m.screenshot(path=str(artifacts/'chrome-mobile.png'),full_page=True)
     assert not errors,errors
-    print('PASS: stay in field gallery after creation, tooltip colors, clean editor, relative activity and analytics privacy, resizable/collapsible sidebar, workspace tabs and smooth guide navigation.',flush=True)
+    print('PASS: stay in field gallery after creation, tooltip colors, clean editor, relative activity and named view history, resizable/collapsible sidebar, workspace tabs and smooth guide navigation.',flush=True)
     browser.close()

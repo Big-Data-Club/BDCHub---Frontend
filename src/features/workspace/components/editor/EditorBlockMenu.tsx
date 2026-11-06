@@ -23,6 +23,7 @@ import {
   Search,
   Sigma,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import { useWorkspaceEditorContext } from "./EditorContext";
 import { contentText, duplicateBlock } from "../../utils/editorContent";
@@ -47,6 +48,8 @@ export function EditorBlockMenu() {
     selector: () => hovering && editor.getBlock(hovering.id),
   });
   const [query, setQuery] = useState(""),
+    [deleting, setDeleting] = useState(false),
+    [deleteError, setDeleteError] = useState(""),
     [copied, setCopied] = useState(false),
     [copyError, setCopyError] = useState(false);
   const activity = useBlockActivity(
@@ -239,14 +242,46 @@ export function EditorBlockMenu() {
       {editor.isEditable && (
         <>
           <Menu.Divider />
-          <RemoveBlockItem>
-            {block.type === "pageLink"
-              ? "Gỡ liên kết khỏi nội dung"
-              : "Xóa khối"}
-          </RemoveBlockItem>
+          {block.type === "pageLink" &&
+          ["owner", "manager"].includes(context?.page.space_role || "") ? (
+            <Menu.Item
+              className={styles.danger}
+              onClick={() => {
+                if (deleting) return;
+                setDeleting(true);
+                void context
+                  ?.onTrashPage(block.props.pageId)
+                  .catch((reason) =>
+                    setDeleteError(
+                      reason instanceof Error
+                        ? reason.message
+                        : "Chưa xóa được trang.",
+                    ),
+                  )
+                  .finally(() => setDeleting(false));
+              }}
+            >
+              <Trash2 className="size-4" />
+              Chuyển vào thùng rác
+            </Menu.Item>
+          ) : (
+            <RemoveBlockItem>
+              <Trash2 className={`size-4 ${styles.danger}`} />
+              <span className={styles.danger}>
+                {block.type === "pageLink"
+                  ? "Gỡ liên kết khỏi nội dung"
+                  : "Xóa khối"}
+              </span>
+            </RemoveBlockItem>
+          )}
         </>
       )}
       <div className={styles.footer}>
+        {deleteError && (
+          <div role="alert" className={styles.danger}>
+            {deleteError}
+          </div>
+        )}
         {activity && (
           <>
             <div>Sửa gần nhất bởi {activity.author}</div>

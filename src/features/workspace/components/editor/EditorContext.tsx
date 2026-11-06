@@ -11,6 +11,7 @@ export interface EditorContextValue {
   onCreateChild: (title: string, parentId?: string) => Promise<WorkspacePage>;
   onConvertBlock: (id: string) => void;
   onPageMenu: (id: string) => void;
+  onTrashPage: (id: string) => Promise<void>;
 }
 export const WorkspaceEditorContext = createContext<EditorContextValue | null>(
   null,
