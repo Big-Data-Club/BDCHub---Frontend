@@ -31,7 +31,7 @@ export function SiteEditor({ orgId, brand }: { orgId: number; brand: SiteBrand }
     <div role="tablist" aria-label="Cấu hình website" className="flex flex-wrap gap-2">{tabs.map((label, i) => <button key={label} role="tab" aria-selected={tab === i} type="button" className={`${buttonClass} ${tab === i ? "bg-blue-600 text-white" : ""}`} onClick={() => setTab(i)}>{label}</button>)}</div>
     <fieldset disabled={editor.busy} className="space-y-6 disabled:opacity-60">
       {tab === 0 && <div className="grid gap-6 rounded-2xl border border-slate-200 p-6 dark:border-blue-500/20 md:grid-cols-2">
-        <label>Mẫu giao diện<select className={inputClass} value={site.template} onChange={e => change({ ...site, template: e.target.value as "classic" | "modern" })}><option value="classic">Cổ điển — gọn gàng</option><option value="modern">Hiện đại — thoáng rộng</option></select></label>
+        <label>Mẫu giao diện<select className={inputClass} value={site.template} onChange={e => change({ ...site, template: e.target.value as "classic" | "modern" })}><option value="modern">Hiện đại (Modern Big Tech — vệt sáng tinh tế, bo góc mềm)</option><option value="classic">Cổ điển (Classic Big Tech — tối giản, thanh lịch)</option></select></label>
         <Field label="Màu nhận diện" type="color" value={site.primaryColor} onChange={primaryColor => change({ ...site, primaryColor })} />
         <Field label="Khẩu hiệu / thanh thông tin" value={site.tagline} onChange={tagline => change({ ...site, tagline })} />
         <Field label="Nội dung chân trang" multiline value={site.footerText} onChange={footerText => change({ ...site, footerText })} />
