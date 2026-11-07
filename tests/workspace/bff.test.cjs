@@ -21,7 +21,7 @@ const user = {
   accessToken: "server-session-token",
 };
 function handler(session, fetcher) {
-  const module = { exports: {} };
+  const loadedModule = { exports: {} };
   const load = (name) => {
     if (name === "next-auth") return { getServerSession: async () => session };
     if (name === "next/server") return { NextResponse };
@@ -32,8 +32,8 @@ function handler(session, fetcher) {
   };
   new Function("require", "module", "exports", "fetch", "process", code)(
     load,
-    module,
-    module.exports,
+    loadedModule,
+    loadedModule.exports,
     fetcher,
     {
       env: {
@@ -43,7 +43,7 @@ function handler(session, fetcher) {
       },
     },
   );
-  return module.exports;
+  return loadedModule.exports;
 }
 function request(method, route, body, origin = base) {
   return new NextRequest(`${base}/api/workspace/${route}`, {

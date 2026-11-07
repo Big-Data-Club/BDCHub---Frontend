@@ -19,14 +19,14 @@ const code = ts.transpileModule(
   },
 ).outputText;
 function helper(fetcher) {
-  const module = { exports: {} };
+  const loadedModule = { exports: {} };
   new Function("module", "exports", "fetch", "process", code)(
-    module,
-    module.exports,
+    loadedModule,
+    loadedModule.exports,
     fetcher,
     { env: { BACKEND_URL: "http://auth-test:8080" } },
   );
-  return module.exports.readableTasks;
+  return loadedModule.exports.readableTasks;
 }
 const tasks = [
   {

@@ -13,14 +13,18 @@ test("production keeps the Workspace WebSocket route for direct frontend access"
         },
       },
     ).outputText,
-    module = { exports: {} };
-  new Function("module", "exports", "process", code)(module, module.exports, {
-    env: {
-      NODE_ENV: "production",
-      WORKSPACE_SERVICE_URL: "http://workspace-service:8088",
+    loadedModule = { exports: {} };
+  new Function("module", "exports", "process", code)(
+    loadedModule,
+    loadedModule.exports,
+    {
+      env: {
+        NODE_ENV: "production",
+        WORKSPACE_SERVICE_URL: "http://workspace-service:8088",
+      },
     },
-  });
-  const routes = await module.exports.default.rewrites();
+  );
+  const routes = await loadedModule.exports.default.rewrites();
   assert.equal(
     routes.find((route) => route.source === "/workspace-ws").destination,
     "http://workspace-service:8088/workspace-ws",
@@ -32,9 +36,9 @@ test("development keeps Next's chunk graph so editor CSS cannot replace a vendor
     fs.readFileSync(path.resolve(__dirname, "../../next.config.ts"), "utf8"),
     { compilerOptions: { module: ts.ModuleKind.CommonJS } },
   ).outputText;
-  const module = { exports: {} };
-  new Function("module", "exports", code)(module, module.exports);
-  const nextConfig = module.exports.default;
+  const loadedModule = { exports: {} };
+  new Function("module", "exports", code)(loadedModule, loadedModule.exports);
+  const nextConfig = loadedModule.exports.default;
   const original = {
     chunks: "async",
     cacheGroups: { framework: { name: "framework" } },

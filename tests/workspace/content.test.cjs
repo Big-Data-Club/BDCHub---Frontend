@@ -11,15 +11,15 @@ function load(file) {
       "../../src/features/workspace",
       file,
     ),
-    module = { exports: {} };
+    loadedModule = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
       target: ts.ScriptTarget.ES2022,
     },
   }).outputText;
-  new Function("module", "exports", code)(module, module.exports);
-  return module.exports;
+  new Function("module", "exports", code)(loadedModule, loadedModule.exports);
+  return loadedModule.exports;
 }
 const { formulaExamples } = load("data/formulas.ts"),
   { mathExportProjection, duplicateBlock } = load("utils/editorContent.ts"),
