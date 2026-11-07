@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { WorkspaceTrashDialog } from "./dialogs/WorkspaceTrashDialog";
 import { PageAppearanceFields } from "./PageAppearanceFields";
 import { workspaceService } from "../api/workspaceService";
+import { pageBranchIds, pageMoveError } from "../utils/pageHierarchy";
 import type {
   WorkspaceBootstrap,
   WorkspacePage,
@@ -154,6 +155,10 @@ export function WorkspaceDialogs({
     }
     if ("page" in value) {
       const page = value.page;
+      if (value.type === "move") {
+        const moveError = pageMoveError(page.id, parent || null, pages);
+        if (moveError) throw new Error(moveError);
+      }
       if (value.type === "archive") {
         await workspaceService.archive(page.id);
         onOpen(undefined, page.space_id);
@@ -168,23 +173,10 @@ export function WorkspaceDialogs({
         });
     }
   }
-  const forbidden = new Set<string>();
-  if ("page" in value) {
-    forbidden.add(value.page.id);
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const page of pages)
-        if (
-          page.parent_id &&
-          forbidden.has(page.parent_id) &&
-          !forbidden.has(page.id)
-        ) {
-          forbidden.add(page.id);
-          changed = true;
-        }
-    }
-  }
+  const forbidden =
+    value.type === "move"
+      ? pageBranchIds(value.page.id, pages)
+      : new Set<string>();
   return (
     <WorkspaceDialog
       open
@@ -319,6 +311,7 @@ export function WorkspaceDialogs({
                   .filter(
                     (page) =>
                       page.kind === "page" &&
+                      page.space_id === value.page.space_id &&
                       !forbidden.has(page.id) &&
                       page.field_id === (fieldId || null),
                   )

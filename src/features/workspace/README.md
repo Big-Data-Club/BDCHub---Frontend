@@ -6,6 +6,13 @@ layout keeps the BDC icon rail and provides a separate page tree/editor shell.
 through `api/workspaceService.ts`, and request/state logic lives in hooks.
 Inspector sections and database layouts are independent components.
 
+Sidebar drag/drop and the Move dialog share `utils/pageHierarchy.ts`: a page
+cannot become a child of itself or any of its descendants, including collapsed
+branches deeper than the rendered tree. Valid ancestor/sibling moves remain
+available. Invalid drops display a local error without issuing a move request;
+the dialog revalidates its selected parent before saving. The backend remains
+authoritative for hierarchy, scope, permissions and concurrent updates.
+
 `/workspace/library` is an authenticated cross-space catalog with recent,
 favorite, shared, private and all-page views. The Library API filters and sorts
 before pagination and never marks catalog rows visited. Source links and author

@@ -6,6 +6,11 @@ notebook conversion, AI context checks, formula rendering and data transformatio
 Before pushing, also run `pnpm lint`; repository CI checks test helpers as well
 as application code.
 
+`page-moves.test.cjs` exercises the shared hierarchy rule and actual Sidebar/Move
+dialog event handlers with isolated React hook state. It covers self/descendant
+drops, deep and cyclic input, valid ancestor moves, stale targets, cancellation,
+permissions and unrelated drag payloads without a live API or database.
+
 For browser integration, start the sibling workspace service against a dedicated
 database **named `workspace_test`**, and Next on `http://localhost:3100` with the
 same generated `JWT_SECRET`. Use a randomly generated `NEXTAUTH_SECRET`,

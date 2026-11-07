@@ -27,8 +27,9 @@ import type {
 } from "../types";
 import { useWorkspaceSearch } from "../hooks/useWorkspaceSearch";
 import { workspaceLibraryHref } from "../utils/libraryNavigation";
+import { pageBranchIds, pageMoveError } from "../utils/pageHierarchy";
 
-import { WorkspaceButton } from "./WorkspacePrimitives";
+import { WorkspaceButton, WorkspaceErrorBanner } from "./WorkspacePrimitives";
 const rank = { owner: 5, manager: 4, editor: 3, commenter: 2, viewer: 1 };
 interface SidebarProps {
   bootstrap: WorkspaceBootstrap;
@@ -56,6 +57,9 @@ export function WorkspaceSidebar(props: SidebarProps) {
   const input = useRef<HTMLInputElement>(null),
     search = useWorkspaceSearch(query),
     role = props.space ? rank[props.space.role] : 0;
+  const dragged = useRef<{ id: string; branch: Set<string> } | null>(null);
+  const [dropTargetId, setDropTargetId] = useState<string | null>(null);
+  const [moveError, setMoveError] = useState<string | null>(null);
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
       if (
@@ -91,10 +95,25 @@ export function WorkspaceSidebar(props: SidebarProps) {
         return (
           <div key={page.id}>
             <div
+              data-workspace-page-id={page.id}
               draggable={role >= 4}
               onDragStart={(event) => {
                 event.stopPropagation();
+                if (role < 4) {
+                  event.preventDefault();
+                  return;
+                }
+                dragged.current = {
+                  id: page.id,
+                  branch: pageBranchIds(page.id, props.pages),
+                };
+                setMoveError(null);
+                event.dataTransfer.effectAllowed = "move";
                 event.dataTransfer.setData("application/x-bdc-page", page.id);
+              }}
+              onDragEnd={() => {
+                dragged.current = null;
+                setDropTargetId(null);
               }}
               onDragOver={(event) => {
                 if (
@@ -102,21 +121,58 @@ export function WorkspaceSidebar(props: SidebarProps) {
                   page.kind === "page" &&
                   event.dataTransfer.types.includes("application/x-bdc-page")
                 ) {
-                  event.preventDefault();
                   event.stopPropagation();
+                  if (!dragged.current || dragged.current.branch.has(page.id)) {
+                    event.dataTransfer.dropEffect = "none";
+                    setDropTargetId(null);
+                    if (dragged.current)
+                      setMoveError(
+                        pageMoveError(dragged.current.id, page.id, props.pages),
+                      );
+                    return;
+                  }
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "move";
+                  setMoveError(null);
+                  setDropTargetId(page.id);
                 }
               }}
+              onDragLeave={() => {
+                setDropTargetId((current) =>
+                  current === page.id ? null : current,
+                );
+              }}
               onDrop={(event) => {
-                if (role >= 4 && page.kind === "page") {
+                if (
+                  role >= 4 &&
+                  page.kind === "page" &&
+                  event.dataTransfer.types.includes("application/x-bdc-page")
+                ) {
                   event.preventDefault();
                   event.stopPropagation();
+                  setDropTargetId(null);
                   const id = event.dataTransfer.getData(
                     "application/x-bdc-page",
                   );
-                  if (id && id !== page.id) props.onMove(id, page.id);
+                  dragged.current = null;
+                  if (!id) return;
+                  // Recheck current metadata: the tree may change during a drag.
+                  const error = pageMoveError(id, page.id, props.pages);
+                  if (error) {
+                    setMoveError(error);
+                    return;
+                  }
+                  if (!props.pages.some((item) => item.id === id)) {
+                    setMoveError(
+                      "Trang cần di chuyển không còn trong danh sách. Vui lòng tải lại.",
+                    );
+                    return;
+                  }
+                  setMoveError(null);
+                  props.onMove(id, page.id);
                 }
               }}
-              className={`group flex min-w-0 items-center rounded-lg ${page.id === props.activeId ? "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-cyan-300" : "hover:bg-slate-100 dark:hover:bg-lms-hover"}`}
+              className={`group flex min-w-0 items-center rounded-lg ${dropTargetId === page.id ? "bg-blue-100 ring-2 ring-blue-500/40 dark:bg-blue-500/20 dark:ring-cyan-400/40" : page.id === props.activeId ? "bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-cyan-300" : "hover:bg-slate-100 dark:hover:bg-lms-hover"}`}
               ref={(element) => {
                 if (element)
                   element.style.paddingLeft = `${Math.min(depth, 8) * 12}px`;
@@ -271,6 +327,11 @@ export function WorkspaceSidebar(props: SidebarProps) {
         )}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
+        {moveError && (
+          <div className="mb-3">
+            <WorkspaceErrorBanner message={moveError} />
+          </div>
+        )}
         {query.trim().length >= 2 ? (
           <div className="space-y-2" role="status">
             {search.loading ? (
