@@ -101,7 +101,7 @@ export function QuizSmartImportModal({
       let parsed: ParsedQuestion[] = [];
       if (inputMode === "file" && selectedFile) {
         if (/\.xml$/i.test(selectedFile.name)) {
-          if (selectedFile.size > 2 * 1024 * 1024) throw new Error("XML tối đa 2 MB.");
+          if (selectedFile.size > 5 * 1024 * 1024) throw new Error("XML tối đa 5 MB.");
           parsed = parseMoodleXML(await selectedFile.text());
           setFileMeta({ name: selectedFile.name });
         } else {
