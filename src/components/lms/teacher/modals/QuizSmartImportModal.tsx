@@ -27,6 +27,7 @@ import {
 import BaseModal from "@/components/lms/shared/BaseModal";
 import { cn } from "@/lib/utils";
 import { parseQuizText, parseQuizFile, type ParsedQuestion } from "@/services/ai/aiService";
+import { parseMoodleXML } from "@/utils/lms/moodleXml";
 import quizService from "@/services/lms/quizService";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -98,6 +99,11 @@ export function QuizSmartImportModal({
     try {
       let parsed: ParsedQuestion[] = [];
       if (inputMode === "file" && selectedFile) {
+        if (/\.xml$/i.test(selectedFile.name)) {
+          if (selectedFile.size > 2 * 1024 * 1024) throw new Error("XML tối đa 2 MB.");
+          parsed = parseMoodleXML(await selectedFile.text());
+          setFileMeta({ name: selectedFile.name });
+        } else {
         const res = await parseQuizFile(selectedFile);
         parsed = res?.questions ?? [];
         setFileMeta({
@@ -105,6 +111,7 @@ export function QuizSmartImportModal({
           pages: res?.source?.page_count as number | undefined,
           ocr: res?.source?.ocr_pages as number | undefined,
         });
+        }
       } else {
         const res = await parseQuizText(rawText);
         parsed = res?.questions ?? [];
@@ -359,7 +366,7 @@ export function QuizSmartImportModal({
                 <input
                   type="file"
                   className="hidden"
-                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.md,.txt,.markdown,image/*"
+                  accept=".xml,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.md,.txt,.markdown,image/*"
                   disabled={isParsing}
                   onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
                 />
@@ -377,7 +384,7 @@ export function QuizSmartImportModal({
                       Kéo thả hoặc bấm để chọn tệp đề thi
                     </p>
                     <p className="text-xs text-slate-500 mt-1">
-                      PDF (kể cả scan), Word, Excel, PowerPoint, Markdown, ảnh chụp đề - tối đa 30MB
+                      Moodle XML (tối đa 2MB, xử lý tại máy); PDF, Word, Excel, PowerPoint, Markdown, ảnh - tối đa 30MB
                     </p>
                   </>
                 )}
