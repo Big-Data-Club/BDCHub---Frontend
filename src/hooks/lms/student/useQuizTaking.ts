@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "@/lib/tenant/navigation";
 import lmsService from "@/services/lms/lmsService";
+import { useQuizReviewState } from "./useQuizReviewState";
 import quizService from "@/services/lms/quizService";
 
 export interface QuestionImage {
@@ -51,6 +52,7 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [attempt, setAttempt] = useState<QuizTakingAttempt | null>(null);
+  const reviewState = useQuizReviewState(attempt?.id);
   const [answers, setAnswers] = useState<{ [key: number]: any }>({});
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -157,7 +159,7 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
 
       try {
         setSubmitting(true);
-        await quizService.submitQuiz(attempt.id);
+        await quizService.submitQuiz(attempt.id, reviewState.getFocusSummary());
         alert("Đã nộp bài thành công!");
         router.push(`/lms/student/courses/${courseId}/quiz/${quizId}/result/${attempt.id}`);
       } catch (error: any) {
@@ -290,6 +292,7 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
   };
 
   return {
+    ...reviewState,
     quiz,
     questions,
     attempt,

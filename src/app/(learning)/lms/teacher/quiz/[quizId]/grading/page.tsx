@@ -45,6 +45,9 @@ export default function TeacherGradingPage() {
   const [gradingId,       setGradingId]       = useState<number | null>(null);
   const [gradeForm,       setGradeForm]       = useState({ points_earned: 0, grader_feedback: "" });
 
+  const [focusReport, setFocusReport] = useState<{ attempt_id: number; student_name: string; focus_summary: { departures: number; away_seconds: number } }[] | null>(null);
+  const [focusError, setFocusError] = useState(false);
+
   // Filters
   const [filterGraded,       setFilterGraded]       = useState<"all" | "graded" | "ungraded">("all");
   const [searchStudent,      setSearchStudent]      = useState("");
@@ -144,6 +147,13 @@ export default function TeacherGradingPage() {
         </div>
       </div>
 
+      <section className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 text-sm text-slate-700 dark:text-slate-200 space-y-2">
+        <button type="button" onClick={async () => { try { setFocusError(false); const res = await quizService.getFocusReport(quizId); setFocusReport(res.data); } catch { setFocusError(true); } }}>Xem báo cáo rời tab</button>
+        <p>Số liệu trình duyệt tự báo cáo khi nộp bài, chỉ để tham khảo. Hiển thị tối đa 500 lượt gần nhất.</p>
+        {focusError && <p role="alert">Không tải được báo cáo. Vui lòng thử lại.</p>}
+        {focusReport?.length === 0 && <p>Chưa có dữ liệu.</p>}
+        {focusReport && <ul>{focusReport.map(row => <li key={row.attempt_id}>{row.student_name} — lượt #{row.attempt_id}: {row.focus_summary.departures} lần, {row.focus_summary.away_seconds} giây.</li>)}</ul>}
+      </section>
       {/* ── Stats row ── */}
       <div className="grid grid-cols-3 gap-4">
         {[

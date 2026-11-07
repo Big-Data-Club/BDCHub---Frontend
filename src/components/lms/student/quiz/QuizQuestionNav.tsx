@@ -10,6 +10,8 @@ interface QuizQuestionNavProps {
   onNext: () => void;
   onOpenReviewModal: () => void;
   submitting: boolean;
+  flagged?: number[];
+  onToggleFlag?: (id: number) => void;
 }
 
 export function QuizQuestionNav({
@@ -21,6 +23,8 @@ export function QuizQuestionNav({
   onNext,
   onOpenReviewModal,
   submitting,
+  flagged = [],
+  onToggleFlag,
 }: QuizQuestionNavProps) {
   const isQuestionAnswered = (question: Question) => {
     const answer = answers[question.id];
@@ -30,7 +34,7 @@ export function QuizQuestionNav({
       return !!answer.file_name;
     }
     if (question.question_type === "FILL_BLANK_TEXT" || question.question_type === "FILL_BLANK_DROPDOWN") {
-      return answer.blanks && answer.blanks.length > 0 && answer.blanks.some((b: any) => b !== null && b !== undefined && b !== "");
+      return answer.blanks && answer.blanks.length > 0 && answer.blanks.every((b: any) => b !== null && b !== undefined && b !== "");
     }
     if (question.question_type === "MULTIPLE_CHOICE") {
       return answer.selected_option_ids && answer.selected_option_ids.length > 0;
@@ -48,6 +52,13 @@ export function QuizQuestionNav({
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap gap-3 text-sm text-slate-700 dark:text-slate-200">
+        <button type="button" disabled={!questions[currentQuestion]} aria-pressed={flagged.includes(questions[currentQuestion]?.id)} onClick={() => onToggleFlag?.(questions[currentQuestion].id)}>
+          ⚑ {flagged.includes(questions[currentQuestion]?.id) ? "Bỏ đánh dấu" : "Đánh dấu xem lại"}
+        </button>
+        <button type="button" onClick={() => { const i = questions.findIndex((q, i) => i > currentQuestion && !isQuestionAnswered(q)); const next = i < 0 ? questions.findIndex(q => !isQuestionAnswered(q)) : i; if (next >= 0) onSelectQuestion(next); }}>Câu chưa làm ({questions.length - answeredCount})</button>
+        <button type="button" onClick={() => { const i = questions.findIndex((q, i) => i > currentQuestion && flagged.includes(q.id)); const next = i < 0 ? questions.findIndex(q => flagged.includes(q.id)) : i; if (next >= 0) onSelectQuestion(next); }}>Câu đánh dấu ({flagged.length})</button>
+      </div>
       {/* Prev / Next controls */}
       <div className="flex items-center justify-between gap-4">
         <button
@@ -98,6 +109,7 @@ export function QuizQuestionNav({
             return (
               <button
                 key={q.id}
+                aria-label={`Câu ${idx + 1}, ${answered ? "đã làm" : "chưa làm"}${flagged.includes(q.id) ? ", đánh dấu xem lại" : ""}`}
                 onClick={() => onSelectQuestion(idx)}
                 className={`h-10 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex flex-col items-center justify-center relative ${
                   isCurrent
@@ -107,7 +119,7 @@ export function QuizQuestionNav({
                     : "bg-slate-100 dark:bg-[#0D192E] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-blue-500/10 hover:bg-slate-200 dark:hover:bg-[#162644]"
                 }`}
               >
-                <span>{idx + 1}</span>
+                <span>{idx + 1}{flagged.includes(q.id) ? " ⚑" : ""}</span>
                 {q.is_required && (
                   <span className="absolute top-0.5 right-1 text-xs text-red-500 font-black">*</span>
                 )}

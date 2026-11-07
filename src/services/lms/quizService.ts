@@ -100,8 +100,13 @@ class QuizService {
     return response.data;
   }
 
-  async submitQuiz(attemptId: number) {
-    const response = await lmsApiClient.post(`/attempts/${attemptId}/submit`);
+  async getFocusReport(quizId: number) {
+    const response = await lmsApiClient.get(`/quizzes/${quizId}/focus-report`);
+    return response.data;
+  }
+
+  async submitQuiz(attemptId: number, focusSummary?: { departures: number; away_seconds: number }) {
+    const response = await lmsApiClient.post(`/attempts/${attemptId}/submit`, { focus_summary: focusSummary });
     return response.data;
   }
 
