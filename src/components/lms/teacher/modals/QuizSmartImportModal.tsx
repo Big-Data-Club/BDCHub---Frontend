@@ -11,7 +11,7 @@
  * model-independent: strict JSON schema per question, deterministic option
  * coercion, unusable outputs dropped server-side.
  */
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
   Sparkles,
   Loader2,
@@ -27,7 +27,7 @@ import {
 import BaseModal from "@/components/lms/shared/BaseModal";
 import { cn } from "@/lib/utils";
 import { parseQuizText, parseQuizFile, type ParsedQuestion } from "@/services/ai/aiService";
-import { parseMoodleXML } from "@/utils/lms/moodleXml";
+import { parseMoodleXML, resolveMoodleImages, type MoodleQuestion } from "@/utils/lms/moodleXml";
 import quizService from "@/services/lms/quizService";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -81,7 +81,8 @@ export function QuizSmartImportModal({
   const [isSaving, setIsSaving] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [questions, setQuestions] = useState<ParsedQuestion[]>([]);
+  const [questions, setQuestions] = useState<MoodleQuestion[]>([]);
+  const uploadedImages = useRef(new Map<string, string>());
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [expanded, setExpanded] = useState<number | null>(null);
   const [fileMeta, setFileMeta] = useState<{ name?: string; pages?: number; ocr?: number } | null>(null);
@@ -124,6 +125,7 @@ export function QuizSmartImportModal({
         );
         return;
       }
+      uploadedImages.current.clear();
       setQuestions(parsed);
       setSelected(new Set(parsed.map((_, i) => i)));
       setStep("preview");
@@ -143,13 +145,24 @@ export function QuizSmartImportModal({
   // ── Save ───────────────────────────────────────────────────────────────────
 
   const handleSave = useCallback(async () => {
-    const selectedQuestions = questions.filter((_, i) => selected.has(i));
-    if (selectedQuestions.length === 0 || isSaving) return;
+    const selectedDrafts = questions.filter((_, i) => selected.has(i));
+    if (selectedDrafts.length === 0 || isSaving) return;
 
     setIsSaving(true);
     setSaveError(null);
 
     try {
+      // Sequential uploads bound server load; successful uploads are reused on retry.
+      const selectedQuestions: ParsedQuestion[] = [];
+      for (const question of selectedDrafts) {
+        selectedQuestions.push(await resolveMoodleImages(question, async image => {
+          const cached = uploadedImages.current.get(image.dataUrl);
+          if (cached) return cached;
+          const url = await quizService.uploadImportImage(image.dataUrl, image.fileName);
+          uploadedImages.current.set(image.dataUrl, url);
+          return url;
+        }));
+      }
       if (target === "bank") {
         if (!courseId) throw new Error("Thiếu courseId cho chế độ lưu vào ngân hàng đề thi.");
         await quizService.addBankItems(courseId, {
@@ -182,7 +195,8 @@ export function QuizSmartImportModal({
           points: q.points ?? 1,
           order_index: currentQuestionCount + i + 1,
           explanation: q.explanation ?? null,
-          options: q.answer_options?.map((opt, oi) => ({
+          settings: q.settings ?? {},
+          answer_options: q.answer_options?.map((opt, oi) => ({
             option_text: opt.option_text,
             is_correct: opt.is_correct,
             order_index: oi + 1,
@@ -244,7 +258,7 @@ export function QuizSmartImportModal({
       description={
         step === "paste"
           ? inputMode === "file"
-            ? "Tải lên đề ở bất kỳ định dạng nào (PDF scan, Word, Excel, Markdown, ảnh chụp). AI tự trích xuất và cấu trúc hóa."
+            ? "Moodle XML được đọc trực tiếp trên máy, gồm ảnh nhúng. PDF, Word, Excel, Markdown và ảnh chụp được gửi cho AI trích xuất."
             : "Dán bất kỳ đoạn văn bản câu hỏi/đáp án nào. AI sẽ tự động phân tích và cấu trúc hóa."
           : `Đã trích xuất ${questions.length} câu hỏi.${fileMeta?.pages ? ` Nguồn: ${fileMeta.name ?? "tệp"} (${fileMeta.pages} trang${fileMeta.ocr ? `, ${fileMeta.ocr} trang OCR` : ""}).` : ""}`
       }
@@ -272,7 +286,7 @@ export function QuizSmartImportModal({
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    <span>🪄 Parse với AI</span>
+                    <span>{selectedFile && /\.xml$/i.test(selectedFile.name) && inputMode === "file" ? "Đọc XML và xem trước" : "🪄 Parse với AI"}</span>
                   </>
                 )}
               </button>
@@ -491,8 +505,14 @@ export function QuizSmartImportModal({
                         </div>
 
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-100 line-clamp-2">
-                          {i + 1}. {q.question_text}
+                          {i + 1}. {q.question_text.replace(/!\[[^\]]*\]\(bdc-moodle-image-[^)]+\)/g, "[Ảnh]")}
                         </p>
+
+                        {q.embedded_images?.map(image => (
+                          // Validated local raster data URLs only; no imported HTML.
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img key={image.token} src={image.dataUrl} alt={image.fileName} loading="lazy" className="mt-2 max-h-48 max-w-full object-contain" />
+                        ))}
 
                         <button
                           type="button"
@@ -527,7 +547,7 @@ export function QuizSmartImportModal({
                                 <span className="flex-shrink-0">
                                   {opt.is_correct ? "✓" : String.fromCharCode(65 + oi) + "."}
                                 </span>
-                                <span>{opt.option_text}</span>
+                                <span>{opt.option_text.replace(/!\[[^\]]*\]\(bdc-moodle-image-[^)]+\)/g, "[Ảnh]")}</span>
                               </div>
                             ))}
                             {q.correct_answers?.map((ans, ai) => (

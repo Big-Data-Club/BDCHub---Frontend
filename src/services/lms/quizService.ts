@@ -1,6 +1,22 @@
 import { lmsApiClient } from "./lmsApiClient";
 
 class QuizService {
+  async uploadImportImage(dataUrl: string, fileName: string) {
+    const [header, base64] = dataUrl.split(",");
+    const mime = header.slice(5, header.indexOf(";"));
+    const bytes = Uint8Array.from(atob(base64), char => char.charCodeAt(0));
+    const extension = ({ "image/png": "png", "image/jpeg": "jpg", "image/gif": "gif", "image/webp": "webp" } as Record<string, string>)[mime];
+    if (!extension) throw new Error("Định dạng ảnh không hợp lệ.");
+    const name = (fileName.split("/").pop() || "image").replace(/\.[^.]*$/, "");
+    const form = new FormData();
+    form.append("type", "image");
+    form.append("file", new File([bytes], `${name}.${extension}`, { type: mime }));
+    const response = await lmsApiClient.post("/files/upload", form, { headers: { "Content-Type": "multipart/form-data" } });
+    const path = response.data?.data?.file_path;
+    if (!path) throw new Error("Upload ảnh thất bại, chưa nhận được đường dẫn.");
+    return `/files/${path}`;
+  }
+
   // ─── Quiz Management (Teacher) ────────────────────────────────────────────
 
   async createQuizWithContent(contentId: number, quizData: any) {
