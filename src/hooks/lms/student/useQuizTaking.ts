@@ -67,6 +67,7 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
   const [serverAnswers, setServerAnswers] = useState<{ [key: number]: any }>({});
   /** Questions whose last save to the server FAILED - shown as a banner. */
   const [failedQuestionIds, setFailedQuestionIds] = useState<number[]>([]);
+  const [retryingAnswers, setRetryingAnswers] = useState(false);
 
   const updateActiveSaveRequests = (val: number | ((prev: number) => number)) => {
     if (typeof val === "function") {
@@ -123,6 +124,18 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
     [attempt]
   );
 
+  const retryFailedAnswers = async () => {
+    if (retryingAnswers || activeSaveRequestsRef.current > 0 || submitting) return;
+    setRetryingAnswers(true);
+    try {
+      for (const id of failedQuestionIds) {
+        if (answers[id] !== undefined) await handleAnswerChange(id, answers[id]);
+      }
+    } finally {
+      setRetryingAnswers(false);
+    }
+  };
+
   const handleSubmit = useCallback(
     async (isAutoSubmit = false) => {
       if (!attempt) return;
@@ -137,6 +150,11 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
           await new Promise((resolve) => setTimeout(resolve, 100));
           retries--;
         }
+      }
+
+      if (!isAutoSubmit && failedQuestionIds.length > 0) {
+        alert("Còn đáp án chưa lưu lên máy chủ. Hãy bấm Thử lưu lại trước khi nộp bài.");
+        return;
       }
 
       const unansweredRequired = questions.filter((q) => {
@@ -168,7 +186,7 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
         setSubmitting(false);
       }
     },
-    [attempt, questions, answers, courseId, quizId, router]
+    [attempt, questions, answers, courseId, quizId, router, failedQuestionIds]
   );
 
   const handleAutoSubmit = useCallback(async () => {
@@ -311,6 +329,8 @@ export function useQuizTaking(quizId: number, courseId: number, shouldStart: boo
     fetchingServerAnswers,
     serverAnswers,
     failedQuestionIds,
+    retryingAnswers,
+    retryFailedAnswers,
     handleAnswerChange,
     handleSubmit,
     handleOpenReviewModal,

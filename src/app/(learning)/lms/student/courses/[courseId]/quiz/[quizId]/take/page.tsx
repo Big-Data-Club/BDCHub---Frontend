@@ -35,6 +35,8 @@ export default function StudentQuizTakingPage() {
     fetchingServerAnswers,
     serverAnswers,
     failedQuestionIds,
+    retryingAnswers,
+    retryFailedAnswers,
     handleAnswerChange,
     handleSubmit,
     handleOpenReviewModal,
@@ -71,7 +73,11 @@ export default function StudentQuizTakingPage() {
         <p role="status" className="text-sm text-slate-600 dark:text-slate-300">Bài làm ghi nhận số lần ẩn hoặc rời tab để giáo viên tham khảo. Đã ghi nhận: {departures} lần.</p>
         {failedQuestionIds.length > 0 && (
           <div className="p-3 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 text-sm text-red-600 dark:text-red-400 font-medium">
-            ⚠️ Có {failedQuestionIds.length} câu trả lời chưa lưu được lên máy chủ (lỗi kết nối). Hãy chọn lại câu trả lời ở các câu đó để hệ thống lưu lại.
+            <p role="alert">⚠️ Có {failedQuestionIds.length} câu trả lời chưa lưu lên máy chủ. Có thể do máy chủ từ chối hoặc lỗi kết nối. Đừng tải lại trang; hãy thử lưu lại trước khi nộp.</p>
+            <p>Câu chưa lưu: {questions.map((q, i) => failedQuestionIds.includes(q.id) ? i + 1 : null).filter(n => n !== null).join(", ")}</p>
+            <button type="button" onClick={retryFailedAnswers} disabled={retryingAnswers || activeSaveRequests > 0 || submitting} className="mt-2 underline disabled:opacity-50">
+              {retryingAnswers ? "Đang lưu lại…" : "Thử lưu lại"}
+            </button>
           </div>
         )}
         {activeQuestion && (
