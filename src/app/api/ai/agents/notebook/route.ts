@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { NextRequest, NextResponse } from "next/server";
+import type { NotebookAnnotation } from "@/types/ai/notebook";
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://ai-service:8000";
 const AI_SECRET = process.env.AI_SERVICE_SECRET || "";
@@ -25,6 +26,7 @@ export async function GET(req: NextRequest) {
     const upstreamUrl = `${AI_SERVICE_URL}/ai/agents/notebook?${urlParams.toString()}`;
     const response = await fetch(upstreamUrl, {
       method: "GET",
+      cache: "no-store",
       headers: {
         "X-AI-Secret": AI_SECRET,
       },
@@ -36,7 +38,7 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, { headers: { "Cache-Control": "private, no-store" } });
   } catch (err: any) {
     console.error("[notebook-proxy] GET failed:", err.message);
     return NextResponse.json({ error: "AI service unavailable" }, { status: 502 });
@@ -88,7 +90,7 @@ export async function PUT(req: NextRequest) {
   const entryId = searchParams.get("id");
   if (!entryId) return NextResponse.json({ error: "id parameter is required" }, { status: 400 });
 
-  let body: { title?: string; content?: string };
+  let body: { title?: string; content?: string; annotation?: NotebookAnnotation | null };
   try {
     body = await req.json();
   } catch {
@@ -102,7 +104,7 @@ export async function PUT(req: NextRequest) {
     const response = await fetch(`${AI_SERVICE_URL}/ai/agents/notebook/${entryId}?user_id=${userId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "X-AI-Secret": AI_SECRET },
-      body: JSON.stringify({ title, content }),
+      body: JSON.stringify({ title, content, ...(Object.hasOwn(body, "annotation") ? { annotation: body.annotation } : {}) }),
     });
     const data = await response.json().catch(() => ({ error: "AI service unavailable" }));
     return NextResponse.json(data, { status: response.status });
@@ -116,7 +118,7 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  let body: { title?: string; content?: string; course_id?: number; node_id?: number };
+  let body: { title?: string; content?: string; course_id?: number; node_id?: number; annotation?: NotebookAnnotation | null };
   try {
     body = await req.json();
   } catch {
@@ -131,7 +133,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch(`${AI_SERVICE_URL}/ai/agents/notebook?user_id=${userId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-AI-Secret": AI_SECRET },
-      body: JSON.stringify({ title, content, course_id: body.course_id, node_id: body.node_id }),
+      body: JSON.stringify({ title, content, course_id: body.course_id, node_id: body.node_id, annotation: body.annotation }),
     });
     const data = await response.json().catch(() => ({ error: "AI service unavailable" }));
     return NextResponse.json(data, { status: response.status });

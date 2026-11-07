@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, Bell } from "lucide-react";
 import hpcLogo from "@/assets/hpc-school-logo.png";

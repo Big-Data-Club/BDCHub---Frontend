@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { Hash, Lock, Plus, MessageSquare, Settings2, Search, SlidersHorizontal, RefreshCw } from "lucide-react";
 import { useChat } from "@/hooks/chat/useChat";
 import { cn } from "@/lib/utils";

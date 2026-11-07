@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useParams, useRouter, usePathname, useSearchParams } from "@/lib/tenant/navigation";
 
 import lmsService from "@/services/lms/lmsService";
 import progressService, { CourseProgress, ProgressDetailItem } from "@/services/lms/progressService";

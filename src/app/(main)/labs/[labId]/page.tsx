@@ -21,7 +21,7 @@ import { labService } from "@/services/labs/labService";
 import { getAccessToken } from "@/services/auth/authToken";
 import type { Lab, LabSubmission } from "@/types";
 import toast from "react-hot-toast";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { useParams } from "next/navigation";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { XTerminal, type XTerminalHandle } from "@/components/terminal/XTerminal";

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useParams, usePathname } from "next/navigation";
-import Link from "next/link";
+import { useParams, usePathname } from "@/lib/tenant/navigation";
+import Link from "@/lib/tenant/Link";
 import dynamic from "next/dynamic";
 import { Edit3, BookOpen, Users, Shield, Activity, Eye, User, Calendar, Clock } from "lucide-react";
 import lmsService from "@/services/lms/lmsService";

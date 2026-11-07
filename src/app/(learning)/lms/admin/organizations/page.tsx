@@ -21,6 +21,8 @@ import { organizationService } from "@/services/admin/organizationService";
 import type { Organization, OrgMember, OrgStats } from "@/types";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { Select } from "@/components/lms/shared";
+import { OrganizationLogoInput } from "@/components/admin/organization/OrganizationLogoInput";
+import Link from "@/lib/tenant/Link";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -133,6 +135,7 @@ function OrgCard({ org, onSelect, onDeactivate }: OrgCardProps) {
         </div>
 
         {/* Manage button */}
+        <Link href={`/lms/admin/organizations/${org.id}/website`} className="mb-3 block rounded-xl bg-blue-600 px-4 py-2 text-center text-sm font-semibold text-white">Thiết kế website</Link>
         <button
           id={`org-manage-${org.id}`}
           onClick={() => onSelect(org)}
@@ -669,6 +672,7 @@ interface CreateOrgModalProps {
 }
 
 function CreateOrgModal({ open, onClose, onCreated }: CreateOrgModalProps) {
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -686,17 +690,20 @@ function CreateOrgModal({ open, onClose, onCreated }: CreateOrgModalProps) {
     setSaving(true);
     setError("");
     try {
+      const logoUrl = logoFile ? await organizationService.uploadLogo(logoFile) : form.logoUrl;
+      if (logoFile) { setForm(f => ({ ...f, logoUrl })); setLogoFile(null); }
       await organizationService.create({
         name: form.name,
         slug: form.slug,
         description: form.description || undefined,
-        logo_url: form.logoUrl || undefined,
+        logo_url: logoUrl || undefined,
         settings: {
           allow_cross_org_courses: form.allowCrossOrgCourses,
           default_course_visibility: form.visibility,
           allow_self_enrollment: true,
         },
       });
+      setLogoFile(null);
       setForm({
         name: "",
         slug: "",
@@ -789,18 +796,8 @@ function CreateOrgModal({ open, onClose, onCreated }: CreateOrgModalProps) {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              Logo URL
-            </label>
-            <input
-              id="org-logo-url"
-              value={form.logoUrl}
-              onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))}
-              placeholder="https://example.com/logo.png"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
-            />
-          </div>
+          <OrganizationLogoInput value={form.logoUrl} file={logoFile} disabled={saving}
+            onChange={(logoUrl, file) => { setForm(f => ({ ...f, logoUrl })); setLogoFile(file); }} />
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -914,6 +911,7 @@ interface EditOrgModalProps {
 }
 
 function EditOrgModal({ open, org, onClose, onUpdated }: EditOrgModalProps) {
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -926,6 +924,7 @@ function EditOrgModal({ open, org, onClose, onUpdated }: EditOrgModalProps) {
 
   useEffect(() => {
     if (!org) return;
+    setLogoFile(null);
     let allowCross = true;
     let visibility: "PUBLIC" | "ORG_ONLY" = "PUBLIC";
     let allowSelf = true;
@@ -966,11 +965,13 @@ function EditOrgModal({ open, org, onClose, onUpdated }: EditOrgModalProps) {
     setSaving(true);
     setError("");
     try {
+      const logoUrl = logoFile ? await organizationService.uploadLogo(logoFile) : form.logoUrl;
+      if (logoFile) { setForm(f => ({ ...f, logoUrl })); setLogoFile(null); }
       const updated = await organizationService.update(org.id, {
         name: form.name,
         slug: form.slug,
         description: form.description || undefined,
-        logo_url: form.logoUrl || undefined,
+        logo_url: logoUrl || "",
         settings: {
           allow_cross_org_courses: form.allowCrossOrgCourses,
           default_course_visibility: form.defaultCourseVisibility,
@@ -1049,17 +1050,8 @@ function EditOrgModal({ open, org, onClose, onUpdated }: EditOrgModalProps) {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              Logo URL
-            </label>
-            <input
-              value={form.logoUrl}
-              onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))}
-              placeholder="https://example.com/logo.png"
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
-            />
-          </div>
+          <OrganizationLogoInput value={form.logoUrl} file={logoFile} disabled={saving}
+            onChange={(logoUrl, file) => { setForm(f => ({ ...f, logoUrl })); setLogoFile(file); }} />
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">

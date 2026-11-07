@@ -6,7 +6,7 @@ import {
   BookOpen, PlusCircle, ArrowRight, ChevronRight,
   Sparkles, Users, Layers
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { CoTeacherSection } from "./CoTeacherSection";
 
 export function OverviewTab({ course, sections }: { course: Course; sections: Section[] }) {

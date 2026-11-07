@@ -11,7 +11,7 @@ import AIRevisionPanel from "@/components/lms/teacher/AIRevisionPanel";
 import lmsService from "@/services/lms/lmsService";
 import quizService from "@/services/lms/quizService";
 import { Content, FileInfo } from "@/types";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { toast } from "sonner";
 
 interface EditContentModalProps {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import Image from "next/image";
 import { analyticsService } from "@/services/lms/analyticsService";
 import {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/tenant/navigation";
 
 /**
  * Reusable Back to Top Component

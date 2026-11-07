@@ -9,7 +9,7 @@ import { useEvents } from "@/hooks/dashboard/useEvents";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { Search, Filter, Calendar, ArrowLeft, Plus } from "lucide-react";
 import { EVENT_STATUSES } from "@/types";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 
 export default function EventsPage() {
   const router = useRouter();

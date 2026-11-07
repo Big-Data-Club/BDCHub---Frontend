@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { ShieldAlert } from "lucide-react";
 
 export default function InvalidTokenCard() {

@@ -1,7 +1,7 @@
 import Footer from "@/components/layout/Footer";
 import MobileNav from "@/components/layout/MobileNav";
 import Sidebar from "@/components/layout/Sidebar";
-import { redirect } from "next/navigation";
+import { tenantRedirect } from "@/lib/tenant/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 
@@ -12,7 +12,7 @@ type MainLayoutProps = {
 export default async function MainLayout({ children }: MainLayoutProps) {
   const session = await getServerSession(authOptions);
   if (!session || (session as any).error === "RefreshAccessTokenError") {
-    redirect("/login");
+    await tenantRedirect("/login");
   }
   return (
     <div className="flex min-h-screen w-full max-w-full flex-col bg-slate-50 dark:bg-slate-950">

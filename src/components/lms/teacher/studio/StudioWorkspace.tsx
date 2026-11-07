@@ -5,7 +5,7 @@
  * Flow: Collect → Plan (LLM, editable) → Generate → Review & Publish.
  */
 import { useCallback, useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "@/lib/tenant/navigation";
 import {
   Wand2, FileText, Presentation, BookOpen, Plus,
   Loader2, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight,

@@ -92,10 +92,10 @@ export async function renameAgentSession(
     if (!res.ok) throw new Error("Failed to rename session");
 }
 
-export async function listNotebookEntries(courseId?: number): Promise<any[]> {
+export async function listNotebookEntries(courseId?: number): Promise<import("@/types/ai/notebook").NotebookEntry[]> {
     const params = new URLSearchParams();
     if (courseId) params.append("course_id", String(courseId));
-    const res = await fetch(`/api/ai/agents/notebook?${params.toString()}`);
+    const res = await fetch(`/api/ai/agents/notebook?${params.toString()}`, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to fetch notebook entries");
     const data = await res.json();
     return data.notes || [];
@@ -113,7 +113,8 @@ export async function saveNotebookEntry(entry: {
   content: string;
   courseId?: number;
   nodeId?: number;
-}): Promise<any> {
+  annotation?: import("@/types/ai/notebook").NotebookAnnotation | null;
+}): Promise<import("@/types/ai/notebook").NotebookEntry> {
   const res = await fetch("/api/ai/agents/notebook", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -122,6 +123,7 @@ export async function saveNotebookEntry(entry: {
       content: entry.content,
       course_id: entry.courseId,
       node_id: entry.nodeId,
+      annotation: entry.annotation,
     }),
   });
   if (!res.ok) throw new Error("Failed to save notebook entry");
@@ -130,14 +132,15 @@ export async function saveNotebookEntry(entry: {
 
 export async function updateNotebookEntry(
   id: string,
-  entry: { title: string; content: string }
-): Promise<any> {
+  entry: { title: string; content: string; annotation?: import("@/types/ai/notebook").NotebookAnnotation | null }
+): Promise<import("@/types/ai/notebook").NotebookEntry> {
   const res = await fetch(`/api/ai/agents/notebook?id=${encodeURIComponent(id)}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       title: entry.title,
       content: entry.content,
+      annotation: entry.annotation,
     }),
   });
   if (!res.ok) throw new Error("Failed to update notebook entry");

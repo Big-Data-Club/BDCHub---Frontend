@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { useSession } from "next-auth/react";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";

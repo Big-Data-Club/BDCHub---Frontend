@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/tenant/navigation";
 import { useSession } from "next-auth/react";
 import { Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,7 @@ function preloadCoworker() {
 
 export function CoworkerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const courseNotebookAvailable = /^\/lms\/student\/courses\/\d+(\/|$)/.test(pathname);
   const { status } = useSession();
   const { user } = useAuth();
 
@@ -265,7 +266,10 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
                   {agentType === "teacher" ? "AI Virtual Assistant" : "AI Mentor"}
                 </button>
                 <button
-                  onClick={() => setActiveTab("notebook")}
+                  onClick={() => {
+                    if (courseNotebookAvailable) { window.dispatchEvent(new Event("bdc:open-course-notebook")); handleClose(); }
+                    else setActiveTab("notebook");
+                  }}
                   className={cn(
                     "flex-1 text-xs py-1.5 rounded-md font-semibold transition-all duration-200 active:scale-95 cursor-pointer",
                     activeTab === "notebook"

@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLearningScope } from "@/hooks/lms/teacher/useLearningScope";
 import { LearningScopePicker } from "@/components/lms/shared/LearningScopePicker";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "@/lib/tenant/navigation";
 import {
   LibraryBig,
   Sparkles,

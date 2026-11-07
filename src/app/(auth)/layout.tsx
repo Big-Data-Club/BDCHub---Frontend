@@ -1,9 +1,10 @@
 import Footer from "@/components/layout/Footer";
-import { redirect } from "next/navigation";
+import { tenantRedirect } from "@/lib/tenant/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { AuthShell } from "@/components/auth/AuthShell";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Đăng nhập",
@@ -20,8 +21,8 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   // A legacy/expired NextAuth cookie can still deserialize to a session while
   // its backend token can no longer be refreshed or is missing. Let the login page render
   // so SessionMonitor can clear it instead of redirecting back to /lms
-  if (session && (session as any).error !== "RefreshAccessTokenError" && (session as any).accessToken) {
-    redirect("/lms");
+  if (session && (session as any).error !== "RefreshAccessTokenError" && (session as any).accessToken && !(await headers()).get("x-bdc-auth-retry")) {
+    await tenantRedirect((await headers()).get("x-bdc-return-to") || "/lms");
   }
 
   return (

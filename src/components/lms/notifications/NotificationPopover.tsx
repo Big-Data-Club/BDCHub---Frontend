@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Bell, X, Brain, AlertCircle, BookOpen, Sparkles, Inbox, Check } from "lucide-react";
 import { useNotifications, StudyAlert } from "@/store/NotificationContext";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { cn } from "@/lib/utils";
 
 export function NotificationPopover() {

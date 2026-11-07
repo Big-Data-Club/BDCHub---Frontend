@@ -1,22 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "@/lib/tenant/navigation";
 import { EyeIcon, EyeOffIcon, Spinner } from "@/components/icons/Icons";
 import { validatePassword } from "@/utils/common/utils";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import Mascot from "./Mascot";
 import { GoogleLoginButton } from "./GoogleLoginButton";
-import { safeLmsReturnPath } from "@/lib/lms-navigation";
+import { safeTenantReturnPath } from "@/lib/tenant/paths";
+import { useTenant } from "@/lib/tenant/context";
 
 interface LoginFormProps {
   googleClientId?: string;
+  organizationName?: string;
 }
 
-export default function LoginForm({ googleClientId }: LoginFormProps) {
+export default function LoginForm({ googleClientId, organizationName }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = safeLmsReturnPath(searchParams.get("callbackUrl"));
+  const tenant = useTenant();
+  const callbackUrl = safeTenantReturnPath(searchParams.get("callbackUrl"), tenant?.slug);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -71,7 +74,7 @@ export default function LoginForm({ googleClientId }: LoginFormProps) {
 
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Chào mừng trở lại!</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Đăng nhập vào hệ thống quản trị BDC</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{organizationName ? `Đăng nhập học tập cùng ${organizationName}` : "Đăng nhập vào hệ thống quản trị BDC"}</p>
         </div>
 
         {error && (

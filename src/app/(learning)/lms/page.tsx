@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "@/lib/tenant/navigation";
 import lmsService from "@/services/lms/lmsService";
 import { useSession } from "next-auth/react";
 import { Shield, BookOpen, GraduationCap, AlertCircle, ArrowLeft } from "lucide-react";
-import Image from "next/image";
-import bdcLogo from "@/assets/bdclogo.png";
+import { BrandMark } from "@/components/layout/BrandMark";
+import { useTenant } from "@/lib/tenant/context";
 
 import { RoleSelectionCard } from "@/components/lms/RoleSelectionCard";
 import { GridBackground } from "@/components/lms/shared";
@@ -44,6 +44,7 @@ const ROLE_OPTIONS: Record<string, RoleOption> = {
 };
 
 function LMSRoleSelectionContent() {
+  const tenant = useTenant();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isExplicitSelect = searchParams.get("select") === "true";
@@ -177,10 +178,10 @@ function LMSRoleSelectionContent() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-2xl bg-white/50 dark:bg-[#0F1E35]/40 p-2 shadow-[0_0_15px_rgba(37,99,235,0.1)] dark:shadow-[0_0_20px_rgba(6,182,212,0.15)] border border-slate-200/40 dark:border-blue-500/10 transition-all duration-500 hover:scale-105">
-            <Image src={bdcLogo} alt="BDC Logo" className="object-contain" width={48} height={48} priority />
+            <BrandMark size={48} />
           </div>
           <h1 className="text-3xl font-medium tracking-tight text-slate-900 dark:text-white mb-2">
-            Hệ thống học tập <span className="font-extrabold text-slate-950 dark:text-slate-50">BD<span className="text-blue-600 dark:text-cyan-400">Course</span></span>
+            Hệ thống học tập <span className="font-extrabold text-slate-950 dark:text-slate-50">{tenant?.name || "BDCourse"}</span>
           </h1>
           {userName && (
             <p className="text-slate-700 dark:text-slate-300 font-medium">

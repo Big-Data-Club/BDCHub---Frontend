@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { signIn, signOut } from "next-auth/react";
 import { Spinner } from "@/components/icons/Icons";

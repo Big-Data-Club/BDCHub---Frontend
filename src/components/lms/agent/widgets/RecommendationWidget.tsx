@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { CheckCircle2, Clock3, Lightbulb, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";

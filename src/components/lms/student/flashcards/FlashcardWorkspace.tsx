@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "@/lib/tenant/Link";
 import { useFlashcardCourses } from "@/hooks/lms/student/useFlashcardCourses";
 import { FlashcardLibrary } from "./FlashcardLibrary";
 import { button, panel, primary } from "./styles";

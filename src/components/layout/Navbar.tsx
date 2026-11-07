@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "@/lib/tenant/Link";
 import { useSession } from "next-auth/react";
 import { logout } from "@/services/auth/logout";
 import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu, X, ChevronDown, CalendarDays, ExternalLink, Facebook, Mail, Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
@@ -128,13 +129,13 @@ export default function Navbar() {
                     transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                     className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 rounded-2xl bg-white/95 dark:bg-[#070E1C]/95 border border-slate-200 dark:border-blue-500/20 p-2.5 shadow-2xl shadow-slate-900/10 dark:shadow-[0_10px_30px_rgba(7,14,28,0.9)] backdrop-blur-2xl z-50"
                   >
-                    <a
+                    <Link
                       href="/hpc-summer-school"
                       className="flex items-center gap-3 px-3.5 py-3 min-h-[44px] rounded-xl text-sm font-bold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-[#0F1E35] hover:text-blue-600 dark:hover:text-cyan-400 transition-all duration-200"
                     >
                       <CalendarDays className="w-4 h-4 text-cyan-500 shrink-0" />
                       <span>Đăng ký School</span>
-                    </a>
+                    </Link>
                     <a
                       href="https://hpcc.hcmut.edu.vn/hpc-school"
                       target="_blank"
@@ -236,13 +237,13 @@ export default function Navbar() {
                 <div className="px-4 py-1 text-xs font-bold text-slate-400 uppercase tracking-wider">
                   HPC School 2026
                 </div>
-                <a
+                <Link
                   href="/hpc-summer-school"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center min-h-[44px] px-4 py-3 text-base font-bold text-blue-600 dark:text-cyan-400 hover:bg-slate-50 dark:hover:bg-[#0F1E35] rounded-xl transition-all duration-200"
                 >
                   📝 Đăng ký School
-                </a>
+                </Link>
                 <a
                   href="https://hpcc.hcmut.edu.vn/hpc-school"
                   target="_blank"

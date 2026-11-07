@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { ContentItem, StatPill, ActionButton } from "./utils";
 import quizService from "@/services/lms/quizService";
 import { cn } from "@/lib/utils";

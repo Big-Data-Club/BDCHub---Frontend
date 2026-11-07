@@ -1,4 +1,5 @@
 "use client";
+import { parseTenantPath } from "@/lib/tenant/paths";
 
 /**
  * ChatSidebar - slide-out AI chat panel from the right edge.
@@ -18,7 +19,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/tenant/navigation";
 import { cn } from "@/lib/utils";
 import { useAgentChat } from "@/hooks/lms/agent/useAgentChat";
 import { usePageContext } from "@/hooks/common/usePageContext";
@@ -41,7 +42,7 @@ interface ChatSidebarProps {
  */
 function detectAgentType(): "teacher" | "mentor" {
   if (typeof window === "undefined") return "mentor";
-  const path = window.location.pathname;
+  const path = parseTenantPath(window.location.pathname)?.path || window.location.pathname;
   if (path.startsWith("/lms/student")) return "mentor";
   if (path.startsWith("/lms/teacher") || path.startsWith("/lms/admin")) return "teacher";
   const role = sessionStorage.getItem("lms_selected_role");

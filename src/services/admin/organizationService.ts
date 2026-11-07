@@ -28,7 +28,28 @@ export interface OrgMemberListResponse {
   total_pages: number;
 }
 
+export function validateOrganizationLogo(file: File): void {
+  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+    throw new Error("Chọn ảnh PNG, JPG hoặc WebP.");
+  }
+  if (!file.size || file.size > 2 * 1024 * 1024) {
+    throw new Error("Ảnh phải có dung lượng từ 1 byte đến 2 MB.");
+  }
+}
+
 export const organizationService = {
+  uploadLogo: async (file: File): Promise<string> => {
+    validateOrganizationLogo(file);
+    const form = new FormData();
+    form.append("type", "image");
+    form.append("file", file);
+    const response = await lmsApiClient.post<{ data: { file_url: string } }>("/files/upload", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    const url = response.data.data?.file_url;
+    if (!url || !url.startsWith("/files/")) throw new Error("Máy chủ chưa trả về đường dẫn ảnh hợp lệ.");
+    return url;
+  },
   // ── Organization CRUD (Super Admin) ──────────────────────────────────────
 
   list: async (params?: {
@@ -64,7 +85,9 @@ export const organizationService = {
   },
 
   create: async (data: CreateOrgPayload): Promise<Organization> => {
-    return apiClient.post<Organization>("/api/organizations", data);
+    // Auth CreateOrgRequest uses camelCase; UpdateOrgRequest uses logo_url.
+    const { logo_url, ...payload } = data;
+    return apiClient.post<Organization>("/api/organizations", { ...payload, logoUrl: logo_url });
   },
 
   getById: async (id: number): Promise<Organization> => {

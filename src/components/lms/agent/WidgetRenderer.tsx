@@ -11,6 +11,7 @@ import { BookmarkPlus, Check, Loader2 } from "lucide-react";
 import { useState } from "react";
 import type { UIComponentData } from "@/types";
 import { saveNotebookEntry, notifyNotebookChanged } from "@/services/ai/agentService";
+import { usePageContext } from "@/hooks/common/usePageContext";
 
 const WIDGET_MAP: Record<string, React.ComponentType<any>> = {
   QuizDraftPreview: dynamic(() =>
@@ -90,6 +91,7 @@ function notebookContent(data: UIComponentData): { title: string; content: strin
 }
 
 function SaveWidgetToNotebook({ data }: { data: UIComponentData }) {
+  const pageContext = usePageContext();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const note = notebookContent(data);
@@ -102,7 +104,7 @@ function SaveWidgetToNotebook({ data }: { data: UIComponentData }) {
       await saveNotebookEntry({
         title: note.title,
         content: note.content,
-        courseId: data.props?.course_id,
+        courseId: data.props?.course_id ?? pageContext?.courseId,
       });
       setSaved(true);
       notifyNotebookChanged();

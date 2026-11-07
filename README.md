@@ -76,6 +76,15 @@ The following variables are required for full system functionality:
 
 ## Development Standards
 
+### Organization UI
+
+Active organizations have a home at `/<slug>` and reuse services at
+`/<slug>/lms`, `/<slug>/chat`, `/<slug>/labs` and `/<slug>/knowledge-farm`.
+Branding comes from the organization record; protected tenant UI requires
+membership and retains existing service authorization. See
+[tenant routing](src/features/tenant-landing/README.md) for navigation helpers,
+new service registration, logo compatibility and checks.
+
 * **Linting:** All code must pass ESLint checks before submission.
 * **Git Workflow:** Follow the `feature/` and `fix/` naming conventions for branches.
 * **UI/UX:** Adhere to the club's "Minimal & Formal" design rhythm.

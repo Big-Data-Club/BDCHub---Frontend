@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/tenant/navigation";
 import toast from "react-hot-toast";
 
 export interface StudyAlert {
