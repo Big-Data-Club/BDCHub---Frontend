@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "@/lib/tenant/navigation";
 import quizService from "@/services/lms/quizService";
 import { BreadcrumbNav } from "@/components/lms/shared/BreadcrumbNav";
@@ -62,13 +62,17 @@ interface Question {
   question_html?: string;
   points: number;
   order_index: number;
+  is_required: boolean;
+  explanation?: string;
   settings?: any;
   answer_options: any[];
   correct_answers: any[];
 }
 
 interface AnswerOption {
+  id?: number;
   option_text: string;
+  option_html?: string;
   is_correct: boolean;
   order_index: number;
   blank_id?: number;
@@ -79,6 +83,7 @@ interface CorrectAnswer {
   case_sensitive?: boolean;
   exact_match?: boolean;
   blank_id?: number;
+  blank_position?: number;
 }
 
 const QUESTION_TYPES = [
@@ -110,6 +115,8 @@ export default function TeacherQuizManagePage() {
   const [showQuizSettings,  setShowQuizSettings]  = useState(false);
   const [questionImages,    setQuestionImages]    = useState<QuestionImage[]>([]);
   const [showSmartImport,   setShowSmartImport]   = useState(false);
+  const [savingQuestion, setSavingQuestion] = useState(false);
+  const saveInProgress = useRef(false);
 
   useEffect(() => {
     if (breadcrumbLoading) return;
@@ -188,19 +195,27 @@ export default function TeacherQuizManagePage() {
 
   const handleCreateQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saveInProgress.current) return;
+    if (!questionForm.question_text.trim()) {
+      alert("Vui lòng nhập nội dung câu hỏi");
+      return;
+    }
 
     try {
+      saveInProgress.current = true;
+      setSavingQuestion(true);
       const questionData: any = {
         quiz_id: quizId,
         question_type: questionForm.question_type,
         question_text: questionForm.question_text.trim(),
         points: parseFloat(String(questionForm.points)),
-        order_index: questions.reduce((max, q) => Math.max(max, q.order_index || 0), 0) + 1,
+        ...(!editingQuestion && {
+          order_index: questions.reduce((max, q) => Math.max(max, q.order_index || 0), 0) + 1,
+        }),
         is_required: questionForm.is_required === true,
+        question_html: questionForm.question_html.trim(),
+        explanation: questionForm.explanation.trim(),
       };
-
-      if (questionForm.question_html?.trim()) questionData.question_html = questionForm.question_html.trim();
-      if (questionForm.explanation?.trim())  questionData.explanation  = questionForm.explanation.trim();
 
       if (questionForm.question_type === "FILL_BLANK_TEXT") {
         if (!fillBlankSettings || fillBlankSettings.blank_count === 0) {
@@ -210,6 +225,7 @@ export default function TeacherQuizManagePage() {
         questionData.correct_answers = questionForm.correct_answers.map(a => ({
           answer_text: a.answer_text.trim(),
           blank_id: a.blank_id,
+          blank_position: a.blank_position,
           case_sensitive: a.case_sensitive === true,
           exact_match: a.exact_match === true,
         }));
@@ -222,7 +238,7 @@ export default function TeacherQuizManagePage() {
         questionData.settings = fillBlankSettings;
         questionData.answer_options = questionForm.answer_options
           .filter(o => o.option_text?.trim())
-          .map(o => ({ option_text: o.option_text.trim(), is_correct: o.is_correct, order_index: o.order_index, blank_id: o.blank_id }));
+          .map(o => ({ id: o.id, option_text: o.option_text.trim(), option_html: o.option_html, is_correct: o.is_correct, order_index: o.order_index, blank_id: o.blank_id }));
         questionData.correct_answers = [];
 
       } else if (["SINGLE_CHOICE","MULTIPLE_CHOICE"].includes(questionForm.question_type)) {
@@ -230,7 +246,7 @@ export default function TeacherQuizManagePage() {
         if (valid.length < 2) { alert("Cần ít nhất 2 đáp án"); return; }
         if (!valid.some(o => o.is_correct)) { alert("Phải chọn ít nhất 1 đáp án đúng"); return; }
         questionData.answer_options = valid.map((o, i) => ({
-          option_text: o.option_text.trim(), is_correct: o.is_correct, order_index: i + 1,
+          id: o.id, option_text: o.option_text.trim(), option_html: o.option_html, is_correct: o.is_correct, order_index: i + 1,
         }));
         questionData.correct_answers = [];
 
@@ -273,6 +289,9 @@ export default function TeacherQuizManagePage() {
       await loadQuizData();
     } catch (err: any) {
       alert(err?.response?.data?.error || "Không thể lưu câu hỏi");
+    } finally {
+      saveInProgress.current = false;
+      setSavingQuestion(false);
     }
   };
 
@@ -285,11 +304,12 @@ export default function TeacherQuizManagePage() {
   };
 
   const startEditQuestion = (q: Question) => {
+    if (saveInProgress.current) return;
     setEditingQuestion(q);
     setQuestionForm({
       question_type: q.question_type, question_text: q.question_text,
       question_html: q.question_html || "", points: q.points,
-      explanation: "", is_required: false,
+      explanation: q.explanation || "", is_required: q.is_required ?? false,
       answer_options: q.answer_options || [], correct_answers: q.correct_answers || [],
     });
     setFillBlankSettings(q.settings || null);
@@ -507,8 +527,8 @@ export default function TeacherQuizManagePage() {
               const images: QuestionImage[] = q.settings?.images || [];
               return (
                 <div key={q.id} className="border border-slate-200 dark:border-slate-800 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                    <div className="w-full sm:w-auto flex-1 min-w-0">
                       {/* Badges */}
                       <div className="flex items-center gap-2 flex-wrap mb-2">
                         <span className="text-xs px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-medium">
@@ -521,6 +541,11 @@ export default function TeacherQuizManagePage() {
                         <span className="text-xs px-2.5 py-0.5 bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 rounded-lg border border-purple-200 dark:border-purple-800 font-semibold">
                           {q.points} điểm
                         </span>
+                        {q.is_required && (
+                          <span className="text-xs px-2.5 py-0.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 rounded-lg">
+                            Bắt buộc trả lời
+                          </span>
+                        )}
                         {images.length > 0 && (
                           <span className="text-xs px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 rounded-lg border border-emerald-300 dark:border-emerald-800 font-semibold">
                             🖼️ {images.length} ảnh
@@ -528,22 +553,19 @@ export default function TeacherQuizManagePage() {
                         )}
                       </div>
 
-                      <div className="text-sm font-medium text-slate-900 dark:text-slate-50 line-clamp-2 prose-p:inline prose-p:m-0">
+                      <div className="text-sm font-medium text-slate-900 dark:text-slate-50 break-words overflow-x-auto">
                         <MarkdownRenderer content={q.question_text} />
                       </div>
 
                       {/* Image preview */}
                       {images.length > 0 && (
                         <div className="mt-2 flex gap-2 flex-wrap">
-                          {images.slice(0, 4).map((img: QuestionImage) => (
-                            <img key={img.id} src={img.url} alt={img.alt_text || img.file_name}
-                              className="w-16 h-16 object-cover rounded-lg border border-slate-200 dark:border-slate-700" />
+                          {images.map((img: QuestionImage) => (
+                            <a key={img.id} href={img.url} target="_blank" rel="noopener noreferrer" aria-label={`Xem ảnh: ${img.alt_text || img.file_name}`}>
+                              <img src={img.url} alt={img.alt_text || img.file_name}
+                                className="max-w-full w-48 h-auto rounded-lg border border-slate-200 dark:border-slate-700" />
+                            </a>
                           ))}
-                          {images.length > 4 && (
-                            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
-                              <span className="text-xs font-bold text-slate-500">+{images.length - 4}</span>
-                            </div>
-                          )}
                         </div>
                       )}
 
@@ -553,12 +575,29 @@ export default function TeacherQuizManagePage() {
                           {q.answer_options.map((opt: any, idx: number) => (
                             <div key={idx} className={`text-xs px-2 py-1 rounded flex items-start gap-2 ${opt.is_correct ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-semibold" : "text-slate-600 dark:text-slate-400"}`}>
                               <span>{opt.is_correct ? "✓" : "○"}</span>
-                              <div className="flex-1 min-w-0 prose-p:inline prose-p:m-0 truncate">
+                              <div className="flex-1 min-w-0 break-words overflow-x-auto">
                                 <MarkdownRenderer content={opt.option_text} />
                                 {opt.blank_id && <span className="ml-1 text-blue-500 inline-block">[BLANK_{opt.blank_id}]</span>}
                               </div>
                             </div>
                           ))}
+                        </div>
+                      )}
+                      {q.correct_answers?.length > 0 && (
+                        <div className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                          <p className="font-semibold">Đáp án chấp nhận</p>
+                          {q.correct_answers.map((answer: CorrectAnswer, index: number) => (
+                            <div key={index} className="break-words overflow-x-auto">
+                              {answer.blank_id != null && <span>[BLANK_{answer.blank_id}] </span>}
+                              <MarkdownRenderer content={answer.answer_text} />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {q.explanation && (
+                        <div className="mt-3 text-sm text-slate-600 dark:text-slate-400 break-words overflow-x-auto">
+                          <p className="font-semibold">Giải thích</p>
+                          <MarkdownRenderer content={q.explanation} />
                         </div>
                       )}
                     </div>
@@ -583,7 +622,7 @@ export default function TeacherQuizManagePage() {
 
       {/* ── Question Editor Panel (Slide-over) ── */}
       <div className={`fixed inset-0 z-50 transition-opacity duration-300 ${showQuestionForm ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={resetQuestionForm} />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { if (!saveInProgress.current) resetQuestionForm(); }} />
         <div className={`absolute top-0 right-0 h-full w-full max-w-2xl bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 transition-transform duration-500 transform ${showQuestionForm ? "translate-x-0" : "translate-x-full"}`}>
           <div className="flex flex-col h-full">
             {/* Panel header */}
@@ -600,13 +639,15 @@ export default function TeacherQuizManagePage() {
               </div>
               <button 
                 onClick={resetQuestionForm}
+                disabled={savingQuestion}
                 className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleCreateQuestion} className="flex-1 overflow-y-auto p-6 space-y-6">
+            <form id="quiz-question-form" onSubmit={handleCreateQuestion} className="flex-1 overflow-y-auto p-6 space-y-6">
+              <fieldset disabled={savingQuestion} className="space-y-6">
               <AIRevisionPanel
                 kind="question"
                 label={editingQuestion ? "AI chỉnh sửa câu hỏi này" : "AI hỗ trợ chỉnh sửa bản nháp câu hỏi"}
@@ -648,6 +689,7 @@ export default function TeacherQuizManagePage() {
               {/* Fill blank editors */}
               {questionForm.question_type === "FILL_BLANK_TEXT" && (
                 <FillBlankTextEditor
+                  key={editingQuestion?.id ?? "new"}
                   questionText={questionForm.question_text}
                   settings={fillBlankSettings as FillBlankTextSettings || { blank_count: 0, blanks: [] }}
                   correctAnswers={questionForm.correct_answers as FillBlankTextCorrectAnswer[]}
@@ -660,6 +702,7 @@ export default function TeacherQuizManagePage() {
 
               {questionForm.question_type === "FILL_BLANK_DROPDOWN" && (
                 <FillBlankDropdownEditor
+                  key={editingQuestion?.id ?? "new"}
                   questionText={questionForm.question_text}
                   settings={fillBlankSettings as FillBlankDropdownSettings || { blank_count: 0, blanks: [] }}
                   options={questionForm.answer_options as FillBlankDropdownOption[]}
@@ -772,6 +815,15 @@ export default function TeacherQuizManagePage() {
                 </div>
               )}
 
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Giải thích đáp án</label>
+                <MarkdownEditor
+                  value={questionForm.explanation}
+                  onChange={value => setQuestionForm(f => ({ ...f, explanation: value }))}
+                  placeholder="Nhập giải thích đáp án…"
+                />
+              </div>
+
               {/* Points + required */}
               <div className="grid grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-800/40 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <div>
@@ -810,15 +862,16 @@ export default function TeacherQuizManagePage() {
                   </div>
                 </details>
               )}
+              </fieldset>
             </form>
 
             {/* Panel actions */}
             <div className="px-6 py-5 border-t border-slate-200 dark:border-slate-800 flex gap-3 bg-slate-50 dark:bg-slate-900 z-10">
-              <button type="button" onClick={handleCreateQuestion}
+              <button type="submit" form="quiz-question-form" disabled={savingQuestion}
                 className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl active:scale-95 transition-all shadow-md">
-                {editingQuestion ? "💾 Cập nhật câu hỏi" : "✅ Lưu câu hỏi"}
+                {savingQuestion ? "Đang lưu…" : editingQuestion ? "💾 Cập nhật câu hỏi" : "✅ Lưu câu hỏi"}
               </button>
-              <button type="button" onClick={resetQuestionForm}
+              <button type="button" onClick={resetQuestionForm} disabled={savingQuestion}
                 className="px-6 py-3 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-bold transition-all">
                 Hủy
               </button>

@@ -110,6 +110,14 @@ come from enrolled LMS courses, and flashcards from the learner's LMS library.
 Original sprite source
 is recorded in `public/knowledge-farm/ATTRIBUTION.md`.
 
+### Teacher quiz management
+
+Teacher quiz management displays full questions, answer choices, accepted answers
+and explanations. Edits preserve question order and restore the saved required
+flag. Deploy LMS support for optional `answer_options` / `correct_answers` in
+`PUT /questions/:questionId` before this UI; existing choice IDs are preserved.
+Regression checks: `node tests/quiz-management.test.cjs`.
+
 ### AI Studio and neural flashcard speech
 
 Studio creates HTML/SVG slides exported to PDF, Markdown lessons/reports, and
