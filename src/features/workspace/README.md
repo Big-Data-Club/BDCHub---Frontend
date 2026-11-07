@@ -48,8 +48,11 @@ Metadata drafts keep the version from when editing began. A conflict must keep
 the draft and let the user explicitly retry or discard it. Database schema/view
 drafts must not silently adopt newer versions received by background polling.
 
-Run `pnpm test:workspace`, `pnpm lint:workspace`, `pnpm exec tsc --noEmit`, and
+Run `pnpm format:workspace:check`, `pnpm test:workspace`, `pnpm lint:workspace`, `pnpm exec tsc --noEmit`, and
 `pnpm build`. See `tests/workspace/README.md` for isolated browser verification.
+Use `pnpm format:workspace` to format Workspace sources and tests. The route glob
+escapes the literal parentheses in `(workspace)` so route pages are included.
+Frontend CI checks this formatting and runs the Workspace unit tests.
 The main repository's `docs/features/WORKSPACE.md` and `workspace-service/README.md`
 define the complete feature and service contracts.
 

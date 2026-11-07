@@ -14,7 +14,8 @@
     "build-storybook": "storybook build",
     "test:workspace": "node --test tests/workspace/*.test.cjs",
     "lint:workspace": "eslint src/features/workspace \"src/app/(workspace)\" src/app/api/workspace",
-    "format:workspace": "prettier --write \"src/features/workspace/**/*.{ts,tsx,css}\" \"src/app/(workspace)/**/*.tsx\" \"src/app/api/workspace/**/*.ts\" \"tests/workspace/*.{cjs,mjs}\""
+    "format:workspace": "prettier --write \"src/features/workspace/**/*.{ts,tsx,css}\" \"src/app/[(]workspace[)]/**/*.tsx\" \"src/app/api/workspace/**/*.ts\" \"tests/workspace/*.{cjs,mjs}\"",
+    "format:workspace:check": "prettier --check \"src/features/workspace/**/*.{ts,tsx,css}\" \"src/app/[(]workspace[)]/**/*.tsx\" \"src/app/api/workspace/**/*.ts\" \"tests/workspace/*.{cjs,mjs}\""
   },
   "dependencies": {
     "@blocknote/core": "0.55.0",

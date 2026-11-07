@@ -1,6 +1,6 @@
 # Workspace verification
 
-Run `pnpm test:workspace`, `pnpm lint:workspace`, `pnpm exec tsc --noEmit` and
+Run `pnpm format:workspace:check`, `pnpm test:workspace`, `pnpm lint:workspace`, `pnpm exec tsc --noEmit` and
 `pnpm build` in this frontend repository. Tests validate the BFF trust boundary,
 notebook conversion, AI context checks, formula rendering and data transformations.
 Before pushing, also run `pnpm lint`; repository CI checks test helpers as well
