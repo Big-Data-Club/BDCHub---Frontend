@@ -1,0 +1,127 @@
+"""Owned local app only. Start isolated service/Next and prepare-browser.mjs first."""
+import json, os, re, sys, time, base64
+from urllib.parse import quote
+from pathlib import Path
+from playwright.sync_api import sync_playwright, expect
+sys.stdout.reconfigure(encoding='utf-8')
+artifacts=Path(os.environ['WORKSPACE_TEST_ARTIFACTS'])
+actors=json.loads((artifacts/'browser-sessions.json').read_text())
+base='http://localhost:3100'
+with sync_playwright() as p:
+    executable=os.environ.get('PLAYWRIGHT_CHROMIUM_EXECUTABLE') or (r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe' if os.name=='nt' else None)
+    browser=p.chromium.launch(headless=True,executable_path=executable)
+    contexts=[]; errors=[]
+    def actor(index, viewport=None):
+        production=os.environ.get('WORKSPACE_TEST_PRODUCTION')=='1'
+        cookie_name='__Secure-bdc.session-token.v2' if production else 'bdc.session-token.v2'
+        context=browser.new_context(viewport=viewport or {'width':1440,'height':1000},extra_http_headers={'Cookie':cookie_name+'='+actors[index]['cookie']} if production else {})
+        context.add_cookies([{'name':cookie_name,'value':actors[index]['cookie'],'domain':'localhost','path':'/','httpOnly':True,'sameSite':'Lax','secure':production}])
+        contexts.append(context)
+        # The global BDC shell also calls unrelated services; isolate those only.
+        context.route('**/api/ai/agents/notifications',lambda route:route.fulfill(json={'notifications':[],'unread_count':0}))
+        context.route('**/lmsapiv1/me/roles',lambda route:route.fulfill(json={'roles':['STUDENT']}))
+        context.route('**/apiv1/api/users/*',lambda route:route.fulfill(json={'id':int(actors[index]['id']),'name':actors[index]['name'],'role':'ROLE_MEMBER'}))
+        context.add_init_script("window.__testSockets=[];const OriginalWebSocket=window.WebSocket;window.WebSocket=class extends OriginalWebSocket{constructor(...args){super(...args);window.__testSockets.push(this);}}")
+        page=context.new_page();page.on('pageerror',lambda error:errors.append(str(error)))
+        return context,page
+    alice,a=actor(0);bob,b=actor(1);eve,e=actor(2)
+    def api(context,path,method='GET',data=None):
+        response=context.request.fetch(base+'/api/workspace'+path,method=method,data=data,headers={'Origin':base})
+        assert response.ok, (path,response.status,response.text())
+        return response.json()
+    bootstrap=api(alice,'/bootstrap');api(bob,'/bootstrap');api(eve,'/bootstrap')
+    space=next(item for item in bootstrap['spaces'] if item['kind']=='personal')
+    page=api(alice,f"/spaces/{space['id']}/pages",'POST',{'title':'Cộng tác kiểm thử','template':'learning'})
+    invitation=api(alice,'/invitations','POST',{'page_id':page['id'],'email':actors[1]['email'],'role':'editor'})
+    api(bob,f"/invitations/{invitation['id']}/respond",'POST',{'action':'accept'})
+    for view in [a,b]:
+        view.goto(base+'/workspace?page='+page['id'],wait_until='networkidle',timeout=120000)
+        expect(view.locator('.bn-editor[contenteditable=true]')).to_be_visible(timeout=60000)
+    expect(a.locator('.bn-editor')).to_contain_text('Ý chính',timeout=30000)
+    ed=a.locator('.bn-editor');ed.click();a.keyboard.press('Control+End');a.keyboard.press('Enter');a.keyboard.insert_text('Alice đồng bộ thành công')
+    expect(b.locator('.bn-editor')).to_contain_text('Alice đồng bộ thành công',timeout=20000)
+    b.locator('.bn-editor').click();b.keyboard.press('Control+End');b.keyboard.press('Enter');b.keyboard.insert_text('Bob cùng sửa tài liệu')
+    expect(a.locator('.bn-editor')).to_contain_text('Bob cùng sửa tài liệu',timeout=20000)
+    expect(a.get_by_text('Đã lưu',exact=True)).to_have_count(0)
+    alice.set_offline(True);a.evaluate('window.__testSockets.forEach(socket=>socket.close())')
+    expect(a.get_by_role('alert').filter(has_text='Mất kết nối')).to_be_visible(timeout=10000)
+    a.locator('.bn-editor').click();a.keyboard.press('Control+End');a.keyboard.press('Enter');a.keyboard.insert_text('Bản nháp khi mất mạng')
+    assert 'Bản nháp khi mất mạng' not in b.locator('.bn-editor').inner_text()
+    alice.set_offline(False)
+    expect(b.locator('.bn-editor')).to_contain_text('Bản nháp khi mất mạng',timeout=40000)
+    a.get_by_role('button',name='Hướng dẫn editor & LaTeX',exact=True).click()
+    expect(a.get_by_role('heading',name='LaTeX trong dòng hoặc riêng khối')).to_be_visible()
+    a.get_by_label('Mã LaTeX thử').fill(r'\frac{a+b}{c}')
+    a.get_by_role('button',name='Chèn vào trang',exact=True).click()
+    expect(a.locator('.bn-editor .katex').first).to_be_visible(timeout=20000)
+    expect(b.locator('.bn-editor .katex').first).to_be_visible(timeout=20000)
+    # Inline equation input converts only after the closing delimiter.
+    popup_ok=a.locator('.bn-preview-with-source-popup[data-open="true"] .bn-code-block-source-popup-ok-button')
+    if popup_ok.count():popup_ok.click()
+    a.locator('.bn-editor [data-content-type="paragraph"]').last.click();a.keyboard.press('End');a.keyboard.press('Enter');a.keyboard.insert_text('Công thức trong dòng: ')
+    a.keyboard.type('$$x^2$$',delay=50)
+    expect(a.locator('.bn-editor [data-inline-content-type="math"]').first).to_be_visible(timeout=10000)
+    # A title draft keeps the version from focus, even after a peer's update arrives.
+    title=a.get_by_label('Tiêu đề trang');title.focus();title.fill('Tiêu đề nháp của Alice')
+    current=api(bob,f"/pages/{page['id']}")
+    api(bob,f"/pages/{page['id']}",'PATCH',{'version':current['version'],'title':'Tiêu đề mới của Bob'})
+    a.evaluate("window.dispatchEvent(new Event('focus'))")
+    expect(a.locator('header').get_by_text('Tiêu đề mới của Bob',exact=True)).to_be_visible(timeout=20000)
+    title.blur()
+    expect(a.get_by_role('alert').filter(has_text='Trang vừa thay đổi')).to_be_visible(timeout=10000)
+    expect(title).to_have_value('Tiêu đề nháp của Alice')
+    a.get_by_role('button',name='Thử lại',exact=True).click()
+    expect(a.locator('header').get_by_text('Tiêu đề nháp của Alice',exact=True)).to_be_visible(timeout=20000)
+    a.get_by_role('button',name='Bình luận',exact=True).click()
+    a.get_by_label('Nội dung bình luận').fill('Bình luận trong cùng tài liệu')
+    a.get_by_role('button',name='Gửi bình luận').click()
+    expect(a.get_by_text('Bình luận trong cùng tài liệu',exact=True)).to_be_visible()
+    a.get_by_role('button',name='Đóng bảng thông tin').click()
+    file_response=alice.request.post(base+f"/api/workspace/pages/{page['id']}/files",data=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jBv8AAAAASUVORK5CYII='),headers={'Origin':base,'Content-Type':'application/octet-stream','X-File-Name':quote('ảnh nghiên cứu.png')})
+    assert file_response.ok,file_response.text()
+    uploaded=file_response.json();assert uploaded['name']=='ảnh nghiên cứu.png'
+    assert eve.request.get(base+uploaded['url']).status==404
+    checkpoint=api(alice,f"/pages/{page['id']}/versions",'POST',{'label':'Giữ công thức'})
+    a.locator('.bn-editor').click();a.keyboard.press('Control+End');a.keyboard.press('Enter');a.keyboard.insert_text('Đoạn sẽ khôi phục')
+    expect(b.locator('.bn-editor')).to_contain_text('Đoạn sẽ khôi phục',timeout=20000)
+    api(alice,f"/pages/{page['id']}/versions/{checkpoint['id']}/restore",'POST',{})
+    expect(a.locator('.bn-editor')).not_to_contain_text('Đoạn sẽ khôi phục',timeout=40000)
+    # An unrelated signed-in account cannot open the page or document.
+    denied=eve.request.get(base+f"/api/workspace/pages/{page['id']}")
+    assert denied.status==404
+    # Revocation disables the active editor and prevents queued writes.
+    api(alice,'/grants','PATCH',{'page_id':page['id'],'member_id':actors[1]['id'],'role':'viewer'})
+    expect(b.locator('.bn-editor')).to_have_attribute('contenteditable','false',timeout=10000)
+    # Create a database through the actual UI.
+    a.get_by_role('button',name='Trang mới',exact=True).click()
+    a.get_by_label('Tên trang hoặc không gian').fill('Dự án nhóm')
+    a.get_by_label('Loại trang').select_option('database')
+    a.get_by_role('button',name='Tạo mới',exact=True).click()
+    expect(a.get_by_role('tab',name='Kanban',exact=True)).to_be_visible(timeout=30000)
+    a.get_by_role('button',name='Mới',exact=True).click()
+    a.get_by_label('Tên mục',exact=True).fill('Đọc tài liệu nghiên cứu')
+    a.get_by_role('button',name='Tạo mục',exact=True).click()
+    expect(a.get_by_role('button',name='Đọc tài liệu nghiên cứu',exact=True)).to_be_visible(timeout=20000)
+    a.get_by_role('tab',name='Kanban',exact=True).click()
+    a.locator('select[aria-label*="Đọc tài liệu nghiên cứu"]').select_option('doing')
+    expect(a.get_by_role('region',name='Cột Đang làm').get_by_text('Đọc tài liệu nghiên cứu')).to_be_visible(timeout=20000)
+    a.get_by_role('tab',name='Lịch',exact=True).click()
+    expect(a.get_by_role('tab',name='Lịch',exact=True)).to_have_attribute('aria-selected','true')
+    a.screenshot(path=str(artifacts/'workspace-calendar.png'),full_page=True)
+    # Mobile layout and guide navigation do not overflow the viewport.
+    mobile,m=actor(0,{'width':390,'height':844})
+    m.goto(base+'/workspace?page='+page['id'],wait_until='networkidle',timeout=90000)
+    expect(m.get_by_role('button',name='Mở cây trang')).to_be_visible()
+    m.get_by_role('button',name='Mở cây trang').click()
+    m.get_by_role('button',name='Hướng dẫn editor & LaTeX',exact=True).click()
+    expect(m.get_by_role('heading',name='Một nơi cho những ý tưởng rõ ràng.')).to_be_visible()
+    assert m.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    m.screenshot(path=str(artifacts/'workspace-mobile.png'),full_page=True)
+    a.screenshot(path=str(artifacts/'workspace-desktop.png'),full_page=True)
+    a.evaluate("localStorage.setItem('bdc-theme','light')");a.reload(wait_until='networkidle')
+    expect(a.locator('html')).not_to_have_class(re.compile('dark'))
+    a.screenshot(path=str(artifacts/'workspace-light.png'),full_page=True)
+    assert not errors,errors
+    print('PASS: BFF authentication, templates, shared editing, disconnected draft recovery, inline/block LaTeX, title conflicts, private Unicode-named files, comments, version restore, role revocation, database views, mobile and light/dark layouts.')
+    for context in contexts:context.close()
+    browser.close()

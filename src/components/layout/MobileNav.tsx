@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "@/lib/tenant/Link";
-import { usePathname, useRouter } from "@/lib/tenant/navigation";
+import { usePathname } from "@/lib/tenant/navigation";
 import { Menu, LogOut, Sun, Moon, Settings } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { UserAvatar } from "@/components/user/UserAvatar";
@@ -103,6 +103,7 @@ const MobileNav = () => {
                   }
                   return (
                     link.label === "BDCourse" ||
+                    link.route === "/workspace" ||
                     link.label === "Virtual Lab" ||
                   link.route === "/knowledge-farm" ||
                     link.label === "Data Hackathon" ||

@@ -11,6 +11,7 @@ import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { ActionApprovalCard } from "./ActionApprovalCard";
 import { AgentDecisionDetails } from "./AgentDecisionDetails";
 import { saveNotebookEntry, notifyNotebookChanged, sendFeedback } from "@/services/ai/agentService";
+import { SaveToWorkspaceButton } from '@/features/workspace/components/SaveToWorkspaceButton';
 import { usePageContext } from "@/hooks/common/usePageContext";
 
 interface AgentMessageItemProps {
@@ -237,6 +238,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
         {!isUser && message.content && !message.isStreaming && (
           <div className="flex flex-wrap items-center justify-between gap-2 ml-1 pt-1.5 mt-1.5">
             <div className="flex items-center gap-1.5 flex-wrap">
+              <SaveToWorkspaceButton title="Ghi chú từ AI Mentor" markdown={message.content} />
               <button
                 type="button"
                 onClick={handleCopyContent}
