@@ -11,7 +11,7 @@ export interface MoodleQuestion extends ParsedQuestion {
 
 /** Deterministic, client-only Moodle import; never execute imported markup. */
 export function parseMoodleXML(source: string): MoodleQuestion[] {
-  if (source.length > 2 * 1024 * 1024 || /<!DOCTYPE|<!ENTITY/i.test(source)) {
+  if (source.length > 5 * 1024 * 1024 || /<!DOCTYPE|<!ENTITY/i.test(source)) {
     throw new Error("XML quá lớn hoặc chứa DTD/entity không được hỗ trợ.");
   }
   const doc = new DOMParser().parseFromString(source, "application/xml");
