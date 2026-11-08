@@ -59,7 +59,7 @@ export function LmsPageHeader({
           contentClassName
         )}
       >
-        <div className="min-w-0 flex-1 space-y-3">
+        <div className="w-full min-w-0 flex-1 space-y-3 lg:w-auto">
           {breadcrumbs}
 
           {categoryLabel && (

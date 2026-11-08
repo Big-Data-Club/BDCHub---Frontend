@@ -252,6 +252,7 @@ export default function CourseDetailLayout({ children }: { children: React.React
           <NavTabBar
             tabs={COURSE_TABS}
             basePath={basePath}
+            wrapOnMobile
           />
         }
         sideWidget={

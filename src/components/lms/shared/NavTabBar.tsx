@@ -26,6 +26,7 @@ export interface NavTabBarProps {
   size?: "sm" | "md";
   className?: string;
   fullWidth?: boolean;
+  wrapOnMobile?: boolean;
 }
 
 function NavTabBarInner({
@@ -35,6 +36,7 @@ function NavTabBarInner({
   size = "sm",
   className,
   fullWidth = false,
+  wrapOnMobile = false,
 }: NavTabBarProps) {
   const pathname = usePathname();
 
@@ -55,12 +57,17 @@ function NavTabBarInner({
     <nav
       className={cn(
         variant === "pill" && "flex shrink-0",
+        wrapOnMobile && "w-full min-w-0 sm:w-auto",
         fullWidth && "w-full",
         className
       )}
     >
       <div
-        className={cn(lmsTabsListVariants({ variant }), fullWidth && "w-full")}
+        className={cn(
+          lmsTabsListVariants({ variant }),
+          wrapOnMobile && "w-full flex-wrap justify-start sm:w-auto sm:flex-nowrap sm:justify-center",
+          fullWidth && "w-full",
+        )}
       >
         {tabs.map((tab) => {
           const href = getHref(tab);
