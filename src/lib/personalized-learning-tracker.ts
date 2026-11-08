@@ -7,7 +7,8 @@ import personalizedLearningService, {
  * Use this to automatically send events to the personalized learning engine
  *
  * The backend derives student_id from the JWT, so callers never pass it.
- * All methods are fire-and-forget: tracking failures must never break UX.
+ * Answer tracking returns a success flag; callers may also fire-and-forget.
+ * Tracking failures must never break UX.
  */
 class PersonalizedLearningTracker {
   /**
@@ -49,6 +50,7 @@ class PersonalizedLearningTracker {
    * power trajectory views but skip skill-mastery inference.
    */
   trackAnswerSubmitted(params: {
+    eventId?: string;
     questionId?: number;
     courseId?: number;
     correct?: boolean;
@@ -59,6 +61,7 @@ class PersonalizedLearningTracker {
   }) {
     const event: LearningEvent = {
       event_type: "answer_submitted",
+      event_id: params.eventId,
       question_id: params.questionId,
       course_id: params.courseId,
       correct: params.correct,
@@ -69,9 +72,13 @@ class PersonalizedLearningTracker {
         : undefined,
       metadata: params.metadata,
     };
-    personalizedLearningService.trackEvent(event).catch((error) => {
-      console.error("Failed to track answer_submitted event:", error);
-    });
+    return personalizedLearningService.trackEvent(event).then(
+      () => true,
+      (error) => {
+        console.error("Failed to track answer_submitted event:", error);
+        return false;
+      },
+    );
   }
 
   /**

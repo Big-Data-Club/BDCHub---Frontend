@@ -242,7 +242,7 @@ export default function QuizReviewPage({
         setLoading(true);
         const response = await quizService.reviewQuiz(attemptId);
         setReview(response.data);
-        trackAttemptEvents(response.data);
+        void trackAttemptEvents(response.data);
       } catch (err: any) {
         setError(err.response?.data?.error || "Không thể tải bài làm");
       } finally {
@@ -256,7 +256,7 @@ export default function QuizReviewPage({
    * mastery updates with real correctness data. Guarded by a localStorage
    * marker so re-opening the review never double-counts attempts.
    */
-  const trackAttemptEvents = (data: QuizReview) => {
+  const trackAttemptEvents = async (data: QuizReview) => {
     try {
       const marker = `pl_tracked_attempt_${data.attempt.id}`;
       if (typeof window !== "undefined" && window.localStorage.getItem(marker)) {
@@ -268,20 +268,23 @@ export default function QuizReviewPage({
         1000;
       const questionCount = Math.max(data.questions_with_answers.length, 1);
 
-      data.questions_with_answers.forEach((qa) => {
-        const ans = qa.student_answer;
-        if (!ans || ans.is_correct === undefined) return;
-        personalizedLearningTracker.trackAnswerSubmitted({
-          questionId: qa.question.id,
-          courseId,
-          correct: ans.is_correct,
-          timeSpentSeconds: Math.max(0, durationSec / questionCount),
-          attemptNo: data.attempt.attempt_number,
-          metadata: { quiz_id: data.quiz.id, attempt_id: data.attempt.id },
-        });
-      });
+      const results = await Promise.all(
+        data.questions_with_answers.map((qa) => {
+          const ans = qa.student_answer;
+          if (!ans || ans.is_correct === undefined) return true;
+          return personalizedLearningTracker.trackAnswerSubmitted({
+            eventId: `quiz-answer:${data.attempt.id}:${qa.question.id}`,
+            questionId: qa.question.id,
+            courseId,
+            correct: ans.is_correct,
+            timeSpentSeconds: Math.max(0, durationSec / questionCount),
+            attemptNo: data.attempt.attempt_number,
+            metadata: { quiz_id: data.quiz.id, attempt_id: data.attempt.id },
+          });
+        }),
+      );
 
-      if (typeof window !== "undefined") {
+      if (results.every(Boolean) && typeof window !== "undefined") {
         window.localStorage.setItem(marker, new Date().toISOString());
       }
     } catch (err) {

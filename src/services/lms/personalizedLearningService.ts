@@ -1,6 +1,7 @@
 import { lmsApiClient } from "./lmsApiClient";
 
 export interface LearningEvent {
+  event_id?: string;
   event_type: string;
   session_id?: string;
   course_id?: number;
