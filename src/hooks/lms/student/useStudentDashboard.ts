@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { lmsService } from "@/services/lms/lmsService";
 import { analyticsService } from "@/services/lms/analyticsService";
 import { Enrollment } from "@/types";
@@ -13,6 +13,7 @@ import {
 } from "@/services/lms/recommendationService";
 
 export function useStudentDashboard() {
+  const requestSeq = useRef(0);
   const [mounted, setMounted] = useState(false);
   const [acceptedEnrollments, setAcceptedEnrollments] = useState<Enrollment[]>([]);
   const [loadingEnrolled, setLoadingEnrolled] = useState(true);
@@ -42,18 +43,18 @@ export function useStudentDashboard() {
   // ── Load general enrollments data ─────────────────────────────────────────
 
   const loadAllData = useCallback(async () => {
+    const seq = ++requestSeq.current;
     setLoadingEnrolled(true);
     setError("");
     try {
-      const [accepted, profile] = await Promise.all([
-        lmsService.getMyEnrollments("ACCEPTED"),
-        getLearningPreferenceProfile().catch((): LearningPreferenceProfile => ({
-          interested_categories: [],
-          profile_available: false,
-        })),
-      ]);
+      const profilePromise = getLearningPreferenceProfile().catch((): LearningPreferenceProfile => ({
+        interested_categories: [], profile_available: false,
+      }));
+      const accepted = await lmsService.getMyEnrollments("ACCEPTED");
+      if (seq !== requestSeq.current) return;
       const enrollList = accepted || [];
       setAcceptedEnrollments(enrollList);
+      setLoadingEnrolled(false);
 
       const availableEnrollments = enrollList.filter(
         (enrollment: Enrollment) => enrollment.course_status !== "ARCHIVED",
@@ -66,6 +67,9 @@ export function useStudentDashboard() {
         return;
       }
 
+      setSelectedCourseId(prev => prev && availableEnrollments.some((e: Enrollment) => e.course_id === prev)
+        ? prev : availableEnrollments[0]?.course_id ?? null);
+      const profile = await profilePromise;
       try {
         const recommendationSet = await getRecommendations({
           surface: "dashboard",
@@ -89,6 +93,7 @@ export function useStudentDashboard() {
             href: `/lms/student/courses/${enrollment.course_id}/learn`,
           })),
         });
+        if (seq !== requestSeq.current) return;
         setCourseRecommendations(recommendationSet.items);
         setCourseRecommendationSetId(recommendationSet.recommendation_set_id);
         const topItem = recommendationSet.items[0];
@@ -96,6 +101,7 @@ export function useStudentDashboard() {
           trackRecommendationEvent(topItem, recommendationSet.recommendation_set_id, "impression", "dashboard");
         }
       } catch (recommendationError) {
+        if (seq !== requestSeq.current) return;
         // Enrollment rendering remains available when the ranking service is down.
         console.warn("Recommendation ranking unavailable, using enrollment order", recommendationError);
         setCourseRecommendations([]);
@@ -111,10 +117,11 @@ export function useStudentDashboard() {
         return prev;
       });
     } catch (e) {
+      if (seq !== requestSeq.current) return;
       console.error(e);
       setError("Không thể tải thông tin tiến độ học tập.");
     } finally {
-      setLoadingEnrolled(false);
+      if (seq === requestSeq.current) setLoadingEnrolled(false);
     }
   }, []);
 

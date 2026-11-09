@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
         },
       }),
       cache: "no-store",
+      signal: AbortSignal.timeout(2500),
     });
     return new NextResponse(await upstream.text(), {
       status: upstream.status,

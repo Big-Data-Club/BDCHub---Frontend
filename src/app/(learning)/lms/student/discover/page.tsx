@@ -17,6 +17,7 @@ export default function DiscoverPage() {
     publishedCourses,
     enrolledCourseIds,
     recommendationsByCourseId,
+    handleRecommendationFeedback,
     activeProfile,
     recommendationStatus,
     preferencesSaved,
@@ -208,6 +209,7 @@ export default function DiscoverPage() {
           courses={publishedCourses}
           enrolledCourseIds={enrolledCourseIds}
           recommendationsByCourseId={recommendationsByCourseId}
+          onRecommendationFeedback={handleRecommendationFeedback}
           loading={loading}
           loadingMore={loadingMore}
           hasMore={hasMore}

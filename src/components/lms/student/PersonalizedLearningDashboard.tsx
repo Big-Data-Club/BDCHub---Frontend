@@ -11,7 +11,17 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import personalizedLearningService, { DailyRecommendationsResponse } from "@/services/lms/personalizedLearningService";
+import {
+  getRecommendations, trackRecommendationEvent, rememberRecommendationAttribution,
+  type RecommendationItem,
+} from "@/services/lms/recommendationService";
+
+type DailyTask = {
+  content_id: number; course_id: number; content_title: string; skill_name: string;
+  reason: string; estimated_minutes: number; priority: number;
+  item: RecommendationItem; recommendationSetId: string;
+};
+type DailyPlan = { motivational_message: string; priority_recommendations: DailyTask[] };
 
 interface Props {
   studentId: string | number;
@@ -40,29 +50,46 @@ const PRIORITY_CONFIG = {
 };
 
 export function PersonalizedLearningDashboard({ studentId, suggestedCourse, onNavigateToLesson, onNavigateToCourse, onNavigateToDiscover }: Props) {
-  const [data, setData] = useState<DailyRecommendationsResponse | null>(null);
+  const [data, setData] = useState<DailyPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const isMounted = useRef(true);
+  const requestSeq = useRef(0);
+  const focusCourseId = suggestedCourse?.course_id;
 
   const load = useCallback(async () => {
+    const seq = ++requestSeq.current;
+    if (!studentId || !focusCourseId) {
+      setData({ motivational_message: "Chọn khóa học để tiếp tục.", priority_recommendations: [] });
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
-      const result = await personalizedLearningService.getDailyRecommendations(studentId);
-      if (isMounted.current) {
-        setData(result.data.data);
+      const result = await getRecommendations({ surface: "lesson_sidebar", courseId: focusCourseId, limit: 3 });
+      if (result.fallback && result.items.length === 0) throw new Error("Dịch vụ gợi ý tạm thời chưa sẵn sàng. Bạn vẫn có thể học tiếp khóa học.");
+      if (isMounted.current && seq === requestSeq.current) {
+        setData({
+          motivational_message: "Dựa trên tiến độ và kết quả học trong khóa bạn đang tập trung.",
+          priority_recommendations: result.items.filter(item => item.entity.content_id).map(item => ({
+            content_id: item.entity.content_id!, course_id: focusCourseId,
+            content_title: item.title, skill_name: String(item.why_facts[0]?.value || "Lộ trình khóa học"),
+            reason: item.description, estimated_minutes: item.estimated_minutes || 10,
+            priority: item.rank, item, recommendationSetId: result.recommendation_set_id,
+          })),
+        });
         setError("");
       }
     } catch (e: any) {
-      if (isMounted.current) {
+      if (isMounted.current && seq === requestSeq.current) {
         setError(e?.message || "Không thể tải dữ liệu gợi ý");
       }
     } finally {
-      if (isMounted.current) {
+      if (isMounted.current && seq === requestSeq.current) {
         setLoading(false);
       }
     }
-  }, [studentId]);
+  }, [studentId, focusCourseId]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -96,7 +123,7 @@ export function PersonalizedLearningDashboard({ studentId, suggestedCourse, onNa
 
   const dailyItems = data.priority_recommendations?.length
     ? data.priority_recommendations
-    : data.optional_recommendations ?? [];
+    : [];
 
   if (dailyItems.length === 0) {
     return (
@@ -109,7 +136,7 @@ export function PersonalizedLearningDashboard({ studentId, suggestedCourse, onNa
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           {suggestedCourse
-            ? `Chưa có bài học gắn với kỹ năng cần ôn. Bạn có thể tiếp tục ${suggestedCourse.course_title || "khóa học đang học"}.`
+            ? `Chưa có nhiệm vụ đủ dữ liệu hoặc đủ điều kiện tiên quyết. Bạn có thể xem tiến độ ${suggestedCourse.course_title || "khóa học đang học"}.`
             : "Chưa có gợi ý bài học dựa trên kỹ năng. Hãy chọn khóa học để bắt đầu."}
         </p>
         <button
@@ -198,7 +225,11 @@ export function PersonalizedLearningDashboard({ studentId, suggestedCourse, onNa
               {/* Action */}
               <div className="flex-shrink-0">
                 <button
-                  onClick={() => onNavigateToLesson?.(rec.course_id, rec.content_id)}
+                  onClick={() => {
+                    void trackRecommendationEvent(rec.item, rec.recommendationSetId, "click", "lesson_sidebar");
+                    rememberRecommendationAttribution(rec.item, rec.recommendationSetId, "lesson_sidebar");
+                    onNavigateToLesson?.(rec.course_id, rec.content_id);
+                  }}
                   disabled={!rec.course_id}
                   className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border bg-blue-600 hover:bg-blue-700 text-white active:scale-95 duration-200 shadow-xs transition-all cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"
                 >

@@ -11,6 +11,7 @@ interface DiscoverCourseGridProps {
   loadingMore?: boolean;
   hasMore: boolean;
   onLoadMore: () => void;
+  onRecommendationFeedback?: (courseId: number, type: "not_interested" | "favorite") => void;
   onNavigateToDetail: (courseId: number) => void;
 }
 
@@ -39,6 +40,7 @@ export function DiscoverCourseGrid({
   hasMore,
   onLoadMore,
   onNavigateToDetail,
+  onRecommendationFeedback,
 }: DiscoverCourseGridProps) {
   if (loading && courses.length === 0) {
     return (
@@ -88,10 +90,14 @@ export function DiscoverCourseGrid({
                     ✓ Đã đăng ký
                   </span>
                 ) : recommendation ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button type="button" onClick={(event) => { event.stopPropagation(); onRecommendationFeedback?.(course.id, "favorite"); }} className="min-h-9 text-xs font-semibold text-blue-700 dark:text-cyan-300 hover:underline">{recommendation.item.why_facts?.some(fact => fact.code === "explicit_course_preference") ? "Đã quan tâm" : "Quan tâm"}</button>
+                    <button type="button" onClick={(event) => { event.stopPropagation(); onRecommendationFeedback?.(course.id, "not_interested"); }} className="min-h-9 text-xs text-slate-600 dark:text-slate-300 hover:underline">Không quan tâm</button>
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 dark:bg-slate-900/90 text-blue-700 dark:text-cyan-300 border border-blue-200 dark:border-blue-500/30 flex items-center gap-1 shadow-xs">
                     <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
                     <span>{badgeText || "Được gợi ý"}</span>
                   </span>
+                  </div>
                 ) : undefined
               }
             />

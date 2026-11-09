@@ -7,6 +7,7 @@ import { CheckCircle2, Clock3, Lightbulb, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getRecommendations,
+  rememberRecommendationAttribution,
   type RecommendationItem,
   type RecommendationSet,
   trackRecommendationEvent,
@@ -14,6 +15,7 @@ import {
 
 function reason(item: RecommendationItem): string {
   const codes = new Set(item.why_facts.map((fact) => fact.code));
+  if (codes.has("skill_gap") || codes.has("curriculum_progress")) return item.description;
   if (codes.has("struggle_detected")) return "Dựa trên phần bạn đang gặp khó khăn trong quá trình học.";
   if (codes.has("low_quick_check_accuracy")) return "Dựa trên kết quả Quick Check gần đây của bạn.";
   if (codes.has("course_progress")) return "Dựa trên tiến độ hiện tại trong khóa học.";
@@ -49,7 +51,7 @@ export function RecommendationWidget({ props }: { props: { recommendation_set?: 
   const confirm = () => {
     if (!pending) return;
     trackRecommendationEvent(pending, recommendationSet.recommendation_set_id, "accept", "chat");
-    trackRecommendationEvent(pending, recommendationSet.recommendation_set_id, "started", "chat");
+    rememberRecommendationAttribution(pending, recommendationSet.recommendation_set_id, "chat");
     if (pending.href?.startsWith("/") && !pending.href.startsWith("//")) router.push(pending.href);
     setPending(null);
   };

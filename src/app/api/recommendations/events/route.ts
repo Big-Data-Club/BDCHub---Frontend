@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json", "X-AI-Secret": AI_SECRET },
       body: JSON.stringify({ ...body, user_id: userId }),
       cache: "no-store",
+      signal: AbortSignal.timeout(2500),
     });
     return new NextResponse(await upstream.text(), {
       status: upstream.status,

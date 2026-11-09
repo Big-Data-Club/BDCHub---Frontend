@@ -1,8 +1,8 @@
-export type RecommendationEventType = "impression" | "click" | "accept" | "reject" | "dismiss" | "started" | "completed";
+export type RecommendationEventType = "impression" | "click" | "accept" | "reject" | "dismiss" | "not_interested" | "favorite" | "started" | "completed";
 
 export interface RecommendationItem {
   recommendation_id: string;
-  entity: { type: string; id: string; course_id?: number };
+  entity: { type: string; id: string; course_id?: number; content_id?: number };
   action: string;
   title: string;
   description: string;
@@ -41,7 +41,7 @@ export interface LearningPreferenceProfile {
 }
 
 export async function getLearningPreferenceProfile(): Promise<LearningPreferenceProfile> {
-  const response = await fetch("/api/recommendations/profile", { cache: "no-store" });
+  const response = await fetch("/api/recommendations/profile", { cache: "no-store", signal: AbortSignal.timeout(2000) });
   if (!response.ok) throw new Error("Không thể tải hồ sơ cá nhân hóa");
   return response.json();
 }
@@ -70,6 +70,7 @@ export async function getRecommendations(input: {
   interestedCategories?: string[];
   experienceLevel?: string;
   profileResolved?: boolean;
+  learningHistory?: Array<{ entity_id: number; title: string; category?: string; progress_percent?: number; last_activity_at?: string }>;
   candidates?: Array<{
     entity_type?: "course";
     entity_id: number;
@@ -89,6 +90,7 @@ export async function getRecommendations(input: {
 }): Promise<RecommendationSet> {
   const response = await fetch("/api/recommendations", {
     method: "POST",
+    signal: AbortSignal.timeout(3500),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       surface: input.surface,
@@ -104,6 +106,7 @@ export async function getRecommendations(input: {
         interested_categories: input.interestedCategories ?? [],
         experience_level: input.experienceLevel,
         profile_resolved: input.profileResolved ?? false,
+        learning_history: input.learningHistory ?? [],
       },
       conversation: { constraints: input.preferFormat ? { prefer_format: input.preferFormat } : {} },
     }),
@@ -117,8 +120,9 @@ export function trackRecommendationEvent(
   recommendationSetId: string,
   type: RecommendationEventType,
   surface: string,
-): void {
-  void fetch("/api/recommendations/events", {
+): Promise<boolean> {
+  return fetch("/api/recommendations/events", {
+    signal: AbortSignal.timeout(3000),
     method: "POST",
     headers: { "Content-Type": "application/json" },
     keepalive: true,
@@ -134,8 +138,9 @@ export function trackRecommendationEvent(
       entity_type: item.entity.type,
       entity_id: item.entity.id,
       rank: item.rank,
+      metadata: { content_id: item.entity.content_id },
     }),
-  }).catch(() => undefined);
+  }).then(async response => response.ok && (await response.json()).accepted === true).catch(() => false);
 }
 
 const ATTRIBUTION_PREFIX = "bdc:recommendation-attribution:";
@@ -158,7 +163,7 @@ export function rememberRecommendationAttribution(
   }
 }
 
-export function consumeRecommendationAttribution(courseId: number): {
+export function consumeRecommendationAttribution(courseId: number, contentId?: number): {
   item: RecommendationItem;
   recommendationSetId: string;
   surface: string;
@@ -167,9 +172,9 @@ export function consumeRecommendationAttribution(courseId: number): {
   try {
     const key = `${ATTRIBUTION_PREFIX}${courseId}`;
     const raw = sessionStorage.getItem(key);
-    sessionStorage.removeItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
+    if (contentId && parsed.item?.entity?.content_id && parsed.item.entity.content_id !== contentId) return null;
     if (!parsed.item?.tracking_token || Date.now() - Number(parsed.storedAt) > 24 * 60 * 60 * 1000) return null;
     return parsed;
   } catch {

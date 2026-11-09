@@ -1,5 +1,7 @@
 "use client";
 
+import { consumeRecommendationAttribution, trackRecommendationEvent } from "@/services/lms/recommendationService";
+
 import { useEffect, useRef, useMemo } from "react";
 import useSWR from "swr";
 import { ContentItem, CompletionBadge, EmptyState } from "./content-renderers/utils";
@@ -76,6 +78,9 @@ export default function ContentViewer({
       action_type: "lesson_view",
     });
 
+    const attribution = consumeRecommendationAttribution(Number(courseId), content.id);
+    if (attribution) void trackRecommendationEvent(attribution.item, attribution.recommendationSetId, "started", attribution.surface);
+
     // Feed the personalized learning engine (skill mastery, trajectory)
     personalizedLearningTracker.trackLessonOpened(content.id, Number(courseId));
 
@@ -106,6 +111,8 @@ export default function ContentViewer({
     if (!courseId || !isStudent || loadingNode) return;
 
     if (isCompleted && !prevCompleted.current) {
+      const attribution = consumeRecommendationAttribution(Number(courseId), content.id);
+      if (attribution) void trackRecommendationEvent(attribution.item, attribution.recommendationSetId, "completed", attribution.surface);
       analyticsService.trackMicroInteraction({
         course_id: Number(courseId),
         lesson_id: null,

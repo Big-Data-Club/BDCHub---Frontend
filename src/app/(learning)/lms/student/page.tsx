@@ -10,7 +10,7 @@ import { PersonalizedLearningDashboard } from "@/components/lms/student/Personal
 import { SkillMasteryOverview } from "@/components/lms/student/SkillMasteryOverview";
 import { useScrollSnap } from "@/hooks/common/useScrollSnap";
 import { useStudentDashboard } from "@/hooks/lms/student/useStudentDashboard";
-import { trackRecommendationEvent } from "@/services/lms/recommendationService";
+import { trackRecommendationEvent, rememberRecommendationAttribution } from "@/services/lms/recommendationService";
 import { useAuth } from "@/hooks/auth/useAuth";
 
 export default function StudentDashboard() {
@@ -79,7 +79,7 @@ export default function StudentDashboard() {
           onNavigateToCourse={(courseId) => {
             if (focusRecommendation?.entity.course_id === courseId && courseRecommendationSetId) {
               trackRecommendationEvent(focusRecommendation, courseRecommendationSetId, "click", "dashboard");
-              trackRecommendationEvent(focusRecommendation, courseRecommendationSetId, "started", "dashboard");
+              rememberRecommendationAttribution(focusRecommendation, courseRecommendationSetId, "dashboard");
             }
             router.push(`/lms/student/courses/${courseId}`);
           }}

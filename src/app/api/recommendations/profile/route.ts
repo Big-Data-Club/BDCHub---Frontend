@@ -20,6 +20,7 @@ export async function GET() {
     const upstream = await fetch(`${PERSONALIZE_SERVICE_URL}/personalize/student/${userId}/onboarding`, {
       headers: { "X-AI-Secret": AI_SECRET },
       cache: "no-store",
+      signal: AbortSignal.timeout(2500),
     });
     return new NextResponse(await upstream.text(), {
       status: upstream.status,
@@ -57,6 +58,7 @@ export async function PUT(req: NextRequest) {
           : null,
       }),
       cache: "no-store",
+      signal: AbortSignal.timeout(2500),
     });
     return new NextResponse(await upstream.text(), {
       status: upstream.status,

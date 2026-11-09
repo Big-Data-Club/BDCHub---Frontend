@@ -27,6 +27,7 @@ export function useCourseDiscover() {
   const [activeProfile, setActiveProfile] = useState<LearningPreferenceProfile | null>(null);
   const [recommendationStatus, setRecommendationStatus] = useState<"loading" | "personalized" | "general" | "unavailable">("loading");
   const [preferencesSaved, setPreferencesSaved] = useState(false);
+  const [hiddenCourseIds, setHiddenCourseIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   // Synchronous guard against concurrent loadMore() calls.
@@ -81,13 +82,23 @@ export function useCourseDiscover() {
     try {
       setLoading(true);
       setError("");
-      const [allCourses, accepted, profile] = await Promise.all([
-        lmsService.listPublishedCourses({ page_size: 100 }),
+      const profilePromise = getLearningPreferenceProfile().catch((): LearningPreferenceProfile => ({
+        interested_categories: [], profile_available: false,
+      }));
+      const [firstPage, accepted] = await Promise.all([
+        lmsService.listPublishedCourses({ page: 1, page_size: PAGE_SIZE }),
         lmsService.getMyEnrollments("ACCEPTED"),
-        getLearningPreferenceProfile().catch((): LearningPreferenceProfile => ({
-          interested_categories: [],
-          profile_available: false,
-        })),
+      ]);
+      if (seq !== requestSeqRef.current) return;
+      const firstItems = (firstPage?.items || []) as Course[];
+      setPublishedCourses(firstItems);
+      setPage(1);
+      setHasMore(checkHasMore(firstPage, firstItems.length, PAGE_SIZE));
+      setLoading(false);
+      setEnrollments(accepted || []);
+      // Ranking is progressive enhancement; the catalogue is already usable.
+      const [allCourses, profile] = await Promise.all([
+        lmsService.listPublishedCourses({ page_size: 100 }).catch(() => firstPage), profilePromise,
       ]);
       if (seq !== requestSeqRef.current) return;
       setEnrollments(accepted || []);
@@ -96,7 +107,21 @@ export function useCourseDiscover() {
       setPreferenceLevel(profile.experience_level || "");
       setActiveProfile(profile.profile_available ? profile : null);
 
-      const allCoursesList = (allCourses?.items || []) as Course[];
+      // Retrieve topic candidates as well as the general catalogue page, so a
+      // relevant older course can enter the slate without downloading it all.
+      const recentHistory = [...(accepted || [])].sort((a: Enrollment, b: Enrollment) =>
+        new Date(b.last_activity_at || 0).getTime() - new Date(a.last_activity_at || 0).getTime());
+      const topics = [...new Set([
+        ...profile.interested_categories,
+        ...recentHistory.filter((e: Enrollment) => (e.progress_percent || 0) > 0).flatMap((e: Enrollment) => e.course_category?.split(",").map(tag => tag.trim()) || []),
+      ].filter(Boolean))].slice(0, 2);
+      const topicPages = await Promise.all(topics.map(category =>
+        lmsService.listPublishedCourses({ category, page_size: 40 }).catch(() => ({ items: [] }))));
+      if (seq !== requestSeqRef.current) return;
+      const allCoursesList = [...new Map(
+        [...(allCourses?.items || []), ...topicPages.flatMap(page => page.items || [])]
+          .map((course: Course) => [course.id, course] as const),
+      ).values()] as Course[];
       const enrolledIds = new Set((accepted || []).map((enrollment: Enrollment) => enrollment.course_id));
       const tags = Array.from(
         new Set(
@@ -114,7 +139,14 @@ export function useCourseDiscover() {
           goal: profile.target_career || undefined,
           interestedCategories: profile.interested_categories,
           experienceLevel: profile.experience_level || undefined,
-          profileResolved: profile.profile_available === true,
+          profileResolved: true,
+          learningHistory: (accepted || []).map((enrollment: Enrollment) => ({
+            entity_id: enrollment.course_id,
+            title: enrollment.course_title || "",
+            category: enrollment.course_category,
+            progress_percent: enrollment.progress_percent,
+            last_activity_at: enrollment.last_activity_at,
+          })),
           candidates: allCoursesList.map((course) => ({
             entity_id: course.id,
             title: course.title,
@@ -149,12 +181,7 @@ export function useCourseDiscover() {
         }
       }
 
-      const paginatedRes = await lmsService.listPublishedCourses({ page: 1, page_size: PAGE_SIZE });
-      if (seq !== requestSeqRef.current) return;
-      const items = (paginatedRes?.items || []) as Course[];
-      setPublishedCourses(items);
-      setPage(1);
-      setHasMore(checkHasMore(paginatedRes, items.length, PAGE_SIZE));
+
     } catch (err: any) {
       console.error(err);
       if (seq === requestSeqRef.current) {
@@ -287,12 +314,9 @@ export function useCourseDiscover() {
       // 2. High recommendation score prioritized
       const recA = recommendationsByCourseId.get(a.id);
       const recB = recommendationsByCourseId.get(b.id);
-      const scoreA = recA?.item?.score ?? 0;
-      const scoreB = recB?.item?.score ?? 0;
-
-      if (scoreA !== scoreB) {
-        return scoreB - scoreA;
-      }
+      const rankA = recA?.item.rank ?? Number.MAX_SAFE_INTEGER;
+      const rankB = recB?.item.rank ?? Number.MAX_SAFE_INTEGER;
+      if (rankA !== rankB) return rankA - rankB;
 
       // 3. Fallback: enrollment count or ID
       const enrollCountA = a.enrollment_count ?? 0;
@@ -308,12 +332,12 @@ export function useCourseDiscover() {
   const displayedCourses = useMemo(() => {
     // Filtered view follows the API order exactly.
     if (search || selectedTag !== "all" || selectedLevel !== "all") {
-      return publishedCourses;
+      return publishedCourses.filter(course => !hiddenCourseIds.has(course.id));
     }
 
     const seenCourseIds = new Set<number>();
     const pool = [...recommendedCourses.map(({ course }) => course), ...publishedCourses].filter((course) => {
-      if (seenCourseIds.has(course.id)) return false;
+      if (hiddenCourseIds.has(course.id) || seenCourseIds.has(course.id)) return false;
       seenCourseIds.add(course.id);
       return true;
     });
@@ -339,9 +363,31 @@ export function useCourseDiscover() {
     return [...pool].sort(
       (a, b) => (positionById.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (positionById.get(b.id) ?? Number.MAX_SAFE_INTEGER),
     );
-  }, [publishedCourses, recommendedCourses, rankCourses, search, selectedLevel, selectedTag]);
+  }, [publishedCourses, recommendedCourses, rankCourses, search, selectedLevel, selectedTag, hiddenCourseIds]);
+
+  const handleRecommendationFeedback = useCallback(async (courseId: number, type: "not_interested" | "favorite") => {
+    const recommendation = recommendationsByCourseId.get(courseId);
+    if (!recommendation) return;
+    const accepted = await trackRecommendationEvent(recommendation.item, recommendation.recommendationSetId, type, "course_discovery");
+    if (!accepted) {
+      setError("Chưa lưu được phản hồi gợi ý. Vui lòng thử lại.");
+      return;
+    }
+    setError("");
+    if (type === "not_interested") {
+      setHiddenCourseIds(prev => new Set([...prev, courseId]));
+      setRecommendedCourses(prev => prev.filter(rec => rec.course.id !== courseId));
+    } else {
+      setRecommendedCourses(prev => prev.map(rec => rec.course.id === courseId ? {
+        ...rec, item: { ...rec.item, description: "Bạn đã chọn quan tâm khóa học này.", why_facts: [
+          ...(rec.item.why_facts || []), { code: "explicit_course_preference", value: 1 },
+        ] },
+      } : rec));
+    }
+  }, [recommendationsByCourseId]);
 
   return {
+    handleRecommendationFeedback,
     publishedCourses: displayedCourses,
     enrollments,
     enrolledCourseIds,
