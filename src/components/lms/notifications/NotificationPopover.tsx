@@ -1,247 +1,66 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { Bell, X, Brain, AlertCircle, BookOpen, Sparkles, Inbox, Check } from "lucide-react";
-import { useNotifications, StudyAlert } from "@/store/NotificationContext";
+import { useState, useRef, useEffect } from "react";
+import { Bell, Check, CheckCheck, BookOpen, Sparkles, Inbox, Loader2 } from "lucide-react";
+import { useNotifications } from "@/store/NotificationContext";
 import { useRouter } from "@/lib/tenant/navigation";
+import { notificationCategory, notificationKey, notificationHref, notificationTitle, notificationMessage, type StudyAlert } from "@/lib/notifications/model";
 import { cn } from "@/lib/utils";
 
+const tabs = [{ id: "all", label: "Tất cả" }, { id: "learning", label: "Học tập" }, { id: "suggestion", label: "Gợi ý" }] as const;
 export function NotificationPopover() {
   const router = useRouter();
-  const { alerts, readAlertKeys, unreadAlertsCount, fetchAlerts, markAlertAsRead } = useNotifications();
+  const { alerts, readAlertKeys, unreadAlertsCount, fetchAlerts, markAlertAsRead, markAllAlertsAsRead, isLoading, error } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "study" | "recs">("all");
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  // Close when clicking outside
+  const [activeTab, setActiveTab] = useState<"all" | "learning" | "suggestion">("all");
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const togglePopover = () => {
-    const nextState = !isOpen;
-    setIsOpen(nextState);
-    if (nextState) {
-      fetchAlerts(); // Lazy load notifications on-click
-    }
-  };
-
-  const handleAction = (alert: StudyAlert) => {
-    markAlertAsRead(alert);
-    setIsOpen(false);
-    
-    // Route to appropriate content based on type, course_id, node_id, and quiz_id
-    if (alert.alert_type === "quiz_deadline" && alert.quiz_id) {
-      router.push(`/lms/student/courses/${alert.course_id}/quiz/${alert.quiz_id}/take`);
-    } else if (alert.node_id) {
-      router.push(`/lms/student/courses/${alert.course_id}?node_id=${alert.node_id}`);
-    } else {
-      router.push(`/lms/student/courses/${alert.course_id}`);
-    }
-  };
-
-  const handleMarkAllRead = () => {
-    alerts.forEach((alert) => markAlertAsRead(alert));
-  };
-
-  // Filter alerts by tab
-  const filteredAlerts = alerts.filter((alert) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "study") {
-      return alert.alert_type === "concept_struggle" || alert.alert_type === "new_content";
-    }
-    if (activeTab === "recs") {
-      return alert.alert_type === "inactivity" || alert.alert_type === "recommendation" || alert.alert_type === "quiz_deadline";
-    }
-    return true;
-  });
-
-  return (
-    <div className="relative" ref={popoverRef}>
-      {/* Bell Trigger Button */}
-      <button
-        onClick={togglePopover}
-        className={cn(
-          "relative p-2 rounded-xl text-slate-600 dark:text-slate-400",
-          "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100",
-          "transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 active:scale-95"
-        )}
-        aria-label="Notifications"
-      >
-        <Bell className="h-5 w-5" />
-        {unreadAlertsCount > 0 && (
-          <span className="absolute top-1 right-1 h-4 min-w-4 flex items-center justify-center
-                           bg-red-500 text-white text-[9px] font-bold rounded-full px-1 leading-none
-                           pointer-events-none animate-pulse">
-            {unreadAlertsCount > 9 ? "9+" : unreadAlertsCount}
-          </span>
-        )}
-      </button>
-
-      {/* Popover Dropdown Panel */}
-      {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md
-                        border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[99]
-                        transform origin-top-right transition-all duration-200">
-          {/* Header */}
-          <div className="p-4 border-b border-slate-150 dark:border-slate-800 flex justify-between items-center">
-            <div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Thông báo</h3>
-              <p className="text-[10px] text-slate-500">Học tập cá nhân hóa & gợi ý</p>
-            </div>
-            {unreadAlertsCount > 0 && (
-              <button
-                onClick={handleMarkAllRead}
-                className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1"
-              >
-                <Check className="w-3 h-3" /> Đọc tất cả
-              </button>
-            )}
-          </div>
-
-          {/* Category Tabs */}
-          <div className="flex bg-slate-50 dark:bg-slate-950 p-1 mx-4 mt-3 rounded-lg border border-slate-200/50 dark:border-slate-800/30">
-            <button
-              onClick={() => setActiveTab("all")}
-              className={cn(
-                "flex-1 text-[11px] py-1.5 rounded-md font-semibold transition-all",
-                activeTab === "all"
-                  ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
-              )}
-            >
-              Tất cả
+    const outside = (event: MouseEvent) => { if (root.current && !root.current.contains(event.target as Node)) setIsOpen(false); };
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape" && isOpen) { setIsOpen(false); trigger.current?.focus(); } };
+    document.addEventListener("mousedown", outside); document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("mousedown", outside); document.removeEventListener("keydown", escape); };
+  }, [isOpen]);
+  const openNotice = (alert: StudyAlert) => { markAlertAsRead(alert); setIsOpen(false); router.push(notificationHref(alert)); };
+  const filtered = alerts.filter(alert => activeTab === "all" || notificationCategory(alert) === activeTab);
+  return <div className="relative" ref={root}>
+    <button ref={trigger} type="button" onClick={() => { if (!isOpen) void fetchAlerts(); setIsOpen(!isOpen); }} aria-label={`Thông báo${unreadAlertsCount ? `, ${unreadAlertsCount} chưa đọc` : ""}`} aria-expanded={isOpen} aria-haspopup="dialog"
+      className="relative rounded-xl p-2 text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:bg-[#162644]">
+      <Bell className="h-5 w-5" />
+      {unreadAlertsCount > 0 && <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">{unreadAlertsCount > 9 ? "9+" : unreadAlertsCount}</span>}
+    </button>
+    {isOpen && <div role="dialog" aria-label="Thông báo học tập và gợi ý" className="absolute right-0 z-[99] mt-3 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-blue-500/20 dark:bg-[#0F1E35]">
+      <div className="flex items-center justify-between gap-2 border-b border-slate-100 p-4 dark:border-blue-500/10">
+        <div><h3 className="text-sm font-bold text-slate-900 dark:text-white">Thông báo</h3><p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Cập nhật khóa học và hỗ trợ học tập</p></div>
+        {unreadAlertsCount > 0 && <button type="button" onClick={markAllAlertsAsRead} className="flex min-h-9 items-center gap-1 text-xs font-semibold text-blue-700 dark:text-cyan-300"><CheckCheck className="h-4 w-4" />Đọc tất cả</button>}
+      </div>
+      <div className="mx-3 mt-3 flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-[#0D192E]">
+        {tabs.map(tab => {
+          const count = alerts.filter(alert => (tab.id === "all" || notificationCategory(alert) === tab.id) && !readAlertKeys.has(notificationKey(alert))).length;
+          return <button key={tab.id} type="button" aria-pressed={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} className={cn("min-h-10 flex-1 rounded-lg px-2 text-xs font-semibold transition-colors", activeTab === tab.id ? "bg-white text-blue-700 shadow-sm dark:bg-[#162644] dark:text-cyan-300" : "text-slate-600 dark:text-slate-400")}>
+            {tab.label}{count > 0 && <span className="ml-1 text-[10px]">({count})</span>}
+          </button>;
+        })}
+      </div>
+      <div className="max-h-[min(28rem,65dvh)] overflow-y-auto p-3">
+        {error && <button type="button" onClick={() => void fetchAlerts()} className="mb-2 w-full rounded-lg bg-slate-50 p-3 text-left text-xs text-slate-600 dark:bg-[#0D192E] dark:text-slate-300">{error}</button>}
+        {isLoading && <div className="flex items-center gap-2 px-2 py-2 text-xs text-slate-500 dark:text-slate-400"><Loader2 className="h-3 w-3 animate-spin" />Đang cập nhật…</div>}
+        {filtered.length === 0 && !isLoading && !error && <div className="flex flex-col items-center gap-2 py-9 text-center text-xs text-slate-500 dark:text-slate-400"><Inbox className="h-7 w-7" />{activeTab === "learning" ? "Chưa có cập nhật khóa học mới." : activeTab === "suggestion" ? "Chưa có gợi ý mới cho bạn." : "Bạn đã xem hết thông báo hiện có."}</div>}
+        <div className="space-y-2">{filtered.map(alert => {
+          const key = notificationKey(alert), read = readAlertKeys.has(key), learning = notificationCategory(alert) === "learning";
+          const Icon = learning ? BookOpen : Sparkles;
+          return <div key={key} className={cn("flex gap-1 rounded-xl border transition-colors", read ? "border-slate-100 bg-slate-50/50 dark:border-blue-500/5 dark:bg-[#0D192E]/40" : "border-blue-100 bg-blue-50/40 dark:border-blue-500/20 dark:bg-[#132240]")}>
+            <button type="button" onClick={() => openNotice(alert)} className="flex min-w-0 flex-1 items-start gap-3 rounded-xl p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+              <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", learning ? "text-blue-600 dark:text-cyan-400" : "text-violet-600 dark:text-violet-400")} />
+              <span className="min-w-0 flex-1"><span className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-slate-100">{notificationTitle(alert)}{!read && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-600 dark:bg-cyan-400" />}</span>
+                <span className="mt-1 block text-xs leading-relaxed text-slate-600 dark:text-slate-300">{notificationMessage(alert)}</span>
+                {alert.course_title && <span className="mt-2 block truncate text-[11px] font-medium text-blue-700 dark:text-cyan-300">{alert.course_title}</span>}
+              </span>
             </button>
-            <button
-              onClick={() => setActiveTab("study")}
-              className={cn(
-                "flex-1 text-[11px] py-1.5 rounded-md font-semibold transition-all",
-                activeTab === "study"
-                  ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
-              )}
-            >
-              Học tập
-            </button>
-            <button
-              onClick={() => setActiveTab("recs")}
-              className={cn(
-                "flex-1 text-[11px] py-1.5 rounded-md font-semibold transition-all",
-                activeTab === "recs"
-                  ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
-              )}
-            >
-              Gợi ý
-            </button>
-          </div>
-
-          {/* Alerts List */}
-          <div className="max-h-80 overflow-y-auto p-4 space-y-3 no-scrollbar">
-            {filteredAlerts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-slate-400 dark:text-slate-500">
-                <Inbox className="w-8 h-8 mb-2 opacity-50" />
-                <p className="text-xs">Không có thông báo mới nào</p>
-              </div>
-            ) : (
-              filteredAlerts.map((alert) => {
-                const key = `${alert.alert_type}:${alert.course_id}:${alert.node_id ?? ""}:${alert.quiz_id ?? ""}`;
-                const isRead = readAlertKeys.has(key);
-                
-                const isStruggle = alert.alert_type === "concept_struggle";
-                const isRec = alert.alert_type === "recommendation";
-                const isDeadline = alert.alert_type === "quiz_deadline";
-                const isNewContent = alert.alert_type === "new_content";
-
-                let icon = <Sparkles className="w-5 h-5 text-amber-500 dark:text-amber-400" />;
-                let title = "Gợi ý";
-                let btnText = "Vào xem";
-
-                if (isStruggle) {
-                  icon = <Brain className="w-5 h-5 text-red-500 dark:text-red-400" />;
-                  title = "Lỗ hổng kiến thức!";
-                  btnText = "Ôn tập ngay";
-                } else if (isDeadline) {
-                  icon = <AlertCircle className="w-5 h-5 text-rose-500 dark:text-rose-400" />;
-                  title = "Sắp hết hạn làm bài!";
-                  btnText = "Làm bài ngay";
-                } else if (isNewContent) {
-                  icon = <BookOpen className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />;
-                  title = "Bài học mới cập nhật!";
-                  btnText = "Học ngay";
-                } else if (isRec) {
-                  icon = <Sparkles className="w-5 h-5 text-amber-500 dark:text-amber-400" />;
-                  title = "Gợi ý khóa học mới!";
-                  btnText = "Khám phá ngay";
-                } else {
-                  // inactivity
-                  icon = <BookOpen className="w-5 h-5 text-blue-500 dark:text-blue-400" />;
-                  title = "Nhắc nhở ôn tập";
-                  btnText = "Vào lớp học";
-                }
-                
-                return (
-                  <div
-                    key={key}
-                    className={cn(
-                      "p-3 border rounded-xl relative group flex gap-3 transition",
-                      isRead
-                        ? "bg-slate-50/20 dark:bg-slate-950/20 border-slate-100/40 dark:border-slate-800/30 opacity-55 hover:opacity-90 grayscale-[10%]"
-                        : "bg-slate-50/50 dark:bg-slate-950/40 border-slate-100 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-950/80"
-                    )}
-                  >
-                    {/* Icon Column */}
-                    <div className="flex-shrink-0 mt-0.5">
-                      {icon}
-                    </div>
-
-                    {/* Content Column */}
-                    <div className="flex-1 min-w-0 pr-4">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
-                          {title}
-                        </p>
-                        {!isRead && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                        )}
-                      </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                        {alert.alert_message}
-                      </p>
-                      
-                      {/* Interactive CTA */}
-                      <button
-                        onClick={() => handleAction(alert)}
-                        className="mt-2.5 flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500"
-                      >
-                        <BookOpen className="w-3.5 h-3.5" />
-                        {btnText}
-                      </button>
-                    </div>
-
-                    {/* Dismiss/Mark Read Button (only show if not read yet) */}
-                    {!isRead && (
-                      <button
-                        onClick={() => markAlertAsRead(alert)}
-                        className="absolute top-2 right-2 p-1 rounded-md text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Đánh dấu đã đọc"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+            {!read && <button type="button" onClick={() => markAlertAsRead(alert)} aria-label={`Đánh dấu đã đọc: ${notificationTitle(alert)}`} className="m-1 self-start rounded-lg p-2 text-slate-500 hover:bg-slate-200/50 dark:text-slate-400 dark:hover:bg-[#162644]"><Check className="h-3.5 w-3.5" /></button>}
+          </div>;
+        })}</div>
+      </div>
+    </div>}
+  </div>;
 }

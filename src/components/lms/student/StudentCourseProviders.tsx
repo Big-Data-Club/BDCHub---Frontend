@@ -21,11 +21,13 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const noticeRevision = searchParams.get("notice") || "";
   const id = Number(courseId);
 
   const initialContentId = useRef<number | null>(
     searchParams.get("contentId") ? Number(searchParams.get("contentId")) : null
   );
+  const initialSectionId = useRef(Number(searchParams.get("sectionId")) || null);
   const basePath = `/lms/student/courses/${id}`;
 
   // ── Core state ──
@@ -70,15 +72,16 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
   const handleSelectContent = useCallback((c: Content) => {
     setActiveContent(c);
     setSidebarOpen(false);
-    const target = `${basePath}/learn?contentId=${c.id}`;
+    const target = `${basePath}/learn?contentId=${c.id}${noticeRevision ? `&notice=${encodeURIComponent(noticeRevision)}` : ""}`;
     if (!pathname.endsWith("/learn")) {
       router.push(target);
     } else {
       router.replace(target, { scroll: false });
     }
-  }, [pathname, basePath, router]);
+  }, [pathname, basePath, router, noticeRevision]);
 
   // Refs for stabilizing callback dependencies
+  const contentLoadGeneration = useRef(0);
   const sectionContentsRef = useRef(sectionContents);
   const activeContentRef = useRef(activeContent);
   const handleSelectContentRef = useRef(handleSelectContent);
@@ -92,8 +95,9 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
   // ─── Load section contents ────────────────────────────────────────────────
 
   const loadSectionContentsInner = useCallback(async (sectionId: number, autoSelect = false) => {
+    const generation = contentLoadGeneration.current;
     if (sectionContentsRef.current[sectionId]) {
-      if (autoSelect && !activeContentRef.current) {
+      if (autoSelect && activeContentRef.current?.section_id !== sectionId) {
         const first = sectionContentsRef.current[sectionId][0];
         if (first) handleSelectContentRef.current(first);
       }
@@ -102,13 +106,14 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
     setLoadingSection(prev => ({ ...prev, [sectionId]: true }));
     try {
       const res = await lmsService.listContent(sectionId);
+      if (generation !== contentLoadGeneration.current) return;
       const items: Content[] = res?.data ?? [];
       setSectionContents(prev => ({ ...prev, [sectionId]: items }));
-      if (autoSelect && !activeContentRef.current && items.length > 0) {
+      if (autoSelect && activeContentRef.current?.section_id !== sectionId && items.length > 0) {
         handleSelectContentRef.current(items[0]);
       }
     } finally {
-      setLoadingSection(prev => ({ ...prev, [sectionId]: false }));
+      if (generation === contentLoadGeneration.current) setLoadingSection(prev => ({ ...prev, [sectionId]: false }));
     }
   }, []);
 
@@ -148,13 +153,20 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
   // ─── Load course + sections ───────────────────────────────────────────────
 
   useEffect(() => {
+    let cancelled = false;
+    contentLoadGeneration.current += 1;
+    setLoadingPage(true); setCourseArchived(false); setLoadingSection({}); setExpanded(new Set());
+    setActiveContent(null); activeContentRef.current = null;
+    setSectionContents({}); sectionContentsRef.current = {};
     (async () => {
       try {
-        const targetContentId = initialContentId.current;
+        const targetContentId = noticeRevision ? Number(searchParams.get("contentId")) || null : initialContentId.current;
+        const targetSectionId = noticeRevision ? Number(searchParams.get("sectionId")) || null : initialSectionId.current;
         // Check course availability before requesting dependent resources. When
         // an archived course rejects, Promise.all used to race with sections
         // and could redirect before the archive message was rendered.
         const courseRes = await lmsService.getCourse(id);
+        if (cancelled) return;
         const [sectionsRes, coTeachersRes, targetContentRes] = await Promise.all([
           lmsService.listSections(id),
           lmsService.getCoTeachers(id).catch(() => []),
@@ -162,6 +174,7 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
             ? lmsService.getContent(targetContentId).catch(() => null)
             : Promise.resolve(null),
         ]);
+        if (cancelled) return;
         setCourse(courseRes?.data ?? null);
         setCoTeachers(coTeachersRes ?? []);
         const secs: Section[] = sectionsRes?.data ?? [];
@@ -181,25 +194,49 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
             setExpanded(new Set([targetContent.section_id]));
             loadSectionContentsInner(targetContent.section_id);
           } else {
-            setExpanded(new Set([secs[0].id]));
-            loadSectionContentsInner(secs[0].id, true);
+            const targetSection = secs.find(section => section.id === targetSectionId) || secs[0];
+            setExpanded(new Set([targetSection.id]));
+            loadSectionContentsInner(targetSection.id, true);
           }
         }
 
         await loadProgress();
       } catch (error: any) {
+        if (cancelled) return;
         if (error?.response?.data?.error === "course_archived") {
           setCourseArchived(true);
           return;
         }
         router.back();
       } finally {
-        setLoadingPage(false);
+        if (!cancelled) setLoadingPage(false);
       }
     })();
-  }, [id]); // eslint-disable-line
+    return () => { cancelled = true; };
+  }, [id, noticeRevision]); // eslint-disable-line
 
   // ── Push page context for AI sidebar ───────────────────────────────────────
+
+  // The provider survives same-course navigation; consume new deep links too.
+  const linkedContentId = Number(searchParams.get("contentId")) || null;
+  const linkedSectionId = Number(searchParams.get("sectionId")) || null;
+  useEffect(() => {
+    if (loadingPage || courseArchived) return;
+    let cancelled = false;
+    if (linkedContentId && linkedContentId !== activeContentRef.current?.id) {
+      void lmsService.getContent(linkedContentId).then(response => {
+        const target: Content | null = response?.data ?? null;
+        if (cancelled || !target || !sections.some(section => section.id === target.section_id)) return;
+        setActiveContent(target);
+        setExpanded(prev => new Set([...prev, target.section_id]));
+        void loadSectionContentsInner(target.section_id);
+      }).catch(() => undefined);
+    } else if (!linkedContentId && linkedSectionId && sections.some(section => section.id === linkedSectionId)) {
+      setExpanded(prev => new Set([...prev, linkedSectionId]));
+      void loadSectionContentsInner(linkedSectionId, true);
+    }
+    return () => { cancelled = true; };
+  }, [linkedContentId, linkedSectionId, sections, loadingPage, courseArchived, loadSectionContentsInner]);
 
   const { setPageContext, clearPageContext } = useSetPageContext();
 

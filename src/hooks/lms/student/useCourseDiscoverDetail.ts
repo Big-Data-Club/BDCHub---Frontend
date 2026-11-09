@@ -63,6 +63,7 @@ export function useCourseDiscoverDetail(courseId: number) {
     setError("");
     try {
       await lmsService.enrollCourse(courseId);
+      window.dispatchEvent(new Event("learning-notifications:scope-changed"));
       const attribution = consumeRecommendationAttribution(courseId);
       if (attribution) {
         trackRecommendationEvent(
