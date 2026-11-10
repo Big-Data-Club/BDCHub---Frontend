@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             {tenant?.name || "BDC Hub"}
           </h2>
           <p className="mt-1 text-sm font-semibold text-blue-600 dark:text-cyan-400 uppercase tracking-widest">
-            {tenant ? "Cổng học tập trực tuyến" : "Think Big • Speak Data"}
+            {tenant ? "Cổng học tập trực tuyến" : "Think Big - Speak Data"}
           </p>
         </div>
       </div>
