@@ -197,7 +197,22 @@ try {
               ? {
                   id: "q",
                   kind: "quiz",
-                  prompt: "Lúa tạo sản phẩm nào?",
+                  prompt: "**Lúa** tạo sản phẩm nào? $P(A)$",
+                  images: [
+                    {
+                      url: "/knowledge-farm/sprites/rice.png",
+                      alt_text: "Ảnh câu hỏi",
+                      caption: "Minh họa cây lúa",
+                      position: "above_question",
+                    },
+                  ],
+                  option_images: [
+                    {
+                      url: "/knowledge-farm/sprites/farmer.png",
+                      alt_text: "Ảnh đáp án",
+                    },
+                    null,
+                  ],
                   options: ["Thóc", "Trứng"],
                 }
               : {
@@ -219,7 +234,8 @@ try {
               correct: false,
               awarded: 0,
               correct_answer: "Thóc",
-              explanation: "Lúa cho thóc.",
+              correct_option_index: 0,
+              explanation: "### Vì sao\n\nLúa cho **thóc**. Xác suất: $1/4$.",
             },
           });
         world.entities.find((e) => e.id === body.entityId).ready = 0;
@@ -322,15 +338,37 @@ try {
     .locator(".eco-shortcuts-actions")
     .getByRole("button", { name: /Thu hoạch/ })
     .click();
+  const harvestQuiz = page
+    .getByRole("dialog")
+    .filter({ hasText: "Trắc nghiệm · Một đáp án đúng" });
+  assert.equal(
+    await harvestQuiz.locator("strong").filter({ hasText: "Lúa" }).count(),
+    1,
+  );
+  assert.equal(await harvestQuiz.locator(".katex").count(), 1);
+  await harvestQuiz
+    .getByRole("img", { name: "Ảnh câu hỏi", exact: true })
+    .waitFor();
+  await harvestQuiz
+    .getByRole("button", { name: "Phóng to ảnh: Ảnh câu hỏi" })
+    .click();
+  const imageZoom = page.getByRole("dialog", { name: "Xem ảnh câu hỏi" });
+  await imageZoom.waitFor();
+  await imageZoom.getByRole("button", { name: "Close", exact: true }).click();
+  await harvestQuiz
+    .getByRole("img", { name: "Ảnh đáp án", exact: true })
+    .waitFor();
   await page.getByRole("radio", { name: "Trứng" }).check();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Trả lời để thu hoạch" })
     .click();
-  await page
-    .getByRole("status")
-    .filter({ hasText: "Đáp án đúng: Thóc" })
-    .waitFor();
+  await page.getByRole("status").filter({ hasText: "Chưa đúng." }).waitFor();
+  await page.getByRole("heading", { name: "Vì sao", exact: true }).waitFor();
+  assert.equal(
+    await harvestQuiz.getByRole("radio", { name: "Trứng" }).isDisabled(),
+    true,
+  );
   assert.equal(earned, 0);
   await page
     .getByRole("dialog")

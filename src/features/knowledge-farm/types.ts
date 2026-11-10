@@ -12,6 +12,13 @@ export interface Species {
   source_title: string;
   source_url: string;
 }
+export interface QuizImage {
+  url: string;
+  alt_text?: string;
+  caption?: string;
+  position?: string;
+  display_width?: string;
+}
 export interface Challenge {
   id: string;
   expires_at: string;
@@ -20,6 +27,8 @@ export interface Challenge {
     kind: LearningMode;
     prompt: string;
     options?: string[];
+    images?: QuizImage[];
+    option_images?: (QuizImage | null)[];
   };
 }
 export interface Plot {
@@ -45,6 +54,7 @@ export interface FarmView {
   reward: number;
 }
 export interface AnswerResult {
+  correct_option_index?: number;
   correct: boolean;
   explanation: string;
   correct_answer?: string;
