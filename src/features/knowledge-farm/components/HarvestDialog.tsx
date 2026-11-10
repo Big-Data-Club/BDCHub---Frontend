@@ -153,10 +153,12 @@ export function HarvestDialog({
                       {String.fromCharCode(65 + index)}.
                     </span>
                     <div className="min-w-0 flex-1">
-                      <MarkdownRenderer
-                        content={option}
-                        className="[&_p]:mb-0"
-                      />
+                      {option.trim() && (
+                        <MarkdownRenderer
+                          content={option}
+                          className="[&_p]:mb-0"
+                        />
+                      )}
                       {challenge.question.option_images?.[index] &&
                         renderImage(
                           challenge.question.option_images[index]!,
