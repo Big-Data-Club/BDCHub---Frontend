@@ -34,3 +34,12 @@
 .lms-fonts .font-mono {
   font-family: var(--font-mono), monospace;
 }
+
+/* Code already has its own visual treatment. Typography adds decorative
+   backticks to code::before/after; custom highlighted blocks also inherit
+   those because they use a div wrapper rather than the plugin's pre wrapper.
+   Cover nested prose too (for example Markdown inside chat or forum posts). */
+.prose code::before,
+.prose code::after {
+  content: none;
+}
