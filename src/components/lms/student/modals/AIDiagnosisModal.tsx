@@ -71,10 +71,13 @@ export default function AIDiagnosisModal({
           throw new Error("Không nhận được Job ID từ server.");
         }
 
-        // Polling Logic
+        // Interactive job: poll fast while the student is looking at the
+        // spinner, then back off so a cold queue does not hammer the API.
         let isDone = false;
+        const startedAt = Date.now();
         while (!isDone && isSubscribed) {
-          await new Promise((resolve) => setTimeout(resolve, 3000));
+          const elapsed = Date.now() - startedAt;
+          await new Promise((resolve) => setTimeout(resolve, elapsed < 10_000 ? 750 : 1500));
           if (!isSubscribed) break;
 
           const statusCheck = await aiService.getJobStatus(response.job_id);
