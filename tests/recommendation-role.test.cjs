@@ -4,11 +4,11 @@ const fs=require('node:fs');
 const ts=require('typescript');
 class NextResponse extends Response { static json(body,options){return new NextResponse(JSON.stringify(body),{...options,headers:{'Content-Type':'application/json'}})} }
 function route(session,fetchMock){
- const module={exports:{}};
+ const testModule={exports:{}};
  const code=ts.transpileModule(fs.readFileSync('src/app/api/recommendations/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
  const requireMock=name=>name==='next-auth'?{getServerSession:async()=>session}:name==='next/server'?{NextResponse}:{authOptions:{}};
- new Function('require','module','exports','fetch',code)(requireMock,module,module.exports,fetchMock);
- return module.exports.POST;
+ new Function('require','module','exports','fetch',code)(requireMock,testModule,testModule.exports,fetchMock);
+ return testModule.exports.POST;
 }
 test('global teacher with verified LMS student role receives learner recommendations',async()=>{
  const calls=[];
