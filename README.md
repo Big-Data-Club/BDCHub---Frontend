@@ -133,3 +133,21 @@ job/audio reads. It sends card IDs and front/back selection, never trusted clien
 Deploy AI migrations V020/V021 and the updated AI HTTP/worker image before this UI.
 The worker image supplies Chromium/FFmpeg; actual TTS needs an operator-added key
 and, for ElevenLabs, a valid voice ID.
+
+### Quiz results and AI insights
+
+From teacher quiz management, open **Thống kê kết quả**. The results dashboard uses
+existing LMS light/dark tokens, score and question charts, answer selection counts,
+learner summaries, individual attempt answers, browser visibility aggregates and
+CSV export of the current filtered page. Fully graded submitted attempts contribute to score averages;
+repeat attempts count separately. Browser visibility remains advisory.
+
+**AI phân tích kết quả** starts a worker job and resumes status polling after page
+navigation within the session. Admins assign a model to `quiz_insights`; bootstrap
+registers and warms this task. Deploy AI migration V024 plus AI HTTP/worker, then LMS
+results/insights endpoints before this frontend. Lists use independent server pagination (50 rows) and debounced search; the
+whole-quiz summary stays independent of the selected page. Report pages cache for
+15 seconds; AI jobs are reused for five minutes across clients, and status polling
+backs off to ten seconds. Charts and answer details load separately.
+Analysis uses anonymized aggregate
+statistics and provides teaching suggestions rather than individual misconduct claims.

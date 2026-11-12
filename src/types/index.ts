@@ -11,3 +11,4 @@ export * from "./chat";
 export * from "./labs";
 export * from "./admin";
 export * from "./forms";
+export * from "./lms/quizResults";

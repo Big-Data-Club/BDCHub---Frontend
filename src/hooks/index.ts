@@ -50,3 +50,4 @@ export * from "./chat/useChatChannelSettings";
 export * from "./chat/useChatUserSearch";
 
 export * from "./lms/teacher/useLearningScope";
+export { useQuizResults } from "./lms/teacher/useQuizResults";

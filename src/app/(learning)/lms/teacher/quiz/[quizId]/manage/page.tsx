@@ -470,6 +470,12 @@ export default function TeacherQuizManagePage() {
             ⚙️ Cài đặt Quiz
           </button>
           <button
+            onClick={() => router.push(`/lms/teacher/quiz/${quizId}/results`)}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            Thống kê kết quả
+          </button>
+          <button
             onClick={() => router.push(`/lms/teacher/quiz/${quizId}/grading`)}
             className="
               flex items-center gap-1.5 px-4 py-2 text-sm font-semibold

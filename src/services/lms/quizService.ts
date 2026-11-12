@@ -1,6 +1,19 @@
 import { lmsApiClient } from "./lmsApiClient";
 
 class QuizService {
+  async getQuizResults(quizId: number, params?: { attempt_page?: number; student_page?: number; search?: string }) {
+    return (await lmsApiClient.get(`/quizzes/${quizId}/results`, { params })).data.data as import("@/types/lms/quizResults").QuizResults;
+  }
+  async getTeacherAttemptAnswers(quizId: number, attemptId: number) {
+    return (await lmsApiClient.get(`/quizzes/${quizId}/results/attempts/${attemptId}`)).data.data as import("@/types/lms/quizResults").QuizResultAnswer[];
+  }
+  async analyzeQuizResults(quizId: number) {
+    return (await lmsApiClient.post(`/quizzes/${quizId}/results/insights`)).data.data as { job_id: string };
+  }
+  async getQuizInsightsStatus(quizId: number, jobId: string) {
+    return (await lmsApiClient.get(`/quizzes/${quizId}/results/insights/${jobId}`)).data.data as { status: string; result?: import("@/types/lms/quizResults").QuizInsights; error?: string };
+  }
+
   async uploadImportImage(dataUrl: string, fileName: string) {
     const [header, base64] = dataUrl.split(",");
     const mime = header.slice(5, header.indexOf(";"));
