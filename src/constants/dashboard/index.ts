@@ -10,6 +10,7 @@ import {
   BookOpen,
   MessageSquare,
   Sprout,
+  PanelsTopLeft,
 } from "lucide-react";
 
 export const sidebarSections = [
@@ -20,6 +21,7 @@ export const sidebarSections = [
       { label: "Users",           route: "/users",        icon: Users,           iconColor: "text-blue-500" },
       { label: "Events",          route: "/events",       icon: Calendar,        iconColor: "text-blue-500" },
       { label: "Tasks",           route: "/tasks",        icon: ClipboardList,   iconColor: "text-blue-500" },
+      { label: "Workspace",       route: "/workspace",    icon: PanelsTopLeft,   iconColor: "text-blue-500" },
       { label: "Leaderboard",     route: "/leaderboard",  icon: Trophy,          iconColor: "text-blue-500" },
       { label: "BDCourse",        route: "/lms",          icon: GraduationCap,   iconColor: "text-blue-500" },
       { label: "Nông trại kiến thức", route: "/knowledge-farm", icon: Sprout, iconColor: "text-emerald-600" },

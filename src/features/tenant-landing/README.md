@@ -44,8 +44,10 @@ Server redirects use `tenantRedirect` from `@/lib/tenant/server`.
 New service roots need one entry in `tenantRouteRoots` in `paths.ts`; register
 non-tenant public paths in `reservedRoots` to avoid slug collisions.
 
-APIs, uploads, assets and WebSocket URLs remain at the origin root. URL branding
-does not grant backend access or restrict API datasets to a tenant. Backend
+APIs, uploads, assets and WebSocket URLs remain at the origin root. Workspace
+routes are also global, including editor/library login return paths;
+`workspace` and `workspace-ws` are reserved against tenant slug collisions.
+URL branding does not grant backend access or restrict API datasets to a tenant. Backend
 membership, role and resource checks remain authoritative. Organization settings
 currently have no service-entitlement field; this implementation does not invent
 one or bypass existing service authorization.
