@@ -74,3 +74,21 @@ test('not interested is hidden only after server accepts feedback', async () => 
   await render().handleRecommendationFeedback(1,'not_interested');
   assert.deepEqual(render().publishedCourses.map(c=>c.id),[2]);
 });
+
+test('empty discovery never claims successful personalized ranking', async () => {
+  const render=harness('src/hooks/lms/student/useCourseDiscover.ts','useCourseDiscover',{
+    listPublishedCourses:async()=>({items:[course(1,'Python')]}),getMyEnrollments:async()=>[],
+  },{getLearningPreferenceProfile:async()=>profile,getRecommendations:async()=>({items:[],fallback:false,recommendation_set_id:'r1'}),trackRecommendationEvent:async()=>true});
+  await render().loadInitialData();
+  assert.equal(render().recommendationStatus,'empty');
+  assert.equal(render().publishedCourses.length,1);
+});
+
+test('recommender clarification is shown instead of ranked zero courses', async () => {
+  const render=harness('src/hooks/lms/student/useCourseDiscover.ts','useCourseDiscover',{
+    listPublishedCourses:async()=>({items:[course(1,'Python')]}),getMyEnrollments:async()=>[],
+  },{getLearningPreferenceProfile:async()=>profile,getRecommendations:async()=>({items:[],clarification_needed:true,clarification_message:'Vai trò học viên chưa được xác nhận',fallback:false,recommendation_set_id:'r1'}),trackRecommendationEvent:async()=>true});
+  await render().loadInitialData();
+  assert.equal(render().recommendationStatus,'needs_context');
+  assert.equal(render().recommendationMessage,'Vai trò học viên chưa được xác nhận');
+});

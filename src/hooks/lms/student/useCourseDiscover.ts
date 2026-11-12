@@ -25,7 +25,8 @@ export function useCourseDiscover() {
   const [preferenceGoal, setPreferenceGoal] = useState("");
   const [preferenceLevel, setPreferenceLevel] = useState<"" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED">("");
   const [activeProfile, setActiveProfile] = useState<LearningPreferenceProfile | null>(null);
-  const [recommendationStatus, setRecommendationStatus] = useState<"loading" | "personalized" | "general" | "unavailable">("loading");
+  const [recommendationStatus, setRecommendationStatus] = useState<"loading" | "personalized" | "general" | "unavailable" | "empty" | "needs_context">("loading");
+  const [recommendationMessage, setRecommendationMessage] = useState("");
   const [preferencesSaved, setPreferencesSaved] = useState(false);
   const [hiddenCourseIds, setHiddenCourseIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -77,6 +78,7 @@ export function useCourseDiscover() {
   const loadInitialData = useCallback(async () => {
     const seq = ++requestSeqRef.current;
     setRecommendationStatus("loading");
+    setRecommendationMessage("");
     orderFrozenRef.current = false;
     displayOrderRef.current = [];
     try {
@@ -169,7 +171,17 @@ export function useCourseDiscover() {
         });
         if (seq !== requestSeqRef.current) return;
         setRecommendedCourses(recommendations);
-        setRecommendationStatus(recommendationSet.fallback ? "general" : "personalized");
+        if (recommendationSet.clarification_needed) {
+          setRecommendationMessage(recommendationSet.clarification_message || "Chưa xác định được ngữ cảnh học tập để gợi ý.");
+          setRecommendationStatus("needs_context");
+        } else if (!recommendations.length) {
+          setRecommendationMessage(allCoursesList.length === 0
+            ? "Chưa có khóa học đã xuất bản để gợi ý."
+            : allCoursesList.every(course => enrolledIds.has(course.id))
+              ? "Bạn đã đăng ký các khóa học trong danh sách ứng viên hiện có. Hãy tiếp tục học hoặc khám phá thêm khóa mới."
+              : "Chưa có gợi ý phù hợp trong danh sách khóa học hiện có. Bạn vẫn có thể duyệt và đăng ký bên dưới.");
+          setRecommendationStatus("empty");
+        } else setRecommendationStatus(recommendationSet.fallback ? "general" : "personalized");
         recommendations.slice(0, 3).forEach(({ item, recommendationSetId }) => {
           trackRecommendationEvent(item, recommendationSetId, "impression", "course_discovery");
         });
@@ -396,6 +408,7 @@ export function useCourseDiscover() {
     recommendationsByCourseId,
     activeProfile,
     recommendationStatus,
+    recommendationMessage,
     preferencesSaved,
     showPreferences,
     setShowPreferences,

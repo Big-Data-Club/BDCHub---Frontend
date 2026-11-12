@@ -20,6 +20,7 @@ export default function DiscoverPage() {
     handleRecommendationFeedback,
     activeProfile,
     recommendationStatus,
+    recommendationMessage,
     preferencesSaved,
     allTags,
     recommendedCourses,
@@ -113,9 +114,10 @@ export default function DiscoverPage() {
             <div>
               <h2 className="text-sm font-bold text-slate-900 dark:text-white">Gợi ý khóa học dành cho bạn</h2>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                {(recommendationStatus === "empty" || recommendationStatus === "needs_context") && recommendationMessage}
                 {recommendationStatus === "loading" && "Đang xếp hạng khóa học theo mục tiêu và trình độ của bạn..."}
-                {recommendationStatus === "personalized" && `Đã xếp hạng ${recommendedCourses.length} khóa học theo mục tiêu, trình độ và thông tin khóa học hiện có.`}
-                {recommendationStatus === "general" && "Đang xếp hạng theo trình độ, độ mới và mức độ quan tâm chung. Hãy đặt mục tiêu để gợi ý sát hơn."}
+                {recommendationStatus === "personalized" && `Có ${recommendedCourses.length} gợi ý dựa trên sở thích, mục tiêu, trình độ và thông tin khóa học hiện có.`}
+                {recommendationStatus === "general" && (activeProfile?.target_career || activeProfile?.interested_categories.length ? "Chưa tìm được tín hiệu phù hợp rõ ràng trong danh sách ứng viên hiện có. Đang ưu tiên trình độ, độ mới và mức độ quan tâm chung." : "Đang xếp hạng theo trình độ, độ mới và mức độ quan tâm chung. Hãy đặt mục tiêu để gợi ý sát hơn.")}
                 {recommendationStatus === "unavailable" && "Dịch vụ gợi ý đang tạm thời không sẵn sàng. Danh sách khóa học vẫn có thể duyệt bình thường."}
               </p>
             </div>
