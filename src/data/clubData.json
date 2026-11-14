@@ -482,6 +482,13 @@
   ],
   "projects": [
     {
+      "id": "dutylog",
+      "projectName": "DutyLog — Không gian chung, thông tin rõ ràng",
+      "desc": "Kết nối ca trực, ghi nhận ra vào và trạng thái phòng cho CLB sinh viên. Khám phá dự án và trải nghiệm ứng dụng ngay trên điện thoại demo.",
+      "imageUrl": "/dutylog-demo/assets/_assets/bdclogo.58f783dede30c4feb6828d3ba4f68ddc.png",
+      "projectShowcaseUrl": "/projects/dutylog"
+    },
+    {
       "id": "p8",
       "projectName": "Club Management Application",
       "desc": "Ứng dụng quản lý hoạt động và dự án cho câu lạc bộ",

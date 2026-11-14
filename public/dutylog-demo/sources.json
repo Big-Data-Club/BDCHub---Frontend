@@ -1,0 +1,102 @@
+{
+  "description": "Built from DutyLog React Native screens with isolated synthetic API and camera adapters.",
+  "command": "node dutylog/scripts/build-product-demo.mjs",
+  "sources": [
+    {
+      "file": "mobile/src/screens/AdminInspectionScreen.tsx",
+      "sha256": "64c4e8f333eb8943a40e160dd2b8b5e01ce03e4feb6a2b68da8f8bf1fa73db27"
+    },
+    {
+      "file": "mobile/src/screens/DutyRoomActionsScreen.tsx",
+      "sha256": "64131a2a9d6b4f9435dc0be0690247145bd4c580681268d1b8233d7a5598452b"
+    },
+    {
+      "file": "mobile/src/screens/DutyStationScreen.tsx",
+      "sha256": "1d1986c3e56e6f64c449b42be3c6735cb7f2d78d88e3e505c4a0961322026f75"
+    },
+    {
+      "file": "mobile/src/screens/LiveRosterScreen.tsx",
+      "sha256": "69b20f1d8c374b83dd0d6d0245f9919e9bf194762cef6d53f1ae0333ce1503c5"
+    },
+    {
+      "file": "mobile/src/screens/LoginScreen.tsx",
+      "sha256": "0cfdf1f241b491930eb979a74da90b96e45377952f7e9cd3d9ee309f922e5f97"
+    },
+    {
+      "file": "mobile/src/screens/OrgSelectionScreen.tsx",
+      "sha256": "4b2323f2ad799fbbf11a1056d66cd79decbef28116653921e40bfb1c9f767315"
+    },
+    {
+      "file": "mobile/src/screens/QRDisplayScreen.tsx",
+      "sha256": "fac0479a611f66220cd77d62e80e1319581703876edf6829bb5dc9f81494797e"
+    },
+    {
+      "file": "mobile/src/screens/RoomSelectionScreen.tsx",
+      "sha256": "b48fb15b79363bf7214d9708f8b414c76bcd589f179e3657b583b8c72b503e98"
+    },
+    {
+      "file": "mobile/src/screens/ScanCheckinScreen.tsx",
+      "sha256": "b0996d3ea8f53559d1bdb9c1dbe17b1f144ca07c7bdbeea2e6cf14b2b4619b3a"
+    },
+    {
+      "file": "mobile/src/screens/v2/ActivityScreen.tsx",
+      "sha256": "57a443eab6ac4b19a27db0a602385d7b16e901d2166fed3765280ec00a2aaaed"
+    },
+    {
+      "file": "mobile/src/screens/v2/HomeScreen.tsx",
+      "sha256": "2b281115c8b10feea1a822d876e90d4107d186ed41f9a026ce8fb1994dc73b39"
+    },
+    {
+      "file": "mobile/src/screens/v2/ProfileScreen.tsx",
+      "sha256": "a414d0ed6d9135453e488eab6bb0f7b19c7ddf2d57d5634fbf1c93e972a48715"
+    },
+    {
+      "file": "mobile/src/screens/v2/RegistrationScreen.tsx",
+      "sha256": "88dd37923962dcef31f74e76f8065e4cffedd4cbb6123503d397840daaf49c89"
+    },
+    {
+      "file": "mobile/src/screens/v2/RegistrationSuccessScreen.tsx",
+      "sha256": "343ef50e8a392b3c14c64aed95206ae6ea01729b531863dd00a60978d10ea743"
+    },
+    {
+      "file": "mobile/src/screens/v2/RoomPickerScreen.tsx",
+      "sha256": "a83acbaf952c44bb32b9d4855d1cc6a23831eed68f0d342c8f95fce5ce164505"
+    },
+    {
+      "file": "mobile/src/screens/v2/ShiftsScreen.tsx",
+      "sha256": "9a36fd6857c9791960f47435661c87a21e56230ba98ace300ae4d8f3ed13fc36"
+    },
+    {
+      "file": "mobile/src/ui/Kit.tsx",
+      "sha256": "4508c51c79478c3eddf021e80b9880f33addaefc66d3a38d6f3b7d71fa9aee79"
+    },
+    {
+      "file": "mobile/src/ui/theme.ts",
+      "sha256": "933175080abdb0c7809cdbd3a24d29ae4c163d758b3f880c785dd574071f0e22"
+    },
+    {
+      "file": "mobile/demo/app.json",
+      "sha256": "caa0a69d6eea0934fe554556bc4ef2be91e2c6a8f9db54e45014718688a9206f"
+    },
+    {
+      "file": "mobile/demo/DemoCamera.tsx",
+      "sha256": "3d0e00f8e9d44e8406b459b858e5d40be1e6441c8567639a7544a464facc7275"
+    },
+    {
+      "file": "mobile/demo/fixtures.ts",
+      "sha256": "a9a496962d55943edc08a09fc6e238f2f47b34195e86b684557b17b4c733fe0d"
+    },
+    {
+      "file": "mobile/demo/index.tsx",
+      "sha256": "6b0ecd627d7214d91c81738c10b59c876fad26ed2bc4f75362386866d16f1663"
+    },
+    {
+      "file": "mobile/demo/metro.config.cjs",
+      "sha256": "f295b74c058b939db26e3b8e5fe791e1f83a6a63e45d6edb2ce22a9bb134944b"
+    },
+    {
+      "file": "mobile/demo/package.json",
+      "sha256": "8b9c1acbebf9513d9aa8990d6ea1025006c15f29cb946d60fc5e1db599075343"
+    }
+  ]
+}

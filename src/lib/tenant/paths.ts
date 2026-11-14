@@ -9,7 +9,7 @@ const reservedRoots = new Set([
   "uploads", "files", "_next", "partner", "personalize", "recommender",
   "hpc-summer-school", "hackathon2025", "bdc-hub", "instructions", "forms",
   "recruitment-2026", "bdc-recruitment-2026", "tuyen-thanh-vien-2026",
-  "big-data-day-2026", "danh-gia-dr-mt23khm3-hk252",
+  "big-data-day-2026", "danh-gia-dr-mt23khm3-hk252", "projects", "dutylog-demo",
 ]);
 
 export function parseTenantPath(pathname: string): { slug: string; path: string } | null {

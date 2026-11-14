@@ -194,7 +194,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
     );
   };
 
-  if (!isMounted) {
+  if (!isMounted || pathname === "/projects" || pathname.startsWith("/projects/")) {
     return <>{children}</>;
   }
 
