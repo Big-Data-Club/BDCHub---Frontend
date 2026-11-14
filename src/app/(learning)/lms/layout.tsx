@@ -2,7 +2,7 @@ import LmsContextShell from "./LmsContextShell";
 import { tenantRedirect } from "@/lib/tenant/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
-import { Nunito_Sans, Geist_Mono, Comfortaa } from "next/font/google";
+import { Inter, Geist_Mono, Comfortaa } from "next/font/google";
 
 const comfortaa = Comfortaa({
   subsets: ["vietnamese"],
@@ -10,7 +10,7 @@ const comfortaa = Comfortaa({
   display: "swap",
 });
 
-const nunitoSans = Nunito_Sans({
+const inter = Inter({
   variable: "--font-body",
   subsets: ["latin"],
 });
@@ -30,7 +30,7 @@ export default async function MainLayout({ children }: MainLayoutProps) {
     await tenantRedirect("/login");
   }
   return (
-    <div className={`flex min-h-screen w-full max-w-full flex-col bg-slate-50 dark:bg-lms-bg ${comfortaa.variable} ${nunitoSans.variable} ${geistMono.variable} lms-fonts`}>
+    <div className={`flex min-h-screen w-full max-w-full flex-col bg-slate-50 dark:bg-lms-bg ${comfortaa.variable} ${inter.variable} ${geistMono.variable} lms-fonts`}>
       <LmsContextShell>
         {children}
       </LmsContextShell>

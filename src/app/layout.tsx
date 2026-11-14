@@ -1,6 +1,6 @@
 import 'devextreme/dist/css/dx.light.css';
 import type { Metadata } from "next";
-import { Nunito_Sans, Roboto_Mono, Comfortaa } from "next/font/google";
+import { Inter, Roboto_Mono, Comfortaa } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/MainProvider";
 import ScrollToTop from "@/components/common/ScrollToTop";
@@ -14,7 +14,7 @@ const comfortaa = Comfortaa({
   display: "swap",
 });
 
-const nunitoSans = Nunito_Sans({
+const inter = Inter({
   variable: "--font-body",
   subsets: ["latin"],
 });
@@ -81,7 +81,7 @@ export default async function RootLayout({
   const brand = tenant ? { slug: tenant.slug, name: tenant.name, logo: tenant.logo } : null;
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${comfortaa.variable} ${nunitoSans.variable} ${geistMono.variable} antialiased overflow-x-hidden no-scrollbar lms-fonts`}>
+      <body className={`${comfortaa.variable} ${inter.variable} ${geistMono.variable} antialiased overflow-x-hidden no-scrollbar lms-fonts`}>
         <TenantProvider initialTenant={brand}>
           <Providers>
             {children}
