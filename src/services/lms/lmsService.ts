@@ -1,4 +1,6 @@
 import { lmsApiClient } from "./lmsApiClient";
+import { subscribeAuthInvalidation } from "../auth/authToken";
+import type { Content } from "@/types/lms/course";
 
 export interface PaginatedList<T = any> {
   items: T[];
@@ -13,7 +15,12 @@ export interface PaginatedList<T = any> {
 class LMSService {
   private rolesPromise: Promise<string[] | null> | null = null;
   private cachedRoles: string[] | null = null;
-  private contentCache: Record<number, Promise<any> | undefined> = {};
+  private contentRequests = new Map<number, Promise<{ data: Content }>>();
+  private generation = 0;
+
+  constructor() {
+    subscribeAuthInvalidation(() => this.clearRolesCache());
+  }
 
   // ─── User ─────────────────────────────────────────────────────────────────
 
@@ -24,22 +31,27 @@ class LMSService {
     if (this.rolesPromise) {
       return this.rolesPromise;
     }
-    this.rolesPromise = lmsApiClient.get("/me/roles")
+    const owner = this.generation;
+    const pending = lmsApiClient.get("/me/roles")
       .then(response => {
+        if (owner !== this.generation) throw new DOMException("Session changed", "AbortError");
         this.cachedRoles = response.data?.data?.roles || [];
-        this.rolesPromise = null;
         return this.cachedRoles;
       })
       .catch(err => {
-        this.rolesPromise = null;
+        if (this.rolesPromise === pending) this.rolesPromise = null;
         throw err;
       });
-    return this.rolesPromise;
+    this.rolesPromise = pending;
+    void pending.then(() => { if (this.rolesPromise === pending) this.rolesPromise = null; }, () => undefined);
+    return pending;
   }
 
   clearRolesCache() {
+    this.generation++;
     this.cachedRoles = null;
     this.rolesPromise = null;
+    this.contentRequests.clear();
   }
 
   // ─── Course ───────────────────────────────────────────────────────────────
@@ -260,21 +272,27 @@ class LMSService {
     return response.data;
   }
 
-  async getContent(contentId: number) {
-    if (this.contentCache[contentId]) {
-      return this.contentCache[contentId];
-    }
-    this.contentCache[contentId] = lmsApiClient.get(`/content/${contentId}`)
+  getContent(contentId: number): Promise<{ data: Content }> {
+    const existing = this.contentRequests.get(contentId);
+    if (existing) return existing;
+    const owner = this.generation;
+    const pending = lmsApiClient.get<{ data: Content }>(`/content/${contentId}`)
+      .then(response => {
+        if (owner !== this.generation || this.contentRequests.get(contentId) !== pending) {
+          throw new DOMException("Content request invalidated", "AbortError");
+        }
+        return response;
+      })
       .then(response => response.data)
-      .catch(err => {
-        delete this.contentCache[contentId];
-        throw err;
+      .finally(() => {
+        if (this.contentRequests.get(contentId) === pending) this.contentRequests.delete(contentId);
       });
-    return this.contentCache[contentId];
+    this.contentRequests.set(contentId, pending);
+    return pending;
   }
 
-  async listContent(sectionId: number) {
-    const response = await lmsApiClient.get(`/sections/${sectionId}/content`);
+  async listContent(sectionId: number, signal?: AbortSignal) {
+    const response = await lmsApiClient.get<{ data: Content[] }>(`/sections/${sectionId}/content`, { signal });
     return response.data;
   }
 
@@ -289,12 +307,16 @@ class LMSService {
       is_mandatory?: boolean;
     }
   ) {
+    this.contentRequests.delete(contentId);
     const response = await lmsApiClient.put(`/content/${contentId}`, updates);
+    this.contentRequests.delete(contentId);
     return response.data;
   }
 
   async deleteContent(contentId: number) {
+    this.contentRequests.delete(contentId);
     const response = await lmsApiClient.delete(`/content/${contentId}`);
+    this.contentRequests.delete(contentId);
     return response.data;
   }
 

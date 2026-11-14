@@ -1,4 +1,5 @@
 import { lmsApiClient } from "./lmsApiClient";
+import type { BankItem, BankStats } from "@/types/lms/questionBank";
 
 class QuizService {
   async getQuizResults(quizId: number, params?: { attempt_page?: number; student_page?: number; search?: string }) {
@@ -218,20 +219,21 @@ class QuizService {
   /** List + filter + paginate the course question bank. */
   async getQuestionBank(
     courseId: number,
-    params: Record<string, string | number | boolean | undefined>
+    params: Record<string, string | number | boolean | undefined>,
+    signal?: AbortSignal,
   ) {
     const search = new URLSearchParams();
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined && v !== "" && v !== false) search.append(k, String(v));
     });
-    const response = await lmsApiClient.get(
-      `/courses/${courseId}/question-bank?${search.toString()}`
+    const response = await lmsApiClient.get<{ data: { items: BankItem[]; total: number; total_pages: number } }>(
+      `/courses/${courseId}/question-bank?${search.toString()}`, { signal },
     );
     return response.data;
   }
 
-  async getBankStats(courseId: number) {
-    const response = await lmsApiClient.get(`/courses/${courseId}/question-bank/stats`);
+  async getBankStats(courseId: number, signal?: AbortSignal) {
+    const response = await lmsApiClient.get<{ data: BankStats }>(`/courses/${courseId}/question-bank/stats`, { signal });
     return response.data;
   }
 

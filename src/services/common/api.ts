@@ -1,131 +1,110 @@
-import { getAccessToken, clearAccessTokenCache } from "../auth/authToken";
+import { getAccessToken } from "../auth/authToken";
+import { handleUnauthorized } from "../auth/unauthorized";
+import { ApiError } from "./apiError";
+
+export type RequestOptions = Pick<RequestInit, "signal">;
 
 export class ApiClient {
-  readonly baseURL: string;
+  constructor(readonly baseURL: string) {}
 
-  constructor(baseURL: string) {
-    this.baseURL = baseURL;
-  }
-
-  private async getHeaders(): Promise<HeadersInit> {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      Accept: "*/*",
-    };
-
+  private async request<T>(
+    endpoint: string,
+    init: RequestInit,
+    responseType: "json" | "void" = "json",
+  ): Promise<T> {
+    init.signal?.throwIfAborted();
     const token = await getAccessToken();
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    return headers;
-  }
-
-  private async handleResponse<T>(response: Response, endpoint: string): Promise<T> {
+    init.signal?.throwIfAborted();
+    const headers = new Headers(init.headers);
+    headers.set("Accept", "application/json");
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      ...init,
+      headers,
+      credentials: "include",
+    });
     if (response.status === 401) {
-      clearAccessTokenCache();
-      if (typeof window !== "undefined") {
-        const { logout } = await import("../auth/logout");
-        await logout();
-      }
-      throw new Error("Unauthorized (401)");
+      await handleUnauthorized().catch(() => undefined);
     }
-
     if (!response.ok) {
       const text = await response.text().catch(() => "");
-      throw new Error(`Request to ${endpoint} failed (${response.status})${text ? `: ${text}` : ""}`);
+      throw new ApiError(
+        `Request to ${endpoint} failed (${response.status})${text ? `: ${text}` : ""}`,
+        response.status,
+        endpoint,
+      );
     }
-
-    // 204 No Content or empty body – return undefined cast to T
-    if (response.status === 204) return undefined as T;
-    const contentLength = response.headers.get("content-length");
-    const contentType = response.headers.get("content-type") ?? "";
-    if (contentLength === "0") return undefined as T;
-    if (!contentType.includes("application/json") && !contentType.includes("text/json")) {
-      // Try to read as text, return undefined if empty
-      const txt = await response.text().catch(() => "");
-      if (!txt.trim()) return undefined as T;
-      try { return JSON.parse(txt) as T; } catch { return undefined as T; }
+    if (responseType === "void" || response.status === 204)
+      return undefined as T;
+    const text = await response.text();
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      throw new ApiError(
+        `Invalid JSON response from ${endpoint}`,
+        response.status,
+        endpoint,
+        "INVALID_RESPONSE",
+      );
     }
-
-    return response.json();
   }
 
-  async get<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      method: "GET",
-      headers: await this.getHeaders(),
-      credentials: "include",
+  get<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+    return this.request(endpoint, { ...options, method: "GET" });
+  }
+
+  private json<T>(
+    method: string,
+    endpoint: string,
+    data: unknown,
+    options: RequestOptions,
+  ): Promise<T> {
+    return this.request(endpoint, {
+      ...options,
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     });
-    return this.handleResponse<T>(response, endpoint);
   }
 
-  async post<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+  post<T>(
+    endpoint: string,
+    data: unknown,
+    options: RequestOptions = {},
+  ): Promise<T> {
+    return this.json("POST", endpoint, data, options);
+  }
+
+  patch<T>(
+    endpoint: string,
+    data: unknown,
+    options: RequestOptions = {},
+  ): Promise<T> {
+    return this.json("PATCH", endpoint, data, options);
+  }
+
+  put<T>(
+    endpoint: string,
+    data: unknown,
+    options: RequestOptions = {},
+  ): Promise<T> {
+    return this.json("PUT", endpoint, data, options);
+  }
+
+  delete(endpoint: string, options: RequestOptions = {}): Promise<void> {
+    return this.request(endpoint, { ...options, method: "DELETE" }, "void");
+  }
+
+  uploadFile<T>(
+    endpoint: string,
+    formData: FormData,
+    options: RequestOptions = {},
+  ): Promise<T> {
+    return this.request(endpoint, {
+      ...options,
       method: "POST",
-      headers: await this.getHeaders(),
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    return this.handleResponse<T>(response, endpoint);
-  }
-
-  async patch<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      method: "PATCH",
-      headers: await this.getHeaders(),
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    return this.handleResponse<T>(response, endpoint);
-  }
-
-  async put<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      method: "PUT",
-      headers: await this.getHeaders(),
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    return this.handleResponse<T>(response, endpoint);
-  }
-
-  async delete(endpoint: string): Promise<void> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      method: "DELETE",
-      headers: await this.getHeaders(),
-      credentials: "include",
-    });
-    if (response.status === 401) {
-       clearAccessTokenCache();
-       if (typeof window !== "undefined") {
-         const { logout } = await import("../auth/logout");
-         await logout();
-       }
-       return;
-    }
-    if (!response.ok) {
-      throw new Error(`DELETE ${endpoint} failed (${response.status})`);
-    }
-  }
-
-  async uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
-    const headers: Record<string, string> = {
-      Accept: "*/*",
-    };
-
-    const token = await getAccessToken();
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      method: "POST",
-      credentials: "include",
-      headers,
       body: formData,
     });
-    return this.handleResponse<T>(response, endpoint);
   }
 }
 

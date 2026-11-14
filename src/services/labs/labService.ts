@@ -443,8 +443,8 @@ export const labService = {
     };
   },
 
-  getAuthoringLab: async (id: number): Promise<SuccessResponse<Lab>> => {
-    const res = await labApiClient.get<SuccessResponse<Lab>>(`/labs/${id}/authoring`);
+  getAuthoringLab: async (id: number, signal?: AbortSignal): Promise<SuccessResponse<Lab>> => {
+    const res = await labApiClient.get<SuccessResponse<Lab>>(`/labs/${id}/authoring`, { signal });
     return { ...res, data: mapLab(res.data) };
   },
 

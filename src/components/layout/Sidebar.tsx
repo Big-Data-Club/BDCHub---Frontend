@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "@/lib/tenant/Link";
-import { usePathname, useRouter } from "@/lib/tenant/navigation";
+import { usePathname } from "@/lib/tenant/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { sidebarSections } from "@/constants";
 import { cn } from "@/lib/utils";
@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/tooltip";
 import { ChevronsLeft, ChevronsRight, LogOut, Sun, Moon, Settings } from "lucide-react";
 import { useUser } from "@/store/UserContext";
-import { useNotifications } from "@/store/NotificationContext";
+import { useUnreadNotifications } from "@/store/NotificationContext";
 import { useAuth } from "@/hooks/auth/useAuth";
+import { useSelectedLmsRole } from "@/hooks/lms/useSelectedLmsRole";
 import { useTheme } from "next-themes";
 import { BrandMark } from "./BrandMark";
 import { useTenant } from "@/lib/tenant/context";
@@ -31,7 +32,7 @@ const Sidebar: React.FC = () => {
   const tenant = useTenant();
   const pathname = usePathname();
   const { user, setUser } = useUser();
-  const { unreadAlertsCount, unreadChatCount } = useNotifications();
+  const { unreadAlertsCount, unreadChatCount } = useUnreadNotifications();
   const { isAdmin } = useAuth();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -40,6 +41,7 @@ const Sidebar: React.FC = () => {
   const prevWidthRef = useRef(DEFAULT_WIDTH);
   const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [lmsRoles, setLmsRoles] = useState<string[]>([]);
+  const selectedRole = useSelectedLmsRole();
 
   useEffect(() => {
     setMounted(true);
@@ -155,7 +157,6 @@ const Sidebar: React.FC = () => {
               const filteredLinks = section.links.filter((link) => {
                 if (isAdmin) return true;
                 
-                const selectedRole = typeof window !== "undefined" ? sessionStorage.getItem("lms_selected_role") : null;
                 const isTeacher = user?.role === "ROLE_TEACHER" || user?.role === "ROLE_MANAGER" || lmsRoles.includes("TEACHER") || selectedRole === "TEACHER";
                 
                 if (link.label === "Hướng dẫn Học viên") {

@@ -8,6 +8,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "test:foundations": "node --test tests/frontend-foundations.test.cjs tests/frontend-lifecycle.test.cjs",
+    "test:regression": "node --test tests/*.test.cjs tests/chat/*.test.cjs tests/labs/*.test.cjs tests/knowledge-farm/*.test.cjs tests/knowledge-farm/*.test.mjs tests/studio/*.test.mjs",
     "format:knowledge-farm": "prettier --write 'src/features/knowledge-farm/**/*.{ts,tsx,css}' 'tests/knowledge-farm/*.mjs'",
     "format:knowledge-farm:check": "prettier --check 'src/features/knowledge-farm/**/*.{ts,tsx,css}' 'tests/knowledge-farm/*.mjs'",
     "storybook": "storybook dev -p 6006",

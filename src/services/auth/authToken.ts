@@ -1,36 +1,48 @@
-/**
- * Shared Bearer-token cache for API clients.
- *
- * Reads the NextAuth session once, then serves the access token from memory
- * for TOKEN_CACHE_MS.  The cache is automatically cleared on 401 so the next
- * outgoing request refetches.
- */
+/** Browser-only, generation-scoped session token cache shared by API clients. */
+let cachedToken: string | null = null;
+let tokenFetchedAt = 0;
+let generation = 0;
+let inFlight: Promise<string | null> | null = null;
+const TOKEN_CACHE_MS = 5 * 60 * 1000;
+const invalidationListeners = new Set<() => void>();
 
-let _cachedToken: string | null = null;
-let _tokenFetchedAt = 0;
-const TOKEN_CACHE_MS = 5 * 60 * 1000; // 5 minutes
-
-export async function getAccessToken(): Promise<string | null> {
-  if (typeof window === "undefined") return null;
-
-  const now = Date.now();
-  if (_cachedToken && now - _tokenFetchedAt < TOKEN_CACHE_MS) {
-    return _cachedToken;
-  }
-
-  try {
-    const { getSession } = await import("next-auth/react");
-    const session = await getSession();
-    _cachedToken = (session as any)?.accessToken ?? null;
-    _tokenFetchedAt = now;
-  } catch {
-    // keep stale token on transient network errors
-  }
-
-  return _cachedToken;
+export function subscribeAuthInvalidation(listener: () => void): () => void {
+  invalidationListeners.add(listener);
+  return () => {
+    invalidationListeners.delete(listener);
+  };
 }
 
-export function clearAccessTokenCache() {
-  _cachedToken = null;
-  _tokenFetchedAt = 0;
+export function getAccessToken(): Promise<string | null> {
+  if (typeof window === "undefined") return Promise.resolve(null);
+  if (cachedToken && Date.now() - tokenFetchedAt < TOKEN_CACHE_MS)
+    return Promise.resolve(cachedToken);
+  if (inFlight) return inFlight;
+  const owner = generation;
+  const pending = (async () => {
+    try {
+      const { getSession } = await import("next-auth/react");
+      const session = await getSession();
+      if (owner !== generation) return null;
+      cachedToken = session?.error ? null : (session?.accessToken ?? null);
+      tokenFetchedAt = Date.now();
+      return cachedToken;
+    } catch {
+      // Never reuse an expired token after a failed session refresh.
+      return null;
+    }
+  })();
+  inFlight = pending;
+  void pending.finally(() => {
+    if (inFlight === pending) inFlight = null;
+  });
+  return pending;
+}
+
+export function clearAccessTokenCache(): void {
+  generation++;
+  cachedToken = null;
+  tokenFetchedAt = 0;
+  inFlight = null;
+  invalidationListeners.forEach((listener) => listener());
 }

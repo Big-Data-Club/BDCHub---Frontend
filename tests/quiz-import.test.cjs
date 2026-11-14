@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const ts = require('typescript');
 const { chromium } = require('@playwright/test');
 test('Moodle XML validates answers and rejects malformed or unsupported input', async () => {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}) });
   try {
     const page = await browser.newPage();
     const code = ts.transpileModule(fs.readFileSync('src/utils/lms/moodleXml.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;

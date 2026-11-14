@@ -15,6 +15,7 @@ import { BrandMark } from "./BrandMark";
 import { useTenant } from "@/lib/tenant/context";
 import lmsService from "@/services/lms/lmsService";
 import { logout } from "@/services/auth/logout";
+import { useSelectedLmsRole } from "@/hooks/lms/useSelectedLmsRole";
 
 const MobileNav = () => {
   const tenant = useTenant();
@@ -24,6 +25,7 @@ const MobileNav = () => {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [lmsRoles, setLmsRoles] = useState<string[]>([]);
+  const selectedRole = useSelectedLmsRole();
 
   useEffect(() => {
     if (user) {
@@ -92,7 +94,6 @@ const MobileNav = () => {
                 const filteredLinks = section.links.filter((link) => {
                   if (isAdmin) return true;
                   
-                  const selectedRole = typeof window !== "undefined" ? sessionStorage.getItem("lms_selected_role") : null;
                   const isTeacher = user?.role === "ROLE_TEACHER" || user?.role === "ROLE_MANAGER" || lmsRoles.includes("TEACHER") || selectedRole === "TEACHER";
                   
                   if (link.label === "Hướng dẫn Học viên") {

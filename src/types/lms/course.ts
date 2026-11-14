@@ -123,7 +123,7 @@ export interface FileToUpload {
   title: string;
   description: string;
   isMandatory: boolean;
-  uploadedFile: any | null;
+  uploadedFile: FileInfo | null;
   uploadError: string;
   uploadStatus: "pending" | "uploading" | "success" | "error";
 }

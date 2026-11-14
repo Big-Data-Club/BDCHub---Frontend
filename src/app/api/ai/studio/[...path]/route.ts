@@ -61,6 +61,7 @@ async function forward(req: NextRequest, path: string[]) {
       headers,
       body,
       cache: "no-store",
+      signal: req.signal,
     });
     const responseHeaders = new Headers({ "Cache-Control": "private, no-store" });
     for (const name of ["content-type", "content-length", "content-range", "accept-ranges", "content-disposition", "x-content-type-options", "content-security-policy", "referrer-policy"]) {

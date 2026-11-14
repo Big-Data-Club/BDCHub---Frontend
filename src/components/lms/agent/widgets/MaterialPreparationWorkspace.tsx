@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, FileText, Loader2, Sparkles, Upload, X } from "lucide-react";
 import lmsService from "@/services/lms/lmsService";
-import { getAccessToken } from "@/services/auth/authToken";
+import { fileService } from "@/services/lms/fileService";
 
 type MaterialType = "DOCUMENT" | "VIDEO" | "IMAGE";
 type ItemStatus = "draft" | "uploading" | "done" | "error";
@@ -59,21 +59,6 @@ function propose(file: File, sectionId: number | ""): MaterialItem {
   };
 }
 
-async function uploadFile(item: MaterialItem) {
-  const form = new FormData();
-  form.append("type", item.type === "VIDEO" ? "video" : item.type === "IMAGE" ? "image" : "document");
-  form.append("file", item.file);
-  const token = await getAccessToken();
-  const response = await fetch("/lmsapiv1/files/upload", {
-    method: "POST", body: form, credentials: "include",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `Upload thất bại (${response.status})`);
-  const result = await response.json();
-  if (!result.data?.file_path) throw new Error("Phản hồi upload không hợp lệ");
-  return result.data;
-}
-
 export function MaterialPreparationWorkspace({ props }: MaterialPreparationWorkspaceProps) {
   const [sections, setSections] = useState<SectionOption[]>([]);
   const [items, setItems] = useState<MaterialItem[]>([]);
@@ -119,7 +104,7 @@ export function MaterialPreparationWorkspace({ props }: MaterialPreparationWorks
         if (!item) return;
         update(item.id, { status: "uploading", error: undefined });
         try {
-          const uploaded = await uploadFile(item);
+          const uploaded = await fileService.upload(item.file, item.type === "VIDEO" ? "video" : item.type === "IMAGE" ? "image" : "document");
           const sectionId = Number(item.sectionId);
           const orderIndex = nextOrder.get(sectionId) || 0;
           nextOrder.set(sectionId, orderIndex + 1);

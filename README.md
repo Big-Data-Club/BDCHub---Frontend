@@ -89,6 +89,30 @@ new service registration, logo compatibility and checks.
 * **Git Workflow:** Follow the `feature/` and `fix/` naming conventions for branches.
 * **UI/UX:** Adhere to the club's "Minimal & Formal" design rhythm.
 
+### Frontend regression checks
+
+`npm run test:foundations` exercises HTTP failure semantics, auth/cache invalidation,
+upload contracts, request ordering, section loading and profile lifecycle using
+synthetic dependencies. No backend or browser is needed.
+
+`npm run test:regression` also runs the existing domain suites. It requires Python 3
+for Lab examples and a Playwright Chromium installation for XML import. Set
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE` to use an existing Chromium binary when needed.
+Run `npm run lint`, `npx tsc --noEmit`, and `npm run build` before integration.
+
+With a local production server running, `node tests/frontend-refactor/smoke.cjs`
+checks authenticated question-bank search, Lab forms/runtime saves and hydration.
+Set `FRONTEND_SMOKE_URL` (default `http://127.0.0.1:3219`) and
+`FRONTEND_SMOKE_SECRET` to that server's dedicated local `NEXTAUTH_SECRET`.
+It intercepts browser APIs with synthetic fixtures and blocks external requests.
+The DutyLog interaction/responsive check is `node tests/dutylog-project/smoke.mjs`.
+
+Content reads deduplicate in-flight requests only; they do not retain resolved
+content indefinitely. Upload callers share `services/lms/fileService.ts`. Session
+metadata is enriched only for the current identity; persisted browser profiles
+cannot establish authentication. These boundaries must be preserved during further
+performance work.
+
 ---
 
 © 2026 Big Data Club - HCMUT. All rights reserved.

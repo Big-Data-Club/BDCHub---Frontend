@@ -14,6 +14,8 @@ import {
   useState,
   useCallback,
   useEffect,
+  useMemo,
+  useRef,
   type ReactNode,
 } from "react";
 
@@ -57,7 +59,9 @@ interface PageContextValue {
   clearPageContext: () => void;
 }
 
-const PageCtx = createContext<PageContextValue | null>(null);
+type PageContextActions = Omit<PageContextValue, "pageContext">;
+const PageDataCtx = createContext<PageContext | null>(null);
+const PageActionsCtx = createContext<PageContextActions | null>(null);
 
 // ── Session persistence ─────────────────────────────────────────────────────
 //
@@ -103,12 +107,14 @@ function persistPageContext(ctx: PageContext | null): void {
 
 export function PageContextProvider({ children }: { children: ReactNode }) {
   const [pageContext, _setPageContext] = useState<PageContext | null>(null);
+  const current = useRef<PageContext | null>(null);
 
   // Restore after mount (not during lazy init) so SSR HTML and the client
   // hydration pass render identically.
   useEffect(() => {
     const stored = readStoredPageContext();
     if (stored) {
+      current.current = stored;
       _setPageContext(stored);
     }
   }, []);
@@ -118,31 +124,33 @@ export function PageContextProvider({ children }: { children: ReactNode }) {
       ...ctx,
       route: typeof window === "undefined" ? ctx.route : window.location.pathname,
     };
+    current.current = next;
     _setPageContext(next);
     persistPageContext(next);
   }, []);
 
   const patchPageContext = useCallback((patch: Partial<PageContext>) => {
-    _setPageContext((prev) => {
-      const next = {
-        ...(prev || {}),
-        ...patch,
-        route: typeof window === "undefined" ? patch.route || prev?.route : window.location.pathname,
-      } as PageContext;
-      persistPageContext(next);
-      return next;
-    });
+    const prev = current.current;
+    const next = {
+      ...(prev || {}), ...patch,
+      route: typeof window === "undefined" ? patch.route || prev?.route : window.location.pathname,
+    } as PageContext;
+    current.current = next;
+    _setPageContext(next);
+    persistPageContext(next);
   }, []);
 
   const clearPageContext = useCallback(() => {
+    current.current = null;
     _setPageContext(null);
     persistPageContext(null);
   }, []);
 
+  const actions = useMemo(() => ({ setPageContext, patchPageContext, clearPageContext }), [setPageContext, patchPageContext, clearPageContext]);
   return (
-    <PageCtx.Provider value={{ pageContext, setPageContext, patchPageContext, clearPageContext }}>
-      {children}
-    </PageCtx.Provider>
+    <PageActionsCtx.Provider value={actions}>
+      <PageDataCtx.Provider value={pageContext}>{children}</PageDataCtx.Provider>
+    </PageActionsCtx.Provider>
   );
 }
 
@@ -150,13 +158,12 @@ export function PageContextProvider({ children }: { children: ReactNode }) {
 
 /** Read the current page context (used by ChatSidebar). */
 export function usePageContext(): PageContext | null {
-  const ctx = useContext(PageCtx);
-  return ctx?.pageContext ?? null;
+  return useContext(PageDataCtx);
 }
 
 /** Set page context from a page component. */
 export function useSetPageContext() {
-  const ctx = useContext(PageCtx);
+  const ctx = useContext(PageActionsCtx);
   if (!ctx) {
     // Outside provider - return noops so pages don't crash
     return {

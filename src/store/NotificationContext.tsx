@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "@/lib/tenant/navigation";
 import toast from "react-hot-toast";
@@ -20,6 +20,7 @@ interface NotificationContextType {
   resetChatCount: () => void;
 }
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+const UnreadContext = createContext<Pick<NotificationContextType, "unreadAlertsCount" | "unreadChatCount"> | undefined>(undefined);
 const boundedKeys = (keys: Iterable<string>) => new Set([...keys].slice(-300));
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -174,9 +175,20 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => window.removeEventListener("unread-chat-change", syncCount);
   }, []);
 
-  return <NotificationContext.Provider value={{ alerts, readAlertKeys, unreadAlertsCount: alerts.filter(alert => !readAlertKeys.has(notificationKey(alert))).length,
-    unreadChatCount, isLoading, error, fetchAlerts, markAlertAsRead: alert => markRead([alert]), markAllAlertsAsRead: () => markRead(alerts), resetChatCount }}>{children}</NotificationContext.Provider>;
+  const unreadAlertsCount = alerts.filter(alert => !readAlertKeys.has(notificationKey(alert))).length;
+  const counts = useMemo(() => ({ unreadAlertsCount, unreadChatCount }), [unreadAlertsCount, unreadChatCount]);
+  const markAlertAsRead = useCallback((alert: StudyAlert) => markRead([alert]), [markRead]);
+  const markAllAlertsAsRead = useCallback(() => markRead(alerts), [markRead, alerts]);
+  const value = useMemo(() => ({ alerts, readAlertKeys, unreadAlertsCount, unreadChatCount, isLoading, error,
+    fetchAlerts, markAlertAsRead, markAllAlertsAsRead, resetChatCount }),
+    [alerts, readAlertKeys, unreadAlertsCount, unreadChatCount, isLoading, error, fetchAlerts, markAlertAsRead, markAllAlertsAsRead, resetChatCount]);
+  return <UnreadContext.Provider value={counts}><NotificationContext.Provider value={value}>{children}</NotificationContext.Provider></UnreadContext.Provider>;
 };
+export function useUnreadNotifications() {
+  const counts = useContext(UnreadContext);
+  if (!counts) throw new Error("useUnreadNotifications must be used within a NotificationProvider");
+  return counts;
+}
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (!context) throw new Error("useNotifications must be used within a NotificationProvider");

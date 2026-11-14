@@ -1,18 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import type { Content } from "@/types/lms/course";
 import { FileText, Play, DollarSign, Loader } from "lucide-react";
 import BaseModal from "@/components/lms/shared/BaseModal";
 import lmsService from "@/services/lms/lmsService";
 import { cn } from "@/lib/utils";
-
-interface Content {
-  id: number;
-  type: "TEXT" | "VIDEO" | "DOCUMENT" | "IMAGE" | "QUIZ" | "FORUM" | "ANNOUNCEMENT";
-  title: string;
-  description?: string;
-  metadata?: Record<string, any>;
-}
 
 interface Section {
   id: number;
@@ -27,7 +20,7 @@ interface Props {
   isLoading?: boolean;
 }
 
-const contentIcons = {
+const contentIcons: Record<string, ReactNode> = {
   TEXT: <FileText className="w-4 h-4" />,
   VIDEO: <Play className="w-4 h-4" />,
   DOCUMENT: <FileText className="w-4 h-4" />,

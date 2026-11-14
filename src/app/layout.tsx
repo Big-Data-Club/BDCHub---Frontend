@@ -1,4 +1,3 @@
-import 'devextreme/dist/css/dx.light.css';
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono, Comfortaa } from "next/font/google";
 import "./globals.css";

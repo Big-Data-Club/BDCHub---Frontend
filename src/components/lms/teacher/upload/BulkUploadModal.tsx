@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import lmsService from "@/services/lms/lmsService";
 import { FileToUpload } from "@/types";
-import { getAccessToken } from "@/services/auth/authToken";
+import { fileService } from "@/services/lms/fileService";
 
 
 interface BulkUploadModalProps {
@@ -122,9 +122,6 @@ export default function BulkUploadModal({
     setIsUploading(true);
 
     try {
-      // Pre-fetch access token once to cache it and avoid async delays/timeouts inside the loop
-      await getAccessToken();
-
       let successCount = 0;
 
       // Upload all files sequentially. The first item legitimately has
@@ -135,7 +132,7 @@ export default function BulkUploadModal({
 
           try {
             // Upload file
-            const uploadedFile = await uploadSingleFile(fileItem);
+            const uploadedFile = await fileService.upload(fileItem.file, fileItem.type);
 
             // Create content in LMS
             await lmsService.createContent(sectionId, {
@@ -186,37 +183,6 @@ export default function BulkUploadModal({
       alert("Lỗi khi tải lên các file");
       setIsUploading(false);
     }
-  };
-
-  const uploadSingleFile = async (fileItem: FileToUpload): Promise<any> => {
-    const formData = new FormData();
-    formData.append("type", fileItem.type);
-    formData.append("file", fileItem.file);
-
-    const headers: Record<string, string> = {};
-    const token = await getAccessToken();
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    const response = await fetch("/lmsapiv1/files/upload", {
-      method: "POST",
-      body: formData,
-      credentials: "include",
-      headers,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP ${response.status}`);
-    }
-
-    const result = await response.json();
-    if (!result.data) {
-      throw new Error("Invalid response format");
-    }
-
-    return result.data;
   };
 
   const formatFileSize = (bytes: number): string => {

@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FileInfo } from "@/types";
-import { getAccessToken } from "@/services/auth/authToken";
+import { fileService } from "@/services/lms/fileService";
 import { FileType as FileTypeIcon, HardDrive, AlertCircle } from "lucide-react";
 
 interface FileUploadProps {
@@ -59,43 +59,13 @@ export default function FileUpload({
     setProgress(0);
 
     try {
-      // Create FormData
-      const formData = new FormData();
-      formData.append("type", fileType);
-      formData.append("file", file);
-
-      // Upload via proxy
-      const headers: Record<string, string> = {};
-      const token = await getAccessToken();
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`/lmsapiv1/files/upload`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-        headers,
-      });
-
-      const raw = await response.text();
-      let result: { data?: FileInfo; error?: string; message?: string } | null = null;
-      try { result = raw ? JSON.parse(raw) : null; } catch { /* handled below */ }
-      if (response.ok && result?.data) {
-        onFileUploaded(result.data);
-        setProgress(100);
-        
-        // Reset input after successful upload
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      } else {
-        const reason = result?.error || result?.message || (response.status === 401 ? "Phiên đăng nhập đã hết hạn" : response.status === 413 ? "File vượt quá giới hạn upload" : `Máy chủ trả về lỗi ${response.status}`);
-        throw new Error(reason);
-      }
-    } catch (err: any) {
+      const uploaded = await fileService.upload(file, fileType);
+      onFileUploaded(uploaded);
+      setProgress(100);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err: unknown) {
       console.error("Upload error:", err);
-      setError(err.message || "Lỗi không xác định khi upload file");
+      setError(err instanceof Error ? err.message : "Lỗi không xác định khi upload file");
     } finally {
       setUploading(false);
     }

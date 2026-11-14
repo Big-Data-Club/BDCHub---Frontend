@@ -35,6 +35,8 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
   const courseNotebookAvailable = /^\/lms\/student\/courses\/\d+(\/|$)/.test(pathname);
   const { status } = useSession();
   const { user } = useAuth();
+  const canOpen = status === "authenticated" && !pathname.includes("/ai-mentor") && !pathname.includes("/ai-assistant") &&
+    ["/dashboard", "/lms", "/events", "/tasks", "/users", "/profile", "/chat"].some(path => pathname === path || pathname.startsWith(path + "/"));
 
   // State persistency in localStorage
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -116,6 +118,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
 
   // Global Keyboard Shortcut: Shift+A toggles AI Coworker drawer
   useEffect(() => {
+    if (!canOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
@@ -128,7 +131,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleToggleOpen]);
+  }, [handleToggleOpen, canOpen]);
 
   // Resizing mouse handlers
   const startResize = useCallback((e: React.MouseEvent) => {
@@ -169,36 +172,11 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
     };
   }, [isDragging]);
 
-  // Render check: determine if coworker widget should be enabled on this page
-  const shouldShowCoworker = () => {
-    if (status !== "authenticated") return false;
-    
-    // Hide on dedicated AI pages to prevent double chat interface
-    if (pathname.includes("/ai-mentor") || pathname.includes("/ai-assistant")) {
-      return false;
-    }
-    
-    // Only display on workspace pages
-    const workspacePaths = [
-      "/dashboard",
-      "/lms",
-      "/events",
-      "/tasks",
-      "/users",
-      "/profile",
-      "/chat"
-    ];
-    
-    return workspacePaths.some(
-      (path) => pathname === path || pathname.startsWith(path + "/")
-    );
-  };
-
-  if (!isMounted || pathname === "/projects" || pathname.startsWith("/projects/")) {
+  if (pathname === "/projects" || pathname.startsWith("/projects/")) {
     return <>{children}</>;
   }
 
-  const showCoworker = shouldShowCoworker();
+  const showCoworker = isMounted && canOpen;
 
   const isFullHeightPage = pathname?.includes("/ai-mentor") || pathname?.includes("/ai-assistant");
 

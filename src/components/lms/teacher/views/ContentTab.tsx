@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } 
 import { Plus, FileText } from "lucide-react";
 import lmsService from "@/services/lms/lmsService";
 import { AIIndexPollerProvider } from "@/hooks/lms/teacher/useAIIndexPoller";
+import { useSectionContents } from "@/hooks/lms/teacher/useSectionContents";
 import { Alert, EmptyState, PrimaryBtn, ConfirmModal } from "@/components/lms/shared";
 import { Content, Section } from "@/types";
 
@@ -34,8 +35,7 @@ interface ContentTabProps {
 
 export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRefetch }: ContentTabProps) {
   const [expanded, setExpanded]   = useState<Set<number>>(new Set());
-  const [sectionContents, setSectionContents] = useState<Record<number, Content[]>>({});
-  const [loadingContent, setLoadingContent]   = useState<Record<number, boolean>>({});
+  const { sectionContents, setSectionContents, loadingContent, contentErrors, loadContents, reloadSectionContent } = useSectionContents(courseId);
 
   // Local sections state for drag & drop preview
   const [localSections, setLocalSections] = useState<Section[]>([]);
@@ -48,47 +48,8 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
   } | null>(null);
   const [canDragContent, setCanDragContent] = useState<number | null>(null);
 
-  // ── Content loading ─────────────────────────────────────────────────────────
-
-  const reloadSectionContent = useCallback(async (sectionId: number) => {
-    setLoadingContent(prev => ({ ...prev, [sectionId]: true }));
-    try {
-      const res = await lmsService.listContent(sectionId);
-      setSectionContents(prev => ({ ...prev, [sectionId]: res?.data ?? [] }));
-    } finally {
-      setLoadingContent(prev => ({ ...prev, [sectionId]: false }));
-    }
-  }, []);
-
-  const loadContents = useCallback(async (sectionId: number) => {
-    if (sectionContents[sectionId]) return;
-    setLoadingContent(prev => ({ ...prev, [sectionId]: true }));
-    try {
-      const res = await lmsService.listContent(sectionId);
-      setSectionContents(prev => ({ ...prev, [sectionId]: res?.data ?? [] }));
-    } finally {
-      setLoadingContent(prev => ({ ...prev, [sectionId]: false }));
-    }
-  }, [sectionContents]);
-
-  // Initial expansion & section load sync: expand all when sections are loaded
-  useEffect(() => {
-    if (sections.length > 0) {
-      setLocalSections(sections);
-      setExpanded(prev => {
-        if (prev.size === 0) {
-          const allIds = new Set(sections.map(s => s.id));
-          sections.forEach(s => {
-            lmsService.listContent(s.id).then(res => {
-              setSectionContents(pc => ({ ...pc, [s.id]: res?.data ?? [] }));
-            }).catch(() => {});
-          });
-          return allIds;
-        }
-        return prev;
-      });
-    }
-  }, [sections]);
+  useEffect(() => { setLocalSections(sections); }, [sections]);
+  useEffect(() => { setExpanded(new Set()); }, [courseId]);
 
   const [reorderError, setReorderError] = useState<string | null>(null);
 
@@ -101,17 +62,15 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
 
   const handleSectionDragOver = useCallback((e: React.DragEvent, index: number) => {
     e.preventDefault();
-    setDraggedSecIndex(prevDragged => {
-      if (prevDragged === null || prevDragged === index) return prevDragged;
-      setLocalSections(prevSections => {
-        const updated = [...prevSections];
-        const [draggedItem] = updated.splice(prevDragged, 1);
-        updated.splice(index, 0, draggedItem);
-        return updated;
-      });
-      return index;
+    if (draggedSecIndex === null || draggedSecIndex === index) return;
+    setLocalSections(previous => {
+      const updated = [...previous];
+      const [draggedItem] = updated.splice(draggedSecIndex, 1);
+      updated.splice(index, 0, draggedItem);
+      return updated;
     });
-  }, []);
+    setDraggedSecIndex(index);
+  }, [draggedSecIndex]);
 
   const handleSectionDragEnd = useCallback(async () => {
     setDraggedSecIndex(null);
@@ -144,17 +103,16 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
 
   const handleContentDragOver = useCallback((e: React.DragEvent, sectionId: number, index: number) => {
     e.preventDefault();
-    setDraggedContentInfo(prevInfo => {
-      if (!prevInfo || prevInfo.sectionId !== sectionId || prevInfo.index === index) return prevInfo;
-      setSectionContents(prevContents => {
-        const sectionItems = [...(prevContents[sectionId] ?? [])];
-        const [draggedItem] = sectionItems.splice(prevInfo.index, 1);
-        sectionItems.splice(index, 0, draggedItem);
-        return { ...prevContents, [sectionId]: sectionItems };
-      });
-      return { sectionId, index };
+    if (!draggedContentInfo || draggedContentInfo.sectionId !== sectionId || draggedContentInfo.index === index) return;
+    const from = draggedContentInfo.index;
+    setSectionContents(previous => {
+      const items = [...(previous[sectionId] ?? [])];
+      const [item] = items.splice(from, 1);
+      items.splice(index, 0, item);
+      return { ...previous, [sectionId]: items };
     });
-  }, []);
+    setDraggedContentInfo({ sectionId, index });
+  }, [draggedContentInfo, setSectionContents]);
 
   const handleContentDragEnd = useCallback(async (sectionId: number) => {
     setDraggedContentInfo(null);
@@ -178,7 +136,7 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
       await reloadSectionContent(sectionId);
       setTimeout(() => setReorderError(null), 4000);
     }
-  }, [sectionContents, reloadSectionContent]);
+  }, [sectionContents, reloadSectionContent, setSectionContents]);
 
   // Modal state
   const [showSectionModal, setShowSectionModal]       = useState(false);
@@ -226,9 +184,10 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
   // ── Toggle section expand ───────────────────────────────────────────────────
 
   const toggle = (id: number) => {
+    if (!expanded.has(id)) void loadContents(id);
     setExpanded(prev => {
       const n = new Set(prev);
-      if (n.has(id)) { n.delete(id); } else { n.add(id); loadContents(id); }
+      if (n.has(id)) { n.delete(id); } else { n.add(id); }
       return n;
     });
   };
@@ -292,6 +251,13 @@ export function ContentTab({ courseId, sections, onSectionsChange, onSectionsRef
         {reorderError && (
           <Alert type="error">
             {reorderError}
+          </Alert>
+        )}
+
+        {Object.keys(contentErrors).length > 0 && (
+          <Alert type="error">
+            Không tải được nội dung chương.
+            <button type="button" className="ml-2 underline" onClick={() => Object.keys(contentErrors).forEach(id => void reloadSectionContent(Number(id)))}>Thử lại</button>
           </Alert>
         )}
 

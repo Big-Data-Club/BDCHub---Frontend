@@ -71,35 +71,6 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  webpack: (config, { isServer }) => {
-    // Optimize for production
-    if (!isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          default: false,
-          vendors: false,
-          vendor: {
-            name: 'vendor',
-            chunks: 'all',
-            test: /node_modules/,
-            priority: 20,
-          },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            priority: 10,
-            reuseExistingChunk: true,
-            enforce: true,
-          },
-        },
-      };
-    }
-
-    return config;
-  },
-
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL || 'http://auth-service:8080';
     const lmsUrl = process.env.LMS_API_URL || 'http://lms-service:8081';

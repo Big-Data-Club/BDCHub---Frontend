@@ -4,3 +4,4 @@ export * from "./quiz";
 export * from "./flashcardLibrary";
 
 export * from "./learning-scope";
+export * from "./questionBank";

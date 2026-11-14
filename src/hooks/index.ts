@@ -1,6 +1,7 @@
 // Auth hooks
 export * from "./auth/useAuth";
 export * from "./auth/useCurrentUser";
+export * from "./auth/useSessionProfile";
 
 // Common & UI hooks
 export * from "./common/usePagination";
@@ -42,6 +43,7 @@ export * from "./lms/student/useFlashcardReview";
 export * from "./lms/student/useFlashcardSpeech";
 
 export * from "./labs/useLabAuthoring";
+export * from "./labs/useLabSettings";
 
 export * from "./chat/useChatPreferences";
 
@@ -51,3 +53,6 @@ export * from "./chat/useChatUserSearch";
 
 export * from "./lms/teacher/useLearningScope";
 export { useQuizResults } from "./lms/teacher/useQuizResults";
+export * from "./lms/teacher/useQuestionBank";
+export * from "./lms/teacher/useSectionContents";
+export { useSelectedLmsRole } from './lms/useSelectedLmsRole';

@@ -28,3 +28,4 @@ export { default as youtubeTokenManager } from "./youtubeTokenManager";
 export * from "./flashcardLibraryService";
 
 export * from "./learningScopeService";
+export * from "./fileService";

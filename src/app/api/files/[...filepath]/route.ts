@@ -37,6 +37,7 @@ async function proxyFile(
       headers,
       redirect: "manual",
       cache: "no-store",
+      signal: request.signal,
     });
 
     if (!response.ok && response.status !== 206 && response.status !== 304) {

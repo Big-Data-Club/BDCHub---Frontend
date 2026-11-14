@@ -1,4 +1,5 @@
 import { apiClient } from "../common/api";
+import type { RequestOptions } from "../common/api";
 
 export interface UserResponse {
   id: number;
@@ -83,7 +84,7 @@ export const userService = {
 
   logout: () => apiClient.post<null>("/api/auth/logout", null),
 
-  getById: (id: number | string) => apiClient.get<UserResponse>(`/api/users/${id}`),
+  getById: (id: number | string, options?: RequestOptions) => apiClient.get<UserResponse>(`/api/users/${id}`, options),
 
   update: (id: number | string, data: Partial<UserResponse>) =>
     apiClient.put<UserResponse>(`/api/users/${id}`, data),
