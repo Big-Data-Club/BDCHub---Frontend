@@ -78,15 +78,14 @@ const nextConfig: NextConfig = {
     const labUrl = process.env.LAB_API_URL || 'http://localhost:8082';
     const chatUrl = process.env.CHAT_API_URL || 'http://localhost:8083';
 
-    // In production, Traefik handles all API routing at the edge.
-    // However, the Next.js internal image optimizer requests relative paths (like /files/... or /uploads/...)
-    // from itself (localhost). We need rewrites in production so that Next.js can internally resolve
-    // these requests by fetching from the backend services directly.
+    // Traefik forwards /files to Next.js so the BFF can resolve the browser's
+    // NextAuth session before requesting protected LMS files. Keep the same
+    // route for internal requests and standalone deployments.
     if (process.env.NODE_ENV === 'production') {
       return [
         {
           source: '/files/:path*',
-          destination: `${lmsUrl}/api/v1/files/serve/:path*`,
+          destination: "/api/files/:path*",
         },
         {
           source: '/uploads/:path*',
@@ -153,7 +152,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'private, no-store',
           },
         ],
       },

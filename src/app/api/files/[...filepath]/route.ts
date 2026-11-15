@@ -1,20 +1,26 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Proxy handler for /api/files/<filepath>
  * Fetches files from the LMS backend (MinIO via Go service) and streams them back.
- * This is needed because Vercel's next.config rewrites don't reliably proxy
- * to external HTTP backends in production (standalone output).
+ * Resolves browser sessions for embedded media while leaving file authorization
+ * with LMS. Browser iframes cannot attach the session's Bearer token themselves.
  */
 async function proxyFile(
   request: NextRequest,
   { params }: { params: Promise<{ filepath: string[] }> }
 ) {
   const { filepath } = await params;
-  const filePath = filepath.join("/");
+  const segments = filepath.flatMap((segment) => segment.split("/"));
+  if (segments.some((segment) => !segment || segment === "." || segment === ".." || segment.includes("\\"))) {
+    return NextResponse.json({ error: "Invalid file path" }, { status: 400 });
+  }
+  const filePath = segments.map(encodeURIComponent).join("/");
 
-  const lmsUrl = process.env.LMS_API_URL || "http://lms-backend:8081";
-  const targetUrl = `${lmsUrl}/api/v1/files/serve/${filePath}`;
+  const lmsUrl = process.env.LMS_API_URL || "http://lms-service:8081";
+  const targetUrl = `${lmsUrl.replace(/\/$/, "")}/api/v1/files/serve/${filePath}`;
 
   try {
     const headers = new Headers();
@@ -23,6 +29,13 @@ async function proxyFile(
     const authHeader = request.headers.get("authorization");
     if (authHeader) {
       headers.set("authorization", authHeader);
+    } else {
+      // iframe/img/video requests carry the NextAuth cookie, not a Bearer header.
+      // Resolve the user's token on the server; LMS remains the resource authority.
+      const session = await getServerSession(authOptions);
+      if (session?.accessToken && !session.error) {
+        headers.set("authorization", `Bearer ${session.accessToken}`);
+      }
     }
 
     // PDF viewers use byte ranges and validators to fetch only the pages they
@@ -67,12 +80,9 @@ async function proxyFile(
       }
     }
 
-    // Files are immutable (timestamped filenames)
-    responseHeaders.set(
-      "Cache-Control",
-      "public, max-age=31536000, immutable"
-    );
-    responseHeaders.set("Access-Control-Allow-Origin", "*");
+    responseHeaders.set("Cache-Control", "private, no-store");
+    responseHeaders.set("Vary", "Cookie, Authorization");
+    responseHeaders.set("X-Content-Type-Options", "nosniff");
 
     const responseBody = request.method === "HEAD" || response.status === 304
       ? null

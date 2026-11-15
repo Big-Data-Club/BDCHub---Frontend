@@ -22,6 +22,7 @@ This repository houses the frontend layer that interacts with multiple microserv
 * **Language:** TypeScript
 * **Styling:** Tailwind CSS
 * **Authentication:** NextAuth.js with Google OAuth2 support/authOptions.ts]
+* **LMS files:** `/files/...` rewrites to the `/api/files/...` BFF, which resolves the NextAuth session and forwards the user's access token. Production ingress must send `/files` to frontend without stripping the prefix. LMS enforces file permissions; responses remain private/no-store and preserve PDF/video byte ranges.
 * **State Management:** React Context & Hooks
 
 ## Getting Started
