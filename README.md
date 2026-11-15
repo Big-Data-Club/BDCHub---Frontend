@@ -18,6 +18,14 @@ This repository houses the frontend layer that interacts with multiple microserv
 
 ## Tech Stack
 
+AI Cowork shares the workspace on widths of at least 1024px, with a 320–600px
+resizable panel and at least 640px reserved for the workspace. Narrower layouts
+switch between content and chat while keeping both mounted. Resize uses pointer
+capture and a CSS variable per animation frame; preferences save on release.
+Navigation/course headers respond to their containers. The regression suite
+includes a browser fixture covering resize, focus, drafts, iframe/scroll state,
+compact mode and blocked storage without production APIs.
+
 * **Framework:** Next.js (App Router)
 * **Language:** TypeScript
 * **Styling:** Tailwind CSS

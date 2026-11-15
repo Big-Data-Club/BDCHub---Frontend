@@ -13,12 +13,11 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useParams, usePathname } from "@/lib/tenant/navigation";
-import Link from "@/lib/tenant/Link";
 import {
-  Menu, X, BarChart3, ChevronLeft, ChevronRight
+  Menu, X, BarChart3, ChevronRight
 } from "lucide-react";
 
-import { PageLoader, GridBackground, NavTabBar, LmsPageHeader } from "@/components/lms/shared";
+import { PageLoader, NavTabBar, LmsPageHeader } from "@/components/lms/shared";
 import { BreadcrumbNav, type BreadcrumbItem } from "@/components/lms/shared/BreadcrumbNav";
 import { useStudentCourse } from "@/components/lms/student/StudentCourseContext";
 import { StudentCourseProviders } from "@/components/lms/student/StudentCourseProviders";
@@ -50,7 +49,6 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
   const {
     course,
     sections,
-    activeContent,
     setActiveContent,
     sectionContents,
     completedIds,
@@ -104,7 +102,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#050B18] flex flex-col transition-colors duration-300">
+    <div className="@container/course min-w-0 min-h-screen bg-slate-50 dark:bg-[#050B18] flex flex-col transition-colors duration-300">
 
       {/* ── Header Section with Reusable LmsPageHeader ── */}
       <LmsPageHeader
@@ -121,7 +119,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
             />
             <button type="button" aria-expanded={notebook?.open || false} onClick={() => notebook?.setOpen(!notebook.open)} className="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2 text-xs font-bold text-blue-700 transition-all duration-200 active:scale-95 dark:border-cyan-500/20 dark:bg-cyan-500/10 dark:text-cyan-300">Ghi chú</button>
             <button
-              className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-blue-500/20 bg-white dark:bg-[#0F1E35] text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs cursor-pointer"
+              className="@5xl/course:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-blue-500/20 bg-white dark:bg-[#0F1E35] text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs cursor-pointer"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
@@ -130,7 +128,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
           </>
         }
         sideWidget={
-          <div className="w-full lg:w-[540px] xl:w-[580px]">
+          <div className="w-full @5xl/course:w-[540px] @7xl/course:w-[580px]">
             <CourseDetailProgressCard
               course={course}
               progress={progress}
@@ -149,10 +147,10 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
 
         {/* Desktop sidebar - clean viewport-locked height */}
         <aside className={cn(
-          "hidden lg:flex flex-col bg-white dark:bg-[#070E1C] flex-shrink-0 sticky top-16 h-[calc(100vh-64px)] transition-all duration-300 ease-in-out overflow-hidden border-r border-slate-200/80 dark:border-blue-500/10",
-          sidebarCollapsed ? "w-0 border-r-0 opacity-0" : "w-72 xl:w-80 border-r opacity-100"
+          "hidden @5xl/course:flex flex-col bg-white dark:bg-[#070E1C] flex-shrink-0 sticky top-16 h-[calc(100vh-64px)] transition-all duration-300 ease-in-out overflow-hidden border-r border-slate-200/80 dark:border-blue-500/10",
+          sidebarCollapsed ? "w-0 border-r-0 opacity-0" : "w-72 @7xl/course:w-80 border-r opacity-100"
         )}>
-          <div className="w-72 xl:w-80 h-full flex flex-col relative">
+          <div className="w-72 @7xl/course:w-80 h-full flex flex-col relative">
             <CourseLearningSidebar
               onCollapseToggle={() => {
                 const newVal = !sidebarCollapsed;
@@ -175,7 +173,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
                 localStorage.setItem("course-sidebar-collapsed", "false");
               }
             }}
-            className="hidden lg:flex sticky top-20 left-0 z-30 w-7 h-9 bg-white dark:bg-[#0F1E35] border border-l-0 border-slate-200 dark:border-blue-500/20 rounded-r-lg items-center justify-center text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400 shadow-sm transition-all duration-200 cursor-pointer"
+            className="hidden @5xl/course:flex sticky top-20 left-0 z-30 w-7 h-9 bg-white dark:bg-[#0F1E35] border border-l-0 border-slate-200 dark:border-blue-500/20 rounded-r-lg items-center justify-center text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-cyan-400 shadow-sm transition-all duration-200 cursor-pointer"
             title="Mở rộng danh sách bài học (Ctrl+B)"
             aria-label="Mở rộng danh sách bài học"
           >
@@ -185,7 +183,7 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
 
         {/* Mobile sidebar drawer */}
         {sidebarOpen && (
-          <div className="lg:hidden fixed inset-0 z-40 flex">
+          <div className="@5xl/course:hidden fixed inset-0 z-40 flex">
             <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
             <aside className="relative w-80 max-w-[85vw] bg-white dark:bg-[#070E1C] h-full overflow-hidden flex flex-col">
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/50 dark:border-blue-500/10">

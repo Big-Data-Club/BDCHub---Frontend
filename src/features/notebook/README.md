@@ -2,8 +2,8 @@
 
 The course right sidebar and coworker notebook use `NotebookBrowser` with the
 existing notebook API/storage. Reading and editing are inline; no dialog at
-z-50 can end up behind the coworker drawer. On course routes coworker's notebook
-tab closes that drawer and reveals the course notebook. The course sidebar can
+z-50 can end up behind notebook dialogs. On course routes coworker's notebook
+tab closes the Cowork panel and reveals the course notebook. The course sidebar can
 collapse and keeps its in-memory draft state; small screens use a focus-trapped
 drawer above the coworker layer. Visibility preference is browser-local, notes
 and highlight colors are server-persisted and user-owned.

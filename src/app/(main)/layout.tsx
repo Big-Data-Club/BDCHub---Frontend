@@ -17,12 +17,12 @@ export default async function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="flex min-h-screen w-full max-w-full flex-col bg-slate-50 dark:bg-slate-950">
       <div className="flex flex-1">
-        <div className="sticky top-0 h-screen flex-shrink-0 hidden md:block">
+        <div className="sticky top-0 h-screen flex-shrink-0 hidden @3xl/workspace:block">
           <Sidebar />
         </div>
 
         <div className="flex flex-1 flex-col min-w-0">
-          <div className="sticky top-0 z-40 md:hidden">
+          <div className="sticky top-0 z-40 @3xl/workspace:hidden">
             <MobileNav />
           </div>
           <main className="flex-1 p-4 sm:p-6 lg:p-8">

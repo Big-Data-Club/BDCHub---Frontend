@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "@/lib/tenant/navigation";
 import { useSession } from "next-auth/react";
 import { Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/auth/useAuth";
+import { useCoworkerResize } from "@/hooks/common/useCoworkerResize";
 import { usePageContext } from "@/hooks/common/usePageContext";
 
 const AgentChatPanel = dynamic(
@@ -41,40 +42,25 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
   // State persistency in localStorage
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [hasOpened, setHasOpened] = useState<boolean>(false);
-  const [width, setWidth] = useState<number>(450);
   const [agentType, setAgentType] = useState<"mentor" | "teacher">("mentor");
   const [activeTab, setActiveTab] = useState<"chat" | "notebook">("chat");
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const pageContext = usePageContext();
+  const { rootRef, isSplit, isDragging, separatorProps } = useCoworkerResize(isOpen && canOpen);
+  const panelRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
   // Initialize and persist state on mount
   useEffect(() => {
     setIsMounted(true);
     
-    const savedOpen = localStorage.getItem("bdc_coworker_open");
-    if (savedOpen !== null) {
-      const open = savedOpen === "true";
+    try {
+      const open = localStorage.getItem("bdc_coworker_open") === "true";
       setIsOpen(open);
       setHasOpened(open);
-    }
+    } catch { /* A blocked preference store must not prevent opening chat. */ }
 
-    const savedWidth = localStorage.getItem("bdc_coworker_width");
-    if (savedWidth !== null) {
-      const parsedWidth = parseInt(savedWidth, 10);
-      if (!isNaN(parsedWidth) && parsedWidth >= 320) {
-        setWidth(parsedWidth);
-      }
-    }
-
-    // Detect mobile viewport
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Update default agentType based on user role and current pathname context
@@ -100,21 +86,28 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
     }
   }, [user, pathname]);
 
-  // Persist state changes
-  const handleToggleOpen = useCallback(() => {
-    preloadCoworker();
-    setIsOpen((prev) => {
-      const newVal = !prev;
-      if (newVal) setHasOpened(true);
-      localStorage.setItem("bdc_coworker_open", String(newVal));
-      return newVal;
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    try { localStorage.setItem("bdc_coworker_open", "false"); } catch { /* Optional preference. */ }
+    requestAnimationFrame(() => {
+      const previous = returnFocusRef.current;
+      (previous?.isConnected ? previous : triggerRef.current)?.focus({ preventScroll: true });
     });
   }, []);
 
-  const handleClose = useCallback(() => {
-    setIsOpen(false);
-    localStorage.setItem("bdc_coworker_open", "false");
-  }, []);
+  const handleToggleOpen = useCallback(() => {
+    if (isOpen) { handleClose(); return; }
+    returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    preloadCoworker();
+    setHasOpened(true);
+    setIsOpen(true);
+    try { localStorage.setItem("bdc_coworker_open", "true"); } catch { /* Optional preference. */ }
+  }, [isOpen, handleClose]);
+
+  useEffect(() => {
+    if (!isOpen || !canOpen) return;
+    panelRef.current?.focus({ preventScroll: true });
+  }, [isOpen, canOpen]);
 
   // Global Keyboard Shortcut: Shift+A toggles AI Coworker drawer
   useEffect(() => {
@@ -133,45 +126,6 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleToggleOpen, canOpen]);
 
-  // Resizing mouse handlers
-  const startResize = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const resetWidth = useCallback(() => {
-    setWidth(450);
-    localStorage.removeItem("bdc_coworker_width");
-  }, []);
-
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const windowWidth = window.innerWidth;
-      // Calculate width from the right edge
-      const newWidth = windowWidth - e.clientX;
-      
-      // Impose limits (min 320px, max 75% of screen width)
-      if (newWidth >= 320 && newWidth <= windowWidth * 0.75) {
-        setWidth(newWidth);
-        localStorage.setItem("bdc_coworker_width", String(newWidth));
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isDragging]);
-
   if (pathname === "/projects" || pathname.startsWith("/projects/")) {
     return <>{children}</>;
   }
@@ -181,41 +135,44 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
   const isFullHeightPage = pathname?.includes("/ai-mentor") || pathname?.includes("/ai-assistant");
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden relative bg-slate-50 dark:bg-slate-950">
+    <div ref={rootRef} className="flex h-dvh w-full min-w-0 overflow-hidden relative bg-slate-50 dark:bg-slate-950">
       {/* Workspace Area (Left Pane) */}
-      <div className={cn("flex-1 h-full w-full", isFullHeightPage ? "overflow-hidden" : "overflow-y-auto")}>
+      <div
+        hidden={showCoworker && isOpen && !isSplit}
+        className={cn("@container/workspace flex-1 min-w-0 h-full", isFullHeightPage ? "overflow-hidden" : "overflow-y-auto", isDragging && "pointer-events-none select-none")}
+      >
         {children}
       </div>
 
-      {/* Backdrop overlay */}
-      {showCoworker && (
-        <div
-          className={cn(
-            "fixed inset-0 bg-slate-950/40 backdrop-blur-[2px] transition-opacity duration-300 ease-in-out z-[60]",
-            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          )}
-          onClick={handleClose}
-        />
-      )}
-
       {/* Coworker Panel (Right Pane) */}
       {showCoworker && hasOpened && (
-        <div
+        <aside
+          ref={panelRef}
+          id="coworker-panel"
+          aria-label="AI Cowork"
+          tabIndex={-1}
+          hidden={!isOpen}
+          inert={!isOpen}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && !event.defaultPrevented) {
+              event.preventDefault();
+              handleClose();
+            }
+          }}
           className={cn(
-            "fixed inset-y-0 right-0 z-[70] flex flex-col h-full bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 shadow-2xl transition-transform duration-300 ease-in-out",
-            isOpen ? "translate-x-0" : "translate-x-full",
-            isMobile ? "w-full sm:w-[450px]" : "max-w-[90vw]"
+            "relative shrink-0 min-w-0 flex-col h-full bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 outline-none",
+            isOpen ? "flex" : "hidden",
+            isSplit ? "w-[var(--coworker-width,450px)]" : "w-full"
           )}
-          style={!isMobile && isOpen ? { width: `${width}px` } : undefined}
         >
           {/* Resize Handle */}
-          {!isMobile && isOpen && (
+          {isSplit && isOpen && (
             <div
-              onMouseDown={startResize}
-              onDoubleClick={resetWidth}
-              title="Nhấp đúp chuột để reset về chiều rộng mặc định"
+              {...separatorProps}
+              aria-controls="coworker-panel"
+              title="Kéo hoặc dùng phím mũi tên để chỉnh; nhấp đúp để đặt lại"
               className={cn(
-                "absolute top-0 left-0 -translate-x-1/2 bottom-0 w-2 cursor-ew-resize z-[80] group/resize",
+                "absolute top-0 left-0 -translate-x-1/2 bottom-0 w-2 touch-none cursor-col-resize z-50 group/resize focus-visible:outline-2 focus-visible:outline-blue-500",
                 isDragging ? "bg-blue-500/20" : "hover:bg-blue-500/10"
               )}
             >
@@ -263,7 +220,8 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
             <button
               onClick={handleClose}
               className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 cursor-pointer"
-              title="Đóng AI Coworker"
+              title={isSplit ? "Đóng AI Cowork" : "Quay lại nội dung"}
+              aria-label={isSplit ? "Đóng AI Cowork" : "Quay lại nội dung"}
             >
               <X className="w-4 h-4" />
             </button>
@@ -287,7 +245,7 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
               />
             )}
           </div>
-        </div>
+        </aside>
       )}
 
       {/* Floating AI Coworker Trigger Pill (Quieter & Refined) */}
@@ -297,7 +255,10 @@ export function CoworkerLayout({ children }: { children: React.ReactNode }) {
         pathname.startsWith("/lms/student")
       ) && (
         <button
+          ref={triggerRef}
           onClick={handleToggleOpen}
+          aria-controls="coworker-panel"
+          aria-expanded={false}
           onMouseEnter={preloadCoworker}
           onFocus={preloadCoworker}
           className={cn(

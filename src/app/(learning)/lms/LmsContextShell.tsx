@@ -15,12 +15,12 @@ export default function LmsContextShell({ children }: { children: React.ReactNod
   return (
     <div className="flex flex-1 flex-col min-h-screen">
       <div className="flex flex-1">
-        <div className="sticky top-0 h-screen flex-shrink-0 hidden md:block z-30">
+        <div className="sticky top-0 h-screen flex-shrink-0 hidden @3xl/workspace:block z-30">
           <Sidebar />
         </div>
 
         <div className="flex flex-1 flex-col min-w-0">
-          <div className="sticky top-0 z-40 md:hidden">
+          <div className="sticky top-0 z-40 @3xl/workspace:hidden">
             <MobileNav />
           </div>
 

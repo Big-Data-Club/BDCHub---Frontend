@@ -23,7 +23,7 @@ export interface LmsPageHeaderProps {
   className?: string;
   /** Custom inner flex wrapper styling */
   contentClassName?: string;
-  /** Controls max-width of container (default: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8", pass "w-full px-4 sm:px-6 lg:px-8 xl:px-12" for wide) */
+  /** Controls max-width of container (default: "max-w-7xl mx-auto px-4 sm:px-6 @5xl/page-header:px-8", pass "w-full px-4 sm:px-6 @5xl/page-header:px-8 @7xl/page-header:px-12" for wide) */
   fullWidth?: boolean;
 }
 
@@ -44,7 +44,7 @@ export function LmsPageHeader({
   return (
     <header
       className={cn(
-        "relative w-full overflow-visible border-b border-slate-200/80 dark:border-blue-500/15 bg-white/40 dark:bg-[#070E1C]/60 backdrop-blur-xl pt-7 pb-6 md:pt-9 md:pb-8 z-20 flex-shrink-0",
+        "@container/page-header relative w-full overflow-visible border-b border-slate-200/80 dark:border-blue-500/15 bg-white/40 dark:bg-[#070E1C]/60 backdrop-blur-xl pt-7 pb-6 md:pt-9 md:pb-8 z-20 flex-shrink-0",
         className
       )}
     >
@@ -52,14 +52,14 @@ export function LmsPageHeader({
 
       <div
         className={cn(
-          "relative z-10 w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-8",
+          "relative z-10 w-full flex flex-col @5xl/page-header:flex-row items-start @5xl/page-header:items-center justify-between gap-6 @5xl/page-header:gap-8",
           fullWidth
-            ? "w-full px-4 sm:px-6 lg:px-8 xl:px-12"
-            : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+            ? "w-full px-4 sm:px-6 @5xl/page-header:px-8 @7xl/page-header:px-12"
+            : "max-w-7xl mx-auto px-4 sm:px-6 @5xl/page-header:px-8",
           contentClassName
         )}
       >
-        <div className="w-full min-w-0 flex-1 space-y-3 lg:w-auto">
+        <div className="w-full min-w-0 flex-1 space-y-3 @5xl/page-header:w-auto">
           {breadcrumbs}
 
           {categoryLabel && (
@@ -96,7 +96,7 @@ export function LmsPageHeader({
         </div>
 
         {rightContent && (
-          <div className="w-full lg:w-auto flex-shrink-0">
+          <div className="w-full @5xl/page-header:w-auto flex-shrink-0">
             {rightContent}
           </div>
         )}
