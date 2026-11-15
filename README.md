@@ -25,6 +25,9 @@ capture and a CSS variable per animation frame; preferences save on release.
 Navigation/course headers respond to their containers. The regression suite
 includes a browser fixture covering resize, focus, drafts, iframe/scroll state,
 compact mode and blocked storage without production APIs.
+The compact curriculum list uses a Radix dialog portal with its own bounded
+scroll area, so it stays above navigation and the final lesson remains reachable.
+Chat mode buttons keep short labels; explanations remain in tooltips/details.
 
 * **Framework:** Next.js (App Router)
 * **Language:** TypeScript

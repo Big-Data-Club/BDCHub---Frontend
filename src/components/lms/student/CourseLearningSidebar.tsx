@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import { BookOpen, ChevronDown, ChevronLeft } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronLeft, X } from "lucide-react";
 import { useStudentCourse } from "./StudentCourseContext";
 import { SidebarSection } from "./SidebarSection";
-
 import { cn } from "@/lib/utils";
+
 import { UserAvatar } from "@/components/user/UserAvatar";
 
-import { CourseDetailProgressCard } from "./CourseDetailProgressCard";
 
 interface CourseLearningSidebarProps {
   onCollapseToggle?: () => void;
+  onClose?: () => void;
   isCollapsed?: boolean;
 }
 
-export function CourseLearningSidebar({ onCollapseToggle, isCollapsed }: CourseLearningSidebarProps) {
+export function CourseLearningSidebar({ onCollapseToggle, onClose }: CourseLearningSidebarProps) {
   const {
     course,
     sections,
@@ -27,15 +27,14 @@ export function CourseLearningSidebar({ onCollapseToggle, isCollapsed }: CourseL
     expanded,
     toggleSection,
     completedIds,
-    progress,
   } = useStudentCourse();
 
   const [isTeachersExpanded, setIsTeachersExpanded] = useState(false);
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-[#070E1C]">
+    <div className="h-full min-h-0 flex flex-col overflow-hidden bg-white dark:bg-[#070E1C]">
       {/* Top Header Dock Bar with Toggle Trigger & Bulk Expand/Collapse */}
-      <div className="px-4 py-3 border-b border-slate-200/80 dark:border-blue-500/10 flex items-center justify-between bg-slate-50/50 dark:bg-[#091224]">
+      <div className="shrink-0 px-4 py-3 border-b border-slate-200/80 dark:border-blue-500/10 flex items-center justify-between bg-slate-50/50 dark:bg-[#091224]">
         <div className="flex items-center gap-2 min-w-0">
           <BookOpen className="w-4 h-4 text-blue-600 dark:text-cyan-400 shrink-0" />
           <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-200 truncate">
@@ -61,14 +60,14 @@ export function CourseLearningSidebar({ onCollapseToggle, isCollapsed }: CourseL
               {sections.every(s => expanded.has(s.id)) ? "Thu gọn" : "Mở tất cả"}
             </button>
           )}
-          {onCollapseToggle && (
+          {(onClose || onCollapseToggle) && (
             <button
-              onClick={onCollapseToggle}
+              onClick={onClose || onCollapseToggle}
               className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
-              title="Thu gọn sidebar (Ctrl+B)"
-              aria-label="Thu gọn sidebar"
+              title={onClose ? "Đóng danh sách bài học" : "Thu gọn sidebar (Ctrl+B)"}
+              aria-label={onClose ? "Đóng danh sách bài học" : "Thu gọn sidebar"}
             >
-              <ChevronLeft className="w-4 h-4" />
+              {onClose ? <X className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
           )}
         </div>
@@ -76,7 +75,7 @@ export function CourseLearningSidebar({ onCollapseToggle, isCollapsed }: CourseL
 
       {/* Instructor Section (Clean, non-nested row) */}
       {(course?.creator_name || (coTeachers && coTeachers.length > 0)) && (
-        <div className="px-4 py-2.5 border-b border-slate-200/80 dark:border-blue-500/10 bg-slate-50/20 dark:bg-[#070E1C]">
+        <div className="shrink-0 px-4 py-2.5 border-b border-slate-200/80 dark:border-blue-500/10 bg-slate-50/20 dark:bg-[#070E1C]">
           <button
             onClick={() => setIsTeachersExpanded(!isTeachersExpanded)}
             className="flex items-center justify-between w-full text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
@@ -115,7 +114,7 @@ export function CourseLearningSidebar({ onCollapseToggle, isCollapsed }: CourseL
       )}
 
       {/* Section list */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]">
         {sections.length === 0 ? (
           <div className="px-4 py-8 text-center">
             <BookOpen className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-2" />

@@ -12,16 +12,43 @@ test("Coworker splits, resizes and switches compact views without remounting con
       return props => React.createElement(React.Suspense, { fallback: options.loading() }, React.createElement(Component, props));
     };`,
     "next-auth/react": `export const useSession = () => ({status:'authenticated'});`,
-    "@/lib/tenant/navigation": `export const usePathname = () => '/lms/student/courses/27/learn';`,
+    "@/lib/tenant/navigation": `export const usePathname = () => '/lms/student/courses/27/learn'; export const useParams=()=>({courseId:'27'});`,
+    "sonner": `export const toast={info:()=>{}};`,
     "@/hooks/auth/useAuth": `const user={role:'ROLE_USER'}; export const useAuth=()=>({user});`,
     "@/hooks/common/usePageContext": `export const usePageContext=()=>null;`,
     "@/components/layout/Sidebar": `import React from 'react'; export default () => React.createElement('div', {'data-testid':'sidebar',style:{width:80,height:'100%'}});`,
     "@/components/layout/MobileNav": `import React from 'react'; export default () => React.createElement('div', {'data-testid':'mobile-nav'}, 'Navigation');`,
     "@/components/layout/Footer": `export default () => null;`,
-    "../lms/agent/AgentChatPanel": `import React from 'react'; export function AgentChatPanel() {
+    "@/components/lms/shared": `export {LmsPageHeader} from '/src/components/lms/shared/LmsPageHeader.tsx'; export const PageLoader=()=>null; export const NavTabBar=()=>null;`,
+    "@/components/lms/shared/BreadcrumbNav": `export const BreadcrumbNav=()=>null;`,
+    "@/components/lms/student/CourseDetailProgressCard": `import React from 'react'; export const CourseDetailProgressCard=()=>React.createElement('div',{'data-testid':'progress'},'Progress');`,
+    "@/components/user/UserAvatar": `export const UserAvatar=()=>null;`,
+    "@/features/notebook/CourseNotebookContext": `export const useCourseNotebook=()=>null; export const CourseNotebookProvider=({children})=>children;`,
+    "@/features/notebook/components/CourseNotebookSidebar": `export const CourseNotebookSidebar=()=>null;`,
+    "@/components/lms/student/StudentCourseProviders": `
+      import React from 'react';
+      import {StudentCourseContext} from '/src/components/lms/student/StudentCourseContext.tsx';
+      const sections=Array.from({length:40},(_,index)=>({id:index+1,title:'Chapter '+(index+1)}));
+      const sectionContents=Object.fromEntries(sections.map(s=>[s.id,[{id:s.id,section_id:s.id,title:'Lesson '+s.id,type:'TEXT'}]]));
+      const expanded=new Set(sections.map(s=>s.id));
+      export function StudentCourseProviders({children}){
+        const [sidebarOpen,setSidebarOpen]=React.useState(false);
+        const [activeContent,setActiveContent]=React.useState(null);
+        return React.createElement(StudentCourseContext.Provider,{value:{
+          course:{id:27,title:'Course with a PDF lesson'},sections,sectionContents,coTeachers:[],
+          completedIds:new Set(),progress:null,loadingSection:{},expanded,toggleSection:()=>{},
+          sidebarOpen,setSidebarOpen,activeContent,setActiveContent:item=>{setActiveContent(item);setSidebarOpen(false)}
+        }},children);
+      }`,
+    "../lms/agent/AgentChatPanel": `import React from 'react';
+      import {ChatModeSelector} from '/src/components/lms/agent/ChatModeSelector.tsx';
+      export function AgentChatPanel() {
       React.useEffect(()=>{window.metrics.chatMounts++}, []);
       window.metrics.chatRenders++;
-      return React.createElement('textarea', {'aria-label':'Chat draft',style:{width:'100%',height:100}});
+      const [mode,setMode]=React.useState('standard');
+      return React.createElement('div',null,
+        React.createElement(ChatModeSelector,{className:'mode-selector',currentMode:mode,onModeChange:setMode}),
+        React.createElement('textarea', {'aria-label':'Chat draft',style:{width:'100%',height:100}}));
     }`,
     "../lms/agent/AgentNotebookPanel": `export const AgentNotebookPanel = () => null;`,
   };
@@ -30,30 +57,31 @@ test("Coworker splits, resizes and switches compact views without remounting con
     import {createRoot} from 'react-dom/client';
     import {CoworkerLayout} from '/src/components/layout/CoworkerLayout.tsx';
     import LmsContextShell from '/src/app/(learning)/lms/LmsContextShell.tsx';
-    import {LmsPageHeader} from '/src/components/lms/shared/LmsPageHeader.tsx';
+    import CourseLayout from '/src/app/(learning)/lms/student/courses/[courseId]/layout.tsx';
     import '/src/app/globals.css';
     window.metrics={chatMounts:0,chatRenders:0,pageMounts:0,iframeLoads:0,widthWrites:0};
     const write=Storage.prototype.setItem;
     Storage.prototype.setItem=function(key,value){if(key==='bdc_coworker_width')window.metrics.widthWrites++;return write.call(this,key,value)};
     function Content(){
       React.useEffect(()=>{window.metrics.pageMounts++},[]);
-      return <LmsContextShell><div className="@container/course min-w-0">
-        <LmsPageHeader title="Course with a PDF lesson" sideWidget={<div data-testid="progress" className="w-full @5xl/course:w-[540px]">Progress</div>}/>
-        <div data-testid="course-sidebar" className="hidden @5xl/course:block">Curriculum</div>
+      return <LmsContextShell><CourseLayout>
         <textarea aria-label="Lesson draft"/>
         <iframe title="PDF demo" srcDoc="<p>PDF preview</p>" onLoad={()=>{window.metrics.iframeLoads++}} style={{width:'100%',height:500}}/>
         <button>Read lesson</button><div style={{height:1500}}>Lesson content</div>
-      </div></LmsContextShell>;
+      </CourseLayout></LmsContextShell>;
     }
     createRoot(document.getElementById('root')).render(<CoworkerLayout><Content/></CoworkerLayout>);
   `;
   const server = await createServer({
     root, configFile: false, cacheDir: "/tmp/bdc-coworker-vite-cache",
     resolve: { alias: [
-      ...Object.keys(stubs).map((find, index) => ({ find, replacement: `/coworker-stub-${index}.js` })),
+      ...Object.keys(stubs).map((find, index) => ({
+        find: new RegExp("^" + find.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"),
+        replacement: `/coworker-stub-${index}.js`,
+      })),
       { find: "@", replacement: path.join(root, "src") },
     ] },
-    optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime"] },
+    optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime", "@radix-ui/react-dialog"] },
     esbuild: { jsx: "automatic" },
     server: { host: "127.0.0.1", port: 0, hmr: false },
     plugins: [{
@@ -81,20 +109,47 @@ test("Coworker splits, resizes and switches compact views without remounting con
     const base = `http://127.0.0.1:${server.httpServer.address().port}/coworker-test`;
     browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}) });
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-    page.on("pageerror", (error) => console.error(error.message));
+    page.on("pageerror", (error) => console.error(error.stack));
     await page.goto(base);
     const trigger = page.getByRole("button", { name: "AI Cowork", exact: true });
     const panel = page.getByRole("complementary", { name: "AI Cowork" });
     await expect(trigger).toBeVisible();
-    await expect(page.getByTestId("course-sidebar")).toBeVisible();
+    await expect(page.getByText("Nội dung khóa học", { exact: true })).toBeVisible();
     await page.getByRole("textbox", { name: "Lesson draft" }).fill("Keep my lesson");
     await trigger.click();
     await expect(panel).toBeVisible();
     await expect(page.getByRole("textbox", { name: "Lesson draft" })).toBeVisible();
-    await expect(page.getByTestId("course-sidebar")).toBeHidden();
+    await expect(page.getByText("Nội dung khóa học", { exact: true })).toBeHidden();
     const titleBox = await page.getByRole("heading", { name: "Course with a PDF lesson" }).boundingBox();
     const progressBox = await page.getByTestId("progress").boundingBox();
     expect(progressBox.y).toBeGreaterThanOrEqual(titleBox.y + titleBox.height);
+    const modes = page.locator(".mode-selector");
+    const modeHeight = (await modes.boundingBox()).height;
+    for (const name of ["Flash", "Sâu", "Chuẩn"]) {
+      await page.getByRole("button", { name, exact: true }).click();
+      await expect(page.getByRole("button", { name, exact: true })).toHaveAttribute("aria-pressed", "true");
+      expect((await modes.boundingBox()).height).toBeLessThanOrEqual(modeHeight + 1);
+    }
+    const listTrigger = page.getByRole("button", { name: "Danh sách bài học", exact: true });
+    await listTrigger.click();
+    const drawer = page.getByRole("dialog", { name: "Danh sách bài học", exact: true });
+    await expect(drawer).toBeVisible();
+    expect(await drawer.evaluate(element => element.parentElement === document.body)).toBe(true);
+    const lastLesson = drawer.getByRole("button", { name: /Lesson 40/ });
+    await lastLesson.scrollIntoViewIfNeeded();
+    await expect(lastLesson).toBeInViewport();
+    await lastLesson.click();
+    await expect(drawer).toBeHidden();
+    await expect(listTrigger).toBeFocused();
+    await listTrigger.click();
+    await drawer.press("Escape");
+    await expect(drawer).toBeHidden();
+    await listTrigger.click();
+    await page.setViewportSize({ width: 1920, height: 900 });
+    await expect(drawer).toBeHidden();
+    await expect(page.getByText("Nội dung khóa học", { exact: true })).toBeVisible();
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(listTrigger).toBeVisible();
     await page.getByRole("textbox", { name: "Chat draft" }).fill("Keep my chat");
     const before = await page.evaluate(() => ({ ...window.metrics }));
     const separator = page.getByRole("separator");
@@ -103,6 +158,7 @@ test("Coworker splits, resizes and switches compact views without remounting con
     await expect(separator).toHaveAttribute("aria-valuenow", "470");
     await page.keyboard.press("Home");
     await expect(separator).toHaveAttribute("aria-valuenow", "320");
+    expect(await modes.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
     const bounds = await separator.boundingBox();
     const writesBeforeDrag = await page.evaluate(() => window.metrics.widthWrites);
     const rendersBeforeDrag = await page.evaluate(() => window.metrics.chatRenders);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, memo } from "react";
+import { useState, memo } from "react";
 import { Zap, Compass, Brain, Info, X, Check, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -99,11 +99,6 @@ export const ChatModeSelector = memo(function ChatModeSelector({
   className,
 }: ChatModeSelectorProps) {
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [transientToast, setTransientToast] = useState<{
-    mode: ChatMode;
-    text: string;
-  } | null>(null);
-  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSelectMode = (mode: ChatMode) => {
     if (disabled || mode === currentMode) return;
@@ -116,29 +111,7 @@ export const ChatModeSelector = memo(function ChatModeSelector({
       description: targetConfig.tagline + ": " + targetConfig.description,
       duration: 3000,
     });
-
-    // Inline transient status badge
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    setTransientToast({
-      mode,
-      text: `Đã chuyển sang chế độ ${targetConfig.name}: ${targetConfig.tagline}`,
-    });
-    toastTimeoutRef.current = setTimeout(() => {
-      setTransientToast(null);
-    }, 3500);
   };
-
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const activeConfig = CHAT_MODES[currentMode] || CHAT_MODES.standard;
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
@@ -156,6 +129,7 @@ export const ChatModeSelector = memo(function ChatModeSelector({
                 type="button"
                 onClick={() => handleSelectMode(mode)}
                 disabled={disabled}
+                aria-pressed={isActive}
                 className={cn(
                   "relative flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer select-none",
                   isActive
@@ -177,11 +151,6 @@ export const ChatModeSelector = memo(function ChatModeSelector({
                   )}
                 />
                 <span>{config.shortLabel}</span>
-                {isActive && (
-                  <span className="hidden sm:inline-block text-[10px] opacity-75 ml-0.5">
-                    ({config.tagline})
-                  </span>
-                )}
               </button>
             );
           })}
@@ -193,40 +162,11 @@ export const ChatModeSelector = memo(function ChatModeSelector({
           onClick={() => setShowInfoModal(true)}
           className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-[#0F1E35] transition-colors cursor-pointer"
           title="Xem giải thích chi tiết các chế độ AI"
+          aria-label="Xem giải thích chi tiết các chế độ AI"
         >
           <Info className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Chi tiết chế độ</span>
         </button>
       </div>
-
-      {/* Inline transient notification badge upon switching */}
-      {transientToast && (
-        <div
-          className={cn(
-            "flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg text-xs animate-in fade-in slide-in-from-top-1 duration-200",
-            transientToast.mode === "flash" &&
-              "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20",
-            transientToast.mode === "standard" &&
-              "bg-blue-500/10 text-blue-700 dark:text-cyan-300 border border-blue-500/20",
-            transientToast.mode === "deep" &&
-              "bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20",
-          )}
-        >
-          <div className="flex items-center gap-2 truncate">
-            {transientToast.mode === "flash" && <Zap className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />}
-            {transientToast.mode === "standard" && <Compass className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400 flex-shrink-0" />}
-            {transientToast.mode === "deep" && <Brain className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />}
-            <span className="truncate">{transientToast.text}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setTransientToast(null)}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer flex-shrink-0"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-      )}
 
       {/* Mode Comparison Modal */}
       {showInfoModal && (

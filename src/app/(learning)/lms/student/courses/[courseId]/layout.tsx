@@ -11,10 +11,11 @@
  *  - StudentCourseContext for child pages
  */
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
 import { useParams, usePathname } from "@/lib/tenant/navigation";
 import {
-  Menu, X, BarChart3, ChevronRight
+  Menu, BarChart3, ChevronRight
 } from "lucide-react";
 
 import { PageLoader, NavTabBar, LmsPageHeader } from "@/components/lms/shared";
@@ -58,14 +59,31 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
   } = useStudentCourse();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const courseRef = useRef<HTMLDivElement>(null);
+  const listTriggerRef = useRef<HTMLButtonElement>(null);
+
+  // The portal cannot inherit course container queries. Close it when the
+  // inline list returns, using the trigger's CSS visibility as the source of truth.
+  useEffect(() => {
+    const container = courseRef.current;
+    if (!sidebarOpen || !container) return;
+    const observer = new ResizeObserver(() => {
+      if (!container.getClientRects().length ||
+          (listTriggerRef.current && getComputedStyle(listTriggerRef.current).display === "none")) {
+        setSidebarOpen(false);
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [sidebarOpen, setSidebarOpen]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    try {
       const stored = localStorage.getItem("course-sidebar-collapsed");
       if (stored === "true") {
         setSidebarCollapsed(true);
       }
-    }
+    } catch { /* Sidebar preferences are optional when storage is blocked. */ }
   }, []);
 
   // Keyboard shortcut Ctrl+B to toggle sidebar collapse state (matching sidebar primitive pattern)
@@ -102,7 +120,8 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="@container/course min-w-0 min-h-screen bg-slate-50 dark:bg-[#050B18] flex flex-col transition-colors duration-300">
+    <Dialog.Root open={sidebarOpen} onOpenChange={setSidebarOpen}>
+    <div ref={courseRef} className="@container/course min-w-0 min-h-screen bg-slate-50 dark:bg-[#050B18] flex flex-col transition-colors duration-300">
 
       {/* ── Header Section with Reusable LmsPageHeader ── */}
       <LmsPageHeader
@@ -118,13 +137,15 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
               className="hidden sm:flex"
             />
             <button type="button" aria-expanded={notebook?.open || false} onClick={() => notebook?.setOpen(!notebook.open)} className="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2 text-xs font-bold text-blue-700 transition-all duration-200 active:scale-95 dark:border-cyan-500/20 dark:bg-cyan-500/10 dark:text-cyan-300">Ghi chú</button>
+            <Dialog.Trigger asChild>
             <button
+              ref={listTriggerRef}
               className="@5xl/course:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-blue-500/20 bg-white dark:bg-[#0F1E35] text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs cursor-pointer"
-              onClick={() => setSidebarOpen(true)}
             >
               <Menu className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
               Danh sách bài học
             </button>
+            </Dialog.Trigger>
           </>
         }
         sideWidget={
@@ -181,21 +202,6 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
           </button>
         )}
 
-        {/* Mobile sidebar drawer */}
-        {sidebarOpen && (
-          <div className="@5xl/course:hidden fixed inset-0 z-40 flex">
-            <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-            <aside className="relative w-80 max-w-[85vw] bg-white dark:bg-[#070E1C] h-full overflow-hidden flex flex-col">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/50 dark:border-blue-500/10">
-                <span className="font-bold text-slate-900 dark:text-slate-50">Nội dung khóa học</span>
-                <button onClick={() => setSidebarOpen(false)} className="p-1 rounded text-slate-500 hover:bg-slate-100 dark:hover:bg-[#0F1E35]">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <CourseLearningSidebar />
-            </aside>
-          </div>
-        )}
 
         {/* ── Main content (child pages) ── */}
         <main className="flex-1 min-w-0 flex flex-col">
@@ -206,6 +212,15 @@ function StudentCourseDetailLayoutInner({ children }: { children: React.ReactNod
         <CourseNotebookSidebar />
       </div>
     </div>
+    <Dialog.Portal>
+      <Dialog.Overlay className="fixed inset-0 z-[90] bg-slate-950/50" />
+      <Dialog.Content className="fixed inset-y-0 left-0 z-[91] h-dvh w-80 max-w-[85vw] overflow-hidden border-r border-slate-200 bg-white dark:border-blue-500/20 dark:bg-[#070E1C]">
+        <Dialog.Title className="sr-only">Danh sách bài học</Dialog.Title>
+        <Dialog.Description className="sr-only">Chọn chương hoặc bài học trong khóa học hiện tại.</Dialog.Description>
+        <CourseLearningSidebar onClose={() => setSidebarOpen(false)} />
+      </Dialog.Content>
+    </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
