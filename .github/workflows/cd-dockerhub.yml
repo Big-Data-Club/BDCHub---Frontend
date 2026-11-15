@@ -4,6 +4,14 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: read
+
+concurrency:
+  # Publish every main SHA: CoreApplication can pin any one of them.
+  group: frontend-publish-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-and-push-docker:
     runs-on: ubuntu-latest
@@ -42,6 +50,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          cache-from: type=gha,scope=bdc-frontend
+          cache-to: type=gha,mode=max,scope=bdc-frontend
           tags: |
             ${{ env.DOCKER_USER }}/bdc-frontend:latest
             ${{ env.DOCKER_USER }}/bdc-frontend:${{ github.sha }}

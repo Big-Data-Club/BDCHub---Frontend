@@ -56,6 +56,13 @@ This repository houses the frontend layer that interacts with multiple microserv
 
 ## Containerization
 
+CI ownership: pull requests and `dev` pushes run frontend checks here. On `main`,
+`Publish Docker Image` runs the Docker/Next.js production build once and publishes
+`bdc-frontend:<commit SHA>` with a shared layer cache. It does not deploy K3s.
+CoreApplication pins that SHA as its frontend submodule and reuses the published
+image in its single production rollout; it does not rebuild frontend. Publish
+this repository's commit before pushing the corresponding parent pointer.
+
 You can run the frontend standalone using Docker for consistency across environments.
 
 ```bash
