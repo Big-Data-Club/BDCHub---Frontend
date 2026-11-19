@@ -58,6 +58,13 @@ export function AgentDecisionDetails({ breakdown, explanation }: AgentDecisionDe
           {typeof explanation.personalization_context_prepared === "boolean" && <p>Dữ liệu cá nhân hóa đã chuẩn bị: <strong>{explanation.personalization_context_prepared ? "có" : "chưa có"}</strong></p>}
           <p>Hội thoại gần đây: <strong>{explanation.conversation_turns_used} tin nhắn</strong>{explanation.conversation_tokens > 0 ? ` (~${explanation.conversation_tokens} token)` : ""}</p>
           <p>Ghi nhớ dài hạn: <strong>{explanation.durable_memory_used} mục</strong> · Tóm tắt hội thoại cũ: <strong>{explanation.past_episodes_used} mục</strong></p>
+          {explanation.retrieval_evidence && explanation.retrieval_evidence.retrieval_calls > 0 && (
+            <div className="mt-2 space-y-1">
+              <p>Truy xuất: <strong>{explanation.retrieval_evidence.retrieval_calls} lượt</strong> · Nhận {explanation.retrieval_evidence.received_entries} đoạn · Còn {explanation.retrieval_evidence.unique_sources} nguồn sau loại trùng</p>
+              <p>Ngữ cảnh chuẩn bị gần nhất: <strong>{explanation.retrieval_evidence.prepared_sources} nguồn</strong> ({explanation.retrieval_evidence.excerpted_sources} nguồn dạng trích đoạn) · Đáp án trích dẫn {explanation.retrieval_evidence.cited_sources} nguồn</p>
+              {!!explanation.retrieval_evidence.reader_batches && <p>Đọc theo lô: {explanation.retrieval_evidence.reader_batches} lượt · Đã gửi đủ các phần của {explanation.retrieval_evidence.reader_complete_sources ?? 0} nguồn · {explanation.retrieval_evidence.reader_verified_quotes ?? 0} trích đoạn khớp bản gốc · Còn {explanation.retrieval_evidence.reader_pending_segments ?? 0} phần chưa xử lý, {explanation.retrieval_evidence.reader_unexamined_sources ?? 0} nguồn chưa gửi cho reader</p>}
+            </div>
+          )}
           {explanation.conversation_history_excerpted && <p>Lịch sử dài được giữ dưới dạng trích đoạn để vừa ngân sách ngữ cảnh.</p>}
           {explanation.multi_agent_executed && !explanation.memory_forwarded && (
             <p className="text-amber-700 dark:text-amber-300">Lượt Multi-Agent này dùng kết quả truy xuất tài liệu; chưa chuyển bộ nhớ hội thoại và hồ sơ học tập vào phần viết câu trả lời.</p>

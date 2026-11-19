@@ -428,6 +428,10 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
           if (step === "decision_explanation") {
             extra = { decisionExplanation: event.data.explanation };
           }
+          const currentExplanation = extra.decisionExplanation || msg.decisionExplanation;
+          if (currentExplanation && event.data.retrieval_evidence) {
+            extra.decisionExplanation = { ...currentExplanation, retrieval_evidence: event.data.retrieval_evidence };
+          }
           return {
             ...msg,
             ...extra,
@@ -621,6 +625,9 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         updateAssistant(assistantId, (msg) => ({
           ...msg,
           isStreaming: false,
+          decisionExplanation: msg.decisionExplanation && event.data.retrieval_evidence
+            ? { ...msg.decisionExplanation, retrieval_evidence: event.data.retrieval_evidence }
+            : msg.decisionExplanation,
           references: event.data.references || msg.references,
           model: event.data.model || msg.model,
           chatMode: (event.data.chat_mode as ChatMode) || msg.chatMode || chatMode,

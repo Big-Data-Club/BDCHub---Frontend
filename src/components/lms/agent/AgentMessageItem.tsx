@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, memo } from "react";
 import { cn } from "@/lib/utils";
+import { selectCitedReferences } from "@/lib/agent-citations";
 import { Wrench, Check, AlertCircle, ChevronDown, ChevronRight, Cpu, Layers, Sparkles, BookmarkPlus, Loader2, Copy, ThumbsUp, ThumbsDown, RefreshCw, BookOpen, ExternalLink, AlertTriangle, Zap, Compass, Brain } from "lucide-react";
 import type { AgentMessage, AIReference, HITLRequestData } from "@/types";
 import { AgentThinkingIndicator } from "./AgentThinkingIndicator";
@@ -35,6 +36,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
   sessionId,
 }: AgentMessageItemProps) {
   const isUser = message.role === "user";
+  const citedReferences = isUser || message.isStreaming ? [] : selectCitedReferences(message.content || "", message.references || []);
   const pageContext = usePageContext();
   const [showThinking, setShowThinking] = useState(false);
   const [showTrace, setShowTrace] = useState(false);
@@ -219,9 +221,9 @@ export const AgentMessageItem = memo(function AgentMessageItem({
           </div>
         )}
 
-        {!isUser && !message.isStreaming && message.references && message.references.length > 0 && (
+        {!isUser && !message.isStreaming && citedReferences.length > 0 && (
           <ReferencesList
-            references={message.references}
+            references={citedReferences}
             expanded={showReferences}
             onToggle={() => setShowReferences((v) => !v)}
           />
@@ -554,7 +556,7 @@ function ReferencesList({
         type="button"
         onClick={onToggle}
         className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-slate-400 hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-[#162644] dark:hover:text-cyan-400 transition-colors cursor-pointer active:scale-95"
-        title="Nguồn đã được dùng để tạo câu trả lời"
+        title="Nguồn được trích dẫn trong câu trả lời"
       >
         <BookOpen className="h-3.5 w-3.5" />
         <span>Nguồn tham chiếu ({references.length})</span>
@@ -568,7 +570,7 @@ function ReferencesList({
             return (
               <li key={`${i}-${ref.title}`} className="flex items-start gap-2 text-xs">
                 <span className="mt-0.5 inline-flex h-4.5 min-w-[18px] items-center justify-center rounded bg-blue-100 px-1 text-[10px] font-bold text-blue-700 dark:bg-cyan-500/15 dark:text-cyan-300">
-                  {i + 1}
+                  {ref.citation_number ?? i + 1}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">

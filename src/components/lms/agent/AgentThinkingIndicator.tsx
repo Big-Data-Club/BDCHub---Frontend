@@ -12,6 +12,8 @@ const STEP_LABELS: Record<string, string> = {
   memory: "Truy xuất ngữ cảnh",
   model: "Đang soạn câu trả lời",
   final_synthesis: "Đang tổng hợp câu trả lời",
+  retrieval_assessment: "Đang đánh giá bằng chứng",
+  source_reading: "Đang đọc và tổng hợp tài liệu theo lô",
 };
 
 export function AgentThinkingIndicator({

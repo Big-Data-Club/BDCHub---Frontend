@@ -50,6 +50,11 @@ test("streamed thinking stays separate, avoids per-token steps and restores from
     "@/services/ai/agentService": { agentService: { getSessionMessages: async () => history } },
   });
   const events = [
+    { type: "thinking", data: { step: "decision_explanation", explanation: {
+      intent: "knowledge_question", mode: "standard", multi_agent_executed: false,
+      personalization_requested: false, conversation_turns_used: 3, conversation_tokens: 700,
+      durable_memory_used: 0, past_episodes_used: 0, profile_status: "unavailable",
+    } } },
     { type: "thinking", data: { step: "planning", detail: "Choose evidence", model: "mistral-medium-latest" } },
     ...Array.from({ length: 100 }, () => ({ type: "thinking", data: { delta: "r" } })),
     { type: "subagent_spawn", data: { subagent_id: "draft", role: "draft", task: "Answer" } },
@@ -60,7 +65,10 @@ test("streamed thinking stays separate, avoids per-token steps and restores from
     { type: "tool_result", data: { tool: "search_course_materials", call_id: "first", status: "success", message: "First result" } },
     { type: "tool_result", data: { tool: "search_course_materials", call_id: "second", status: "error", message: "Second result" } },
     { type: "text_delta", data: { delta: "[10]" } },
-    { type: "done", data: { message_id: 42 } },
+    { type: "done", data: { message_id: 42, retrieval_evidence: {
+      retrieval_calls: 6, received_entries: 36, unique_sources: 23, prepared_sources: 12,
+      excerpted_sources: 9, cited_sources: 3,
+    } } },
   ];
   global.fetch = async () => new Response(events.map(event => `data: ${JSON.stringify(event)}\n\n`).join(""));
   try {
@@ -69,9 +77,11 @@ test("streamed thinking stays separate, avoids per-token steps and restores from
     const reply = h.value.messages.at(-1);
     assert.equal(reply.content, "[10]");
     assert.equal(reply.thinking, "r".repeat(100));
-    assert.equal(reply.thinkingSteps.length, 1);
+    assert.equal(reply.thinkingSteps.length, 2);
     assert.equal(reply.multiAgentLogs[0].thinking, "Check rank");
     assert.equal(reply.model, "mistral-medium-latest");
+    assert.equal(reply.decisionExplanation.retrieval_evidence.prepared_sources, 12);
+    assert.equal(reply.decisionExplanation.retrieval_evidence.cited_sources, 3);
     assert.equal(reply.toolActivities.length, 2);
     assert.deepEqual(reply.toolActivities.map(t => [t.call_id, t.status, t.message]), [
       ["first", "done", "First result"], ["second", "error", "Second result"],

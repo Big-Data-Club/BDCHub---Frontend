@@ -67,6 +67,19 @@ export interface ConsolidationData {
 
 /** Bounded, server-produced evidence summary for this answer. */
 export interface AgentDecisionExplanation {
+  retrieval_evidence?: {
+    retrieval_calls: number;
+    received_entries: number;
+    unique_sources: number;
+    prepared_sources: number;
+    excerpted_sources: number;
+    cited_sources: number;
+    reader_batches?: number;
+    reader_complete_sources?: number;
+    reader_verified_quotes?: number;
+    reader_pending_segments?: number;
+    reader_unexamined_sources?: number;
+  };
   mode: ChatMode;
   multi_agent_executed: boolean;
   intent: string;
@@ -152,6 +165,7 @@ export interface ToolActivity {
 }
 
 export interface AIReference {
+  citation_number?: number;
   title: string;
   content: string;
   relevance_score: number;
