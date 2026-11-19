@@ -25,9 +25,11 @@ type Props = {
 
 const SPEECH_ADAPTER_TYPES = ["runway", "elevenlabs", "openai_speech"];
 
-const canBindModel = (task: string, model: LlmModel) =>
+export const canBindModel = (task: string, model: LlmModel) =>
+  !model.config?.catalog_only &&
   (task === "jev_decision") === (model.config?.api_protocol === "system_one") &&
-  (task === "text_to_speech") === SPEECH_ADAPTER_TYPES.includes(model.adapter_type);
+  (task === "text_to_speech") === (SPEECH_ADAPTER_TYPES.includes(model.adapter_type) ||
+    (model.adapter_type === "openai_compat" && model.config?.api_protocol === "mistral_speech"));
 
 export function BindingsPanel({ bindings, models, catalogue, onChanged }: Props) {
   const byTask = useMemo(() => {
