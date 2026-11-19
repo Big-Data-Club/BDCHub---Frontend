@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { WorkspacePage } from "../types";
+import chrome from "./WorkspaceChrome.module.css";
 export type PageAction =
   | "rename"
   | "appearance"
@@ -52,14 +53,14 @@ export function WorkspacePageMenu({
         <button
           type="button"
           aria-label={`Thao tác trang ${page.title}`}
-          className="shrink-0 rounded-lg p-1.5 text-slate-400 transition-all hover:bg-slate-100 active:scale-95 dark:hover:bg-lms-hover"
+          className="shrink-0 rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 active:bg-slate-200 data-[state=open]:bg-slate-100 dark:text-slate-400 dark:hover:bg-lms-hover dark:active:bg-blue-500/20 dark:data-[state=open]:bg-lms-hover"
         >
           <MoreHorizontal className="size-4" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="max-h-[75dvh] min-w-56 overflow-y-auto rounded-xl"
+        className={`max-h-[75dvh] min-w-56 overflow-y-auto rounded-xl ${chrome.interactions}`}
       >
         {editable && (
           <>

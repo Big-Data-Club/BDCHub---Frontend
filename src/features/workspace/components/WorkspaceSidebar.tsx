@@ -5,7 +5,6 @@ import {
   Bell,
   BookOpen,
   ChevronDown,
-  ChevronRight,
   FileText,
   Files,
   History,
@@ -178,37 +177,36 @@ export function WorkspaceSidebar(props: SidebarProps) {
                   element.style.paddingLeft = `${Math.min(depth, 8) * 12}px`;
               }}
             >
+              {children ? (
+                <button
+                  type="button"
+                  aria-label={
+                    closed
+                      ? `Mở nhánh ${page.title}`
+                      : `Thu gọn nhánh ${page.title}`
+                  }
+                  aria-expanded={!closed}
+                  className="shrink-0 rounded p-1 text-slate-500 hover:bg-slate-200/60 active:bg-slate-200 dark:text-slate-400 dark:hover:bg-blue-500/15 dark:active:bg-blue-500/25"
+                  onClick={() =>
+                    setCollapsed((items) => {
+                      const values = new Set(items);
+                      if (values.has(page.id)) values.delete(page.id);
+                      else values.add(page.id);
+                      return values;
+                    })
+                  }
+                >
+                  <ChevronDown
+                    className={`size-3 motion-safe:transition-transform motion-safe:duration-150 ${closed ? "-rotate-90" : ""}`}
+                  />
+                </button>
+              ) : (
+                <span aria-hidden className="w-5 shrink-0" />
+              )}
               <button
                 type="button"
-                aria-label={
-                  closed
-                    ? `Mở nhánh ${page.title}`
-                    : `Thu gọn nhánh ${page.title}`
-                }
-                aria-expanded={children ? !closed : undefined}
-                className="shrink-0 rounded p-1 text-slate-400 transition-all active:scale-95"
-                onClick={() =>
-                  setCollapsed((items) => {
-                    const values = new Set(items);
-                    if (values.has(page.id)) values.delete(page.id);
-                    else values.add(page.id);
-                    return values;
-                  })
-                }
-              >
-                {children ? (
-                  closed ? (
-                    <ChevronRight className="size-3" />
-                  ) : (
-                    <ChevronDown className="size-3" />
-                  )
-                ) : (
-                  <span className="block size-3" />
-                )}
-              </button>
-              <button
-                type="button"
-                className="flex min-w-0 flex-1 items-center gap-2 py-2 text-left text-sm transition-all active:scale-95"
+                aria-current={page.id === props.activeId ? "page" : undefined}
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-md py-2 text-left text-sm active:bg-slate-200/70 dark:active:bg-blue-500/20"
                 onClick={() => props.onOpen(page.id)}
               >
                 {page.icon ? (

@@ -38,6 +38,8 @@ export function WorkspaceHeader({
   onHome,
   ancestors = [],
   onFieldHome,
+  navigating = false,
+  panelTab,
 }: {
   page: WorkspacePage;
   status: CollaborationStatus;
@@ -52,11 +54,16 @@ export function WorkspaceHeader({
   onHome: () => void;
   ancestors?: WorkspacePage[];
   onFieldHome?: () => void;
+  navigating?: boolean;
+  panelTab: InspectorTab | null;
 }) {
   const editable = (page.access || 0) >= 3;
   const saveLabel = saveLabels[status.state];
   return (
-    <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-2 dark:border-lms-border">
+    <header
+      inert={navigating}
+      className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-2 dark:border-lms-border"
+    >
       <div className="flex min-w-0 items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
         <button
           type="button"
@@ -67,13 +74,19 @@ export function WorkspaceHeader({
           <ArrowLeft className="size-3" />
           <span className="hidden sm:inline">Workspace</span>
         </button>
-        <button
-          type="button"
-          className="max-w-36 truncate hover:text-blue-600"
-          onClick={onFieldHome}
-        >
-          {fieldName || spaceName || "Được chia sẻ"}
-        </button>
+        {onFieldHome ? (
+          <button
+            type="button"
+            className="max-w-36 truncate hover:text-blue-600 dark:hover:text-cyan-300"
+            onClick={onFieldHome}
+          >
+            {fieldName || spaceName || "Được chia sẻ"}
+          </button>
+        ) : (
+          <span className="max-w-36 truncate">
+            {spaceName || "Được chia sẻ"}
+          </span>
+        )}
         <ChevronRight className="size-3 shrink-0" />
         {ancestors.length
           ? ancestors.map((parent) => (
@@ -97,7 +110,13 @@ export function WorkspaceHeader({
                 {parentTitle || "Trang cha"}
               </button>
             )}
-        <span className="max-w-44 truncate text-slate-800 dark:text-slate-200">
+        {!ancestors.length && page.parent_id && (
+          <ChevronRight className="size-3 shrink-0" />
+        )}
+        <span
+          aria-current="page"
+          className="max-w-44 truncate text-slate-800 dark:text-slate-200"
+        >
           {page.title}
         </span>
       </div>
@@ -121,12 +140,16 @@ export function WorkspaceHeader({
             className={`size-4 ${page.favorite ? "fill-amber-400 text-amber-500" : ""}`}
           />
         </WorkspaceButton>
-        <WorkspaceButton onClick={() => onPanel("sharing")}>
+        <WorkspaceButton
+          aria-pressed={panelTab === "sharing"}
+          onClick={() => onPanel("sharing")}
+        >
           <Share2 className="size-4" />
           <span className="hidden sm:inline">Chia sẻ</span>
         </WorkspaceButton>
         <WorkspaceButton
           aria-label="Bình luận"
+          aria-pressed={panelTab === "comments"}
           className="px-2"
           onClick={() => onPanel("comments")}
         >
@@ -134,6 +157,7 @@ export function WorkspaceHeader({
         </WorkspaceButton>
         <WorkspaceButton
           aria-label="AI hỗ trợ trang"
+          aria-pressed={panelTab === "ai"}
           className="px-2"
           onClick={() => onPanel("ai")}
         >
@@ -141,6 +165,7 @@ export function WorkspaceHeader({
         </WorkspaceButton>
         <WorkspaceButton
           aria-label="Lịch sử và nguồn"
+          aria-expanded={panelTab !== null}
           className="px-2"
           onClick={() => setTab((value) => (value ? null : "history"))}
         >

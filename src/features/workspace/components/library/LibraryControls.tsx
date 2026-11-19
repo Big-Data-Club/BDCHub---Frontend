@@ -11,6 +11,7 @@ import { readyFilter } from "../../utils/library";
 import { LibraryTabs } from "./LibraryTabs";
 import { LibraryViewSettings, type LibraryPanel } from "./LibraryViewSettings";
 import styles from "./WorkspaceLibrary.module.css";
+import chrome from "../WorkspaceChrome.module.css";
 export function LibraryControls({ model }: { model: WorkspaceLibraryModel }) {
   const [panel, setPanel] = useState<LibraryPanel | null>(null),
     [searchOpen, setSearchOpen] = useState(false),
@@ -96,7 +97,7 @@ export function LibraryControls({ model }: { model: WorkspaceLibraryModel }) {
         <PopoverContent
           align="end"
           sideOffset={12}
-          className={styles.popover}
+          className={`${styles.popover} ${chrome.interactions}`}
           onOpenAutoFocus={(event) => {
             if (panel === "settings") event.preventDefault();
           }}

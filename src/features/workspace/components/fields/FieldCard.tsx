@@ -9,6 +9,7 @@ import {
 import type { WorkspaceField } from "../../types";
 import { FieldArtwork } from "./FieldArtwork";
 import styles from "./Fields.module.css";
+import chrome from "../WorkspaceChrome.module.css";
 export function FieldCard({
   field,
   index,
@@ -42,7 +43,7 @@ export function FieldCard({
                 <MoreHorizontal className="size-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className={chrome.interactions}>
               <DropdownMenuItem onClick={() => onEdit(field)}>
                 <Settings2 className="mr-2 size-4" />
                 Chỉnh sửa lĩnh vực

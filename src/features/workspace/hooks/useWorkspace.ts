@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { workspaceService, WorkspaceError } from "../api/workspaceService";
 import type {
   WorkspaceBootstrap,
@@ -8,41 +8,67 @@ import type {
   WorkspaceField,
 } from "../types";
 export function useWorkspace() {
-  const router = useRouter(),
-    query = useSearchParams(),
+  const query = useSearchParams(),
     pageId = query.get("page"),
     spaceId = query.get("space"),
     fieldId = query.get("field");
+  const locationKey = JSON.stringify([pageId, spaceId, fieldId]);
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null),
     [allPages, setAllPages] = useState<WorkspacePage[]>([]),
     [page, setPage] = useState<WorkspacePage | null>(null),
     [field, setField] = useState<WorkspaceField | null>(null),
-    [loading, setLoading] = useState(true),
+    [settledLocation, setSettledLocation] = useState<string | null>(null),
     [error, setError] = useState<string | null>(null);
   const mounted = useRef(true),
     generation = useRef(0),
-    loaded = useRef(false);
+    settledLocationRef = useRef<string | null>(null);
   const navigate = useCallback(
     (id?: string, space?: string, field?: string) => {
+      if (!mounted.current || window.location.pathname !== "/workspace") return;
+      if (
+        id &&
+        !space &&
+        !field &&
+        new URLSearchParams(window.location.search).get("page") === id
+      )
+        return;
       const next = new URLSearchParams();
       if (id) next.set("page", id);
       if (space) next.set("space", space);
       if (field) next.set("field", field);
-      router.push(`/workspace${next.size ? `?${next}` : ""}`);
+      const href = `/workspace${next.size ? `?${next}` : ""}`;
+      if (href !== window.location.pathname + window.location.search) {
+        // Next synchronizes useSearchParams with history. The Workspace layout
+        // stays mounted while the client fetches the requested page.
+        window.history.pushState(null, "", href);
+      }
     },
-    [router],
+    [],
   );
   const refresh = useCallback(async () => {
+    function matchesLocation() {
+      const next = new URLSearchParams(window.location.search);
+      return (
+        window.location.pathname === "/workspace" &&
+        next.get("page") === pageId &&
+        next.get("space") === spaceId &&
+        next.get("field") === fieldId
+      );
+    }
+    if (!mounted.current || !matchesLocation()) return;
     const current = ++generation.current;
+    const isCurrent = () =>
+      mounted.current && current === generation.current && matchesLocation();
     try {
-      const initial = await workspaceService.bootstrap();
-      if (!mounted.current || current !== generation.current) return;
-      setBootstrap(initial);
-      let active: WorkspacePage | null = null,
+      const [initial, requestedPage] = await Promise.all([
+        workspaceService.bootstrap(),
+        pageId ? workspaceService.page(pageId) : null,
+      ]);
+      if (!isCurrent()) return;
+      let active = requestedPage,
         activeField: WorkspaceField | null = null,
         tree: WorkspacePage[] = [];
-      if (pageId) {
-        active = await workspaceService.page(pageId);
+      if (active) {
         if (active.space_role) {
           tree = await workspaceService.pages(active.space_id);
           activeField =
@@ -73,33 +99,36 @@ export function useWorkspace() {
           if (first) active = await workspaceService.page(first.id);
         }
       }
-      if (!mounted.current || current !== generation.current) return;
+      if (!isCurrent()) return;
+      setBootstrap(initial);
       setAllPages(tree);
       setPage(active);
       setField(activeField);
       setError(null);
-      loaded.current = true;
       window.dispatchEvent(new Event("bdc:workspace-refresh"));
     } catch (reason) {
-      if (!mounted.current || current !== generation.current) return;
+      if (!isCurrent()) return;
       setError(
         reason instanceof Error ? reason.message : "Chưa mở được Workspace.",
       );
       if (
-        reason instanceof WorkspaceError &&
-        [401, 403, 404].includes(reason.status)
+        settledLocationRef.current !== locationKey ||
+        (reason instanceof WorkspaceError &&
+          [401, 403, 404].includes(reason.status))
       ) {
         setPage(null);
         setField(null);
         setAllPages([]);
       }
     } finally {
-      if (mounted.current && current === generation.current) setLoading(false);
+      if (isCurrent()) {
+        settledLocationRef.current = locationKey;
+        setSettledLocation(locationKey);
+      }
     }
-  }, [pageId, spaceId, fieldId]);
+  }, [pageId, spaceId, fieldId, locationKey]);
   useEffect(() => {
     mounted.current = true;
-    setLoading(!loaded.current);
     void refresh();
     const timer = setInterval(() => void refresh(), 15000),
       focus = () => void refresh();
@@ -164,7 +193,8 @@ export function useWorkspace() {
     page,
     field,
     activeSpace,
-    loading,
+    loading: settledLocation === null,
+    navigating: settledLocation !== locationKey,
     error,
     refresh,
     navigate,

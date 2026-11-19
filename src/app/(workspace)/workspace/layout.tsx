@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import Sidebar from "@/components/layout/Sidebar";
 import MobileNav from "@/components/layout/MobileNav";
+import chrome from "@/features/workspace/components/WorkspaceChrome.module.css";
 
 export default async function WorkspaceLayout({
   children,
@@ -18,7 +19,9 @@ export default async function WorkspaceLayout({
       </div>
       <div className="flex min-h-0 flex-1">
         <Sidebar />
-        <div className="min-w-0 flex-1">{children}</div>
+        <div className={`min-w-0 flex-1 ${chrome.interactions}`}>
+          {children}
+        </div>
       </div>
     </div>
   );

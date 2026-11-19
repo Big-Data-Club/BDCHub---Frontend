@@ -14,6 +14,7 @@ import dynamic from "next/dynamic";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -79,8 +80,18 @@ export function WorkspaceClient() {
       text?: string;
       blockId?: string;
     } | null>(null),
-    importInput = useRef<HTMLInputElement>(null);
+    importInput = useRef<HTMLInputElement>(null),
+    scroll = useRef<HTMLElement>(null);
+  const sidebarOpen = sidebar.isDesktop ? !sidebar.collapsed : mobile;
+  const closeMobileSidebar = useCallback(() => {
+    setMobile(false);
+    document.getElementById("workspace-sidebar-toggle")?.focus();
+  }, []);
+  useLayoutEffect(() => {
+    if (scroll.current) scroll.current.scrollTop = 0;
+  }, [pageId, model.isLanding]);
   useEffect(() => {
+    let current = true;
     const pending =
       pendingPanel.current?.pageId === pageId ? pendingPanel.current : null;
     pendingPanel.current = null;
@@ -95,14 +106,18 @@ export function WorkspaceClient() {
     if (pageId)
       void workspaceService
         .sharing(pageId)
-        .then((value) =>
-          setMembers([
-            ...new Map(
-              value.members.map((member) => [member.id, member]),
-            ).values(),
-          ]),
-        )
+        .then((value) => {
+          if (current)
+            setMembers([
+              ...new Map(
+                value.members.map((member) => [member.id, member]),
+              ).values(),
+            ]);
+        })
         .catch(() => {});
+    return () => {
+      current = false;
+    };
   }, [pageId, pageSpaceId, spaceRole]);
   useEffect(() => {
     if (!toast) return;
@@ -129,6 +144,16 @@ export function WorkspaceClient() {
     if (innerWidth >= 1024) setCollapsed((value) => !value);
     else setMobile((value) => !value);
   }, [setCollapsed]);
+  useEffect(() => {
+    if (!mobile || sidebar.isDesktop) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented) {
+        closeMobileSidebar();
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [mobile, sidebar.isDesktop, closeMobileSidebar]);
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
       if (
@@ -271,9 +296,15 @@ export function WorkspaceClient() {
       onCreate={createWithLink}
     />
   );
+  const progress = model.navigating && (
+    <div className={chrome.navigationProgress} role="status">
+      <span className="sr-only">Đang mở trang…</span>
+    </div>
+  );
   if (model.isLanding)
     return (
-      <>
+      <div className="relative h-full min-h-0">
+        {progress}
         <WorkspaceLanding
           bootstrap={bootstrap}
           space={model.activeSpace}
@@ -287,62 +318,74 @@ export function WorkspaceClient() {
           onTrash={() => setDialog({ type: "trash" })}
         />
         {dialogs}
-      </>
+      </div>
     );
   return (
     <div
-      key={model.field?.id || page?.space_id || "shared"}
       className={`${chrome.shell} ${chrome.enter}`}
       style={
         { "--workspace-sidebar-width": `${sidebar.width}px` } as CSSProperties
       }
     >
-      {mobile && (
-        <button
-          aria-label="Đóng cây trang"
-          type="button"
-          className="absolute inset-0 z-30 bg-slate-950/40 lg:hidden"
-          onClick={() => setMobile(false)}
-        />
-      )}
+      {progress}
+      <button
+        aria-label="Đóng cây trang"
+        type="button"
+        className={chrome.backdrop}
+        data-open={mobile || undefined}
+        inert={!mobile}
+        tabIndex={-1}
+        onClick={closeMobileSidebar}
+      />
       <aside
         id="workspace-page-sidebar"
         className={chrome.sidebar}
         data-mobile={mobile || undefined}
         data-collapsed={sidebar.collapsed || undefined}
+        inert={!sidebarOpen}
       >
-        <WorkspaceSidebar
-          bootstrap={bootstrap}
-          space={model.activeSpace}
-          pages={model.pages}
-          activeId={page?.id}
-          field={model.field}
-          onHome={() => navigate(undefined, model.activeSpace?.id)}
-          onField={(id) => navigate(undefined, model.activeSpace?.id, id)}
-          onOpen={open}
-          onCreate={(parent) => setDialog({ type: "create", parent })}
-          onCreateSpace={() => setDialog({ type: "team" })}
-          onGuide={() => {
-            setGuide(true);
-            setMobile(false);
-          }}
-          onTrash={() => setDialog({ type: "trash" })}
-          onNotes={() => setDialog({ type: "notes" })}
-          onInbox={() => setDialog({ type: "inbox" })}
-          onMove={(id, parent_id) => {
-            void workspaceService
-              .page(id)
-              .then((current) =>
-                workspaceService.updatePage(id, {
-                  version: current.version,
-                  parent_id,
-                }),
-              )
-              .then(() => reload())
-              .catch((reason) => model.setError(reason.message));
-          }}
-        />
-        {!sidebar.collapsed && <WorkspaceSidebarEdge controls={sidebar} />}
+        <div className={chrome.sidebarClip}>
+          <div className={chrome.sidebarBody}>
+            <WorkspaceSidebar
+              key={
+                model.field?.id ||
+                page?.space_id ||
+                model.activeSpace?.id ||
+                "shared"
+              }
+              bootstrap={bootstrap}
+              space={model.activeSpace}
+              pages={model.pages}
+              activeId={page?.id}
+              field={model.field}
+              onHome={() => navigate(undefined, model.activeSpace?.id)}
+              onField={(id) => navigate(undefined, model.activeSpace?.id, id)}
+              onOpen={open}
+              onCreate={(parent) => setDialog({ type: "create", parent })}
+              onCreateSpace={() => setDialog({ type: "team" })}
+              onGuide={() => {
+                setGuide(true);
+                setMobile(false);
+              }}
+              onTrash={() => setDialog({ type: "trash" })}
+              onNotes={() => setDialog({ type: "notes" })}
+              onInbox={() => setDialog({ type: "inbox" })}
+              onMove={(id, parent_id) => {
+                void workspaceService
+                  .page(id)
+                  .then((current) =>
+                    workspaceService.updatePage(id, {
+                      version: current.version,
+                      parent_id,
+                    }),
+                  )
+                  .then(() => reload())
+                  .catch((reason) => model.setError(reason.message));
+              }}
+            />
+          </div>
+        </div>
+        {sidebar.isDesktop && <WorkspaceSidebarEdge controls={sidebar} />}
       </aside>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <WorkspaceTabs
@@ -350,7 +393,7 @@ export function WorkspaceClient() {
           activeId={page?.id}
           onAdd={() => setTabPicker(true)}
           onSidebar={toggleSidebar}
-          sidebarOpen={sidebar.isDesktop ? !sidebar.collapsed : mobile}
+          sidebarOpen={sidebarOpen}
         />
         {tabPicker && (
           <WorkspaceTabPicker
@@ -375,6 +418,8 @@ export function WorkspaceClient() {
           <WorkspaceHeader
             page={page}
             status={status}
+            navigating={model.navigating}
+            panelTab={tab}
             spaceName={model.activeSpace?.title}
             fieldName={model.field?.title}
             ancestors={pageAncestors(page, model.allPages)}
@@ -397,7 +442,10 @@ export function WorkspaceClient() {
         )}
         <div className="flex min-h-0 min-w-0 flex-1">
           <main
+            ref={scroll}
             data-workspace-scroll
+            aria-busy={model.navigating}
+            inert={model.navigating}
             className={`min-h-0 min-w-0 flex-1 overflow-y-auto ${guide ? "hidden" : ""}`}
           >
             <div className="px-4 pt-3">
@@ -405,7 +453,8 @@ export function WorkspaceClient() {
             </div>
             {page ? (
               <div
-                className={`mx-auto w-full ${page.full_width || page.kind === "database" ? "max-w-none" : "max-w-4xl"}`}
+                key={page.id}
+                className={`mx-auto w-full ${chrome.enter} ${page.full_width || page.kind === "database" ? "max-w-none" : "max-w-4xl"}`}
               >
                 <WorkspacePageHeading
                   page={page}
@@ -451,7 +500,7 @@ export function WorkspaceClient() {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : !model.navigating && !model.error ? (
               <div className="mx-auto max-w-lg space-y-4 px-6 py-20">
                 <BookOpen className="size-10 text-blue-500" />
                 <h1 className="text-2xl font-semibold">
@@ -465,7 +514,7 @@ export function WorkspaceClient() {
                   Tạo trang đầu tiên
                 </WorkspaceButton>
               </div>
-            )}
+            ) : null}
           </main>
           {guide && (
             <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">

@@ -25,11 +25,43 @@ export function WorkspaceTabs({
   sidebarOpen: boolean;
 }) {
   const list = useRef<HTMLDivElement>(null);
+  const add = useRef<HTMLDivElement>(null);
+  const tabs = model.state.tabs;
+  const focusId = tabs.some((item) => item.id === activeId)
+    ? activeId
+    : tabs[0]?.id;
+  function revealTab(button: HTMLButtonElement) {
+    const container = list.current;
+    const tab = button.parentElement;
+    if (!container || !tab) return;
+    const viewport = container.getBoundingClientRect();
+    const bounds = tab.getBoundingClientRect();
+    if (bounds.left < viewport.left) {
+      container.scrollBy({ left: bounds.left - viewport.left });
+    } else if (bounds.right > viewport.right) {
+      container.scrollBy({ left: bounds.right - viewport.right });
+    }
+  }
   useEffect(() => {
-    list.current
-      ?.querySelector("[aria-selected=true]")
-      ?.scrollIntoView({ block: "nearest", inline: "nearest" });
-  }, [activeId]);
+    const selected = list.current?.querySelector<HTMLButtonElement>(
+      '[aria-selected="true"]',
+    );
+    if (selected) revealTab(selected);
+  }, [activeId, tabs]);
+  function focusTab(index: number) {
+    const target =
+      list.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[index];
+    if (target) {
+      target.focus({ preventScroll: true });
+      revealTab(target);
+    } else {
+      add.current?.querySelector("button")?.focus({ preventScroll: true });
+    }
+  }
+  function close(index: number) {
+    focusTab(index > 0 ? index - 1 : index + 1);
+    model.close(tabs[index].id);
+  }
   return (
     <nav className={styles.tabs} aria-label="Trang đã mở">
       <div className={styles.tabTools}>
@@ -67,7 +99,7 @@ export function WorkspaceTabs({
         role="tablist"
         aria-label="Các tab trong workspace"
       >
-        {model.state.tabs.map((item, index) => (
+        {tabs.map((item, index) => (
           <div
             className={styles.tab}
             key={item.id}
@@ -76,31 +108,26 @@ export function WorkspaceTabs({
             <button
               type="button"
               role="tab"
-              tabIndex={item.id === activeId ? 0 : -1}
+              tabIndex={item.id === focusId ? 0 : -1}
               aria-selected={item.id === activeId}
               title={item.title}
               onClick={() => model.select(item.id)}
               onKeyDown={(event) => {
                 let next = index;
                 if (event.key === "ArrowRight")
-                  next = (index + 1) % model.state.tabs.length;
+                  next = (index + 1) % tabs.length;
                 else if (event.key === "ArrowLeft")
-                  next =
-                    (index - 1 + model.state.tabs.length) %
-                    model.state.tabs.length;
+                  next = (index - 1 + tabs.length) % tabs.length;
                 else if (event.key === "Home") next = 0;
-                else if (event.key === "End")
-                  next = model.state.tabs.length - 1;
+                else if (event.key === "End") next = tabs.length - 1;
                 else if (event.key === "Delete") {
                   event.preventDefault();
-                  model.close(item.id);
+                  close(index);
                   return;
                 } else return;
                 event.preventDefault();
-                model.select(model.state.tabs[next].id);
-                list.current
-                  ?.querySelectorAll<HTMLButtonElement>("[role=tab]")
-                  [next]?.focus();
+                focusTab(next);
+                model.select(tabs[next].id);
               }}
             >
               {item.icon ? (
@@ -113,14 +140,14 @@ export function WorkspaceTabs({
             <button
               type="button"
               aria-label={`Đóng tab ${item.title}`}
-              onClick={() => model.close(item.id)}
+              onClick={() => close(index)}
             >
               <X className="size-3" />
             </button>
           </div>
         ))}
       </div>
-      <div className={styles.tabTools}>
+      <div ref={add} className={styles.tabTools}>
         <WorkspaceButton
           aria-label="Mở trang trong tab mới"
           title="Tìm trang hoặc tạo trang mới"

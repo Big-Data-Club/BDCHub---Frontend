@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import chrome from "./WorkspaceChrome.module.css";
 
 export function WorkspaceButton({
   className,
@@ -21,7 +22,7 @@ export function WorkspaceButton({
       type="button"
       variant="ghost"
       className={cn(
-        "h-9 gap-2 rounded-xl px-3 text-sm font-medium transition-all duration-200 active:scale-95",
+        "h-9 cursor-pointer gap-2 rounded-xl px-3 text-sm font-medium transition-[background-color,color,border-color,scale] duration-150 ease-out motion-safe:enabled:active:scale-[0.98] disabled:pointer-events-auto disabled:cursor-not-allowed motion-reduce:transition-none",
         className,
       )}
       {...props}
@@ -52,6 +53,7 @@ export function WorkspaceDialog({
       <DialogContent
         className={cn(
           "max-h-[88dvh] overflow-y-auto rounded-2xl bg-white text-slate-900 dark:bg-lms-card dark:text-slate-100",
+          chrome.interactions,
           wide ? "sm:max-w-3xl" : "sm:max-w-lg",
           className,
         )}

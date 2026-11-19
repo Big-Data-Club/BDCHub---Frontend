@@ -1,3 +1,33 @@
+.interactions
+  :where(
+    button:not([draggable="true"]),
+    a[href],
+    summary,
+    select,
+    [role="menuitem"]
+  ):not(:disabled):not([data-disabled]):not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+.interactions
+  :where(button, input, select, [role="menuitem"]):is(
+    :disabled,
+    [data-disabled],
+    [aria-disabled="true"]
+  ) {
+  cursor: not-allowed;
+}
+.interactions :where(button, a[href], summary, select):focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+}
+.interactions :where(button, a[href], [role="menuitem"]) {
+  transition:
+    background-color var(--duration-fast, 150ms) ease-out,
+    color var(--duration-fast, 150ms) ease-out,
+    border-color var(--duration-fast, 150ms) ease-out,
+    scale var(--duration-fast, 150ms) ease-out;
+}
+
 .shell {
   position: relative;
   display: flex;
@@ -7,13 +37,56 @@
   background: #fff;
 }
 .sidebar {
-  display: none;
   position: relative;
   flex-shrink: 0;
   width: var(--workspace-sidebar-width, 280px);
   min-height: 0;
-  flex-direction: column;
+}
+.sidebarClip {
+  height: 100%;
+  overflow: clip;
+}
+.sidebarBody {
+  height: 100%;
+  width: var(--workspace-sidebar-width, 280px);
   border-right: 1px solid #e2e8f0;
+}
+.backdrop {
+  display: none;
+}
+.navigationProgress {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+  background: #3b82f622;
+  animation: workspace-progress-in 120ms ease-out 100ms both;
+}
+.navigationProgress::before {
+  content: "";
+  display: block;
+  height: 100%;
+  background: #3b82f6;
+  width: 40%;
+  animation: workspace-progress-slide 850ms ease-in-out infinite;
+}
+@keyframes workspace-progress-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes workspace-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
 }
 .edge {
   position: absolute;
@@ -78,6 +151,7 @@
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: thin;
+  scroll-behavior: smooth;
 }
 .tab {
   display: flex;
@@ -88,6 +162,10 @@
   border-top: 2px solid transparent;
   color: #64748b;
   flex-shrink: 0;
+  transition:
+    background-color var(--duration-fast, 150ms) ease-out,
+    border-top-color var(--duration-fast, 150ms) ease-out,
+    color var(--duration-fast, 150ms) ease-out;
 }
 .tab[data-active] {
   background: #fff;
@@ -114,10 +192,11 @@
   margin-right: 6px;
   border-radius: 5px;
 }
-.tab > button:hover,
-.tab > button:focus-visible {
+.tab > button:hover {
   background: #edf2fa;
-  outline: none;
+}
+.tab > button:active {
+  background: #e0eaff;
 }
 .tabTools {
   display: flex;
@@ -127,22 +206,20 @@
   flex-shrink: 0;
 }
 .enter {
-  animation: workspace-enter 0.28s ease-out;
+  animation: workspace-enter 160ms ease-out;
 }
 @keyframes workspace-enter {
   from {
-    opacity: 0.55;
-    transform: translateY(7px);
+    opacity: 0.85;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 :global(.dark) .shell {
   background: #050b18;
 }
-:global(.dark) .sidebar,
+:global(.dark) .sidebarBody,
 :global(.dark) .tabs,
 :global(.dark) .tab {
   border-color: #21324b;
@@ -158,6 +235,14 @@
 :global(.dark) .tab > button:hover {
   background: #1a2c48;
 }
+:global(.dark) .tab > button:active {
+  background: #223c61;
+}
+:global(.dark)
+  .interactions
+  :where(button, a[href], summary, select):focus-visible {
+  outline-color: #67e8f9;
+}
 :global(.dark) .edgeTip {
   background: #101e33;
   color: #cbd5e1;
@@ -165,39 +250,80 @@
 }
 @media (min-width: 1024px) {
   .sidebar {
-    display: flex;
+    transition: width 180ms var(--ease-out-expo, ease-out);
+  }
+  .sidebar:has(.edge[data-dragging]) {
+    transition: none;
   }
   .sidebar[data-collapsed] {
-    display: none;
+    width: 0;
+    visibility: hidden;
+    transition:
+      width 180ms var(--ease-out-expo, ease-out),
+      visibility 0s 180ms;
+  }
+  .sidebar[data-collapsed] .edge {
+    visibility: hidden;
   }
 }
 @media (max-width: 1023px) {
-  .sidebar[data-mobile] {
+  .sidebar {
     position: absolute;
-    display: flex;
     inset: 0 auto 0 0;
     z-index: 40;
-    width: min(310px, calc(100vw - 32px));
+    width: min(310px, calc(100% - 32px));
     box-shadow: 8px 0 30px #0002;
-    animation: sidebar-enter 0.18s ease-out;
+    transform: translateX(-110%);
+    visibility: hidden;
+    transition:
+      transform 190ms var(--ease-out-expo, ease-out),
+      visibility 0s 190ms;
+  }
+  .sidebar[data-mobile] {
+    transform: translateX(0);
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .sidebarBody {
+    width: 100%;
+  }
+  .backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    background: rgb(2 6 23 / 40%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 190ms ease-out,
+      visibility 0s 190ms;
+  }
+  .backdrop[data-open] {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
   }
   .edge {
     display: none;
   }
-  @keyframes sidebar-enter {
-    from {
-      transform: translateX(-100%);
-    }
-    to {
-      transform: translateX(0);
-    }
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .enter,
-  .sidebar[data-mobile] {
+  .navigationProgress,
+  .navigationProgress::before {
     animation: none;
   }
+  .navigationProgress::before {
+    width: 100%;
+  }
+  .tabList {
+    scroll-behavior: auto;
+  }
+  .sidebar,
+  .sidebar[data-collapsed],
+  .backdrop,
+  .tab,
   .edge:before {
     transition: none;
   }
