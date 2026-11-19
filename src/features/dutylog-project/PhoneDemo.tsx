@@ -49,7 +49,7 @@ const scenes = [
   },
 ] as const;
 
-export function PhoneDemo() {
+export function PhoneDemo({ id = "demo" }: { id?: string }) {
   const iframe = useRef<HTMLIFrameElement>(null);
   const [scene, setScene] = useState<DemoScreen>("home");
   const [ready, setReady] = useState(false);
@@ -88,7 +88,7 @@ export function PhoneDemo() {
   }, [resetKey]);
   const active = scenes.find((s) => s.id === scene);
   return (
-    <div className={styles.demo} id="demo">
+    <div className={styles.demo} id={id}>
       <div
         className={styles.demoTabs}
         role="group"

@@ -1,7 +1,8 @@
 export const dutylogLinks = {
-  figma: 'https://www.figma.com/make/edHYn86d06Uh95uwZJ1Wqm/DutyLog?fullscreen=1&t=mm4kpDhtha3xpPrq-1&code-node-id=0-6',
+  figma: 'https://www.figma.com/design/O3B7Q98CbofIDLz55nvcVH/DutyLog?node-id=0-1',
+  figmaEmbed: 'https://embed.figma.com/design/O3B7Q98CbofIDLz55nvcVH/DutyLog?node-id=0-1&embed-host=share',
   github: 'https://github.com/Big-Data-Club/BDCHub---DutyLog',
-  behance: null as string | null,
+  behance: 'https://www.behance.net/gallery/258617873/DutyLog-Qun-ly-Dang-ky-ca-trc-UIUX-Design/modules/1512920191',
 };
 
 export const workflow = [

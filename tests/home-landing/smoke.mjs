@@ -43,6 +43,32 @@ try {
       page.locator("#activities h3").filter({ hasText: activity.title }),
     ).toHaveCount(1);
   }
+  await expect(page.locator("#activities h3")).toHaveText([
+    "Kick-off BDC Gen 5",
+    "Big Data Day 2026",
+    "BDC Data Hackathon",
+    "Hội thảo khoa học sinh viên",
+    "Kick-off BDC Gen 4",
+    "Internal Seminar",
+    "BDC Year End Party 2024",
+    "Big Data Day 2023",
+    "Sinh nhật 1 năm BDC",
+  ]);
+  for (const title of [
+    "Big Data Day 2023",
+    "Big Data Day 2026",
+    "Kick-off BDC Gen 4",
+    "Kick-off BDC Gen 5",
+  ]) {
+    await expect(
+      page.getByRole("heading", { name: title, exact: true }),
+    ).toHaveCount(1);
+  }
+  await expect(
+    page
+      .locator("#publications h3")
+      .filter({ hasText: "An AI-Anchored Pathway into HPC Practice:" }),
+  ).toHaveCount(1);
   assert.equal(
     await page.locator("#projects article").count(),
     data.projects.filter(({ id }) => id !== "dutylog").length,
@@ -103,15 +129,13 @@ try {
   const firstPosition = await marks.first().getAttribute("style");
   await page.waitForTimeout(90);
   await page.evaluate(() =>
-    document
-      .querySelector('div[lang="vi"]')
-      .dispatchEvent(
-        new PointerEvent("pointermove", {
-          clientX: 450,
-          clientY: 300,
-          pointerType: "mouse",
-        }),
-      ),
+    document.querySelector('div[lang="vi"]').dispatchEvent(
+      new PointerEvent("pointermove", {
+        clientX: 450,
+        clientY: 300,
+        pointerType: "mouse",
+      }),
+    ),
   );
   await expect.poll(() => page.evaluate(() => window.spotWrites)).toBe(2);
   assert.equal(
@@ -176,7 +200,10 @@ try {
     "paused",
   );
 
-  const citation = page.locator("#publications details").first();
+  const citation = page
+    .locator("#publications article")
+    .filter({ hasText: "MOMA: Preference-Conditioned" })
+    .locator("details");
   await citation.locator("summary").focus();
   await page.keyboard.press("Enter");
   await expect(citation).toHaveAttribute("open", "");

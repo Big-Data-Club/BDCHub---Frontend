@@ -29,13 +29,19 @@ Sampling is bounded by distance (22 px), time (48 ms) and one pending animation
 frame. Web Animations only animate opacity and scale; no idle frame loop runs.
 Active animations are cancelled on unmount, reduced motion or hidden tabs.
 
-The hero has no large thumbnail. All seven activities use the existing dataset,
+The hero has no large thumbnail. All nine activities use the existing dataset,
 with local WebP photos for every event. The original Google image sources were
 retained as the input when optimizing the other five event photos; no replacement
 imagery was invented. Images below the fold load lazily. DutyLog is
 temporarily excluded from the homepage, retained in the dataset and available at
 `/projects/dutylog`. Its existing interactive demo remains on that page, which
 shares the ambient effect component and editorial visual direction.
+
+Activities follow the team's newest-to-oldest timeline in the JSON array.
+Big Data Day 2023/2026 and Kick-off Gen 4/5 have separate records and photos;
+adding a new edition must retain earlier editions. Year End Party is labelled
+2024 and the birthday event is the club's first anniversary. No exact dates
+are inferred for events without a supplied date.
 
 The homepage header shares its paper/navy surface. Five research areas appear
 directly beneath the wordmark, including Artificial Intelligence written in full.

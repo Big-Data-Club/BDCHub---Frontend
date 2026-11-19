@@ -20,7 +20,15 @@ await page.addInitScript(() => localStorage.setItem('bdc-theme', 'light'));
 try {
   const response = await page.goto(`${base}/projects/dutylog`, { waitUntil: 'networkidle', timeout: 120000 });
   assert.equal(response.status(), 200);
-  const phone = page.frameLocator('iframe');
+  await expect(page.locator('iframe')).toHaveCount(0);
+  await page.route('https://embed.figma.com/**', route => route.fulfill({ contentType: 'text/html', body: '<html><body>Figma embed fixture</body></html>' }));
+  await page.getByRole('button', { name: 'Tải bản thiết kế', exact: true }).click();
+  const designFrame = page.getByTitle('Thiết kế DutyLog trên Figma', { exact: true });
+  await expect(designFrame).toHaveAttribute('src', 'https://embed.figma.com/design/O3B7Q98CbofIDLz55nvcVH/DutyLog?node-id=0-1&embed-host=share');
+  await expect(designFrame).toHaveAttribute('allowfullscreen', '');
+  await page.getByRole('button', { name: 'Ứng dụng mẫu', exact: true }).click();
+  await expect(designFrame).toHaveCount(0);
+  const phone = page.frameLocator('iframe[src="/dutylog-demo/index.html"]');
   await expect(phone.getByText('Chào An', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Quét thẻ', exact: true })).toBeEnabled();
   await expect(page.getByText('Đang mở DutyLog…', { exact: true })).toHaveCount(0);
@@ -77,9 +85,9 @@ try {
   await page.screenshot({ path: `${screenshots}/mobile-dark.png`, fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({ path: `${screenshots}/desktop-dark.png`, fullPage: true });
-  await expect(page.getByRole('link', { name: 'Xem Figma', exact: false })).toHaveAttribute('href', /figma\.com\/make\//);
-  await expect(page.getByText('Sắp công bố', { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Xem Figma', exact: false })).toHaveAttribute('href', /figma\.com\/design\/O3B7Q98CbofIDLz55nvcVH/);
+  await expect(page.getByRole('link', { name: 'Behance case study', exact: false })).toHaveAttribute('href', 'https://www.behance.net/gallery/258617873/DutyLog-Qun-ly-Dang-ky-ca-trc-UIUX-Design/modules/1512920191');
   assert.deepEqual(demoRequests, [], 'Phone demo must not call APIs.');
   assert.deepEqual(errors, [], 'No uncaught browser errors.');
-  console.log('DutyLog smoke passed: scan in/out, occupancy, offline failure, room switching, QR, shift close/start/reset, responsive layouts, themes and no demo API calls.');
+  console.log('DutyLog smoke passed: deferred Figma embed (external content mocked), Behance link, scan in/out, occupancy, offline failure, room switching, QR, shift close/start/reset, responsive layouts, themes and no demo API calls.');
 } finally { await browser.close(); }

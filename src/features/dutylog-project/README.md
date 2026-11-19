@@ -1,6 +1,6 @@
 # DutyLog project landing
 
-Public route: `/projects/dutylog`. Listed in the BDC home page's Projects section.
+Public route: `/projects/dutylog`. DutyLog is currently excluded from the BDC homepage.
 
 The phone embeds `/dutylog-demo/index.html`, a static Expo export of the **actual
 DutyLog React Native screens**, not HTML copies. The frontend needs no new dependencies.
@@ -20,11 +20,16 @@ Requires existing dependencies in `dutylog/mobile/node_modules`. Commit the gene
 deployment can serve the demo. `sources.json` records hashes of the source inputs.
 Demo adapters do not change the production mobile entry point or API clients.
 
-Figma and Behance URLs are configured in `content.ts`. Behance remains a visible
-“Sắp công bố” status until a real project URL is supplied. The Figma URL is the
-Figma Make link supplied by the team; it is not described as a verified editable
-Figma Design deliverable. Publishing Behance and checking public Figma permissions
-remain required before submitting Assignment 2.
+Figma Design, embed and Behance URLs are configured in `content.ts` using the
+links supplied by the team. `DesignDemo` initially offers the Figma design and
+loads its responsive iframe only after the viewer clicks **Tải bản thiết kế**.
+The file is a Design embed, not a claimed interactive Prototype link. A direct
+Figma link remains available beside it. **Ứng dụng mẫu** lazily loads the existing
+phone demo; switching modes unmounts the previous iframe.
+
+The smoke test mocks external Figma content to check embed URL, fullscreen,
+deferred loading and switching, then exercises the real local application demo.
+It checks the supplied Behance link but does not verify external sharing rights.
 
 Product narrative and business model come from DutyLog Assignment 1: a club pilot,
 student members and duty staff, no current revenue, benefits still to validate.

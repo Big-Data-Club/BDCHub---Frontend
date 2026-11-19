@@ -19,7 +19,7 @@ import {
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { AmbientEffects } from "@/components/common/ambient/AmbientEffects";
 import { AmbientStars } from "@/components/common/ambient/AmbientStars";
-import { PhoneDemo } from "./PhoneDemo";
+import { DesignDemo } from "./DesignDemo";
 import { audiences, dutylogLinks, workflow } from "./content";
 import styles from "./dutylog.module.css";
 
@@ -124,7 +124,7 @@ export function DutyLogLanding() {
             </p>
           </div>
         </div>
-        <PhoneDemo />
+        <DesignDemo />
       </section>
 
       <div className={styles.contextStrip}>
@@ -465,7 +465,7 @@ export function DutyLogLanding() {
               rel="noreferrer"
               className={styles.primaryButton}
             >
-              Mở prototype Figma <ArrowUpRight size={17} />
+              Mở thiết kế Figma <ArrowUpRight size={17} />
             </a>
             {dutylogLinks.behance ? (
               <a

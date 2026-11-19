@@ -18,8 +18,9 @@ export function ClubActivities() {
             <em>Cùng tiến xa hơn.</em>
           </h2>
           <p className={styles.body}>
-            Những buổi chia sẻ kiến thức, kết nối thành viên và trải nghiệm học
-            thuật tại BDC.
+            Nhìn lại những buổi chia sẻ kiến thức, kết nối thành viên và trải
+            nghiệm học thuật tại BDC, từ những hoạt động gần đây đến các dấu mốc
+            đầu tiên.
           </p>
         </div>
         <div className={styles.activityGrid}>

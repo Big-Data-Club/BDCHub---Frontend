@@ -69,6 +69,16 @@
 .heroFootnote strong { font-weight: 500; color: var(--dl-ink); }
 .line { width: 30px; height: 1px; background: var(--dl-blue); margin-top: 10px; }
 .demo { min-width: 0; scroll-margin-top: 95px; }
+.designDemo { min-width: 0; scroll-margin-top: 125px; }
+.designModes { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.designModes button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--dl-line); border-radius: 5px; font-size: 14px; color: var(--dl-muted); }
+.designModes button[aria-pressed='true'] { background: var(--dl-blue-wash); color: var(--dl-blue); border-color: var(--dl-blue); }
+.designFrame { width: 100%; height: clamp(450px, 65vh, 650px); border: 1px solid var(--dl-line); border-radius: 6px; overflow: hidden; background: var(--dl-card); }
+.designFrame iframe { display: block; border: 0; width: 100%; height: 100%; }
+.designPlaceholder { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 20px; height: 100%; padding: 28px; }
+.designPlaceholder p { font-size: 16px; color: var(--dl-muted); }
+.designPlaceholder .primaryButton { font-size: 14px; }
+.designExternal { display: block; margin-top: 16px; font-size: 14px; text-align: center; text-decoration: underline; text-underline-offset: 4px; color: var(--dl-blue); }
 .demoTabs { display: flex; justify-content: center; gap: 4px; margin-bottom: 22px; }
 .demoTabs button { display: inline-flex; align-items: center; gap: 6px; padding: 9px 11px; font-size: 10px; color: var(--dl-muted); border-radius: 7px; transition: background .2s, transform .2s; }
 .demoTabs .demoTabActive { background: var(--dl-blue-wash); color: var(--dl-blue); }

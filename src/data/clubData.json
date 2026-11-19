@@ -398,27 +398,20 @@
   },
   "activities": [
     {
+      "id": "5",
+      "title": "Kick-off BDC Gen 5",
+      "type": "Kết nối",
+      "description": "Sự kiện chào đón và kết nối các thành viên BDC Gen 5.",
+      "imageUrl": "/activities/kick-off-bdc-gen-5.webp",
+      "frequency": "Hàng học kỳ"
+    },
+    {
       "id": "1",
       "title": "Big Data Day 2026",
       "type": "Hội thảo",
       "description": "Hội thảo thường niên về xu hướng Big Data và AI, mời các chuyên gia từ doanh nghiệp và học viện đến chia sẻ",
       "imageUrl": "/activities/big-data-day-2026.webp",
       "frequency": "Hàng năm"
-    },
-    {
-      "id": "2",
-      "title": "Hội thảo khoa học sinh viên",
-      "type": "Tham luận",
-      "description": "Tham luận về chủ đề “Sinh viên dữ liệu Việt Nam: Từ câu lạc bộ học thuật đến mạng lưới điện toán đám mây, dữ liệu lớn và lượng tử.”",
-      "imageUrl": "/activities/student-research-seminar.webp"
-    },
-    {
-      "id": "6",
-      "title": "Internal Seminar",
-      "type": "Chuyên đề",
-      "description": "Các buổi chuyên đề nội bộ để thành viên các nhóm trình bày các nội dung nghiên cứu theo định hướng của CLB",
-      "imageUrl": "/activities/internal-seminar.webp",
-      "frequency": "Hàng tháng"
     },
     {
       "id": "4",
@@ -429,24 +422,47 @@
       "frequency": "Hàng năm"
     },
     {
-      "id": "5",
-      "title": "Kick-off BDC Gen 5",
+      "id": "2",
+      "title": "Hội thảo khoa học sinh viên",
+      "type": "Tham luận",
+      "description": "Tham luận về chủ đề “Sinh viên dữ liệu Việt Nam: Từ câu lạc bộ học thuật đến mạng lưới điện toán đám mây, dữ liệu lớn và lượng tử.”",
+      "imageUrl": "/activities/student-research-seminar.webp"
+    },
+    {
+      "id": "kick-off-gen-4",
+      "title": "Kick-off BDC Gen 4",
       "type": "Kết nối",
-      "description": "Sự kiện chào đón và kết nối các thành viên BDC Gen 5.",
-      "imageUrl": "/activities/kick-off-bdc-gen-5.webp",
+      "description": "Sự kiện chào đón và kết nối các thành viên BDC Gen 4.",
+      "imageUrl": "/activities/kick-off-bdc-gen-4.webp",
       "frequency": "Hàng học kỳ"
     },
     {
+      "id": "6",
+      "title": "Internal Seminar",
+      "type": "Chuyên đề",
+      "description": "Các buổi chuyên đề nội bộ để thành viên các nhóm trình bày các nội dung nghiên cứu theo định hướng của CLB",
+      "imageUrl": "/activities/internal-seminar.webp",
+      "frequency": "Hàng tháng"
+    },
+    {
       "id": "3",
-      "title": "BDC Year End Party",
+      "title": "BDC Year End Party 2024",
       "type": "Gắn kết",
       "description": "Hoạt động tập thể nhằm tăng cường tinh thần đồng đội và kết nối các thành viên",
       "imageUrl": "/activities/bdc-year-end-party.webp",
       "frequency": "Hàng năm"
     },
     {
+      "id": "big-data-day-2023",
+      "title": "Big Data Day 2023",
+      "type": "Hội thảo",
+      "description": "Hội thảo về xu hướng Big Data và AI, với các chuyên gia từ doanh nghiệp và học viện chia sẻ kiến thức.",
+      "imageUrl": "/activities/big-data-day-2023.webp",
+      "frequency": "Hàng năm"
+    },
+    {
       "id": "9",
-      "title": "BDC Birthday Party",
+      "title": "Sinh nhật 1 năm BDC",
       "type": "Kỷ niệm",
       "description": "Buổi tiệc kỷ niệm thành lập CLB",
       "imageUrl": "/activities/bdc-birthday-party.webp",
@@ -588,6 +604,13 @@
     }
   ],
   "publications": [
+    {
+      "id": "ai-anchored-hpc-school-2026",
+      "title": "An AI-Anchored Pathway into HPC Practice: Design and Initial Evaluation of a Three-Day Summer School in Vietnam",
+      "authors": "Thanh Hoang Le Hai, Thin Nguyen Manh, Huy Nguyen Tuan, Nhan Nguyen Phuc, Thanh Nguyen Van Cong, Duong Nguyen Anh, Van Vo Tran Thi My, Trang Nguyen Thi Thuy, Luong Phan Hao, Hao Thoai, Nhan Tran Thien, Khanh Vo Huy, Dang Tran Hai, Nhien Ho Minh, Duc Le Dinh, Nam Thoai",
+      "publisher": "EduHPC Workshop, SC26",
+      "year": 2026
+    },
     {
       "id": "moma-2026",
       "title": "MOMA: Preference-Conditioned Multi-Objective and Multi-Action Reinforcement Learning for Sustainable HPC Scheduling",
