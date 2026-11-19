@@ -126,6 +126,11 @@ export const AgentMessageItem = memo(function AgentMessageItem({
           isUser ? "max-w-[85%] md:max-w-[80%] lg:max-w-[85%] items-end" : "w-full max-w-full items-start"
         )}
       >
+        {!isUser && message.isStreaming && message.model && (
+          <div className="mb-2 text-xs text-slate-500 dark:text-slate-400" title="Model đang xử lý lượt này">
+            Đang xử lý · <span className="font-medium">{message.model}</span>
+          </div>
+        )}
         {!isUser && message.toolActivities && message.toolActivities.length > 0 && (
           <div className="space-y-1 mb-2">
             {message.toolActivities.map((t, i) => (

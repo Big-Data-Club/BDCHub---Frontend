@@ -19,11 +19,12 @@ test("thinking and running agent logs stay collapsed until the user expands them
   }
   const props = { message: {
     id: "reply", role: "assistant", content: "", thinking: "Check displacement.",
-    isStreaming: true, multiAgentLogs: [{ subagentId: "draft", status: "running", thinking: "Check source." }],
+    isStreaming: true, model: "active-model", multiAgentLogs: [{ subagentId: "draft", status: "running", thinking: "Check source." }],
   } };
   const h = hookHarness("src/components/lms/agent/AgentMessageItem.tsx", "AgentMessageItem", [props], overrides);
   const toggles = () => elements(h.value).filter(node => node.type === "button" && "aria-expanded" in node.props);
   assert.equal(toggles().length, 2);
+  assert.ok(elements(h.value).some(node => node.props?.title === "Model đang xử lý lượt này"));
   assert.ok(toggles().every(node => node.props["aria-expanded"] === false));
   toggles()[0].props.onClick();
   h.render();
@@ -42,17 +43,22 @@ test("thinking and running agent logs stay collapsed until the user expands them
 test("streamed thinking stays separate, avoids per-token steps and restores from history", async () => {
   const originalFetch = global.fetch;
   const history = [{ id: "42", role: "assistant", content: "[10]", created_at: "2026-11-19", metadata: {
-    thinking: "Stored reasoning", multiAgentLogs: [{ subagentId: "draft", thinking: "Stored step", status: "completed" }],
+    thinking: "Stored reasoning", model: "stored-model", multiAgentLogs: [{ subagentId: "draft", thinking: "Stored step", status: "completed" }],
   } }];
   const h = hookHarness("src/hooks/lms/agent/useAgentChat.ts", "useAgentChat", [{ agentType: "mentor" }], {
     "@/lib/tenant/navigation": { usePathname: () => "/" },
     "@/services/ai/agentService": { agentService: { getSessionMessages: async () => history } },
   });
   const events = [
-    { type: "thinking", data: { step: "planning", detail: "Choose evidence" } },
+    { type: "thinking", data: { step: "planning", detail: "Choose evidence", model: "mistral-medium-latest" } },
     ...Array.from({ length: 100 }, () => ({ type: "thinking", data: { delta: "r" } })),
     { type: "subagent_spawn", data: { subagent_id: "draft", role: "draft", task: "Answer" } },
     { type: "thinking", data: { subagent_id: "draft", delta: "Check rank" } },
+    { type: "tool_start", data: { tool: "search_course_materials", call_id: "first" } },
+    { type: "tool_start", data: { tool: "search_course_materials", call_id: "first" } },
+    { type: "tool_start", data: { tool: "search_course_materials", call_id: "second" } },
+    { type: "tool_result", data: { tool: "search_course_materials", call_id: "first", status: "success", message: "First result" } },
+    { type: "tool_result", data: { tool: "search_course_materials", call_id: "second", status: "error", message: "Second result" } },
     { type: "text_delta", data: { delta: "[10]" } },
     { type: "done", data: { message_id: 42 } },
   ];
@@ -65,9 +71,15 @@ test("streamed thinking stays separate, avoids per-token steps and restores from
     assert.equal(reply.thinking, "r".repeat(100));
     assert.equal(reply.thinkingSteps.length, 1);
     assert.equal(reply.multiAgentLogs[0].thinking, "Check rank");
+    assert.equal(reply.model, "mistral-medium-latest");
+    assert.equal(reply.toolActivities.length, 2);
+    assert.deepEqual(reply.toolActivities.map(t => [t.call_id, t.status, t.message]), [
+      ["first", "done", "First result"], ["second", "error", "Second result"],
+    ]);
     await h.value.switchSession("saved");
     h.render();
     assert.equal(h.value.messages[0].thinking, "Stored reasoning");
+    assert.equal(h.value.messages[0].model, "stored-model");
     assert.equal(h.value.messages[0].multiAgentLogs[0].thinking, "Stored step");
   } finally {
     global.fetch = originalFetch;

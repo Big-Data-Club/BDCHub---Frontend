@@ -10,6 +10,8 @@ interface AgentThinkingIndicatorProps {
 const STEP_LABELS: Record<string, string> = {
   intent: "Phân tích ý định",
   memory: "Truy xuất ngữ cảnh",
+  model: "Đang soạn câu trả lời",
+  final_synthesis: "Đang tổng hợp câu trả lời",
 };
 
 export function AgentThinkingIndicator({

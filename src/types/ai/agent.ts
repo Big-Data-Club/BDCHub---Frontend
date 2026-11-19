@@ -145,6 +145,7 @@ export interface AgentContextData {
 
 export interface ToolActivity {
   tool: string;
+  call_id?: string;
   status: "running" | "done" | "error";
   args?: Record<string, any>;
   message?: string;

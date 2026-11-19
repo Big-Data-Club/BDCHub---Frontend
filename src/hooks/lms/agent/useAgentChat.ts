@@ -431,6 +431,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
           return {
             ...msg,
             ...extra,
+            model: event.data.model || msg.model,
             thinking: (msg.thinking || "") + delta,
             thinkingSteps: step ? [
               ...(msg.thinkingSteps || []),
@@ -543,6 +544,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         updateAssistant(assistantId, (msg) => ({
           ...msg,
           content: msg.content + (event.data.delta || ""),
+          model: event.data.model || msg.model,
         }));
         break;
 
@@ -557,12 +559,15 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
 
       case "tool_start":
         setIsThinking(false);
-        updateAssistant(assistantId, (msg) => ({
+        updateAssistant(assistantId, (msg) => event.data.call_id && msg.toolActivities?.some(
+          activity => activity.call_id === event.data.call_id,
+        ) ? msg : ({
           ...msg,
           toolActivities: [
             ...(msg.toolActivities || []),
             {
               tool: event.data.tool,
+              call_id: event.data.call_id,
               status: "running" as const,
               args: event.data.args,
             },
@@ -574,7 +579,7 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         updateAssistant(assistantId, (msg) => ({
           ...msg,
           toolActivities: (msg.toolActivities || []).map((t) =>
-            t.tool === event.data.tool
+            (event.data.call_id ? t.call_id === event.data.call_id : t.tool === event.data.tool && t.status === "running")
               ? {
                   ...t,
                   status: (event.data.status === "error"
