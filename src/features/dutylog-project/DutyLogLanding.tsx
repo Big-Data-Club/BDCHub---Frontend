@@ -49,7 +49,7 @@ export function DutyLogLanding() {
             <span>BDC HUB</span>
             <span className={styles.navDivider} />
           </Link>
-          <a href="#overview" aria-label="DutyLog — đầu trang">
+          <a href="#overview" aria-label="DutyLog: đầu trang">
             <Wordmark />
           </a>
           <nav className={styles.navLinks} aria-label="Nội dung dự án">

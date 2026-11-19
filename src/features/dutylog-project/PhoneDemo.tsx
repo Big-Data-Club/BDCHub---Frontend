@@ -27,7 +27,7 @@ const scenes = [
     id: "home",
     label: "Tổng quan",
     Icon: Home,
-    hint: "Ca đang diễn ra, số người có mặt và hoạt động gần đây — ngay trên trang chủ.",
+    hint: "Xem ca đang diễn ra, số người có mặt và hoạt động gần đây ngay trên trang chủ.",
   },
   {
     id: "rooms",
@@ -146,7 +146,7 @@ export function PhoneDemo() {
           <iframe
             key={resetKey}
             ref={iframe}
-            title="DutyLog — ứng dụng demo tương tác với dữ liệu mẫu"
+            title="DutyLog: ứng dụng demo tương tác với dữ liệu mẫu"
             src="/dutylog-demo/index.html"
             onLoad={() => command("hello")}
             className={styles.demoFrame}

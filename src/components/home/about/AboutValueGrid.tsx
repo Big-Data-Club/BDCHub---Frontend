@@ -16,12 +16,12 @@ export const aboutValues = [
   { 
     number: "03",
     title: "Chia Sẻ Cởi Mở", 
-    desc: "Tinh thần Open Learning - Open Sharing cùng xây dựng cộng đồng học thuật vững mạnh.", 
+    desc: "Tinh thần Open Learning, Open Sharing cùng xây dựng cộng đồng học thuật vững mạnh.",
   },
   { 
     number: "04",
     title: "Học Qua Dự Án", 
-    desc: "Phương châm Learning by Doing - Trải nghiệm thực chiến qua các bài toán và sản phẩm thực tế.", 
+    desc: "Theo phương châm Learning by Doing, thành viên trải nghiệm thực chiến qua các bài toán và sản phẩm thực tế.",
   }
 ];
 

@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const formData = (await import(`@/data/forms/${survey_name}.json`)).default;
     return {
       title: `${formData.title}`,
-      description: formData.description || "Khảo sát ý kiến từ Big Data Club - HCMUT.",
+      description: formData.description || "Khảo sát ý kiến từ Big Data Club HCMUT.",
       alternates: {
         canonical: `/forms/survey/${survey_name}`,
       },

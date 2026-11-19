@@ -166,7 +166,7 @@ export default function TimelineProgress({
     <div className="container mx-auto px-4 py-5">
       <h2 className="text-4xl font-bold text-center mb-12 text-slate-800 dark:text-white">
         <Clock className="inline w-10 h-10 mr-3 text-slate-600 dark:text-cyan-400" />
-        {title} - {formatDate(hackathonDate)}
+        {title}, {formatDate(hackathonDate)}
       </h2>
       
       {/* Enhanced Progress Bar with Checkpoints */}

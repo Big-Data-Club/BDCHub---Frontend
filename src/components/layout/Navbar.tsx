@@ -71,7 +71,7 @@ export default function Navbar() {
                 window.history.replaceState(null, "", window.location.pathname);
               }
             }}
-            aria-label="BDC Hub - Về đầu trang"
+            aria-label="BDC Hub: Về đầu trang"
           >
             <div className="transition-transform duration-300 group-hover:scale-105">
               <Logo />
