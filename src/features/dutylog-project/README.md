@@ -21,11 +21,13 @@ deployment can serve the demo. `sources.json` records hashes of the source input
 Demo adapters do not change the production mobile entry point or API clients.
 
 Figma Design, embed and Behance URLs are configured in `content.ts` using the
-links supplied by the team. `DesignDemo` initially offers the Figma design and
-loads its responsive iframe only after the viewer clicks **Tải bản thiết kế**.
+links supplied by the team. `DesignDemo` opens **Ứng dụng mẫu** by default.
+Selecting **Thiết kế Figma** offers a responsive iframe, loaded only after the
+viewer clicks **Tải bản thiết kế**.
 The file is a Design embed, not a claimed interactive Prototype link. A direct
-Figma link remains available beside it. **Ứng dụng mẫu** lazily loads the existing
-phone demo; switching modes unmounts the previous iframe.
+Figma link remains available beside it. The phone demo is loaded as a separate
+client chunk; switching modes unmounts the previous iframe. Hero columns align
+at the top, without a fixed minimum height pushing the introduction down.
 
 The smoke test mocks external Figma content to check embed URL, fullscreen,
 deferred loading and switching, then exercises the real local application demo.

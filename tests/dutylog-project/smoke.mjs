@@ -20,6 +20,11 @@ await page.addInitScript(() => localStorage.setItem('bdc-theme', 'light'));
 try {
   const response = await page.goto(`${base}/projects/dutylog`, { waitUntil: 'networkidle', timeout: 120000 });
   assert.equal(response.status(), 200);
+  await expect(page.getByRole('button', { name: 'Ứng dụng mẫu', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.frameLocator('iframe[src="/dutylog-demo/index.html"]').getByText('Chào An', { exact: true })).toBeVisible();
+  const headingBox = await page.locator('#hero-title').boundingBox();
+  assert(headingBox.y < 220, 'Hero information starts near the top on desktop');
+  await page.getByRole('button', { name: 'Thiết kế Figma', exact: true }).click();
   await expect(page.locator('iframe')).toHaveCount(0);
   await page.route('https://embed.figma.com/**', route => route.fulfill({ contentType: 'text/html', body: '<html><body>Figma embed fixture</body></html>' }));
   await page.getByRole('button', { name: 'Tải bản thiết kế', exact: true }).click();

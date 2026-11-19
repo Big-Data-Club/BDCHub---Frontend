@@ -13,7 +13,7 @@ const PhoneDemo = dynamic(
 );
 
 export function DesignDemo() {
-  const [view, setView] = useState<"design" | "app">("design");
+  const [view, setView] = useState<"design" | "app">("app");
   const [loaded, setLoaded] = useState(false);
 
   return (

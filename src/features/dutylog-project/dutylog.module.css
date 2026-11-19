@@ -49,7 +49,7 @@
 .navLinks a:hover, .textButton:hover, .sourceLink:hover { color: var(--dl-blue); }
 .navActions { display: flex; align-items: center; gap: 14px; margin-left: 26px; }
 .navCta { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border: 1px solid var(--dl-line); border-radius: 8px; font-size: 11px; font-weight: 600; }
-.hero { position: relative; isolation: isolate; background-image: radial-gradient(circle, var(--dl-line) .7px, transparent .9px); background-size: 28px 28px; display: grid; grid-template-columns: 1.05fr 1fr; align-items: center; gap: 38px; padding-top: 55px; padding-bottom: 50px; min-height: 840px; }
+.hero { position: relative; isolation: isolate; background-image: radial-gradient(circle, var(--dl-line) .7px, transparent .9px); background-size: 28px 28px; display: grid; grid-template-columns: 1.05fr 1fr; align-items: start; gap: 38px; padding-top: 28px; padding-bottom: 36px; }
 .heroCopy { padding-bottom: 18px; }
 .eyebrow { display: flex; align-items: center; gap: 13px; font-size: 10px; color: var(--dl-muted); letter-spacing: .025em; margin-bottom: 26px; }
 .projectBadge { display: inline-flex; padding: 6px 9px; border: 1px solid var(--dl-line); border-radius: 5px; font-size: 9px; font-weight: 600; letter-spacing: .1em; color: var(--dl-muted); }
@@ -199,7 +199,6 @@
 .footer .brandIcon { width: 28px; height: 28px; border-radius: 7px; }
 .footer > div > span { font-size: 10px; color: var(--dl-muted); }
 .footer > div > a:last-child { font-size: 10px; color: var(--dl-muted); display: flex; align-items: center; gap: 7px; }
-@media (min-width: 1440px) { .hero { min-height: 880px; } }
 @media (max-width: 1100px) {
   .container { width: calc(100% - 64px); }
   .hero { gap: 18px; }
