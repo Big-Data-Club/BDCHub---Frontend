@@ -258,8 +258,8 @@ export function QuizSmartImportModal({
       description={
         step === "paste"
           ? inputMode === "file"
-            ? "Moodle XML được đọc trực tiếp trên máy, gồm ảnh nhúng. PDF, Word, Excel, Markdown và ảnh chụp được gửi cho AI trích xuất."
-            : "Dán bất kỳ đoạn văn bản câu hỏi/đáp án nào. AI sẽ tự động phân tích và cấu trúc hóa."
+            ? "Ưu tiên nạp file Moodle XML để đọc chính xác cấu trúc câu hỏi, đáp án và ảnh nhúng mà không cần AI suy đoán. Các định dạng khác được gửi cho AI trích xuất và cần kiểm tra lại."
+            : "Dán nội dung câu hỏi/đáp án để AI phân tích. Để parse chính xác nhất, hãy chuyển sang tải tệp và nạp Moodle XML; luôn kiểm tra kết quả trước khi lưu."
           : `Đã trích xuất ${questions.length} câu hỏi.${fileMeta?.pages ? ` Nguồn: ${fileMeta.name ?? "tệp"} (${fileMeta.pages} trang${fileMeta.ocr ? `, ${fileMeta.ocr} trang OCR` : ""}).` : ""}`
       }
       size="xl"
