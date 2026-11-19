@@ -28,7 +28,7 @@
     },
     {
       "file": "mobile/src/screens/QRDisplayScreen.tsx",
-      "sha256": "fac0479a611f66220cd77d62e80e1319581703876edf6829bb5dc9f81494797e"
+      "sha256": "ef24a3e1fb6d4ac801a77a3e31730f7f5be815045cbbe8e0f96467c077ef3af1"
     },
     {
       "file": "mobile/src/screens/RoomSelectionScreen.tsx",
@@ -36,7 +36,7 @@
     },
     {
       "file": "mobile/src/screens/ScanCheckinScreen.tsx",
-      "sha256": "b0996d3ea8f53559d1bdb9c1dbe17b1f144ca07c7bdbeea2e6cf14b2b4619b3a"
+      "sha256": "94d2dc04a4ce74bf30fa56d4098a1151b11e86ce2c35f6bf9d45431767b0ddd9"
     },
     {
       "file": "mobile/src/screens/v2/ActivityScreen.tsx",
@@ -65,6 +65,18 @@
     {
       "file": "mobile/src/screens/v2/ShiftsScreen.tsx",
       "sha256": "9a36fd6857c9791960f47435661c87a21e56230ba98ace300ae4d8f3ed13fc36"
+    },
+    {
+      "file": "mobile/src/components/GoogleSignIn.tsx",
+      "sha256": "251a5efac3178da051ae140bd040a25e50c1cb8c43cca05ffeab7a6ecaa92a43"
+    },
+    {
+      "file": "mobile/src/components/GoogleSignIn.web.tsx",
+      "sha256": "6c544de1d51c51906c8fd1826d9fce3c765030caf1227fd4e66e619b5907bcfc"
+    },
+    {
+      "file": "mobile/src/components/UserDetailModal.tsx",
+      "sha256": "94991963bc1ae51925e02529c9d162395059705b2de1587e9e01590ffc31d430"
     },
     {
       "file": "mobile/src/ui/Kit.tsx",

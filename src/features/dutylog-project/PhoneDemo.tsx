@@ -156,7 +156,7 @@ export function PhoneDemo({ id = "demo" }: { id?: string }) {
             <i />
           </div>
         </div>
-        <div className={styles.floatingNote}>
+        {scene === "home" && <div className={styles.floatingNote}>
           <span className={styles.noteIcon}>
             <CircleCheck size={19} />
           </span>
@@ -165,7 +165,7 @@ export function PhoneDemo({ id = "demo" }: { id?: string }) {
             <span>Kết nối mọi người.</span>
           </div>
           <ArrowUpRight size={16} />
-        </div>
+        </div>}
         <span className={styles.stageLabel}>
           <MousePointer2 size={14} />
           Chạm để khám phá

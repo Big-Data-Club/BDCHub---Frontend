@@ -43,6 +43,17 @@ try {
   await page.getByRole('button', { name: 'Quét thẻ', exact: true }).click();
   await phone.getByRole('button', { name: 'Quét thẻ mẫu DEMO001', exact: true }).click();
   await expect(phone.getByText('Điểm danh hợp lệ', { exact: true })).toBeVisible();
+  await phone.getByText('Xem chi tiết người dùng ›', { exact: true }).click();
+  await expect(phone.getByText('✉ khanhlinh@example.com', { exact: true })).toBeVisible();
+  assert(await phone.getByText('MSSV / MÃ SỐ', { exact: true }).evaluate(el => {
+    const tile = el.parentElement.parentElement;
+    return tile.getBoundingClientRect().width >= tile.parentElement.getBoundingClientRect().width * .9;
+  }), 'Profile tiles use full width inside a narrow phone');
+  const code = phone.getByText('DEMO001', { exact: true });
+  assert(await code.evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'Student code is not ellipsized');
+  await phone.getByText('Big Data Club', { exact: true }).scrollIntoViewIfNeeded();
+  await expect(phone.getByLabel('Đóng modal', { exact: true })).toBeVisible();
+  await phone.getByText('Đóng', { exact: true }).click();
   await page.getByRole('button', { name: 'Tổng quan', exact: true }).click();
   await expect(phone.getByText('4/20 người có mặt', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Phòng', exact: true }).click();
@@ -67,7 +78,7 @@ try {
   await page.getByRole('button', { name: 'Đặt lại demo', exact: true }).click();
   await expect(phone.getByText('3/20 người có mặt', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Mã QR', exact: true }).click();
-  await expect(phone.getByText('Mã QR Điểm danh Cá nhân', { exact: true })).toBeVisible();
+  await expect(phone.getByText('Mã QR cá nhân', { exact: true })).toBeVisible();
   await expect(phone.locator('svg')).not.toHaveCount(0);
   await page.getByRole('button', { name: 'Tổng quan', exact: true }).click();
   await phone.getByText('Kết thúc ca', { exact: true }).click();
@@ -82,6 +93,21 @@ try {
   for (const width of [320, 375, 390, 768]) {
     await page.setViewportSize({ width, height: 900 });
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Horizontal overflow at ${width}px`);
+    await page.getByRole('button', { name: 'Quét thẻ', exact: true }).click();
+    await expect(page.getByText('Ghi nhận rõ ràng.', { exact: true })).toHaveCount(0);
+    await phone.getByPlaceholder('Nhập MSSV...').fill('DEMO001');
+    const confirm = phone.getByText('Xác nhận', { exact: true });
+    assert(await confirm.evaluate(el => el.getBoundingClientRect().right <= innerWidth && el.getBoundingClientRect().left >= 0), `Confirmation stays in the phone at ${width}px`);
+    await page.getByRole('button', { name: 'Mã QR', exact: true }).click();
+    await expect(phone.getByText('Mã QR cá nhân', { exact: true })).toBeVisible();
+    assert(await phone.locator('svg').evaluateAll(nodes => nodes.every(el => el.getBoundingClientRect().right <= innerWidth && el.getBoundingClientRect().left >= 0)), `QR fits the phone at ${width}px`);
+    assert(await phone.getByText('Mã QR cá nhân', { exact: true }).evaluate(el => {
+      for (let parent = el.parentElement; parent; parent = parent.parentElement) {
+        const color = getComputedStyle(parent).backgroundColor;
+        if (color !== 'rgba(0, 0, 0, 0)') return color === 'rgb(255, 255, 255)';
+      }
+      return false;
+    }), 'QR uses the shared light header');
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: `${screenshots}/mobile.png`, fullPage: true });
