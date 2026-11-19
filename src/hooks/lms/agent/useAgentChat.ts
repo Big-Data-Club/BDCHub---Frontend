@@ -408,6 +408,16 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
         updateAssistant(assistantId, (msg) => {
           const delta = event.data.delta || "";
           const step = event.data.step;
+          if (event.data.subagent_id) {
+            return {
+              ...msg,
+              multiAgentLogs: (msg.multiAgentLogs || []).map(log =>
+                log.subagentId === event.data.subagent_id
+                  ? { ...log, thinking: log.thinking + delta }
+                  : log
+              ),
+            };
+          }
           let extra: Partial<AgentMessage> = {};
           if (step === "multi_agent_decision") {
             extra = {
@@ -422,13 +432,13 @@ export function useAgentChat({ agentType, courseId, initialSessionId, initialMes
             ...msg,
             ...extra,
             thinking: (msg.thinking || "") + delta,
-            thinkingSteps: [
+            thinkingSteps: step ? [
               ...(msg.thinkingSteps || []),
               {
-                step: event.data.step || "thinking",
+                step,
                 detail: event.data.intent || event.data.token_estimate?.toString() || event.data.detail,
               },
-            ],
+            ] : (msg.thinkingSteps || []),
           };
         });
         break;

@@ -71,7 +71,8 @@ function hookHarness(
     },
   };
   const load = sourceLoader({ react: hooks, ...overrides });
-  const run = load(file)[exported];
+  const component = load(file)[exported];
+  const run = component.type || component;
   function render() {
     let limit = 30;
     do {

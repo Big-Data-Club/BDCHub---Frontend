@@ -21,7 +21,19 @@ type Props = {
   onChanged: () => void;
 };
 
+function modelGroup(model: LlmModel): string {
+  const inputs = model.config?.input_modalities;
+  const outputs = model.config?.output_modalities;
+  if (["audio", "speech"].includes(model.family || "") ||
+    (Array.isArray(inputs) && inputs.includes("audio")) ||
+    (Array.isArray(outputs) && outputs.includes("audio"))) return "audio";
+  if (["embedding", "ocr", "moderation"].includes(model.family || "")) return model.family!;
+  return model.supports_vision ? "vision" : "text";
+}
+
 export function ModelsPanel({ models, providers, onChanged }: Props) {
+  const [group, setGroup] = useState("all");
+  const visibleModels = group === "all" ? models : models.filter(model => modelGroup(model) === group);
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -34,6 +46,18 @@ export function ModelsPanel({ models, providers, onChanged }: Props) {
         <ModelDialog providers={providers} onSaved={onChanged} />
       </div>
 
+      <label className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
+        Nhóm model
+        <select value={group} onChange={event => setGroup(event.target.value)} className="min-h-10 rounded-md border border-slate-300 bg-white px-3 dark:border-slate-700 dark:bg-slate-900">
+          <option value="all">Tất cả ({models.length})</option>
+          <option value="text">Text</option>
+          <option value="vision">Text + Image</option>
+          <option value="audio">Audio</option>
+          <option value="embedding">Embedding</option>
+          <option value="ocr">OCR</option>
+          <option value="moderation">Moderation</option>
+        </select>
+      </label>
       <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
@@ -48,13 +72,13 @@ export function ModelsPanel({ models, providers, onChanged }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-            {models.map((m) => (
+            {visibleModels.map((m) => (
               <ModelRow key={m.id} model={m} providers={providers} onChanged={onChanged} />
             ))}
-            {models.length === 0 && (
+            {visibleModels.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-10 text-center text-slate-400 dark:text-slate-500 text-sm">
-                  Chưa có model nào. Nhấn <span className="font-medium text-blue-600">+ Thêm model</span> để bắt đầu.
+                  {models.length ? "Không có model trong nhóm này." : "Chưa có model nào. Nhấn + Thêm model để bắt đầu."}
                 </td>
               </tr>
             )}
@@ -93,6 +117,9 @@ function ModelRow({
   };
 
   const caps: { label: string; color: string }[] = [
+    ...(modelGroup(model) === "audio" ? [{ label: "Audio", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400" }] : []),
+    ...((model.config?.capabilities as Record<string, unknown> | undefined)?.reasoning ? [{ label: "thinking", color: "bg-violet-100 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400" }] : []),
+    ...(model.config?.catalog_only ? [{ label: "catalog only", color: "bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300" }] : []),
     ...(model.supports_tools     ? [{ label: "tools",   color: "bg-violet-100 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400" }] : []),
     ...(model.supports_json      ? [{ label: "json",    color: "bg-blue-100   dark:bg-blue-950/40   text-blue-700   dark:text-blue-400"   }] : []),
     ...(model.supports_streaming ? [{ label: "stream",  color: "bg-cyan-100   dark:bg-cyan-950/40   text-cyan-700   dark:text-cyan-400"   }] : []),

@@ -113,20 +113,6 @@ export const AgentMessageItem = memo(function AgentMessageItem({
     }
   };
 
-  // Auto-expand thinking box when streaming thinking delta
-  useEffect(() => {
-    if (message.isStreaming && message.thinking && !message.content) {
-      setShowThinking(true);
-    }
-  }, [message.isStreaming, message.thinking, message.content]);
-
-  // Auto-expand trace if a sub-agent is active/running
-  useEffect(() => {
-    if (hasRunningLogs) {
-      setShowTrace(true);
-    }
-  }, [hasRunningLogs]);
-
   return (
     <div
       className={cn(
@@ -175,6 +161,8 @@ export const AgentMessageItem = memo(function AgentMessageItem({
         {!isUser && message.thinking && (
           <div className="w-full border-l-2 border-blue-500/40 dark:border-cyan-400/40 pl-3.5 py-1 mb-3 space-y-1.5 transition-all">
             <button
+              type="button"
+              aria-expanded={showThinking}
               onClick={() => setShowThinking(!showThinking)}
               className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-cyan-400 hover:text-blue-600 dark:hover:text-cyan-300 transition-colors"
             >
@@ -360,6 +348,8 @@ export const AgentMessageItem = memo(function AgentMessageItem({
                 </button>
 
                 <button
+                  type="button"
+                  aria-expanded={showTrace}
                   onClick={() => setShowTrace(!showTrace)}
                   className={cn(
                     "flex items-center gap-1 py-1 px-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border active:scale-95 cursor-pointer",
@@ -380,6 +370,8 @@ export const AgentMessageItem = memo(function AgentMessageItem({
         {!isUser && (message.spawningScore !== undefined || (message.multiAgentLogs && message.multiAgentLogs.length > 0)) && (
           <div className="w-full mt-2.5 pt-1">
             <button
+              type="button"
+              aria-expanded={showTrace}
               onClick={() => setShowTrace(!showTrace)}
               className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 dark:hover:text-cyan-400 transition-colors"
             >
