@@ -7,3 +7,5 @@ export { default as TerminalCard } from "./TerminalCard";
 export { default as CyberBadge } from "./CyberBadge";
 export { TruncatedTooltip } from "./TruncatedTooltip";
 export { default as ScrollReset } from "./ScrollReset";
+export { AmbientEffects } from "./ambient/AmbientEffects";
+export { AmbientStars } from "./ambient/AmbientStars";

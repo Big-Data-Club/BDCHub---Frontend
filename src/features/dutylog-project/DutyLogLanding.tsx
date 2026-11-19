@@ -17,6 +17,8 @@ import {
   Workflow,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { AmbientEffects } from "@/components/common/ambient/AmbientEffects";
+import { AmbientStars } from "@/components/common/ambient/AmbientStars";
 import { PhoneDemo } from "./PhoneDemo";
 import { audiences, dutylogLinks, workflow } from "./content";
 import styles from "./dutylog.module.css";
@@ -34,7 +36,7 @@ function Wordmark() {
 
 export function DutyLogLanding() {
   return (
-    <div className={styles.page} lang="vi">
+    <AmbientEffects className={styles.page}>
       <a href="#overview" className={styles.skipLink}>
         Đến nội dung chính
       </a>
@@ -76,6 +78,7 @@ export function DutyLogLanding() {
         id="overview"
         aria-labelledby="hero-title"
       >
+        <AmbientStars />
         <div className={styles.heroCopy}>
           <div className={styles.eyebrow}>
             <span className={styles.projectBadge}>A BDC PROJECT</span>
@@ -502,6 +505,6 @@ export function DutyLogLanding() {
           </a>
         </div>
       </footer>
-    </div>
+    </AmbientEffects>
   );
 }

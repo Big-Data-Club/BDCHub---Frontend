@@ -1,11 +1,11 @@
 import { Metadata } from "next";
-import { Hero, About, Activities, Projects } from "@/components/home";
+import { HomeLanding } from "@/components/home/editorial/HomeLanding";
 import ScrollReset from "@/components/common/ScrollReset";
 
 export const metadata: Metadata = {
   title: "BDC Hub | Big Data Club HCMUT",
-  description: "Trang thông tin chính thức của Big Data Club, câu lạc bộ học thuật chuyên sâu về Big Data, AI, Cloud Computing tại Đại học Bách Khoa TP.HCM.",
-  keywords: ["Big Data Club", "BDC", "HCMUT", "AI", "Machine Learning", "Cloud Computing", "Học thuật", "Bách Khoa"],
+  description: "Trang thông tin chính thức của Big Data Club, câu lạc bộ học thuật chuyên sâu về Big Data, High Performance Computing, Artificial Intelligence, Quantum Computing và Cloud Computing tại Đại học Bách Khoa TP.HCM.",
+  keywords: ["Big Data Club", "BDC", "HCMUT", "AI", "Machine Learning", "Cloud Computing", "High Performance Computing", "Quantum Computing", "Học thuật", "Bách Khoa"],
   openGraph: {
     title: "BDC Hub | Big Data Club HCMUT",
     description: "Think Big. Speak Data. Khám phá cộng đồng học thuật chuyên sâu về Dữ liệu lớn và Trí tuệ nhân tạo.",
@@ -24,11 +24,16 @@ export default function LandingPage() {
     "alternateName": "BDC",
     "url": "https://bdc.hpcc.vn",
     "logo": "https://bdc.hpcc.vn/og-image.png",
-    "description": "Câu lạc bộ học thuật chuyên sâu về Big Data, AI, Cloud Computing tại Trường Đại học Bách Khoa, ĐHQG TP.HCM.",
+    "description": "Câu lạc bộ học thuật chuyên sâu về Big Data, High Performance Computing, AI, Quantum Computing và Cloud Computing tại HCMUT, dưới sự hướng dẫn của HPC Lab.",
     "parentOrganization": {
-      "@type": "CollegeOrUniversity",
-      "name": "Trường Đại học Bách Khoa, ĐHQG TP.HCM",
-      "url": "https://hcmut.edu.vn"
+      "@type": "ResearchOrganization",
+      "name": "HPC Lab",
+      "url": "https://hpcc.hcmut.edu.vn/",
+      "parentOrganization": {
+        "@type": "CollegeOrUniversity",
+        "name": "Trường Đại học Bách Khoa, ĐHQG TP.HCM",
+        "url": "https://hcmut.edu.vn"
+      }
     }
   };
 
@@ -40,25 +45,7 @@ export default function LandingPage() {
       />
       <ScrollReset />
 
-      {/* Chapter 1: The Gateway - Hero & Stats */}
-      <div className="relative bg-slate-50 dark:bg-gradient-to-b dark:from-[#030712] dark:via-[#050b18] dark:to-[#070e1c]">
-        <Hero />
-      </div>
-
-      {/* Chapter 2: The Foundation - About & Core Values */}
-      <div className="relative bg-white dark:bg-[#060c18]">
-        <About />
-      </div>
-
-      {/* Chapter 3: The Engine - Core Activities */}
-      <div className="relative bg-slate-50 dark:bg-[#0a1526]">
-        <Activities />
-      </div>
-
-      {/* Chapter 4: The Impact - Projects & Scientific Publications */}
-      <div className="relative bg-white dark:bg-[#050b18]">
-        <Projects />
-      </div>
+      <HomeLanding />
     </div>
   );
 }

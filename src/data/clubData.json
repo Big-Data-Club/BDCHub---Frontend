@@ -410,14 +410,14 @@
       "title": "Hội thảo khoa học sinh viên",
       "type": "Tham luận",
       "description": "Tham luận về chủ đề “Sinh viên dữ liệu Việt Nam: Từ câu lạc bộ học thuật đến mạng lưới điện toán đám mây, dữ liệu lớn và lượng tử.”",
-      "imageUrl": "https://lh3.googleusercontent.com/d/1v8TFRbLDWbY_3qB1-M6P8kEKOUuqTCaH=w1000?authuser=0"
+      "imageUrl": "/activities/student-research-seminar.webp"
     },
     {
       "id": "6",
       "title": "Internal Seminar",
       "type": "Chuyên đề",
       "description": "Các buổi chuyên đề nội bộ để thành viên các nhóm trình bày các nội dung nghiên cứu theo định hướng của CLB",
-      "imageUrl": "https://lh3.googleusercontent.com/d/1CFlhsYjLBqOx1gKvsWx5KSCkvtCOKeja=w1000?authuser=0",
+      "imageUrl": "/activities/internal-seminar.webp",
       "frequency": "Hàng tháng"
     },
     {
@@ -425,7 +425,7 @@
       "title": "BDC Data Hackathon",
       "type": "Cuộc thi",
       "description": "Chương trình kết nối thành viên mới với các thành viên có kinh nghiệm để hướng dẫn và chia sẻ kiến thức",
-      "imageUrl": "https://lh3.googleusercontent.com/d/117tuhJMh0N3GQAUilDL30CLtunck-j94=w1000?authuser=0",
+      "imageUrl": "/activities/bdc-data-hackathon.webp",
       "frequency": "Hàng năm"
     },
     {
@@ -441,7 +441,7 @@
       "title": "BDC Year End Party",
       "type": "Gắn kết",
       "description": "Hoạt động tập thể nhằm tăng cường tinh thần đồng đội và kết nối các thành viên",
-      "imageUrl": "https://lh3.googleusercontent.com/d/1UYoo1bFp1rIS3aDTEH5lWY3-kzJfa_Zq=w1000?authuser=0",
+      "imageUrl": "/activities/bdc-year-end-party.webp",
       "frequency": "Hàng năm"
     },
     {
@@ -449,7 +449,7 @@
       "title": "BDC Birthday Party",
       "type": "Kỷ niệm",
       "description": "Buổi tiệc kỷ niệm thành lập CLB",
-      "imageUrl": "https://lh3.googleusercontent.com/d/11EEKGmTISYIeNf0Ekb_vQJOcnaAHUMkN=w1000?authuser=0",
+      "imageUrl": "/activities/bdc-birthday-party.webp",
       "frequency": "Hàng năm"
     }
   ],

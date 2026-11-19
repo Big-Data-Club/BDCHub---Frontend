@@ -1,0 +1,102 @@
+.effects {
+  position: relative;
+}
+.stars {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.stars i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #2f6dcc;
+  box-shadow: 0 0 7px #5793ef;
+  opacity: 0.4;
+  animation: starFloat 8s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+:global(.dark) .stars i {
+  background: #d9ecff;
+}
+.stars[data-active="true"] i {
+  animation-play-state: running;
+}
+.spotlight {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  contain: strict;
+}
+.trailPoint {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 144px;
+  height: 144px;
+}
+.trailPoint i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    #367fff55,
+    #4b8eff1c 25%,
+    transparent 65%
+  );
+}
+:global(.dark) .trailPoint i {
+  background: radial-gradient(
+    circle,
+    #badfff80,
+    #589fff26 25%,
+    transparent 65%
+  );
+}
+.effects [data-reveal] {
+  transition:
+    opacity 600ms ease,
+    transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.effects [data-reveal="pending"] {
+  opacity: 0;
+  transform: translateY(22px);
+}
+@keyframes starFloat {
+  from {
+    opacity: 0.2;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 0.8;
+    transform: translateY(-8px);
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .spotlight {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stars i {
+    animation: none;
+  }
+  .effects [data-reveal] {
+    transition: none;
+  }
+  .effects [data-reveal="pending"] {
+    opacity: 1;
+    transform: none;
+  }
+  .spotlight {
+    display: none;
+  }
+}

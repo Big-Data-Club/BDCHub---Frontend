@@ -10,8 +10,12 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Menu, X, ChevronDown, CalendarDays, ExternalLink, Facebook, Mail, Sparkles } from "lucide-react";
 import { useRouter } from "@/lib/tenant/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
+import styles from "./Navbar.module.css";
 
 export default function Navbar() {
+  // Match the public BDC homepage, not tenant or event routes sharing this shell.
+  const isHome = usePathname() === "/";
   const router = useRouter();
   const { status } = useSession();
   const [scrolled, setScrolled] = useState(false);
@@ -55,12 +59,12 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
+        isHome ? `${styles.editorial} ${scrolled ? styles.scrolled : ""}` : scrolled
           ? "bg-white/90 dark:bg-[#070E1C]/90 backdrop-blur-xl shadow-lg shadow-slate-900/5 dark:shadow-[0_4px_24px_rgba(7,14,28,0.8)] border-b border-slate-200/80 dark:border-blue-500/20 py-3"
           : "bg-white/70 dark:bg-[#070E1C]/70 backdrop-blur-md border-b border-slate-200/40 dark:border-white/5 py-4 sm:py-5"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className={isHome ? styles.editorialInner : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"}>
         <div className="flex items-center justify-between">
           {/* Logo & Brand Identity */}
           <button 
