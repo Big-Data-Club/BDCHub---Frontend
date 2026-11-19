@@ -399,10 +399,10 @@
   "activities": [
     {
       "id": "1",
-      "title": "Big Data Day",
+      "title": "Big Data Day 2026",
       "type": "Hội thảo",
       "description": "Hội thảo thường niên về xu hướng Big Data và AI, mời các chuyên gia từ doanh nghiệp và học viện đến chia sẻ",
-      "imageUrl": "https://lh3.googleusercontent.com/d/1f8pe4mHkPEHirZF2UFO7aH_6UekNg4gR=w1000?authuser=0",
+      "imageUrl": "/activities/big-data-day-2026.webp",
       "frequency": "Hàng năm"
     },
     {
@@ -430,10 +430,10 @@
     },
     {
       "id": "5",
-      "title": "BDC Kick-off and Bonding Day",
+      "title": "Kick-off BDC Gen 5",
       "type": "Kết nối",
-      "description": "Các sự kiện chào đón thành viên mới của BDC",
-      "imageUrl": "https://lh3.googleusercontent.com/d/1zahrcQ5f72zb5t_q7N5_YR2GcFS2gbDy=w1000?authuser=0",
+      "description": "Sự kiện chào đón và kết nối các thành viên BDC Gen 5.",
+      "imageUrl": "/activities/kick-off-bdc-gen-5.webp",
       "frequency": "Hàng học kỳ"
     },
     {
