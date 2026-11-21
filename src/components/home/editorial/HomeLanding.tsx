@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { researchAreas } from "./content";
 import { ClubAbout } from "./ClubAbout";
 import { ClubActivities } from "./ClubActivities";
@@ -58,7 +59,10 @@ export function HomeLanding() {
               AI, điện toán lượng tử và điện toán đám mây.
             </p>
             <div className={styles.actions}>
-              <a className={styles.primaryButton} href="#projects">
+              <Link className={styles.primaryButton} href="/lms" prefetch={false}>
+                Không gian học tập
+              </Link>
+              <a className={styles.secondaryButton} href="#projects">
                 Khám phá dự án
               </a>
               <a className={styles.secondaryButton} href="#activities">
