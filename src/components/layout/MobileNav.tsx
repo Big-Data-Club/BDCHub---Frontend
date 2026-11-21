@@ -7,15 +7,13 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { UserAvatar } from "@/components/user/UserAvatar";
 import { sidebarSections } from "@/constants";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useUser } from "@/store/UserContext";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useTheme } from "next-themes";
 import { BrandMark } from "./BrandMark";
 import { useTenant } from "@/lib/tenant/context";
-import lmsService from "@/services/lms/lmsService";
 import { logout } from "@/services/auth/logout";
-import { useSelectedLmsRole } from "@/hooks/lms/useSelectedLmsRole";
 
 const MobileNav = () => {
   const tenant = useTenant();
@@ -24,18 +22,6 @@ const MobileNav = () => {
   const { isAdmin } = useAuth();
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
-  const [lmsRoles, setLmsRoles] = useState<string[]>([]);
-  const selectedRole = useSelectedLmsRole();
-
-  useEffect(() => {
-    if (user) {
-      lmsService.getMyRoles()
-        .then(roles => {
-          if (roles) setLmsRoles(roles);
-        })
-        .catch(err => console.error("Error fetching LMS roles for MobileNav:", err));
-    }
-  }, [user]);
 
   const handleLogout = async () => {
     setUser(null);
@@ -94,14 +80,6 @@ const MobileNav = () => {
                 const filteredLinks = section.links.filter((link) => {
                   if (isAdmin) return true;
                   
-                  const isTeacher = user?.role === "ROLE_TEACHER" || user?.role === "ROLE_MANAGER" || lmsRoles.includes("TEACHER") || selectedRole === "TEACHER";
-                  
-                  if (link.label === "Hướng dẫn Học viên") {
-                    return true;
-                  }
-                  if (link.label === "Hướng dẫn Giảng viên") {
-                    return isTeacher;
-                  }
                   return (
                     link.label === "BDCourse" ||
                     link.route === "/workspace" ||

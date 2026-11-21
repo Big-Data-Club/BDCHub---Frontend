@@ -63,11 +63,11 @@ try {
   await phone.getByRole('button', { name: 'Quét thẻ mẫu DEMO001', exact: true }).click();
   await expect(phone.getByText('Check-out thành công', { exact: true })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Có mạng', exact: true }).click();
+  await page.locator('iframe[src="/dutylog-demo/index.html"]').evaluate(frame => frame.contentWindow.postMessage({ type: 'dutylog:command', action: 'offline', value: true }, window.location.origin));
   await phone.getByPlaceholder('Nhập MSSV...').fill('DEMO001');
   await phone.getByText('Xác nhận', { exact: true }).click();
   await expect(phone.getByText('Mất kết nối demo. Chưa ghi nhận thay đổi. Hãy bật lại kết nối và thử lại.', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Mất mạng', exact: true }).click();
+  await page.locator('iframe[src="/dutylog-demo/index.html"]').evaluate(frame => frame.contentWindow.postMessage({ type: 'dutylog:command', action: 'offline', value: false }, window.location.origin));
   await page.getByRole('button', { name: 'Tổng quan', exact: true }).click();
   await expect(phone.getByText('3/20 người có mặt', { exact: false })).toBeVisible();
 

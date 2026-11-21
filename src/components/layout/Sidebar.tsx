@@ -16,11 +16,9 @@ import { ChevronsLeft, ChevronsRight, LogOut, Sun, Moon, Settings } from "lucide
 import { useUser } from "@/store/UserContext";
 import { useUnreadNotifications } from "@/store/NotificationContext";
 import { useAuth } from "@/hooks/auth/useAuth";
-import { useSelectedLmsRole } from "@/hooks/lms/useSelectedLmsRole";
 import { useTheme } from "next-themes";
 import { BrandMark } from "./BrandMark";
 import { useTenant } from "@/lib/tenant/context";
-import lmsService from "@/services/lms/lmsService";
 import { logout } from "@/services/auth/logout";
 import { GhostBtn } from "@/components/lms/shared/Button";
 
@@ -40,19 +38,10 @@ const Sidebar: React.FC = () => {
   const [width, setWidth] = useState(MIN_WIDTH);
   const prevWidthRef = useRef(DEFAULT_WIDTH);
   const resizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
-  const [lmsRoles, setLmsRoles] = useState<string[]>([]);
-  const selectedRole = useSelectedLmsRole();
 
   useEffect(() => {
     setMounted(true);
-    if (user) {
-      lmsService.getMyRoles()
-        .then(roles => {
-          if (roles) setLmsRoles(roles);
-        })
-        .catch(err => console.error("Error fetching LMS roles for Sidebar:", err));
-    }
-  }, [user]);
+  }, []);
 
   const toggleSidebar = () => {
     if (!isCollapsed) {
@@ -157,14 +146,6 @@ const Sidebar: React.FC = () => {
               const filteredLinks = section.links.filter((link) => {
                 if (isAdmin) return true;
                 
-                const isTeacher = user?.role === "ROLE_TEACHER" || user?.role === "ROLE_MANAGER" || lmsRoles.includes("TEACHER") || selectedRole === "TEACHER";
-                
-                if (link.label === "Hướng dẫn Học viên") {
-                  return true;
-                }
-                if (link.label === "Hướng dẫn Giảng viên") {
-                  return isTeacher;
-                }
                 return (
                   link.label === "BDCourse" ||
                   link.route === "/workspace" ||

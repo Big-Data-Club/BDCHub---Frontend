@@ -496,111 +496,251 @@
       "year": "2023"
     }
   ],
+  "projectGroups": [
+    {
+      "id": "platforms",
+      "title": "Ứng dụng và nền tảng",
+      "description": "Các công cụ phục vụ học tập, sinh hoạt và vận hành hệ thống."
+    },
+    {
+      "id": "hpc-quantum",
+      "title": "HPC và Quantum Computing",
+      "description": "Từ theo dõi tài nguyên, tìm hiểu đặc điểm của job đến điều phối tính toán giữa nhiều hệ thống."
+    },
+    {
+      "id": "data-platforms",
+      "title": "Streaming data và nền tảng dữ liệu",
+      "description": "Kế thừa hệ thống truyền dẫn của HPC Lab để tiếp tục phát triển các bài toán lưu trữ, quản trị và phân tích."
+    },
+    {
+      "id": "environment",
+      "title": "Dữ liệu môi trường",
+      "description": "Kết hợp dữ liệu cảm biến và các nguồn quan trắc để theo dõi, bổ khuyết và dự báo theo từng khu vực."
+    },
+    {
+      "id": "mobility",
+      "title": "Giao thông công cộng",
+      "description": "Phát triển tiếp các bài toán từ dữ liệu thực của hệ thống bus TP.HCM, đồng thời tìm hiểu kết nối với metro."
+    },
+    {
+      "id": "agriculture",
+      "title": "Nông nghiệp thông minh",
+      "description": "Kết nối khu thử nghiệm thực, dữ liệu cảm biến và mô phỏng để đánh giá các giải pháp trước khi áp dụng."
+    },
+    {
+      "id": "ai-systems",
+      "title": "Mô hình AI và hệ thống học phân tán",
+      "description": "Tìm hiểu cách huấn luyện, triển khai và sử dụng mô hình trong những điều kiện dữ liệu, tài nguyên khác nhau."
+    }
+  ],
   "projects": [
     {
+      "id": "bdchub",
+      "group": "platforms",
+      "projectName": "BDC Hub",
+      "desc": "Không gian học tập kết nối quản lý khóa học, bài giảng, quiz, knowledge graph và AI Cowork. Học viên có thể theo dõi nội dung và đặt câu hỏi; giảng viên tổ chức bài học và hoạt động đánh giá. Workspace hỗ trợ chia sẻ ghi chú và cộng tác trong nhóm.",
+      "projectShowcaseUrl": "/projects/bdchub",
+      "githubUrl": "https://github.com/Big-Data-Club/CoreApplication"
+    },
+    {
       "id": "dutylog",
-      "projectName": "DutyLog: Không gian chung, thông tin rõ ràng",
-      "desc": "Kết nối ca trực, ghi nhận ra vào và trạng thái phòng cho CLB sinh viên. Khám phá dự án và trải nghiệm ứng dụng ngay trên điện thoại demo.",
-      "imageUrl": "/dutylog-demo/assets/_assets/bdclogo.58f783dede30c4feb6828d3ba4f68ddc.png",
-      "projectShowcaseUrl": "/projects/dutylog"
+      "group": "platforms",
+      "projectName": "DutyLog: Quản lý phòng",
+      "desc": "Kết nối trạng thái phòng, ca trực và lượt ra vào trong cùng một ứng dụng. Thành viên biết phòng đang mở hay đóng; người trực ghi nhận hiện diện bằng thẻ, QR hoặc MSSV, còn ban quản lý có thông tin để theo dõi hoạt động chung.",
+      "projectShowcaseUrl": "/projects/dutylog",
+      "githubUrl": "https://github.com/Big-Data-Club/BDCHub---DutyLog"
     },
     {
-      "id": "p8",
-      "projectName": "Club Management Application",
-      "desc": "Ứng dụng quản lý hoạt động và dự án cho câu lạc bộ",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_AI_EDUCATION",
-      "projectShowcaseUrl": "/"
+      "id": "video-deepsearch",
+      "group": "platforms",
+      "projectName": "Video DeepSearch",
+      "desc": "Tìm kiếm và tổng hợp chuyên sâu trên video, kết hợp với nội dung trong tài liệu. Hướng tới việc đưa người dùng đến đúng đoạn liên quan, đối chiếu thông tin giữa nhiều nguồn và tổng hợp câu trả lời có căn cứ để tiếp tục tìm hiểu."
     },
     {
-      "id": "p7",
-      "projectName": "AI for Education",
-      "desc": "Ứng dụng AI trong giáo dục, phát triển các giải pháp thông minh để nâng cao chất lượng học tập",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_AI_EDUCATION",
-      "projectShowcaseUrl": "/projects/ai-for-education"
+      "id": "virtual-lab",
+      "group": "platforms",
+      "projectName": "Virtual Lab",
+      "desc": "Không gian thực hành để học viên làm bài, chạy chương trình và xem kết quả ngay trong quá trình học. Kết nối bài thực hành với khóa học, hỗ trợ giảng viên chuẩn bị đề và kiểm thử, đồng thời mở đường cho những môi trường thực hành chuyên sâu hơn."
     },
     {
-      "id": "p2",
-      "projectName": "Sustainable HPC Scheduling",
-      "desc": "Nghiên cứu và phát triển các giải pháp định thời thông minh cho hạ tầng tính toán hiệu năng cao và bền vững",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_HPC_SCHEDULING",
-      "projectShowcaseUrl": "/projects/sustainable-hpc-scheduling"
+      "id": "agent-assisted-operations",
+      "group": "platforms",
+      "projectName": "Giám sát và xử lý lỗi hệ thống với Agent",
+      "desc": "Theo dõi hạ tầng và ứng dụng, tiếp nhận log lỗi để chuyển vào luồng chẩn đoán AI. Agent đối chiếu log với ngữ cảnh vận hành và mã nguồn, phân tích nguyên nhân có thể xảy ra rồi đề xuất cách sửa để người phụ trách xem xét. Tập trung hỗ trợ người vận hành điều tra sự cố và theo dõi kết quả xử lý."
     },
     {
-      "id": "p1",
-      "projectName": "Quantum Circuit Benchmark",
-      "desc": "Đánh giá hiệu suất các phần mềm mô phỏng lượng tử hiện nay thông qua thiết kế mạch kiểm lượng tử",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_QUANTUM_CIRCUIT",
-      "projectShowcaseUrl": "/projects/quantum-circuit-benchmark"
+      "id": "hpc-monitoring",
+      "group": "hpc-quantum",
+      "projectName": "HPC Monitoring và Agent Monitoring",
+      "desc": "Theo dõi trạng thái cụm tính toán, tài nguyên và các job đang chạy. Tìm hiểu cách dùng Agent để tổng hợp tín hiệu giám sát, hỗ trợ truy vấn và nhận diện những bất thường cần kiểm tra, giúp người vận hành có thêm ngữ cảnh khi xử lý."
     },
     {
-      "id": "p3",
-      "projectName": "Super Resolution in Computer Vision",
-      "desc": "Siêu phân giải trong thị giác máy tính, tăng độ phân giải hình ảnh sử dụng deep learning",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_SUPER_RESOLUTION",
-      "projectShowcaseUrl": "/projects/super-resolution-cv"
+      "id": "hpc-job-profiling",
+      "group": "hpc-quantum",
+      "projectName": "Job Profiling",
+      "desc": "Phân tích hành vi sử dụng CPU, GPU, bộ nhớ và thời gian chạy của từng loại job. Từ các lần chạy đã ghi nhận, xây dựng profile và đề xuất cấu hình tài nguyên phù hợp; tiếp tục đối chiếu đề xuất với kết quả thực tế."
     },
     {
-      "id": "p5",
-      "projectName": "Smart IoT Data Stream Analytics Platform",
-      "desc": "Nền tảng phân tích dòng dữ liệu IoT thông minh và tối ưu hóa dữ liệu truyền",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_IOT_ANALYTICS",
-      "projectShowcaseUrl": "/projects/iot-analytics-platform"
+      "id": "smart-orchestration-scheduling",
+      "group": "hpc-quantum",
+      "projectName": "Smart Orchestration & Scheduling",
+      "desc": "Nghiên cứu cách phối hợp điều phối tài nguyên và định thời job theo nhu cầu của ứng dụng, trạng thái hệ thống và các mục tiêu vận hành. Thử nghiệm các chính sách để hiểu những đánh đổi giữa thời gian chờ, hiệu suất sử dụng và chi phí."
     },
     {
-      "id": "p6",
-      "projectName": "Quantum Machine Learning",
-      "desc": "Học máy lượng tử, kết hợp quantum computing và machine learning để giải quyết các vấn đề phức tạp",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_QUANTUM_ML",
-      "projectShowcaseUrl": "/projects/quantum-machine-learning"
+      "id": "hpc-federation",
+      "group": "hpc-quantum",
+      "projectName": "Liên minh các hệ thống HPC",
+      "desc": "Hướng tới kết nối nhiều hệ thống HPC để có thể phối hợp thực thi công việc. Bài toán gồm mô tả tài nguyên, lựa chọn nơi chạy, điều phối dữ liệu và định thời giữa các cụm, đồng thời xét đến chính sách sử dụng của từng đơn vị."
     },
     {
-      "id": "p4",
-      "projectName": "Quantum Vector Database",
-      "desc": "Cơ sở dữ liệu vector trong tính toán lượng tử, nghiên cứu ứng dụng quantum computing cho vector databases",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_QUANTUM_VECTOR_DB",
-      "projectShowcaseUrl": "/projects/quantum-vector-database"
+      "id": "renewable-aware-hpc",
+      "group": "hpc-quantum",
+      "projectName": "Điều phối HPC gắn với năng lượng tái tạo",
+      "desc": "Định hướng đưa thông tin nguồn điện và khả năng cung cấp năng lượng tái tạo vào quyết định điều phối, định thời. Cần cân đối yêu cầu hoàn thành job, tài nguyên sẵn có và điều kiện năng lượng trong cùng một quyết định."
     },
     {
-      "id": "p9",
-      "projectName": "AI in Education (AIE)",
-      "desc": "Ứng dụng AI trong LMS, hệ thống mini-module học tập, đề xuất khóa học, phân tích trình độ học viên và liên kết kho học liệu qua MCP.",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_AI_EDUCATION",
-      "projectShowcaseUrl": "/projects/ai-in-education"
+      "id": "quantum-serverless",
+      "group": "hpc-quantum",
+      "projectName": "Quantum Serverless",
+      "desc": "Tìm hiểu cách cung cấp môi trường thực thi tác vụ lượng tử theo nhu cầu, để người dùng tập trung vào bài toán thay vì tự chuẩn bị toàn bộ hạ tầng. Khảo sát cách chọn backend, quản lý thực thi và theo dõi kết quả trên thiết bị hoặc trình mô phỏng."
     },
     {
-      "id": "p10",
-      "projectName": "HPC-QC Monitoring & Scheduling",
-      "desc": "Nền tảng giám sát HPC/GPU, phân tích luồng dữ liệu, dự đoán QoS và thuật toán điều phối tài nguyên cho HPC và QC.",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_HPC_SCHEDULING",
-      "projectShowcaseUrl": "/projects/hpc-qc-monitoring"
+      "id": "distributed-quantum-simulation",
+      "group": "hpc-quantum",
+      "projectName": "Distributed Quantum Simulation",
+      "desc": "Nghiên cứu mô phỏng lượng tử trên nhiều tài nguyên tính toán. Các hướng cần đánh giá gồm phân chia trạng thái và công việc, trao đổi dữ liệu, sử dụng bộ nhớ và ảnh hưởng của truyền thông đến khả năng mở rộng."
     },
     {
-      "id": "p11",
-      "projectName": "X-Stream Data Lakehouse",
-      "desc": "Hệ thống truyền tải dữ liệu streaming, feature storage và phân tích cho healthcare, IoT, telco và môi trường.",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_IOT_ANALYTICS",
-      "projectShowcaseUrl": "/projects/x-stream-data-lakehouse"
+      "id": "hybrid-hpc-quantum",
+      "group": "hpc-quantum",
+      "projectName": "Tích hợp HPC và Quantum Computing",
+      "desc": "Xây dựng và thử nghiệm luồng tính toán kết hợp tài nguyên HPC với phần cứng lượng tử hoặc mô phỏng lượng tử. Tập trung vào cách chuyển giao tác vụ, trao đổi kết quả và điều phối các bước tính toán cổ điển, lượng tử trong cùng một quy trình."
     },
     {
-      "id": "p12",
-      "projectName": "Transportation Digital Twin",
-      "desc": "Giải pháp số hóa hệ thống bus với phát hiện bất thường, bản đồ số, phân tích chuyến và thuật toán đường đi nhanh nhất.",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_QUANTUM_VECTOR_DB",
-      "projectShowcaseUrl": "/projects/transportation-digital-twin"
+      "id": "quantum-stream",
+      "group": "hpc-quantum",
+      "projectName": "Quantum Stream",
+      "desc": "Khảo sát các giải thuật xử lý dòng dữ liệu có sử dụng tính toán lượng tử. Bắt đầu từ những bài toán và mô hình dữ liệu cụ thể để đánh giá điều kiện áp dụng, giới hạn của mô phỏng và khả năng so sánh với cách tiếp cận cổ điển."
     },
     {
-      "id": "p13",
-      "projectName": "Agri Digital Twin",
-      "desc": "Mô phỏng FarmLab ảo, thu thập cảm biến nông nghiệp, imputation dữ liệu IoT và giải pháp AI cho nông nghiệp thông minh.",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_AI_EDUCATION",
-      "projectShowcaseUrl": "/projects/agri-digital-twin"
+      "id": "hpclab-streaming",
+      "group": "data-platforms",
+      "projectName": "Hệ thống truyền dẫn và phân tích dữ liệu HPC Lab",
+      "desc": "Kế thừa hệ thống nền đã phát triển tại HPC Lab: Kafka và MQTT cho truyền dữ liệu, Spark cho phân tích, MinIO và HDFS cho lưu trữ. Tiếp tục theo hướng Lakehouse để kết nối lưu trữ với phân tích, trên cơ sở khảo sát các kiến trúc Lambda, Kappa, Data Lake, Data Warehouse và Data Mesh."
     },
     {
-      "id": "p14",
-      "projectName": "Federated Learning & Open LLMs",
-      "desc": "Nghiên cứu học phân tán, mô hình LLM mã nguồn mở, agent RL và ứng dụng bảo mật cho dữ liệu phân tán.",
-      "imageUrl": "https://lh3.googleusercontent.com/uc?id=PROJECT_QUANTUM_ML",
-      "projectShowcaseUrl": "/projects/federated-learning-llms"
+      "id": "kafka-spark-management",
+      "group": "data-platforms",
+      "projectName": "Công cụ quản trị Kafka và Spark",
+      "desc": "Phát triển công cụ quản lý tài khoản, schema, topic, hàng đợi và tác vụ xử lý dữ liệu. Tập trung vào việc theo dõi luồng dữ liệu, cấu hình quyền và hỗ trợ người vận hành kiểm tra những vấn đề thường gặp trong hệ thống Kafka, Spark."
+    },
+    {
+      "id": "healthcare-feature-store",
+      "group": "data-platforms",
+      "projectName": "Healthcare Feature Store & Data Analytics",
+      "desc": "Xây dựng kho đặc trưng kết hợp với hệ thống truyền dẫn của HPC Lab để phục vụ nhiều nhóm nghiên cứu và ứng dụng y tế. Bao gồm lưu trữ, quản lý dữ liệu và đặc trưng, trực quan hóa, chuẩn bị tập huấn luyện và hỗ trợ phát triển mô hình theo từng bài toán."
+    },
+    {
+      "id": "telco-stream-analytics",
+      "group": "data-platforms",
+      "projectName": "Telco Data Analytics",
+      "desc": "Giả lập dòng dữ liệu từ dữ liệu thực đã có của doanh nghiệp viễn thông. Phân tích nhiều luồng theo cửa sổ giờ, ngày, tuần, tháng và năm; nghiên cứu lớp metadata dựa trên Bloom filter (BFMD), các ứng dụng liên quan và cách trực quan hóa phục vụ phân tích."
+    },
+    {
+      "id": "water-quality",
+      "group": "environment",
+      "projectName": "Water Quality Monitoring, Imputation & Prediction",
+      "desc": "Phát triển tiếp kết quả của nhóm sinh viên năm 2021 cho bài toán chất lượng nước sông, ao hồ, sử dụng hệ thống truyền dẫn của HPC Lab. Kết hợp giám sát, bổ khuyết dữ liệu còn thiếu và dự báo; phần bổ khuyết kế thừa các kết quả ban đầu đã có."
+    },
+    {
+      "id": "local-weather",
+      "group": "environment",
+      "projectName": "Dự báo mưa và gió theo khu vực",
+      "desc": "Kết hợp lịch sử đo từ cảm biến tại khu vực với dữ liệu của các nguồn dự báo thời tiết. Xây dựng mô hình dự báo cục bộ, tìm hiểu quan hệ giữa các nguồn dữ liệu và điều chỉnh dự báo mưa, hướng gió cho điều kiện địa phương."
+    },
+    {
+      "id": "flood-monitoring",
+      "group": "environment",
+      "projectName": "Flooding Monitoring",
+      "desc": "Thu thập dữ liệu cảm biến mực nước qua nền tảng truyền dẫn, cải thiện chất lượng đo và hiệu chỉnh cảm biến bằng bộ lọc Kalman. Từ đó nghiên cứu dự báo mực nước và nguy cơ ngập trong mối liên hệ với lượng mưa, triều cường."
+    },
+    {
+      "id": "hcmc-bus-platform",
+      "group": "mobility",
+      "projectName": "Big Data Platform cho hệ thống bus TP.HCM",
+      "desc": "Phát triển tiếp từ hệ thống đã có kết quả triển khai, với dữ liệu thực 12 tháng và dòng dữ liệu theo thời gian. Kết nối Kafka, Spark, MinIO, HDFS và SQL; xử lý dữ liệu thô để tách tuyến, tách chuyến, khai thác thông tin hành trình, trực quan hóa và phát hiện bất thường."
+    },
+    {
+      "id": "bus-metro-mapping",
+      "group": "mobility",
+      "projectName": "Bản đồ dữ liệu bus và kết nối metro",
+      "desc": "Trực quan hóa tuyến, chuyến, thời gian đến trạm và các tín hiệu vận hành trên bản đồ số. Kết hợp dữ liệu dân cư để phân tích mức phục vụ theo ô lưới 500 × 500 m hoặc 1.000 × 1.000 m, xây dựng dashboard và xem xét khả năng kết nối bus với metro."
+    },
+    {
+      "id": "fastest-path",
+      "group": "mobility",
+      "projectName": "Fastest-Path Algorithms",
+      "desc": "Tìm đường theo thời gian di chuyển, từ một điểm đến một điểm và giữa nhiều cặp điểm. Nghiên cứu dự báo đường đi nhanh ở một thời điểm trong tương lai, phối hợp với hướng luận văn và nhóm đang triển khai để tận dụng dữ liệu, kết quả sẵn có."
+    },
+    {
+      "id": "farmlab",
+      "group": "agriculture",
+      "projectName": "FarmLab Collection & Analytics",
+      "desc": "Khu thử nghiệm với cảm biến và thiết bị để thu thập nhiều dòng dữ liệu, triển khai ứng dụng và đánh giá các giải pháp nông nghiệp thông minh. Hướng tới mô hình Smart Village có chi phí phù hợp, chia sẻ kết quả và kinh nghiệm cho cộng đồng; đồng thời xử lý chất lượng dữ liệu, bổ khuyết và giám sát an toàn thiết bị IoT."
+    },
+    {
+      "id": "agri-dt-mobile",
+      "group": "agriculture",
+      "projectName": "Agri Digital Twin Mobile Apps",
+      "desc": "Ứng dụng di động cho học sinh, sinh viên, giảng viên và người làm nông tiếp cận dữ liệu, mô hình và hoạt động của hệ thống nông nghiệp. Tìm hiểu nhu cầu của từng nhóm để thiết kế các cách quan sát, học tập và tương tác phù hợp."
+    },
+    {
+      "id": "virtual-farm-lab",
+      "group": "agriculture",
+      "projectName": "Virtual Farm Lab",
+      "desc": "Mô phỏng khu thử nghiệm nông nghiệp khi chưa có điều kiện xây dựng ngoài thực địa hoặc cần đánh giá nhiều kịch bản. Mô hình nhận đầu vào và sinh dòng dữ liệu cảm biến như nhiệt độ, độ ẩm, ánh sáng, gió, mưa, độ ẩm đất và dinh dưỡng; có xét đến tác động của tưới tiêu và các điều kiện trước đó."
+    },
+    {
+      "id": "agri-dt-ai",
+      "group": "agriculture",
+      "projectName": "AI cho Agri Digital Twin",
+      "desc": "Nghiên cứu hệ gợi ý và các mô hình hỗ trợ quyết định trong nông nghiệp, có xét đến giai đoạn sinh trưởng của cây. Sử dụng dữ liệu và môi trường thử nghiệm để đối chiếu khuyến nghị với diễn biến thực tế trước khi mở rộng ứng dụng."
+    },
+    {
+      "id": "social-network-analytics",
+      "group": "ai-systems",
+      "projectName": "Social Network Collection & Analytics",
+      "desc": "Thu thập và phân tích văn bản, hình ảnh, video từ mạng xã hội, báo điện tử và các kênh liên quan đến đơn vị. Tìm hiểu cách dùng LLM để nhận diện chủ đề, đánh giá sắc thái tích cực, trung tính hoặc tiêu cực, đồng thời chỉ ra bài viết và thông tin làm căn cứ cho câu trả lời."
+    },
+    {
+      "id": "edge-ai-electric-vehicles",
+      "group": "ai-systems",
+      "projectName": "Edge AI cho ứng dụng xe điện",
+      "desc": "Khảo sát mô hình AI chạy gần nguồn dữ liệu và lựa chọn bài toán giám sát thông số, dự đoán trên xe điện. Đánh giá sự phù hợp giữa mô hình, thiết bị và yêu cầu phản hồi trong điều kiện tài nguyên tính toán có giới hạn."
+    },
+    {
+      "id": "reinforcement-learning-agents",
+      "group": "ai-systems",
+      "projectName": "Reinforcement Learning và AI Agents",
+      "desc": "Nghiên cứu kết hợp Agent với học tăng cường trong một ứng dụng cụ thể. Tìm hiểu cách Agent tương tác, phối hợp qua giao thức A2A và cải thiện quyết định từ phản hồi; cần xác định rõ môi trường, hành động, mục tiêu và cách đánh giá."
+    },
+    {
+      "id": "distributed-deep-learning",
+      "group": "ai-systems",
+      "projectName": "Distributed Deep Learning",
+      "desc": "Tìm hiểu huấn luyện mô hình trên nhiều tài nguyên, bao gồm huấn luyện bất đồng bộ và hướng CAC. Đánh giá ảnh hưởng của trao đổi dữ liệu, độ trễ cập nhật và cách phối hợp tính toán đến quá trình hội tụ và sử dụng hệ thống."
+    },
+    {
+      "id": "federated-learning",
+      "group": "ai-systems",
+      "projectName": "Federated Learning & Applications",
+      "desc": "Nghiên cứu huấn luyện mô hình chung giữa các đơn vị trong khi dữ liệu vẫn nằm tại từng bên. Các bài toán gồm tốc độ hội tụ, khác biệt dữ liệu và mức độ công bằng giữa các bên tham gia; lựa chọn một ứng dụng cụ thể để kiểm chứng cách tiếp cận."
+    },
+    {
+      "id": "open-llms",
+      "group": "ai-systems",
+      "projectName": "LLM mã nguồn mở và ứng dụng",
+      "desc": "Thử nghiệm và tìm hiểu cách triển khai, đánh giá các mô hình ngôn ngữ mã nguồn mở trên tài nguyên sẵn có. Từng bước xây dựng kinh nghiệm sử dụng mô hình trong robot và các ứng dụng khác, với bài toán, dữ liệu và tiêu chí đánh giá cụ thể."
     }
   ],
   "publications": [

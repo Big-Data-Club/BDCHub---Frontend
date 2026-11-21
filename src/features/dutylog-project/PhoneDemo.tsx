@@ -13,7 +13,6 @@ import {
   ScanLine,
   Signal,
   Wifi,
-  WifiOff,
 } from "lucide-react";
 import styles from "./dutylog.module.css";
 import {
@@ -27,25 +26,21 @@ const scenes = [
     id: "home",
     label: "Tổng quan",
     Icon: Home,
-    hint: "Xem ca đang diễn ra, số người có mặt và hoạt động gần đây ngay trên trang chủ.",
   },
   {
     id: "rooms",
     label: "Phòng",
     Icon: MapPin,
-    hint: "Chọn giữa B9, C6 và H6. Thông tin hiển thị theo phòng bạn chọn.",
   },
   {
     id: "scan",
     label: "Quét thẻ",
     Icon: ScanLine,
-    hint: "Chạm “Quét thẻ mẫu DEMO001” hoặc nhập DEMO001. Chọn “Rời phòng” để thử check-out.",
   },
   {
     id: "qr",
     label: "Mã QR",
     Icon: QrCode,
-    hint: "Mở QR cá nhân từ chính màn hình của ứng dụng. Mã ở đây chỉ dùng minh họa.",
   },
 ] as const;
 
@@ -54,7 +49,6 @@ export function PhoneDemo({ id = "demo" }: { id?: string }) {
   const [scene, setScene] = useState<DemoScreen>("home");
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [offline, setOffline] = useState(false);
   const [resetKey, setResetKey] = useState(0);
   function command(action: DemoCommand, value?: boolean) {
     iframe.current?.contentWindow?.postMessage(
@@ -86,7 +80,6 @@ export function PhoneDemo({ id = "demo" }: { id?: string }) {
       window.clearTimeout(timeout);
     };
   }, [resetKey]);
-  const active = scenes.find((s) => s.id === scene);
   return (
     <div className={styles.demo} id={id}>
       <div
@@ -171,35 +164,17 @@ export function PhoneDemo({ id = "demo" }: { id?: string }) {
           Chạm để khám phá
         </span>
       </div>
-      <p className={styles.demoHint} aria-live="polite">
-        {active?.hint ||
-          "Tiếp tục khám phá các tab và thao tác ngay trong điện thoại."}
-      </p>
       <div className={styles.demoTools}>
         <span>
           <span className={styles.liveDot} />
-          Demo tương tác · Dữ liệu mẫu
+          Demo
         </span>
         <div>
           <button
             type="button"
             disabled={!ready}
-            aria-pressed={offline}
-            onClick={() => {
-              command("offline", !offline);
-              setOffline((v) => !v);
-            }}
-            title="Thử lỗi mạng trong bản demo"
-          >
-            {offline ? <WifiOff size={13} /> : <Wifi size={13} />}
-            {offline ? "Mất mạng" : "Có mạng"}
-          </button>
-          <button
-            type="button"
-            disabled={!ready}
             onClick={() => {
               command("reset");
-              setOffline(false);
             }}
             aria-label="Đặt lại demo"
           >

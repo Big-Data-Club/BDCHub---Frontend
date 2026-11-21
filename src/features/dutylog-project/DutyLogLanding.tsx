@@ -190,7 +190,7 @@ export function DutyLogLanding() {
                 <DoorOpen size={26} />
               </div>
               <div>
-                <span className={styles.smallLabel}>DUTYLOG / MINH HỌA</span>
+                <span className={styles.smallLabel}>DUTYLOG</span>
                 <strong>Phòng 303 · B9</strong>
                 <span>Minh An đang trực · 3 người có mặt</span>
               </div>
@@ -327,7 +327,6 @@ export function DutyLogLanding() {
                   <span>Phòng 303 B9</span>
                   <span>09:41</span>
                 </div>
-                <small>Dữ liệu minh họa</small>
               </div>
             </article>
             <article className={styles.smallFeature}>
@@ -356,7 +355,7 @@ export function DutyLogLanding() {
               </h3>
               <p>
                 Thông báo lỗi phải nói rõ điều gì chưa được ghi nhận và cách thử
-                lại. Bạn có thể thử mất mạng trong demo.
+                lại.
               </p>
               <span className={styles.errorExample}>
                 <span />

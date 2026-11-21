@@ -32,10 +32,16 @@ Active animations are cancelled on unmount, reduced motion or hidden tabs.
 The hero has no large thumbnail. All nine activities use the existing dataset,
 with local WebP photos for every event. The original Google image sources were
 retained as the input when optimizing the other five event photos; no replacement
-imagery was invented. Images below the fold load lazily. DutyLog is
-temporarily excluded from the homepage, retained in the dataset and available at
-`/projects/dutylog`. Its existing interactive demo remains on that page, which
-shares the ambient effect component and editorial visual direction.
+imagery was invented. Images below the fold load lazily.
+
+The project catalogue starts with BDC Hub, DutyLog, Video DeepSearch, Virtual Lab
+and agent-assisted operations. The remaining research directions are grouped in
+native details/summary sections: HPC/Quantum, data platforms, environment,
+mobility, agriculture and AI systems. All descriptions come from the team's topic
+sheet; existing foundations and future directions are distinguished in the copy.
+Only BDC Hub and DutyLog have confirmed showcase/repository links; other entries
+render as text without placeholder URLs. `clubData.json` owns the order and groups.
+The DutyLog and BDC Hub showcases retain their own interactive previews.
 
 Activities follow the team's newest-to-oldest timeline in the JSON array.
 Big Data Day 2023/2026 and Kick-off Gen 4/5 have separate records and photos;

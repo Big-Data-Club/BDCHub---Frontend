@@ -281,7 +281,8 @@
   border-bottom: 1px solid var(--rule);
   transition: border-color 180ms ease;
 }
-.projectCard h3 {
+.projectCard h3,
+.projectCard h4 {
   font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.45;
@@ -382,7 +383,8 @@
   .projectCard:hover {
     border-color: var(--accent);
   }
-  .projectCard:hover h3 {
+  .projectCard:hover h3,
+  .projectCard:hover h4 {
     color: var(--accent);
   }
   .textLink:hover {
@@ -480,4 +482,54 @@
     opacity: 1;
     transform: none;
   }
+}
+
+.projectIntro {
+  max-width: 760px;
+  margin-top: 1.5rem !important;
+  color: var(--muted);
+}
+.projectGroup {
+  margin-top: 2rem;
+  border-top: 1px solid var(--rule);
+}
+.projectGroupHeading {
+  padding-top: 1.5rem;
+}
+.projectGroupHeading h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.projectGroupHeading p {
+  color: var(--muted);
+  margin-top: 0.5rem;
+  max-width: 800px;
+}
+summary.projectGroupHeading {
+  cursor: pointer;
+  position: relative;
+  padding: 1.5rem 2rem 1.5rem 0;
+  list-style: none;
+}
+summary.projectGroupHeading::-webkit-details-marker {
+  display: none;
+}
+summary.projectGroupHeading::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: 1.5rem;
+  color: var(--accent);
+  font-size: 1.5rem;
+}
+details[open] > summary.projectGroupHeading::after {
+  content: "−";
+}
+.projectGroup > .projectGrid {
+  margin-top: 0.25rem;
+}
+.projectLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
 }

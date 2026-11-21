@@ -1,6 +1,6 @@
 # DutyLog project landing
 
-Public route: `/projects/dutylog`. DutyLog is currently excluded from the BDC homepage.
+Public route: `/projects/dutylog`. DutyLog follows BDC Hub in the homepage project catalogue.
 
 The phone embeds `/dutylog-demo/index.html`, a static Expo export of the **actual
 DutyLog React Native screens**, not HTML copies. The frontend needs no new dependencies.
@@ -8,6 +8,9 @@ Its API and camera are replaced at build time by `dutylog/mobile/demo/metro.conf
 All people, IDs, attendance and reservations are synthetic and kept only in memory.
 The demo does not ask for camera access, log in or contact a backend. Its CSP blocks
 network connections. Reset or reload restores the sample session.
+The public showcase keeps a small Demo label and reset control; implementation
+notes and network-failure controls stay out of the marketing interface. The
+smoke test can still exercise failure handling through the existing iframe protocol.
 
 Rebuild after changing DutyLog screens (from CoreApplication):
 

@@ -17,6 +17,8 @@ import { usePageContext } from "@/hooks/common/usePageContext";
 
 interface AgentMessageItemProps {
   message: AgentMessage;
+  /** Hide persistence and feedback actions in public, local previews. */
+  readOnly?: boolean;
   onClarificationSelect?: (option: string) => void;
   isSelectedForLogs?: boolean;
   onSelectForLogs?: () => void;
@@ -35,6 +37,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
   onActionApprove,
   onActionReject,
   sessionId,
+  readOnly = false,
 }: AgentMessageItemProps) {
   const isUser = message.role === "user";
   const citedReferences = isUser || message.isStreaming ? [] : selectCitedReferences(message.content || "", message.references || []);
@@ -230,7 +233,7 @@ export const AgentMessageItem = memo(function AgentMessageItem({
           />
         )}
 
-        {!isUser && message.content && !message.isStreaming && (
+        {!readOnly && !isUser && message.content && !message.isStreaming && (
           <div className="flex flex-wrap items-center justify-between gap-2 ml-1 pt-1.5 mt-1.5">
             <div className="flex items-center gap-1.5 flex-wrap">
               <SaveToWorkspaceButton title="Ghi chú từ AI Mentor" markdown={message.content} />

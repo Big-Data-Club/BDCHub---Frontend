@@ -71,7 +71,7 @@ try {
   ).toHaveCount(1);
   assert.equal(
     await page.locator("#projects article").count(),
-    data.projects.filter(({ id }) => id !== "dutylog").length,
+    data.projects.length,
   );
   assert.equal(
     await page.locator("#publications article").count(),

@@ -45,7 +45,14 @@ const getRelStyle = (t: string) => RELATION_STYLES[t?.toLowerCase()] ?? DEFAULT_
 // ── Types ────────────────────────────────────────────────────────────────────
 
 interface GraphLink { source: number | any; target: number | any; type: string; strength?: number; auto_generated?: boolean }
-interface KnowledgeGraphProps { courseId: number; initialData?: { nodes: any[]; links: GraphLink[] } }
+interface KnowledgeGraphProps {
+  courseId: number;
+  initialData?: { nodes: any[]; links: GraphLink[] };
+  /** A local preview never polls jobs, fetches chunks or mutates course data. */
+  readOnly?: boolean;
+  selectedNodeId?: number;
+  onNodeSelect?: (id: number) => void;
+}
 type LinkJobState = "idle" | "queued" | "done" | "error";
 interface EdgeModal {
   mode: "create" | "edit";
@@ -57,7 +64,9 @@ interface EdgeModal {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
+function KnowledgeGraph({
+  courseId, initialData, readOnly = false, selectedNodeId, onNodeSelect,
+}: KnowledgeGraphProps) {
   const [graphData, setGraphData] = useState(initialData || { nodes: [], links: [] });
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [hoveredNode, setHoveredNode] = useState<any>(null);
@@ -94,6 +103,10 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
     return () => obs.disconnect();
   }, []);
   useEffect(() => { if (initialData) setGraphData(initialData); }, [initialData]);
+  useEffect(() => {
+    if (!readOnly || selectedNodeId === undefined) return;
+    setSelectedNode(graphData.nodes.find((node: any) => node.id === selectedNodeId) || null);
+  }, [readOnly, selectedNodeId, graphData.nodes]);
   useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
 
   // ── Polling logic for Graph Linking Jobs ─────────────────────────────────────
@@ -173,6 +186,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
 
   // Check active job status on mount so returning users don't double click
   useEffect(() => {
+    if (readOnly) return;
     aiService.getLinkAllStatus(courseId).then((st) => {
       if (st && (st.status === "queued" || st.status === "processing")) {
         setLinkJob("queued");
@@ -180,12 +194,12 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
         startPolling(graphData.links.length, "all");
       }
     }).catch(() => {});
-  }, [courseId, startPolling, graphData.links.length]);
+  }, [courseId, startPolling, graphData.links.length, readOnly]);
 
   // ── Triggers ──────────────────────────────────────────────────────────────────
 
   const handleLinkAll = useCallback(async () => {
-    if (linkJob === "queued") return;
+    if (readOnly || linkJob === "queued") return;
     try {
       setLinkJob("queued");
       setLinkJobType("all");
@@ -201,10 +215,10 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
       setLinkJob("error");
       toast.error("Không thể kích hoạt Liên kết toàn bộ đồ thị.");
     }
-  }, [courseId, graphData.links.length, linkJob, startPolling]);
+  }, [courseId, graphData.links.length, linkJob, startPolling, readOnly]);
 
   const handleLinkIsolated = useCallback(async () => {
-    if (linkJob === "queued") return;
+    if (readOnly || linkJob === "queued") return;
     try {
       setLinkJob("queued");
       setLinkJobType("isolated");
@@ -220,7 +234,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
       setLinkJob("error");
       toast.error("Không thể kích hoạt Liên kết node cô lập.");
     }
-  }, [courseId, graphData.links.length, linkJob, startPolling]);
+  }, [courseId, graphData.links.length, linkJob, startPolling, readOnly]);
 
 
   // ── Node click ───────────────────────────────────────────────────────────────
@@ -238,14 +252,15 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
       }
       return;
     }
-    setSelectedNode(node); setIsLoadingChunks(true); setNodeChunks([]);
+    setSelectedNode(node); onNodeSelect?.(node.id); setIsLoadingChunks(!readOnly); setNodeChunks([]);
     setTimeout(() => { if (graphRef.current) { graphRef.current.centerAt(node.x, node.y, 800); graphRef.current.zoom(3.5, 800); } }, 50);
+    if (readOnly) return;
     try { setNodeChunks((await aiService.getNodeChunks(courseId, node.id)) || []); }
     catch { } finally { setIsLoadingChunks(false); }
-  }, [connectMode, connectSrc, courseId]);
+  }, [connectMode, connectSrc, courseId, readOnly, onNodeSelect]);
 
   const handleDeleteNode = async () => {
-    if (!selectedNode || !confirm(`Xóa node "${selectedNode.name}"?`)) return;
+    if (readOnly || !selectedNode || !confirm(`Xóa node "${selectedNode.name}"?`)) return;
     try {
       await aiService.deleteKnowledgeNode(courseId, selectedNode.id);
       toast.success("Đã xóa node");
@@ -258,7 +273,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   };
 
   const handleDeleteAllNodes = async () => {
-    if (isDeletingAll || graphData.nodes.length === 0) return;
+    if (readOnly || isDeletingAll || graphData.nodes.length === 0) return;
     const confirmed = confirm(
       `Xóa toàn bộ ${graphData.nodes.length} node của khóa học?\n\n` +
       "Tất cả bài giảng sẽ trở về trạng thái chưa index và cần index lại."
@@ -284,7 +299,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   };
 
   const handleLinkClick = useCallback((link: any) => {
-    if (connectMode) return;
+    if (readOnly || connectMode) return;
     const srcId = link.source?.id ?? link.source, tgtId = link.target?.id ?? link.target;
     const srcNode = graphData.nodes.find((n: any) => n.id === srcId);
     const tgtNode = graphData.nodes.find((n: any) => n.id === tgtId);
@@ -292,10 +307,10 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
       sourceNodeName: srcNode?.name ?? `#${srcId}`, targetNodeName: tgtNode?.name ?? `#${tgtId}`,
       relationType: link.type ?? "related", strength: link.strength ?? 0.85,
       bidirectional: false, existingType: link.type });
-  }, [connectMode, graphData.nodes]);
+  }, [connectMode, graphData.nodes, readOnly]);
 
   const handleEdgeSubmit = async () => {
-    if (!edgeModal) return;
+    if (readOnly || !edgeModal) return;
     setEdgeSubmitting(true);
     try {
       if (edgeModal.mode === "edit" && edgeModal.existingType && edgeModal.existingType !== edgeModal.relationType) {
@@ -331,7 +346,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   };
 
   const handleEdgeDelete = async () => {
-    if (!edgeModal || !confirm("Xóa liên kết này?")) return;
+    if (readOnly || !edgeModal || !confirm("Xóa liên kết này?")) return;
     setEdgeSubmitting(true);
     try {
       await aiService.deleteGraphEdge(courseId, { source_node_id: edgeModal.sourceNodeId, target_node_id: edgeModal.targetNodeId, relation_type: edgeModal.relationType });
@@ -359,7 +374,7 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
   return (
     <div className="flex flex-col h-[82vh] w-full gap-0 font-sans">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border border-b-0 border-slate-200 dark:border-slate-800 rounded-t-xl bg-white dark:bg-slate-950">
+      {!readOnly && <div className="flex items-center gap-2 px-4 py-2.5 border border-b-0 border-slate-200 dark:border-slate-800 rounded-t-xl bg-white dark:bg-slate-950">
         {/* Nút Link Tất Cả (Primary Action) */}
         <button
           id="btn-link-all"
@@ -415,11 +430,11 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
           {graphData.nodes.length} nodes · {graphData.links.length} edges
           {connectMode && <span className="ml-2 text-emerald-500 font-medium animate-pulse"> Bấm 2 node để nối</span>}
         </div>
-      </div>
+      </div>}
 
       {/* Graph + panel */}
       <div className="flex flex-1 min-h-0 border border-slate-200 dark:border-slate-800 rounded-b-xl overflow-hidden bg-slate-50 dark:bg-slate-950 shadow-sm relative">
-        <div ref={containerRef} className={`relative h-full overflow-hidden z-0 transition-all duration-300 ${selectedNode ? "w-2/3 border-r border-slate-200 dark:border-slate-800" : "w-full"}`}>
+        <div ref={containerRef} className={`relative h-full overflow-hidden z-0 transition-all duration-300 ${selectedNode ? `${readOnly ? "hidden md:block md:w-2/3" : "w-2/3"} border-r border-slate-200 dark:border-slate-800` : "w-full"}`}>
           <div className="absolute top-4 left-4 z-10 pointer-events-none">
             <Badge variant="outline" className="bg-white/80 dark:bg-slate-900/80 border-blue-200 dark:border-blue-900 text-blue-600 dark:text-blue-400">
               <BrainCircuit size={14} className="mr-2" /> AI Knowledge Network
@@ -445,15 +460,16 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
             <div className="absolute top-4 right-4 z-10 bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 shadow-md backdrop-blur-sm pointer-events-none">
               <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{getRelStyle(hoveredLink.type).labelVi}</p>
               <p className="text-[10px] text-slate-500 mt-0.5">Độ mạnh: {((hoveredLink.strength ?? 0) * 100).toFixed(0)}% · {hoveredLink.auto_generated ? "AI tự tạo" : "Thủ công"}</p>
-              <p className="text-[9px] text-slate-400 italic mt-0.5">Bấm cạnh để chỉnh sửa</p>
+              {!readOnly && <p className="text-[9px] text-slate-400 italic mt-0.5">Bấm cạnh để chỉnh sửa</p>}
             </div>
           )}
           <ForceGraph2D
+            cooldownTicks={readOnly ? 80 : undefined}
             ref={graphRef} width={dims.width} height={dims.height} graphData={graphData}
             nodeId="id" linkSource="source" linkTarget="target"
             linkColor={getLinkColor} linkWidth={getLinkWidth} linkCurvature={0.1}
             linkDirectionalArrowLength={5} linkDirectionalArrowRelPos={0.85} linkDirectionalArrowColor={getLinkColor}
-            linkDirectionalParticles={(l: any) => selectedNode ? (isNeighbor(l) ? 2 : 0) : 1}
+            linkDirectionalParticles={(l: any) => readOnly ? 0 : selectedNode ? (isNeighbor(l) ? 2 : 0) : 1}
             linkDirectionalParticleWidth={1.5} linkDirectionalParticleSpeed={0.005} linkDirectionalParticleColor={getLinkColor}
             onNodeClick={handleNodeClick} onLinkClick={handleLinkClick}
             onBackgroundClick={() => { setSelectedNode(null); if (graphRef.current) graphRef.current.zoomToFit(800, 50); }}
@@ -495,14 +511,14 @@ function KnowledgeGraph({ courseId, initialData }: KnowledgeGraphProps) {
 
         {/* Side panel */}
         {selectedNode && (
-          <div className="w-1/3 min-w-[320px] bg-white dark:bg-slate-900 flex flex-col min-h-0 relative z-30 shadow-2xl overflow-hidden border-l border-slate-200 dark:border-slate-800">
+          <div className={`${readOnly ? "w-full md:w-1/3 md:min-w-[320px]" : "w-1/3 min-w-[320px]"} bg-white dark:bg-slate-900 flex flex-col min-h-0 relative z-30 shadow-2xl overflow-hidden border-l border-slate-200 dark:border-slate-800`}>
             <div className="flex items-start justify-between p-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
               <div>
                 <Badge className="mb-2 bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400 font-medium">VERIFIED CONCEPT</Badge>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 leading-tight">{selectedNode.name}</h3>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button onClick={handleDeleteNode} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                {!readOnly && <button onClick={handleDeleteNode} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 size={18} /></button>}
                 <button onClick={() => { setSelectedNode(null); if (graphRef.current) graphRef.current.zoomToFit(800, 50); }} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"><X size={18} /></button>
               </div>
             </div>
