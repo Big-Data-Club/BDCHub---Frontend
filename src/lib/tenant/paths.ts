@@ -4,8 +4,9 @@ export const tenantRouteRoots = new Set([
   "dashboard", "users", "events", "tasks", "leaderboard", "settings",
   "login", "pending", "register", "confirm-password-change",
 ]);
+const globalAppRoots = new Set(["workspace"]);
 const reservedRoots = new Set([
-  ...tenantRouteRoots, "api", "apiv1", "lmsapiv1", "labapiv1", "chatapiv1",
+  ...tenantRouteRoots, ...globalAppRoots, "workspace-ws", "api", "apiv1", "lmsapiv1", "labapiv1", "chatapiv1",
   "uploads", "files", "_next", "partner", "personalize", "recommender",
   "hpc-summer-school", "hackathon2025", "bdc-hub", "instructions", "forms",
   "recruitment-2026", "bdc-recruitment-2026", "tuyen-thanh-vien-2026",
@@ -35,6 +36,7 @@ export function safeTenantReturnPath(value: string | null | undefined, slug?: st
   if (tenant && tenant.slug !== slug) return fallback;
   const path = tenant?.path || parsed.pathname;
   const root = path.slice(1).split("/")[0];
+  if (!tenant && globalAppRoots.has(root)) return `${path}${parsed.search}${parsed.hash}`;
   if (!tenantRouteRoots.has(root) || ["login", "pending", "register", "confirm-password-change"].includes(root)) return fallback;
   return tenantPath(`${path}${parsed.search}${parsed.hash}`, slug);
 }

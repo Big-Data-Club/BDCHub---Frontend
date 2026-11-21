@@ -1,0 +1,252 @@
+.figure {
+  position: relative;
+  max-width: 100%;
+  margin: 8px 0;
+  min-width: 0;
+}
+.figure[data-align="center"] {
+  margin-inline: auto;
+}
+.figure[data-align="right"] {
+  margin-left: auto;
+}
+.frame {
+  position: relative;
+  border-radius: 5px;
+}
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+.tools {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: calc(100% - 16px);
+  gap: 2px;
+  border: 1px solid #d6dbe2;
+  border-radius: 8px;
+  background: #fffffff5;
+  padding: 3px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  color: #657080;
+  box-shadow: 0 3px 10px #0001;
+}
+.figure:hover .tools,
+.figure:focus-within .tools {
+  opacity: 1;
+  pointer-events: auto;
+}
+.tools button,
+.tools a {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 4px;
+}
+.tools button:hover,
+.tools a:hover {
+  background: #eef1f5;
+  color: #1e293b;
+}
+.caption {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+  text-align: center !important;
+  color: #7d8591;
+  background: transparent;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: none;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+.caption:focus {
+  outline: 1px solid #8ab4f8;
+  background: #f6f8fb;
+}
+.caption::placeholder {
+  color: #9ca3af;
+}
+.empty {
+  display: flex;
+  gap: 10px;
+  padding: 16px;
+  background: #eef1f5;
+  width: 100%;
+  border-radius: 5px;
+  color: #7d8591;
+}
+.resize {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 48px;
+  border: 1px solid #fff;
+  background: #3338;
+  border-radius: 4px;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: none;
+}
+.resize[data-side="-1"] {
+  left: 6px;
+}
+.resize[data-side="1"] {
+  right: 6px;
+}
+.figure:hover .resize,
+.resize:focus-visible {
+  opacity: 1;
+}
+.cropStage {
+  position: relative;
+  overflow: hidden;
+  margin: 10px auto;
+  max-width: 100%;
+  width: fit-content;
+  line-height: 0;
+  background: #101010;
+}
+.cropStage > img {
+  display: block;
+  max-width: 100%;
+  max-height: 55dvh;
+  width: auto;
+  height: auto;
+}
+.cropSelection {
+  position: absolute;
+  border: 1px solid #fff;
+  box-shadow: 0 0 0 100vmax #0008;
+  cursor: move;
+  touch-action: none;
+}
+.cropSelection:after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to right,
+      transparent 33%,
+      #fff3 33%,
+      #fff3 33.2%,
+      transparent 33.2%,
+      transparent 66%,
+      #fff3 66%,
+      #fff3 66.2%,
+      transparent 66.2%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 33%,
+      #fff3 33%,
+      #fff3 33.2%,
+      transparent 33.2%,
+      transparent 66%,
+      #fff3 66%,
+      #fff3 66.2%,
+      transparent 66.2%
+    );
+}
+.cropHandle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border: 1px solid #64748b;
+  border-radius: 2px;
+  touch-action: none;
+  z-index: 1;
+}
+.cropHandle[data-handle="nw"] {
+  left: 0;
+  top: 0;
+  cursor: nwse-resize;
+}
+.cropHandle[data-handle="ne"] {
+  right: 0;
+  top: 0;
+  cursor: nesw-resize;
+}
+.cropHandle[data-handle="sw"] {
+  left: 0;
+  bottom: 0;
+  cursor: nesw-resize;
+}
+.cropHandle[data-handle="se"] {
+  right: 0;
+  bottom: 0;
+  cursor: nwse-resize;
+}
+.cropHandle[data-handle="n"] {
+  left: 49%;
+  top: 0;
+  cursor: ns-resize;
+}
+.cropHandle[data-handle="s"] {
+  left: 49%;
+  bottom: 0;
+  cursor: ns-resize;
+}
+.cropHandle[data-handle="e"] {
+  right: 0;
+  top: 49%;
+  cursor: ew-resize;
+}
+.cropHandle[data-handle="w"] {
+  left: 0;
+  top: 49%;
+  cursor: ew-resize;
+}
+.lightbox {
+  overflow: auto;
+  max-height: 65dvh;
+  background: #0d1018;
+  border-radius: 8px;
+  display: block;
+}
+.lightbox img {
+  display: block;
+  height: auto;
+  margin: auto;
+}
+:global(.dark) .tools {
+  background: #172235f5;
+  border-color: #3a4657;
+  color: #b0bac9;
+}
+:global(.dark) .tools button:hover,
+:global(.dark) .tools a:hover {
+  background: #344154;
+  color: #fff;
+}
+:global(.dark) .caption:focus,
+:global(.dark) .empty {
+  background: #152239;
+  color: #adb7c7;
+}
+@media (hover: none) {
+  .tools {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .resize {
+    opacity: 1;
+  }
+}

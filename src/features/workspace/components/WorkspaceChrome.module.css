@@ -1,0 +1,330 @@
+.interactions
+  :where(
+    button:not([draggable="true"]),
+    a[href],
+    summary,
+    select,
+    [role="menuitem"]
+  ):not(:disabled):not([data-disabled]):not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+.interactions
+  :where(button, input, select, [role="menuitem"]):is(
+    :disabled,
+    [data-disabled],
+    [aria-disabled="true"]
+  ) {
+  cursor: not-allowed;
+}
+.interactions :where(button, a[href], summary, select):focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+}
+.interactions :where(button, a[href], [role="menuitem"]) {
+  transition:
+    background-color var(--duration-fast, 150ms) ease-out,
+    color var(--duration-fast, 150ms) ease-out,
+    border-color var(--duration-fast, 150ms) ease-out,
+    scale var(--duration-fast, 150ms) ease-out;
+}
+
+.shell {
+  position: relative;
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  background: #fff;
+}
+.sidebar {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--workspace-sidebar-width, 280px);
+  min-height: 0;
+}
+.sidebarClip {
+  height: 100%;
+  overflow: clip;
+}
+.sidebarBody {
+  height: 100%;
+  width: var(--workspace-sidebar-width, 280px);
+  border-right: 1px solid #e2e8f0;
+}
+.backdrop {
+  display: none;
+}
+.navigationProgress {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+  background: #3b82f622;
+  animation: workspace-progress-in 120ms ease-out 100ms both;
+}
+.navigationProgress::before {
+  content: "";
+  display: block;
+  height: 100%;
+  background: #3b82f6;
+  width: 40%;
+  animation: workspace-progress-slide 850ms ease-in-out infinite;
+}
+@keyframes workspace-progress-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes workspace-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+.edge {
+  position: absolute;
+  inset: 0 -4px 0 auto;
+  width: 8px;
+  z-index: 35;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  outline: none;
+}
+.edge:before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 3px;
+  width: 2px;
+  transition: background 0.12s;
+}
+.edge:hover:before,
+.edge:focus-visible:before,
+.edge[data-dragging]:before {
+  background: #3b82f6;
+}
+.edgeTip {
+  position: absolute;
+  top: min(240px, 35vh);
+  left: 12px;
+  min-width: 205px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #dce3ef;
+  background: #f8fafc;
+  color: #64748b;
+  box-shadow: 0 5px 16px #17233820;
+  font-size: 11px;
+  line-height: 1.8;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.edge:hover .edgeTip,
+.edge:focus-visible .edgeTip {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0.4s;
+}
+.edge[data-dragging] .edgeTip {
+  visibility: hidden;
+}
+.tabs {
+  display: flex;
+  align-items: stretch;
+  height: 42px;
+  flex-shrink: 0;
+  min-width: 0;
+  border-bottom: 1px solid #dce3ef;
+  background: #f8fafc;
+}
+.tabList {
+  display: flex;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+}
+.tab {
+  display: flex;
+  align-items: center;
+  min-width: 110px;
+  max-width: 220px;
+  border-right: 1px solid #e2e8f0;
+  border-top: 2px solid transparent;
+  color: #64748b;
+  flex-shrink: 0;
+  transition:
+    background-color var(--duration-fast, 150ms) ease-out,
+    border-top-color var(--duration-fast, 150ms) ease-out,
+    color var(--duration-fast, 150ms) ease-out;
+}
+.tab[data-active] {
+  background: #fff;
+  border-top-color: #3b82f6;
+  color: #172338;
+}
+.tab > button[role="tab"] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 12px;
+  text-align: left;
+}
+.tab > button[role="tab"] span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tab > button:last-child {
+  padding: 6px;
+  margin-right: 6px;
+  border-radius: 5px;
+}
+.tab > button:hover {
+  background: #edf2fa;
+}
+.tab > button:active {
+  background: #e0eaff;
+}
+.tabTools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.enter {
+  animation: workspace-enter 160ms ease-out;
+}
+@keyframes workspace-enter {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 1;
+  }
+}
+:global(.dark) .shell {
+  background: #050b18;
+}
+:global(.dark) .sidebarBody,
+:global(.dark) .tabs,
+:global(.dark) .tab {
+  border-color: #21324b;
+}
+:global(.dark) .tabs {
+  background: #070e1c;
+}
+:global(.dark) .tab[data-active] {
+  background: #101e33;
+  border-top-color: #3b82f6;
+  color: #e2e8f0;
+}
+:global(.dark) .tab > button:hover {
+  background: #1a2c48;
+}
+:global(.dark) .tab > button:active {
+  background: #223c61;
+}
+:global(.dark)
+  .interactions
+  :where(button, a[href], summary, select):focus-visible {
+  outline-color: #67e8f9;
+}
+:global(.dark) .edgeTip {
+  background: #101e33;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+@media (min-width: 1024px) {
+  .sidebar {
+    transition: width 180ms var(--ease-out-expo, ease-out);
+  }
+  .sidebar:has(.edge[data-dragging]) {
+    transition: none;
+  }
+  .sidebar[data-collapsed] {
+    width: 0;
+    visibility: hidden;
+    transition:
+      width 180ms var(--ease-out-expo, ease-out),
+      visibility 0s 180ms;
+  }
+  .sidebar[data-collapsed] .edge {
+    visibility: hidden;
+  }
+}
+@media (max-width: 1023px) {
+  .sidebar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 40;
+    width: min(310px, calc(100% - 32px));
+    box-shadow: 8px 0 30px #0002;
+    transform: translateX(-110%);
+    visibility: hidden;
+    transition:
+      transform 190ms var(--ease-out-expo, ease-out),
+      visibility 0s 190ms;
+  }
+  .sidebar[data-mobile] {
+    transform: translateX(0);
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .sidebarBody {
+    width: 100%;
+  }
+  .backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    background: rgb(2 6 23 / 40%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 190ms ease-out,
+      visibility 0s 190ms;
+  }
+  .backdrop[data-open] {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .edge {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .enter,
+  .navigationProgress,
+  .navigationProgress::before {
+    animation: none;
+  }
+  .navigationProgress::before {
+    width: 100%;
+  }
+  .tabList {
+    scroll-behavior: auto;
+  }
+  .sidebar,
+  .sidebar[data-collapsed],
+  .backdrop,
+  .tab,
+  .edge:before {
+    transition: none;
+  }
+}

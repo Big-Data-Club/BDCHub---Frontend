@@ -73,6 +73,43 @@ test("login returns to the same tenant and rejects external or cross-tenant URLs
   }
 });
 
+test("Workspace editor, library and socket routes stay global across tenant navigation and login", () => {
+  for (const value of ["/workspace", "/workspace?page=example", "/workspace/library?tab=all", "/workspace/guide", "/workspace-ws"]) {
+    assert.equal(paths.parseTenantPath(new URL(value, "https://bdc.test").pathname), null);
+    assert.equal(paths.tenantPath(value, "trungtamdientoan"), value);
+  }
+  for (const slug of [undefined, "trungtamdientoan"]) {
+    assert.equal(paths.safeTenantReturnPath("/workspace?page=example", slug), "/workspace?page=example");
+    assert.equal(paths.safeTenantReturnPath("/workspace/library?tab=all#pages", slug), "/workspace/library?tab=all#pages");
+    assert.equal(paths.safeTenantReturnPath("/workspace/../api/auth/signout", slug), paths.tenantPath("/lms", slug));
+    assert.equal(paths.safeTenantReturnPath("/workspace-ws", slug), paths.tenantPath("/lms", slug));
+  }
+});
+
+test("middleware does not rewrite Workspace into a tenant or query organization membership", async () => {
+  const originalFetch = global.fetch;
+  global.fetch = async () => { throw Error("Workspace must not query tenant membership"); };
+  let token = null;
+  const { middleware } = load("src/middleware.ts", id => {
+    if (id === "next-auth/jwt") return { getToken: async () => token };
+    if (id === "@/lib/tenant/paths") return paths;
+    return require(id);
+  });
+  try {
+    for (const signedIn of [false, true]) {
+      token = signedIn ? { accessToken: "test-access", role: "ROLE_USER" } : null;
+      for (const url of ["/workspace?page=example", "/workspace/library", "/workspace/guide", "/workspace-ws"]) {
+        const response = await middleware(new NextRequest(`https://bdc.test${url}`, { headers: { "x-bdc-tenant": "spoofed" } }));
+        assert.equal(response.status, 200);
+        assert.equal(response.headers.get("x-middleware-rewrite"), null);
+        assert.equal(response.headers.get("x-middleware-request-x-bdc-tenant"), null);
+      }
+    }
+    const login = await middleware(new NextRequest("https://bdc.test/login?callbackUrl=%2Fworkspace%2Flibrary%3Ftab%3Dall"));
+    assert.equal(login.headers.get("x-middleware-request-x-bdc-return-to"), "/workspace/library?tab=all");
+  } finally { global.fetch = originalFetch; }
+});
+
 test("middleware enforces membership before rewrites and preserves canonical role checks", async () => {
   let token = null;
   let member = true;

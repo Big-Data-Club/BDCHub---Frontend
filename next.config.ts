@@ -84,6 +84,10 @@ const nextConfig: NextConfig = {
     if (process.env.NODE_ENV === 'production') {
       return [
         {
+          source: '/workspace-ws',
+          destination: `${process.env.WORKSPACE_SERVICE_URL || 'http://workspace-service:8088'}/workspace-ws`,
+        },
+        {
           source: '/files/:path*',
           destination: "/api/files/:path*",
         },
@@ -102,6 +106,10 @@ const nextConfig: NextConfig = {
     const chatDest = isRemote(chatUrl) ? `${chatUrl}/chatapiv1/:path*` : `${chatUrl}/api/v1/:path*`;
 
     return [
+      {
+        source: '/workspace-ws',
+        destination: `${(process.env.WORKSPACE_SERVICE_URL || 'http://localhost:8088')}/workspace-ws`,
+      },
       {
         source: '/apiv1/:path*',
         destination: backendDest, 
