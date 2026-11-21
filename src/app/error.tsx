@@ -21,11 +21,9 @@ export default function GlobalError({ error, reset }: Props) {
         <div className="flex flex-col sm:flex-row items-center gap-3 justify-center">
           <button
             onClick={() => {
-              // cố gắng reset (Next sẽ gọi lại rendering tree)
               try {
                 reset();
               } catch {
-                // fallback: reload trang
                 location.reload();
               }
             }}
