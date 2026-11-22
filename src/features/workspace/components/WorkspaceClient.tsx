@@ -460,7 +460,7 @@ export function WorkspaceClient({
             {page ? (
               <div
                 key={page.id}
-                className={`mx-auto w-full ${chrome.enter} ${page.full_width || page.kind === "database" ? "max-w-none" : "max-w-4xl"}`}
+                className={`mx-auto w-full ${chrome.enter} ${page.full_width || page.kind === "database" ? "max-w-none" : "max-w-5xl"}`}
               >
                 <WorkspacePageHeading
                   page={page}

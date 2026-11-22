@@ -1,3 +1,11 @@
+.typography {
+  --font-display: var(--font-body);
+  font-family: var(--font-body), "Inter", system-ui, sans-serif;
+}
+.typography :where(h1, h2, h3, h4, h5, h6, input, button, select, textarea) {
+  font-family: inherit;
+}
+
 .interactions
   :where(
     button:not([draggable="true"]),

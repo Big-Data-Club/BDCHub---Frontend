@@ -3,7 +3,7 @@
 }
 .editor :global(.bn-editor) {
   background: transparent;
-  padding: 18px 46px 100px;
+  padding: 14px 32px 64px;
   font-family: var(--font-body), sans-serif;
   font-size: 16px;
   line-height: 1.7;
@@ -25,7 +25,7 @@
 }
 @media (max-width: 640px) {
   .editor :global(.bn-editor) {
-    padding: 12px 24px 80px;
+    padding: 12px 24px 48px;
     font-size: 16px;
   }
 }

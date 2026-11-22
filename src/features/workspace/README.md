@@ -73,3 +73,8 @@ The sidebar Library link carries the current editor's page/space/field in an
 internal return destination. Library view changes retain it across reloads.
 Direct/gallery entry resolves the latest accessible visit through the read-only
 catalog, with an existing field/shared page fallback when there are no visits.
+
+Workspace uses the existing Inter body font across its shell, headings and
+controls. The landing header, field cards, page cover, editor gutters and library
+use compact spacing; ordinary documents have a wider content column while the
+existing full-width setting remains available. Code and math retain their own fonts.

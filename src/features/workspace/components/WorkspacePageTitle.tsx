@@ -51,7 +51,7 @@ export function WorkspacePageTitle({
         onKeyDown={(event) => {
           if (event.key === "Enter") event.currentTarget.blur();
         }}
-        className="w-full min-w-0 border-0 bg-transparent text-3xl font-bold tracking-tight outline-none sm:text-4xl"
+        className="w-full min-w-0 border-0 bg-transparent text-2xl font-semibold tracking-tight outline-none sm:text-3xl"
       />
       <WorkspaceErrorBanner
         message={error}

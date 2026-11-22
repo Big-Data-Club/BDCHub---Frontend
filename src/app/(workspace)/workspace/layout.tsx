@@ -13,7 +13,9 @@ export default async function WorkspaceLayout({
   const session = await getServerSession(authOptions);
   if (!session?.user || session.error) redirect("/login");
   return (
-    <div className="flex h-dvh min-h-0 flex-col bg-white text-slate-900 dark:bg-lms-bg dark:text-slate-100">
+    <div
+      className={`${chrome.typography} flex h-dvh min-h-0 flex-col bg-white text-slate-900 dark:bg-lms-bg dark:text-slate-100`}
+    >
       <div className="shrink-0 md:hidden">
         <MobileNav />
       </div>

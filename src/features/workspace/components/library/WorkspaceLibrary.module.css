@@ -13,7 +13,7 @@
 .content {
   width: 100%;
   max-width: 1800px;
-  padding: 34px clamp(24px, 4.4vw, 88px) 50px;
+  padding: 24px clamp(20px, 3vw, 48px) 32px;
   margin: auto;
 }
 .back {
@@ -36,10 +36,10 @@
   margin-bottom: 26px;
 }
 .header h1 {
-  font-size: 34px;
+  font-size: 30px;
   line-height: 1.2;
   letter-spacing: -1px;
-  font-weight: 720;
+  font-weight: 650;
   margin: 0;
 }
 .header p {
