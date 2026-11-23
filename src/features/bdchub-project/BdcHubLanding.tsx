@@ -14,6 +14,7 @@ import { BrandMark } from "@/components/layout/BrandMark";
 import { AmbientEffects } from "@/components/common/ambient/AmbientEffects";
 import { AmbientStars } from "@/components/common/ambient/AmbientStars";
 import { BdcHubDemo } from "./BdcHubDemo";
+import { PlatformOverview } from "./PlatformOverview";
 import styles from "./bdchub.module.css";
 
 const features = [
@@ -64,11 +65,11 @@ export function BdcHubLanding() {
             <ChevronLeft size={16} /> BDC CLUB
           </Link>
           <a href="#overview" className={styles.brand}>
-            <BrandMark size={38} />{" "}
-            BDC<span>Hub.</span>
+            <BrandMark size={38} /> BDC<span>Hub.</span>
           </a>
           <nav className={styles.navLinks} aria-label="Nội dung dự án">
             <a href="#experience">Trải nghiệm</a>
+            <a href="#platform">Nền tảng</a>
             <a href="#workflow">Cách hoạt động</a>
           </nav>
           <ThemeToggle size={18} />
@@ -170,6 +171,7 @@ export function BdcHubLanding() {
           ))}
         </div>
       </section>
+      <PlatformOverview />
       <section
         id="workflow"
         className={`${styles.container} ${styles.section}`}

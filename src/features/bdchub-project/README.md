@@ -27,6 +27,27 @@ read-only animation has bounded physics ticks and no perpetual particles.
 Student and chat chunks load on first selection and retain state until reset.
 No dependencies were added.
 
+`PlatformOverview` is a server-rendered, conceptual architecture overview, with
+an original SVG schematic and local SVG logos. It groups product capabilities,
+not individual network routes or deployment guarantees. PostgreSQL, Redis,
+Qdrant/Neo4j and Kafka labels follow the repository's Compose/configuration;
+availability depends on the deployed environment. It adds no client state,
+diagram engine, remote fonts or runtime icon CDN requests.
+Small screens scroll the diagram within a keyboard-focusable region to preserve
+readable labels. Browser checks at 1440/768/390px verify no text/text or text/icon
+overlap and no horizontal page overflow.
+
+Design references:
+
+- [Developer Icons](https://github.com/xandemon/developer-icons): selected SVGs
+  under `public/projects/bdchub/tech/`; MIT notice retained alongside assets.
+- [Diagram Design](https://github.com/cathrynlavery/diagram-design): architecture
+  skill used for tier grouping, visual hierarchy and restrained connectors,
+  adapted to the existing BDC Hub palette, fonts and responsive components.
+- [ByteByteGo blueprint](https://bytebytego.com/guides/system-design-blueprint-the-ultimate-guide/):
+  reference for separating APIs, caches, storage and background queues. No
+  ByteByteGo illustration is copied or bundled.
+
 Run against a local Next server:
 
 ```sh

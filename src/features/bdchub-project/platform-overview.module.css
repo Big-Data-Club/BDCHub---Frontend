@@ -1,0 +1,73 @@
+.overview {
+  scroll-margin-top: 100px;
+}
+.diagram {
+  margin: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.caption {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 16px;
+}
+.stackHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+.stackHeader h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.stackHeader a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--blue);
+  font-size: 14px;
+}
+.stackHeader a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.stack {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 0;
+  margin: 16px 0 0;
+}
+.stack li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.iconTile {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #d1dce2;
+}
+@media (max-width: 600px) {
+  .diagram {
+    padding: 12px;
+  }
+  .stack {
+    gap: 12px;
+  }
+  .stack li {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,86 @@
+.viewport {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border-radius: 8px;
+}
+.canvas {
+  display: block;
+  width: 100%;
+  min-width: 880px;
+  height: auto;
+  font-family: var(--font-body), Arial, sans-serif;
+}
+.experienceZone {
+  fill: color-mix(in srgb, var(--blue) 5%, var(--surface));
+  stroke: color-mix(in srgb, var(--blue) 38%, var(--line));
+}
+.serviceZone {
+  fill: color-mix(in srgb, #3699d8 8%, var(--surface));
+  stroke: color-mix(in srgb, #3699d8 50%, var(--line));
+}
+.dataZone {
+  fill: color-mix(in srgb, #aa82cc 8%, var(--surface));
+  stroke: color-mix(in srgb, #aa82cc 50%, var(--line));
+}
+.workerZone {
+  fill: color-mix(in srgb, #59ab79 8%, var(--surface));
+  stroke: color-mix(in srgb, #59ab79 50%, var(--line));
+}
+.zoneLabel {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 1.4px;
+}
+.nodeTitle {
+  fill: var(--ink);
+  font-size: 19px;
+  font-weight: 650;
+  text-anchor: middle;
+}
+.detail {
+  fill: var(--muted);
+  font-size: 13px;
+  text-anchor: middle;
+}
+.small {
+  fill: var(--muted);
+  font-size: 12px;
+  text-anchor: middle;
+}
+.illustration {
+  color: var(--blue);
+}
+.frontend {
+  fill: var(--surface);
+  stroke: var(--blue);
+  stroke-width: 1.5px;
+}
+.serverBody {
+  fill: #244a70;
+  stroke: #183853;
+  stroke-width: 1.5px;
+}
+.serverSlot {
+  fill: #5691c0;
+}
+.database {
+  fill: color-mix(in srgb, #aa82cc 24%, var(--surface));
+  stroke: var(--muted);
+  stroke-width: 1.5px;
+}
+.flow {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 2px;
+}
+.asyncFlow {
+  stroke: #559f73;
+  stroke-dasharray: 6 5;
+}
+.arrowLabel {
+  fill: var(--muted);
+  font-size: 12px;
+  text-anchor: middle;
+}
