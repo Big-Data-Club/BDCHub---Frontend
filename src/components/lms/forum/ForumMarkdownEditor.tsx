@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 
 interface ForumMarkdownEditorProps {
@@ -28,12 +28,11 @@ export function ForumMarkdownEditor({
   compact = false,
 }: ForumMarkdownEditorProps) {
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const insertMarkdown = useCallback(
     (prefix: string, suffix: string = "") => {
-      const textarea = document.querySelector(
-        "[data-forum-editor]"
-      ) as HTMLTextAreaElement;
+      const textarea = textareaRef.current;
       if (!textarea) return;
 
       const start = textarea.selectionStart;
@@ -142,6 +141,7 @@ export function ForumMarkdownEditor({
       {/* Content */}
       {activeTab === "write" ? (
         <textarea
+          ref={textareaRef}
           data-forum-editor
           value={value}
           onChange={(e) => onChange(e.target.value)}

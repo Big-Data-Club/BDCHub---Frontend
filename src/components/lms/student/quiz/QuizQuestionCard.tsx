@@ -1,4 +1,5 @@
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import { ForumMarkdownEditor } from "@/components/lms/forum/ForumMarkdownEditor";
 import FillBlankTextStudent from "@/components/lms/student/FillBlankTextStudent";
 import FillBlankDropdownStudent from "@/components/lms/student/FillBlankDropdownStudent";
 import FileUploadQuestion from "@/components/lms/student/FileUploadQuestion";
@@ -199,17 +200,17 @@ export function QuizQuestionCard({
         )}
 
         {question.question_type === "ESSAY" && (
-          <textarea
+          <ForumMarkdownEditor
+            key={question.id}
             value={answer?.answer_text || ""}
-            onChange={(e) =>
+            onChange={(value) =>
               onAnswerChange(question.id, {
-                answer_text: e.target.value,
+                answer_text: value,
                 type: "essay",
               })
             }
-            className="w-full px-4 py-3 border border-slate-300 dark:border-blue-500/20 rounded-xl bg-slate-50 dark:bg-[#0D192E] text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-cyan-400/20 focus:border-blue-500 dark:focus:border-cyan-400/50 transition-all"
             rows={8}
-            placeholder="Nhập bài luận của bạn..."
+            placeholder="Nhập bài luận của bạn... (Hỗ trợ Markdown, code và công thức toán)"
           />
         )}
 

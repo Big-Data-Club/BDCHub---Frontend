@@ -6,6 +6,7 @@ import quizService from "@/services/lms/quizService";
 import { BreadcrumbNav } from "@/components/lms/shared/BreadcrumbNav";
 import { useQuizCourse } from "@/hooks/lms/student/useQuizCourse";
 import { Select } from "@/components/lms/shared";
+import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import {
   ArrowLeft, CheckCircle, FileText,
   User, Calendar, Award, MessageSquare,
@@ -283,7 +284,7 @@ export default function TeacherGradingPage() {
               {/* Question */}
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">Câu hỏi</p>
-                <p className="text-sm font-medium text-slate-900 dark:text-slate-50">{answer.question_text}</p>
+                <MarkdownRenderer content={answer.question_text} className="min-w-0 text-sm" />
               </div>
 
               {/* Student answer */}
@@ -355,7 +356,7 @@ export default function TeacherGradingPage() {
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-1.5 uppercase tracking-wide">
                           <MessageSquare className="w-3.5 h-3.5" /> Nhận xét đã lưu
                         </p>
-                        <p className="text-sm text-slate-700 dark:text-slate-300">{answer.feedback}</p>
+                        <MarkdownRenderer content={answer.feedback} className="min-w-0 text-sm" />
                       </div>
                     )}
                   </div>
@@ -374,8 +375,9 @@ export default function TeacherGradingPage() {
 function renderAnswerContent(answerData: any) {
   if (!answerData) return <p className="text-sm text-slate-400 italic">Không có dữ liệu</p>;
 
-  if (answerData.answer_text) {
-    return <p className="text-sm text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-medium">{answerData.answer_text}</p>;
+  const answerText = answerData.answer_text || answerData.text;
+  if (typeof answerText === "string" && answerText) {
+    return <MarkdownRenderer content={answerText} className="min-w-0 text-sm" />;
   }
 
   if (answerData.file_name) {

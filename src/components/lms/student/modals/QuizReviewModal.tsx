@@ -536,9 +536,7 @@ export default function QuizReviewPage({
             Bài làm của bạn
           </p>
           {essayText ? (
-            <p className="text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed text-sm">
-              {essayText}
-            </p>
+            <MarkdownRenderer content={essayText} className="min-w-0 text-sm" />
           ) : (
             <p className="text-slate-400 dark:text-slate-600 italic text-sm">
               Chưa trả lời
@@ -1155,9 +1153,7 @@ export default function QuizReviewPage({
                               <MessageSquare className="w-3.5 h-3.5" />
                               Giải thích
                             </p>
-                            <p className="text-amber-900 dark:text-amber-200 text-sm leading-relaxed">
-                              {question.explanation}
-                            </p>
+                            <MarkdownRenderer content={question.explanation} className="min-w-0 text-sm" />
                           </div>
                         )}
 
@@ -1213,9 +1209,7 @@ function TeacherFeedback({ text }: { text: string }) {
         <MessageSquare className="w-3.5 h-3.5" />
         Nhận xét của giáo viên
       </p>
-      <p className="text-blue-900 dark:text-blue-200 text-sm leading-relaxed whitespace-pre-wrap">
-        {text}
-      </p>
+      <MarkdownRenderer content={text} className="min-w-0 text-sm" />
     </div>
   );
 }

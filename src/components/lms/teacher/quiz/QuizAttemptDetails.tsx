@@ -119,26 +119,26 @@ export function QuizAttemptDetails({
                   <span className="font-medium text-green-700 dark:text-green-400">
                     Đáp án đúng:{" "}
                   </span>
-                  {q.answer_options
+                  <MarkdownRenderer content={q.answer_options
                     .filter((o) => o.is_correct)
                     .map((o) => o.option_text)
-                    .join(" · ")}
+                    .join("\n\n")} />
                 </div>
               )}
               {q.correct_answers.length > 0 && (
-                <p className="mt-3 text-sm">
+                <div className="mt-3 text-sm">
                   Đáp án chấp nhận:{" "}
-                  {q.correct_answers
+                  <MarkdownRenderer content={q.correct_answers
                     .map((a) => a.answer_text)
                     .filter(Boolean)
-                    .join(" · ")}
-                </p>
+                    .join("\n\n")} />
+                </div>
               )}
               {answer?.grader_feedback && (
-                <p className="mt-3 text-sm">
+                <div className="mt-3 text-sm">
                   <span className="font-medium">Nhận xét: </span>
-                  {answer.grader_feedback}
-                </p>
+                  <MarkdownRenderer content={answer.grader_feedback} />
+                </div>
               )}
             </article>
           );
