@@ -69,7 +69,10 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
 
   // ─── Select content (navigate to learn page) ─────────────────────────────
 
-  const handleSelectContent = useCallback((c: Content) => {
+  const handleSelectContent = useCallback((c: Content, automatic = false) => {
+    // Shared layouts also mount on quiz results/history and statistics. A late
+    // bootstrap response must never replace those routes with the first lesson.
+    if (automatic && pathname !== `${basePath}/learn`) return;
     setActiveContent(c);
     setSidebarOpen(false);
     const target = `${basePath}/learn?contentId=${c.id}${noticeRevision ? `&notice=${encodeURIComponent(noticeRevision)}` : ""}`;
@@ -99,7 +102,7 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
     if (sectionContentsRef.current[sectionId]) {
       if (autoSelect && activeContentRef.current?.section_id !== sectionId) {
         const first = sectionContentsRef.current[sectionId][0];
-        if (first) handleSelectContentRef.current(first);
+        if (first) handleSelectContentRef.current(first, true);
       }
       return;
     }
@@ -110,7 +113,7 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
       const items: Content[] = res?.data ?? [];
       setSectionContents(prev => ({ ...prev, [sectionId]: items }));
       if (autoSelect && activeContentRef.current?.section_id !== sectionId && items.length > 0) {
-        handleSelectContentRef.current(items[0]);
+        handleSelectContentRef.current(items[0], true);
       }
     } finally {
       if (generation === contentLoadGeneration.current) setLoadingSection(prev => ({ ...prev, [sectionId]: false }));
@@ -221,7 +224,7 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
   const linkedContentId = Number(searchParams.get("contentId")) || null;
   const linkedSectionId = Number(searchParams.get("sectionId")) || null;
   useEffect(() => {
-    if (loadingPage || courseArchived) return;
+    if (loadingPage || courseArchived || pathname !== `${basePath}/learn`) return;
     let cancelled = false;
     if (linkedContentId && linkedContentId !== activeContentRef.current?.id) {
       void lmsService.getContent(linkedContentId).then(response => {
@@ -233,10 +236,18 @@ export function StudentCourseProviders({ children }: { children: React.ReactNode
       }).catch(() => undefined);
     } else if (!linkedContentId && linkedSectionId && sections.some(section => section.id === linkedSectionId)) {
       setExpanded(prev => new Set([...prev, linkedSectionId]));
-      void loadSectionContentsInner(linkedSectionId, true);
+      if (!loadingSection[linkedSectionId]) void loadSectionContentsInner(linkedSectionId, true);
+    } else if (!linkedContentId && !activeContentRef.current && sections.length > 0) {
+      // Entering /learn from a sibling page must still initialize the lesson.
+      // Wait for an existing section request rather than starting a duplicate.
+      const firstSection = sections[0];
+      if (!loadingSection[firstSection.id]) {
+        setExpanded(prev => new Set([...prev, firstSection.id]));
+        void loadSectionContentsInner(firstSection.id, true);
+      }
     }
     return () => { cancelled = true; };
-  }, [linkedContentId, linkedSectionId, sections, loadingPage, courseArchived, loadSectionContentsInner]);
+  }, [linkedContentId, linkedSectionId, sections, loadingPage, courseArchived, loadSectionContentsInner, pathname, basePath, loadingSection]);
 
   const { setPageContext, clearPageContext } = useSetPageContext();
 
