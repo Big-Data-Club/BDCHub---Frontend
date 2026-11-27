@@ -2,6 +2,21 @@ import { lmsApiClient } from "./lmsApiClient";
 import type { BankItem, BankStats } from "@/types/lms/questionBank";
 
 class QuizService {
+  async getQuizIndex(quizId: number, offset = 0, signal?: AbortSignal) {
+    return (await lmsApiClient.get(`/quizzes/${quizId}/index`, { params: { offset }, signal })).data.data as import("@/types/lms/quizIndex").QuizIndexState;
+  }
+  async queueQuizIndex(quizId: number, force = false) {
+    return (await lmsApiClient.post(`/quizzes/${quizId}/index`, {force})).data.data;
+  }
+  async searchQuizIndex(quizId: number, query: string) {
+    return (await lmsApiClient.post(`/quizzes/${quizId}/index/search`, { query }, {timeout:45000})).data.data as {items: import("@/types/lms/quizIndex").QuizIndexMatch[]};
+  }
+  async suggestQuizNode(quizId: number, question_id: number, source_hash: string) {
+    return (await lmsApiClient.post(`/quizzes/${quizId}/index/suggest`, { question_id, source_hash }, {timeout:90000})).data.data as {name: string; description: string};
+  }
+  async linkQuizNode(quizId: number, body: import("@/types/lms/quizIndex").QuizNodeLink) {
+    return (await lmsApiClient.post(`/quizzes/${quizId}/index/link`, body, {timeout:90000})).data.data;
+  }
   async getQuizResults(quizId: number, params?: { attempt_page?: number; student_page?: number; search?: string }) {
     return (await lmsApiClient.get(`/quizzes/${quizId}/results`, { params })).data.data as import("@/types/lms/quizResults").QuizResults;
   }

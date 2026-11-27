@@ -18,6 +18,8 @@ import { useParams, useRouter } from "@/lib/tenant/navigation";
 import { useQuizResults } from "@/hooks/lms/teacher/useQuizResults";
 import { LoadingState } from "@/components/common/LoadingState";
 import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import { QuizKnowledgePanel } from "./QuizKnowledgePanel";
+import { QuizScoreDistribution } from "./QuizNodeStatistics";
 
 const QuizResultCharts = dynamic(
   () => import("./QuizResultCharts").then((m) => m.QuizResultCharts),
@@ -283,6 +285,12 @@ export function QuizResultsDashboard() {
               ))}
             </section>
           )}
+          <QuizKnowledgePanel
+            key={quizId}
+            quizId={quizId}
+            nodes={report.nodes ?? []}
+            onLinked={() => void state.reload()}
+          />
           <section className={panel}>
             <h2 className="mb-4 text-lg font-semibold">
               Phân tích từng câu hỏi
@@ -319,6 +327,16 @@ export function QuizResultsDashboard() {
                             q.question_type}
                         </span>
                         <MarkdownRenderer content={q.question_text} />
+                        {q.score_distribution && (
+                          <details className="mt-3">
+                            <summary className="cursor-pointer text-xs font-medium">
+                              Phân bố điểm câu này
+                            </summary>
+                            <div className="mt-2">
+                              <QuizScoreDistribution counts={q.score_distribution} />
+                            </div>
+                          </details>
+                        )}
                         {q.answer_options.length > 0 && (
                           <details className="mt-3">
                             <summary className="cursor-pointer text-xs font-medium text-blue-700 dark:text-cyan-400">

@@ -15,6 +15,8 @@ export interface QuizResultAttempt {
   focus_summary: { departures: number; away_seconds: number } | null;
 }
 export interface QuizResultQuestion {
+  node_id?: number | null;
+  score_distribution?: number[];
   id: number;
   question_text: string;
   question_type: string;
@@ -35,6 +37,7 @@ export interface QuizResultQuestion {
   average_seconds: number | null;
 }
 export interface QuizResults {
+  nodes?: import("./quizIndex").QuizNodeStatistics[];
   summary: QuizResultsSummary;
   students: QuizResultStudent[];
   distribution: { bucket: number; count: number }[];
