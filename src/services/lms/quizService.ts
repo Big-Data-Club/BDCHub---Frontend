@@ -15,7 +15,7 @@ class QuizService {
     return (await lmsApiClient.post(`/quizzes/${quizId}/index/suggest`, { question_id, source_hash }, {timeout:90000})).data.data as {name: string; description: string};
   }
   async linkQuizNode(quizId: number, body: import("@/types/lms/quizIndex").QuizNodeLink) {
-    return (await lmsApiClient.post(`/quizzes/${quizId}/index/link`, body, {timeout:90000})).data.data;
+    return (await lmsApiClient.post(`/quizzes/${quizId}/index/link`, body, {timeout:90000})).data.data as { node_id: number; name: string };
   }
   async getQuizResults(quizId: number, params?: { attempt_page?: number; student_page?: number; search?: string }) {
     return (await lmsApiClient.get(`/quizzes/${quizId}/results`, { params })).data.data as import("@/types/lms/quizResults").QuizResults;

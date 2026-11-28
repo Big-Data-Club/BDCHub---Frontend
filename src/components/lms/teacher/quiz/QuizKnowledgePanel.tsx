@@ -38,6 +38,8 @@ export function QuizKnowledgePanel({
   } | null>(null);
   const active =
     state.index && ["pending", "processing"].includes(state.index.status);
+  const hasReview =
+    state.index?.status === "ready" || (state.index?.items.length ?? 0) > 0;
   return (
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-blue-500/10 dark:bg-[#0F1E35]">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -49,6 +51,7 @@ export function QuizKnowledgePanel({
         </div>
         <div className="flex gap-2">
           <button
+            type="button"
             className={button}
             disabled={state.busy || !!active}
             onClick={() => void state.queue()}
@@ -56,6 +59,7 @@ export function QuizKnowledgePanel({
             Index quiz
           </button>
           <button
+            type="button"
             className={button}
             disabled={state.busy}
             onClick={state.reload}
@@ -73,7 +77,7 @@ export function QuizKnowledgePanel({
           {state.error}
         </p>
       )}
-      {state.index?.status === "ready" && (
+      {hasReview && state.index && (
         <>
           <form
             className="flex gap-2"
@@ -83,6 +87,7 @@ export function QuizKnowledgePanel({
             }}
           >
             <input
+              disabled={state.index.status !== "ready"}
               className={field}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -92,7 +97,9 @@ export function QuizKnowledgePanel({
             />
             <button
               className={`${button} shrink-0`}
-              disabled={state.busy || !query.trim()}
+              disabled={
+                state.busy || !query.trim() || state.index.status !== "ready"
+              }
             >
               Tìm kiếm
             </button>
@@ -124,7 +131,7 @@ export function QuizKnowledgePanel({
               {state.index.items.map((item) => (
                 <li
                   key={item.question_id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-slate-50 p-3 text-sm dark:bg-[#0D192E]"
+                  className="flex min-h-16 flex-wrap items-center justify-between gap-3 rounded-lg bg-slate-50 p-3 text-sm dark:bg-[#0D192E]"
                 >
                   <span>
                     Câu #{item.question_id} ·{" "}
@@ -139,6 +146,7 @@ export function QuizKnowledgePanel({
                     <div className="flex gap-2">
                       {item.suggested_node_id && (
                         <button
+                          type="button"
                           className={button}
                           disabled={state.busy}
                           onClick={() =>
@@ -157,8 +165,9 @@ export function QuizKnowledgePanel({
                         </button>
                       )}
                       <button
+                        type="button"
                         className={button}
-                        disabled={state.busy}
+                        disabled={state.busy || state.index?.status !== "ready"}
                         onClick={() =>
                           void state
                             .suggest(item.question_id, item.source_hash)
@@ -176,8 +185,11 @@ export function QuizKnowledgePanel({
             </ul>
             <div className="mt-3 flex items-center gap-3 text-sm">
               <button
+                type="button"
                 className={button}
-                disabled={!state.offset || state.busy}
+                disabled={
+                  !state.offset || state.busy || state.index.status !== "ready"
+                }
                 onClick={() => state.setOffset(Math.max(0, state.offset - 100))}
               >
                 Trước
@@ -188,8 +200,13 @@ export function QuizKnowledgePanel({
                 {state.index.total}
               </span>
               <button
+                type="button"
                 className={button}
-                disabled={state.offset + 100 >= state.index.total || state.busy}
+                disabled={
+                  state.offset + 100 >= state.index.total ||
+                  state.busy ||
+                  state.index.status !== "ready"
+                }
                 onClick={() => state.setOffset(state.offset + 100)}
               >
                 Sau
