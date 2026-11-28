@@ -6,13 +6,14 @@
  * Layout: full-height flex column with scrollable message area + input bar.
  * Works as a self-contained component that can be embedded in any page.
  */
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback, useMemo, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "@/lib/tenant/navigation";
 import { MessageSquare, Sidebar, Cpu, ArrowDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useAgentChat } from "@/hooks/lms/agent/useAgentChat";
 import { usePageContext } from "@/hooks/common/usePageContext";
+import { mentorQuestions } from "@/features/workspace/utils/mentorNote";
 import { AgentMessageItem } from "./AgentMessageItem";
 import { AgentInputBar } from "./AgentInputBar";
 import {
@@ -220,6 +221,7 @@ export function AgentChatPanel({
   }, [messages, scrollToBottom]);
 
   const isEmpty = messages.length === 0;
+  const questions = useMemo(() => mentorQuestions(messages), [messages]);
 
   const handleActionApprove = useCallback((request: HITLRequestData) => {
     // Navigation is the only generic action today. Keep it local and allow
@@ -377,6 +379,7 @@ export function AgentChatPanel({
                   <AgentMessageItem
                     key={msg.id}
                     message={msg}
+                    question={questions.get(msg.id)}
                     sessionId={sessionId}
                     onClarificationSelect={handleClarificationSelect}
                     onActionApprove={handleActionApprove}

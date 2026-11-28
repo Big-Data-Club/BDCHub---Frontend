@@ -1,4 +1,10 @@
-export type LibraryTab = "recent" | "favorites" | "shared" | "private" | "all";
+export type LibraryTab =
+  | "recent"
+  | "favorites"
+  | "shared"
+  | "private"
+  | "unfiled"
+  | "all";
 export type LibraryColumn =
   | "title"
   | "creator"

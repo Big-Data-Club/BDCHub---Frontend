@@ -12,11 +12,14 @@ import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
 import { ActionApprovalCard } from "./ActionApprovalCard";
 import { AgentDecisionDetails } from "./AgentDecisionDetails";
 import { saveNotebookEntry, notifyNotebookChanged, sendFeedback } from "@/services/ai/agentService";
-import { SaveToWorkspaceButton } from '@/features/workspace/components/SaveToWorkspaceButton';
+import { SaveToWorkspaceButton } from "@/features/workspace/components/SaveToWorkspaceButton";
+import { mentorNoteSources, mentorNoteTitle } from "@/features/workspace/utils/mentorNote";
+import { lmsService } from "@/services/lms/lmsService";
 import { usePageContext } from "@/hooks/common/usePageContext";
 
 interface AgentMessageItemProps {
   message: AgentMessage;
+  question?: string;
   /** Hide persistence and feedback actions in public, local previews. */
   readOnly?: boolean;
   onClarificationSelect?: (option: string) => void;
@@ -31,6 +34,7 @@ interface AgentMessageItemProps {
 
 export const AgentMessageItem = memo(function AgentMessageItem({
   message,
+  question,
   onClarificationSelect,
   isSelectedForLogs = false,
   onSelectForLogs,
@@ -236,7 +240,19 @@ export const AgentMessageItem = memo(function AgentMessageItem({
         {!readOnly && !isUser && message.content && !message.isStreaming && (
           <div className="flex flex-wrap items-center justify-between gap-2 ml-1 pt-1.5 mt-1.5">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <SaveToWorkspaceButton title="Ghi chú từ AI Mentor" markdown={message.content} />
+              <SaveToWorkspaceButton
+                title={mentorNoteTitle(question, message.content)}
+                markdown={message.content}
+                sourceCount={Math.min(citedReferences.length, 30)}
+                resolveSources={() => mentorNoteSources(citedReferences, async (contentId) => {
+                  const { data: content } = await lmsService.getContent(contentId);
+                  if (!content?.section_id) return;
+                  const result = await lmsService.getSection(content.section_id);
+                  const courseId = (result?.data ?? result)?.course_id;
+                  if (Number.isSafeInteger(courseId) && courseId > 0)
+                    return `/lms/student/courses/${courseId}/learn?contentId=${contentId}`;
+                })}
+              />
               <button
                 type="button"
                 onClick={handleCopyContent}

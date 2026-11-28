@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, Copy, Cpu, Key, Loader2, Plus, ShieldCheck, Trash2 } from "lucide-react";
 
 type Client = "Claude Code" | "Codex" | "OpenCode";
+type KeyArea = "lms" | "workspace";
 interface McpKeyItem {
   id: number;
   name: string;
@@ -16,19 +17,22 @@ interface McpKeyItem {
 
 const ENDPOINT = "https://bdc.hpcc.vn/mcp";
 
-function clientConfig(client: Client, key: string): string {
+function clientConfig(client: Client, key: string, endpoint: string, area: KeyArea): string {
+  const serverName = area === "workspace" ? "bdc-workspace" : "bdc-hub";
+  const codexName = serverName.replaceAll("-", "_");
+  const tokenName = area === "workspace" ? "BDC_WORKSPACE_MCP_TOKEN" : "BDC_MCP_TOKEN";
   if (client === "Claude Code") {
-    return `claude mcp add --transport http bdc-hub ${ENDPOINT} \\\n+  --header "Authorization: Bearer ${key}"`;
+    return `claude mcp add --transport http ${serverName} ${endpoint} --header "Authorization: Bearer ${key}"`;
   }
   if (client === "Codex") {
-    return `export BDC_MCP_TOKEN='${key}'\n\n# ~/.codex/config.toml\n[mcp_servers.bdc_hub]\nurl = "${ENDPOINT}"\nbearer_token_env_var = "BDC_MCP_TOKEN"\ndefault_tools_approval_mode = "writes"`;
+    return `export ${tokenName}='${key}'\n# PowerShell: $env:${tokenName} = '${key}'\n\n# ~/.codex/config.toml\n[mcp_servers.${codexName}]\nurl = "${endpoint}"\nbearer_token_env_var = "${tokenName}"\ndefault_tools_approval_mode = "writes"`;
   }
   return JSON.stringify({
     $schema: "https://opencode.ai/config.json",
     mcp: {
-      "bdc-hub": {
+      [serverName]: {
         type: "remote",
-        url: ENDPOINT,
+        url: endpoint,
         enabled: true,
         headers: { Authorization: `Bearer ${key}` },
       },
@@ -43,7 +47,10 @@ export default function McpApiKeyTab() {
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState("");
   const [writeAccess, setWriteAccess] = useState(false);
-  const [rawKey, setRawKey] = useState<string | null>(null);
+  const [area, setArea] = useState<KeyArea>("lms");
+  const [workspaceAvailable, setWorkspaceAvailable] = useState(false);
+  const [issued, setIssued] = useState<{ key: string; endpoint: string; area: KeyArea } | null>(null);
+  const rawKey = issued?.key;
   const [client, setClient] = useState<Client>("Claude Code");
   const [copied, setCopied] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -55,6 +62,7 @@ export default function McpApiKeyTab() {
       if (!response.ok) throw new Error();
       const data = await response.json();
       setKeys(data.keys ?? []);
+      setWorkspaceAvailable(data.workspace_available === true);
     } catch {
       setMessage({ type: "error", text: "Không thể tải danh sách MCP API key." });
     } finally {
@@ -63,7 +71,7 @@ export default function McpApiKeyTab() {
   }, []);
 
   useEffect(() => { void fetchKeys(); }, [fetchKeys]);
-  const config = useMemo(() => rawKey ? clientConfig(client, rawKey) : "", [client, rawKey]);
+  const config = useMemo(() => issued ? clientConfig(client, issued.key, issued.endpoint, issued.area) : "", [client, issued]);
 
   async function copy(value: string, id: string) {
     await navigator.clipboard.writeText(value);
@@ -76,12 +84,18 @@ export default function McpApiKeyTab() {
     setCreating(true);
     setMessage(null);
     try {
+      if (area === "workspace") {
+        const workspace = await fetch("/api/workspace/bootstrap", { cache: "no-store" });
+        if (!workspace.ok) throw new Error("Khởi tạo Không gian cá nhân thất bại. Hãy mở Workspace và thử lại.");
+      }
+      const readScope = area === "workspace" ? "workspace:read" : "read";
+      const writeScope = area === "workspace" ? "workspace:create" : "write";
       const response = await fetch("/api/ai/mcp/keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim() || "External AI client",
-          scopes: writeAccess ? ["read", "write"] : ["read"],
+          scopes: writeAccess ? [readScope, writeScope] : [readScope],
           expires_in_days: 90,
         }),
       });
@@ -90,9 +104,10 @@ export default function McpApiKeyTab() {
         throw new Error(errorBody.detail || errorBody.error || "Không thể tạo API key.");
       }
       const data = await response.json();
-      setRawKey(data.api_key);
+      setIssued({ key: data.api_key, endpoint: data.server_url ?? ENDPOINT, area });
       setName("");
       setWriteAccess(false);
+      setArea("lms");
       setShowCreate(false);
       await fetchKeys();
       setMessage({ type: "success", text: "Đã tạo key. Hãy lưu ngay vì key chỉ hiển thị một lần." });
@@ -115,7 +130,7 @@ export default function McpApiKeyTab() {
   }
 
   function closeRawKey() {
-    setRawKey(null);
+    setIssued(null);
     setCopied(null);
   }
 
@@ -156,6 +171,11 @@ export default function McpApiKeyTab() {
           </div>
           <div className="flex flex-wrap gap-2">{(["Claude Code", "Codex", "OpenCode"] as Client[]).map(item => <button key={item} onClick={() => setClient(item)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${client === item ? "bg-indigo-600 text-white" : "bg-white text-slate-600 dark:bg-slate-800 dark:text-slate-300"}`}>{item}</button>)}</div>
           <div className="relative"><pre className="overflow-x-auto rounded-xl bg-slate-950 p-4 pr-12 text-xs text-indigo-200">{config}</pre><button onClick={() => void copy(config, "config")} className="absolute right-2 top-2 rounded-lg bg-slate-800 p-2 text-slate-200" aria-label="Copy configuration">{copied === "config" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}</button></div>
+          {issued?.area === "workspace" && (
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Ví dụ yêu cầu agent đọc một link, soạn ghi chú tiếng Việt và lưu vào Không gian cá nhân trên BDC.
+            </p>
+          )}
           <button onClick={closeRawKey} className="w-full rounded-xl border border-emerald-300 py-2 text-sm font-semibold text-emerald-800 dark:border-emerald-500/30 dark:text-emerald-300">Tôi đã lưu key, đóng lại</button>
         </section>
       )}
@@ -182,7 +202,19 @@ export default function McpApiKeyTab() {
           <form onSubmit={createKey} className="w-full max-w-md space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
             <h4 className="text-lg font-bold">Tạo MCP API key</h4>
             <label className="block text-sm font-medium">Tên thiết bị / ứng dụng<input value={name} onChange={event => setName(event.target.value)} maxLength={100} required placeholder="Codex trên MacBook" className="mt-1.5 w-full rounded-xl border border-slate-300 bg-transparent px-3 py-2 outline-none focus:border-indigo-500 dark:border-slate-700" /></label>
-            <label className="flex items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700"><input type="checkbox" checked={writeAccess} onChange={event => setWriteAccess(event.target.checked)} className="mt-1" /><span><span className="block text-sm font-semibold">Cho phép thao tác ghi</span><span className="text-xs text-slate-500">Bỏ chọn nếu chỉ cần hỏi và tìm tài liệu. Key tự hết hạn sau 90 ngày.</span></span></label>
+            {workspaceAvailable && (
+              <label className="block text-sm font-medium">
+                Phạm vi kết nối
+                <select value={area} onChange={event => {
+                  setArea(event.target.value === "workspace" ? "workspace" : "lms");
+                  setWriteAccess(false);
+                }} className="mt-1.5 w-full rounded-xl border border-slate-300 bg-transparent px-3 py-2 dark:border-slate-700">
+                  <option value="lms">LMS</option>
+                  <option value="workspace">Workspace cá nhân</option>
+                </select>
+              </label>
+            )}
+            <label className="flex items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700"><input type="checkbox" checked={writeAccess} onChange={event => setWriteAccess(event.target.checked)} className="mt-1" /><span><span className="block text-sm font-semibold">{area === "workspace" ? "Cho phép tạo trang mới" : "Cho phép thao tác ghi"}</span><span className="text-xs text-slate-500">{area === "workspace" ? "Khóa chỉ đọc cho agent xem nơi lưu. Khóa hết hạn sau 90 ngày." : "Bỏ chọn nếu chỉ cần hỏi và tìm tài liệu. Key tự hết hạn sau 90 ngày."}</span></span></label>
             <div className="flex justify-end gap-3"><button type="button" onClick={() => setShowCreate(false)} className="rounded-xl border px-4 py-2 text-sm">Hủy</button><button disabled={creating} className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{creating && <Loader2 className="h-4 w-4 animate-spin" />} Tạo key</button></div>
           </form>
         </div>

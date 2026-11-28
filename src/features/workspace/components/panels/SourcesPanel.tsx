@@ -36,14 +36,18 @@ export function SourcesPanel({
           key={`${source.url}:${index}`}
           className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 dark:border-lms-border"
         >
-          <a
-            className="min-w-0 flex-1 break-words text-blue-600 dark:text-cyan-400"
-            href={source.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {source.label}
-          </a>
+          {source.url ? (
+            <a
+              className="min-w-0 flex-1 break-words text-blue-600 dark:text-cyan-400"
+              href={source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {source.label}
+            </a>
+          ) : (
+            <span className="min-w-0 flex-1 break-words">{source.label}</span>
+          )}
           {access >= 3 && (
             <WorkspaceButton
               aria-label="Bỏ nguồn"
