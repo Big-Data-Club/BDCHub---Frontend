@@ -1,5 +1,5 @@
 "use client";
-import { Clock3, Files, LockKeyhole, Star, Users } from "lucide-react";
+import { Clock3, Files, Inbox, LockKeyhole, Star, Users } from "lucide-react";
 import { libraryTabs } from "../../utils/library";
 import type { LibraryTab } from "../../types/library";
 import styles from "./WorkspaceLibrary.module.css";
@@ -8,6 +8,7 @@ const icons = {
   favorites: Star,
   shared: Users,
   private: LockKeyhole,
+  unfiled: Inbox,
   all: Files,
 };
 export function LibraryTabs({

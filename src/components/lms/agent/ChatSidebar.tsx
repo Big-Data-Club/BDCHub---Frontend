@@ -8,7 +8,7 @@ import { parseTenantPath } from "@/lib/tenant/paths";
  * the AI engine full awareness of what the user is viewing.
  * Reuses AgentMessageBubble and AgentInputBar for consistency.
  */
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback, useMemo, useState } from "react";
 import {
   X,
   Sparkles,
@@ -23,6 +23,7 @@ import { useRouter } from "@/lib/tenant/navigation";
 import { cn } from "@/lib/utils";
 import { useAgentChat } from "@/hooks/lms/agent/useAgentChat";
 import { usePageContext } from "@/hooks/common/usePageContext";
+import { mentorQuestions } from "@/features/workspace/utils/mentorNote";
 import { AgentMessageItem } from "./AgentMessageItem";
 import { AgentInputBar } from "./AgentInputBar";
 import { ConversationSidebar } from "./ConversationSidebar";
@@ -93,6 +94,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const isEmpty = messages.length === 0;
+  const questions = useMemo(() => mentorQuestions(messages), [messages]);
 
   // Auto-scroll on new messages
   useEffect(() => {
@@ -335,6 +337,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
                   <AgentMessageItem
                     key={msg.id}
                     message={msg}
+                    question={questions.get(msg.id)}
                     sessionId={sessionId}
                     onClarificationSelect={(option) => sendMessage(option)}
                     onActionApprove={handleActionApprove}

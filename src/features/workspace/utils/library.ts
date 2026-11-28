@@ -11,6 +11,7 @@ export const libraryTabs: { id: LibraryTab; label: string }[] = [
   { id: "favorites", label: "Yêu thích" },
   { id: "shared", label: "Được chia sẻ" },
   { id: "private", label: "Riêng tư" },
+  { id: "unfiled", label: "Chưa xếp lĩnh vực" },
   { id: "all", label: "Tất cả" },
 ];
 export const libraryColumns: { id: LibraryColumn; label: string }[] = [

@@ -85,14 +85,18 @@ function LibraryContent({ bootstrap }: { bootstrap: WorkspaceBootstrap }) {
                     ? "Những trang bạn mở sẽ ở đây"
                     : model.tab === "favorites"
                       ? "Giữ những trang quan trọng ở gần"
-                      : "Thư viện còn trống"}
+                      : model.tab === "unfiled"
+                        ? "Không có ghi chú chờ sắp xếp"
+                        : "Thư viện còn trống"}
               </h2>
               <p>
                 {model.query || model.preferences.filters.length
                   ? "Thử tên khác hoặc điều chỉnh bộ lọc để tìm trang bạn cần."
                   : model.tab === "favorites"
                     ? "Đánh dấu ngôi sao bên cạnh tên trang để thêm vào Yêu thích."
-                    : "Mở các trang hiện có hoặc tạo một trang mới để bắt đầu."}
+                    : model.tab === "unfiled"
+                      ? "Các ghi chú cá nhân chưa thuộc lĩnh vực sẽ xuất hiện ở đây."
+                      : "Mở các trang hiện có hoặc tạo một trang mới để bắt đầu."}
               </p>
               <div>
                 {model.query || model.preferences.filters.length ? (
